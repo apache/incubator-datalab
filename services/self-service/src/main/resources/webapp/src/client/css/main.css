@@ -1,0 +1,91 @@
+/******************************************************************************************************
+
+Copyright (c) 2016 EPAM Systems Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*****************************************************************************************************/
+
+@import 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800';
+
+html,
+body {
+  height: 100%;
+}
+
+button {
+  font-family: 'Open Sans', sans-serif;
+}
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+}
+.primary_color {
+  color: #337ab7;
+}
+.success_color {
+  color: #5cb85c;
+}
+.info_color {
+  color: #5bc0de;
+}
+.warning_color {
+  color: #f0ad4e;
+}
+.danger_color {
+  color: #d9534f;
+}
+.btn {
+  font-size: 16px;
+}
+
+.sub_nav .btn {
+  background: none;
+  border: 1px solid #333;
+  font-weight: 600;
+  padding: 6px 25px;
+  min-width: 165px;
+  margin-bottom: 12px;
+}
+.sub_nav .btn .glyphicon {
+  margin-right: 4px;
+}
+.sub_nav .btn_create {
+  border-color: #35afd5;
+  color: #35afd5;
+}
+
+.modal .btn {
+  margin-top: 20px;
+}
+.modal .modal-footer .btn {
+  margin-top: 0;
+}
+
+.loader {
+  border: 3px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 3px solid #31b0d5;
+  width: 18px;
+  height: 18px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+  position: relative;
+  top: 28px;
+  margin-right: 15px;
+  float: right;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

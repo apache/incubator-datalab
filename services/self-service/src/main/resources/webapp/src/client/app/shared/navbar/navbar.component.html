@@ -1,0 +1,44 @@
+<!------------------------------------------------------------------------------------------------------------
+
+Copyright (c) 2016 EPAM Systems Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+------------------------------------------------------------------------------------------------------------->
+
+<!-- <nav>
+  <a [routerLink]="['/']" [routerLinkActive]="['router-link-active']" [routerLinkActiveOptions]="{exact:true}">HOME</a>
+  <a [routerLink]="['/login']" [routerLinkActive]="['router-link-active']" [routerLinkActiveOptions]="{exact:true}">LOGIN</a>
+</nav> -->
+
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+        <li><a href="#">Action</a></li>
+        <li><a href="#">Another action</a></li>
+        <li><a href="#">Something else here</a></li>
+        <li><a href="#">Separated link</a></li>
+      </ul>
+      <a class="navbar-logo" href="#">
+        <img src="assets/img/logo-nav.png" alt="">
+      </a>
+    </div>
+    <button class="btn btn-logout" (click)="logout_btnClick()">
+      Log out
+      <span class="user-name">{{currentUserName}}</span>
+    </button>
+  </div>
+</nav>

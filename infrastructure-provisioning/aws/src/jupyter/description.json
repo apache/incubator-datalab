@@ -1,0 +1,8 @@
+{
+  "template_name": "Jupyter 1.5",
+  "description": "Base image with jupyter node creation routines",
+  "environment_type": "exploratory",
+  "templates":[
+    {"version":"jupyter-1.6"}
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "language": "scala",
+  "display_name": "Apache Toree - Scala (SPARK_VERSION) [CLUSTER]",
+  "env": {
+    "__TOREE_SPARK_OPTS__": "--master=yarn --driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info",
+    "SPARK_HOME": "SPARK_PATH",
+    "__TOREE_OPTS__": "",
+    "DEFAULT_INTERPRETER": "Scala",
+    "PYTHONPATH": "SPARK_PATHpython:PY4J",
+    "PYTHON_EXEC": "python",
+    "CAPTURE_STANDARD_OUT": "true",
+    "CAPTURE_STANDARD_ERR": "true",
+    "HADOOP_CONF_DIR" : "/srv/hadoopconf/config/CLUSTER",
+    "YARN_CONF_DIR": "/srv/hadoopconf/config/CLUSTER"
+  },
+  "argv": [
+    "/usr/local/share/jupyter/kernels/apache_toree_scala/bin/run.sh",
+    "--profile",
+    "{connection_file}"
+  ],
+  "codemirror_mode": "scala"
+}

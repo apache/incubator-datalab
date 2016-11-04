@@ -1,0 +1,95 @@
+/******************************************************************************************************
+
+Copyright (c) 2016 EPAM Systems Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*****************************************************************************************************/
+
+/*:host {
+  border-color: #e1e1e1;
+  border-style: solid;
+  border-width: 0 0 1px;
+  display: block;
+  height: 48px;
+  padding: 0 16px;
+}
+
+nav a {
+  color: #8f8f8f;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 48px;
+  margin-right: 20px;
+  text-decoration: none;
+  vertical-align: middle;
+}
+
+nav a.router-link-active {
+  color: #106cc8;
+}*/
+
+
+sd-navbar {
+  display: block;
+  position: relative;
+  z-index: 3;
+  background: #fff;
+}
+
+.navbar-toggle {
+  display: block;
+  float: none;
+  display: inline-block;
+}
+.dropdown-menu {
+  margin-left: 15px;
+}
+
+.navbar-logo {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0;
+  margin-top: -7px;
+}
+.navbar-logo img {
+  width: 65px;
+}
+.btn-logout {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 0;
+  background: #383838;
+  border: 0;
+  color: #cfdae6;
+  padding: 0px 28px;
+}
+.btn-logout:hover {
+  color: #cfdae6;
+}
+.navbar {
+  border-radius: 0;
+}
+.navbar {
+  min-height: 48px;
+  margin-bottom: 12px;
+}
+.navbar .navbar-toggle {
+  border: 0;
+  padding: 8px;
+  margin-left: -9px;
+  margin-right: 10px;
+}
+.navbar .btn-logout {
+  margin-top: 0;
+}
+
+.user-name {
+  color: #36afd5;
+}

@@ -1,0 +1,4 @@
+{
+  "template_name": "DLab AWS Base",
+  "description": "Base image with aws tools"
+}

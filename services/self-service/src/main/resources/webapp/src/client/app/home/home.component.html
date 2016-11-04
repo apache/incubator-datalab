@@ -1,0 +1,109 @@
+<!------------------------------------------------------------------------------------------------------------
+
+Copyright (c) 2016 EPAM Systems Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+------------------------------------------------------------------------------------------------------------->
+
+<sd-navbar></sd-navbar>
+
+<div class="sub_nav">
+  <div class="container-fluid">
+    <button class="btn btn_create" [disabled]="userUploadAccessKeyState == 202" (click)="createNotebook_btnClick()">
+      <span class="glyphicon glyphicon glyphicon-plus" ></span> Create new
+    </button>
+    <button class="btn btn_refresh pull-right" (click)="refreshGrid()">
+      <span class="glyphicon glyphicon-refresh"></span> Refresh
+    </button>
+    <span *ngIf="userUploadAccessKeyState == 500" class="alert alert-danger">Error happened during user access key upload. Please try to reupload the key.</span>
+  </div>
+</div>
+
+<ng-grid [emrTempls]="emrTempls" [shapes]="shapes"></ng-grid>
+
+<modal #createAnalyticalModal modalClass="modal-lg">
+  <modal-header>
+    <h4 class="modal-title" id="myModalLabel">Create analytical tool</h4>
+  </modal-header>
+  <modal-content>
+  <form (submit)="createUsernotebook($event ,createTmpl_tmplIndex.value, createTmpl_name, createTmpl_shape)">
+    <div class="form-group row">
+      <div  class="col-xs-4">
+        <label class="control-label">Select template</label>
+        <div>
+          <small>Template discription .. </small>
+        </div>
+      </div>
+      <div class="col-xs-8">
+        <select class="form-control" #createTmpl_tmplIndex>
+          <option *ngFor="let template of createTempls; let i = index" value="{{i}}">
+            {{template.template_name}}
+          </option>
+        </select>
+        <div class="hidden" >
+          <input type="hidden" #createTmpl_image>
+        </div>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div  class="col-xs-4">
+        <label class="control-label">Name</label>
+      </div>
+      <div class="col-xs-8">
+        <input [class.danger_field]="notebookExist" type="text" class="form-control" placeholder="Enter Name" required #createTmpl_name>
+        <span class="danger_color" *ngIf="notebookExist">This name already exist.</span>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div  class="col-xs-4">
+        <label class="control-label">Instance shape</label>
+      </div>
+      <div class="col-xs-8">
+        <select class="form-control" #createTmpl_shape>
+          <option *ngFor="let shape of shapes">{{shape.Type}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="text-right">
+      <button type="button" class="btn btn-default" (click)="createAnalyticalModal.close()">Cancel</button>
+      <button type="submit" class="btn btn-success">Create</button>
+    </div>
+  </form>
+  </modal-content>
+</modal>
+
+<modal #keyUploadModal modalClass="modal-sm" [hideCloseButton]="false" [closeOnEscape]="false" [closeOnOutsideClick]="false">
+  <modal-header>
+    <h4 class="modal-title">Create initial infrastructure</h4>
+  </modal-header>
+  <modal-content>
+    <form (submit)="uploadUserAccessKey_btnClick($event)" novalidate>
+      <div class="form-group row">
+        <div  class="col-xs-7">
+          <label class="control-label">Upload public key to start environment creation</label>
+          <div>
+            <small><span class="glyphicon glyphicon-question-sign" ></span> Where can I get public key?</small>
+          </div>
+        </div>
+        <div class="col-xs-5 text-right">
+          <span class="btn btn-default btn-file">
+            <span class="upload-icon" ></span> Upload
+            <input (change)="uploadUserAccessKey_onChange($event)" type="file" name="file" accept=".pub" />
+          </span>
+          <div class="text-right" [class.danger_color]="!uploadAccessUserKeyFormValid">{{uploadAccessKeyLabel}}</div>
+        </div>
+      </div>
+      <div class="text-right">
+        <button type="button" class="btn btn-default" (click)="keyUploadModal.close()">Cancel</button>
+        <button [disabled]="!uploadAccessUserKeyFormValid" type="submit" class="btn btn-success">Create</button>
+      </div>
+    </form>
+  </modal-content>
+</modal>
+
+<progress-dialog #preloaderModal [configs]="progressDialogConfig"></progress-dialog>

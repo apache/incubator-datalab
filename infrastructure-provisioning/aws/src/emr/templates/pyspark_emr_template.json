@@ -1,0 +1,20 @@
+{
+ "argv": [
+  "/usr/bin/pythonPY_VER",
+  "-m",
+  "ipykernel",
+  "-f",
+  "{connection_file}"
+ ],
+ "language": "python",
+ "display_name": "PySpark (Python-PY_VER / SPARK_VERSION ) [CLUSTER]",
+ "env": {
+  "HADOOP_CONF_DIR" : "/srv/hadoopconf/config/CLUSTER",
+  "YARN_CONF_DIR": "/srv/hadoopconf/config/CLUSTER",
+  "PYSPARK_PYTHON": "pythonPY_VER",
+  "SPARK_HOME": "SPARK_PATH",
+  "PYTHONPATH": "PY4J:SPARK_PATHpython/:",
+  "PYTHONSTARTUP": "SPARK_PATHpython/pyspark/shell.py",
+  "PYSPARK_SUBMIT_ARGS": "--master yarn pyspark-shell"
+ }
+}

@@ -1,0 +1,11 @@
+{
+  "template_name": "DLab AWS EMR",
+  "description": "Image for EMR provisioning",
+  "environment_type": "computational",
+  "templates":[
+    {"version":"emr-4.3.0"},
+    {"version":"emr-4.6.0"},
+    {"version":"emr-4.8.0"},
+    {"version":"emr-5.0.0"}
+  ]
+}

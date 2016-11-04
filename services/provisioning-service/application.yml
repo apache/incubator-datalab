@@ -1,0 +1,39 @@
+keyDirectory: /home/ubuntu/keys
+responseDirectory: /tmp/dlab
+warmupPollTimeout: 10s
+keyLoaderPollTimeout: 20m
+adminKey:
+edgeImage: docker.epmc-bdcc.projects.epam.com/dlab-aws-edge
+fileLengthCheckDelay: 500ms
+
+notebookImage: docker.epmc-bdcc.projects.epam.com/dlab-aws-jupyter
+
+emrImage: docker.epmc-bdcc.projects.epam.com/dlab-aws-emr
+emrEC2RoleDefault: EMR_EC2_DefaultRole
+emrServiceRoleDefault: EMR_DefaultRole
+
+selfService:
+  protocol: http
+  host: localhost
+  port: 8080
+  jerseyClient:
+    timeout: 3s
+    connectionTimeout: 3s
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 8084
+  adminConnectors:
+    - type: http
+      port: 8085
+
+logging:
+  level: INFO
+  loggers:
+    com.epam: DEBUG
+  appenders:
+#    - type: console
+    - type: file
+      currentLogFilename: /tmp/dlab/log/provisioning.log
+      archivedLogFilenamePattern: /tmp/dlab/log/provisioning-%d.log

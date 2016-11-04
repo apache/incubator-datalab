@@ -1,0 +1,9 @@
+#idea stuff
+*.iml
+.idea
+target
+
+#eclipse stuff
+.classpath
+.project
+.settings

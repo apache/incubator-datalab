@@ -1,0 +1,105 @@
+/******************************************************************************************************
+
+Copyright (c) 2016 EPAM Systems Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*****************************************************************************************************/
+
+.dashboard_table {
+  width: 100%;
+}
+
+.dashboard_table .th_status {
+  width: 16%;
+}
+.dashboard_table .th_shape {
+  width: 17%;
+}
+.dashboard_table .th_resources {
+  width: 32%;
+}
+.dashboard_table .th_actions {
+  width: 8%;
+}
+.dashboard_table tr td {
+  font-size: 14px;
+  padding: 26px 14px;
+}
+.dashboard_table tr td,
+.dashboard_table tr th {
+  border-right: 1px solid #d5dfea;
+  border-bottom: 1px solid #d5dfea;
+}
+.dashboard_table tr td:last-child {
+  text-align: center;
+}
+.dashboard_table tr td:first-child {
+  background: #f3fbfd;
+  color: #455c74;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+}
+.dashboard_table tr:nth-child(2n+1){
+  background: #f9fafb;
+}
+.dashboard_table tr:nth-child(2n+1) td:first-child {
+  background: #edf6f9;
+}
+.dashboard_table th {
+  background: #a1b7d1;
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 11px 15px;
+  font-size: 12px;
+}
+.dashboard_table .running {
+  color: #49af38;
+}
+.dashboard_table .stopped {
+  color: #f7b500;
+}
+.dashboard_table .creating {
+  color: #35AFD5;
+}
+.dashboard_table .glyphicon-cog {
+  font-size: 16px;
+}
+.dashboard_table .glyphicon {
+  cursor: pointer;
+}
+.dashboard_table .dropdown-menu {
+  left: auto;
+  margin-left: 0;
+  right: 15px;
+  padding: 5px 15px;
+}
+.dropdown .disabled {
+  color: #d2d2d2;
+  cursor: not-allowed;
+}
+.dashboard_table .dropdown-menu li {
+  font-size: 14px;
+  border-bottom: 1px solid #edf1f5;
+  padding: 12px 15px;
+  cursor: pointer;
+  margin: 0 -15px
+}
+.dashboard_table .dropdown-menu li:hover {
+  background: #f9f9f9;
+}
+.dashboard_table .dropdown-menu li:last-child {
+  border-bottom: 0;
+}
+.dashboard_table .dropdown-menu ul {
+  margin-bottom: 0;
+}
+.message_block td {
+  text-align: left !important;
+}

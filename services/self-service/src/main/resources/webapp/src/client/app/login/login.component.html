@@ -1,0 +1,40 @@
+<!------------------------------------------------------------------------------------------------------------
+
+Copyright (c) 2016 EPAM Systems Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----------------------------------------------------------------------------------------------------------- -->
+
+<div class="login_page">
+  <div class="content">
+    <a href="#" class="logo">
+      <img src="assets/img/logo.png" alt="">
+    </a>
+    <form name="form" class="form_wrap" #f="ngForm" novalidate>
+      <div class="input-group">
+        <span class="input-group-addon" id="sizing-addon2">
+            <span class="login-icon icon-username"></span>
+        </span>
+        <input type="text" class="form-control" name="username" [(ngModel)]="model.username" (pattern)="userPattern" #username="ngModel" required placeholder="Username" />
+      </div>
+      <div class="input-group">
+          <span class="input-group-addon" id="sizing-addon2">
+            <span class="login-icon icon-password"></span>
+          </span>
+          <input type="password" class="form-control" placeholder="Password" name="password" [(ngModel)]="model.password" #password="ngModel" required />
+      </div>
+      <div class="form-group">
+        <div *ngIf="error" class="alert alert-danger">{{error}}</div>
+      </div>
+      <div class="form-group">
+        <button [disabled]="loading || !username.valid || !password.valid" (click)="login_btnClick();" class="btn btn-info pull-right">Login</button>
+        <div *ngIf="loading" class="loader"></div>
+      </div>
+  </form>
+  </div>
+</div>

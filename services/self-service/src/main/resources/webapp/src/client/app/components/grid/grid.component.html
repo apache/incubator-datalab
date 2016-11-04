@@ -1,0 +1,119 @@
+<!------------------------------------------------------------------------------------------------------------
+
+Copyright (c) 2016 EPAM Systems Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+----------------------------------------------------------------------------------------------------------- -->
+
+<table class="dashboard_table">
+  <tr>
+    <th class="th_name">Environment name</th>
+    <th class="th_status">Status</th>
+    <th class="th_shape">Shape</th>
+    <th class="th_resources">Computational resources</th>
+    <th class="th_actions">Actions</th>
+  </tr>
+
+  <tr *ngIf="(!environments) || (environments.length == 0)" class="message_block">
+    <td colspan="5">To start working, please, create new environment</td>
+  </tr>
+
+  <tr *ngFor="let env of environments">
+    <td (click)="printDetailEnvironmentModal(env)">{{env.name}}</td>
+    <td class="{{env.status.toLowerCase()}}">{{env.status}}</td>
+    <td>{{env.shape}}</td>
+    <td>
+      <expanded-grid [resources]="env.resources" [environment]="env"></expanded-grid>
+    </td>
+    <td>
+      <div class="dropdown">
+        <span data-toggle="dropdown"
+              class="glyphicon glyphicon-cog"
+              [ngClass]="{'disabled': env.status.toLowerCase() == 'creating'}">
+        </span>
+        <div class="dropdown-menu">
+          <ul class="list-unstyled">
+            <li (click)="mathAction(env, 'stop')" *ngIf="env.status.toLowerCase() != 'stopped'">Stop</li>
+            <li (click)="mathAction(env, 'run')" *ngIf="env.status.toLowerCase() == 'stopped'">Run</li>
+            <li (click)="mathAction(env, 'terminate')">Terminate</li>
+            <li (click)="mathAction(env, 'deploy')">Deploy EMR</li>
+          </ul>
+        </div>
+      </div>
+    </td>
+  </tr>
+</table>
+
+<modal #createEmrModal modalClass="modal-lg">
+  <modal-header>
+    <h4 class="modal-title">Create computational resource</h4>
+  </modal-header>
+  <modal-content>
+    <form #createEmrForm="ngForm" novalidate>
+      <div class="form-group row">
+        <div  class="col-xs-4">
+          <label class="control-label">Select template</label>
+          <div>
+            <small>Template description .. <br/>EMR 5.0 Spark 2.0</small>
+          </div>
+        </div>
+        <div class="col-xs-8">
+          <select class="form-control" #tmplIndex>
+            <option *ngFor="let template of emrTempls; let i = index" value="{{i}}">
+              {{template.template_name}}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div  class="col-xs-4">
+          <label class="control-label">Cluster Alias</label>
+        </div>
+        <div class="col-xs-8">
+            <input type="text" class="form-control" id="name" (pattern)="namePattern" name="cluster_alias" [(ngModel)]="model.name" #name="ngModel" />
+        </div>
+      </div>
+      <div class="form-group row">
+        <div  class="col-xs-4">
+          <label class="control-label">Master Instance shape</label>
+        </div>
+        <div class="col-xs-8">
+          <select class="form-control" #shape_master>
+            <option *ngFor="let shape of shapes">{{shape.Type}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div  class="col-xs-4">
+          <label class="control-label">Total Instance number</label>
+        </div>
+        <div class="col-xs-8">
+          <input type="number" class="form-control" [(ngModel)]="model.count" min="1" max="999" name="node_count" #count="ngModel" required/>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div  class="col-xs-4">
+          <label class="control-label">Slave Instance shape</label>
+        </div>
+        <div class="col-xs-8">
+          <select class="form-control" #shape_slave>
+            <option *ngFor="let shape of shapes">{{shape.Type}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="text-right">
+        <button type="button" (click)="createEmrModal.close()" class="btn btn-default">Cancel</button>
+        <button type="submit" [disabled]="!count.valid || !name.valid"  (click)="createEmr(name.value, count.value, shape_master.value, shape_slave.value, tmplIndex.value)" class="btn btn-success">Create</button>
+      </div>
+    </form>
+  </modal-content>
+</modal>
+
+<confirmation-dialog #confirmationDialog (buildGrid)="buildGrid($event)"></confirmation-dialog>
+
+<detail-dialog #detailDialog></detail-dialog>
