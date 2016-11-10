@@ -114,9 +114,9 @@ if __name__ == "__main__":
         logging.error('MongoDB configuration script has failed.')
         sys.exit(1)
 
-    print "Starting Self-Service(UI)"
-    if not start_ss():
-        logging.error('Failed to start UI')
-        sys.exit(1)
+    # print "Starting Self-Service(UI)"
+    # if not start_ss():
+    #     logging.error('Failed to start UI')
+    #     sys.exit(1)
 
     sys.exit(0)
