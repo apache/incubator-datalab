@@ -1,15 +1,22 @@
 #!/usr/bin/python
-# ******************************************************************************************************
+
+# *****************************************************************************
 #
-# Copyright (c) 2016 EPAM Systems Inc.
+# Copyright (c) 2016, EPAM SYSTEMS INC
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including # without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject # to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH # # THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
-# ****************************************************************************************************/
+# ******************************************************************************
 
 
 import json
@@ -41,7 +48,7 @@ def status():
     try:
         logging.info('[COLLECT DATA]')
         print '[COLLECTING DATA]'
-        params = "--hostname '{}' --keyfile '{}' --base_name '{}' --username '{}'".format(instance_hostname, keyfile_name, edge_conf['service_base_name'], edge_conf['user_name'])
+        params = "--hostname '{}' --keyfile '{}' --service_base_name '{}' --user_name '{}' --request_id {}".format(instance_hostname, keyfile_name, edge_conf['service_base_name'], edge_conf['user_name'], os.environ['request_id'])
         if not run_routine('collect_data', params):
             logging.info('Failed collecting data')
             with open("/root/result.json", 'w') as result:
@@ -67,10 +74,10 @@ def run():
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['key_name'] = os.environ['creds_key_name']
     edge_conf['user_keyname'] = os.environ['edge_user_name']
-    edge_conf['policy_arn'] = os.environ['conf_policy_arn']
     edge_conf['public_subnet_id'] = os.environ['creds_subnet_id']
+    # edge_conf['private_subnet_cidr'] = os.environ['edge_subnet_cidr']
     edge_conf['vpc_id'] = os.environ['edge_vpc_id']
-    edge_conf['region'] = os.environ['creds_region']
+    edge_conf['region'] = os.environ['edge_region']
     edge_conf['ami_id'] = os.environ['edge_ami_id']
     edge_conf['instance_size'] = os.environ['edge_instance_size']
     edge_conf['sg_ids'] = os.environ['creds_security_groups_ids']
@@ -79,6 +86,7 @@ def run():
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
     edge_conf['bucket_name'] = (edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
+    edge_conf['ssn_bucket_name'] = (edge_conf['service_base_name'] + "-ssn-bucket").lower().replace('_', '-')
     edge_conf['role_name'] = edge_conf['instance_name'] + '-Role'
     edge_conf['role_profile_name'] = edge_conf['instance_name'] + '-Profile'
     edge_conf['policy_name'] = edge_conf['instance_name'] + '-Policy'
@@ -93,7 +101,6 @@ def run():
     edge_conf['notebook_role_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb-Role'
     edge_conf['notebook_policy_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb-Policy'
     edge_conf['notebook_role_profile_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb-Profile'
-    edge_conf['notebook_policy_arn'] = os.environ['edge_notebook_policy_arn']
     edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb-SG'
     edge_conf['notebook_security_group_rules'] = [{"IpProtocol": "-1",
                                                    "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
@@ -132,9 +139,9 @@ def run():
     try:
         logging.info('[CREATE EDGE ROLES]')
         print '[CREATE EDGE ROLES]'
-        params = "--role_name %s --role_profile_name %s --policy_name %s --policy_arn %s" % \
+        params = "--role_name %s --role_profile_name %s --policy_name %s" % \
                  (edge_conf['role_name'], edge_conf['role_profile_name'],
-                  edge_conf['policy_name'], edge_conf['policy_arn'])
+                  edge_conf['policy_name'])
         if not run_routine('create_role_policy', params):
             logging.info('Failed creating roles')
             with open("/root/result.json", 'w') as result:
@@ -148,9 +155,9 @@ def run():
     try:
         logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
         print '[CREATE BACKEND (NOTEBOOK) ROLES]'
-        params = "--role_name %s --role_profile_name %s --policy_name %s --policy_arn %s" % \
+        params = "--role_name %s --role_profile_name %s --policy_name %s" % \
                  (edge_conf['notebook_role_name'], edge_conf['notebook_role_profile_name'],
-                  edge_conf['notebook_policy_name'], edge_conf['notebook_policy_arn'])
+                  edge_conf['notebook_policy_name'])
         if not run_routine('create_role_policy', params):
             logging.info('Failed creating roles')
             with open("/root/result.json", 'w') as result:
@@ -254,6 +261,26 @@ def run():
         sys.exit(1)
 
     try:
+        logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
+        print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
+        params = '--bucket_name {} --ssn_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {}'.format(
+            edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], os.environ['edge_user_name'], edge_conf['role_name'], edge_conf['notebook_role_name'],  edge_conf['service_base_name'])
+        if not run_routine('create_policy', params):
+            logging.info('Failed creating bucket policy')
+            with open("/root/result.json", 'w') as result:
+                res = {"error": "Failed to create bucket policy", "conf": edge_conf}
+                print json.dumps(res)
+                result.write(json.dumps(res))
+            sys.exit(1)
+    except:
+        remove_role('edge', os.environ['edge_user_name'])
+        remove_role('notebook', os.environ['edge_user_name'])
+        remove_sgroups(edge_conf['notebook_instance_name'])
+        remove_sgroups(edge_conf['instance_name'])
+        remove_s3('edge', os.environ['edge_user_name'])
+        sys.exit(1)
+
+    try:
         logging.info('[CREATE EDGE INSTANCE]')
         print '[CREATE EDGE INSTANCE]'
         params = "--node_name %s --ami_id %s --instance_type %s --key_name %s --security_group_ids %s " \
@@ -270,7 +297,9 @@ def run():
             sys.exit(1)
 
         instance_hostname = get_instance_hostname(edge_conf['instance_name'])
-        ip_address = get_instance_ip_address(edge_conf['instance_name']).get('Private')
+        addresses = get_instance_ip_address(edge_conf['instance_name'])
+        ip_address = addresses.get('Private')
+        public_ip_address = addresses.get('Public')
         keyfile_name = "/root/keys/%s.pem" % edge_conf['key_name']
     except:
         remove_role('edge', os.environ['edge_user_name'])
@@ -370,10 +399,22 @@ def run():
         remove_s3('edge', os.environ['edge_user_name'])
         sys.exit(1)
 
-
     try:
+        print '[SUMMARY]'
+        logging.info('[SUMMARY]')
+        print "Instance name: " + edge_conf['instance_name']
+        print "Hostname: " + instance_hostname
+        print "Public IP: " + public_ip_address
+        print "Private IP: " + ip_address
+        print "Key name: " + edge_conf['key_name']
+        print "Bucket name: " + edge_conf['bucket_name']
+        print "Notebook SG: " + edge_conf['notebook_security_group_name']
+        print "Notebook profiles: " + edge_conf['notebook_role_profile_name']
+        print "Edge SG: " + edge_conf['edge_security_group_name']
+        print "Notebook subnet: " + edge_conf['private_subnet_cidr']
         with open("/root/result.json", 'w') as result:
             res = {"hostname": instance_hostname,
+                   "public_ip": public_ip_address,
                    "ip": ip_address,
                    "key_name": edge_conf['key_name'],
                    "user_own_bicket_name": edge_conf['bucket_name'],

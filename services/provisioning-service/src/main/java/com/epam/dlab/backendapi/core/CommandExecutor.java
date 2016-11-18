@@ -1,14 +1,20 @@
-/******************************************************************************************************
+/***************************************************************************
 
- Copyright (c) 2016 EPAM Systems Inc.
+Copyright (c) 2016, EPAM SYSTEMS INC
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
- The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    http://www.apache.org/licenses/LICENSE-2.0
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
- *****************************************************************************************************/
+****************************************************************************/
 
 package com.epam.dlab.backendapi.core;
 
@@ -27,8 +33,26 @@ import java.util.concurrent.CompletableFuture;
 public class CommandExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutor.class);
 
-    public List<String> executeSync(String command) throws IOException {
-        Process process = execute(command);
+    public List<String> executeSync(String command) throws IOException, InterruptedException {
+        return execute(command);
+    }
+
+    public void executeAsync(final String command) {
+        CompletableFuture.runAsync(() -> execute(command));
+    }
+
+    private List<String> execute(String command) {
+        try {
+            LOGGER.debug("Execute command: {}", command);
+            Process process = new ProcessBuilder(createCommand(command)).start();
+            return readInputLines(process);
+        } catch (Exception e) {
+            LOGGER.error("execute command:", e);
+        }
+        return new ArrayList<>();
+    }
+
+    private List<String> readInputLines(Process process) throws IOException {
         List<String> result = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line;
@@ -37,23 +61,6 @@ public class CommandExecutor {
             }
         }
         return result;
-    }
-
-    public void executeAsync(final String command) {
-        CompletableFuture.runAsync(() -> execute(command));
-    }
-
-    private Process execute(String command) {
-        Process process = null;
-        try {
-            LOGGER.debug("Execute command: {}", command);
-            process = Runtime.getRuntime().exec(createCommand(command));
-            process.waitFor();
-
-        } catch (Exception e) {
-            LOGGER.error("execute command:", e);
-        }
-        return process;
     }
 
     private String[] createCommand(String command) {

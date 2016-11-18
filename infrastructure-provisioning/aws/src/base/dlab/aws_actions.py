@@ -1,14 +1,20 @@
-# ******************************************************************************************************
+# *****************************************************************************
 #
-# Copyright (c) 2016 EPAM Systems Inc.
+# Copyright (c) 2016, EPAM SYSTEMS INC
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including # without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject # to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH # # THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
-# ****************************************************************************************************/
+# ******************************************************************************
 
 import boto3, boto, botocore
 import time
@@ -118,13 +124,30 @@ def create_instance(definitions, instance_tag):
                 f.close()
             except:
                 print("Error reading user-data file")
-        instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
-                                         KeyName=definitions.key_name,
-                                         SecurityGroupIds=security_groups_ids,
-                                         InstanceType=definitions.instance_type,
-                                         SubnetId=definitions.subnet_id,
-                                         IamInstanceProfile={'Name': definitions.iam_profile},
-                                         UserData=user_data)
+        if definitions.instance_class == 'notebook':
+            instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
+                                             BlockDeviceMappings=[
+                                                 {
+                                                     "DeviceName": "/dev/sdb",
+                                                     "Ebs":
+                                                         {
+                                                             "VolumeSize": int(definitions.instance_disk_size)
+                                                         }
+                                                 }],
+                                             KeyName=definitions.key_name,
+                                             SecurityGroupIds=security_groups_ids,
+                                             InstanceType=definitions.instance_type,
+                                             SubnetId=definitions.subnet_id,
+                                             IamInstanceProfile={'Name': definitions.iam_profile},
+                                             UserData=user_data)
+        else:
+            instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
+                                             KeyName=definitions.key_name,
+                                             SecurityGroupIds=security_groups_ids,
+                                             InstanceType=definitions.instance_type,
+                                             SubnetId=definitions.subnet_id,
+                                             IamInstanceProfile={'Name': definitions.iam_profile},
+                                             UserData=user_data)
         for instance in instances:
             print "Waiting for instance " + instance.id + " become running."
             instance.wait_until_running()
@@ -145,7 +168,7 @@ def create_iam_role(role_name, role_profile):
         conn.create_role(role_name)
         conn.create_instance_profile(role_profile)
         conn.add_role_to_instance_profile(role_profile, role_name)
-        time.sleep(10)
+        time.sleep(30)
     except Exception as err:
         logging.info("Unable to create IAM role: " + str(err))
         with open("/root/result.json", 'w') as result:
@@ -158,6 +181,7 @@ def attach_policy(policy_arn, role_name):
     try:
         conn = boto.connect_iam()
         conn.attach_role_policy(policy_arn, role_name)
+        time.sleep(30)
     except Exception as err:
         logging.info("Unable to attach Policy: " + str(err))
         with open("/root/result.json", 'w') as result:

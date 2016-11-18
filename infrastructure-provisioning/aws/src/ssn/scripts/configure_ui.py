@@ -1,16 +1,22 @@
 #!/usr/bin/python
 
-# ******************************************************************************************************
+# *****************************************************************************
 #
-# Copyright (c) 2016 EPAM Systems Inc.
+# Copyright (c) 2016, EPAM SYSTEMS INC
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including # without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject # to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH # # THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
-# ****************************************************************************************************/
+# ******************************************************************************
 
 from fabric.api import *
 from fabric.contrib.files import exists
@@ -21,7 +27,7 @@ import sys
 import os
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--hostname', type=str, default='')
+parser.add_argument('--hostname', type=str, default='edge')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 args = parser.parse_args()
@@ -48,7 +54,6 @@ def ensure_mongo():
         return False
 
 
-# os.environ['creds_security_groups_ids']
 def configure_mongo():
     try:
         if not exists("/lib/systemd/system/mongod.service"):
@@ -82,9 +87,9 @@ def start_ss():
                     print json.dumps(res)
                     result.write(json.dumps(res))
                 sys.exit(1)
-            run('screen -d -m java -jar ' + web_path + 'self-service/self-service-1.0.jar server ' + web_path + 'self-service/application.yml; sleep 5')
-            run('screen -d -m java -jar ' + web_path + 'security-service/security-service-1.0.jar server ' + web_path + 'security-service/application.yml; sleep 5')
-            run('screen -d -m java -jar ' + web_path + 'provisioning-service/provisioning-service-1.0.jar server ' + web_path + 'provisioning-service/application.yml; sleep 5')
+            run('screen -d -m java -Xmx1024M -jar ' + web_path + 'self-service/self-service-1.0.jar server ' + web_path + 'self-service/application.yml; sleep 5')
+            run('screen -d -m java -Xmx1024M -jar ' + web_path + 'security-service/security-service-1.0.jar server ' + web_path + 'security-service/application.yml; sleep 5')
+            run('screen -d -m java -Xmx1024M -jar ' + web_path + 'provisioning-service/provisioning-service-1.0.jar server ' + web_path + 'provisioning-service/application.yml; sleep 5')
             sudo('service nginx restart')
             sudo('touch /tmp/ss_started')
         return True
@@ -114,9 +119,9 @@ if __name__ == "__main__":
         logging.error('MongoDB configuration script has failed.')
         sys.exit(1)
 
-    # print "Starting Self-Service(UI)"
-    # if not start_ss():
-    #     logging.error('Failed to start UI')
-    #     sys.exit(1)
+    print "Starting Self-Service(UI)"
+    if not start_ss():
+        logging.error('Failed to start UI')
+        sys.exit(1)
 
     sys.exit(0)

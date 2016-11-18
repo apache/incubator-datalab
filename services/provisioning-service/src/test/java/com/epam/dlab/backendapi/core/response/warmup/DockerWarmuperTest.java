@@ -1,21 +1,27 @@
-/******************************************************************************************************
+/***************************************************************************
 
- Copyright (c) 2016 EPAM Systems Inc.
+Copyright (c) 2016, EPAM SYSTEMS INC
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
- The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    http://www.apache.org/licenses/LICENSE-2.0
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
- *****************************************************************************************************/
+****************************************************************************/
 
 package com.epam.dlab.backendapi.core.response.warmup;
 
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.CommandExecutor;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.dto.imagemetadata.ImageMetadataDTO;
+import com.epam.dlab.dto.imagemetadata.*;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -24,6 +30,7 @@ import io.dropwizard.util.Duration;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import static junit.framework.TestCase.assertEquals;
@@ -34,18 +41,37 @@ import static org.mockito.Mockito.when;
 public class DockerWarmuperTest {
     @Inject
     private DockerWarmuper warmuper;
-    private ImageMetadataDTO metadata = new ImageMetadataDTO("executeResult");
+    private ExploratoryMetadataDTO exploratoryMetadata = new ExploratoryMetadataDTO(
+            "executeResult");
+    private ComputationalMetadataDTO computationalMetadata = new
+            ComputationalMetadataDTO("executeResult");
+    private static final String EXPLORATORY_TEST_JSON = "{\"exploratory_environment_shapes\" : [ {\"Type\":\"cg1.4xlarge\",\"Ram\": \"22.5 GB\",\"Cpu\": \"16\"}]}";
+    private static final String COMPUTATIONAL_TEST_JSON = "{\"template_name\":\"DLab AWS EMR\"}";
 
     @Before
     public void setup() {
         createInjector().injectMembers(this);
+        ComputationalResourceShapeDto computationalResourceShapeDto = new ComputationalResourceShapeDto();
+        computationalResourceShapeDto.setType("cg1.4xlarge");
+        computationalResourceShapeDto.setRam("22.5 GB");
+        computationalResourceShapeDto.setCpu(16);
+        ArrayList<ComputationalResourceShapeDto> metadataList = new ArrayList<>();
+        metadataList.add(computationalResourceShapeDto);
+        exploratoryMetadata.setExploratoryEnvironmentShapes(metadataList);
+        computationalMetadata.setTemplateName("DLab AWS EMR");
     }
 
     @Test
     public void warmupSuccess() throws Exception {
         warmuper.start();
-        warmuper.getFileHandlerCallback().handle(getFileName(), "{}".getBytes());
-        assertEquals(metadata, warmuper.getMetadatas().toArray(new ImageMetadataDTO[1])[0]);
+        warmuper.getFileHandlerCallback()
+                .handle(getFileName(), EXPLORATORY_TEST_JSON.getBytes());
+        warmuper.getFileHandlerCallback()
+                .handle(getFileName(), COMPUTATIONAL_TEST_JSON.getBytes());
+        assertEquals(exploratoryMetadata, warmuper.getMetadatas(ImageType.EXPLORATORY)
+                .toArray(new ImageMetadataDTO[1])[0]);
+        assertEquals(computationalMetadata, warmuper.getMetadatas(ImageType.COMPUTATIONAL)
+                .toArray(new ImageMetadataDTO[1])[0]);
     }
 
     private String getFileName() {

@@ -1,16 +1,22 @@
 #!/usr/bin/python
 
-# ******************************************************************************************************
+# *****************************************************************************
 #
-# Copyright (c) 2016 EPAM Systems Inc.
+# Copyright (c) 2016, EPAM SYSTEMS INC
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including # without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject # to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH # # THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
-# ****************************************************************************************************/
+# ******************************************************************************
 
 import json
 import sys
@@ -39,6 +45,7 @@ def create_image_from_instance(instance_name='', image_name=''):
 
 # Main function for provisioning notebook server
 def run():
+    instance_class = 'notebook'
     local_log_filename = "%s.log" % os.environ['request_id']
     local_log_filepath = "/response/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
@@ -51,10 +58,11 @@ def run():
     notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['instance_type'] = os.environ['notebook_instance_type']
+    #notebook_config['subnet_cidr'] = os.environ['notebook_subnet_cidr']
     notebook_config['key_name'] = os.environ['creds_key_name']
     notebook_config['user_keyname'] = os.environ['notebook_user_name']
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'notebook_user_name'] + '-nb-' + str(provide_index('EC2', os.environ['conf_service_base_name'] + '-Tag'))
+        'notebook_user_name'] + '-nb-' + str(provide_index('EC2', '{}-Tag'.format(os.environ['conf_service_base_name']), '{}-{}-nb'.format(os.environ['conf_service_base_name'], os.environ['notebook_user_name'])))
     notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'notebook_user_name'] + '-notebook-image'
     notebook_config['role_profile_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
@@ -62,11 +70,6 @@ def run():
     notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'notebook_user_name'] + "-nb-SG"
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-
-    try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        notebook_config['exploratory_name'] = ''
 
     print 'Searching preconfigured images'
     ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
@@ -85,11 +88,11 @@ def run():
         logging.info('[CREATE JUPYTER NOTEBOOK INSTANCE]')
         print '[CREATE JUPYTER NOTEBOOK INSTANCE]'
         params = "--node_name %s --ami_id %s --instance_type %s --key_name %s --security_group_ids %s " \
-                 "--subnet_id %s --iam_profile %s --infra_tag_name %s --infra_tag_value %s" % \
+                 "--subnet_id %s --iam_profile %s --infra_tag_name %s --infra_tag_value %s --instance_class %s --instance_disk_size %s" % \
                  (notebook_config['instance_name'], notebook_config['ami_id'], notebook_config['instance_type'],
                   notebook_config['key_name'], get_security_group_by_name(notebook_config['security_group_name']),
                   get_subnet_by_cidr(notebook_config['subnet_cidr']), notebook_config['role_profile_name'],
-                  notebook_config['tag_name'], notebook_config['instance_name'])
+                  notebook_config['tag_name'], notebook_config['instance_name'], instance_class, os.environ['notebook_disk_size'])
         if not run_routine('create_instance', params):
             logging.info('Failed to create instance')
             with open("/root/result.json", 'w') as result:
@@ -148,8 +151,8 @@ def run():
                              "backend_hostname": get_instance_hostname(notebook_config['instance_name']),
                              "backend_port": "8888",
                              "nginx_template_dir": "/root/templates/"}
-        params = "--hostname %s --instance_name %s --keyfile %s --additional_config '%s'" % \
-                 (instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config))
+        params = "--hostname %s --instance_name %s --keyfile %s --region %s --additional_config '%s'" % \
+                 (instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['creds_region'], json.dumps(additional_config))
         if not run_routine('configure_jupyter_node', params):
             logging.info('Failed to configure jupiter')
             with open("/root/result.json", 'w') as result:
@@ -205,6 +208,21 @@ def run():
     # generating output information
     ip_address = get_instance_ip_address(notebook_config['instance_name']).get('Private')
     dns_name = get_instance_hostname(notebook_config['instance_name'])
+    jupyter_ip_url = "http://" + ip_address + ":8888/" + notebook_config['instance_name'] + "/"
+    jupyter_dns_url = "http://" + dns_name + ":8888/" + notebook_config['instance_name'] + "/"
+    print '[SUMMARY]'
+    logging.info('[SUMMARY]')
+    print "Instance name: " + notebook_config['instance_name']
+    print "Private DNS: " + dns_name
+    print "Private IP: " + ip_address
+    print "Instance type: " + notebook_config['instance_type']
+    print "Key name: " + notebook_config['key_name']
+    print "User key name: " + notebook_config['user_keyname']
+    print "AMI name: " + notebook_config['expected_ami_name']
+    print "Profile name: " + notebook_config['role_profile_name']
+    print "SG name: " + notebook_config['security_group_name']
+    print "Jupyter URL: " + jupyter_ip_url
+    print "Jupyter URL: " + jupyter_dns_url
     print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
         'key_name'] + '.pem ubuntu@' + ip_address
     print 'SSH access (from Edge node, via FQDN): ssh -i ' + notebook_config['key_name'] + '.pem ubuntu@' + dns_name
@@ -213,9 +231,9 @@ def run():
         res = {"hostname": dns_name,
                "ip": ip_address,
                "master_keyname": os.environ['creds_key_name'],
-               "exploratory_name": notebook_config['exploratory_name'],
                "notebook_name": notebook_config['instance_name'],
-               "Action": "Create new notebook server"}
+               "Action": "Create new notebook server",
+               "exploratory_url": jupyter_ip_url}
         result.write(json.dumps(res))
 
 
@@ -237,11 +255,6 @@ def terminate():
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
 
     try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        notebook_config['exploratory_name'] = ''
-
-    try:
         logging.info('[TERMINATE NOTEBOOK]')
         print '[TERMINATE NOTEBOOK]'
         params = "--bucket_name %s --tag_name %s --nb_tag_value %s" % \
@@ -258,10 +271,9 @@ def terminate():
 
     try:
         with open("/root/result.json", 'w') as result:
-            res = {"Notebook_name": notebook_config['notebook_name'],
+            res = {"notebook_name": notebook_config['notebook_name'],
                    "Tag_name": notebook_config['tag_name'],
                    "user_own_bucket_name": notebook_config['bucket_name'],
-                   "exploratory_name": notebook_config['exploratory_name'],
                    "Action": "Terminate notebook server"}
             print json.dumps(res)
             result.write(json.dumps(res))
@@ -290,11 +302,6 @@ def stop():
     notebook_config['key_path'] = os.environ['creds_key_dir'] + os.environ['creds_key_name'] + '.pem'
 
     try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        notebook_config['exploratory_name'] = ''
-
-    try:
         logging.info('[STOP NOTEBOOK]')
         print '[STOP NOTEBOOK]'
         params = "--bucket_name %s --tag_name %s --nb_tag_value %s --ssh_user %s --key_path %s" % \
@@ -311,10 +318,9 @@ def stop():
 
     try:
         with open("/root/result.json", 'w') as result:
-            res = {"Notebook_name": notebook_config['notebook_name'],
+            res = {"notebook_name": notebook_config['notebook_name'],
                    "Tag_name": notebook_config['tag_name'],
                    "user_own_bucket_name": notebook_config['bucket_name'],
-                   "exploratory_name": notebook_config['exploratory_name'],
                    "Action": "Stop notebook server"}
             print json.dumps(res)
             result.write(json.dumps(res))
@@ -340,11 +346,6 @@ def start():
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
 
     try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        notebook_config['exploratory_name'] = ''
-
-    try:
         logging.info('[START NOTEBOOK]')
         print '[START NOTEBOOK]'
         params = "--tag_name %s --nb_tag_value %s" % \
@@ -361,9 +362,8 @@ def start():
 
     try:
         with open("/root/result.json", 'w') as result:
-            res = {"NBs_name": notebook_config['notebook_name'],
+            res = {"notebook_name": notebook_config['notebook_name'],
                    "Tag_name": notebook_config['tag_name'],
-                   "exploratory_name": notebook_config['exploratory_name'],
                    "Action": "Start up notebook server"}
             print json.dumps(res)
             result.write(json.dumps(res))

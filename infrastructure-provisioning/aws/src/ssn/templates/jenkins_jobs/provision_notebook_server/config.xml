@@ -19,27 +19,13 @@
         <hudson.model.StringParameterDefinition>
           <name>SSH_Key_Name</name>
           <description>Key name at AWS to be used for accessing Jupyter</description>
-          <defaultValue></defaultValue>
+          <defaultValue>BDCC-DSS-POC</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>SSN_SG_ids</name>
           <description>The ID of the SSN Security Group to be accessible</description>
-          <defaultValue></defaultValue>
+          <defaultValue>sg-e338c89a</defaultValue>
         </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>ami_id</name>
-          <description></description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>instance_shape</name>
-          <description></description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>t2.medium</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>Region</name>
           <description></description>
@@ -73,7 +59,7 @@
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-                sudo docker run -i -v /home/ubuntu/keys:/root/keys -v /project_images/${SSH_Key_Name}.pem:/root/keys/${SSH_Key_Name}.pem -v /home/ubuntu:/response -e &quot;request_id=${rand}&quot; -e &quot;conf_service_base_name=${Service_base_name}&quot; -e &quot;creds_region=${Region}&quot; -e &quot;notebook_ami_id=${ami_id}&quot; -e &quot;creds_key_name=${SSH_Key_Name}&quot; -e &quot;notebook_instance_type=${instance_shape}&quot; -e &quot;notebook_user_name=${Username}&quot; -e &quot;creds_security_groups_ids=${SSN_SG_ids}&quot; docker.epmc-bdcc.projects.epam.com/dlab-aws-jupyter --action $Action</command>
+                sudo docker run -i -v /home/ubuntu/keys:/root/keys -v /project_images/${SSH_Key_Name}.pem:/root/keys/${SSH_Key_Name}.pem -v /home/ubuntu:/response -e &quot;request_id=$rand&quot; -e &quot;conf_service_base_name=${Service_base_name}&quot; -e &quot;creds_region=$Region&quot; -e &quot;creds_key_name=$SSH_Key_Name&quot; -e &quot;notebook_user_name=$Username&quot; -e &quot;creds_security_groups_ids=$SSN_SG_ids&quot; docker.epmc-bdcc.projects.epam.com/dlab-aws-jupyter --action $Action</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

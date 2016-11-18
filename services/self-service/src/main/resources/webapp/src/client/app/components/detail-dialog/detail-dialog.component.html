@@ -1,12 +1,18 @@
 <!------------------------------------------------------------------------------------------------------------
 
-Copyright (c) 2016 EPAM Systems Inc.
+Copyright (c) 2016, EPAM SYSTEMS INC
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    http://www.apache.org/licenses/LICENSE-2.0
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 ----------------------------------------------------------------------------------------------------------- -->
 
@@ -18,19 +24,24 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         <table class="detail-header">
           <tr>
             <td class="modal-title">{{notebook.name}}</td>
-            <td class="success_color">{{notebook.status}}</td>
+              <td>
+                <span class="status"ngClass="{{notebook.status || ''}}">
+                  {{notebook.status}}
+                </span>
+              </td>
             <td>{{notebook.shape}}</td>
           </tr>
         </table>
       </div>
       <div class="row">
-        <div class="col-xs-12">
-          <p>Up time 18 hours since Mon 12:00 EST, Sept 5, 2016</p>
-          <p>Open in your browser  <a href="http://10.0.15.1:8080">http://10.0.15.1:8080</a> to access this box after creating a tunnel.</p>
+        <div class="col-xs-12 detail-info">
+          <p>Edge Node IP Address {{notebook.ip}}</p>
+          <p>Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
+          <p>Open in your browser  <a href="{{notebook.url}}" target="_blank">{{notebook.url}}</a> to access this box after creating a tunnel.</p>
           <br/>
           <p>
-            <a href="#">
-              <small><span class="glyphicon glyphicon-question-sign"></span>Read instruction how to create the tunnel</small>
+            <a href="#/help/accessnotebookguide" target="_blank">
+              <small class="tunnel_instruction">Read instruction how to create the tunnel</small>
             </a>
           </p>
         </div>

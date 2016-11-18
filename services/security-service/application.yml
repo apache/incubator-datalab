@@ -77,22 +77,23 @@ server:
   applicationConnectors:
   - type: http
     port: 8090
-#    trustStorePath: \Program Files\Java\jre1.8.0_101\lib\security\cacerts
-#    trustStorePassword: changeit
-#    keyStorePath: \work\keystore.jks
-#    keyStorePassword: changeit
-#    certAlias: dlabcert
+    #trustStorePath: \Program Files\Java\jre1.8.0_101\lib\security\cacerts
+    #trustStorePassword: changeit
+    #keyStorePath: \work\keystore.jks
+    #keyStorePassword: changeit
+    #certAlias: dlabcert
 
   adminConnectors:
   - type: http
     port: 8091
-#    trustStorePath: \Program Files\Java\jre1.8.0_101\lib\security\cacerts
-#    trustStorePassword: changeit
-#    keyStorePath: \work\keystore.jks
-#    keyStorePassword: changeit
-#    certAlias: dlabcert
+    #trustStorePath: \Program Files\Java\jre1.8.0_101\lib\security\cacerts
+    #trustStorePassword: changeit
+    #keyStorePath: \work\keystore.jks
+    #keyStorePassword: changeit
+    #certAlias: dlabcert
 
 userInfoPersistenceEnabled: true
+awsUserIdentificationEnabled: true
 
 mongo:
   host: localhost

@@ -32,7 +32,7 @@
         <hudson.model.StringParameterDefinition>
           <name>SSH_Key_Name</name>
           <description>Key name at AWS to be used for accessing Jupyter</description>
-          <defaultValue></defaultValue>
+          <defaultValue>BDCC-DSS-POC</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>Action</name>

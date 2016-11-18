@@ -1,16 +1,22 @@
 #!/usr/bin/python
 
-# ******************************************************************************************************
+# *****************************************************************************
 #
-# Copyright (c) 2016 EPAM Systems Inc.
+# Copyright (c) 2016, EPAM SYSTEMS INC
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including # without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject # to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH # # THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
-# ****************************************************************************************************/
+# ******************************************************************************
 
 import argparse
 import json
@@ -20,16 +26,18 @@ import sys
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--node_name', type=str, default='')
-parser.add_argument('--ami_id', type=str, default='')
-parser.add_argument('--instance_type', type=str, default='')
-parser.add_argument('--key_name', type=str, default='')
-parser.add_argument('--security_group_ids', type=str, default='')
-parser.add_argument('--subnet_id', type=str, default='')
+parser.add_argument('--node_name', type=str, default='DSS-POC-TEST-instance')
+parser.add_argument('--ami_id', type=str, default='ami-7172b611')
+parser.add_argument('--instance_type', type=str, default='t2.small')
+parser.add_argument('--key_name', type=str, default='BDCC-DSS-POC')
+parser.add_argument('--security_group_ids', type=str, default='sg-1e0f7f79,sg-12345')
+parser.add_argument('--subnet_id', type=str, default='subnet-1e6c9347')
 parser.add_argument('--iam_profile', type=str, default='')
-parser.add_argument('--infra_tag_name', type=str, default='')
-parser.add_argument('--infra_tag_value', type=str, default='')
+parser.add_argument('--infra_tag_name', type=str, default='BDCC-DSA-test-infra')
+parser.add_argument('--infra_tag_value', type=str, default='tmp')
 parser.add_argument('--user_data_file', type=str, default='')
+parser.add_argument('--instance_class', type=str, default='')
+parser.add_argument('--instance_disk_size', type=str, default='')
 args = parser.parse_args()
 
 

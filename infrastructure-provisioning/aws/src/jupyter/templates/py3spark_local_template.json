@@ -9,7 +9,7 @@
  "language": "python",
  "display_name": "LocalPySpark (Python-3.5 / Spark )",
  "env": {
-  "PYSPARK_PYTHON": "python2.7",
+  "PYSPARK_PYTHON": "python3.5",
   "SPARK_HOME": "/opt/spark/",
   "PYTHONPATH": "/opt/spark/python/lib/py4j-0.9-src.zip:/opt/spark/python/:",
   "PYTHONSTARTUP": "/opt/spark/python/pyspark/shell.py",

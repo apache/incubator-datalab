@@ -1,0 +1,88 @@
+<!------------------------------------------------------------------------------------------------------------
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+----------------------------------------------------------------------------------------------------------- -->
+
+<modal #bindDialog modalClass="modal-lg">
+  <modal-header>
+    <h4 class="modal-title">Create computational resource</h4>
+  </modal-header>
+  <modal-content>
+    <form [formGroup]="createComputationalResourceForm" novalidate (submit)="createComputationalResource($event, createComputationalResourceForm.value, shape_master.value, shape_slave.value)">
+      <div class="form-group row">
+        <div  class="col-xs-4">
+          <label class="control-label">Select template</label>
+          <div>
+            <small>Template description</small>
+          </div>
+        </div>
+        <div class="col-xs-8">
+          <select class="form-control" (change)="templateSelectionChange($event.target.value)" #tmplIndex>
+            <option *ngFor="let template of model.computationalResourceApplicationTemplates; let i = index" value="{{i}}">
+              {{template.version}}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div  class="col-xs-4">
+          <label class="control-label">Cluster Alias</label>
+        </div>
+        <div class="col-xs-8">
+            <input [class.danger_field]="computationalResourceExist" type="text" class="form-control" placeholder="Enter Cluster Alias" formControlName="cluster_alias_name" />
+            <span class="danger_color" *ngIf="computationalResourceExist">This cluster name already exists.</span>
+            <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.cluster_alias_name.valid && checkValidity">Not a valid name</span>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div  class="col-xs-4">
+          <label class="control-label">Total Instance number</label>
+        </div>
+        <div class="col-xs-8">
+          <input type="number" class="form-control" min="1" max="999" formControlName="instance_number" />
+          <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.instance_number.valid">Please enter a valid number</span>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div  class="col-xs-4">
+          <label class="control-label">Master Instance shape</label>
+        </div>
+        <div class="col-xs-8">
+          <select class="form-control" #shape_master>
+            <option *ngFor="let shape of model.selectedItem.shapes">{{shape.type}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <div  class="col-xs-4">
+          <label class="control-label">Slave Instance shape</label>
+        </div>
+        <div class="col-xs-8">
+          <select class="form-control" #shape_slave>
+            <option *ngFor="let shape of model.selectedItem.shapes">{{shape.type}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="text-right" *ngIf="processError">
+        <small class="danger_color">{{errorMessage}}</small>
+      </div>
+      <div class="text-right">
+        <button type="button" (click)="bindDialog.close()" class="btn btn-default">Cancel</button>
+        <button type="submit" [disabled]="!createComputationalResourceForm.valid" class="btn btn-success">Create</button>
+      </div>
+    </form>
+  </modal-content>
+</modal>
