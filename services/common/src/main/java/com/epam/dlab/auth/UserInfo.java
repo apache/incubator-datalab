@@ -1,14 +1,20 @@
-/******************************************************************************************************
+/***************************************************************************
 
- Copyright (c) 2016 EPAM Systems Inc.
+Copyright (c) 2016, EPAM SYSTEMS INC
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
- The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    http://www.apache.org/licenses/LICENSE-2.0
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
- *****************************************************************************************************/
+****************************************************************************/
 
 package com.epam.dlab.auth;
 
@@ -34,7 +40,9 @@ public class UserInfo implements Principal {
     private String lastName;
     @JsonProperty
     private String remoteIp;
-    
+    @JsonProperty
+    private boolean awsUser = false;
+
     @JsonCreator
     public UserInfo(@JsonProperty("username") String username, @JsonProperty("access_token") String accessToken) {
         this.username = username;
@@ -102,69 +110,59 @@ public class UserInfo implements Principal {
         newInfo.firstName = this.firstName;
         newInfo.lastName  = this.lastName;
         newInfo.remoteIp  = this.remoteIp;
+        newInfo.awsUser   = this.awsUser;
         return newInfo;
     }
 
+    public boolean isAwsUser() {
+        return awsUser;
+    }
+
+    public void setAwsUser(boolean awsUser) {
+        this.awsUser = awsUser;
+    }
 
     @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((accessToken == null) ? 0 : accessToken.hashCode());
-		result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
-		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
-		result = prime * result + ((remoteIp == null) ? 0 : remoteIp.hashCode());
-		result = prime * result + ((roles == null) ? 0 : roles.hashCode());
-		result = prime * result + ((username == null) ? 0 : username.hashCode());
-		return result;
-	}
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		UserInfo other = (UserInfo) obj;
-		if (accessToken == null) {
-			if (other.accessToken != null)
-				return false;
-		} else if (!accessToken.equals(other.accessToken))
-			return false;
-		if (firstName == null) {
-			if (other.firstName != null)
-				return false;
-		} else if (!firstName.equals(other.firstName))
-			return false;
-		if (lastName == null) {
-			if (other.lastName != null)
-				return false;
-		} else if (!lastName.equals(other.lastName))
-			return false;
-		if (remoteIp == null) {
-			if (other.remoteIp != null)
-				return false;
-		} else if (!remoteIp.equals(other.remoteIp))
-			return false;
-		if (roles == null) {
-			if (other.roles != null)
-				return false;
-		} else if (!roles.equals(other.roles))
-			return false;
-		if (username == null) {
-			if (other.username != null)
-				return false;
-		} else if (!username.equals(other.username))
-			return false;
-		return true;
-	}
+        UserInfo userInfo = (UserInfo) o;
 
-	@Override
+        if (awsUser != userInfo.awsUser) return false;
+        if (username != null ? !username.equals(userInfo.username) : userInfo.username != null) return false;
+        if (accessToken != null ? !accessToken.equals(userInfo.accessToken) : userInfo.accessToken != null)
+            return false;
+        if (roles != null ? !roles.equals(userInfo.roles) : userInfo.roles != null) return false;
+        if (firstName != null ? !firstName.equals(userInfo.firstName) : userInfo.firstName != null) return false;
+        if (lastName != null ? !lastName.equals(userInfo.lastName) : userInfo.lastName != null) return false;
+        return remoteIp != null ? remoteIp.equals(userInfo.remoteIp) : userInfo.remoteIp == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = username != null ? username.hashCode() : 0;
+        result = 31 * result + (accessToken != null ? accessToken.hashCode() : 0);
+        result = 31 * result + (roles != null ? roles.hashCode() : 0);
+        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
+        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (remoteIp != null ? remoteIp.hashCode() : 0);
+        result = 31 * result + (awsUser ? 1 : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
-        return "UserInfo [username=" + username + ", firstName=" + firstName + ", lastName=" + lastName + ", roles="
-                + roles + ", accessToken=" + accessToken + ", remoteIp=" + remoteIp + "]";
+        return "UserInfo{" +
+                "username='" + username + '\'' +
+                ", accessToken='" + accessToken + '\'' +
+                ", roles=" + roles +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", remoteIp='" + remoteIp + '\'' +
+                ", awsUser=" + awsUser +
+                '}';
     }
 
 }

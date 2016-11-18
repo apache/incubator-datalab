@@ -1,25 +1,32 @@
-/******************************************************************************************************
+/***************************************************************************
 
- Copyright (c) 2016 EPAM Systems Inc.
+Copyright (c) 2016, EPAM SYSTEMS INC
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
- The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    http://www.apache.org/licenses/LICENSE-2.0
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
- *****************************************************************************************************/
+****************************************************************************/
 
 import { Injectable } from '@angular/core';
 import {Response} from '@angular/http';
 import {ApplicationServiceFacade} from "./applicationServiceFacade.service";
+import {Observable} from "rxjs";
 
 @Injectable()
 export class UserResourceService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {
   }
 
-  getExploratoryEnvironmentTemplates()
+  public getExploratoryEnvironmentTemplates() : Observable<any>
   {
     return this.applicationServiceFacade
       .buildGetExploratoryEnvironmentTemplatesRequest()
@@ -27,7 +34,7 @@ export class UserResourceService {
       .catch((error: any) => error);
   }
 
-  getComputationalResourcesTemplates()
+  public getComputationalResourcesTemplates() : Observable<any>
   {
     return this.applicationServiceFacade
       .buildGetComputationalResourcesTemplatesRequest()
@@ -35,51 +42,44 @@ export class UserResourceService {
       .catch((error: any) => error);
   }
 
-  getSupportedResourcesShapes()
-  {
-    return this.applicationServiceFacade
-      .buildGetSupportedComputationalResourcesShapesRequest()
-      .map(( res:Response ) => res.json())
-      .catch((error: any) => error);
-  }
-
-  getUserProvisionedResources() {
+  public getUserProvisionedResources() : Observable<any> {
     return this.applicationServiceFacade
       .buildGetUserProvisionedResourcesRequest()
       .map((response:Response ) => response.json())
       .catch((error: any) => error);
   }
 
-  createExploratoryEnvironment(data) {
+  public createExploratoryEnvironment(data) : Observable<Response> {
     let body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildCreateExploratoryEnvironmentRequest(body)
       .map((response:Response ) => response);
   }
 
-  runExploratoryEnvironment(data) {
+  public runExploratoryEnvironment(data) : Observable<Response>  {
     let body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildRunExploratoryEnvironmentRequest(body)
       .map((response:Response ) => response);
   }
 
-  suspendExploratoryEnvironment(data) {
-    let body = JSON.stringify(data);
+  public suspendExploratoryEnvironment(notebook : any, action) : Observable<Response> {
+    let url = "/" + notebook.name + "/" + action;
+
     return this.applicationServiceFacade
-      .buildSuspendExploratoryEnvironmentRequest(body)
+      .buildSuspendExploratoryEnvironmentRequest(JSON.stringify(url))
       .map((response:Response ) => response);
   }
 
-  createComputationalResource(data) {
+  public createComputationalResource(data) : Observable<Response> {
     let body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildCreateComputationalResourcesRequest(body)
       .map((response:Response ) => response);
   }
 
-  suspendComputationalResource(data) {
-    let body = JSON.stringify(data);
+  public suspendComputationalResource(notebookName : string, computationalResourceName : string) : Observable<Response> {
+    let body = JSON.stringify('/' + notebookName + '/' + computationalResourceName + '/terminate');
     return this.applicationServiceFacade
       .buildDeleteComputationalResourcesRequest(body)
       .map((response:Response ) => response);

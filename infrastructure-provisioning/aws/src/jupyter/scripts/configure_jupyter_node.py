@@ -1,16 +1,22 @@
 #!/usr/bin/python
 
-# ******************************************************************************************************
+# *****************************************************************************
 #
-# Copyright (c) 2016 EPAM Systems Inc.
+# Copyright (c) 2016, EPAM SYSTEMS INC
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including # without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject # to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH # # THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
-# ****************************************************************************************************/
+# ******************************************************************************
 
 from fabric.api import *
 from fabric.contrib.files import exists
@@ -24,6 +30,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--instance_name', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
+parser.add_argument('--region', type=str, default='')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 args = parser.parse_args()
 
@@ -35,6 +42,18 @@ pyspark_local_path_dir = '/home/ubuntu/.local/share/jupyter/kernels/pyspark_loca
 py3spark_local_path_dir = '/home/ubuntu/.local/share/jupyter/kernels/py3spark_local/'
 s3_jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
+
+
+def prepare_disk():
+    if not exists('/home/ubuntu/.ensure_dir/disk_ensured'):
+        try:
+            sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/xvdb' ''')
+            sudo('mkfs.ext4 /dev/xvdb1')
+            sudo('mount /dev/xvdb1 /opt/')
+            sudo(''' bash -c "echo '/dev/xvdb1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" ''')
+            sudo('touch /home/ubuntu/.ensure_dir/disk_ensured')
+        except:
+            sys.exit(1)
 
 
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
@@ -76,7 +95,7 @@ def ensure_python3_kernel():
             sudo('python3 -m ipykernel install')
             sudo('add-apt-repository -y ppa:fkrull/deadsnakes')
             sudo('apt update')
-            sudo('apt install -y python3.4')
+            sudo('apt install -y python3.4 python3.4-dev')
             sudo('python3.4 -m pip install ipython ipykernel  --upgrade')
             sudo('touch /home/ubuntu/.ensure_dir/python3_kernel_ensured')
         except:
@@ -90,6 +109,7 @@ def ensure_s3_kernel():
             put(templates_dir + 'jars/local_jars.tar.gz', '/tmp/local_jars.tar.gz')
             sudo('tar -xzf /tmp/local_jars.tar.gz -C ' + s3_jars_dir)
             put(templates_dir + 'spark-defaults_local.conf', '/tmp/spark-defaults_local.conf')
+            sudo("sed -i 's/URL/https:\/\/s3-{}.amazonaws.com/' /tmp/spark-defaults_local.conf".format(args.region))
             sudo('\cp /tmp/spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
             sudo('touch /home/ubuntu/.ensure_dir/s3_kernel_ensured')
         except:
@@ -149,4 +169,5 @@ if __name__ == "__main__":
             sudo('mkdir /home/ubuntu/.ensure_dir')
     except:
         sys.exit(1)
+    prepare_disk()
     configure_notebook_server("_".join(args.instance_name.split()))

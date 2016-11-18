@@ -1,16 +1,22 @@
 #!/usr/bin/python
 
-# ******************************************************************************************************
+# *****************************************************************************
 #
-# Copyright (c) 2016 EPAM Systems Inc.
+# Copyright (c) 2016, EPAM SYSTEMS INC
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including # without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject # to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH # # THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
-# ****************************************************************************************************/
+# ******************************************************************************
 
 import boto3
 from fabric.api import *
@@ -21,9 +27,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
 parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--dry_run', type=str, default='false')
-parser.add_argument('--emr_version', type=str, default='')
-parser.add_argument('--spark_version', type=str, default='')
-parser.add_argument('--hadoop_version', type=str, default='')
+parser.add_argument('--emr_version', type=str, default='emr-4.8.0')
+parser.add_argument('--spark_version', type=str, default='1.6.0')
+parser.add_argument('--hadoop_version', type=str, default='2.6')
+parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -40,7 +47,6 @@ def install_emr_spark(args):
     local('wget ' + spark_link + ' -O /tmp/spark-' + args.spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
     local('mkdir -p /opt/' + args.emr_version)
     local('tar -zxvf /tmp/spark-' + args.spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/' + args.emr_version + '/')
-
 
 def prepare():
     local('mkdir -p ' + yarn_dir)
@@ -164,6 +170,7 @@ def toree_kernel(args):
             f.write(text)
 
 
+
 def get_files(s3client, s3resource, dist, bucket, local):
     s3list = s3client.get_paginator('list_objects')
     for result in s3list.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
@@ -195,6 +202,9 @@ def spark_defaults(args):
     text = text.replace('MISSEDJAR2', missed_jar_path2)
     with open(spark_def_path, 'w') as f:
         f.write(text)
+    endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
+    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> """ + spark_def_path + """'""")
+
 
 if __name__ == "__main__":
     if args.dry_run == 'true':

@@ -1,14 +1,20 @@
-# ******************************************************************************************************
+# *****************************************************************************
 #
-# Copyright (c) 2016 EPAM Systems Inc.
+# Copyright (c) 2016, EPAM SYSTEMS INC
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including # without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject # to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. # IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH # # THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
-# ****************************************************************************************************/
+# ******************************************************************************
 
 import boto3
 import json
@@ -81,7 +87,7 @@ def get_instance_ip_address(instance_name):
 def get_ami_id_by_name(ami_name):
     ec2 = boto3.resource('ec2')
     try:
-        for image in ec2.images.filter(Filters=[{'Name': 'name', 'Values': [ami_name]}]):
+        for image in ec2.images.filter(Filters=[{'Name': 'name', 'Values': [ami_name]}, {'Name': 'state', 'Values': ['available']}]):
             return image.id
     except:
         return ''
@@ -190,7 +196,7 @@ def get_ec2_list(tag_name, value=''):
     if value:
         notebook_instances = ec2.instances.filter(
             Filters=[{'Name': 'instance-state-name', 'Values': ['running', 'stopped']},
-                     {'Name': 'tag:{}'.format(tag_name), 'Values': [value]}])
+                     {'Name': 'tag:{}'.format(tag_name), 'Values': ['{}*'.format(value)]}])
     else:
         notebook_instances = ec2.instances.filter(
             Filters=[{'Name': 'instance-state-name', 'Values': ['running', 'stopped']},
@@ -198,10 +204,13 @@ def get_ec2_list(tag_name, value=''):
     return notebook_instances
 
 
-def provide_index(resource_type, tag_name):
+def provide_index(resource_type, tag_name, tag_value=''):
     ids = []
     if resource_type == 'EMR':
-        list = get_emr_list(tag_name, 'Key', True)
+        if tag_value:
+            list = get_emr_list(tag_value, 'Value', True)
+        else:
+            list = get_emr_list(tag_name, 'Key', True)
         emr = boto3.client('emr')
         for i in list:
             response = emr.describe_cluster(ClusterId=i)
@@ -209,7 +218,10 @@ def provide_index(resource_type, tag_name):
             if number not in ids:
                 ids.append(int(number))
     elif resource_type == 'EC2':
-        list = get_ec2_list(tag_name)
+        if tag_value:
+            list = get_ec2_list(tag_name, tag_value)
+        else:
+            list = get_ec2_list(tag_name)
         for i in list:
             for tag in i.tags:
                 if tag['Key'] == 'Name':

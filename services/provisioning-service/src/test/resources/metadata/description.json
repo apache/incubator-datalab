@@ -1,0 +1,195 @@
+{
+  "templates": [
+    {
+      "applications": [
+        {
+          "Version": "2.7.1",
+          "Name": "Hadoop"
+        },
+        {
+          "Version": "1.6.0",
+          "Name": "Spark"
+        },
+        {
+          "Version": "1.0.0",
+          "Name": "Hive"
+        }
+      ],
+      "version": "emr-4.3.0"
+    },
+    {
+      "applications": [
+        {
+          "Version": "2.7.2",
+          "Name": "Hadoop"
+        },
+        {
+          "Version": "1.6.1",
+          "Name": "Spark"
+        },
+        {
+          "Version": "1.0.0",
+          "Name": "Hive"
+        }
+      ],
+      "version": "emr-4.6.0"
+    },
+    {
+      "applications": [
+        {
+          "Version": "2.7.2",
+          "Name": "Hadoop"
+        },
+        {
+          "Version": "1.6.2",
+          "Name": "Spark"
+        },
+        {
+          "Version": "1.0.0",
+          "Name": "Hive"
+        }
+      ],
+      "version": "emr-4.8.0"
+    },
+    {
+      "applications": [
+        {
+          "Version": "2.7.2",
+          "Name": "Hadoop"
+        },
+        {
+          "Version": "2.0.0",
+          "Name": "Spark"
+        },
+        {
+          "Version": "2.1.0",
+          "Name": "Hive"
+        }
+      ],
+      "version": "emr-5.0.0"
+    },
+    {
+      "applications": [
+        {
+          "Version": "2.7.3",
+          "Name": "Hadoop"
+        },
+        {
+          "Version": "2.0.1",
+          "Name": "Spark"
+        },
+        {
+          "Version": "2.1.0",
+          "Name": "Hive"
+        }
+      ],
+      "version": "emr-5.0.3"
+    }
+  ],
+  "description": "Image for EMR provisioning",
+  "template_name": "DLab AWS EMR",
+  "request_id": "rId",
+  "computation_resources_shapes": [
+    {
+      "Ram": "8.0 GB",
+      "Type": "m4.large",
+      "Cpu": "2"
+    },
+    {
+      "Ram": "16.0 GB",
+      "Type": "m4.xlarge",
+      "Cpu": "4"
+    },
+    {
+      "Ram": "32.0 GB",
+      "Type": "m4.2xlarge",
+      "Cpu": "8"
+    },
+    {
+      "Ram": "64.0 GB",
+      "Type": "m4.4xlarge",
+      "Cpu": "16"
+    },
+    {
+      "Ram": "160.0 GB",
+      "Type": "m4.10xlarge",
+      "Cpu": "40"
+    },
+    {
+      "Ram": "256.0 GB",
+      "Type": "m4.16xlarge",
+      "Cpu": "64"
+    },
+    {
+      "Ram": "3.75 GB",
+      "Type": "c4.large",
+      "Cpu": "2"
+    },
+    {
+      "Ram": "7.5 GB",
+      "Type": "c4.xlarge",
+      "Cpu": "4"
+    },
+    {
+      "Ram": "15.0 GB",
+      "Type": "c4.2xlarge",
+      "Cpu": "8"
+    },
+    {
+      "Ram": "30.0 GB",
+      "Type": "c4.4xlarge",
+      "Cpu": "16"
+    },
+    {
+      "Ram": "60.0 GB",
+      "Type": "c4.8xlarge",
+      "Cpu": "36"
+    },
+    {
+      "Ram": "15.25 GB",
+      "Type": "r3.large",
+      "Cpu": "2"
+    },
+    {
+      "Ram": "30.5 GB",
+      "Type": "r3.xlarge",
+      "Cpu": "4"
+    },
+    {
+      "Ram": "61.0 GB",
+      "Type": "r3.2xlarge",
+      "Cpu": "8"
+    },
+    {
+      "Ram": "122.0 GB",
+      "Type": "r3.4xlarge",
+      "Cpu": "16"
+    },
+    {
+      "Ram": "244.0 GB",
+      "Type": "r3.8xlarge",
+      "Cpu": "32"
+    },
+    {
+      "Ram": "30.5 GB",
+      "Type": "i2.xlarge",
+      "Cpu": "4"
+    },
+    {
+      "Ram": "61.0 GB",
+      "Type": "i2.2xlarge",
+      "Cpu": "8"
+    },
+    {
+      "Ram": "122.0 GB",
+      "Type": "i2.4xlarge",
+      "Cpu": "16"
+    },
+    {
+      "Ram": "244.0 GB",
+      "Type": "i2.8xlarge",
+      "Cpu": "32"
+    }
+  ],
+  "environment_type": "computational"
+}

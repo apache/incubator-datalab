@@ -1,0 +1,54 @@
+
+
+=======================================================================
+Dlab Subcomponents:
+
+Dlab project contains subcomponents with separate copyright
+notices and license terms. Your use of the source code for the these
+subcomponents is subject to the terms and conditions of the following
+licenses.
+
+========================================================================
+MIT licenses
+========================================================================
+
+The following components are provided under the MIT License. See project link for details.
+
+(MIT License) angular2-app (https://www.npmjs.com/package/angular2-app)
+(MIT License) angular2-seed (https://www.npmjs.com/package/angular2-seed)
+(MIT License) angular2-seed-advanced (https://www.npmjs.org/package/angular2-seed-advanced)
+(MIT License) angular2-seed-n3UX (https://www.npmjs.com/package/angular2-seed-n3UX)
+(MIT License) http-status-enum (https://www.npmjs.com/package/http-status-enum)
+(MIT License) Mockito (https://github.com/mockito/mockito)
+(MIT License) ng2-translate (https://www.npmjs.com/package/ng2-translate)
+(MIT License) SLF4J (http://www.slf4j.org/)
+
+========================================================================
+Apache 2.0 licenses
+========================================================================
+
+The following components are provided under the Apache 2.0 License. See project link for details.
+
+(Apache 2.0 License) MongoDB Java Driver - org.mongodb:mongo-java-driver (http://mongodb.github.io/mongo-java-driver/3.2/driver)
+(Apache 2.0 License) Dropwizard (https://github.com/dropwizard/dropwizard)
+(Apache 2.0 License) directory server (https://github.com/apache/directory-server)
+(Apache 2.0 License) jackson (https://github.com/FasterXML/jackson)
+(Apache 2.0 License) aws java sdk (https://github.com/aws/aws-sdk-java)
+(Apache 2.0 License) boto (https://github.com/boto/boto3)
+
+========================================================================
+CCDL licenses
+========================================================================
+
+The following components are provided under the CCDL License. See project link for details.
+
+(CCDL 1.1) Jersey (https://github.com/jersey/jersey)
+
+
+========================================================================
+PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2 licenses
+========================================================================
+
+The following components are provided under the PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2 License. See project link for details.
+
+(PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2) jython (https://github.com/jythontools/jython)

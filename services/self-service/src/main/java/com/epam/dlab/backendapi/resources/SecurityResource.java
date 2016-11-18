@@ -1,14 +1,20 @@
-/******************************************************************************************************
+/***************************************************************************
 
- Copyright (c) 2016 EPAM Systems Inc.
+Copyright (c) 2016, EPAM SYSTEMS INC
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
- The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    http://www.apache.org/licenses/LICENSE-2.0
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
- *****************************************************************************************************/
+****************************************************************************/
 
 package com.epam.dlab.backendapi.resources;
 
@@ -18,6 +24,7 @@ import com.epam.dlab.backendapi.dao.MongoCollections;
 import com.epam.dlab.backendapi.dao.SecurityDAO;
 import com.epam.dlab.client.restclient.RESTService;
 import com.epam.dlab.dto.UserCredentialDTO;
+import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.dropwizard.auth.Auth;
@@ -49,15 +56,23 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
     @Path("/login")
     public Response login(UserCredentialDTO credential) {
         LOGGER.debug("Try login user = {}", credential.getUsername());
-        dao.writeLoginAttempt(credential);
-        return securityService.post(LOGIN, credential, Response.class);
+        try {
+            dao.writeLoginAttempt(credential);
+            return securityService.post(LOGIN, credential, Response.class);
+        } catch (Throwable t) {
+            throw new DlabException("Could not login user", t);
+        }
     }
 
     @POST
     @Path("/logout")
     public Response logout(@Auth UserInfo userInfo) {
         LOGGER.debug("Try logout accessToken {}", userInfo.getAccessToken());
-        return securityService.post(LOGOUT, userInfo.getAccessToken(), Response.class);
+        try {
+            return securityService.post(LOGOUT, userInfo.getAccessToken(), Response.class);
+        } catch(Throwable t) {
+            throw new DlabException("Could not logout user", t);
+        }
     }
 
     @POST

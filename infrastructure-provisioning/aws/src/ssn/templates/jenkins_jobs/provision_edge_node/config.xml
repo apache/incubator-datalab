@@ -17,44 +17,20 @@
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
+          <name>IAM_user</name>
+          <description>Name of IAM user</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
           <name>SSH_Key_Name</name>
           <description>Key name at AWS to be used for accessing Edge</description>
-          <defaultValue></defaultValue>
+          <defaultValue>BDCC-DSS-POC</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>SSN_SG_ids</name>
           <description>The ID of the SSN Security Group to be accessible</description>
-          <defaultValue></defaultValue>
+          <defaultValue>sg-e338c89a</defaultValue>
         </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>vpc_id</name>
-          <description></description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>subnet_id</name>
-          <description></description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>region</name>
-          <description></description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>ami_id</name>
-          <description></description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>instance_shape</name>
-          <description></description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>t2.medium</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>Action</name>
           <description></description>
@@ -77,7 +53,7 @@
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-                sudo docker run -i -v /home/ubuntu/keys:/root/keys -v /project_images/${SSH_Key_Name}.pem:/root/keys/${SSH_Key_Name}.pem -v /home/ubuntu:/response -e &quot;request_id=${rand}&quot; -e &quot;creds_region=${region}&quot; -e &quot;edge_vpc_id=${vpc_id}&quot; -e &quot;edge_ami_id=${ami_id}&quot;  -e &quot;edge_instance_size=${instance_shape}&quot; -e &quot;creds_subnet_id=${subnet_id}&quot; -e &quot;conf_service_base_name=${Service_base_name}&quot; -e &quot;edge_user_name=${Username}&quot; -e &quot;creds_security_groups_ids=${SSN_SG_ids}&quot; -e &quot;creds_key_name=${SSH_Key_Name}&quot; docker.epmc-bdcc.projects.epam.com/dlab-aws-edge --action $Action ;</command>
+                sudo docker run -i -v /home/ubuntu/keys:/root/keys -v /project_images/${SSH_Key_Name}.pem:/root/keys/${SSH_Key_Name}.pem -v /home/ubuntu:/response -e &quot;request_id=$rand&quot; -e &quot;conf_service_base_name=${Service_base_name}&quot; -e &quot;edge_user_name=${Username}&quot; -e &quot;creds_iam_user=${IAM_user}&quot;  -e &quot;creds_security_groups_ids=${SSN_SG_ids}&quot; -e &quot;creds_key_name=$SSH_Key_Name&quot; docker.epmc-bdcc.projects.epam.com/dlab-aws-edge --action $Action ;</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

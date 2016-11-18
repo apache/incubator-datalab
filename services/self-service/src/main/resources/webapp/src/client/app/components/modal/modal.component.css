@@ -1,14 +1,21 @@
-/******************************************************************************************************
+/***************************************************************************
 
-Copyright (c) 2016 EPAM Systems Inc.
+Copyright (c) 2016, EPAM SYSTEMS INC
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    http://www.apache.org/licenses/LICENSE-2.0
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
-*****************************************************************************************************/
+****************************************************************************/
+
 .modal-xs { width: 375px; }
 .modal-sm { width: 525px; }
 .modal-md { width: 545px; }
@@ -24,6 +31,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   font-size: 16px;
   margin-top: 20px;
 }
+.transparent-header .modal-header {
+  background: transparent;
+  border-bottom: 0;
+  height: 30px;
+}
 
 .modal-header {
   padding: 13px 22px;
@@ -31,7 +43,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   border-bottom: 1px solid #edf1f5;
 }
 .modal-body {
-  padding: 25px 40px;
+  padding: 30px 50px 45px 50px;
 }
 .modal-header .modal-title {
   font-weight: 600;
@@ -48,6 +60,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 }
 .modal .form-control {
   font-size: 16px;
+  height: 38px;
   color: #455c74;
 }
 .modal .form-group small {
@@ -150,6 +163,13 @@ modal-content {
 .confirmation-dialog li {
   font-size: 14px;
   color: #9cadbe;
+  word-wrap: break-word;
+  width: 90%;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  vertical-align: middle;
+  text-overflow: ellipsis;
 }
 .confirmation-dialog.modal-dialog {
   width: 550px;
@@ -162,21 +182,52 @@ modal-content {
   padding-top: 0;
 }
 .detail-header-wrap {
-  margin: 0 -47px 40px -47px;
+  margin: 0 -50px 40px -50px;
 }
 .detail-header {
   width: 100%;
 }
 .detail-header td {
   border: 1px solid #edf1f5;
-  padding: 17px 15px;
+  padding: 18px 15px;
   text-align: center;
 }
 .detail-header .modal-title {
   background: #f6fafe;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #455c74;
+}
+.tunnel_instruction:before {
+  content: "?";
+  display: inline-block;
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #35afd5;
+  border-radius: 50%;
+  font-size: 12px;
+  margin-right: 7px;
+  text-align: center;
+  line-height: 16px;
+  padding-left: 1px;
+}
+.detail-info span {
+  font-size: 14px;
+  color: #9cadbe;
+}
+.detail-info p {
+  font-weight: 600;
+}
+.detail-info p:last-child {
+  margin-bottom: 0;
+}
+.detail-info p small {
+  font-size: 12px;
+  font-weight: 400;
+}
+.detail-info .time_info {
+  margin-top: 15px;
 }
 .modal a {
   color: #35afd5;
@@ -190,4 +241,7 @@ modal-content {
 }
 .modal-content .danger_field {
   border-color: #d9534f;
+}
+.progress-dialog .modal-body {
+  padding: 30px 30px 45px 30px;
 }
