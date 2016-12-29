@@ -18,8 +18,9 @@ limitations under the License.
 
 package com.epam.dlab.backendapi;
 
-import com.epam.dlab.backendapi.core.response.Directories;
-import com.epam.dlab.client.restclient.RESTServiceFactory;
+import com.epam.dlab.ServiceConfiguration;
+import com.epam.dlab.backendapi.core.Directories;
+import com.epam.dlab.rest.client.RESTServiceFactory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.util.Duration;
@@ -28,8 +29,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-public class ProvisioningServiceApplicationConfiguration extends Configuration implements Directories {
-    public static final String SELF_SERVICE = "selfService";
+import static com.epam.dlab.constants.ServiceConsts.SELF_SERVICE_NAME;
+
+public class ProvisioningServiceApplicationConfiguration extends ServiceConfiguration implements Directories {
 
     @NotEmpty
     @JsonProperty
@@ -38,6 +40,10 @@ public class ProvisioningServiceApplicationConfiguration extends Configuration i
     @NotEmpty
     @JsonProperty
     private String responseDirectory;
+
+    @NotEmpty
+    @JsonProperty
+    private String dockerLogDirectory;
 
     @JsonProperty
     private Duration warmupPollTimeout = Duration.seconds(3);
@@ -61,10 +67,6 @@ public class ProvisioningServiceApplicationConfiguration extends Configuration i
 
     @NotEmpty
     @JsonProperty
-    private String notebookImage;
-
-    @NotEmpty
-    @JsonProperty
     private String emrImage;
 
     @NotEmpty
@@ -76,9 +78,8 @@ public class ProvisioningServiceApplicationConfiguration extends Configuration i
     private String emrServiceRoleDefault;
 
     @Valid
-    @NotNull
-    @JsonProperty(SELF_SERVICE)
-    private RESTServiceFactory selfFactory = new RESTServiceFactory();
+    @JsonProperty
+    private boolean mocked;
 
     public String getKeyDirectory() {
         return keyDirectory;
@@ -108,10 +109,6 @@ public class ProvisioningServiceApplicationConfiguration extends Configuration i
         return fileLengthCheckDelay;
     }
 
-    public String getNotebookImage() {
-        return notebookImage;
-    }
-
     public String getEmrImage() {
         return emrImage;
     }
@@ -122,10 +119,6 @@ public class ProvisioningServiceApplicationConfiguration extends Configuration i
 
     public String getEmrServiceRoleDefault() {
         return emrServiceRoleDefault;
-    }
-
-    public RESTServiceFactory getSelfFactory() {
-        return selfFactory;
     }
 
     public String getWarmupDirectory() {
@@ -139,4 +132,8 @@ public class ProvisioningServiceApplicationConfiguration extends Configuration i
     public String getKeyLoaderDirectory() {
         return responseDirectory + KEY_LOADER_DIRECTORY;
     }
+
+    public String getDockerLogDirectory() { return dockerLogDirectory; }
+
+    public boolean isMocked() { return mocked; }
 }

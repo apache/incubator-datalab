@@ -16,60 +16,67 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { Response } from "@angular/http";
-import { UserResourceService } from "../../services/userResource.service";
-import { ComputationalResourcesModel } from "./confirmation-computational-resources.model";
+import { Component, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Response } from '@angular/http';
+import { UserResourceService } from '../../services/userResource.service';
+import { ComputationalResourcesModel } from './confirmation-computational-resources.model';
 
 import { ErrorMapUtils } from './../../util/errorMapUtils';
 
- @Component({
-   moduleId: module.id,
-   selector: 'confirmation-computational-resources',
-   templateUrl: 'confirmation-computational-resources.component.html'
- })
+@Component({
+  moduleId: module.id,
+  selector: 'confirmation-computational-resources',
+  templateUrl: 'confirmation-computational-resources.component.html'
+})
 
- export class ConfirmationComputationalResources {
-   model : ComputationalResourcesModel;
+export class ConfirmationComputationalResources {
+  model: ComputationalResourcesModel;
 
-   processError: boolean = false;
-   errorMessage: string = '';
+  processError: boolean = false;
+  tooltip: boolean = false;
+  errorMessage: string = '';
 
-   @ViewChild('bindDialog') bindDialog;
-   @Output() rebuildGrid: EventEmitter<{}> = new EventEmitter();
+  @ViewChild('bindDialog') bindDialog;
+  @Output() rebuildGrid: EventEmitter<{}> = new EventEmitter();
 
-   constructor(private userResourceService: UserResourceService) {
-     this.model = ComputationalResourcesModel.getDefault(userResourceService);
-   }
+  constructor(private userResourceService: UserResourceService) {
+    this.model = ComputationalResourcesModel.getDefault(userResourceService);
+  }
 
-   ngOnInit() {
-     this.bindDialog.onClosing = () => this.resetDialog();
-   }
+  ngOnInit() {
+    this.bindDialog.onClosing = () => this.resetDialog();
+  }
 
-   public open(option, notebook, resource) {
-     this.model = new ComputationalResourcesModel(notebook, resource,
-       (response: Response) => {
-         this.close();
-         this.rebuildGrid.emit();
-     },
-     (response : Response) => {
-       this.processError = true;
-       this.errorMessage = ErrorMapUtils.setErrorMessage(response);
-     },
-     this.userResourceService);
+  public open(option, notebook, resource) {
+    this.tooltip = false;
+    this.model = new ComputationalResourcesModel(notebook, resource,
+      (response: Response) => {
+        this.close();
+        this.rebuildGrid.emit();
+      },
+      (response: Response) => {
+        this.processError = true;
+        this.errorMessage = ErrorMapUtils.setErrorMessage(response);
+      },
+      this.userResourceService);
 
-     if(!this.bindDialog.isOpened) {
-       this.bindDialog.open(option);
-     }
-   }
+    if (!this.bindDialog.isOpened) {
+      this.bindDialog.open(option);
+    }
+  }
 
-   public close() {
-     if(this.bindDialog.isOpened)
+  public isEllipsisActive($event) {
+    if ($event.target.offsetWidth < $event.target.scrollWidth)
+      this.tooltip = true;
+  }
+
+  public close() {
+    if (this.bindDialog.isOpened)
       this.bindDialog.close();
-   }
+  }
 
-   private resetDialog() : void {
-     this.processError = false;
-     this.errorMessage = '';
-   }
- }
+  private resetDialog(): void {
+    this.processError = false;
+    this.errorMessage = '';
+  }
+}

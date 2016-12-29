@@ -18,21 +18,22 @@ limitations under the License.
 
 import { Injectable } from '@angular/core';
 import {Http} from '@angular/http';
-import {Router} from "@angular/router";
+import {Router} from '@angular/router';
 
 @Injectable()
 export class AppRoutingService {
-  constructor(private http: Http, private router: Router) {
-  }
 
-  redirectToLoginPage() : void
-  {
-    if(this.router.url != "/login")
+  constructor(
+    private http: Http,
+    private router: Router
+  ) { }
+
+  redirectToLoginPage(): void {
+    if (this.router.url !== '/login')
       this.router.navigate(['/login']);
   }
 
-  redirectToHomePage() : void
-  {
+  redirectToHomePage(): void {
     this.router.navigate(['/dashboard']);
   }
 }

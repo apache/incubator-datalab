@@ -50,6 +50,7 @@ limitations under the License.
 .login_page .input-group {
   margin-bottom: 20px;
 }
+
 .form_wrap .btn {
   margin-top: 20px;
 }
@@ -59,6 +60,7 @@ limitations under the License.
   background: #fff;
   border: 1px solid #31b0d5;
 }
+
 .login-icon {
   display: block;
   width: 24px;
@@ -66,16 +68,20 @@ limitations under the License.
   background-image: url(../assets/img/login-icons.png);
   background-size: 48px;
 }
+
 .icon-username {
   background-position: top left;
 }
+
 .icon-password {
   background-position: top right;
 }
+
 .login_page .input-group-addon {
   border-right: 0;
   padding: 6px 7px;
 }
+
 .login_page .form-control {
   font-size: 14px;
   padding: 6px 19px;
@@ -90,5 +96,3 @@ limitations under the License.
 .login_page .alert {
   margin: 0;
 }
-
-

@@ -7,11 +7,11 @@
   "{connection_file}"
  ],
  "language": "python",
- "display_name": "LocalPySpark (Python-2.7 / Spark )",
+ "display_name": "LocalPySpark (Python-2.7 / Spark-SP_VER )",
  "env": {
   "PYSPARK_PYTHON": "python2.7",
   "SPARK_HOME": "/opt/spark/",
-  "PYTHONPATH": "/opt/spark/python/lib/py4j-0.9-src.zip:/opt/spark/python/:",
+  "PYTHONPATH": "PY4J:/opt/spark/python/:",
   "PYTHONSTARTUP": "/opt/spark/python/pyspark/shell.py",
   "PYSPARK_SUBMIT_ARGS": "--name LocalPySpark pyspark-shell"
  }

@@ -19,11 +19,12 @@ limitations under the License.
 package com.epam.dlab.dto.imagemetadata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 public class ApplicationDto {
-    @JsonProperty(value = "Version")
+    @JsonProperty("Version")
     private String version;
-    @JsonProperty(value = "Name")
+    @JsonProperty("Name")
     private String name;
 
     public ApplicationDto() {
@@ -74,5 +75,10 @@ public class ApplicationDto {
         int result = version != null ? version.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this);
     }
 }

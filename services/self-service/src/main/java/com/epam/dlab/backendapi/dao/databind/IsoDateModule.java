@@ -28,5 +28,4 @@ public class IsoDateModule extends SimpleModule {
         super();
         addDeserializer(Date.class, new IsoDateDeSerializer());
     }
-
 }

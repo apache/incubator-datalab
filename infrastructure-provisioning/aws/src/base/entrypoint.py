@@ -27,7 +27,7 @@ import sys
 import select
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--action', type=str, default='describe')
+parser.add_argument('--action', type=str, default='')
 args = parser.parse_args()
 
 
@@ -46,11 +46,11 @@ def get_from_stdin():
 
 if __name__ == "__main__":
     # Get request ID as if it will need everywhere
-    request_id = 'generic'
+    request_id = 'ssn'
     try:
         request_id = os.environ['request_id']
     except:
-        os.environ['request_id'] = 'generic'
+        os.environ['request_id'] = 'ssn'
 
     # Get config from STDIN
     stdin_contents = get_from_stdin()

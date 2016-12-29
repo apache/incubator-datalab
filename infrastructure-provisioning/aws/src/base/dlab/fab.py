@@ -45,16 +45,17 @@ def ensure_pip(requisites):
             sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
             sudo('echo export PATH >> /etc/profile')
             sudo('touch /tmp/pip_path_added')
-        sudo('pip install -U ' + requisites)
+            sudo('pip install -U pip --no-cache-dir')
+        sudo('pip install -U ' + requisites + ' --no-cache-dir')
         return True
     except:
         return False
 
 
-def run_routine(routine_name, params):
+def run_routine(routine_name, params, resource='default'):
     success = False
-    local_log_filename = "%s.log" % os.environ['request_id']
-    local_log_filepath = "/response/" + local_log_filename
+    local_log_filename = "{}_{}.log".format(os.environ['resource'], os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['resource'] +  "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.INFO,
                         filename=local_log_filepath)

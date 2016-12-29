@@ -19,14 +19,14 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoginComponent } from './login.component';
-import {FormsModule} from "@angular/forms";
-import {ApplicationSecurityService} from "../services/applicationSecurity.service";
+import { FormsModule } from '@angular/forms';
+import { ApplicationSecurityService } from '../services/applicationSecurity.service';
 
 @NgModule({
-    imports: [CommonModule, FormsModule],
-    declarations: [LoginComponent],
-    exports: [LoginComponent],
-    providers: [ApplicationSecurityService]
+  imports: [CommonModule, FormsModule],
+  declarations: [LoginComponent],
+  exports: [LoginComponent],
+  providers: [ApplicationSecurityService]
 })
 
 export class LoginModule { }

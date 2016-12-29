@@ -19,19 +19,28 @@ limitations under the License.
 package com.epam.dlab.backendapi.core.response.folderlistener;
 
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
 import io.dropwizard.util.Duration;
 
-import java.util.concurrent.CompletableFuture;
-
+/** Starts asynchronously of waiting for file creation and processing this file.
+ */
 @Singleton
 public class FolderListenerExecutor {
     @Inject
     private ProvisioningServiceApplicationConfiguration configuration;
 
-
+    /** Starts asynchronously of waiting for file creation and processes this file if the timeout
+     * has not expired. If timeout has been expired then writes warning message to log file and
+     * finishes waiting. This method is <b>non-blocking</b>.  
+     * @param directory name of directory for waiting for the file creation. 
+     * @param timeout timeout for waiting.
+     * @param fileHandlerCallback handler for the file processing.
+     */
     public void start(String directory, Duration timeout, FileHandlerCallback fileHandlerCallback) {
-        CompletableFuture.runAsync(new FolderListener(directory, timeout, fileHandlerCallback, configuration.getFileLengthCheckDelay()));
+    	FolderListener.listen(directory, fileHandlerCallback, timeout.toMilliseconds(),
+    			configuration.getFileLengthCheckDelay().toMilliseconds());
     }
 }

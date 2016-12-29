@@ -18,9 +18,9 @@ limitations under the License.
 
 package com.epam.dlab.auth.rest;
 
+import io.dropwizard.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.dropwizard.Configuration;
 
 public abstract class ConfigurableResource<C extends Configuration> {
 

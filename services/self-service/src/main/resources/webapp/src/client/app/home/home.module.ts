@@ -27,7 +27,7 @@ import { UploadKeyDialogModule } from './../components/key-upload-dialog/index';
 import { ExploratoryEnvironmentCreateDialogModule } from './../components/exploratory-environment-create-dialog/index';
 
 import { NavbarModule } from './../shared/navbar/index';
-import { ApplicationSecurityService } from "../services/applicationSecurity.service";
+import { ApplicationSecurityService } from '../services/applicationSecurity.service';
 
 @NgModule({
   imports: [

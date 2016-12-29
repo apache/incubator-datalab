@@ -18,24 +18,24 @@ limitations under the License.
 
 
 import { Component, ViewEncapsulation, OnInit} from '@angular/core';
-import { ApplicationSecurityService } from "../../services/applicationSecurity.service";
-import { AppRoutingService } from "../../routing/appRouting.service";
+import { ApplicationSecurityService } from '../../services/applicationSecurity.service';
+import { AppRoutingService } from '../../routing/appRouting.service';
 
 @Component({
   moduleId: module.id,
   selector: 'sd-navbar',
   templateUrl: 'navbar.component.html',
   styleUrls: ['./navbar.component.css'],
-  encapsulation : ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None
 })
 
-export class NavbarComponent implements OnInit{
+export class NavbarComponent implements OnInit {
   currentUserName: String;
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
-    private appRoutingService : AppRoutingService
-  ) {}
+    private appRoutingService: AppRoutingService
+  ) { }
 
   ngOnInit() {
     this.currentUserName = this.getUserName();

@@ -21,7 +21,8 @@
 import os
 import json
 import sys
-from fabric.api import local
+from fabric.api import *
+from dlab.aws_meta import *
 
 
 if __name__ == "__main__":

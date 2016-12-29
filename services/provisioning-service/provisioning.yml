@@ -1,0 +1,37 @@
+<#include "ssn.yml">
+
+mocked: false
+
+keyDirectory: /home/ubuntu/keys
+responseDirectory: /opt/dlab/tmp
+dockerLogDirectory: ${LOG_ROOT_DIR}
+warmupPollTimeout: 10s
+resourceStatusPollTimeout: 60m
+keyLoaderPollTimeout: 20m
+adminKey: BDCC-DSS-POC
+edgeImage: docker.epmc-bdcc.projects.epam.com/dlab-aws-edge
+fileLengthCheckDelay: 500ms
+
+emrImage: docker.epmc-bdcc.projects.epam.com/dlab-aws-emr
+emrEC2RoleDefault: EMR_EC2_DefaultRole
+emrServiceRoleDefault: EMR_DefaultRole
+
+server:
+  applicationConnectors:
+    - type: http
+      port: 8084
+  adminConnectors:
+    - type: http
+      port: 8085
+
+logging:
+  level: INFO
+  loggers:
+    com.epam: DEBUG
+  appenders:
+#    - type: console
+    - type: file
+      currentLogFilename: ${LOG_ROOT_DIR}/ssn/provisioning.log
+      archive: true
+      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/provisioning-%d{yyyy-MM-dd}.log.gz
+      archivedFileCount: 10

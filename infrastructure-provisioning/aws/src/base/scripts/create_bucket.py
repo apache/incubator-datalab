@@ -26,10 +26,10 @@ import sys
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--bucket_name', type=str, default='dsa-test-bucket')
-parser.add_argument('--infra_tag_name', type=str, default='BDCC-DSA-test-infra')
-parser.add_argument('--infra_tag_value', type=str, default='tmp')
-parser.add_argument('--region', type=str, default='us-west-2')
+parser.add_argument('--bucket_name', type=str, default='')
+parser.add_argument('--infra_tag_name', type=str, default='')
+parser.add_argument('--infra_tag_value', type=str, default='')
+parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 

@@ -25,10 +25,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static com.epam.dlab.backendapi.core.DockerCommands.MAPPER;
+import static com.epam.dlab.backendapi.core.commands.DockerCommands.MAPPER;
 
 public class ReadMetadataTest {
     private static final String EMR_METADATA_DESCRIPTION_JSON = "/metadata/description.json";
@@ -36,7 +38,7 @@ public class ReadMetadataTest {
 
 
     @Test
-    public void readEmrMetadataTest() throws IOException {
+    public void readEmrMetadataTest() throws IOException, URISyntaxException {
         ImageMetadataDTO imageMetadataDTO = MAPPER.readValue(
                 readTestResource(EMR_METADATA_DESCRIPTION_JSON),
                 ComputationalMetadataDTO.class);
@@ -45,15 +47,15 @@ public class ReadMetadataTest {
     }
 
     @Test
-    public void readJupiterMetadataTest() throws IOException {
+    public void readJupiterMetadataTest() throws IOException, URISyntaxException {
         ImageMetadataDTO imageMetadataDTO = MAPPER.readValue(
                 readTestResource(JUPITER_METADATA_DESCRIPTION_JSON),
                 ExploratoryMetadataDTO.class);
         Assert.assertNotNull(imageMetadataDTO);
     }
 
-    private String readTestResource(String testResourceName) throws IOException {
-        String file = getClass().getResource(testResourceName).getFile();
+    private String readTestResource(String testResourceName) throws IOException, URISyntaxException {
+        URI file = getClass().getResource(testResourceName).toURI();
         return new String(Files.readAllBytes(Paths.get(file)));
     }
 }

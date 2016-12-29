@@ -16,16 +16,17 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { NgModule, Component } from "@angular/core";
-import { CommonModule } from "@angular/common";
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ModalModule } from './../modal/index';
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { ComputationalResourceCreateDialog } from "./computational-resource-create-dialog.component";
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ComputationalResourceCreateDialog } from './computational-resource-create-dialog.component';
+import { DropdownListModule } from './../form-controls/dropdown-list/index';
 
-export * from "./computational-resource-create-dialog.component";
+export * from './computational-resource-create-dialog.component';
 
 @NgModule({
-  imports: [CommonModule, ModalModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, ModalModule, FormsModule, ReactiveFormsModule, DropdownListModule],
   declarations: [ComputationalResourceCreateDialog],
   exports: [ComputationalResourceCreateDialog]
 })

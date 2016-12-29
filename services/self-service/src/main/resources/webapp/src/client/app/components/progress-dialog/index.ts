@@ -16,17 +16,17 @@ limitations under the License.
 
 ****************************************************************************/
 
-import {progressDialog} from "./progress-dialog.component";
-import {NgModule, Component} from "@angular/core";
-import {CommonModule} from "@angular/common";
-import {ModalModule} from './../modal/index';
+import { ProgressDialog } from './progress-dialog.component';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ModalModule } from './../modal/index';
 
-export * from "./progress-dialog.component";
+export * from './progress-dialog.component';
 
 @NgModule({
   imports: [CommonModule, ModalModule],
-  declarations: [progressDialog],
-  exports: [progressDialog],
+  declarations: [ProgressDialog],
+  exports: [ProgressDialog],
 })
 
 export class ProgressDialogModule { }

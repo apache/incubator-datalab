@@ -39,20 +39,6 @@
       "environment_type": "exploratory",
       "version": "jupyter-1.6",
       "vendor": "AWS"
-    },
-    {
-      "template_name": "R 3.3.2",
-      "description": "Base image with r node creation routines",
-      "environment_type": "exploratory",
-      "version": "r-3.3.2",
-      "vendor": "AWS"
-    },
-    {
-      "template_name": "Zeppelin 0.6.2",
-      "description": "Base image with zeppelin node creation routines",
-      "environment_type": "exploratory",
-      "version": "zeppelin-0.6.2",
-      "vendor": "AWS"
     }
   ]
 }

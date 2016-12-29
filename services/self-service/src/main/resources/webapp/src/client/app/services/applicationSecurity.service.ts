@@ -17,92 +17,91 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import {Response} from '@angular/http';
-import {Observable} from "rxjs";
-import {ApplicationServiceFacade} from "./applicationServiceFacade.service";
-import {AppRoutingService} from "../routing/appRouting.service";
-import {LoginModel} from "../login/loginModel";
+import { Response } from '@angular/http';
+import { Observable } from 'rxjs';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
+import { AppRoutingService } from '../routing/appRouting.service';
+import { LoginModel } from '../login/loginModel';
 import HTTP_STATUS_CODES from 'http-status-enum';
 
 @Injectable()
 export class ApplicationSecurityService {
-  private accessTokenKey : string = "access_token";
-  private userNameKey : string = "user_name";
+  private accessTokenKey: string = 'access_token';
+  private userNameKey: string = 'user_name';
 
-  constructor(private serviceFacade : ApplicationServiceFacade, private appRoutingService : AppRoutingService) {
-  }
+  constructor(
+    private serviceFacade: ApplicationServiceFacade,
+    private appRoutingService: AppRoutingService
+  ) { }
 
-  public login(loginModel : LoginModel) : Observable<boolean> {
+  public login(loginModel: LoginModel): Observable<boolean> {
     return this.serviceFacade
       .buildLoginRequest(loginModel.toJsonString())
-      .map((response : Response) => {
-      if (response.status === HTTP_STATUS_CODES.OK) {
-        this.setAuthToken(response.text());
-        this.setUserName(loginModel.username);
+      .map((response: Response) => {
+        if (response.status === HTTP_STATUS_CODES.OK) {
+          this.setAuthToken(response.text());
+          this.setUserName(loginModel.username);
 
-        return true;
-      }
-      return false;
-    }, this);
+          return true;
+        }
+        return false;
+      }, this);
   }
 
-  public logout() : Observable<boolean> {
+  public logout(): Observable<boolean> {
     let authToken = this.getAuthToken();
 
-    if(!!authToken)
-    {
+    if (!!authToken) {
       this.clearAuthToken();
       return this.serviceFacade
         .buildLogoutRequest()
         .map((response: Response) => {
-        return response.status === HTTP_STATUS_CODES.OK;
-      }, this)
+          return response.status === HTTP_STATUS_CODES.OK;
+        }, this);
     }
 
     return Observable.of(false);
   }
 
-  public getCurrentUserName() : string {
+  public getCurrentUserName(): string {
     return localStorage.getItem(this.userNameKey);
   }
 
-  public getAuthToken() : string {
+  public getAuthToken(): string {
     return localStorage.getItem(this.accessTokenKey);
   }
 
-  public isLoggedIn() : Observable<boolean> {
+  public isLoggedIn(): Observable<boolean> {
     let authToken = this.getAuthToken();
     let currentUser = this.getCurrentUserName();
 
-    if(authToken && currentUser)
-    {
+    if (authToken && currentUser) {
       return this.serviceFacade
         .buildAuthorizeRequest(currentUser)
-        .map((response : Response) => {
-        if(response.status === HTTP_STATUS_CODES.OK)
-          return true;
+        .map((response: Response) => {
+          if (response.status === HTTP_STATUS_CODES.OK)
+            return true;
 
-        this.clearAuthToken();
-        this.appRoutingService.redirectToLoginPage();
-        return false;
-      }, this);
+          this.clearAuthToken();
+          this.appRoutingService.redirectToLoginPage();
+          return false;
+        }, this);
     }
 
     this.appRoutingService.redirectToLoginPage();
     return Observable.of(false);
   }
 
-  private setUserName(userName) : void
-  {
+  private setUserName(userName): void {
     localStorage.setItem(this.userNameKey, userName);
   }
 
-  private setAuthToken(accessToken) : void {
+  private setAuthToken(accessToken): void {
     let encodedToken = accessToken;
     localStorage.setItem(this.accessTokenKey, encodedToken);
   }
 
-  private clearAuthToken() : void {
+  private clearAuthToken(): void {
     localStorage.removeItem(this.accessTokenKey);
   }
 }

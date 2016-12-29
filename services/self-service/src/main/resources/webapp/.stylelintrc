@@ -8,6 +8,9 @@
       "ignorePseudoClasses": [
         "host"
       ]
-    }]
+    }],
+    "comment-empty-line-before": null,
+    "number-leading-zero": "never",
+    "shorthand-property-no-redundant-values": null
   }
 }

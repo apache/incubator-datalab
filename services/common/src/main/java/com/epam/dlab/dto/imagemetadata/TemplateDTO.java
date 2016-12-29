@@ -18,8 +18,10 @@ limitations under the License.
 
 package com.epam.dlab.dto.imagemetadata;
 
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
+import java.util.List;
 
 public class TemplateDTO {
     @JsonProperty
@@ -73,5 +75,10 @@ public class TemplateDTO {
         int result = version != null ? version.hashCode() : 0;
         result = 31 * result + (applications != null ? applications.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this);
     }
 }

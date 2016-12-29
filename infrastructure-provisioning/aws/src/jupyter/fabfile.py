@@ -17,12 +17,14 @@
 # limitations under the License.
 #
 # ******************************************************************************
-
+import logging
 import json
 import sys
 from dlab.fab import *
 from dlab.aws_meta import *
 from dlab.aws_actions import *
+import os
+import uuid
 
 
 # Function for creating AMI from already provisioned notebook
@@ -39,15 +41,20 @@ def create_image_from_instance(instance_name='', image_name=''):
         while image.state != 'available':
             local("echo Waiting for image creation; sleep 20")
             image.load()
+        image.create_tags(Tags=[{'Key': 'Name', 'Value': os.environ['conf_service_base_name']}])
         return image.id
     return ''
 
 
 # Main function for provisioning notebook server
 def run():
+    # enable debug level for boto3
+    logging.getLogger('botocore').setLevel(logging.DEBUG)
+    logging.getLogger('boto3').setLevel(logging.DEBUG)
+
     instance_class = 'notebook'
-    local_log_filename = "%s.log" % os.environ['request_id']
-    local_log_filepath = "/response/" + local_log_filename
+    local_log_filename = "{}_{}_{}.log".format(os.environ['resource'], os.environ['notebook_user_name'], os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['resource'] +  "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
@@ -56,13 +63,18 @@ def run():
     create_aws_config_files()
     print 'Generating infrastructure names and tags'
     notebook_config = dict()
+    notebook_config['uuid'] = str(uuid.uuid4())[:5]
+    try:
+        notebook_config['exploratory_name'] = os.environ['exploratory_name']
+    except:
+        notebook_config['exploratory_name'] = ''
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['instance_type'] = os.environ['notebook_instance_type']
-    #notebook_config['subnet_cidr'] = os.environ['notebook_subnet_cidr']
     notebook_config['key_name'] = os.environ['creds_key_name']
     notebook_config['user_keyname'] = os.environ['notebook_user_name']
-    notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'notebook_user_name'] + '-nb-' + str(provide_index('EC2', '{}-Tag'.format(os.environ['conf_service_base_name']), '{}-{}-nb'.format(os.environ['conf_service_base_name'], os.environ['notebook_user_name'])))
+    # notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+    #     'notebook_user_name'] + '-nb-' + str(provide_index('EC2', '{}-Tag'.format(os.environ['conf_service_base_name']), '{}-{}-nb'.format(os.environ['conf_service_base_name'], os.environ['notebook_user_name'])))
+    notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ['notebook_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + notebook_config['uuid']
     notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'notebook_user_name'] + '-notebook-image'
     notebook_config['role_profile_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
@@ -72,13 +84,13 @@ def run():
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
 
     print 'Searching preconfigured images'
-    ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
+    ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'], 'available')
     if ami_id != '':
         print 'Preconfigured image found. Using: ' + ami_id
         notebook_config['ami_id'] = ami_id
     else:
-        print 'No preconfigured image found. Using default one: ' + os.environ['notebook_ami_id']
-        notebook_config['ami_id'] = os.environ['notebook_ami_id']
+        print 'No preconfigured image found. Using default one: ' + get_ami_id(os.environ['notebook_ami_name'])
+        notebook_config['ami_id'] = get_ami_id(os.environ['notebook_ami_name'])
 
     tag = {"Key": notebook_config['tag_name'], "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['notebook_user_name'])}
     notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)
@@ -156,7 +168,7 @@ def run():
         if not run_routine('configure_jupyter_node', params):
             logging.info('Failed to configure jupiter')
             with open("/root/result.json", 'w') as result:
-                res = {"error": "Failed to configure jupiter", "conf": notebook_config}
+                res = {"error": "Failed to configure jupyter", "conf": notebook_config}
                 print json.dumps(res)
                 result.write(json.dumps(res))
             sys.exit(1)
@@ -172,7 +184,7 @@ def run():
         if not run_routine('install_jupyter_additions', params):
             logging.info('Failed to install python libs')
             with open("/root/result.json", 'w') as result:
-                res = {"error": "ailed to install python libs", "conf": notebook_config}
+                res = {"error": "Failed to install python libs", "conf": notebook_config}
                 print json.dumps(res)
                 result.write(json.dumps(res))
             sys.exit(1)
@@ -198,6 +210,7 @@ def run():
         sys.exit(1)
 
     # checking the need for image creation
+    ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
     if ami_id == '':
         print "Looks like it's first time we configure notebook server. Creating image."
         image_id = create_image_from_instance(instance_name=notebook_config['instance_name'],
@@ -239,8 +252,8 @@ def run():
 
 # Main function for terminating exploratory environment
 def terminate():
-    local_log_filename = "%s.log" % os.environ['request_id']
-    local_log_filepath = "/response/" + local_log_filename
+    local_log_filename = "{}_{}_{}.log".format(os.environ['resource'], os.environ['notebook_user_name'], os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['resource'] +  "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
@@ -284,8 +297,8 @@ def terminate():
 
 # Main function for stopping notebook server
 def stop():
-    local_log_filename = "%s.log" % os.environ['request_id']
-    local_log_filepath = "/response/" + local_log_filename
+    local_log_filename = "{}_{}_{}.log".format(os.environ['resource'], os.environ['notebook_user_name'], os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['resource'] +  "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
@@ -299,7 +312,7 @@ def stop():
     notebook_config['bucket_name'] = (notebook_config['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
     notebook_config['ssh_user'] = os.environ['notebook_ssh_user']
-    notebook_config['key_path'] = os.environ['creds_key_dir'] + os.environ['creds_key_name'] + '.pem'
+    notebook_config['key_path'] = os.environ['creds_key_dir'] + '/' + os.environ['creds_key_name'] + '.pem'
 
     try:
         logging.info('[STOP NOTEBOOK]')
@@ -331,8 +344,8 @@ def stop():
 
 # Main function for starting notebook server
 def start():
-    local_log_filename = "%s.log" % os.environ['request_id']
-    local_log_filepath = "/response/" + local_log_filename
+    local_log_filename = "{}_{}_{}.log".format(os.environ['resource'], os.environ['notebook_user_name'], os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['resource'] +  "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)

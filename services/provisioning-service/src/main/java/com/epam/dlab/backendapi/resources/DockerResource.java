@@ -19,14 +19,16 @@ limitations under the License.
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.core.CommandBuilder;
-import com.epam.dlab.backendapi.core.CommandExecutor;
-import com.epam.dlab.backendapi.core.DockerCommands;
-import com.epam.dlab.backendapi.core.docker.command.RunDockerCommand;
-import com.epam.dlab.backendapi.core.response.warmup.MetadataHolder;
+import com.epam.dlab.backendapi.core.ICommandExecutor;
+import com.epam.dlab.backendapi.core.MetadataHolder;
+import com.epam.dlab.backendapi.core.commands.CommandBuilder;
+import com.epam.dlab.backendapi.core.commands.CommandExecutor;
+import com.epam.dlab.backendapi.core.commands.DockerCommands;
+import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.dto.imagemetadata.ImageMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ImageType;
 import com.google.inject.Inject;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +48,7 @@ public class DockerResource implements DockerCommands {
     @Inject
     private MetadataHolder metadataHolder;
     @Inject
-    private CommandExecutor commandExecuter;
+    private ICommandExecutor commandExecuter;
 
     @Inject
     private CommandBuilder commandBuilder;
@@ -55,9 +57,9 @@ public class DockerResource implements DockerCommands {
     @Path("{type}")
     public Set<ImageMetadataDTO> getDockerImages(@PathParam("type") String type) throws
             IOException, InterruptedException {
-        LOGGER.debug("docker statuses asked");
+        LOGGER.debug("docker statuses asked for {}", type);
         return metadataHolder
-                .getMetadatas(ImageType.valueOf(type.toUpperCase()));
+                .getMetadata(ImageType.valueOf(type.toUpperCase()));
     }
 
     @Path("/run")
@@ -67,6 +69,7 @@ public class DockerResource implements DockerCommands {
         String uuid = DockerCommands.generateUUID();
         commandExecuter.executeAsync(
                 new RunDockerCommand()
+                        .withName(nameContainer("image", "runner"))
                         .withVolumeForRootKeys(configuration.getKeyDirectory())
                         .withVolumeForResponse(configuration.getImagesDirectory())
                         .withRequestId(uuid)
@@ -75,5 +78,9 @@ public class DockerResource implements DockerCommands {
                         .toCMD()
         );
         return uuid;
+    }
+
+    public String getResourceType() {
+        throw new NotImplementedException("General commands haven't a pre-defined log path");
     }
 }

@@ -19,7 +19,7 @@ limitations under the License.
 
 package com.epam.dlab.dto;
 
-import com.epam.dlab.constants.UserInstanceStatus;
+import com.epam.dlab.UserInstanceStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Date;

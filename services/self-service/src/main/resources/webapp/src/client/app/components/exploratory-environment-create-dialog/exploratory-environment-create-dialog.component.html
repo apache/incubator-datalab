@@ -17,29 +17,22 @@ limitations under the License.
 ----------------------------------------------------------------------------------------------------------- -->
 
 
-<modal #bindDialog modalClass="modal-lg">
+<modal-dialog #bindDialog modalClass="modal-lg">
   <modal-header>
     <h4 class="modal-title" id="myModalLabel">Create analytical tool</h4>
   </modal-header>
   <modal-content>
-  <form [formGroup]="createExploratoryEnvironmentForm" novalidate (submit)="createExploratoryEnvironment_btnClick($event, createExploratoryEnvironmentForm.value, createExploratoryEnvironmentForm.valid, envitonment_tmpl.value, environment_shape.value)">
+  <form [formGroup]="createExploratoryEnvironmentForm" novalidate (submit)="createExploratoryEnvironment_btnClick($event, createExploratoryEnvironmentForm.value, createExploratoryEnvironmentForm.valid)">
     <div class="form-group row">
       <div  class="col-xs-4">
         <label class="control-label">Select template</label>
-        <div *ngIf="model.exploratoryEnvironmentTemplates">
-          <small *ngIf="model.exploratoryEnvironmentTemplates && model.exploratoryEnvironmentTemplates.length > 0 && !templateDescription">{{model.exploratoryEnvironmentTemplates[0].description}}</small>
-          <small *ngIf="templateDescription">{{templateDescription}}</small>
-        </div>
       </div>
       <div class="col-xs-8">
-        <select class="form-control" (change)="templateSelectionChanged($event.target.value)" #envitonment_tmpl>
-          <option *ngFor="let template of model.exploratoryEnvironmentTemplates; let i = index" value="{{i}}" >
-            {{template.template_name}}
-          </option>
-        </select>
-        <div class="hidden" >
-          <input type="hidden" #createTmpl_image>
-        </div>
+        <dropdown-list #templatesList (selectedItem)="onUpdate($event)" [items]="model.exploratoryEnvironmentTemplates"></dropdown-list>
+      </div>
+      <div class="col-xs-12" *ngIf="model.exploratoryEnvironmentTemplates">
+        <small *ngIf="model.exploratoryEnvironmentTemplates && model.exploratoryEnvironmentTemplates.length > 0 && !templateDescription">{{model.exploratoryEnvironmentTemplates[0].description}}</small>
+        <small *ngIf="templateDescription">{{templateDescription}}</small>
       </div>
     </div>
     <div class="form-group row">
@@ -57,9 +50,7 @@ limitations under the License.
         <label class="control-label">Instance shape</label>
       </div>
       <div class="col-xs-8">
-        <select class="form-control" #environment_shape>
-          <option *ngFor="let shape of model.selectedItem.shapes">{{shape.type}}</option>
-        </select>
+        <dropdown-list #shapesList (selectedItem)="onUpdate($event)" [items]="model.selectedItem.shapes"></dropdown-list>
       </div>
     </div>
     <div class="text-right" *ngIf="processError">
@@ -71,4 +62,4 @@ limitations under the License.
     </div>
   </form>
   </modal-content>
-</modal>
+</modal-dialog>

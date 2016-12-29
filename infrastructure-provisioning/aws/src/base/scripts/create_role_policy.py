@@ -24,9 +24,9 @@ from dlab.aws_meta import *
 import sys
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--role_name', type=str, default='dsa-test-role')
-parser.add_argument('--role_profile_name', type=str, default='dsa-test-role-profile')
-parser.add_argument('--policy_name', type=str, default='dsa-test-policy')
+parser.add_argument('--role_name', type=str, default='')
+parser.add_argument('--role_profile_name', type=str, default='')
+parser.add_argument('--policy_name', type=str, default='')
 parser.add_argument('--policy_arn', type=str, default='')
 parser.add_argument('--policy_file_name', type=str, default='')
 args = parser.parse_args()

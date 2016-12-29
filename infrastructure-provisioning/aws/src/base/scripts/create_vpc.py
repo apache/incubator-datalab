@@ -27,9 +27,9 @@ from dlab.aws_meta import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vpc', type=str, default='')
-parser.add_argument('--region', type=str, default='us-west-2')
-parser.add_argument('--infra_tag_name', type=str, default='Name')
-parser.add_argument('--infra_tag_value', type=str, default='BDCC-DSA-POC-infra')
+parser.add_argument('--region', type=str, default='')
+parser.add_argument('--infra_tag_name', type=str, default='')
+parser.add_argument('--infra_tag_value', type=str, default='')
 args = parser.parse_args()
 
 
@@ -42,11 +42,10 @@ if __name__ == "__main__":
             if vpc_id != '':
                 print "Creating vpc %s in region %s with tag %s." % (args.vpc, args.region, json.dumps(tag))
                 vpc_id = create_vpc(args.vpc, tag)
-                #endpoint = create_endpoint(vpc_id, "com.amazonaws.{}.s3".format(args.region), json.dumps(tag))
+
             else:
                 print "REQUESTED VPC ALREADY EXISTS"
             print "VPC_ID " + vpc_id
-            print "ENDPOINT " + endpoint
             args.vpc_id = vpc_id
             success = True
         except:

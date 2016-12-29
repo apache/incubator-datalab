@@ -17,7 +17,7 @@ limitations under the License.
 ----------------------------------------------------------------------------------------------------------- -->
 
 
-<modal #bindDialog modalClass="confirmation-dialog modal-md">
+<modal-dialog #bindDialog modalClass="confirmation-dialog modal-md">
   <modal-header>
     <h4 class="modal-title">Exploratory Environment: {{model.notebook.name}}</h4>
   </modal-header>
@@ -28,14 +28,14 @@ limitations under the License.
         </div>
       </div>
       <div class="row">
-        <div class="col-xs-5">
+        <div class="col-xs-6">
           <p>Computational resources:</p>
         </div>
-        <div class="col-xs-7">
-          <ul class="list-unstyled" *ngIf="model.notebook.resources && model.notebook.resources.length > 0">
-            <li *ngFor="let resource of model.notebook.resources">{{resource.computational_name}}</li>
+        <div class="col-xs-6">
+          <ul class="list-unstyled" *ngIf="model.notebook.resources && model.notebook.resources.length > 0 && isAliveResources">
+            <li *ngFor="let resource of model.notebook.resources" [hidden]="resource.status != 'running'"> &#9642; {{resource.computational_name}}</li>
           </ul>
-          <span *ngIf="!model.notebook.resources || model.notebook.resources.length === 0">none</span>
+          <span *ngIf="!model.notebook.resources || model.notebook.resources.length === 0 || !isAliveResources">none</span>
         </div>
       </div>
       <div class="row">
@@ -51,4 +51,4 @@ limitations under the License.
         <button type="button" class="btn btn-success" (click)="model.confirmAction()">Yes</button>
       </div>
   </modal-content>
-</modal>
+</modal-dialog>

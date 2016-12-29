@@ -15,42 +15,43 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ****************************************************************************/
+/* tslint:disable:no-empty */
 
-import {Observable} from "rxjs";
-import {Response} from "@angular/http";
-import {UserResourceService} from "../../services/userResource.service";
+import { Response } from '@angular/http';
+import { UserResourceService } from '../../services/userResource.service';
 
 export class ComputationalResourcesModel {
+
+  public computationalName: string;
   private notebook: any;
   private resource: any;
-  private confirmAction : Function;
-  private userResourceService : UserResourceService;
-  public computationalName : string;
-  constructor(notebook: any,
-   			      resource: any,
-              fnProcessResults: any,
-              fnProcessErrors: any,
-              userResourceService : UserResourceService
-   			  ){
-    this.userResourceService = userResourceService;
-  	this.terminateComputationalResource(notebook, resource, fnProcessResults, fnProcessErrors);
+  private confirmAction: Function;
+  private userResourceService: UserResourceService;
+
+  static getDefault(userResourceService: UserResourceService): ComputationalResourcesModel {
+    return new ComputationalResourcesModel({}, {}, () => { }, () => { }, userResourceService);
   }
 
+  constructor(
+    notebook: any,
+    resource: any,
+    fnProcessResults: any,
+    fnProcessErrors: any,
+    userResourceService: UserResourceService
+  ) {
+    this.userResourceService = userResourceService;
+    this.terminateComputationalResource(notebook, resource, fnProcessResults, fnProcessErrors);
+  }
 
-  terminateComputationalResource(notebook: any, resource: any,  fnProcessResults : any, fnProcessErrors: any){
+  terminateComputationalResource(notebook: any, resource: any, fnProcessResults: any, fnProcessErrors: any) {
     this.notebook = notebook;
     this.resource = resource;
 
-    if(this.resource)
-      this.computationalName = this.resource.computational_name
+    if (this.resource)
+      this.computationalName = this.resource.computational_name;
 
     this.confirmAction = () => this.userResourceService
       .suspendComputationalResource(notebook.name, resource.computational_name)
-      .subscribe((response : Response) => fnProcessResults(response), (response: Response) => fnProcessErrors(response));
-    };
-
-   static getDefault (userResourceService : UserResourceService) : ComputationalResourcesModel {
-     return new
-       ComputationalResourcesModel({}, {}, () => {}, () => {}, userResourceService);
-   }
+      .subscribe((response: Response) => fnProcessResults(response), (response: Response) => fnProcessErrors(response));
+  };
 }

@@ -1,0 +1,55 @@
+<!------------------------------------------------------------------------------------------------------------
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+----------------------------------------------------------------------------------------------------------- -->
+
+<div class="dropdown-multiselect btn-group" ngClass="{{type || ''}}" click-outside (clickOutside)="onClickOutside($event)">
+
+  <button data-toggle="dropdown" type="button" class="dropdown-toggle btn" (click)="toggleDropdown()">
+    <span *ngIf="model.length == 0">Select {{type}}</span>
+    <span class="selected-items" *ngIf="model.length != 0">
+      Selected {{model.length}} item<span *ngIf="model.length > 1">s</span>
+    </span>
+    <span class="caret-btn">&#9663;</span>
+  </button>
+
+  <ul class="dropdown-menu" [style.display]="isOpen ? 'block' : 'none'">
+    <li class="filter-actions">
+      <a class="select_all" (click)="selectAllOptions($event)">
+        <i class="glyphicon glyphicon-ok"></i>&nbsp;All
+      </a>
+    </li>
+    <li class="filter-actions">
+      <a class="deselect_all" (click)="deselectAllOptions($event)">
+        <i class="glyphicon glyphicon-remove"></i>&nbsp;None
+      </a>
+    </li>
+      <template let-item ngFor [ngForOf]="items">
+        <li role="presentation">
+          <a href="#" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
+            <span class="glyphicon" [class.glyphicon-ok]="model.indexOf(item) >= 0"></span>
+            {{item}}
+          </a>
+        </li>
+      </template>
+    <li *ngIf="items.length == 0">
+      <a role="menuitem">
+        <span class="glyphicon glyphicon-eye-close"></span>
+        No {{type}}
+      </a>
+    </li>
+  </ul>
+</div>

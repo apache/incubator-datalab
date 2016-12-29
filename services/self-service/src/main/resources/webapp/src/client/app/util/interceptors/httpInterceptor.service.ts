@@ -16,15 +16,16 @@ limitations under the License.
 
 ****************************************************************************/
 
-import {ConnectionBackend, RequestOptions, Http, Request, RequestOptionsArgs, Response, Headers} from "@angular/http";
-import {Router} from "@angular/router";
-import {Observable} from "rxjs";
+import { ConnectionBackend, RequestOptions, Http, Request, RequestOptionsArgs, Response, Headers } from '@angular/http';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import HTTP_STATUS_CODES from 'http-status-enum';
 
 export class HttpInterceptor extends Http {
-  constructor(backend: ConnectionBackend,
-              defaultOptions: RequestOptions,
-              private router: Router) {
+  constructor(
+    backend: ConnectionBackend,
+    defaultOptions: RequestOptions,
+    private router: Router) {
     super(backend, defaultOptions);
   }
 
@@ -33,36 +34,42 @@ export class HttpInterceptor extends Http {
   }
 
   get(url: string, options?: RequestOptionsArgs): Observable<Response> {
-    return this.intercept(super.get(url,options));
+    return this.intercept(super.get(this.addNoCacheToUrl(url), options));
   }
 
   post(url: string, body: string, options?: RequestOptionsArgs): Observable<Response> {
-    return this.intercept(super.post(url, body, this.getRequestOptionArgs(options)));
+    return this.intercept(super.post(this.addNoCacheToUrl(url), body, this.getRequestOptionArgs(options)));
   }
 
   put(url: string, body: string, options?: RequestOptionsArgs): Observable<Response> {
-    return this.intercept(super.put(url, body, this.getRequestOptionArgs(options)));
+    return this.intercept(super.put(this.addNoCacheToUrl(url), body, this.getRequestOptionArgs(options)));
   }
 
   delete(url: string, options?: RequestOptionsArgs): Observable<Response> {
-    return this.intercept(super.delete(url, options));
+    return this.intercept(super.delete(this.addNoCacheToUrl(url), options));
   }
 
-  getRequestOptionArgs(options?: RequestOptionsArgs) : RequestOptionsArgs {
-    if (options == null) {
+  getRequestOptionArgs(options?: RequestOptionsArgs): RequestOptionsArgs {
+    if (options === null)
       options = new RequestOptions();
-    }
-    if (options.headers == null) {
+
+    if (options.headers === null)
       options.headers = new Headers();
-    }
+
     return options;
   }
 
   intercept(observable: Observable<Response>): Observable<Response> {
     return observable.catch((err, source) => {
-      if ((err.status  === HTTP_STATUS_CODES.FORBIDDEN
+      let url = err.url;
+
+      if (url.indexOf('?') > -1) {
+        url = url.substr(0, url.indexOf('?'));
+      }
+
+      if ((err.status === HTTP_STATUS_CODES.FORBIDDEN
         || err.status === HTTP_STATUS_CODES.UNAUTHORIZED)
-        && !err.url.toString().endsWith("login")) {
+        && !url.endsWith('login')) {
         localStorage.removeItem('access_token');
         this.router.navigate(['/login']);
         return Observable.of(err);
@@ -70,5 +77,12 @@ export class HttpInterceptor extends Http {
         return Observable.throw(err);
       }
     });
+  }
+
+  private addNoCacheToUrl(url: string) {
+    let separator = url.indexOf('?') === -1 ? '?' : '&';
+    let returnUrl = url + separator + 'noCache=' + new Date().getTime();
+
+    return returnUrl;
   }
 }

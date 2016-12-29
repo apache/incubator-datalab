@@ -25,6 +25,10 @@ public class ComputationalTerminateDTO extends ComputationalBaseDTO<Computationa
     private String clusterName;
     @JsonProperty("notebook_instance_name")
     private String notebookInstanceName;
+    @JsonProperty("notebook_ssh_user")
+    private String sshUser;
+    @JsonProperty("creds_key_dir")
+    private String keyDir;
 
     public String getClusterName() {
         return clusterName;
@@ -49,6 +53,32 @@ public class ComputationalTerminateDTO extends ComputationalBaseDTO<Computationa
 
     public ComputationalTerminateDTO withNotebookInstanceName(String notebookInstanceName) {
         setNotebookInstanceName(notebookInstanceName);
+        return this;
+    }
+
+    public String getSshUser() {
+        return sshUser;
+    }
+
+    public void setSshUser(String sshUser) {
+        this.sshUser = sshUser;
+    }
+
+    public ComputationalTerminateDTO withSshUser(String sshUser) {
+        setSshUser(sshUser);
+        return this;
+    }
+
+    public String getKeyDir() {
+        return keyDir;
+    }
+
+    public void setKeyDir(String keyDir) {
+        this.keyDir = keyDir;
+    }
+
+    public ComputationalTerminateDTO withKeyDir(String keyDir) {
+        setKeyDir(keyDir);
         return this;
     }
 }

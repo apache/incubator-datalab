@@ -18,10 +18,10 @@ limitations under the License.
 
 package com.epam.dlab.auth.ldap;
 
-import java.util.*;
-import javax.script.*;
-
 import com.epam.dlab.auth.UserInfo;
+
+import javax.script.*;
+import java.util.List;
 
 public class ScriptList {
 

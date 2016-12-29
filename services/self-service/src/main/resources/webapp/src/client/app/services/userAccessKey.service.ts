@@ -17,25 +17,23 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import {Response} from '@angular/http';
-import {Observable} from "rxjs";
-import {ApplicationServiceFacade} from "./applicationServiceFacade.service";
+import { Response } from '@angular/http';
+import { Observable } from 'rxjs';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 
 @Injectable()
 export class UserAccessKeyService {
-  constructor(private applicationServiceFacade: ApplicationServiceFacade) {
-  }
+  constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-  public checkUserAccessKey() : Observable<Response> {
+  public checkUserAccessKey(): Observable<Response> {
     return this.applicationServiceFacade
       .buildCheckUserAccessKeyRequest()
       .map(response => response);
   }
 
-  public uploadUserAccessKey(data) : Observable<Response>
-  {
+  public uploadUserAccessKey(data): Observable<Response> {
     return this.applicationServiceFacade
       .buildUploadUserAccessKeyRequest(data)
-      .map((response : Response) => response);
+      .map((response: Response) => response);
   }
 }

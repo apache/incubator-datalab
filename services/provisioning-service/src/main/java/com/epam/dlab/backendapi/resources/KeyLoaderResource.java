@@ -18,7 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources;
 
-import com.epam.dlab.backendapi.core.response.keyloader.KeyLoader;
+import com.epam.dlab.backendapi.core.KeyLoader;
 import com.epam.dlab.dto.keyload.UploadFileDTO;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class KeyLoaderResource {
 
     @POST
     public Response loadKey(UploadFileDTO dto) throws IOException, InterruptedException {
-        LOGGER.debug("load key for user {}", dto.getUser());
+        LOGGER.debug("load key for user {}", dto.getEdge().getIamUser());
         keyLoader.uploadKey(dto);
         return Response.accepted().build();
     }

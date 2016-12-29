@@ -23,6 +23,8 @@ export class ResourcesGridRowModel {
               public resources:Array<any>,
               public time:string,
               public url:string,
-              public ip:string
-            ){}
+              public ip:string,
+              public username:string,
+              public password:string
+            ) { }
 }

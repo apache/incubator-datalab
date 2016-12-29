@@ -18,7 +18,8 @@ limitations under the License.
 
 package com.epam.dlab.auth;
 
-import com.epam.dlab.client.restclient.RESTService;
+import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.SecurityAPI;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.dropwizard.auth.AuthenticationException;

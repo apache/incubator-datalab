@@ -18,7 +18,9 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core;
 
-import com.epam.dlab.backendapi.core.docker.command.RunDockerCommand;
+import com.epam.dlab.backendapi.core.commands.CommandBuilder;
+import com.epam.dlab.backendapi.core.commands.DockerCommands;
+import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.dto.computational.ComputationalCreateDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
@@ -56,5 +58,11 @@ public class CommandBuilderTest {
 
         assertEquals("echo -e '{\"conf_service_base_name\":\"someName\"}' | docker run -i -a STDIN -v rkv:/root/keys -v rv:/response -e \"request_id=rID\" ubuntu --action describe",
                 command);
+    }
+
+    @Test
+    public void extractUUIDSuccess() {
+        String uuid = DockerCommands.extractUUID("edge_user_name_2fa2fec8-4d30-4563-b78a-ab1f7539c862.json");
+        assertEquals("2fa2fec8-4d30-4563-b78a-ab1f7539c862", uuid);
     }
 }

@@ -18,17 +18,18 @@ limitations under the License.
 
 package com.epam.dlab.dto.imagemetadata;
 
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 public class ExploratoryMetadataDTO extends ImageMetadataDTO {
-    @JsonProperty(value = "exploratory_environment_versions")
+    @JsonProperty("exploratory_environment_versions")
     private List<ExploratoryEnvironmentVersion> exploratoryEnvironmentVersions;
-    @JsonProperty(value = "exploratory_environment_shapes")
+    @JsonProperty("exploratory_environment_shapes")
     private List<ComputationalResourceShapeDto> exploratoryEnvironmentShapes;
     @JsonProperty
     protected String image;
-    @JsonProperty(value = "request_id")
+    @JsonProperty("request_id")
     private String requestId;
 
     public ExploratoryMetadataDTO(String imageName) {

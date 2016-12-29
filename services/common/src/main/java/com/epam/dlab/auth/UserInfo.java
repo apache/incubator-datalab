@@ -23,16 +23,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class UserInfo implements Principal {
 
     private final String username;
     private final String accessToken;
     private final Set<String> roles = new HashSet<>();
+    private final Map<String,String> keys = new HashMap<>();
 
     @JsonProperty
     private String firstName;
@@ -66,8 +64,8 @@ public class UserInfo implements Principal {
     }
 
     //@JsonSetter("roles")
-    public void addRoles(Collection<String> roles) {
-        roles.addAll(roles);
+    public void addRoles(Collection<String> r) {
+        roles.addAll(r);
     }
 
     @JsonSetter("roles")
@@ -106,11 +104,12 @@ public class UserInfo implements Principal {
 
 	public UserInfo withToken(String token) {
         UserInfo newInfo  = new UserInfo(username, token);
-        roles.forEach(role -> newInfo.addRole(role));
+        roles.forEach(newInfo::addRole);
         newInfo.firstName = this.firstName;
         newInfo.lastName  = this.lastName;
         newInfo.remoteIp  = this.remoteIp;
         newInfo.awsUser   = this.awsUser;
+        newInfo.setKeys(this.getKeys());
         return newInfo;
     }
 
@@ -120,6 +119,19 @@ public class UserInfo implements Principal {
 
     public void setAwsUser(boolean awsUser) {
         this.awsUser = awsUser;
+    }
+
+    public Map<String, String> getKeys() {
+        return keys;
+    }
+
+    public void addKey(String id, String status) {
+        keys.put(id,status);
+    }
+
+    @JsonSetter("keys")
+    public void setKeys(Map<String,String> awsKeys) {
+        awsKeys.forEach(keys::put);
     }
 
     @Override
@@ -134,6 +146,7 @@ public class UserInfo implements Principal {
         if (accessToken != null ? !accessToken.equals(userInfo.accessToken) : userInfo.accessToken != null)
             return false;
         if (roles != null ? !roles.equals(userInfo.roles) : userInfo.roles != null) return false;
+        if (keys != null ? !keys.equals(userInfo.keys) : userInfo.keys != null) return false;
         if (firstName != null ? !firstName.equals(userInfo.firstName) : userInfo.firstName != null) return false;
         if (lastName != null ? !lastName.equals(userInfo.lastName) : userInfo.lastName != null) return false;
         return remoteIp != null ? remoteIp.equals(userInfo.remoteIp) : userInfo.remoteIp == null;
@@ -145,6 +158,7 @@ public class UserInfo implements Principal {
         int result = username != null ? username.hashCode() : 0;
         result = 31 * result + (accessToken != null ? accessToken.hashCode() : 0);
         result = 31 * result + (roles != null ? roles.hashCode() : 0);
+        result = 31 * result + (keys != null ? keys.hashCode() : 0);
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
         result = 31 * result + (remoteIp != null ? remoteIp.hashCode() : 0);
@@ -158,11 +172,11 @@ public class UserInfo implements Principal {
                 "username='" + username + '\'' +
                 ", accessToken='" + accessToken + '\'' +
                 ", roles=" + roles +
+                ", keys=" + keys +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", remoteIp='" + remoteIp + '\'' +
                 ", awsUser=" + awsUser +
                 '}';
     }
-
 }

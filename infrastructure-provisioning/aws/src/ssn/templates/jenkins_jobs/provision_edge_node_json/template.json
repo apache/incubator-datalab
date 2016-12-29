@@ -1,0 +1,13 @@
+{
+    "resource": "edge",
+    "request_id":"RID",
+    "conf_service_base_name":"SBN",
+    "edge_user_name":"UN",
+    "creds_security_groups_ids":"SGI",
+    "creds_key_name":"KN",
+    "creds_region":"CREG",
+    "creds_subnet_id":"CSI",
+    "edge_vpc_id":"EVI",
+    "edge_instance_size":"EIS",
+    "creds_iam_user":"CIU"
+}

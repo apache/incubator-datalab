@@ -17,71 +17,69 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import {Response} from '@angular/http';
-import {ApplicationServiceFacade} from "./applicationServiceFacade.service";
-import {Observable} from "rxjs";
+import { Response } from '@angular/http';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class UserResourceService {
   constructor(private applicationServiceFacade: ApplicationServiceFacade) {
   }
 
-  public getExploratoryEnvironmentTemplates() : Observable<any>
-  {
+  public getExploratoryEnvironmentTemplates(): Observable<any> {
     return this.applicationServiceFacade
       .buildGetExploratoryEnvironmentTemplatesRequest()
-      .map(( res:Response ) => res.json())
+      .map((res: Response) => res.json())
       .catch((error: any) => error);
   }
 
-  public getComputationalResourcesTemplates() : Observable<any>
-  {
+  public getComputationalResourcesTemplates(): Observable<any> {
     return this.applicationServiceFacade
       .buildGetComputationalResourcesTemplatesRequest()
-      .map(( res:Response ) => res.json())
+      .map((res: Response) => res.json())
       .catch((error: any) => error);
   }
 
-  public getUserProvisionedResources() : Observable<any> {
+  public getUserProvisionedResources(): Observable<any> {
     return this.applicationServiceFacade
       .buildGetUserProvisionedResourcesRequest()
-      .map((response:Response ) => response.json())
+      .map((response: Response) => response.json())
       .catch((error: any) => error);
   }
 
-  public createExploratoryEnvironment(data) : Observable<Response> {
+  public createExploratoryEnvironment(data): Observable<Response> {
     let body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildCreateExploratoryEnvironmentRequest(body)
-      .map((response:Response ) => response);
+      .map((response: Response) => response);
   }
 
-  public runExploratoryEnvironment(data) : Observable<Response>  {
+  public runExploratoryEnvironment(data): Observable<Response> {
     let body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildRunExploratoryEnvironmentRequest(body)
-      .map((response:Response ) => response);
+      .map((response: Response) => response);
   }
 
-  public suspendExploratoryEnvironment(notebook : any, action) : Observable<Response> {
-    let url = "/" + notebook.name + "/" + action;
+  public suspendExploratoryEnvironment(notebook: any, action): Observable<Response> {
+    let url = '/' + notebook.name + '/' + action;
 
     return this.applicationServiceFacade
       .buildSuspendExploratoryEnvironmentRequest(JSON.stringify(url))
-      .map((response:Response ) => response);
+      .map((response: Response) => response);
   }
 
-  public createComputationalResource(data) : Observable<Response> {
+  public createComputationalResource(data): Observable<Response> {
     let body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildCreateComputationalResourcesRequest(body)
-      .map((response:Response ) => response);
+      .map((response: Response) => response);
   }
 
-  public suspendComputationalResource(notebookName : string, computationalResourceName : string) : Observable<Response> {
+  public suspendComputationalResource(notebookName: string, computationalResourceName: string): Observable<Response> {
     let body = JSON.stringify('/' + notebookName + '/' + computationalResourceName + '/terminate');
     return this.applicationServiceFacade
       .buildDeleteComputationalResourcesRequest(body)
-      .map((response:Response ) => response);
+      .map((response: Response) => response);
   }
 }

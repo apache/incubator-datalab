@@ -57,7 +57,7 @@ if __name__ == "__main__":
                     print "Policy {}-{}-strict_to_S3-Policy already exists. Reusing it.".format(args.service_base_name, args.username)
                     list = iam.list_policies().get('Policies')
                     for i in list:
-                        if args.username in i.get('Arn'):
+                        if '{}-{}-strict_to_S3-Policy'.format(args.service_base_name, args.username) == i.get('PolicyName'):
                             arn = i.get('Arn')
             try:
                 iam.attach_role_policy(RoleName=args.edge_role_name, PolicyArn=arn)

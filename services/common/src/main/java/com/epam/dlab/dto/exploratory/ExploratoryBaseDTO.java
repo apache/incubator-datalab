@@ -22,9 +22,21 @@ import com.epam.dlab.dto.ResourceBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ExploratoryBaseDTO<T extends ExploratoryBaseDTO<?>> extends ResourceBaseDTO<T> {
+    @JsonProperty("notebook_image")
+    private String notebookImage;
+
     @JsonProperty("notebook_user_name")
     private String notebookUserName;
 
+    public String getNotebookImage() { return notebookImage; }
+
+    public void setNotebookImage(String notebookImage) { this.notebookImage = notebookImage; }
+
+    @SuppressWarnings("unchecked")
+    public T withNotebookImage(String notebookImage) {
+        setNotebookImage(notebookImage);
+        return (T) this;
+    }
 
     public String getNotebookUserName() {
         return notebookUserName;

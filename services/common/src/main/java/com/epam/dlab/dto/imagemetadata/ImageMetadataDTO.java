@@ -19,6 +19,7 @@ limitations under the License.
 package com.epam.dlab.dto.imagemetadata;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 /**
  * Common parent for metadata DTO. Holds type information during
@@ -40,5 +41,10 @@ public abstract class ImageMetadataDTO {
     }
 
     public abstract void setImage(String image);
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this);
+    }
 
 }

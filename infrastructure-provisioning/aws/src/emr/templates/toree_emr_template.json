@@ -10,8 +10,8 @@
     "PYTHON_EXEC": "python",
     "CAPTURE_STANDARD_OUT": "true",
     "CAPTURE_STANDARD_ERR": "true",
-    "HADOOP_CONF_DIR" : "/srv/hadoopconf/config/CLUSTER",
-    "YARN_CONF_DIR": "/srv/hadoopconf/config/CLUSTER"
+    "HADOOP_CONF_DIR" : "/opt/EMR/CLUSTER/conf/",
+    "YARN_CONF_DIR": "/opt/EMR/CLUSTER/conf/"
   },
   "argv": [
     "/usr/local/share/jupyter/kernels/apache_toree_scala/bin/run.sh",

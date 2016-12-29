@@ -18,7 +18,17 @@ limitations under the License.
 
 package com.epam.dlab.auth.aws;
 
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.auth.core.LdapFilterCache;
+import com.epam.dlab.auth.core.LoginCache;
 import org.junit.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class AwsTest {
     @BeforeClass
@@ -38,8 +48,30 @@ public class AwsTest {
     }
 
     @Test
-    @Ignore
-    public void test1(){
+    public void testLoginCache() throws InterruptedException {
+        LoginCache c = LoginCache.getInstance();
+        c.setDefaultBuilderTimeout(1, TimeUnit.SECONDS);
+        c.setIdleHeartBeat(100,TimeUnit.MILLISECONDS);
+        c.save(new UserInfo("test","a"));
+        UserInfo u = c.getUserInfo("a");
+        assertNotNull(u);
+        System.out.println(u);
     }
+
+    @Test
+    public void testLdapCache() throws InterruptedException {
+        LdapFilterCache c = LdapFilterCache.getInstance();
+        c.setIdleHeartBeat(100,TimeUnit.MILLISECONDS);
+        Map<String,Object> m = new HashMap<>();
+        m.put("name","a");
+        c.save("a",m,100);
+        Map<String,Object> m2 = c.getLdapFilterInfo("a");
+        assertNotNull(m2);
+        assertTrue(m==m2);
+        m2.put("test","me");
+        System.out.println(m);
+        Thread.sleep(1000);
+    }
+
 
 }

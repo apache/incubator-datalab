@@ -18,31 +18,28 @@ limitations under the License.
 
 package com.epam.dlab.dto.keyload;
 
+import com.epam.dlab.dto.edge.EdgeCreateDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UploadFileDTO {
     @JsonProperty
-    private String user;
+    private EdgeCreateDTO edge;
     @JsonProperty
     private String content;
-    @JsonProperty("conf_service_base_name")
-    private String serviceBaseName;
-    @JsonProperty("security_group")
-    private String securityGroup;
 
     public UploadFileDTO() {
     }
 
-    public String getUser() {
-        return user;
+    public EdgeCreateDTO getEdge() {
+        return edge;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setEdge(EdgeCreateDTO edge) {
+        this.edge = edge;
     }
 
-    public UploadFileDTO withUser(String user) {
-        setUser(user);
+    public UploadFileDTO withEdge(EdgeCreateDTO edge) {
+        setEdge(edge);
         return this;
     }
 
@@ -59,29 +56,4 @@ public class UploadFileDTO {
         return this;
     }
 
-    public String getServiceBaseName() {
-        return serviceBaseName;
-    }
-
-    public void setServiceBaseName(String serviceBaseName) {
-        this.serviceBaseName = serviceBaseName;
-    }
-
-    public UploadFileDTO withServiceBaseName(String serviceBaseName) {
-        setServiceBaseName(serviceBaseName);
-        return this;
-    }
-
-    public String getSecurityGroup() {
-        return securityGroup;
-    }
-
-    public void setSecurityGroup(String securityGroup) {
-        this.securityGroup = securityGroup;
-    }
-
-    public UploadFileDTO withSecurityGroup(String securityGroup) {
-        setSecurityGroup(securityGroup);
-        return this;
-    }
 }

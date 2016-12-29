@@ -20,9 +20,10 @@ limitations under the License.
 package com.epam.dlab.dto.imagemetadata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 public class ExploratoryEnvironmentVersion {
-    @JsonProperty(value = "template_name")
+    @JsonProperty("template_name")
     private String templateName;
     @JsonProperty
     private String description;
@@ -83,5 +84,10 @@ public class ExploratoryEnvironmentVersion {
 
     public void setVendor(String vendor) {
         this.vendor = vendor;
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this);
     }
 }

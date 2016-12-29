@@ -16,22 +16,21 @@ limitations under the License.
 
 ----------------------------------------------------------------------------------------------------------- -->
 
-<modal #bindDialog modalClass="modal-sm">
+<modal-dialog #bindDialog modalClass="modal-sm">
   <modal-header>
     <h4 class="modal-title">Create initial infrastructure</h4>
   </modal-header>
   <modal-content>
     <form (submit)="uploadUserAccessKey_btnClick($event)" novalidate>
-      <div class="form-group row">
+      <div class="row upload-key">
         <div  class="col-xs-7">
           <label class="control-label">
             Upload public key to start environment creation
           </label>
           <div>
-            <small>
-              <span class="glyphicon glyphicon-question-sign"></span>
-               Where can I get public key?
-             </small>
+            <a href="#/help/publickeyguide" target="_blank">
+               <small class="helper_instruction">Where can I get public key?</small>
+            </a>
           </div>
         </div>
         <div class="col-xs-5 text-right">
@@ -52,4 +51,4 @@ limitations under the License.
     </form>
   </modal-content>
   <modal-footer></modal-footer>
-</modal>
+</modal-dialog>

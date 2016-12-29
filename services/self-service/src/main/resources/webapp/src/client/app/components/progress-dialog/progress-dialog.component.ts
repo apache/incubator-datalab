@@ -16,33 +16,32 @@ limitations under the License.
 
 ****************************************************************************/
 
- import { Component, OnInit, ViewChild, Input } from '@angular/core';
- import { Modal } from './../modal/modal.component';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
 
- @Component({
-   moduleId: module.id,
-   selector: 'progress-dialog',
-   templateUrl: 'progress-dialog.component.html'
- })
+@Component({
+  moduleId: module.id,
+  selector: 'progress-dialog',
+  templateUrl: 'progress-dialog.component.html'
+})
 
- export class progressDialog implements OnInit{
-   @Input() configs: string;
-   @Input() theBoundCallback: Function;
+export class ProgressDialog implements OnInit {
+  @Input() configs: string;
+  @Input() theBoundCallback: Function;
 
-   @ViewChild('bindDialog') bindDialog;
+  @ViewChild('bindDialog') bindDialog;
 
-   ngOnInit() {
-     if(this.theBoundCallback)
+  ngOnInit() {
+    if (this.theBoundCallback)
       this.theBoundCallback();
-   }
+  }
 
-   open(params) {
-     if(!this.bindDialog.isOpened)
-        this.bindDialog.open(params);
-   }
+  open(params) {
+    if (!this.bindDialog.isOpened)
+      this.bindDialog.open(params);
+  }
 
-   close() {
-      if(this.bindDialog.isOpened)
-        this.bindDialog.close();
-   }
- }
+  close() {
+    if (this.bindDialog.isOpened)
+      this.bindDialog.close();
+  }
+}

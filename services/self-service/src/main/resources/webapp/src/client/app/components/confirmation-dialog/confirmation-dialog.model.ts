@@ -15,70 +15,88 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ****************************************************************************/
+/* tslint:disable:no-empty */
 
-import {ConfirmationDialogType} from "./confirmation-dialog-type.enum";
-import {Observable} from "rxjs";
-import {Response} from "@angular/http";
-import {UserResourceService} from "../../services/userResource.service";
+import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
+import { Observable } from 'rxjs';
+import { Response } from '@angular/http';
+import { UserResourceService } from '../../services/userResource.service';
 
 export class ConfirmationDialogModel {
-  private title : string;
+  private title: string;
   private notebook: any;
-  private confirmAction : Function;
-  private userResourceService : UserResourceService;
-  constructor(confirmationType : ConfirmationDialogType,
-              notebook : any,
-              fnProcessResults: any,
-              fnProcessErrors: any,
-              userResourceService : UserResourceService
-              ) {
+  private confirmAction: Function;
+  private userResourceService: UserResourceService;
+
+  static getDefault(): ConfirmationDialogModel {
+    return new
+      ConfirmationDialogModel(
+      ConfirmationDialogType.StopExploratory, { name: '', resources: [] }, () => { }, () => { }, null);
+  }
+
+  constructor(
+    confirmationType: ConfirmationDialogType,
+    notebook: any,
+    fnProcessResults: any,
+    fnProcessErrors: any,
+    userResourceService: UserResourceService
+  ) {
     this.userResourceService = userResourceService;
     this.setup(confirmationType, notebook, fnProcessResults, fnProcessErrors);
   }
 
-  static getDefault () : ConfirmationDialogModel
-  {
-    return new
-      ConfirmationDialogModel(
-        ConfirmationDialogType.StopExploratory, {name: "", resources: []}, () => {},  () => {}, null);
+  public isAliveResources(resources): boolean {
+    for (var i = 0, len = resources.length; i < len; i++)
+      if (resources[i].status.toLowerCase() === 'running')
+        return true;
+
+    return false;
   }
 
-  private stopExploratory() : Observable<Response> {
-    return this.userResourceService.suspendExploratoryEnvironment(this.notebook, "stop");
+
+  private stopExploratory(): Observable<Response> {
+    return this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'stop');
   }
 
-  private terminateExploratory() : Observable<Response> {
-    return this.userResourceService.suspendExploratoryEnvironment(this.notebook, "terminate")
+  private terminateExploratory(): Observable<Response> {
+    return this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
   }
 
-  private setup(confirmationType : ConfirmationDialogType, notebook : any, fnProcessResults : any, fnProcessErrors: any) : void
-  {
-    switch (confirmationType)
-    {
+  private setup(confirmationType: ConfirmationDialogType, notebook: any, fnProcessResults: any, fnProcessErrors: any): void {
+
+    let containRunningResourcesStopMessage = 'Exploratory Environment will be stopped\
+     and all connected computational resources will be terminated.';
+    let defaultStopMessage = 'Exploratory Environment will be stopped';
+
+    let containRunningResourcesTerminateMessage = 'Exploratory Environment and all connected computational resources\
+     will be terminated.';
+    let defaultTerminateMessage = 'Exploratory Environment will be terminated.';
+
+    switch (confirmationType) {
       case ConfirmationDialogType.StopExploratory: {
-        this.title = "Exploratory Environment will be stopped and all connected computational resources will be terminated.";
+        this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesStopMessage : defaultStopMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.stopExploratory()
-          .subscribe((response : Response) => fnProcessResults(response),
-            (response: Response) => fnProcessErrors(response));
+          .subscribe((response: Response) => fnProcessResults(response),
+          (response: Response) => fnProcessErrors(response));
       }
-      break;
+        break;
       case ConfirmationDialogType.TerminateExploratory: {
-        this.title = "Exploratory Environment and all connected computational resources will be terminated.";
+        this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesTerminateMessage : defaultTerminateMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.terminateExploratory()
-          .subscribe((response : Response) => fnProcessResults(response),
-            (response: Response) => fnProcessErrors(response));
+          .subscribe((response: Response) => fnProcessResults(response),
+          (response: Response) => fnProcessErrors(response));
       }
-      break;
+        break;
       default: {
-        this.title = "Exploratory Environment and all connected computational resources will be terminated.";
+        this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesTerminateMessage : defaultTerminateMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.stopExploratory()
-          .subscribe((response : Response) => fnProcessResults(response),
-            (response: Response) => fnProcessErrors(response));
+          .subscribe((response: Response) => fnProcessResults(response),
+          (response: Response) => fnProcessErrors(response));
       }
-      break;
+        break;
     }
   }
 }

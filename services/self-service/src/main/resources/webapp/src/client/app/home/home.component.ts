@@ -17,11 +17,9 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { UserAccessKeyService } from "../services/userAccessKey.service";
-import { UserResourceService } from "../services/userResource.service";
+import { UserAccessKeyService } from '../services/userAccessKey.service';
+import { UserResourceService } from '../services/userResource.service';
 import { ResourcesGrid } from '../components/resources-grid/resources-grid.component';
-
-import { ResourceShapeModel } from '../models/resourceShape.model';
 import { ExploratoryEnvironmentVersionModel } from '../models/exploratoryEnvironmentVersion.model';
 import { ComputationalResourceImage } from '../models/computationalResourceImage.model';
 
@@ -35,7 +33,6 @@ import HTTP_STATUS_CODES from 'http-status-enum';
 })
 
 export class HomeComponent implements OnInit {
-  private readonly CHECK_ACCESS_KEY_TIMEOUT : number = 10000;
 
   userUploadAccessKeyState: number;
   exploratoryEnvironments: Array<ExploratoryEnvironmentVersionModel> = [];
@@ -46,6 +43,8 @@ export class HomeComponent implements OnInit {
   @ViewChild('preloaderModal') preloaderModal;
   @ViewChild('createAnalyticalModal') createAnalyticalModal;
   @ViewChild(ResourcesGrid) resourcesGrid: ResourcesGrid;
+
+  private readonly CHECK_ACCESS_KEY_TIMEOUT : number = 10000;
 
   constructor(
     private userAccessKeyService: UserAccessKeyService,
@@ -61,11 +60,11 @@ export class HomeComponent implements OnInit {
     this.createAnalyticalModal.resourceGrid = this.resourcesGrid;
   }
 
-  createNotebook_btnClick() {
+  public createNotebook_btnClick(): void {
     this.processAccessKeyStatus(this.userUploadAccessKeyState, true);
   }
 
-  refreshGrid() {
+  public refreshGrid(): void {
     this.resourcesGrid.buildGrid();
   }
 
@@ -79,21 +78,22 @@ export class HomeComponent implements OnInit {
 
   private toggleDialogs(keyUploadDialogToggle, preloaderDialogToggle, createAnalyticalToolDialogToggle) {
 
-    if (keyUploadDialogToggle)
-        this.keyUploadModal.open({ isFooter: false });
-    else
-        this.keyUploadModal.close();
+    if (keyUploadDialogToggle) {
+      this.keyUploadModal.open({ isFooter: false });
+    } else {
+      this.keyUploadModal.close();
+    }
 
-    if (preloaderDialogToggle)
+    if (preloaderDialogToggle) {
       this.preloaderModal.open({ isHeader: false, isFooter: false });
-    else
+    } else {
       this.preloaderModal.close();
+    }
 
     if (createAnalyticalToolDialogToggle) {
       if (!this.createAnalyticalModal.isOpened)
         this.createAnalyticalModal.open({ isFooter: false });
-    }
-    else {
+    } else {
       if (this.createAnalyticalModal.isOpened)
         this.createAnalyticalModal.close();
     }
@@ -102,25 +102,25 @@ export class HomeComponent implements OnInit {
   private processAccessKeyStatus(status: number, forceShowKeyUploadDialog: boolean) {
     this.userUploadAccessKeyState = status;
 
-    if (status == HTTP_STATUS_CODES.NOT_FOUND) // key haven't been uploaded
+    if (status === HTTP_STATUS_CODES.NOT_FOUND) {// key haven't been uploaded
       this.toggleDialogs(true, false, false);
-    else if (status == HTTP_STATUS_CODES.ACCEPTED) { // Key uploading
+    } else if (status === HTTP_STATUS_CODES.ACCEPTED) { // Key uploading
       this.toggleDialogs(false, true, false);
-      setTimeout(() => this.checkInfrastructureCreationProgress(), this.CHECK_ACCESS_KEY_TIMEOUT)
-    } else if (status == HTTP_STATUS_CODES.OK && forceShowKeyUploadDialog)
+      setTimeout(() => this.checkInfrastructureCreationProgress(), this.CHECK_ACCESS_KEY_TIMEOUT);
+    } else if (status === HTTP_STATUS_CODES.OK && forceShowKeyUploadDialog) {
       this.toggleDialogs(false, false, true);
-    else if (status == HTTP_STATUS_CODES.OK) // Key uploaded
+    } else if (status === HTTP_STATUS_CODES.OK) { // Key uploaded
       this.toggleDialogs(false, false, false);
-
+    }
   }
 
-  setProgressDialogConfiguration() {
+  private setProgressDialogConfiguration() {
     return {
       message: 'Initial infrastructure is being created, <br/>please, wait...',
       content: '<img src="assets/img/gif-spinner.gif" alt="">',
       modal_size: 'modal-xs',
       text_style: 'info-label',
       aligning: 'text-center'
-    }
+    };
   }
 }

@@ -1,0 +1,24 @@
+<#include "ssn.yml">
+
+mocked: false
+
+server:
+  rootPath: "/api"
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+
+logging:
+  level: INFO
+  loggers:
+    com.epam: DEBUG
+  appenders:
+#    - type: console
+    - type: file
+      currentLogFilename: ${LOG_ROOT_DIR}/ssn/selfservice.log
+      archive: true
+      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/selfservice-%d{yyyy-MM-dd}.log.gz
+      archivedFileCount: 10

@@ -1,0 +1,135 @@
+#Copyright 2016 EPAM Systems, Inc.
+# 
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+# 
+#    http://www.apache.org/licenses/LICENSE-2.0
+# 
+#Unless required by applicable law or agreed to in writing, software
+#distributed under the License is distributed on an "AS IS" BASIS,
+#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#See the License for the specific language governing permissions and
+#limitations under the License.
+#
+
+<#include "ssn.yml">
+
+inactiveUserTimeoutMillSec: 7200000
+ldapConnectionConfig:
+#  ldapHost: localhost
+  ldapHost: ec2-52-33-6-197.us-west-2.compute.amazonaws.com
+#  ldapPort: 3890
+  ldapPort: 389
+  name: cn=admin,dc=example,dc=com
+  credentials: ldap
+ldapBindTemplate: uid=%s,ou=People,dc=example,dc=com
+ldapSearch: 
+  - name: userInfo
+    cache: true
+    expirationTimeMsec: 600000
+    scope: SUBTREE
+    attributes: 
+      - cn
+      - gidNumber
+    timeLimit: 0
+    base: dc=example,dc=com
+    filter: "(&(objectClass=inetOrgPerson)(uid=%username%))"
+    searchResultProcessor:
+      language: python
+#      path: c:\tmp\enrich.py
+      code: |
+        def enrichUserInfo(ui,context):
+          name = ui.getName()
+          key = ('uid='+name+',ou=People,dc=example,dc=com').lower()
+          userInfo=context['userInfo']
+          if not key in userInfo:
+            raise Exception('Python LDAP UserInfo not found for '+key)
+          uid= userInfo[key]
+          cn = context['userInfo'][key]['cn'].split(' ')
+          ui.setFirstName(cn[0])
+          ui.setLastName(cn[1])
+          return ui
+  - name: groupInfo
+    cache: true
+    expirationTimeMsec: 600000
+    scope: SUBTREE
+    attributes: 
+      - cn
+      - gidNumber
+    timeLimit: 0
+    base: dc=example,dc=com
+    filter: "(&(objectClass=posixGroup))"
+    searchResultProcessor:
+      language: javascript
+#      path: c:\tmp\enrich.js
+      code: |
+        var enrichUserInfo = function(ui,context) {
+          name = ui.getName();
+          key = ('uid='+name+',ou=People,dc=example,dc=com').toLowerCase();
+          userInfo=context['userInfo'];
+          if( userInfo[key] == undefined ) {
+            throw 'JavaScript LDAP UserInfo not found for '+key;
+          }
+          uid= userInfo[key];
+          userGid = uid['gidnumber'];
+          groupInfo=context['groupInfo'];
+          for( dn in groupInfo ) {
+            group = groupInfo[dn];
+            if( userGid == group['gidnumber'] ) {
+              ui.addRole(group['cn']);
+            }
+          }
+          return ui;
+        }
+    #trustStorePath: \Program Files\Java\jre1.8.0_101\lib\security\cacerts
+    #trustStorePassword: changeit
+    #keyStorePath: \work\keystore.jks
+    #keyStorePassword: changeit
+    #certAlias: dlabcert
+server: 
+  applicationConnectors:
+  - type: http
+    port: 8090
+<#-- Un-comment to enable HTTPS
+#<if SSL_CONNECTION>  ### put'#' after '<'
+  - type: https
+    port: 8090
+    trustStorePath: \Program Files\Java\jre1.8.0_101\lib\security\cacerts
+    trustStorePassword: changeit
+    keyStorePath: \work\keystore.jks
+    keyStorePassword: changeit
+    certAlias: dlabcert
+#</if>   ### put'#' after '</'
+-->
+  adminConnectors:
+  - type: http
+    port: 8091
+<#-- Un-comment to enable HTTPS
+#<if SSL_CONNECTION>   ### put'#' after '<'
+  - type: https
+    port: 8091
+    trustStorePath: \Program Files\Java\jre1.8.0_101\lib\security\cacerts
+    trustStorePassword: changeit
+    keyStorePath: \work\keystore.jks
+    keyStorePassword: changeit
+    certAlias: dlabcert
+#</if>   ### put'#' after '</'
+-->
+
+userInfoPersistenceEnabled: true
+awsUserIdentificationEnabled: true
+
+logging:
+  level: INFO
+  loggers:
+    io.dropwizard: INFO
+    com.epam: DEBUG
+    com.aegisql: DEBUG
+  appenders:
+#    - type: console
+    - type: file
+      currentLogFilename: ${LOG_ROOT_DIR}/ssn/security.log
+      archive: true
+      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/security-%d{yyyy-MM-dd}.log.gz
+      archivedFileCount: 10

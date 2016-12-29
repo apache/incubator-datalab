@@ -19,19 +19,17 @@ limitations under the License.
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.core.CommandBuilder;
-import com.epam.dlab.backendapi.core.CommandExecutor;
-import com.epam.dlab.backendapi.core.DockerCommands;
-import com.epam.dlab.backendapi.core.docker.command.DockerAction;
-import com.epam.dlab.backendapi.core.docker.command.RunDockerCommand;
-import com.epam.dlab.backendapi.core.response.folderlistener.FileHandlerCallback;
+import com.epam.dlab.backendapi.core.Directories;
+import com.epam.dlab.backendapi.core.FileHandlerCallback;
+import com.epam.dlab.backendapi.core.ICommandExecutor;
+import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.backendapi.resources.handler.ExploratoryCallbackHandler;
-import com.epam.dlab.client.restclient.RESTService;
+import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStopDTO;
+import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +52,7 @@ public class ExploratoryResource implements DockerCommands {
     @Inject
     private FolderListenerExecutor folderListenerExecutor;
     @Inject
-    private CommandExecutor commandExecuter;
+    private ICommandExecutor commandExecuter;
     @Inject
     private CommandBuilder commandBuilder;
     @Inject
@@ -91,19 +89,20 @@ public class ExploratoryResource implements DockerCommands {
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
                 getFileHandlerCallback(action, uuid, dto));
-        commandExecuter.executeAsync(
-                commandBuilder.buildCommand(
-                        new RunDockerCommand()
-                                .withInteractive()
-                                .withVolumeForRootKeys(configuration.getKeyDirectory())
-                                .withVolumeForResponse(configuration.getImagesDirectory())
-                                .withRequestId(uuid)
-                                .withCredsKeyName(configuration.getAdminKey())
-                                .withImage(configuration.getNotebookImage())
-                                .withAction(action),
-                        dto
-                )
-        );
+
+        RunDockerCommand runDockerCommand = new RunDockerCommand()
+                .withInteractive()
+                .withName(nameContainer(dto.getNotebookUserName(), action, dto.getExploratoryName()))
+                .withVolumeForRootKeys(configuration.getKeyDirectory())
+                .withVolumeForResponse(configuration.getImagesDirectory())
+                .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
+                .withResource(getResourceType())
+                .withRequestId(uuid)
+                .withCredsKeyName(configuration.getAdminKey())
+                .withImage(dto.getNotebookImage())
+                .withAction(action);
+
+        commandExecuter.executeAsync(commandBuilder.buildCommand(runDockerCommand, dto));
         return uuid;
     }
 
@@ -111,4 +110,11 @@ public class ExploratoryResource implements DockerCommands {
         return new ExploratoryCallbackHandler(selfService, action, originalUuid, dto.getIamUserName(), dto.getExploratoryName());
     }
 
+    private String nameContainer(String user, DockerAction action, String name) {
+        return nameContainer(user, action.toString(), "exploratory", name);
+    }
+
+    public String getResourceType() {
+        return Directories.NOTEBOOK_LOG_DIRECTORY;
+    }
 }

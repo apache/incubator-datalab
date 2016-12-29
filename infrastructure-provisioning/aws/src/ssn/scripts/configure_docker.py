@@ -23,9 +23,10 @@ from fabric.contrib.files import exists
 import argparse
 import json
 import sys
+import os
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--hostname', type=str, default='edge')
+parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 args = parser.parse_args()
@@ -33,7 +34,7 @@ args = parser.parse_args()
 
 def ensure_docker_daemon():
     try:
-        if not exists('/tmp/docker_daemon_ensured'):
+        if not exists(os.environ['ssn_dlab_path'] + 'tmp/docker_daemon_ensured'):
             sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D')
             sudo('echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | sudo tee /etc/apt/sources.list.d/docker.list')
             sudo('apt-get update')
@@ -41,7 +42,7 @@ def ensure_docker_daemon():
             sudo('apt-get install -y docker-engine')
             sudo('usermod -a -G docker ubuntu')
             sudo('sysv-rc-conf docker on')
-            sudo('touch /tmp/docker_daemon_ensured')
+            sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/docker_daemon_ensured')
         return True
     except:
         return False

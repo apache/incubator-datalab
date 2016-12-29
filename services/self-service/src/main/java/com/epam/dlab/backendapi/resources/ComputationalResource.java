@@ -18,19 +18,20 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.api.form.ComputationalCreateFormDTO;
-import com.epam.dlab.backendapi.api.instance.UserComputationalResourceDTO;
-import com.epam.dlab.backendapi.client.rest.ComputationalAPI;
+import com.epam.dlab.backendapi.core.UserComputationalResourceDTO;
 import com.epam.dlab.backendapi.dao.InfrastructureProvisionDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
-import com.epam.dlab.client.restclient.RESTService;
-import com.epam.dlab.constants.UserInstanceStatus;
+import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.dto.computational.ComputationalCreateDTO;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.registry.ApiCallbacks;
+import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.ApiCallbacks;
+import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.epam.dlab.utils.UsernameUtils;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -38,12 +39,13 @@ import io.dropwizard.auth.Auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static com.epam.dlab.backendapi.SelfServiceApplicationConfiguration.PROVISIONING_SERVICE;
-import static com.epam.dlab.constants.UserInstanceStatus.*;
+import static com.epam.dlab.UserInstanceStatus.*;
 
 @Path("/infrastructure_provision/computational_resources")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -56,11 +58,11 @@ public class ComputationalResource implements ComputationalAPI {
     @Inject
     private InfrastructureProvisionDAO infrastructureProvisionDAO;
     @Inject
-    @Named(PROVISIONING_SERVICE)
+    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
 
     @PUT
-    public Response create(@Auth UserInfo userInfo, ComputationalCreateFormDTO formDTO) {
+    public Response create(@Auth UserInfo userInfo, @Valid @NotNull ComputationalCreateFormDTO formDTO) {
         LOGGER.debug("creating computational resource {} for user {}", formDTO.getName(), userInfo.getName());
         boolean isAdded = infrastructureProvisionDAO.addComputational(userInfo.getName(), formDTO.getNotebookName(),
                 new UserComputationalResourceDTO()
@@ -83,8 +85,7 @@ public class ComputationalResource implements ComputationalAPI {
                         .withVersion(formDTO.getVersion())
                         .withEdgeUserName(UsernameUtils.removeDomain(userInfo.getName()))
                         .withIamUserName(userInfo.getName())
-                        .withRegion(settingsDAO.getAwsRegion())
-                        .withSecurityGroupIds(settingsDAO.getSecurityGroups());
+                        .withRegion(settingsDAO.getCredsRegion());
                 ;
                 LOGGER.debug("created computational resource {} for user {}", formDTO.getName(), userInfo.getName());
                 return Response
@@ -122,9 +123,11 @@ public class ComputationalResource implements ComputationalAPI {
                     .withComputationalName(computationalName)
                     .withNotebookInstanceName(exploratoryId)
                     .withClusterName(computationalId)
+                    .withKeyDir(settingsDAO.getCredsKeyDir())
+                    .withSshUser(settingsDAO.getExploratorySshUser())
                     .withEdgeUserName(UsernameUtils.removeDomain(userInfo.getName()))
                     .withIamUserName(userInfo.getName())
-                    .withRegion(settingsDAO.getAwsRegion());
+                    .withRegion(settingsDAO.getCredsRegion());
             return provisioningService.post(EMR_TERMINATE, dto, String.class);
         } catch (Throwable t) {
             updateComputationalStatus(userInfo.getName(), exploratoryName, computationalName, FAILED);

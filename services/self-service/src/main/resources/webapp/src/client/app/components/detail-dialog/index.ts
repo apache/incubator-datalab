@@ -16,12 +16,12 @@ limitations under the License.
 
 ****************************************************************************/
 
-import {NgModule, Component} from "@angular/core";
-import {CommonModule} from "@angular/common";
-import {ModalModule} from './../modal/index';
-import {DetailDialog} from "./detail-dialog.component";
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ModalModule } from './../modal/index';
+import { DetailDialog } from './detail-dialog.component';
 
-export * from "./detail-dialog.component";
+export * from './detail-dialog.component';
 
 @NgModule({
   imports: [CommonModule, ModalModule],

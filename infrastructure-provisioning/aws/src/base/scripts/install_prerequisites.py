@@ -26,10 +26,10 @@ import sys
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--hostname', type=str, default='edge')
+parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
-parser.add_argument('--apt_packages', type=str, default='linux-headers-generic python-pip python-dev groff vim less git wget sysv-rc-conf')
-parser.add_argument('--pip_packages', type=str, default='boto3 boto argparse fabric jupyter awscli')
+parser.add_argument('--apt_packages', type=str, default='linux-headers-generic python-pip python-dev groff vim less git wget sysv-rc-conf libssl-dev')
+parser.add_argument('--pip_packages', type=str, default='boto3 argparse fabric jupyter awscli')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 args = parser.parse_args()
 

@@ -16,31 +16,36 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
-import { Modal } from './../modal/modal.component';
-import {DateUtils} from './../../util/dateUtils'
+import { Component, ViewChild } from '@angular/core';
+import { DateUtils } from './../../util/dateUtils';
 
 
- @Component({
-   moduleId: module.id,
-   selector: 'detail-dialog',
-   templateUrl: 'detail-dialog.component.html'
- })
+@Component({
+  moduleId: module.id,
+  selector: 'detail-dialog',
+  templateUrl: 'detail-dialog.component.html'
+})
 
- export class DetailDialog {
-   notebook: any;
-   upTimeInHours: number;
-   upTimeSince: string = "";
-   @ViewChild('bindDialog') bindDialog;
+export class DetailDialog {
+  notebook: any;
+  upTimeInHours: number;
+  upTimeSince: string = '';
+  tooltip: boolean = false;
 
- 	open(param, notebook) {
+  @ViewChild('bindDialog') bindDialog;
+
+ 	public open(param, notebook): void {
+    this.tooltip = false;
     this.notebook = notebook;
 
-    if(notebook.time) {
-      this.upTimeInHours = DateUtils.diffBetweenDatesInHours(this.notebook.time);
-      this.upTimeSince = new Date(this.notebook.time).toString();
-    }
+    this.upTimeInHours = (notebook.time) ? DateUtils.diffBetweenDatesInHours(this.notebook.time) : 0;
+    this.upTimeSince = (notebook.time) ? new Date(this.notebook.time).toString() : '';
 
     this.bindDialog.open(param);
-   }
- }
+  }
+
+  public isEllipsisActive($event): void {
+    if ($event.target.offsetWidth < $event.target.scrollWidth)
+      this.tooltip = true;
+  }
+}

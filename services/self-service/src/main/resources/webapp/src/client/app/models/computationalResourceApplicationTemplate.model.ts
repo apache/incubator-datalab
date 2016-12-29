@@ -16,12 +16,12 @@ limitations under the License.
 
 ****************************************************************************/
 
-import  { ComputationalResourceApplication } from "./computationalResourceApplication.model";
-import { ResourceShapeModel } from "./resourceShape.model";
+import { ComputationalResourceApplication } from './computationalResourceApplication.model';
+import { ResourceShapeModel } from './resourceShape.model';
 
 export class ComputationalResourceApplicationTemplate {
   version: string;
-  applications: Array<ComputationalResourceApplication>
+  applications: Array<ComputationalResourceApplication>;
   shapes: Array<ResourceShapeModel>;
 
   constructor(jsonModel:any, shapes: Array<ResourceShapeModel>) {

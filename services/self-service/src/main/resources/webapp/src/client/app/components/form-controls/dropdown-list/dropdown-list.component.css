@@ -1,0 +1,93 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+.dropdown-list {
+  width: 100%;
+}
+
+.dropdown-list button {
+  min-width: 100%;
+  background: #fff;
+  border: 1px solid #cad2da;
+  padding: 7px 12px;
+  font-size: 16px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: 4px;
+  outline: none;
+}
+
+.dropdown-list button span {
+  color: #4a5c89;
+}
+
+.dropdown-list .caret-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  text-align: center;
+  padding: 7px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: #f6fafe;
+  border: 1px solid #ccc;
+  border-radius: 0 4px 4px 0;
+  color: #64a5dc;
+}
+
+.dropdown-list .dropdown-menu {
+  width: 100%;
+  max-height: 250px;
+  left: 0;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dropdown-list .dropdown-menu li {
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-list .dropdown-menu a {
+  padding: 10px;
+  padding-left: 15px;
+  position: relative;
+  font-weight: 300;
+  cursor: pointer;
+}
+
+.dropdown-list .dropdown-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdown-list .dropdown-menu::-webkit-scrollbar-track {
+  -webkit-box-shadow: none;
+  border-radius: 5px;
+  background-color: #f1ecec;
+}
+
+.dropdown-list .dropdown-menu::-webkit-scrollbar-thumb {
+  -webkit-box-shadow: inset 1px 1px 6px #9a9393;
+  background-color: #f6fafe;
+  border-radius: 5px;
+}

@@ -15,14 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ****************************************************************************/
+/* tslint:disable:no-empty */
 
-import { Observable } from "rxjs";
-import { Response } from "@angular/http";
-import { UserResourceService } from "../../services/userResource.service";
-import { ComputationalResourceImage } from "../../models/computationalResourceImage.model";
-import { ResourceShapeModel } from "../../models/resourceShape.model";
-import { ComputationalResourceApplicationTemplate } from "../../models/computationalResourceApplicationTemplate.model";
-import HTTP_STATUS_CODES from 'http-status-enum';
+import { Observable } from 'rxjs';
+import { Response } from '@angular/http';
+import { UserResourceService } from '../../services/userResource.service';
+import { ComputationalResourceImage } from '../../models/computationalResourceImage.model';
+import { ComputationalResourceApplicationTemplate } from '../../models/computationalResourceApplicationTemplate.model';
 
 export class ComputationalResourceCreateModel {
 
@@ -33,22 +32,25 @@ export class ComputationalResourceCreateModel {
   computational_resource_count: number;
   computational_resource_master_shape: string;
   computational_resource_slave_shape: string;
-
   notebook_name: string;
-
-  private userResourceService: UserResourceService;
-  private continueWith: Function;
 
   selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({}, []);
   computationalResourceImages: Array<ComputationalResourceImage> = [];
   computationalResourceApplicationTemplates: Array<ComputationalResourceApplicationTemplate> = [];
+
+  private userResourceService: UserResourceService;
+  private continueWith: Function;
+
+  static getDefault(userResourceService): ComputationalResourceCreateModel {
+    return new ComputationalResourceCreateModel('', 0, '', '', '', () => { }, () => { }, null, null, userResourceService);
+  }
 
   constructor(
     computational_resource_alias: string,
     computational_resource_count: number,
     computational_resource_master_shape: string,
     computational_resource_slave_shape: string,
-    notebook_name : string,
+    notebook_name: string,
     fnProcessResults: any,
     fnProcessErrors: any,
     selectedItemChanged: Function,
@@ -63,12 +65,56 @@ export class ComputationalResourceCreateModel {
     this.loadTemplates();
   }
 
-  static getDefault(userResourceService): ComputationalResourceCreateModel {
-    return new ComputationalResourceCreateModel('', 0, '', '', '', () => { }, () => { }, null, null, userResourceService);
-  }
-
   public setSelectedItem(item: ComputationalResourceApplicationTemplate) {
     this.selectedItem = item;
+  }
+
+  public setCreatingParams(name: string, count: number, shape_master: string, shape_slave: string): void {
+    this.computational_resource_alias = name;
+    this.computational_resource_count = count;
+    this.computational_resource_master_shape = shape_master;
+    this.computational_resource_slave_shape = shape_slave;
+  }
+
+  public loadTemplates(): void {
+    if (this.computationalResourceImages.length === 0)
+      this.userResourceService.getComputationalResourcesTemplates()
+        .subscribe(
+        data => {
+          for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
+            let computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
+            this.computationalResourceImages.push(computationalResourceImage);
+
+            for (let index = 0; index < computationalResourceImage.application_templates.length; index++)
+              this.computationalResourceApplicationTemplates.push(computationalResourceImage.application_templates[index]);
+          }
+          if (this.computationalResourceImages.length > 0)
+            this.setSelectedTemplate(0);
+
+          if (this.continueWith)
+            this.continueWith();
+        });
+  }
+
+  public setSelectedTemplate(index: number): void {
+    if (this.computationalResourceApplicationTemplates && this.computationalResourceApplicationTemplates[index]) {
+      this.selectedItem = this.computationalResourceApplicationTemplates[index];
+      if (this.selectedItemChanged)
+        this.selectedItemChanged();
+    }
+  }
+
+  public resetModel() {
+    this.setSelectedTemplate(0);
+  }
+
+
+  private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
+    this.confirmAction = () => this.createComputationalResource()
+      .subscribe(
+      (response: Response) => fnProcessResults(response),
+      (response: Response) => fnProcessErrors(response)
+      );
   }
 
   private createComputationalResource(): Observable<Response> {
@@ -81,51 +127,4 @@ export class ComputationalResourceCreateModel {
       notebook_name: this.notebook_name
     });
   };
-
-  private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
-    this.confirmAction = () => this.createComputationalResource()
-      .subscribe(
-      (response: Response) => fnProcessResults(response),
-      (response: Response) => fnProcessErrors(response)
-    );
-  }
-
-  public setCreatingParams(name: string, count: number, shape_master: string, shape_slave: string) : void {
-    this.computational_resource_alias = name;
-    this.computational_resource_count = count;
-    this.computational_resource_master_shape = shape_master;
-    this.computational_resource_slave_shape = shape_slave;
-  }
-
-  public loadTemplates() : void {
-    if (this.computationalResourceImages.length == 0)
-      this.userResourceService.getComputationalResourcesTemplates()
-        .subscribe(
-        data => {
-          for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
-            let computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
-            this.computationalResourceImages.push(computationalResourceImage);
-
-            for(let index = 0; index < computationalResourceImage.application_templates.length; index++)
-              this.computationalResourceApplicationTemplates.push(computationalResourceImage.application_templates[index]);
-          }
-          if (this.computationalResourceImages.length > 0)
-            this.setSelectedTemplate(0);
-
-          if (this.continueWith)
-            this.continueWith();
-        });
-  }
-
-  public setSelectedTemplate(index: number): void {
-    if(this.computationalResourceApplicationTemplates && this.computationalResourceApplicationTemplates[index]) {
-      this.selectedItem = this.computationalResourceApplicationTemplates[index];
-      if (this.selectedItemChanged)
-        this.selectedItemChanged();
-    }
-  }
-
-  public resetModel(){
-    this.setSelectedTemplate(0);
-  }
 }

@@ -18,22 +18,23 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.api.form.ExploratoryActionFormDTO;
-import com.epam.dlab.backendapi.api.form.ExploratoryCreateFormDTO;
-import com.epam.dlab.backendapi.api.instance.UserInstanceDTO;
-import com.epam.dlab.backendapi.client.rest.ExploratoryAPI;
+import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.InfrastructureProvisionDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
-import com.epam.dlab.client.restclient.RESTService;
-import com.epam.dlab.constants.UserInstanceStatus;
+import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
+import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.dto.StatusBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStopDTO;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.registry.ApiCallbacks;
+import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.ApiCallbacks;
+import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.epam.dlab.utils.UsernameUtils;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -41,12 +42,15 @@ import io.dropwizard.auth.Auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static com.epam.dlab.backendapi.SelfServiceApplicationConfiguration.PROVISIONING_SERVICE;
-import static com.epam.dlab.constants.UserInstanceStatus.*;
+import java.util.Optional;
+
+import static com.epam.dlab.UserInstanceStatus.*;
 
 @Path("/infrastructure_provision/exploratory_environment")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -59,16 +63,19 @@ public class ExploratoryResource implements ExploratoryAPI {
     @Inject
     private InfrastructureProvisionDAO infrastructureProvisionDAO;
     @Inject
-    @Named(PROVISIONING_SERVICE)
+    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
 
     @PUT
-    public Response create(@Auth UserInfo userInfo, ExploratoryCreateFormDTO formDTO) {
-        LOGGER.debug("creating exploratory environment {} for user {}", formDTO.getName(), userInfo.getName());
+    public Response create(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryCreateFormDTO formDTO) {
+        LOGGER.debug("creating exploratory environment {} with name {} for user {}",
+                formDTO.getImage(), formDTO.getName(), userInfo.getName());
         boolean isAdded = infrastructureProvisionDAO.insertExploratory(new UserInstanceDTO()
                 .withUser(userInfo.getName())
                 .withExploratoryName(formDTO.getName())
                 .withStatus(CREATING.toString())
+                .withImageName(formDTO.getImage())
+                .withImageVersion(formDTO.getVersion())
                 .withShape(formDTO.getShape()));
         if (isAdded) {
             try {
@@ -77,8 +84,9 @@ public class ExploratoryResource implements ExploratoryAPI {
                         .withExploratoryName(formDTO.getName())
                         .withNotebookUserName(UsernameUtils.removeDomain(userInfo.getName()))
                         .withIamUserName(userInfo.getName())
+                        .withNotebookImage(formDTO.getImage())
                         .withNotebookInstanceType(formDTO.getShape())
-                        .withRegion(settingsDAO.getAwsRegion())
+                        .withRegion(settingsDAO.getCredsRegion())
                         .withSecurityGroupIds(settingsDAO.getSecurityGroups());
                 LOGGER.debug("created exploratory environment {} for user {}", formDTO.getName(), userInfo.getName());
                 return Response
@@ -109,7 +117,7 @@ public class ExploratoryResource implements ExploratoryAPI {
     }
 
     @POST
-    public String start(@Auth UserInfo userInfo, ExploratoryActionFormDTO formDTO) {
+    public String start(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryActionFormDTO formDTO) {
         LOGGER.debug("starting exploratory environment {} for user {}", formDTO.getNotebookInstanceName(), userInfo.getName());
         return action(userInfo, formDTO.getNotebookInstanceName(), EXPLORATORY_START, STARTING);
     }
@@ -117,21 +125,30 @@ public class ExploratoryResource implements ExploratoryAPI {
     @DELETE
     @Path("/{name}/stop")
     public String stop(@Auth UserInfo userInfo, @PathParam("name") String name) {
+        System.out.println("stopping " + name);
         LOGGER.debug("stopping exploratory environment {} for user {}", name, userInfo.getName());
-        UserInstanceStatus status = STOPPING;
-        updateExploratoryStatus(userInfo.getName(), name, status);
-        updateComputationalStatuses(userInfo.getName(), name, status);
+        UserInstanceStatus exploratoryStatus = STOPPING;
+        UserInstanceStatus computationalStatus = TERMINATING;
+        updateExploratoryStatus(userInfo.getName(), name, exploratoryStatus);
+        updateComputationalStatuses(userInfo.getName(), name, computationalStatus);
         try {
-            String exploratoryId = infrastructureProvisionDAO.fetchExploratoryId(userInfo.getName(), name);
+            Optional<UserInstanceDTO> opt =
+                    infrastructureProvisionDAO.fetchExploratoryFields(userInfo.getName(), name);
+            if(!opt.isPresent()) {
+                throw new DlabException(String.format("Exploratory instance with name {} not found.", name));
+            }
+
+            UserInstanceDTO userInstance = opt.get();
             ExploratoryStopDTO dto = new ExploratoryStopDTO()
                     .withServiceBaseName(settingsDAO.getServiceBaseName())
+                    .withNotebookImage(userInstance.getImageName())
                     .withExploratoryName(name)
                     .withNotebookUserName(UsernameUtils.removeDomain(userInfo.getName()))
                     .withIamUserName(userInfo.getName())
-                    .withNotebookInstanceName(exploratoryId)
+                    .withNotebookInstanceName(userInstance.getExploratoryId())
                     .withKeyDir(settingsDAO.getCredsKeyDir())
                     .withSshUser(settingsDAO.getExploratorySshUser())
-                    .withRegion(settingsDAO.getAwsRegion());
+                    .withRegion(settingsDAO.getCredsRegion());
             return provisioningService.post(EXPLORATORY_STOP, dto, String.class);
         } catch (Throwable t) {
             updateExploratoryStatus(userInfo.getName(), name, FAILED);
@@ -145,20 +162,27 @@ public class ExploratoryResource implements ExploratoryAPI {
         LOGGER.debug("terminating exploratory environment {} for user {}", name, userInfo.getName());
         UserInstanceStatus status = TERMINATING;
         updateExploratoryStatus(userInfo.getName(), name, status);
+        updateComputationalStatuses(userInfo.getName(), name, status);
         return action(userInfo, name, EXPLORATORY_TERMINATE, status);
     }
 
     private String action(UserInfo userInfo, String name, String action, UserInstanceStatus status) {
-        updateExploratoryStatus(userInfo.getName(), name, status);
         try {
-            String exploratoryId = infrastructureProvisionDAO.fetchExploratoryId(userInfo.getName(), name);
+            updateExploratoryStatus(userInfo.getName(), name, status);
+            Optional<UserInstanceDTO> opt =
+                    infrastructureProvisionDAO.fetchExploratoryFields(userInfo.getName(), name);
+            if(!opt.isPresent())
+                throw new DlabException(String.format("Exploratory instance with name {} not found.", name));
+
+            UserInstanceDTO userInstance = opt.get();
             ExploratoryActionDTO dto = new ExploratoryActionDTO<>()
                     .withServiceBaseName(settingsDAO.getServiceBaseName())
+                    .withNotebookImage(userInstance.getImageName())
                     .withExploratoryName(name)
                     .withNotebookUserName(UsernameUtils.removeDomain(userInfo.getName()))
                     .withIamUserName(userInfo.getName())
-                    .withNotebookInstanceName(exploratoryId)
-                    .withRegion(settingsDAO.getAwsRegion());
+                    .withNotebookInstanceName(userInstance.getExploratoryId())
+                    .withRegion(settingsDAO.getCredsRegion());
             return provisioningService.post(action, dto, String.class);
         } catch (Throwable t) {
             updateExploratoryStatus(userInfo.getName(), name, FAILED);

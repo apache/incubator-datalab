@@ -16,19 +16,28 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { NgModule, Component } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { ResourcesGrid } from "./resources-grid.component";
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ResourcesGrid } from './resources-grid.component';
 import { ComputationalResourcesModule } from './../computational-resources-list/index';
 import { ModalModule } from './../modal/index';
 import { ComputationalResourceCreateDialogModule } from './../computational-resource-create-dialog/index';
 import { ConfirmationDialogModule } from './../confirmation-dialog/index';
 import { DetailDialogModule } from './../detail-dialog/index';
+import { MultiSelectDropdownModule } from './../form-controls/multi-select-dropdown/index';
 
-export * from "./resources-grid.component";
+export * from './resources-grid.component';
 
 @NgModule({
-  imports: [CommonModule, ComputationalResourcesModule, ModalModule, ConfirmationDialogModule, DetailDialogModule, ComputationalResourceCreateDialogModule],
+  imports: [
+    CommonModule,
+    ComputationalResourcesModule,
+    ModalModule,
+    ConfirmationDialogModule,
+    DetailDialogModule,
+    ComputationalResourceCreateDialogModule,
+    MultiSelectDropdownModule
+  ],
   declarations: [ResourcesGrid],
   exports: [ResourcesGrid]
 })

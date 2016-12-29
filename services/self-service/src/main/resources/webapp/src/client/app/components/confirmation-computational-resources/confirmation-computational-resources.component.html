@@ -17,12 +17,13 @@ limitations under the License.
 ----------------------------------------------------------------------------------------------------------- -->
 
 
-<modal #bindDialog modalClass="confirmation-dialog modal-md transparent-header">
+<modal-dialog #bindDialog modalClass="confirmation-dialog modal-md transparent-header">
   <modal-header></modal-header>
   <modal-content>
       <div class="row">
-        <div class="col-xs-12">
-          <p>Computational resource <strong>{{model.computationalName}}</strong> will be decommissioned.</p>
+        <div class="col-xs-12 tooltip-wrap" (mouseover)="isEllipsisActive($event)">
+          <p>Computational resource <strong class="truncate-name">{{model.computationalName}}</strong> will be decommissioned.</p>
+          <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{model.computationalName}}</div>
         </div>
       </div>
       <div class="row">
@@ -38,4 +39,4 @@ limitations under the License.
         <button type="button" class="btn btn-success" (click)="model.confirmAction()">Yes</button>
       </div>
   </modal-content>
-</modal>
+</modal-dialog>

@@ -41,14 +41,19 @@ class IsoDateDeSerializer extends JsonDeserializer<Date> {
     public Date deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ObjectCodec oc = jsonParser.getCodec();
         JsonNode node = oc.readTree(jsonParser);
-        String dateValue = node.get(DATE_NODE).asText();
 
-        DateFormat df = new SimpleDateFormat(ISO_DATE_FORMAT);
         Date date;
-        try {
-            date = df.parse(dateValue);
-        } catch (ParseException e) {
-            date = new Date(Long.valueOf(dateValue));
+        if(node.get(DATE_NODE) != null) {
+            String dateValue = node.get(DATE_NODE).asText();
+            DateFormat df = new SimpleDateFormat(ISO_DATE_FORMAT);
+            try {
+                date = df.parse(dateValue);
+            } catch (ParseException e) {
+                date = new Date(Long.valueOf(dateValue));
+            }
+        }
+        else {
+            date = new Date(node.asLong());
         }
         return date;
     }

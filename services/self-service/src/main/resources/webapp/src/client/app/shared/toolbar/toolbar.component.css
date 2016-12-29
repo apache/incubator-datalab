@@ -18,7 +18,7 @@ limitations under the License.
 
 :host {
   background-color: #106cc8;
-  color: rgba(255, 255, 255, 0.87);
+  color: rgba(255, 255, 255, .87);
   display: block;
   height: 48px;
   padding: 0 16px;
@@ -28,7 +28,7 @@ h1 {
   display: inline;
   font-size: 20px;
   font-weight: normal;
-  letter-spacing: 0.1px;
+  letter-spacing: .1px;
   line-height: 48px;
 }
 

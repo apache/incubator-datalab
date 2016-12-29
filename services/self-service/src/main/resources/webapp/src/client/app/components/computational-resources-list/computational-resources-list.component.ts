@@ -16,14 +16,14 @@ limitations under the License.
 
 ****************************************************************************/
 
-import {Component, EventEmitter, Input, Output, ViewChild} from "@angular/core";
-import { UserResourceService } from "./../../services/userResource.service";
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { UserResourceService } from './../../services/userResource.service';
 
 @Component({
-    moduleId: module.id,
-    selector: 'computational-resources-list',
-    templateUrl: 'computational-resources-list.component.html',
-    styleUrls: ['./computational-resources-list.component.css']
+  moduleId: module.id,
+  selector: 'computational-resources-list',
+  templateUrl: 'computational-resources-list.component.html',
+  styleUrls: ['./computational-resources-list.component.css']
 })
 
 export class ComputationalResourcesList {
@@ -34,8 +34,7 @@ export class ComputationalResourcesList {
 
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
-  collapse: boolean = false;
-
+  collapse: boolean = true;
   constructor(private userResourceService: UserResourceService) { }
 
   toggleResourceList() {

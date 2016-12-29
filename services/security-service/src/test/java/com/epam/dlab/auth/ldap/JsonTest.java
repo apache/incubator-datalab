@@ -18,19 +18,13 @@ limitations under the License.
 
 package com.epam.dlab.auth.ldap;
 
-import static org.junit.Assert.*;
+import com.epam.dlab.auth.UserInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.*;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.epam.dlab.auth.UserInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertNotNull;
 
 public class JsonTest {
 

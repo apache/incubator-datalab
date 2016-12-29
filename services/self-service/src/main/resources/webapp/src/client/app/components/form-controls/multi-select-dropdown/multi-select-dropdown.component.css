@@ -1,0 +1,129 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+.dropdown-multiselect {
+  width: 100%;
+}
+
+.dropdown-multiselect button {
+  min-width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #cad2da;
+  font-size: 14px;
+}
+
+.dropdown-multiselect button span {
+  color: #999;
+}
+
+.dropdown-multiselect button .selected-items {
+  color: #4eaf3e;
+}
+
+.dropdown-multiselect .caret-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 36px;
+  height: 100%;
+  text-align: center;
+  padding: 5px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: #f6fafe;
+  border-left: 1px solid #ccc;
+  color: #64a5dc;
+}
+
+.dropdown-multiselect .dropdown-menu {
+  display: block;
+  width: 100%;
+  max-height: 250px;
+  left: 0;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.dropdown-multiselect .dropdown-menu li {
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-multiselect.statuses .dropdown-menu li a,
+.dropdown-multiselect.resources .dropdown-menu li a {
+  text-transform: capitalize;
+}
+
+.dropdown-multiselect .dropdown-menu a {
+  padding: 10px;
+  padding-left: 35px;
+  position: relative;
+  font-weight: 300;
+}
+
+.dropdown-multiselect .dropdown-menu .filter-actions {
+  border-bottom: 1px solid #ececec;
+  width: 50%;
+  float: left;
+  cursor: pointer;
+}
+
+.dropdown-multiselect .dropdown-menu .filter-actions a {
+  padding-left: 14px;
+  color: #35afd5;
+}
+
+.dropdown-multiselect .dropdown-menu .filter-actions .select_all:hover {
+  color: #4eaf3e;
+  background: #f9fafb;
+}
+
+.dropdown-multiselect .dropdown-menu .filter-actions .deselect_all:hover {
+  color: #f1696e;
+  background: #f9fafb;
+}
+
+.dropdown-multiselect .dropdown-menu a span {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  color: #35afd5;
+}
+
+.dropdown-multiselect.btn-group.open .dropdown-toggle {
+  box-shadow: none;
+}
+
+.dropdown-multiselect .dropdown-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdown-multiselect .dropdown-menu::-webkit-scrollbar-track {
+  -webkit-box-shadow: none;
+  border-radius: 5px;
+  background-color: #f1ecec;
+}
+
+.dropdown-multiselect .dropdown-menu::-webkit-scrollbar-thumb {
+  -webkit-box-shadow: inset 1px 1px 6px #9a9393;
+  background-color: #f6fafe;
+  border-radius: 5px;
+}

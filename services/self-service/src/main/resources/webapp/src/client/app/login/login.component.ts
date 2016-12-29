@@ -17,11 +17,9 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component } from '@angular/core';
-
-import { LoginModel } from "./loginModel";
-import {AppRoutingService} from "../routing/appRouting.service";
-import {ApplicationSecurityService} from "../services/applicationSecurity.service";
-import HTTP_STATUS_CODES from 'http-status-enum';
+import { LoginModel } from './loginModel';
+import { AppRoutingService } from '../routing/appRouting.service';
+import { ApplicationSecurityService } from '../services/applicationSecurity.service';
 
 @Component({
   moduleId: module.id,
@@ -32,16 +30,15 @@ import HTTP_STATUS_CODES from 'http-status-enum';
 })
 
 export class LoginComponent {
-  model = new LoginModel ('', '');
+  model = new LoginModel('', '');
   error = '';
   loading = false;
-  userPattern = "\\w+.*\\w+";
-  //
-  // Override
-  //
+  userPattern = '\\w+.*\\w+';
 
-  constructor(private applicationSecurityService: ApplicationSecurityService,
-              private appRoutingService : AppRoutingService) {}
+  constructor(
+    private applicationSecurityService: ApplicationSecurityService,
+    private appRoutingService : AppRoutingService
+  ) { }
 
   ngOnInit() {
     this.applicationSecurityService.isLoggedIn()
@@ -50,10 +47,6 @@ export class LoginComponent {
         this.appRoutingService.redirectToHomePage();
     });
   }
-
-  //
-  // Handlers
-  //
 
   login_btnClick() {
     this.error = '';
@@ -69,14 +62,8 @@ export class LoginComponent {
 
         return false;
       }, (err) => {
-          if(err.status == HTTP_STATUS_CODES.UNAUTHORIZED){
-            this.error = 'Username or password is incorrect.';
-            this.loading = false;
-          }
-          else {
-            this.error = 'System failure. Please contact administrator.';
-            this.loading = false;
-          }
+          this.error = err.text();
+          this.loading = false;
         });
 
     return false;

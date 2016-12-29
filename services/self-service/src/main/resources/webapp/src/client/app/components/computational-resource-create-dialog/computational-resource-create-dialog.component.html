@@ -16,25 +16,18 @@ limitations under the License.
 
 ----------------------------------------------------------------------------------------------------------- -->
 
-<modal #bindDialog modalClass="modal-lg">
+<modal-dialog #bindDialog modalClass="modal-lg">
   <modal-header>
     <h4 class="modal-title">Create computational resource</h4>
   </modal-header>
   <modal-content>
-    <form [formGroup]="createComputationalResourceForm" novalidate (submit)="createComputationalResource($event, createComputationalResourceForm.value, shape_master.value, shape_slave.value)">
+    <form [formGroup]="createComputationalResourceForm" novalidate (submit)="createComputationalResource($event, createComputationalResourceForm.value, shapes.master_shape, shapes.slave_shape)">
       <div class="form-group row">
         <div  class="col-xs-4">
           <label class="control-label">Select template</label>
-          <div>
-            <small>Template description</small>
-          </div>
         </div>
         <div class="col-xs-8">
-          <select class="form-control" (change)="templateSelectionChange($event.target.value)" #tmplIndex>
-            <option *ngFor="let template of model.computationalResourceApplicationTemplates; let i = index" value="{{i}}">
-              {{template.version}}
-            </option>
-          </select>
+          <dropdown-list #templatesList (selectedItem)="onUpdate($event)" [items]="model.computationalResourceApplicationTemplates"></dropdown-list>
         </div>
       </div>
       <div class="form-group row">
@@ -52,8 +45,8 @@ limitations under the License.
           <label class="control-label">Total Instance number</label>
         </div>
         <div class="col-xs-8">
-          <input type="number" class="form-control" min="1" max="999" formControlName="instance_number" />
-          <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.instance_number.valid">Please enter a valid number</span>
+          <input type="number" class="form-control" min="1" max="999" formControlName="instance_number" (keypress)="isNumberKey($event)" />
+          <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.instance_number.valid">Only integer values greater than 0 are allowed</span>
         </div>
       </div>
       <div class="form-group row">
@@ -61,9 +54,7 @@ limitations under the License.
           <label class="control-label">Master Instance shape</label>
         </div>
         <div class="col-xs-8">
-          <select class="form-control" #shape_master>
-            <option *ngFor="let shape of model.selectedItem.shapes">{{shape.type}}</option>
-          </select>
+          <dropdown-list #masterShapesList (selectedItem)="onUpdate($event)" [items]="model.selectedItem.shapes"></dropdown-list>
         </div>
       </div>
       <div class="form-group row">
@@ -71,9 +62,7 @@ limitations under the License.
           <label class="control-label">Slave Instance shape</label>
         </div>
         <div class="col-xs-8">
-          <select class="form-control" #shape_slave>
-            <option *ngFor="let shape of model.selectedItem.shapes">{{shape.type}}</option>
-          </select>
+          <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)" [items]="model.selectedItem.shapes"></dropdown-list>
         </div>
       </div>
       <div class="text-right" *ngIf="processError">
@@ -85,4 +74,4 @@ limitations under the License.
       </div>
     </form>
   </modal-content>
-</modal>
+</modal-dialog>

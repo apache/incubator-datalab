@@ -16,12 +16,12 @@ limitations under the License.
 
 ****************************************************************************/
 
-import {NgModule, Component} from "@angular/core";
-import {CommonModule} from "@angular/common";
-import {ModalModule} from './../modal/index';
-import {UploadKeyDialog} from "./key-upload-dialog.component";
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ModalModule } from './../modal/index';
+import { UploadKeyDialog } from './key-upload-dialog.component';
 
-export * from "./key-upload-dialog.component";
+export * from './key-upload-dialog.component';
 
 @NgModule({
   imports: [CommonModule, ModalModule],

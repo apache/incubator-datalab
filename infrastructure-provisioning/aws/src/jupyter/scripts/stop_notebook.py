@@ -23,6 +23,7 @@ from dlab.aws_actions import *
 import boto3
 import argparse
 import sys
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str)
@@ -47,11 +48,12 @@ if __name__ == "__main__":
                 cluster = client.describe_cluster(ClusterId=cluster_id)
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')
-                s3_cleanup(args.bucket_name, emr_name)
+                emr_version = cluster.get('ReleaseLabel')
+                s3_cleanup(args.bucket_name, emr_name, os.environ['notebook_user_name'])
                 print "The bucket " + args.bucket_name + " has been cleaned successfully"
                 terminate_emr(cluster_id)
                 print "The EMR cluster " + emr_name + " has been terminated successfully"
-                remove_kernels(emr_name, args.tag_name, args.nb_tag_value, args.ssh_user, args.key_path)
+                remove_kernels(emr_name, args.tag_name, args.nb_tag_value, args.ssh_user, args.key_path, emr_version)
                 print emr_name + " kernels have been removed from notebook successfully"
         else:
             print "There are no EMR clusters to terminate."

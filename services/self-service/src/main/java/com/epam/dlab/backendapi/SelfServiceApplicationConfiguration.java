@@ -18,54 +18,20 @@ limitations under the License.
 
 package com.epam.dlab.backendapi;
 
-import com.epam.dlab.client.mongo.MongoServiceFactory;
-import com.epam.dlab.client.restclient.RESTServiceFactory;
+import com.epam.dlab.ServiceConfiguration;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.Configuration;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
-import static com.epam.dlab.auth.SecurityRestAuthenticator.SECURITY_SERVICE;
-
-public class SelfServiceApplicationConfiguration extends Configuration {
-    public static final String MONGO = "mongo";
-    public static final String PROVISIONING_SERVICE = "provisioningService";
+public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
     @Valid
     @JsonProperty
     private boolean mocked;
 
-    @Valid
-    @NotNull
-    @JsonProperty(MONGO)
-    private MongoServiceFactory mongoFactory = new MongoServiceFactory();
-
-    @Valid
-    @NotNull
-    @JsonProperty(SECURITY_SERVICE)
-    private RESTServiceFactory securityFactory;
-
-    @Valid
-    @NotNull
-    @JsonProperty(PROVISIONING_SERVICE)
-    private RESTServiceFactory provisioningFactory = new RESTServiceFactory();
-
 
     public boolean isMocked() {
         return mocked;
     }
-
-    public MongoServiceFactory getMongoFactory() {
-        return mongoFactory;
-    }
-
-    public RESTServiceFactory getSecurityFactory() {
-        return securityFactory;
-    }
-
-    public RESTServiceFactory getProvisioningFactory() {
-        return provisioningFactory;
-    }
-
+    
 }

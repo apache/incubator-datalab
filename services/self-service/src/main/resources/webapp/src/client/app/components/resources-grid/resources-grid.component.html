@@ -18,19 +18,52 @@ limitations under the License.
 
 <table class="dashboard_table">
   <tr>
-    <th class="th_name">Environment name</th>
-    <th class="th_status">Status</th>
-    <th class="th_shape">Shape</th>
-    <th class="th_resources">Computational resources</th>
-    <th class="th_actions">Actions</th>
+    <th *ngFor="let column of filteringColumns" ngClass="{{column.className || ''}}">{{column.title}}
+      <span *ngIf="column.filtering"
+            class="glyphicon pull-right"
+            [ngClass]="filtering && filterForm[column.name].length > 0 && !collapseFilterRow ? 'glyphicon-filter': 'glyphicon-option-vertical'"
+            (click)="toggleFilterRow()"></span>
+    </th>
   </tr>
 
-  <tr *ngIf="(!environments) || (environments.length == 0)" class="message_block">
+  <tr *ngIf="filteredEnvironments && collapseFilterRow" class="filter-row">
+    <td>
+      <input placeholder="Filter by environment name" class="form-control filter-field" [value]="filterForm.name" (input)="filterForm.name = $event.target.value" />
+    </td>
+    <td>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'" [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
+    </td>
+    <td>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'shapes'" [items]="filterConfiguration.shapes" [model]="filterForm.shapes"></multi-select-dropdown>
+    </td>
+    <td>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'" [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
+    </td>
+    <td>
+      <div class="actions">
+        <button class="btn reset" (click)="resetFilterConfigurations()">
+          <span class="glyphicon glyphicon-remove"></span>
+        </button>
+
+        <button class="btn apply" (click)="applyFilter_btnClick(filterForm)" [disabled]="filteredEnvironments.length == 0 && !filtering">
+          <span class="glyphicon glyphicon-ok" [ngClass]="{'not-allowed': filteredEnvironments.length == 0 && !filtering}"></span>
+        </button>
+      </div>
+    </td>
+  </tr>
+
+  <tr *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering" class="message_block">
     <td colspan="5">To start working, please, create new environment</td>
   </tr>
 
-  <tr *ngFor="let env of environments;" [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
-    <td (click)="(env.status != 'starting' && env.status != 'creating' && printDetailEnvironmentModal(env))" [ngClass]="{'not-allowed' : env.status == 'starting' || env.status == 'creating'}">{{env.name}}</td>
+  <tr *ngIf="(filteredEnvironments.length == 0) && filtering" class="message_block">
+    <td colspan="5">No matches found</td>
+  </tr>
+
+  <tr *ngFor="let env of filteredEnvironments;" [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
+    <!-- Need to be restored after debugging -->
+    <!-- (click)="(env.status != 'starting' && env.status != 'creating' && printDetailEnvironmentModal(env))" [ngClass]="{'not-allowed' : env.status == 'starting' || env.status == 'creating'}" -->
+    <td (click)="printDetailEnvironmentModal(env)">{{env.name}}</td>
     <td class="status" ngClass="{{env.status.toLowerCase() || ''}}">{{env.status}}</td>
     <td>{{env.shape}}</td>
     <td>
@@ -38,23 +71,19 @@ limitations under the License.
     </td>
     <td>
       <div class="dropdown">
-        <span data-toggle="dropdown"
-              class="actions"
-              (click)="dropdownPosition($event)"
-              [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' ||
+        <span data-toggle="dropdown" class="actions" (click)="dropdownPosition($event)" [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' ||
                                       env.status.toLowerCase() == 'failed' ||
                                       env.status.toLowerCase() == 'terminating' ||
                                       env.status.toLowerCase() == 'terminated'}">
         </span>
         <div class="dropdown-menu">
           <ul class="list-unstyled">
-            <li class="dropdown-close"></li>
             <li (click)="exploratoryAction(env, 'stop')" *ngIf="env.status.toLowerCase() != 'stopped' &&
                                                          env.status != 'stopping'">Stop</li>
             <li (click)="exploratoryAction(env, 'run')" *ngIf="env.status.toLowerCase() == 'stopped' ||
                                                         env.status == 'stopping'">Run</li>
             <li (click)="exploratoryAction(env, 'terminate')" *ngIf="env.status.toLowerCase() == 'running' || env.status.toLowerCase() == 'stopped'">Terminate</li>
-            <li (click)="exploratoryAction(env, 'deploy')" *ngIf="env.status != 'stopping' && env.status != 'stopped'">Deploy EMR</li>
+            <li (click)="exploratoryAction(env, 'deploy')" *ngIf="env.status != 'stopping' && env.status != 'stopped' && env.status != 'starting'">Deploy EMR</li>
           </ul>
         </div>
       </div>

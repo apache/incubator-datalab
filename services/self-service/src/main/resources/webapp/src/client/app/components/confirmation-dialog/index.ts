@@ -16,17 +16,17 @@ limitations under the License.
 
 ****************************************************************************/
 
-import {confirmationDialog} from "./confirmation-dialog.component";
-import {NgModule, Component} from "@angular/core";
-import {CommonModule} from "@angular/common";
-import {ModalModule} from './../modal/index';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ModalModule } from './../modal/index';
+import { ConfirmationDialog } from './confirmation-dialog.component';
 
-export * from "./confirmation-dialog.component";
+export * from './confirmation-dialog.component';
 
 @NgModule({
   imports: [CommonModule, ModalModule],
-  declarations: [confirmationDialog],
-  exports: [confirmationDialog],
+  declarations: [ConfirmationDialog],
+  exports: [ConfirmationDialog],
 })
 
 export class ConfirmationDialogModule { }

@@ -46,10 +46,15 @@ if __name__ == "__main__":
     except:
         reply['response']['result'] = {"error": "Failed to open result.json"}
 
-    reply['response']['log'] = "/response/%s.log" % os.environ['request_id']
+    reply['response']['log'] = "/var/log/dlab/edge/edge_{0}_{1}.log".format(os.environ['edge_user_name'], os.environ['request_id'])
 
-    with open("/response/%s.json" % os.environ['request_id'], 'w') as response_file:
+    with open("/response/edge_{0}_{1}.json".format(os.environ['edge_user_name'], os.environ['request_id']), 'w') as response_file:
         response_file.write(json.dumps(reply))
+
+    try:
+        local('chmod 666 /response/*')
+    except:
+        success = False
 
     if not success:
         sys.exit(1)

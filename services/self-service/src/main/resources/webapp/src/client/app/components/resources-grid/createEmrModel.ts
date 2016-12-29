@@ -18,7 +18,7 @@ limitations under the License.
 
 export class CreateEmrModel {
   constructor(
-    public name : string,
+    public name: string,
     public count: string
-  ) {  }
+  ) { }
 }

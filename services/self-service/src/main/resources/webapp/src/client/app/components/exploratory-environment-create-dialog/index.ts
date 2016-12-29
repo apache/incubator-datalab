@@ -16,16 +16,17 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { NgModule, Component } from "@angular/core";
-import { CommonModule } from "@angular/common";
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ModalModule } from './../modal/index';
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { ExploratoryEnvironmentCreateDialog } from "./exploratory-environment-create-dialog.component";
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ExploratoryEnvironmentCreateDialog } from './exploratory-environment-create-dialog.component';
+import { DropdownListModule } from './../form-controls/dropdown-list/index';
 
-export * from "./exploratory-environment-create-dialog.component";
+export * from './exploratory-environment-create-dialog.component';
 
 @NgModule({
-  imports: [CommonModule, ModalModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, ModalModule, FormsModule, ReactiveFormsModule, DropdownListModule],
   declarations: [ExploratoryEnvironmentCreateDialog],
   exports: [ExploratoryEnvironmentCreateDialog]
 })

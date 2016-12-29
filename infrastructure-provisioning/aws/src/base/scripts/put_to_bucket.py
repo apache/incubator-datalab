@@ -23,9 +23,9 @@ from dlab.aws_actions import *
 import sys
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--bucket_name', type=str, default='dsa-test-bucket')
-parser.add_argument('--local_file', type=str, default='ami-7172b611')
-parser.add_argument('--destination_file', type=str, default='t2.small')
+parser.add_argument('--bucket_name', type=str, default='')
+parser.add_argument('--local_file', type=str, default='')
+parser.add_argument('--destination_file', type=str, default='')
 args = parser.parse_args()
 
 

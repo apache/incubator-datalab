@@ -15,29 +15,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ****************************************************************************/
+/* tslint:disable:no-empty */
 
-import { Observable } from "rxjs";
-import { Response } from "@angular/http";
-import { UserResourceService } from "../../services/userResource.service";
-import { ExploratoryEnvironmentVersionModel } from "../../models/exploratoryEnvironmentVersion.model";
-import { ResourceShapeModel } from "../../models/resourceShape.model";
-import HTTP_STATUS_CODES from 'http-status-enum';
+import { Observable } from 'rxjs';
+import { Response } from '@angular/http';
+import { UserResourceService } from '../../services/userResource.service';
+import { ExploratoryEnvironmentVersionModel } from '../../models/exploratoryEnvironmentVersion.model';
+import { ResourceShapeModel } from '../../models/resourceShape.model';
 
 export class ExploratoryEnvironmentCreateModel {
 
   confirmAction: Function;
   selectedItemChanged: Function;
 
+  selectedItem: ExploratoryEnvironmentVersionModel = new ExploratoryEnvironmentVersionModel('', {}, []);
+  exploratoryEnvironmentTemplates: Array<ExploratoryEnvironmentVersionModel> = [];
+
+  private environment_image: string;
   private environment_name: string;
   private environment_version: string;
   private environment_shape: string;
   private userResourceService: UserResourceService;
   private continueWith: Function;
 
-  selectedItem: ExploratoryEnvironmentVersionModel = new ExploratoryEnvironmentVersionModel({}, []);
-  exploratoryEnvironmentTemplates: Array<ExploratoryEnvironmentVersionModel> = [];
+  static getDefault(userResourceService): ExploratoryEnvironmentCreateModel {
+    return new ExploratoryEnvironmentCreateModel('', '', '', '', () => { }, () => { }, null, null, userResourceService);
+  }
 
   constructor(
+    environment_image: string,
     environment_name: string,
     environment_version: string,
     environment_shape: string,
@@ -50,54 +56,39 @@ export class ExploratoryEnvironmentCreateModel {
     this.userResourceService = userResourceService;
     this.selectedItemChanged = selectedItemChanged;
     this.continueWith = continueWith;
-    this.prepareModel(environment_name, environment_version, environment_shape, fnProcessResults, fnProcessErrors);
+    this.prepareModel(environment_image,
+      environment_name,
+      environment_version,
+      environment_shape,
+      fnProcessResults, fnProcessErrors);
     this.loadTemplates();
-  }
-
-  static getDefault(userResourceService): ExploratoryEnvironmentCreateModel {
-    return new ExploratoryEnvironmentCreateModel('', '', '', () => { }, () => { }, null, null, userResourceService);
   }
 
   public setSelectedItem(item: ExploratoryEnvironmentVersionModel) : void {
     this.selectedItem = item;
   }
 
-  private createExploratoryEnvironment(): Observable<Response> {
-    return this.userResourceService.createExploratoryEnvironment({
-      name: this.environment_name,
-      shape: this.environment_shape,
-      version: this.environment_version
-    });
-  }
-
-  private prepareModel(environment_name: string, environment_version: string, environment_shape: string, fnProcessResults: any, fnProcessErrors: any): void {
-
-    this.setCreatingParams(environment_version, environment_name, environment_shape);
-    this.confirmAction = () => this.createExploratoryEnvironment()
-      .subscribe((response: Response) => fnProcessResults(response), (response: Response) => fnProcessErrors(response));
-  }
-
   public setSelectedTemplate(index) : void {
-    if(this.exploratoryEnvironmentTemplates && this.exploratoryEnvironmentTemplates[index])
-    {
+    if(this.exploratoryEnvironmentTemplates && this.exploratoryEnvironmentTemplates[index]) {
       this.selectedItem = this.exploratoryEnvironmentTemplates[index];
       if(this.selectedItemChanged)
         this.selectedItemChanged();
     }
   }
 
-  public setCreatingParams(version, name, shape) : void {
-    this.environment_version = version;
+  public setCreatingParams(name, shape) : void {
+    this.environment_image = this.selectedItem.image;
+    this.environment_version = this.selectedItem.version;
     this.environment_name = name;
     this.environment_shape = shape;
   }
 
-  public loadTemplates() : void {
-    if(this.exploratoryEnvironmentTemplates.length == 0)
+  public loadTemplates(): void {
+    if (this.exploratoryEnvironmentTemplates.length === 0)
       this.userResourceService.getExploratoryEnvironmentTemplates()
         .subscribe(
         data => {
-          for(let parentIndex = 0; parentIndex < data.length; parentIndex ++) {
+          for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
 
             let shapeJson = data[parentIndex].exploratory_environment_shapes;
             let exploratoryJson = data[parentIndex].exploratory_environment_versions;
@@ -107,17 +98,43 @@ export class ExploratoryEnvironmentCreateModel {
               shapeArr.push(new ResourceShapeModel(shapeJson[index]));
 
             for (let index = 0; index < exploratoryJson.length; index++)
-              this.exploratoryEnvironmentTemplates.push(new ExploratoryEnvironmentVersionModel(exploratoryJson[index], shapeArr));
+              this.exploratoryEnvironmentTemplates.push(
+                new ExploratoryEnvironmentVersionModel(data[parentIndex].image, exploratoryJson[index], shapeArr));
           }
-          if(this.exploratoryEnvironmentTemplates.length > 0)
+          if(this.exploratoryEnvironmentTemplates.length > 0) {
+            this.exploratoryEnvironmentTemplates.sort(function(t1, t2) {
+              return ((t1.template_name < t2.template_name) ? -1 : ((t1.template_name > t2.template_name) ? 1 : 0));
+            });
             this.setSelectedTemplate(0);
+          }
 
-          if(this.continueWith)
+          if (this.continueWith)
             this.continueWith();
         });
   }
 
-  public resetModel() : void {
+  public resetModel(): void {
     this.setSelectedTemplate(0);
+  }
+
+  private createExploratoryEnvironment(): Observable<Response> {
+    return this.userResourceService.createExploratoryEnvironment({
+      image: this.environment_image,
+      name: this.environment_name,
+      shape: this.environment_shape,
+      version: this.environment_version
+    });
+  }
+
+  private prepareModel(
+    environment_image: string,
+    environment_name: string,
+    environment_version: string,
+    environment_shape: string,
+    fnProcessResults: any, fnProcessErrors: any): void {
+
+    this.setCreatingParams(environment_name, environment_shape);
+    this.confirmAction = () => this.createExploratoryEnvironment()
+      .subscribe((response: Response) => fnProcessResults(response), (response: Response) => fnProcessErrors(response));
   }
 }

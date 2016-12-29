@@ -21,11 +21,12 @@ FROM ubuntu:16.04
 # Install any .deb dependecies
 RUN	apt-get update && \
     apt-get -y upgrade && \
-    apt-get -y install python-pip python-dev groff vim less git wget nano && \
+    apt-get -y install python-pip python-dev groff vim less git wget nano libssl-dev libffi-dev libffi6 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install any python dependencies
-RUN pip install boto3 fabric awscli boto argparse ujson jupyter
+RUN pip install -U pip
+RUN pip install boto3 fabric fabvenv awscli argparse ujson jupyter
 
 # Configuring ssh for user
 RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \
@@ -35,6 +36,10 @@ RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \
     echo "ConnectTimeout=30" >> /root/.ssh/config
 
 RUN mkdir -p /response; chmod a+rwx /response
+RUN mkdir -p /logs/ssn; chmod a+rwx /logs/ssn
+RUN mkdir -p /logs/edge; chmod a+rwx /logs/edge
+RUN mkdir -p /logs/notebook; chmod a+rwx /logs/notebook
+RUN mkdir -p /logs/emr; chmod a+rwx /logs/emr
 
 # Configuring entrypoint script
 ENV PROVISION_CONFIG_DIR /root/conf/

@@ -16,9 +16,9 @@ limitations under the License.
 
 ****************************************************************************/
 
-import {NgModule, Component} from "@angular/core";
-import {CommonModule} from "@angular/common";
-import {NavbarComponent} from "./navbar.component";
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NavbarComponent } from './navbar.component';
 
 export * from './navbar.component';
 

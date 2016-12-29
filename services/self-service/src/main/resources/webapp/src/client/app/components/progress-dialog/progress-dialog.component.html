@@ -16,7 +16,7 @@ limitations under the License.
 
 ----------------------------------------------------------------------------------------------------------- -->
 
-<modal #bindDialog modalClass="{{configs.modal_size || ''}} progress-dialog">
+<modal-dialog #bindDialog modalClass="{{configs.modal_size || ''}} progress-dialog">
   <modal-header></modal-header>
   <modal-content ngClass="{{configs.aligning || ''}}">
     <div [innerHTML]="configs.content"></div>
@@ -24,4 +24,4 @@ limitations under the License.
     <div [innerHTML]="configs.message" ngClass="{{configs.text_style || ''}}"></div>
   </modal-content>
   <modal-footer></modal-footer>
-</modal>
+</modal-dialog>

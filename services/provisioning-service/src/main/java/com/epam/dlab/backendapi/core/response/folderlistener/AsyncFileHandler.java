@@ -23,6 +23,8 @@ import io.dropwizard.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.epam.dlab.backendapi.core.FileHandlerCallback;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,16 +35,27 @@ import java.util.function.Supplier;
 import static com.epam.dlab.backendapi.core.Constants.JSON_EXTENSION;
 import static com.epam.dlab.backendapi.core.Constants.LOG_EXTENSION;
 
+/* Handler for the file processing.
+ */
 public final class AsyncFileHandler implements Supplier<Boolean> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FolderListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncFileHandler.class);
 
-
+    /** File name. */
     private final String fileName;
+    /** Directory name. */
     private final String directory;
+    /** Implement of the file handler. */
     private final FileHandlerCallback fileHandlerCallback;
+    /** Timeout waiting for the file writing. */
     private final Duration fileLengthCheckDelay;
 
+    /** Create instance of the file handler.
+     * @param fileName file name.
+     * @param directory directory name.
+     * @param fileHandlerCallback file handler for processing 
+     * @param fileLengthCheckDelay timeout waiting for the file writing.
+     */
     public AsyncFileHandler(String fileName, String directory, FileHandlerCallback fileHandlerCallback, Duration fileLengthCheckDelay) {
         this.fileName = fileName;
         this.directory = directory;
@@ -54,32 +67,51 @@ public final class AsyncFileHandler implements Supplier<Boolean> {
     public Boolean get() {
         Path path = Paths.get(directory, fileName);
         try {
-            if (fileHandlerCallback.handle(fileName, readBytes(path))) {
-                Files.deleteIfExists(path);
-                Files.deleteIfExists(getLogFile());
+        	boolean result = fileHandlerCallback.handle(fileName, readBytes(path));
+            if (result) {
+            	try {
+            		Files.deleteIfExists(path);
+            		Files.deleteIfExists(getLogFile());
+            		LOGGER.debug("Response {} and log files has been deleted", path.toAbsolutePath());
+            	} catch (IOException e) {
+            		LOGGER.warn("Can't delete file {}", path.toAbsolutePath(), e);
+            	}
             }
-            return true;
+            return result;
         } catch (Exception e) {
-            LOGGER.debug("handle file async", e);
+            LOGGER.error("Could not handle file {} async", path.toAbsolutePath(), e);
+            fileHandlerCallback.handleError();
         }
         return false;
     }
 
+    /** Returns the name of log file. */
     private Path getLogFile() {
         return Paths.get(directory, fileName.replaceAll(JSON_EXTENSION, LOG_EXTENSION));
     }
 
+    /** Returns the content of file.
+     * @param path source file.
+     * @return File content.
+     * @throws IOException
+     * @throws InterruptedException
+     */
     private byte[] readBytes(Path path) throws IOException, InterruptedException {
         File file = path.toFile();
-        waitFileCompliteWrited(file, file.length());
+        waitFileCompletelyWritten(file);
         return Files.readAllBytes(path);
     }
 
-    private void waitFileCompliteWrited(File file, long before) throws InterruptedException {
-        Thread.sleep(fileLengthCheckDelay.toMilliseconds());
-        long after = file.length();
-        if (before != after) {
-            waitFileCompliteWrited(file, after);
-        }
+    /** Waiting for the file writing. This method is blocking and return control when
+     * the file will no longer resize.
+     * @param file source file. */
+    private void waitFileCompletelyWritten(File file) throws InterruptedException {
+    	long before;
+    	long after = file.length();
+    	do {
+        	before = after;
+    		Thread.sleep(fileLengthCheckDelay.toMilliseconds());
+    		after = file.length();
+    	} while (before != after);
     }
 }

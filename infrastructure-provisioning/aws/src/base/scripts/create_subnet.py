@@ -22,15 +22,17 @@ import argparse
 import json
 from dlab.aws_actions import *
 from dlab.aws_meta import *
-import sys, os
-import socket, boto3
+import sys
+import os
+import socket
+import boto3
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vpc_id', type=str, default='')
 parser.add_argument('--username', type=str, default='')
-parser.add_argument('--infra_tag_name', type=str, default='Name')
-parser.add_argument('--infra_tag_value', type=str, default='BDCC-DSA-POC-infra')
+parser.add_argument('--infra_tag_name', type=str, default='')
+parser.add_argument('--infra_tag_value', type=str, default='')
 args = parser.parse_args()
 
 

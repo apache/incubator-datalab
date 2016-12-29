@@ -19,124 +19,112 @@
 # ******************************************************************************
 
 import json
+import time
+from fabric.api import *
 from dlab.fab import *
 from dlab.aws_meta import *
+from dlab.aws_actions import *
 import sys
+import os
+import uuid
+import logging
+
+
+def emr_waiter(tag_name):
+    if len(get_emr_list(tag_name, 'Value', False, True)) > 0 or os.path.exists('/response/.emr_creating_' + os.environ['exploratory_name']):
+        with hide('stderr', 'running', 'warnings'):
+            local("echo 'Some EMR cluster is still being created, waiting..'")
+        time.sleep(60)
+        emr_waiter(tag_name)
+    else:
+        return True
 
 
 def run():
-    local_log_filename = "%s.log" % os.environ['request_id']
-    local_log_filepath = "/response/" + local_log_filename
+    local_log_filename = "{}_{}_{}.log".format(os.environ['resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['resource'] +  "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.INFO,
                         filename=local_log_filepath)
-
+    try:
+        os.environ['exploratory_name']
+    except:
+        os.environ['exploratory_name'] = ''
+    if os.path.exists('/response/.emr_creating_' + os.environ['exploratory_name']):
+        time.sleep(30)
     create_aws_config_files()
-    index = provide_index('EMR', os.environ['conf_service_base_name'] + '-Tag')
+    #index = provide_index('EMR', os.environ['conf_service_base_name'] + '-Tag', '{}-{}-emr'.format(os.environ['conf_service_base_name'], os.environ['edge_user_name']))
+    #time_stamp = int(time.time())
     print 'Generating infrastructure names and tags'
     emr_conf = dict()
+    emr_conf['uuid'] = str(uuid.uuid4())[:5]
+    try:
+        emr_conf['exploratory_name'] = os.environ['exploratory_name']
+    except:
+        emr_conf['exploratory_name'] = ''
+    try:
+        emr_conf['computational_name'] = os.environ['computational_name']
+    except:
+        emr_conf['computational_name'] = ''
     emr_conf['apps'] = 'Hadoop Hive Hue Spark'
     emr_conf['service_base_name'] = os.environ['conf_service_base_name']
+    emr_conf['tag_name'] = emr_conf['service_base_name'] + '-Tag'
     emr_conf['key_name'] = os.environ['creds_key_name']
-    #emr_conf['subnet_cidr'] = os.environ['edge_subnet_cidr']
     emr_conf['region'] = os.environ['creds_region']
     emr_conf['release_label'] = os.environ['emr_version']
     emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
     emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
     emr_conf['instance_count'] = os.environ['emr_instance_count']
     emr_conf['notebook_ip'] = get_instance_ip_address(os.environ['notebook_name']).get('Private')
-    #emr_conf['notebook_user'] = os.environ['edge_user_name']
-    emr_conf['role_service_name'] = os.environ['service_role']
-    emr_conf['role_ec2_name'] = os.environ['ec2_role']
+    emr_conf['role_service_name'] = os.environ['emr_service_role']
+    emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
 
-    emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + str(index) + ', ' \
-                       + emr_conf['service_base_name'] + '-Tag=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + str(index)\
+    #emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + str(time_stamp) + ', ' \
+    #                   + emr_conf['service_base_name'] + '-Tag=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + str(time_stamp)\
+    #                   + ', Notebook=' + os.environ['notebook_name']
+    emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + emr_conf['uuid'] + ', ' \
+                       + emr_conf['service_base_name'] + '-Tag=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + emr_conf['uuid']\
                        + ', Notebook=' + os.environ['notebook_name']
-    emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + str(index)
+    #emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + str(time_stamp)
+    emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + emr_conf['uuid']
     emr_conf['bucket_name'] = (emr_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
 
     tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']), "Value": "{}-{}-subnet".format(emr_conf['service_base_name'], os.environ['edge_user_name'])}
     emr_conf['subnet_cidr'] = get_subnet_by_tag(tag)
+    emr_conf['key_path'] = os.environ['creds_key_dir'] + '/' + os.environ['creds_key_name'] + '.pem'
 
     try:
         emr_conf['emr_timeout'] = os.environ['emr_timeout']
     except:
         emr_conf['emr_timeout'] = "1200"
 
-        # TBD
-    #    emr_conf['emr_security_group_name'] = emr_conf['instance_name'] + '-SG'
-    #    emr_conf['isolated_security_group_name'] = emr_conf['instance_name'] + '-isolated-SG'
-    #    emr_conf['security_group_rules'] = [{"IpProtocol": "-1",
-    #                                          "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-    #                                          "UserIdGroupPairs": [],
-    #                                          "PrefixListIds": []}]
+    try:
+        emr_conf['exploratory_name'] = os.environ['exploratory_name']
+        emr_conf['computational_name'] = os.environ['computational_name']
+    except:
+        emr_conf['exploratory_name'] = ''
+        emr_conf['computational_name'] = ''
 
     print "Will create exploratory environment with edge node as access point as following: " + \
           json.dumps(emr_conf, sort_keys=True, indent=4, separators=(',', ': '))
     logging.info(json.dumps(emr_conf))
 
-#    logging.info('[CREATE ROLES]')
-#    print '[CREATE ROLES]'
-#    params = "--role_name %s --role_profile_name %s --policy_name %s --policy_arn %s" % \
-#             (emr_conf['role_name'], emr_conf['role_profile_name'],
-#              emr_conf['policy_name'], emr_conf['policy_arn'])
-#    if not run_routine('create_role_policy', params):
-#        logging.info('Failed creating roles')
-#        with open("/root/result.json", 'w') as result:
-#            res = {"error": "Failed to creating roles", "conf": emr_conf}
-#            print json.dumps(res)
-#            result.write(json.dumps(res))
-#        sys.exit(1)
-
-#    logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
-#    print '[CREATE SECURITY GROUPS FOR EDGE]'
-#    sg_rules_template = [
-#        {
-#            "IpProtocol": "-1",
-#            "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
-#            "UserIdGroupPairs": [], "PrefixListIds": []
-#        },
-#        {
-#            "PrefixListIds": [],
-#            "FromPort": 22,
-#            "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-#            "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
-#        }
-#    ]
-#    params = "--name %s --vpc_id %s --security_group_rules '%s' --infra_tag_name %s --infra_tag_value %s" % \
-#             (emr_conf['edge_security_group_name'], emr_conf['vpc_id'], json.dumps(sg_rules_template),
-#              emr_conf['service_base_name'], emr_conf['instance_name'])
-#    if not run_routine('create_security_group', params):
-#        logging.info('Failed creating security group for edge node')
-#        with open("/root/result.json", 'w') as result:
-#            res = {"error": "Failed creating security group for edge node", "conf": emr_conf}
-#            print json.dumps(res)
-#            result.write(json.dumps(res))
-#        sys.exit(1)
-
-#    logging.info('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
-#    print '[CREATE SECURITY GROUPS FOR EDGE]'
-#    edge_group_id = get_security_group_by_name(emr_conf['edge_security_group_name'])
-#    ingress_sg_rules_template = [{"IpProtocol": "-1", "IpRanges": [], "UserIdGroupPairs": [{"GroupId": edge_group_id}], "PrefixListIds": []}]
-#    egress_sg_rules_template = [{"IpProtocol": "-1", "IpRanges": [], "UserIdGroupPairs": [{"GroupId": edge_group_id}], "PrefixListIds": []}]
-#    params = "--name %s --vpc_id %s --security_group_rules '%s' --egress '%s' --infra_tag_name %s --infra_tag_value %s" % \
-#             (emr_conf['isolated_security_group_name'], emr_conf['vpc_id'],
-#              json.dumps(ingress_sg_rules_template), json.dumps(egress_sg_rules_template),
-#              emr_conf['service_base_name'], emr_conf['instance_name'])
-#    if not run_routine('create_security_group', params):
-#        logging.info('Failed creating security group for private subnet')
-#        with open("/root/result.json", 'w') as result:
-#            res = {"error": "Failed creating security group for private subnet", "conf": emr_conf}
-#            print json.dumps(res)
-#            result.write(json.dumps(res))
-#        sys.exit(1)
+    try:
+        emr_waiter(os.environ['notebook_name'])
+        local('touch /response/.emr_creating_' + os.environ['exploratory_name'])
+    except:
+        with open("/root/result.json", 'w') as result:
+            res = {"error": "EMR waiter fail", "conf": emr_conf}
+            print json.dumps(res)
+            result.write(json.dumps(res))
+        sys.exit(1)
 
     with hide('stderr', 'running', 'warnings'):
-        local("echo Waitning for changes to propagate; sleep 10")
+        local("echo Waiting for changes to propagate; sleep 10")
 
     try:
-        logging.info('[CREATE EMR CLUSTER]')
-        print '[CREATE EMR CLUSTER]'
+        logging.info('[Creating EMR Cluster]')
+        print '[Creating EMR Cluster]'
         params = "--name {} --applications '{}' --master_instance_type {} --slave_instance_type {} --instance_count {} --ssh_key {} --release_label {} --emr_timeout {} " \
                  "--subnet {} --service_role {} --ec2_role {} --nbs_ip {} --nbs_user {} --s3_bucket {} --region {} --tags '{}'".format(
             emr_conf['cluster_name'], emr_conf['apps'], emr_conf['master_instance_type'], emr_conf['slave_instance_type'], emr_conf['instance_count'], emr_conf['key_name'], emr_conf['release_label'], emr_conf['emr_timeout'],
@@ -151,7 +139,9 @@ def run():
 
         cluster_name = emr_conf['cluster_name']
         keyfile_name = "/root/keys/%s.pem" % emr_conf['key_name']
+        local('rm /response/.emr_creating_' + os.environ['exploratory_name'])
     except:
+        local('rm /response/.emr_creating_' + os.environ['exploratory_name'])
         sys.exit(1)
 
     try:
@@ -166,6 +156,9 @@ def run():
                 result.write(json.dumps(res))
             sys.exit(1)
     except:
+        emr_id = get_emr_id_by_name(emr_conf['cluster_name'])
+        terminate_emr(emr_id)
+        remove_kernels(emr_conf['cluster_name'],emr_conf['tag_name'],os.environ['notebook_name'],'ubuntu',emr_conf['key_path'], emr_conf['release_label'])
         sys.exit(1)
 
     try:
@@ -196,8 +189,8 @@ def run():
 
 
 def terminate():
-    local_log_filename = "%s.log" % os.environ['request_id']
-    local_log_filepath = "/response/" + local_log_filename
+    local_log_filename = "{}_{}_{}.log".format(os.environ['resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['resource'] +  "/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
@@ -211,7 +204,7 @@ def terminate():
     emr_conf['notebook_name'] = os.environ['notebook_instance_name']
     emr_conf['bucket_name'] = (emr_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
     emr_conf['ssh_user'] = os.environ['notebook_ssh_user']
-    emr_conf['key_path'] = os.environ['creds_key_dir'] + os.environ['creds_key_name'] + '.pem'
+    emr_conf['key_path'] = os.environ['creds_key_dir'] + '/' + os.environ['creds_key_name'] + '.pem'
     emr_conf['tag_name'] = emr_conf['service_base_name'] + '-Tag'
 
     try:

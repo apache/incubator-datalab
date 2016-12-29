@@ -15,38 +15,45 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ****************************************************************************/
+/* tslint:disable:no-empty */
 
-import {Observable} from "rxjs";
-import {Response} from "@angular/http";
-import {UserAccessKeyService} from "../../services/userAccessKey.service";
-import HTTP_STATUS_CODES from 'http-status-enum';
+import { Observable } from 'rxjs';
+import { Response } from '@angular/http';
+import { UserAccessKeyService } from '../../services/userAccessKey.service';
 
 export class KeyUploadDialogModel {
 
   confirmAction: Function;
-  private userAccessKeyService : UserAccessKeyService;
+  private userAccessKeyService: UserAccessKeyService;
 
   private accessKeyLabel: string;
   private accessKeyFormValid: boolean;
   private newAccessKeyForUpload: File;
 
+  static getDefault(): KeyUploadDialogModel {
+    return new KeyUploadDialogModel(null, () => { }, () => { }, null);
+  }
+
   constructor(
     newAccessKeyForUpload: any,
     fnProcessResults: any,
     fnProcessErrors: any,
-    userAccessKeyService : UserAccessKeyService
+    userAccessKeyService: UserAccessKeyService
   ) {
     this.userAccessKeyService = userAccessKeyService;
     this.prepareModel(newAccessKeyForUpload, fnProcessResults, fnProcessErrors);
   }
 
-  static getDefault(): KeyUploadDialogModel {
-    return new KeyUploadDialogModel(null, () => { }, () => { }, null);
+  setUserAccessKey(accessKey: File): void {
+    if (accessKey && (this.accessKeyFormValid = this.isValidKey(accessKey.name))) {
+      this.newAccessKeyForUpload = accessKey;
+    }
+    this.accessKeyLabel = this.getLabel(accessKey);
   }
 
   private uploadUserAccessKey(): Observable<Response> {
     let formData = new FormData();
-    formData.append("file", this.newAccessKeyForUpload);
+    formData.append('file', this.newAccessKeyForUpload);
 
     return this.userAccessKeyService.uploadUserAccessKey(formData);
   }
@@ -54,26 +61,20 @@ export class KeyUploadDialogModel {
   private prepareModel(newAccessKeyForUpload: any, fnProcessResults: any, fnProcessErrors: any): void {
     this.setUserAccessKey(newAccessKeyForUpload);
     this.confirmAction = () => this.uploadUserAccessKey()
-      .subscribe((response: Response) => fnProcessResults(response),  (response: Response) => fnProcessErrors(response));
+      .subscribe(
+      (response: Response) => fnProcessResults(response),
+      (response: Response) => fnProcessErrors(response));
   }
 
-  private getLabel(file : File): string {
+  private getLabel(file: File): string {
     if (file)
-      return !this.accessKeyFormValid ? ".pub file is required." : file.name;
+      return !this.accessKeyFormValid ? 'Public key is required.' : file.name;
     return '';
   }
 
   private isValidKey(value): boolean {
-    if (value.toLowerCase().endsWith(".pub"))
+    if (value.toLowerCase().endsWith('.pub'))
       return true;
     return false;
-  }
-
-  setUserAccessKey(accessKey: File) : void {
-    if(accessKey && (this.accessKeyFormValid = this.isValidKey(accessKey.name))) {
-
-      this.newAccessKeyForUpload = accessKey;
-      this.accessKeyLabel = this.getLabel(this.newAccessKeyForUpload)
-    }
   }
 }

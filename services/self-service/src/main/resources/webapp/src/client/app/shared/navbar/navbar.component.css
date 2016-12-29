@@ -16,31 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-/*:host {
-  border-color: #e1e1e1;
-  border-style: solid;
-  border-width: 0 0 1px;
-  display: block;
-  height: 48px;
-  padding: 0 16px;
-}
-
-nav a {
-  color: #8f8f8f;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 48px;
-  margin-right: 20px;
-  text-decoration: none;
-  vertical-align: middle;
-}
-
-nav a.router-link-active {
-  color: #106cc8;
-}*/
-
-
-sd-navbar {
+[sd-navbar] {
   display: block;
   position: relative;
   z-index: 3;
@@ -64,10 +40,12 @@ sd-navbar {
   font-size: 0;
   margin-top: -7px;
 }
+
 .navbar-logo img {
   width: 65px;
   vertical-align: auto;
 }
+
 .btn-logout {
   position: absolute;
   right: 0;
@@ -77,24 +55,29 @@ sd-navbar {
   background: #383838;
   border: 0;
   color: #cfdae6;
-  padding: 0px 28px;
+  padding: 0 28px;
 }
+
 .btn-logout:hover {
   color: #cfdae6;
 }
+
 .navbar {
   border-radius: 0;
 }
+
 .navbar {
   min-height: 48px;
   margin-bottom: 12px;
 }
+
 .navbar .navbar-toggle {
   border: 0;
   padding: 8px;
   margin-left: -9px;
   margin-right: 10px;
 }
+
 .navbar .btn-logout {
   margin-top: 0;
 }

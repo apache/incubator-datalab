@@ -1,0 +1,10 @@
+{
+    "resource": "notebook",
+    "request_id":"RID",
+    "conf_service_base_name":"SBN",
+    "creds_region":"CREG",
+    "creds_key_name":"CKN",
+    "notebook_instance_type":"NIT",
+    "notebook_user_name":"NUN",
+    "creds_security_groups_ids":"SGI"
+}

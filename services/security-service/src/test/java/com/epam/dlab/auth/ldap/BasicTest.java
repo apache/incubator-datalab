@@ -70,9 +70,7 @@ public class BasicTest {
 		    {
 		        Entry resultEntry = ( ( SearchResultEntry ) response ).getEntry();
 		        System.out.println( "---- DN "+resultEntry.getDn() );
-		        resultEntry.forEach(attr->{
-		        	System.out.println( "---- ATTR "+attr );
-		        });
+		        resultEntry.forEach(attr-> System.out.println( "---- ATTR "+attr ));
 		    }
 		});
 		cursor.close();
@@ -85,9 +83,7 @@ public class BasicTest {
 		    {
 		        Entry resultEntry = ( ( SearchResultEntry ) response ).getEntry();
 		        System.out.println( "---- DN "+resultEntry.getDn() );
-		        resultEntry.forEach(attr->{
-		        	System.out.println( "---- ATTR "+attr );
-		        });
+		        resultEntry.forEach(attr-> System.out.println( "---- ATTR "+attr ));
 		    }
 		});
 		cursor.close();
@@ -105,9 +101,7 @@ public class BasicTest {
 		    {
 		        Entry resultEntry = ( ( SearchResultEntry ) response ).getEntry();
 		        System.out.println( "---- DN "+resultEntry.getDn() );
-		        resultEntry.forEach(attr->{
-		        	System.out.println( "---- ATTR "+attr );
-		        });
+		        resultEntry.forEach(attr-> System.out.println( "---- ATTR "+attr ));
 		    }
 		});
 		cursor.close();

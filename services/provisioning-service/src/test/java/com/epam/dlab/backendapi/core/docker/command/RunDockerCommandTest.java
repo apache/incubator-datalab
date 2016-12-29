@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.docker.command;
 
+import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
