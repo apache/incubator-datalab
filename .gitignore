@@ -7,3 +7,7 @@ target
 .classpath
 .project
 .settings
+/services/common/bin
+/services/provisioning-service/bin
+/services/security-service/bin
+/services/self-service/bin

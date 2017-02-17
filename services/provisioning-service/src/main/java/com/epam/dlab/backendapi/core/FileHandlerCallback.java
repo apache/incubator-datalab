@@ -25,5 +25,5 @@ public interface FileHandlerCallback {
 
     boolean handle(String fileName, byte[] content) throws Exception;
 
-    void handleError();
+    void handleError(String errorMessage);
 }

@@ -18,12 +18,20 @@ limitations under the License.
 
 package com.epam.dlab.dto.imagemetadata;
 
+import com.epam.dlab.utils.ObjectUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
+import java.util.Comparator;
+import java.util.Objects;
 
 public class ComputationalResourceShapeDto {
     @JsonProperty("Type")
     private String type;
+    @JsonProperty("Size")
+    private String size;
+    @JsonProperty("Description")
+    private String description;
     @JsonProperty("Ram")
     private String ram;
     @JsonProperty("Cpu")
@@ -32,8 +40,10 @@ public class ComputationalResourceShapeDto {
     public ComputationalResourceShapeDto(){
     }
 
-    public ComputationalResourceShapeDto(String type, String ram, int cpu) {
+    public ComputationalResourceShapeDto(String type, String size, String description, String ram, int cpu) {
         this.type = type;
+        this.size = size;
+        this.description = description;
         this.ram = ram;
         this.cpu = cpu;
     }
@@ -45,6 +55,14 @@ public class ComputationalResourceShapeDto {
     public void setType(String type) {
         this.type = type;
     }
+
+    public String getSize() { return size; }
+
+    public void setSize(String size) { this.size = size; }
+
+    public String getDescription() { return description; }
+
+    public void setDescription(String description) { this.description = description; }
 
     public String getRam() {
         return ram;
@@ -63,31 +81,18 @@ public class ComputationalResourceShapeDto {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        ComputationalResourceShapeDto that = (ComputationalResourceShapeDto) o;
-
-        if (cpu != that.cpu) {
-            return false;
-        }
-        if (type != null ? !type.equals(that.type) : that.type != null) {
-            return false;
-        }
-        return ram != null ? ram.equals(that.ram) : that.ram == null;
-
+    public boolean equals(Object obj) {
+        return ObjectUtils.areObjectsEqual(this, obj,
+                o -> o.type,
+                o -> o.size,
+                o -> o.description,
+                o -> o.ram,
+                o -> o.cpu);
     }
 
     @Override
     public int hashCode() {
-        int result = type != null ? type.hashCode() : 0;
-        result = 31 * result + (ram != null ? ram.hashCode() : 0);
-        result = 31 * result + cpu;
+        int result = Objects.hash(type, size, description, ram, cpu);
         return result;
     }
 

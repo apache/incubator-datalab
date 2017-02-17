@@ -23,15 +23,36 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.Valid;
 
+/** Configuration for Self Service.
+ */
 public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
     @Valid
     @JsonProperty
     private boolean mocked;
+    
+    @Valid
+    @JsonProperty
+    private int minEmrInstanceCount;
+
+    @Valid
+    @JsonProperty
+    private int maxEmrInstanceCount;
 
 
+    /** Returns <b>true</b> if service is a mock. */
     public boolean isMocked() {
         return mocked;
+    }
+    
+    /** Returns the minimum number of slave EMR instances than could be created. */
+    public int getMinEmrInstanceCount() {
+    	return minEmrInstanceCount;
+    }
+
+    /** Returns the maximum number of slave EMR instances than could be created. */
+    public int getMaxEmrInstanceCount() {
+    	return maxEmrInstanceCount;
     }
     
 }

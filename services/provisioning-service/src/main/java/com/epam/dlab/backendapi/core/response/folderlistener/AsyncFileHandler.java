@@ -80,7 +80,7 @@ public final class AsyncFileHandler implements Supplier<Boolean> {
             return result;
         } catch (Exception e) {
             LOGGER.error("Could not handle file {} async", path.toAbsolutePath(), e);
-            fileHandlerCallback.handleError();
+            fileHandlerCallback.handleError(e.getLocalizedMessage());
         }
         return false;
     }

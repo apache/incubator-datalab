@@ -31,12 +31,17 @@ import com.google.inject.name.Named;
 import static com.epam.dlab.backendapi.core.health.HealthChecks.MONGO_HEALTH_CHECKER;
 import static com.epam.dlab.backendapi.core.health.HealthChecks.PROVISIONING_HEALTH_CHECKER;
 
+/** Health checkers for services.
+ */
 public class HealthModule extends AbstractModule {
 
     @Override
     protected void configure() {
     }
 
+    /** Creates and returns the health checker for Mongo database.
+     * @param mongoService Mongo database service.
+     */
     @Provides
     @Singleton
     @Named(MONGO_HEALTH_CHECKER)
@@ -44,6 +49,9 @@ public class HealthModule extends AbstractModule {
         return new MongoHealthChecker(mongoService);
     }
 
+    /** Creates and returns the health checker for provisioning service.
+     * @param provisioningService provisioning service.
+     */
     @Provides
     @Singleton
     @Named(PROVISIONING_HEALTH_CHECKER)

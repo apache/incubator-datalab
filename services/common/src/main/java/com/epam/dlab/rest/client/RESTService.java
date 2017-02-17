@@ -18,13 +18,20 @@ limitations under the License.
 
 package com.epam.dlab.rest.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 public class RESTService {
+
+    private final static Logger LOG = LoggerFactory.getLogger(RESTService.class);
+
     private Client client;
     private String url;
 
@@ -37,17 +44,40 @@ public class RESTService {
     }
 
     public <T> T get(String path, Class<T> clazz) {
-        return getBuilder(path).get(clazz);
+        Invocation.Builder builder = getBuilder(path);
+        LOG.debug("REST get {}",path);
+        return builder.get(clazz);
     }
 
     public <T> T post(String path, Object parameter, Class<T> clazz) {
-        return getBuilder(path).post(Entity.json(parameter), clazz);
+        Invocation.Builder builder = getBuilder(path);
+        LOG.debug("REST post {}",path);
+        return builder.post(Entity.json(parameter), clazz);
+    }
+
+    public <T> T get(String path, String accessToken, Class<T> clazz) {
+        Invocation.Builder builder = getBuilder(path,accessToken);
+        LOG.debug("REST get secured {} {}",path,accessToken);
+        return builder.get(clazz);
+    }
+
+    public <T> T post(String path, String accessToken, Object parameter, Class<T> clazz) {
+        Invocation.Builder builder = getBuilder(path,accessToken);
+        LOG.debug("REST post secured {} {}",path,accessToken);
+        return builder.post(Entity.json(parameter), clazz);
     }
 
     public Invocation.Builder getBuilder(String path) {
         return getWebTarget(path)
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
+    }
+
+    public Invocation.Builder getBuilder(String path, String token) {
+        return getWebTarget(path)
+                .request(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION,"Bearer "+token);
     }
 
     public WebTarget getWebTarget(String path) {

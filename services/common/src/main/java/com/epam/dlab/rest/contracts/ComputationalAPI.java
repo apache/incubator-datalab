@@ -21,5 +21,6 @@ package com.epam.dlab.rest.contracts;
 public interface ComputationalAPI {
     String EMR = "computational";
     String EMR_CREATE = EMR + "/create";
+    String EMR_CONFIGURE = EMR + "/configure";
     String EMR_TERMINATE = EMR + "/terminate";
 }

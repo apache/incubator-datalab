@@ -24,11 +24,11 @@ limitations under the License.
         <table class="detail-header">
           <tr>
             <td class="tooltip-wrap" (mouseover)="isEllipsisActive($event)">
-              <div class="hint-title">{{notebook.name}}</div>
-              <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{notebook.name}}</div>
+              <div class="hint-title">{{notebook.template_name}}</div>
+              <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{notebook.template_name}}</div>
             </td>
               <td>
-                <span class="status"ngClass="{{notebook.status || ''}}">
+                <span class="status" ngClass="{{notebook.status || ''}}">
                   {{notebook.status}}
                 </span>
               </td>
@@ -37,18 +37,29 @@ limitations under the License.
         </table>
       </div>
       <div class="row">
-        <div class="col-xs-12 detail-info">
+        <div class="col-xs-12 detail-info" *ngIf="!notebook.error_message">
           <p>Edge Node IP Address {{notebook.ip}}</p>
           <p>Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
-          <p>Open in your browser  <a href="{{notebook.url}}" target="_blank">{{notebook.url}}</a> to access this box after creating a tunnel.</p>
-          <p *ngIf="notebook.username">Node User: {{notebook.username}}</p>
-          <p *ngIf="notebook.password">Password: {{notebook.password}}</p>
+          <p>Open following URL(s) in your browser to access this box after creating a tunnel:</p>
+          <div class="links_block">
+            <p *ngFor="let item of notebook.url">
+              <strong> &#9642; {{item.description}}:</strong>
+              <a href="{{item.url}}" target="_blank">{{item.url}}</a>
+            </p>
+          </div>
+
+          <p *ngIf="notebook.username">Node User: <strong>{{notebook.username}}</strong></p>
+          <p *ngIf="notebook.password">Password: <strong>{{notebook.password}}</strong></p>
+          <p *ngIf="notebook.bucket_name">Data Bucket: <strong>{{notebook.bucket_name}}</strong></p>
           <br/>
           <p>
             <a href="#/help/accessnotebookguide" target="_blank">
               <small class="helper_instruction">Read instruction how to create the tunnel</small>
             </a>
           </p>
+        </div>
+        <div class="col-xs-12 detail-info" *ngIf="notebook.error_message">
+          <p class="failed">{{notebook.error_message}}</p>
         </div>
       </div>
     </div>

@@ -23,10 +23,18 @@ import com.epam.dlab.backendapi.core.health.HealthModule;
 import com.google.inject.AbstractModule;
 import io.dropwizard.setup.Environment;
 
+/** The base class for an application configuration of SelfService.
+ */
 abstract class BaseModule extends AbstractModule {
+	/** Application configuration of SelfService. */
     protected SelfServiceApplicationConfiguration configuration;
+    /** Environment of SelfService. */
     protected Environment environment;
 
+    /** Instantiates an application configuration of SelfService.
+     * @param configuration application configuration of SelfService.
+     * @param environment environment of SelfService.
+     */
     public BaseModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
         this.configuration = configuration;
         this.environment = environment;

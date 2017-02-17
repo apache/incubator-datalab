@@ -275,6 +275,11 @@ public class FolderListener implements Runnable {
 					continue;
 				case TIMEOUT_EXPIRED:
 					LOGGER.warn("Folder listener \"{}\" remove expired file handler for UUID {}", getDirectoryName(), uuid);
+					try {
+						item.getFileHandlerCallback().handleError("Request timeout expired");
+					} catch (Exception e){
+						LOGGER.error("Folder listener \"{}\" caused exception for UUID {}", getDirectoryName(), uuid, e);
+					}
 					break;
 				case IS_DONE:
 					if ( item.getFutureResult() ) {

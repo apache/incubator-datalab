@@ -17,11 +17,12 @@ limitations under the License.
 ****************************************************************************/
 /* tslint:disable:no-empty */
 
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
 import { UserResourceService } from '../../services/userResource.service';
 import { ComputationalResourceImage } from '../../models/computationalResourceImage.model';
 import { ComputationalResourceApplicationTemplate } from '../../models/computationalResourceApplicationTemplate.model';
+import { ResourceShapeTypesModel } from '../../models/resourceShapeTypes.model';
 
 export class ComputationalResourceCreateModel {
 
@@ -34,7 +35,8 @@ export class ComputationalResourceCreateModel {
   computational_resource_slave_shape: string;
   notebook_name: string;
 
-  selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({}, []);
+  selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({},
+    new ResourceShapeTypesModel({}));
   computationalResourceImages: Array<ComputationalResourceImage> = [];
   computationalResourceApplicationTemplates: Array<ComputationalResourceApplicationTemplate> = [];
 

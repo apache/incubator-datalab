@@ -21,6 +21,6 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ICommandExecutor {
-    List<String> executeSync(String command) throws IOException, InterruptedException;
-    void executeAsync(String command);
+    List<String> executeSync(String username, String uuid, String command) throws Exception;
+    void executeAsync(String username, String uuid, String command);
 }

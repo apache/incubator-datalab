@@ -34,67 +34,96 @@ import java.lang.reflect.ParameterizedType;
 import java.time.Instant;
 import java.util.Date;
 
-abstract public class ResourceCallbackHandler<T extends StatusBaseDTO> implements FileHandlerCallback {
+abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implements FileHandlerCallback {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCallbackHandler.class);
-    private ObjectMapper MAPPER = new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
+    protected ObjectMapper MAPPER = new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 
+    private static final String INSTANCE_ID_FIELD = "instance_id";
     private static final String STATUS_FIELD = "status";
-    private static final String RESPONSE_NODE = "response";
-    private static final String RESULT_NODE = "result";
+    protected static final String RESPONSE_NODE = "response";
+    protected static final String RESULT_NODE = "result";
+    private static final String ERROR_NODE = "error";
     private static final String CONF_NODE = "conf";
 
     private static final String OK_STATUS = "ok";
-    private static final String ERROR_STATUR = "err";
 
-    private RESTService selfService;
-    private String user;
-    private String originalUuid;
-    private DockerAction action;
-    private Class<T> resultType;
+    private final RESTService selfService;
+    private final String user;
+    private final String originalUuid;
+    private final DockerAction action;
+    private final Class<T> resultType;
+    private final String accessToken;
 
     @SuppressWarnings("unchecked")
-    public ResourceCallbackHandler(RESTService selfService, String user, String originalUuid, DockerAction action) {
+    public ResourceCallbackHandler(RESTService selfService, String user, String originalUuid, DockerAction action, String accessToken) {
         this.selfService = selfService;
         this.user = user;
         this.originalUuid = originalUuid;
         this.action = action;
         this.resultType = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        this.accessToken = accessToken;
     }
 
     @Override
     public boolean checkUUID(String uuid) {
         return originalUuid.equals(uuid);
     }
+    
+    public String getUser() {
+    	return user;
+    }
+    
+    public DockerAction getAction() {
+    	return action;
+    }
+    
+    private void selfServicePost(T object) throws DlabException {
+        LOGGER.debug("Send post request to self service " + getCallbackURI() + " for UUID {}, object {}", originalUuid, object);
+        try {
+        	selfService.post(getCallbackURI(), accessToken, object, resultType);
+        } catch (Exception e) {
+        	LOGGER.error("Send request or responce error for UUID {}: {}", e.getLocalizedMessage(), originalUuid, e);
+        	throw new DlabException("Send request or responce error for UUID " + originalUuid + ": " + e.getLocalizedMessage(), e);
+        }
+    }
 
     @Override
     public boolean handle(String fileName, byte[] content) throws Exception {
-        LOGGER.debug("Got file {} while waiting for {}", fileName, originalUuid);
+        LOGGER.debug("Got file {} while waiting for UUID {}, for action {}, docker responce: {}", fileName, originalUuid, action.name(), new String(content));
         JsonNode document = MAPPER.readTree(content);
         boolean success = isSuccess(document);
         UserInstanceStatus status = calcStatus(action, success);
         T result = getBaseStatusDTO(status);
-        JsonNode resultNode;
+        
+        JsonNode resultNode = document.get(RESPONSE_NODE).get(RESULT_NODE);
+        if (action == DockerAction.CREATE) {
+        	result.setInstanceId(getTextValue(resultNode.get(INSTANCE_ID_FIELD)));
+        }
+
         if (success) {
-            resultNode = document.get(RESPONSE_NODE).get(RESULT_NODE);
-            LOGGER.debug("Did {} resource for user: {}, request: {}, docker response: {}", action, user, originalUuid, new String(content));
+            LOGGER.debug("Did {} resource for user: {}, UUID: {}", action, user, originalUuid);
         } else {
-            resultNode = document.get(RESPONSE_NODE).get(RESULT_NODE).get(CONF_NODE);
-            LOGGER.error("Could not {} resource for user: {}, request: {}, docker response: {}", action, user, originalUuid, new String(content));
+            LOGGER.error("Could not {} resource for user: {}, UUID: {}", action, user, originalUuid);
+            result.setErrorMessage(getTextValue(resultNode.get(ERROR_NODE)));
+            resultNode = resultNode.get(CONF_NODE);
         }
         result = parseOutResponse(resultNode, result);
-        selfService.post(getCallbackURI(), result, resultType);
+        
+        selfServicePost(result);
         return !UserInstanceStatus.FAILED.equals(status);
     }
 
-    @Override
-    public void handleError() {
+    @SuppressWarnings("unchecked")
+	@Override
+    public void handleError(String errorMessage) {
         try {
-            selfService.post(getCallbackURI(), getBaseStatusDTO(UserInstanceStatus.FAILED), resultType);
+        	selfServicePost((T) getBaseStatusDTO(UserInstanceStatus.FAILED)
+        			.withErrorMessage(errorMessage));
         } catch (Throwable t) {
-            throw new DlabException("Could not send status update for request " + originalUuid + ", user " + user, t);
+            throw new DlabException("Could not send status update for UUID " + originalUuid + ", user " + user, t);
         }
     }
-
+    
     abstract protected String getCallbackURI();
 
     abstract protected T parseOutResponse(JsonNode document, T baseStatus);
@@ -102,7 +131,10 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO> implement
     @SuppressWarnings("unchecked")
     protected T getBaseStatusDTO(UserInstanceStatus status) {
         try {
-            return (T) resultType.newInstance().withUser(user).withStatus(status).withUptime(getUptime(status));
+            return (T) resultType.newInstance()
+            		.withUser(user)
+            		.withStatus(status)
+            		.withUptime(getUptime(status));
         } catch (Throwable t) {
             throw new DlabException("Something went wrong", t);
         }
@@ -117,12 +149,16 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO> implement
             switch (action) {
                 case CREATE:
                     return UserInstanceStatus.RUNNING;
+                case CONFIGURE:
+                	return UserInstanceStatus.RUNNING;
                 case START:
                     return UserInstanceStatus.RUNNING;
                 case STOP:
                     return UserInstanceStatus.STOPPED;
                 case TERMINATE:
                     return UserInstanceStatus.TERMINATED;
+			default:
+				break;
             }
         }
         return UserInstanceStatus.FAILED;

@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Injectable } from '@angular/core';
 import { Http, Response, RequestOptions, RequestMethod, Headers } from '@angular/http';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 import { Dictionary } from '../util/collections/dictionary/dictionary';
 
 @Injectable()
@@ -33,6 +33,10 @@ export class ApplicationServiceFacade {
   private static readonly EXPLORATORY_ENVIRONMENT_TEMPLATES = 'exploratory_environment_templates';
   private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_resources_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
+  private static readonly COMPUTATIONAL_RESOURCES_LIMITS = 'computational_resources_limits';
+  private static readonly USER_PREFERENCES = 'user_preferences';
+  private static readonly HEALTH_STATUS_STATE = 'health_status_state';
+  private static readonly ENVIRONMENT_HEALTH_STATUSES = 'environment_health_statuses';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -96,6 +100,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetComputationalResourcesLimits(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_LIMITS),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
   public buildCreateExploratoryEnvironmentRequest(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT),
@@ -131,6 +142,33 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetUserPreferences(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.USER_PREFERENCES),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildUpdateUserPreferences(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.USER_PREFERENCES),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetEnvironmentHealthStatus(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.HEALTH_STATUS_STATE),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetEnvironmentStatuses(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUSES),
+      null,
+      this.getRequestOptions(true, true));
+  }
 
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
@@ -155,6 +193,15 @@ export class ApplicationServiceFacade {
       '/api/infrastructure_provision/computational_resources');
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
       '/api/infrastructure_provision/computational_resources_templates');
+    this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_LIMITS,
+      '/api/infrastructure_provision/computational_resources/limits');
+
+    // Filtering Configuration
+    this.requestRegistry.Add(ApplicationServiceFacade.USER_PREFERENCES, '/api/user/settings');
+
+    // Environment Health Status
+    this.requestRegistry.Add(ApplicationServiceFacade.HEALTH_STATUS_STATE, 'app/health-status/data_status.json');
+    this.requestRegistry.Add(ApplicationServiceFacade.ENVIRONMENT_HEALTH_STATUSES, 'app/health-status/data.json');
   }
 
   private buildRequest(method: RequestMethod, url: string, body: any, opt: RequestOptions): Observable<Response> {

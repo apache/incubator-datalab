@@ -19,14 +19,26 @@ limitations under the License.
 package com.epam.dlab.backendapi.resources.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
+
 import org.hibernate.validator.constraints.NotBlank;
 
+/** Stores info about the action of exploratory notebook. 
+ * */
 public class ExploratoryActionFormDTO {
     @NotBlank
     @JsonProperty("notebook_instance_name")
     private String notebookInstanceName;
 
+    /** Returns the name of notebook instance. */
     public String getNotebookInstanceName() {
         return notebookInstanceName;
+    }
+
+    @Override
+    public String toString() {
+    	return MoreObjects.toStringHelper(this)
+        .add("notebookInstanceName", notebookInstanceName)
+        .toString();
     }
 }

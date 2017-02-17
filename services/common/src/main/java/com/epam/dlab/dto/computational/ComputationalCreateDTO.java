@@ -19,6 +19,7 @@ limitations under the License.
 package com.epam.dlab.dto.computational;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 public class ComputationalCreateDTO extends ComputationalBaseDTO<ComputationalCreateDTO> {
     @JsonProperty("emr_instance_count")
@@ -29,9 +30,10 @@ public class ComputationalCreateDTO extends ComputationalBaseDTO<ComputationalCr
     private String slaveInstanceType;
     @JsonProperty("emr_version")
     private String version;
-    @JsonProperty("notebook_name")
-    private String notebookName;
-
+    @JsonProperty("notebook_instance_name")
+    private String notebookInstanceName;
+    @JsonProperty("notebook_template_name")
+    private String notebookTemplateName;
 
     public String getInstanceCount() {
         return instanceCount;
@@ -85,17 +87,45 @@ public class ComputationalCreateDTO extends ComputationalBaseDTO<ComputationalCr
         return this;
     }
 
-    public String getNotebookName() {
-        return notebookName;
+    public String getNotebookInstanceName() {
+        return notebookInstanceName;
     }
 
-    public void setNotebookName(String notebookName) {
-        this.notebookName = notebookName;
+    public void setNotebookInstanceName(String notebookInstanceName) {
+        this.notebookInstanceName = notebookInstanceName;
     }
 
-    public ComputationalCreateDTO withNotebookName(String notebookName) {
-        setNotebookName(notebookName);
+    public ComputationalCreateDTO withNotebookInstanceName(String notebookInstanceName) {
+        setNotebookInstanceName(notebookInstanceName);
         return this;
     }
+    
+    public String getNotebookTemplateName() {
+        return notebookTemplateName;
+    }
 
+    public void setNotebookTemplateName(String notebookTemplateName) {
+        this.notebookTemplateName = notebookTemplateName;
+    }
+
+    public ComputationalCreateDTO withNotebookTemplateName(String notebookTemplateName) {
+    	setNotebookTemplateName(notebookTemplateName);
+        return this;
+    }
+    
+    @Override
+    public ToStringHelper toStringHelper(Object self) {
+    	return super.toStringHelper(self)
+    	        .add("notebookInstanceName", notebookInstanceName)
+    	        .add("notebookTemplateName", notebookTemplateName)
+    	        .add("version", version)
+    	        .add("masterInstanceType", masterInstanceType)
+    	        .add("slaveInstanceType", slaveInstanceType)
+    	        .add("instanceCount", instanceCount);
+    }
+    
+    @Override
+    public String toString() {
+    	return toStringHelper(this).toString();
+    }
 }

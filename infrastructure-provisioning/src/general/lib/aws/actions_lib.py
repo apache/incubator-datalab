@@ -1,0 +1,867 @@
+# *****************************************************************************
+#
+# Copyright (c) 2016, EPAM SYSTEMS INC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ******************************************************************************
+
+import boto3
+import botocore
+from botocore.client import Config
+import time
+import sys
+import os
+import json
+from fabric.api import *
+from fabric.contrib.files import exists
+import logging
+from dlab.meta_lib import *
+from dlab.fab import *
+import traceback
+import urllib2
+
+
+def put_to_bucket(bucket_name, local_file, destination_file):
+    try:
+        s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
+        with open(local_file, 'rb') as data:
+            s3.upload_fileobj(data, bucket_name, destination_file)
+        return True
+    except Exception as err:
+        logging.info("Unable to upload files to S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to upload files to S3 bucket", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+        return False
+
+
+def create_s3_bucket(bucket_name, tag, region):
+    try:
+        s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
+        bucket = s3.create_bucket(Bucket=bucket_name,
+                                  CreateBucketConfiguration={'LocationConstraint': region})
+        tagging = bucket.Tagging()
+        tagging.put(Tagging={'TagSet': [tag]})
+        tagging.reload()
+        return bucket.name
+    except Exception as err:
+        logging.info("Unable to create S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create S3 bucket", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_vpc(vpc_cidr, tag):
+    try:
+        ec2 = boto3.resource('ec2')
+        vpc = ec2.create_vpc(CidrBlock=vpc_cidr)
+        vpc.create_tags(Tags=[tag])
+        return vpc.id
+    except Exception as err:
+        logging.info("Unable to create VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create VPC", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def enable_vpc_dns(vpc_id):
+    try:
+        client = boto3.client('ec2')
+        client.modify_vpc_attribute(VpcId=vpc_id,
+                                    EnableDnsHostnames={'Value': True})
+    except Exception as err:
+        logging.info("Unable to modify VPC attributes: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to modify VPC attributes", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_vpc(vpc_id):
+    try:
+        client = boto3.client('ec2')
+        client.delete_vpc(VpcId=vpc_id)
+        print "VPC " + vpc_id + " has been removed"
+    except Exception as err:
+        logging.info("Unable to remove VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove VPC", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_tag(resource, tag):
+    try:
+        ec2 = boto3.client('ec2')
+        ec2.create_tags(
+            Resources = resource,
+            Tags = [
+                json.loads(tag)
+            ]
+        )
+    except Exception as err:
+        logging.info("Unable to create Tag: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create Tag", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_emr_tag(emr_id, tag):
+    try:
+        emr = boto3.client('emr')
+        emr.remove_tags(ResourceId=emr_id, TagKeys=tag)
+    except Exception as err:
+        logging.info("Unable to remove Tag: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove Tag", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_rt(vpc_id, infra_tag_name, infra_tag_value):
+    try:
+        tag = {"Key": infra_tag_name, "Value": infra_tag_value}
+        route_table = []
+        ec2 = boto3.client('ec2')
+        rt = ec2.create_route_table(VpcId=vpc_id)
+        rt_id = rt.get('RouteTable').get('RouteTableId')
+        route_table.append(rt_id)
+        print 'Created Route-Table with ID: {}'.format(rt_id)
+        create_tag(route_table, json.dumps(tag))
+        ig = ec2.create_internet_gateway()
+        ig_id = ig.get('InternetGateway').get('InternetGatewayId')
+        route_table = []
+        route_table.append(ig_id)
+        create_tag(route_table, json.dumps(tag))
+        ec2.attach_internet_gateway(InternetGatewayId=ig_id, VpcId=vpc_id)
+        ec2.create_route(DestinationCidrBlock='0.0.0.0/0', RouteTableId=rt_id, GatewayId=ig_id)
+        return rt_id
+    except Exception as err:
+        logging.info("Unable to create Route Table: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create Route Table", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_subnet(vpc_id, subnet, tag):
+    try:
+        ec2 = boto3.resource('ec2')
+        subnet = ec2.create_subnet(VpcId=vpc_id, CidrBlock=subnet)
+        subnet.create_tags(Tags=[tag])
+        subnet.reload()
+        return subnet.id
+    except Exception as err:
+        logging.info("Unable to create Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create Subnet", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_security_group(security_group_name, vpc_id, security_group_rules, egress, tag):
+    ec2 = boto3.resource('ec2')
+    group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
+    time.sleep(10)
+    group.create_tags(Tags=[tag])
+    try:
+        group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}])
+    except:
+        print "Mentioned rule does not exist"
+    for rule in security_group_rules:
+        group.authorize_ingress(IpPermissions=[rule])
+    for rule in egress:
+        group.authorize_egress(IpPermissions=[rule])
+    return group.id
+
+
+def enable_auto_assign_ip(subnet_id):
+    try:
+        client = boto3.client('ec2')
+        client.modify_subnet_attribute(MapPublicIpOnLaunch={'Value': True}, SubnetId=subnet_id)
+    except Exception as err:
+        logging.info("Unable to create Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create Subnet",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_instance(definitions, instance_tag):
+    try:
+        ec2 = boto3.resource('ec2')
+        security_groups_ids = []
+        for chunk in definitions.security_group_ids.split(','):
+            security_groups_ids.append(chunk.strip())
+        user_data = ''
+        if definitions.user_data_file != '':
+            try:
+                with open(definitions.user_data_file, 'r') as f:
+                    for line in f:
+                        user_data = user_data + line
+                f.close()
+            except:
+                print("Error reading user-data file")
+        if definitions.instance_class == 'notebook':
+            instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
+                                             BlockDeviceMappings=[
+                                                 {
+                                                     "DeviceName": "/dev/sda1",
+                                                     "Ebs":
+                                                         {
+                                                             "VolumeSize": 12
+                                                         }
+                                                 },
+                                                 {
+                                                     "DeviceName": "/dev/sdb",
+                                                     "Ebs":
+                                                         {
+                                                             "VolumeSize": int(definitions.instance_disk_size)
+                                                         }
+                                                 }],
+                                             KeyName=definitions.key_name,
+                                             SecurityGroupIds=security_groups_ids,
+                                             InstanceType=definitions.instance_type,
+                                             SubnetId=definitions.subnet_id,
+                                             IamInstanceProfile={'Name': definitions.iam_profile},
+                                             UserData=user_data)
+        else:
+            get_iam_profile(definitions.iam_profile)
+            instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
+                                             KeyName=definitions.key_name,
+                                             SecurityGroupIds=security_groups_ids,
+                                             InstanceType=definitions.instance_type,
+                                             SubnetId=definitions.subnet_id,
+                                             IamInstanceProfile={'Name': definitions.iam_profile},
+                                             UserData=user_data)
+        for instance in instances:
+            print "Waiting for instance " + instance.id + " become running."
+            instance.wait_until_running()
+            instance.create_tags(Tags=[{'Key': 'Name', 'Value': definitions.node_name}, instance_tag])
+            return instance.id
+        return ''
+    except Exception as err:
+        logging.info("Unable to create EC2: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_iam_role(role_name, role_profile):
+    conn = boto3.client('iam')
+    try:
+        conn.create_role(RoleName=role_name, AssumeRolePolicyDocument='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
+        conn.create_instance_profile(InstanceProfileName=role_profile)
+        waiter = conn.get_waiter('instance_profile_exists')
+        waiter.wait(InstanceProfileName=role_profile)
+    except botocore.exceptions.ClientError as e_role:
+        if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
+            print "Instance profile already exists. Reusing..."
+        else:
+            logging.info("Unable to create Instance Profile: " + str(e_role.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Instance Profile", "error_message": str(e_role.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return
+    try:
+        conn.add_role_to_instance_profile(InstanceProfileName=role_profile, RoleName=role_name)
+        time.sleep(30)
+    except botocore.exceptions.ClientError as err:
+        logging.info("Unable to create IAM role: " + str(err.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to create IAM role", "error_message": str(err.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def attach_policy(policy_arn, role_name):
+    try:
+        conn = boto3.client('iam')
+        conn.attach_role_policy(PolicyArn=policy_arn, RoleName=role_name)
+        time.sleep(30)
+    except botocore.exceptions.ClientError as err:
+        logging.info("Unable to attach Policy: " + str(err.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to attach Policy", "error_message": str(err.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_attach_policy(policy_name, role_name, file_path):
+    try:
+        conn = boto3.client('iam')
+        with open(file_path, 'r') as myfile:
+            json_file = myfile.read()
+        conn.put_role_policy(RoleName=role_name, PolicyName=policy_name, PolicyDocument=json_file)
+    except Exception as err:
+        logging.info("Unable to attach Policy: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to attach Policy", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_ec2(tag_name, tag_value):
+    try:
+        ec2 = boto3.resource('ec2')
+        client = boto3.client('ec2')
+        inst = ec2.instances.filter(
+            Filters=[{'Name': 'instance-state-name', 'Values': ['running', 'stopped', 'pending', 'stopping']},
+                     {'Name': 'tag:{}'.format(tag_name), 'Values': ['{}'.format(tag_value)]}])
+        instances = list(inst)
+        if instances:
+            for instance in instances:
+                client.terminate_instances(InstanceIds=[instance.id])
+                waiter = client.get_waiter('instance_terminated')
+                waiter.wait(InstanceIds=[instance.id])
+                print "The instance " + instance.id + " has been terminated successfully"
+        else:
+            print "There are no instances with '" + tag_name + "' tag to terminate"
+    except Exception as err:
+        logging.info("Unable to remove EC2: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def stop_ec2(tag_name, tag_value):
+    try:
+        ec2 = boto3.resource('ec2')
+        client = boto3.client('ec2')
+        inst = ec2.instances.filter(
+            Filters=[{'Name': 'instance-state-name', 'Values': ['running', 'pending']},
+                     {'Name': 'tag:{}'.format(tag_name), 'Values': ['{}'.format(tag_value)]}])
+        instances = list(inst)
+        if instances:
+            for instance in instances:
+                client.stop_instances(InstanceIds=[instance.id])
+                waiter = client.get_waiter('instance_stopped')
+                waiter.wait(InstanceIds=[instance.id])
+                print "The instance " + tag_value + " has been stopped successfully"
+        else:
+            print "There are no instances with " + tag_value + " name to stop"
+    except Exception as err:
+        logging.info("Unable to stop EC2: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to stop EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def start_ec2(tag_name, tag_value):
+    try:
+        ec2 = boto3.resource('ec2')
+        client = boto3.client('ec2')
+        inst = ec2.instances.filter(
+            Filters=[{'Name': 'instance-state-name', 'Values': ['stopped']},
+                     {'Name': 'tag:{}'.format(tag_name), 'Values': ['{}'.format(tag_value)]}])
+        instances = list(inst)
+        if instances:
+            for instance in instances:
+                client.start_instances(InstanceIds=[instance.id])
+                waiter = client.get_waiter('instance_status_ok')
+                waiter.wait(InstanceIds=[instance.id])
+                print "The instance " + tag_value + " has been started successfully"
+        else:
+            print "There are no instances with " + tag_value + " name to start"
+    except Exception as err:
+        logging.info("Unable to start EC2: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to start EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_detach_iam_policies(role_name, action=''):
+    client = boto3.client('iam')
+    try:
+        policy_list = client.list_attached_role_policies(RoleName=role_name).get('AttachedPolicies')
+        for i in policy_list:
+            policy_arn = i.get('PolicyArn')
+            client.detach_role_policy(RoleName=role_name, PolicyArn=policy_arn)
+            print "The IAM policy " + policy_arn + " has been detached successfully"
+            if action == 'delete':
+                client.delete_policy(PolicyArn=policy_arn)
+                print "The IAM policy " + policy_arn + " has been deleted successfully"
+    except Exception as err:
+        logging.info("Unable to remove/detach IAM policy: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove/detach IAM policy",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_roles_and_profiles(role_name, role_profile_name):
+    client = boto3.client('iam')
+    try:
+        client.remove_role_from_instance_profile(InstanceProfileName=role_profile_name, RoleName=role_name)
+        client.delete_instance_profile(InstanceProfileName=role_profile_name)
+        client.delete_role(RoleName=role_name)
+        print "The IAM role " + role_name + " and instance profile " + role_profile_name + " have been deleted successfully"
+    except Exception as err:
+        logging.info("Unable to remove IAM role/profile: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove IAM role/profile",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_all_iam_resources(instance_type, scientist=''):
+    try:
+        client = boto3.client('iam')
+        service_base_name = os.environ['conf_service_base_name'].lower().replace('-', '_')
+        roles_list = []
+        for item in client.list_roles(MaxItems=250).get("Roles"):
+            if item.get("RoleName").startswith(service_base_name + '-'):
+                roles_list.append(item.get('RoleName'))
+        if roles_list:
+            roles_list.sort(reverse=True)
+            for iam_role in roles_list:
+                if '-ssn-Role' in iam_role:
+                    if instance_type == 'ssn' or instance_type == 'all':
+                        try:
+                            client.delete_role_policy(RoleName=iam_role, PolicyName=service_base_name + '-ssn-Policy')
+                        except:
+                            print 'There is no policy ' + service_base_name + '-ssn-Policy to delete'
+                        role_profiles = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
+                        if role_profiles:
+                            for i in role_profiles:
+                                role_profile_name = i.get('InstanceProfileName')
+                                if role_profile_name == service_base_name + '-ssn-Profile':
+                                    remove_roles_and_profiles(iam_role, role_profile_name)
+                        else:
+                            print "There is no instance profile for " + iam_role
+                            client.delete_role(RoleName=iam_role)
+                            print "The IAM role " + iam_role + " has been deleted successfully"
+                if '-edge-Role' in iam_role:
+                    if instance_type == 'edge' and scientist in iam_role:
+                        remove_detach_iam_policies(iam_role, 'delete')
+                        role_profile_name = os.environ['conf_service_base_name'].lower().replace('-', '_') + '-' + '{}'.format(scientist) + '-edge-Profile'
+                        try:
+                            client.get_instance_profile(InstanceProfileName=role_profile_name)
+                            remove_roles_and_profiles(iam_role, role_profile_name)
+                        except:
+                            print "There is no instance profile for " + iam_role
+                            client.delete_role(RoleName=iam_role)
+                            print "The IAM role " + iam_role + " has been deleted successfully"
+                    if instance_type == 'all':
+                        remove_detach_iam_policies(iam_role, 'delete')
+                        role_profile_name = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
+                        if role_profile_name:
+                            for i in role_profile_name:
+                                role_profile_name = i.get('InstanceProfileName')
+                                remove_roles_and_profiles(iam_role, role_profile_name)
+                        else:
+                            print "There is no instance profile for " + iam_role
+                            client.delete_role(RoleName=iam_role)
+                            print "The IAM role " + iam_role + " has been deleted successfully"
+                if '-nb-Role' in iam_role:
+                    if instance_type == 'notebook' and scientist in iam_role:
+                        remove_detach_iam_policies(iam_role)
+                        role_profile_name = os.environ['conf_service_base_name'].lower().replace('-', '_') + '-' + "{}".format(scientist) + '-nb-Profile'
+                        try:
+                            client.get_instance_profile(InstanceProfileName=role_profile_name)
+                            remove_roles_and_profiles(iam_role, role_profile_name)
+                        except:
+                            print "There is no instance profile for " + iam_role
+                            client.delete_role(RoleName=iam_role)
+                            print "The IAM role " + iam_role + " has been deleted successfully"
+                    if instance_type == 'all':
+                        remove_detach_iam_policies(iam_role)
+                        role_profile_name = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
+                        if role_profile_name:
+                            for i in role_profile_name:
+                                role_profile_name = i.get('InstanceProfileName')
+                                remove_roles_and_profiles(iam_role, role_profile_name)
+                        else:
+                            print "There is no instance profile for " + iam_role
+                            client.delete_role(RoleName=iam_role)
+                            print "The IAM role " + iam_role + " has been deleted successfully"
+        else:
+            print "There are no IAM roles to delete. Checking instance profiles..."
+        profile_list = []
+        for item in client.list_instance_profiles(MaxItems=250).get("InstanceProfiles"):
+            if item.get("InstanceProfileName").startswith(service_base_name + '-'):
+                profile_list.append(item.get('InstanceProfileName'))
+        if profile_list:
+            for instance_profile in profile_list:
+                if '-ssn-Profile' in instance_profile:
+                    if instance_type == 'ssn' or instance_type == 'all':
+                        client.delete_instance_profile(InstanceProfileName=instance_profile)
+                        print "The instance profile " + instance_profile + " has been deleted successfully"
+                if '-edge-Profile' in instance_profile:
+                    if instance_type == 'edge' and scientist in instance_profile:
+                        client.delete_instance_profile(InstanceProfileName=instance_profile)
+                        print "The instance profile " + instance_profile + " has been deleted successfully"
+                    if instance_type == 'all':
+                        client.delete_instance_profile(InstanceProfileName=instance_profile)
+                        print "The instance profile " + instance_profile + " has been deleted successfully"
+                if '-nb-Profile' in instance_profile:
+                    if instance_type == 'notebook' and scientist in instance_profile:
+                        client.delete_instance_profile(InstanceProfileName=instance_profile)
+                        print "The instance profile " + instance_profile + " has been deleted successfully"
+                    if instance_type == 'all':
+                        client.delete_instance_profile(InstanceProfileName=instance_profile)
+                        print "The instance profile " + instance_profile + " has been deleted successfully"
+        else:
+            print "There are no instance profiles to delete"
+    except Exception as err:
+        logging.info("Unable to remove some of the IAM resources: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove some of the IAM resources", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def s3_cleanup(bucket, cluster_name, user_name):
+    s3_res = boto3.resource('s3', config=Config(signature_version='s3v4'))
+    client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
+    try:
+        client.head_bucket(Bucket=bucket)
+    except:
+        print "There is no bucket " + bucket + " or you do not permission to access it"
+        sys.exit(0)
+    try:
+        resource = s3_res.Bucket(bucket)
+        prefix = user_name + '/' + cluster_name + "/"
+        for i in resource.objects.filter(Prefix=prefix):
+            s3_res.Object(resource.name, i.key).delete()
+    except Exception as err:
+        logging.info("Unable to clean S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to clean S3 bucket", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_s3(bucket_type='all', scientist=''):
+    try:
+        client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
+        bucket_list = []
+        if bucket_type == 'ssn':
+            bucket_name = (os.environ['conf_service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
+        elif bucket_type == 'edge':
+            bucket_name = (os.environ['conf_service_base_name'] + '-' + "{}".format(scientist) + '-bucket').lower().replace('_', '-')
+        else:
+            bucket_name = (os.environ['conf_service_base_name']).lower().replace('_', '-')
+        for item in client.list_buckets().get('Buckets'):
+            if bucket_name in item.get('Name'):
+                for i in client.get_bucket_tagging(Bucket=item.get('Name')).get('TagSet'):
+                    i.get('Key')
+                    if i.get('Key') == os.environ['conf_service_base_name'] + '-Tag':
+                        bucket_list.append(item.get('Name'))
+        for s3bucket in bucket_list:
+            if s3bucket:
+                list_obj = client.list_objects(Bucket=s3bucket)
+                list_obj = list_obj.get('Contents')
+                if list_obj is not None:
+                    for o in list_obj:
+                        list_obj = o.get('Key')
+                        client.delete_objects(
+                            Bucket=s3bucket,
+                            Delete={'Objects': [{'Key': list_obj}]}
+                        )
+                    print "The S3 bucket " + s3bucket + " has been cleaned"
+                client.delete_bucket(Bucket=s3bucket)
+                print "The S3 bucket " + s3bucket + " has been deleted successfully"
+            else:
+                print "There are no buckets to delete"
+    except Exception as err:
+        logging.info("Unable to remove S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove S3 bucket", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_subnets(tag_value):
+    try:
+        ec2 = boto3.resource('ec2')
+        client = boto3.client('ec2')
+        tag_name = os.environ['conf_service_base_name'] + '-Tag'
+        subnets = ec2.subnets.filter(
+            Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [tag_value]}])
+        if subnets:
+            for subnet in subnets:
+                client.delete_subnet(SubnetId=subnet.id)
+                print "The subnet " + subnet.id + " has been deleted successfully"
+        else:
+            print "There are no private subnets to delete"
+    except Exception as err:
+        logging.info("Unable to remove subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove subnet", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_sgroups(tag_value):
+    try:
+        ec2 = boto3.resource('ec2')
+        client = boto3.client('ec2')
+        tag_name = os.environ['conf_service_base_name']
+        sgs = ec2.security_groups.filter(
+            Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [tag_value]}])
+        if sgs:
+            for sg in sgs:
+                client.delete_security_group(GroupId=sg.id)
+                print "The security group " + sg.id + " has been deleted successfully"
+        else:
+            print "There are no security groups to delete"
+    except Exception as err:
+        logging.info("Unable to remove SG: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove SG", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def deregister_image(scientist):
+    try:
+        client = boto3.client('ec2')
+        response = client.describe_images(
+            Filters=[{'Name': 'name', 'Values': ['{}-{}-*'.format(os.environ['conf_service_base_name'], scientist)]},
+                     {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]}])
+        images_list = response.get('Images')
+        if images_list:
+            for i in images_list:
+                client.deregister_image(ImageId=i.get('ImageId'))
+                print "Notebook AMI " + i.get('ImageId') + " has been deregistered successfully"
+        else:
+            print "There is no notebook ami to deregister"
+    except Exception as err:
+        logging.info("Unable to de-register image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to de-register image", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def terminate_emr(id):
+    try:
+        emr = boto3.client('emr')
+        emr.terminate_job_flows(
+            JobFlowIds=[id]
+        )
+        waiter = emr.get_waiter('cluster_terminated')
+        waiter.wait(ClusterId=id)
+    except Exception as err:
+        logging.info("Unable to remove EMR: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove EMR", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_version):
+    try:
+        ec2 = boto3.resource('ec2')
+        inst = ec2.instances.filter(
+            Filters=[{'Name': 'instance-state-name', 'Values': ['running']},
+                     {'Name': 'tag:{}'.format(tag_name), 'Values': ['{}'.format(nb_tag_value)]}])
+        instances = list(inst)
+        if instances:
+            for instance in instances:
+                private = getattr(instance, 'private_dns_name')
+                env.hosts = "{}".format(private)
+                env.user = "{}".format(ssh_user)
+                env.key_filename = "{}".format(key_path)
+                env.host_string = env.user + "@" + env.hosts
+                sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
+                sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, emr_name))
+                if exists('/home/{}/.ensure_dir/emr_{}_interpreter_ensured'.format(ssh_user, emr_name)):
+                    sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+                    sudo("rm -rf /home/{}/.ensure_dir/emr_interpreter_ensure".format(ssh_user))
+                    zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
+                    opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+                    req = opener.open(urllib2.Request(zeppelin_url))
+                    r_text = req.read()
+                    interpreter_json = json.loads(r_text)
+                    interpreter_prefix = emr_name
+                    for interpreter in interpreter_json['body']:
+                        if interpreter_prefix in interpreter['name']:
+                            print "Interpreter with ID:", interpreter['id'], "and name:", interpreter['name'], \
+                                "will be removed from zeppelin!"
+                            request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
+                            request.get_method = lambda: 'DELETE'
+                            url = opener.open(request)
+                            print url.read()
+                    sudo('chown ' + ssh_user + ':' + ssh_user + ' -R /opt/zeppelin/')
+                    sudo("service zeppelin-notebook restart")
+                    sudo('rm -rf /home/{}/.ensure_dir/emr_{}_interpreter_ensured'.format(ssh_user, emr_name))
+                if exists('/home/{}/.ensure_dir/rstudio_emr_ensured'.format(ssh_user)):
+                    sudo("sed -i '/" + emr_name + "/d' /home/{}/.Renviron".format(ssh_user))
+                    if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(ssh_user)):
+                        sudo("sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".format(ssh_user))
+                    sudo("sed -i 's|/opt/" + emr_version + '/' + emr_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(ssh_user))
+                print "Notebook's " + env.hosts + " kernels were removed"
+        else:
+            print "There are no notebooks to clean kernels."
+    except Exception as err:
+        logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to remove kernels on Notebook", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_route_tables(tag_name, ssn=False):
+    try:
+        client = boto3.client('ec2')
+        rtables = client.describe_route_tables(Filters=[{'Name': 'tag-key', 'Values': [tag_name]}]).get('RouteTables')
+        for rtable in rtables:
+            if rtable:
+                rtable_associations = rtable.get('Associations')
+                rtable = rtable.get('RouteTableId')
+                if ssn:
+                    for association in rtable_associations:
+                        client.disassociate_route_table(AssociationId=association.get('RouteTableAssociationId'))
+                        print "Association " + association.get('RouteTableAssociationId') + " has been removed"
+                client.delete_route_table(RouteTableId=rtable)
+                print "Route table " + rtable + " has been removed"
+            else:
+                print "There are no route tables to remove"
+    except Exception as err:
+        logging.info("Unable to remove route table: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to remove route table",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_internet_gateways(vpc_id, tag_name, tag_value):
+    try:
+        ig_id = ''
+        client = boto3.client('ec2')
+        response = client.describe_internet_gateways(
+            Filters=[
+                {'Name': 'tag-key', 'Values': [tag_name]},
+                {'Name': 'tag-value', 'Values': [tag_value]}]).get('InternetGateways')
+        for i in response:
+            ig_id = i.get('InternetGatewayId')
+        client.detach_internet_gateway(InternetGatewayId=ig_id,VpcId=vpc_id)
+        print "Internet gateway " + ig_id + " has been detached from VPC " + vpc_id
+        client.delete_internet_gateway(InternetGatewayId=ig_id)
+        print "Internet gateway " + ig_id + " has been deleted successfully"
+    except Exception as err:
+        logging.info("Unable to remove internet gateway: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to remove internet gateway",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def remove_vpc_endpoints(vpc_id):
+    try:
+        client = boto3.client('ec2')
+        response = client.describe_vpc_endpoints(Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}]).get('VpcEndpoints')
+        for i in response:
+            client.delete_vpc_endpoints(VpcEndpointIds=[i.get('VpcEndpointId')])
+            print "VPC Endpoint " + i.get('VpcEndpointId') + " has been removed successfully"
+    except Exception as err:
+        logging.info("Unable to remove VPC Endpoint: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to remove VPC Endpoint",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def create_image_from_instance(instance_name='', image_name=''):
+    ec2 = boto3.resource('ec2')
+    instances = ec2.instances.filter(
+        Filters=[{'Name': 'tag:Name', 'Values': [instance_name]},
+                 {'Name': 'instance-state-name', 'Values': ['running']}])
+    for instance in instances:
+        image = instance.create_image(Name=image_name,
+                                      Description='Automatically created image for notebook server',
+                                      NoReboot=False)
+        image.load()
+        while image.state != 'available':
+            local("echo Waiting for image creation; sleep 20")
+            image.load()
+        image.create_tags(Tags=[{'Key': 'Name', 'Value': os.environ['conf_service_base_name']}])
+        return image.id
+    return ''
+
+
+def install_emr_spark(args):
+    s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
+    s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark.tar.gz', '/tmp/spark.tar.gz')
+    s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark-checksum.chk', '/tmp/spark-checksum.chk')
+    if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
+        local('rm -f /tmp/spark.tar.gz')
+        s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark.tar.gz', '/tmp/spark.tar.gz')
+        if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
+            print "The checksum of spark.tar.gz is mismatched. It could be caused by aws network issue."
+            sys.exit(1)
+    local('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/' + args.emr_version + '/' + args.cluster_name + '/')
+
+
+def jars(args, emr_dir):
+    print "Downloading jars..."
+    s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
+    s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars.tar.gz', '/tmp/jars.tar.gz')
+    s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars-checksum.chk', '/tmp/jars-checksum.chk')
+    if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
+        local('rm -f /tmp/jars.tar.gz')
+        s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars.tar.gz', '/tmp/jars.tar.gz')
+        if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
+            print "The checksum of jars.tar.gz is mismatched. It could be caused by aws network issue."
+            sys.exit(1)
+    local('tar -zhxvf /tmp/jars.tar.gz -C ' + emr_dir)
+
+
+def yarn(args, yarn_dir):
+    print "Downloading yarn configuration..."
+    s3client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
+    s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'))
+    get_files(s3client, s3resource, args.user_name + '/' + args.cluster_name + '/config/', args.bucket, yarn_dir)
+    local('sudo mv ' + yarn_dir + args.user_name + '/' + args.cluster_name + '/config/* ' + yarn_dir)
+    local('sudo rm -rf ' + yarn_dir + args.user_name + '/')
+
+
+def get_files(s3client, s3resource, dist, bucket, local):
+    s3list = s3client.get_paginator('list_objects')
+    for result in s3list.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
+        if result.get('CommonPrefixes') is not None:
+            for subdir in result.get('CommonPrefixes'):
+                get_files(s3client, s3resource, subdir.get('Prefix'), bucket, local)
+        if result.get('Contents') is not None:
+            for file in result.get('Contents'):
+                if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
+                    os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
+                s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
+
+
+def installing_python(region, bucket, user_name, cluster_name):
+    s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=region)
+    s3_client.download_file(bucket, user_name + '/' + cluster_name + '/python_version', '/tmp/python_version')
+    with file('/tmp/python_version') as f:
+        python_version = f.read()
+    python_version = python_version[0:5]
+    if not os.path.exists('/opt/python/python' + python_version):
+        local('wget https://www.python.org/ftp/python/' + python_version + '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz' )
+        local('tar zxvf /tmp/Python-' + python_version + '.tgz -C /tmp/')
+        with lcd('/tmp/Python-' + python_version):
+            local('./configure --prefix=/opt/python/python' + python_version + ' --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install')
+            local('sudo make altinstall')
+        with lcd('/tmp/'):
+            local('sudo rm -rf Python-' + python_version + '/')
+        local('sudo -i virtualenv /opt/python/python' + python_version)
+        venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
+        pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
+        local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
+        local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
+        local(venv_command + ' && sudo -i ' + pip_command + ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
+
+
+def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region):
+    spark_path = '/opt/' + emr_version + '/' + cluster_name + '/spark/'
+    local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
+    kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
+    template_file = "/tmp/pyspark_emr_template.json"
+    with open(template_file, 'r') as f:
+        text = f.read()
+    text = text.replace('CLUSTER_NAME', cluster_name)
+    text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
+    text = text.replace('SPARK_PATH', spark_path)
+    text = text.replace('PYTHON_SHORT_VERSION', '2.7')
+    text = text.replace('PYTHON_FULL_VERSION', '2.7')
+    text = text.replace('PYTHON_PATH', '/usr/bin/python2.7')
+    text = text.replace('EMR_VERSION', emr_version)
+    with open(kernel_path, 'w') as f:
+        f.write(text)
+    local('touch /tmp/kernel_var.json')
+    local(
+        "PYJ=`find /opt/" + emr_version + "/" + cluster_name + "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path + " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
+    local('sudo mv /tmp/kernel_var.json ' + kernel_path)
+    s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=region)
+    s3_client.download_file(bucket, user_name + '/' + cluster_name + '/python_version', '/tmp/python_version')
+    with file('/tmp/python_version') as f:
+        python_version = f.read()
+    # python_version = python_version[0:3]
+    if python_version != '\n':
+        installing_python(region, bucket, user_name, cluster_name)
+        local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
+        kernel_path = kernels_dir + "py3spark_" + cluster_name + "/kernel.json"
+        template_file = "/tmp/pyspark_emr_template.json"
+        with open(template_file, 'r') as f:
+            text = f.read()
+        text = text.replace('CLUSTER_NAME', cluster_name)
+        text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
+        text = text.replace('SPARK_PATH', spark_path)
+        text = text.replace('PYTHON_SHORT_VERSION', python_version[0:3])
+        text = text.replace('PYTHON_FULL_VERSION', python_version[0:5])
+        text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' + python_version[:3])
+        text = text.replace('EMR_VERSION', emr_version)
+        with open(kernel_path, 'w') as f:
+            f.write(text)
+        local('touch /tmp/kernel_var.json')
+        local(
+            "PYJ=`find /opt/" + emr_version + "/" + cluster_name + "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path + " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
+        local('sudo mv /tmp/kernel_var.json ' + kernel_path)

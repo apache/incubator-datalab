@@ -18,7 +18,7 @@
 inactiveUserTimeoutMillSec: 7200000
 ldapConnectionConfig:
 #  ldapHost: localhost
-  ldapHost: ec2-52-33-6-197.us-west-2.compute.amazonaws.com
+  ldapHost: ec2-52-36-63-161.us-west-2.compute.amazonaws.com
 #  ldapPort: 3890
   ldapPort: 389
   name: cn=admin,dc=example,dc=com
@@ -88,6 +88,11 @@ ldapSearch:
     #keyStorePassword: changeit
     #certAlias: dlabcert
 server: 
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-security.log
+        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-security-%d.log
   applicationConnectors:
   - type: http
     port: 8090
@@ -125,7 +130,7 @@ logging:
   loggers:
     io.dropwizard: INFO
     com.epam: DEBUG
-    com.aegisql: DEBUG
+    com.aegisql: INFO
   appenders:
 #    - type: console
     - type: file

@@ -1,4 +1,3 @@
-
 <!------------------------------------------------------------------------------------------------------------
 
 Copyright (c) 2016, EPAM SYSTEMS INC
@@ -17,35 +16,29 @@ limitations under the License.
 
 ----------------------------------------------------------------------------------------------------------- -->
 
-<!-- <nav>
-  <a [routerLink]="['/']" [routerLinkActive]="['router-link-active']" [routerLinkActiveOptions]="{exact:true}">HOME</a>
-  <a [routerLink]="['/login']" [routerLinkActive]="['router-link-active']" [routerLinkActiveOptions]="{exact:true}">LOGIN</a>
-</nav> -->
-
-
 <nav class="navbar navbar-inverse">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button class="navbar-toggle" type="button">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-     <!-- <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-        <li><a href="#">Action</a></li>
-        <li><a href="#">Another action</a></li>
-        <li><a href="#">Something else here</a></li>
-        <li><a href="#">Separated link</a></li>
-      </ul> -->
-      <a class="navbar-logo" href="#">
-        <img src="assets/img/logo-nav.png" alt="">
-      </a>
-    </div>
-    <button class="btn btn-logout" (click)="logout_btnClick()">
-      Log out
-      <span class="user-name">{{currentUserName}}</span>
+  <div class="navigation dropdown">
+    <button class="navbar-toggle dropdown-toggle" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
     </button>
+    <!--<ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+      <li><a [routerLink]="['/resources_list']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">List of Resources</a></li>
+      <li><a [routerLink]="['/environment_health_status']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Health Status</a></li>
+    </ul>-->
   </div>
+  <a href="#/resources_list" class="navbar-logo">
+    <img src="assets/img/logo-nav.png" alt="">
+  </a>
+
+  <button class="btn btn-logout" (click)="logout_btnClick()">
+      Log out
+    <span class="user-name">{{currentUserName}}</span>
+  </button>
+  <!--<a [routerLink]="['/environment_health_status']" class="statusbar">
+    <span class="glyphicon glyphicon-record" ngClass="{{healthStatus || ''}}"></span>
+     <span class="status ok"></span> 
+  </a>-->
 </nav>

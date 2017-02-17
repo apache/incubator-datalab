@@ -20,6 +20,17 @@ export class SortUtil {
   public static statusSort(arg1:string, arg2:string): number {
     let order = ['creating', 'running', 'stopping', 'stopped', 'terminating', 'terminated', 'failed'];
 
-    return order.indexOf(arg1) -  order.indexOf(arg2);
+    return order.indexOf(arg1) - order.indexOf(arg2);
+  }
+
+  public static shapesSort(shapesJson) {
+    let sortOrder = ['For testing', 'Memory optimized', 'GPU optimized', 'Compute optimized'];
+    let sortedShapes = {};
+
+    Object.keys(shapesJson)
+      .sort((a, b) => sortOrder.indexOf(a) - sortOrder.indexOf(b))
+      .forEach(key => { sortedShapes[key] = shapesJson[key]; });
+
+    return sortedShapes;
   }
 }

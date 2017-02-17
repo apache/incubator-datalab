@@ -44,7 +44,7 @@ export class HomeComponent implements OnInit {
   @ViewChild('createAnalyticalModal') createAnalyticalModal;
   @ViewChild(ResourcesGrid) resourcesGrid: ResourcesGrid;
 
-  private readonly CHECK_ACCESS_KEY_TIMEOUT : number = 10000;
+  private readonly CHECK_ACCESS_KEY_TIMEOUT : number = 20000;
 
   constructor(
     private userAccessKeyService: UserAccessKeyService,
@@ -68,7 +68,15 @@ export class HomeComponent implements OnInit {
     this.resourcesGrid.buildGrid();
   }
 
-  private checkInfrastructureCreationProgress() {
+  public toggleFiltering(): void {
+    if (this.resourcesGrid.activeFiltering) {
+      this.resourcesGrid.resetFilterConfigurations();
+    } else {
+      this.resourcesGrid.showActiveInstances();
+    }
+  }
+
+  public checkInfrastructureCreationProgress() {
     this.userAccessKeyService.checkUserAccessKey()
       .subscribe(
       response => this.processAccessKeyStatus(response.status, false),

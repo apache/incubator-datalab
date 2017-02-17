@@ -14,6 +14,7 @@ package com.epam.dlab.dto.edge;
 
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 public class EdgeBaseDTO<T extends EdgeBaseDTO<?>> extends ResourceBaseDTO<T> {
     @JsonProperty("edge_user_name")
@@ -31,5 +32,16 @@ public class EdgeBaseDTO<T extends EdgeBaseDTO<?>> extends ResourceBaseDTO<T> {
     public T withEdgeUserName(String edgeUserName) {
         setEdgeUserName(edgeUserName);
         return (T) this;
+    }
+
+    @Override
+    public ToStringHelper toStringHelper(Object self) {
+    	return super.toStringHelper(self)
+    	        .add("edgeUserName", edgeUserName);
+    }
+    
+    @Override
+    public String toString() {
+    	return toStringHelper(this).toString();
     }
 }

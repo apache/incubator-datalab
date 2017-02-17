@@ -44,12 +44,10 @@ export function serveDocs() {
  */
 export function serveCoverage() {
   let server = express();
-  let compression = require('compression');
-      server.use(compression());
 
   server.use(
     Config.APP_BASE,
-    express.static(resolve(process.cwd(), 'coverage'))
+    express.static(resolve(process.cwd(), Config.COVERAGE_TS_DIR))
   );
 
   server.listen(Config.COVERAGE_PORT, () =>
@@ -63,8 +61,10 @@ export function serveCoverage() {
 export function serveProd() {
   let root = resolve(process.cwd(), Config.PROD_DEST);
   let server = express();
-  let compression = require('compression');
-      server.use(compression());
+
+  for (let proxy of Config.getProxyMiddleware()) {
+    server.use(proxy);
+  }
 
   server.use(Config.APP_BASE, express.static(root));
 

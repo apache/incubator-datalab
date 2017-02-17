@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import {IDictionary} from './idictionary';
+import { IDictionary } from './idictionary';
 
 export class Dictionary<T> implements IDictionary<T> {
   private items: { [index: string]: T } = {};

@@ -18,23 +18,40 @@ limitations under the License.
 
 package com.epam.dlab.dto.exploratory;
 
+import java.util.List;
+
 import com.epam.dlab.dto.StatusBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 public class ExploratoryStatusDTO extends StatusBaseDTO<ExploratoryStatusDTO> {
     @JsonProperty("exploratory_id")
     private String exploratoryId;
     @JsonProperty("exploratory_url")
-    private String exploratoryUrl;
+    private List<ExploratoryURL> exploratoryUrl;
     @JsonProperty("exploratory_user")
     private String exploratoryUser;
     @JsonProperty("exploratory_pass")
     private String exploratoryPassword;
+    @JsonProperty("private_ip")
+    private String privateIp;
+
+    public String getPrivateIp() {
+        return privateIp;
+    }
+
+    public void setPrivateIp(String privateIp) {
+        this.privateIp = privateIp;
+    }
+
+    public ExploratoryStatusDTO withPrivateIp(String privateIp) {
+        setPrivateIp(privateIp);
+        return this;
+    }
 
     public String getExploratoryId() {
         return exploratoryId;
     }
-
     public void setExploratoryId(String exploratoryId) {
         this.exploratoryId = exploratoryId;
     }
@@ -44,15 +61,15 @@ public class ExploratoryStatusDTO extends StatusBaseDTO<ExploratoryStatusDTO> {
         return this;
     }
 
-    public String getExploratoryUrl() {
+    public List<ExploratoryURL> getExploratoryUrl() {
         return exploratoryUrl;
     }
 
-    public void setExploratoryUrl(String exploratoryUrl) {
+    public void setExploratoryUrl(List<ExploratoryURL> exploratoryUrl) {
         this.exploratoryUrl = exploratoryUrl;
     }
 
-    public ExploratoryStatusDTO withExploratoryUrl(String exploratoryUrl) {
+    public ExploratoryStatusDTO withExploratoryUrl(List<ExploratoryURL> exploratoryUrl) {
         setExploratoryUrl(exploratoryUrl);
         return this;
     }
@@ -73,5 +90,19 @@ public class ExploratoryStatusDTO extends StatusBaseDTO<ExploratoryStatusDTO> {
     public ExploratoryStatusDTO withExploratoryPassword(String exploratoryPassword) {
         setExploratoryPassword(exploratoryPassword);
         return this;
+    }
+    
+    @Override
+    public ToStringHelper toStringHelper(Object self) {
+    	return super.toStringHelper(self)
+    	        .add("exploratoryId", exploratoryId)
+    	        .add("exploratoryUrl", exploratoryUrl)
+    	        .add("exploratoryUser", exploratoryUser)
+    	        .add("exploratoryPassword", exploratoryPassword);
+    }
+    
+    @Override
+    public String toString() {
+    	return toStringHelper(this).toString();
     }
 }

@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Input, Output, Component, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Output, Component, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { DropdownListModel } from './dropdown-list.model';
 
 @Component({
@@ -32,8 +32,9 @@ export class DropdownList {
   label: string;
   type: string;
   byField: string;
+  listStructure: string;
+  items: any;
 
-  @Input() items: Array<any>;
   @Output() selectedItem: EventEmitter<{}> = new EventEmitter();
 
   public selectOptions($event: Event, value: any, index: number): void {
@@ -45,11 +46,13 @@ export class DropdownList {
     $event.preventDefault();
   }
 
-  public setDefaultOptions(label: string, type: string, byField: string) {
+  public setDefaultOptions(items: any, label: string, type: string, byField: string, structure: string) {
     this.model = new DropdownListModel(type, '', 0);
+    this.items = items;
     this.label = label;
     this.type = type;
     this.byField = byField;
+    this.listStructure = structure;
   }
 
   private onUpdate(): void {

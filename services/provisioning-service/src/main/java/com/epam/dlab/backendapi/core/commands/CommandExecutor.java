@@ -19,52 +19,29 @@ limitations under the License.
 package com.epam.dlab.backendapi.core.commands;
 
 import com.epam.dlab.backendapi.core.ICommandExecutor;
+import com.epam.dlab.process.DlabProcess;
+import com.epam.dlab.process.ProcessId;
+import com.epam.dlab.process.ProcessInfo;
+import com.google.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+@Singleton
 public class CommandExecutor implements ICommandExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutor.class);
 
-    @Override
-    public List<String> executeSync(String command) throws IOException, InterruptedException {
-        return execute(command);
+    public List<String> executeSync(final String username, final String uuid, String command) throws Exception {
+        CompletableFuture<ProcessInfo> f = DlabProcess.getInstance().start(new ProcessId(username,uuid), "bash","-c",command);
+        ProcessInfo pi = f.get();
+        return Arrays.asList(pi.getStdOut().split("\n"));
     }
 
-    @Override
-    public void executeAsync(final String command) {
-        CompletableFuture.runAsync(() -> execute(command));
+    public void executeAsync(final String username, final String uuid, final String command) {
+        DlabProcess.getInstance().start(new ProcessId(username,uuid), "bash","-c",command);
     }
 
-    private List<String> execute(String command) {
-        try {
-            LOGGER.debug("Execute command: {}", command);
-            Process process = new ProcessBuilder(createCommand(command)).start();
-            return readInputLines(process);
-        } catch (Exception e) {
-            LOGGER.error("execute command:", e);
-        }
-        return new ArrayList<>();
-    }
-
-    private List<String> readInputLines(Process process) throws IOException {
-        List<String> result = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                result.add(line);
-            }
-        }
-        return result;
-    }
-
-    private String[] createCommand(String command) {
-        return new String[]{"bash", "-c", command};
-    }
 }

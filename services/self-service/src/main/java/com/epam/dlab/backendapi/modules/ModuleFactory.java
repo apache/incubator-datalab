@@ -23,6 +23,13 @@ import com.google.inject.AbstractModule;
 import io.dropwizard.setup.Environment;
 
 public class ModuleFactory {
+	
+	/** Instantiates an application configuration of SelfService for production or tests if
+	 * the mock property of configuration is set to <b>true</b> and method {@link SelfServiceApplicationConfiguration#isMocked()}
+	 * returns <b>true</b> value.
+     * @param configuration application configuration of SelfService.
+     * @param environment environment of SelfService.
+     */
     public static AbstractModule getModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
         return configuration.isMocked() ?
                 new MockModule(configuration, environment) :

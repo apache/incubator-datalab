@@ -23,17 +23,15 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/** Deserializes the date from JSON.
+ */
 class IsoDateDeSerializer extends JsonDeserializer<Date> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IsoDateDeSerializer.class);
     private static final String DATE_NODE = "$date";
     private static final String ISO_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 

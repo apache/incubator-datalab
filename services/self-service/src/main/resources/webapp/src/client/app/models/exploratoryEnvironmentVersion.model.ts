@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 
 import { ImageType } from './imageType.enum';
-import { ResourceShapeModel } from './resourceShape.model';
+import { ResourceShapeTypesModel } from './resourceShapeTypes.model';
 
 export class ExploratoryEnvironmentVersionModel {
   image: string;
@@ -26,10 +26,13 @@ export class ExploratoryEnvironmentVersionModel {
   environment_type: ImageType;
   version: string;
   vendor: string;
+  shapes: ResourceShapeTypesModel;
 
-  shapes: Array<ResourceShapeModel>;
-
-  constructor(parentImage: string, jsonModel: any, shapes: Array<ResourceShapeModel>) {
+  constructor(
+    parentImage: string,
+    jsonModel:any,
+    shapes: ResourceShapeTypesModel
+  ) {
     this.image = parentImage;
     this.template_name = jsonModel.template_name;
     this.description = jsonModel.description;

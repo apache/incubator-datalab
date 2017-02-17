@@ -34,7 +34,7 @@ export class DetailDialog {
 
   @ViewChild('bindDialog') bindDialog;
 
- 	public open(param, notebook): void {
+  public open(param, notebook): void {
     this.tooltip = false;
     this.notebook = notebook;
 

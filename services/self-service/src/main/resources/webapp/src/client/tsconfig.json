@@ -5,6 +5,7 @@
     "declaration": false,
     "removeComments": true,
     "noLib": false,
+    "lib": ["es2016", "dom"],
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "sourceMap": true,
@@ -20,20 +21,14 @@
       "../../node_modules"
     ],
     "types": [
-      "core-js",
-      "express",
-      "jasmine",
       "node",
-      "protractor",
       "systemjs"
     ]
   },
   "exclude": [
     "node_modules",
     "dist",
-    "src",
-    "typings/main",
-    "typings/main.d.ts"
+    "src"
   ],
   "compileOnSave": false
 }

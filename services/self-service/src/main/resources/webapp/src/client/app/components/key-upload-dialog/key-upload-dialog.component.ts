@@ -20,7 +20,7 @@ import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { Response } from '@angular/http';
 
 import { KeyUploadDialogModel } from './key-upload.model';
-import {UserAccessKeyService} from '../../services/userAccessKey.service';
+import { UserAccessKeyService } from '../../services/userAccessKey.service';
 
 import { ErrorMapUtils } from './../../util/errorMapUtils';
 import HTTP_STATUS_CODES from 'http-status-enum';

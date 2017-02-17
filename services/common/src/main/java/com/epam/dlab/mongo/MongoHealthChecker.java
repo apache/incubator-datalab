@@ -18,8 +18,10 @@ limitations under the License.
 
 package com.epam.dlab.mongo;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.contracts.HealthChecker;
 import com.mongodb.MongoException;
+import io.dropwizard.auth.Auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +35,7 @@ public class MongoHealthChecker implements HealthChecker {
     }
 
     @Override
-    public boolean isAlive() {
+    public boolean isAlive(@Auth UserInfo userInfo) {
         try {
             mongoService.ping();
             return true;

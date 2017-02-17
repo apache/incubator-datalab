@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import java.util.List;
+import java.util.Objects;
 
 public class TemplateDTO {
     @JsonProperty
@@ -72,9 +73,7 @@ public class TemplateDTO {
 
     @Override
     public int hashCode() {
-        int result = version != null ? version.hashCode() : 0;
-        result = 31 * result + (applications != null ? applications.hashCode() : 0);
-        return result;
+        return Objects.hash(version, applications);
     }
 
     @Override

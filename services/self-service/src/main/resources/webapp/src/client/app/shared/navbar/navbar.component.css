@@ -23,65 +23,130 @@ limitations under the License.
   background: #fff;
 }
 
-.navbar-toggle {
-  display: block;
-  float: none;
-  display: inline-block;
-  cursor: default;
-}
-
-.dropdown-menu {
-  margin-left: 15px;
-}
-
-.navbar-logo {
-  display: inline-block;
-  vertical-align: super;
-  font-size: 0;
-  margin-top: -7px;
-}
-
-.navbar-logo img {
-  width: 65px;
-  vertical-align: auto;
-}
-
-.btn-logout {
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  border-radius: 0;
-  background: #383838;
-  border: 0;
-  color: #cfdae6;
-  padding: 0 28px;
-}
-
-.btn-logout:hover {
-  color: #cfdae6;
-}
-
-.navbar {
-  border-radius: 0;
-}
-
 .navbar {
   min-height: 48px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
+  border-radius: 0;
 }
 
+.navbar .container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.navbar .navigation {
+  display: inline-block;
+  width: 54px;
+  margin: 0;
+  margin-right: 5px;
+}
+
+
 .navbar .navbar-toggle {
+  display: inline-block;
+  float: none;
+  margin: 0;
+  padding: 16px;
   border: 0;
-  padding: 8px;
-  margin-left: -9px;
-  margin-right: 10px;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.navbar .navigation .navbar-toggle:hover {
+  background: #36afd5;
+}
+
+.navbar .navbar-logo {
+  display: inline-block;
+}
+
+.navbar .navbar-logo img {
+  width: 65px;
+  vertical-align: bottom;
+}
+
+.navbar .navigation .dropdown-menu {
+  padding: 10px 15px;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, .175);
+  border: none;
+}
+
+.navbar .navigation .dropdown-menu li {
+  margin: 5px -5px;
+  font-size: 14px;
+  border-bottom: 1px solid #edf1f5;
+  cursor: pointer;
+}
+
+.navbar .navigation .dropdown-menu li a {
+  padding: 15px 20px;
+}
+.navbar .navigation .dropdown-menu li a.active {
+  color: #36afd5;
+}
+
+.navbar .navigation .dropdown-menu li a:hover {
+  background: none;
+  color: #36afd5;
+}
+
+.navbar .navigation .dropdown-menu li:last-child {
+  border-bottom: 0;
+}
+
+.navbar .statusbar {
+  display: block;
+  position: relative;
+  float: right;
+  width: 56px;
+  text-align: center;
+  line-height: 46px;
+  color: #f9fafb;
+  font-size: 15px;
+}
+
+.navbar .statusbar .glyphicon {
+  top: 3px;
+}
+
+.navbar .statusbar .status {
+  display: block;
+  position: absolute;
+  top: 18px;
+  right: 14px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  z-index: 1;
+}
+.navbar .statusbar .ok {
+  color: #81b44a;
+}
+.navbar .statusbar .warning {
+  color: #f7b500;
+}
+.navbar .statusbar .critical {
+  color: #ef5c4b;
 }
 
 .navbar .btn-logout {
-  margin-top: 0;
+  float: right;
+  height: 46px;
+  padding: 0 28px;
+  background: #383838;
+  color: #cfdae6;
+  border: 0;
+  border-radius: 0;
 }
 
-.user-name {
+.navbar .btn-logout:hover {
+  color: #cfdae6;
+}
+
+.navbar .user-name {
   color: #36afd5;
+}
+
+.navbar-inverse .navbar-toggle:focus, .navbar-inverse .navbar-toggle:hover {
+  background: none;
 }

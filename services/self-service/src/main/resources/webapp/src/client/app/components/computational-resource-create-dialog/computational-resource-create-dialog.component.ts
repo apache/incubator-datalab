@@ -44,6 +44,9 @@ export class ComputationalResourceCreateDialog {
   processError: boolean = false;
   errorMessage: string = '';
 
+  public minInstanceNumber: number;
+  public maxInstanceNumber: number;
+
   public createComputationalResourceForm: FormGroup;
 
   @ViewChild('bindDialog') bindDialog;
@@ -64,6 +67,7 @@ export class ComputationalResourceCreateDialog {
 
   ngOnInit() {
     this.initFormModel();
+    this.getComputationalResourceLimits();
     this.bindDialog.onClosing = () => this.resetDialog();
   }
 
@@ -79,8 +83,13 @@ export class ComputationalResourceCreateDialog {
   public onUpdate($event): void {
     if ($event.model.type === 'template') {
       this.model.setSelectedTemplate($event.model.index);
-      this.master_shapes_list.setDefaultOptions(this.model.selectedItem.shapes[0].type, 'master_shape', 'type');
-      this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes[0].type, 'slave_shape', 'type');
+      this.master_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
+        this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
+      this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
+        this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
+
+      this.shapes.master_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
+      this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
     }
 
     if (this.shapes[$event.model.type])
@@ -148,18 +157,39 @@ export class ComputationalResourceCreateDialog {
   private initFormModel(): void {
     this.createComputationalResourceForm = this._fb.group({
       cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern)]],
-      instance_number: ['1', [Validators.required, Validators.pattern(this.nodeCountPattern)]]
+      instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]]
     });
+  }
+
+  private shapePlaceholder(resourceShapes, byField: string): string {
+    for (var index in resourceShapes) return resourceShapes[index][0][byField];
+  }
+
+  private getComputationalResourceLimits(): void {
+    this.userResourceService.getComputationalResourcesLimits()
+      .subscribe((limits) => {
+        this.minInstanceNumber = limits.min_emr_instance_count;
+        this.maxInstanceNumber = limits.max_emr_instance_count;
+
+        this.createComputationalResourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
+      });
+  }
+
+  private validInstanceNumberRange(control) {
+    return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
   }
 
   private setDefaultParams(): void {
     this.shapes = {
-      master_shape: this.model.selectedItem.shapes[0].type,
-      slave_shape: this.model.selectedItem.shapes[0].type
+      master_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type'),
+      slave_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type')
     };
-    this.templates_list.setDefaultOptions(this.model.selectedItem.version, 'template', 'version');
-    this.master_shapes_list.setDefaultOptions(this.model.selectedItem.shapes[0].type, 'master_shape', 'type');
-    this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes[0].type, 'slave_shape', 'type');
+    this.templates_list.setDefaultOptions(this.model.computationalResourceApplicationTemplates,
+      this.model.selectedItem.version, 'template', 'version', 'array');
+    this.master_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
+      this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
+    this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
+      this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
   }
 
   private resetDialog(): void {
@@ -169,6 +199,7 @@ export class ComputationalResourceCreateDialog {
     this.errorMessage = '';
 
     this.initFormModel();
+    this.getComputationalResourceLimits();
     this.model.resetModel();
   }
 }

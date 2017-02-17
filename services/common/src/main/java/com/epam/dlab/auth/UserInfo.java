@@ -155,15 +155,14 @@ public class UserInfo implements Principal {
 
     @Override
     public int hashCode() {
-        int result = username != null ? username.hashCode() : 0;
-        result = 31 * result + (accessToken != null ? accessToken.hashCode() : 0);
-        result = 31 * result + (roles != null ? roles.hashCode() : 0);
-        result = 31 * result + (keys != null ? keys.hashCode() : 0);
-        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
-        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
-        result = 31 * result + (remoteIp != null ? remoteIp.hashCode() : 0);
-        result = 31 * result + (awsUser ? 1 : 0);
-        return result;
+        return Objects.hash(username,
+                accessToken,
+                roles,
+                keys,
+                firstName,
+                lastName,
+                remoteIp,
+                awsUser);
     }
 
     @Override

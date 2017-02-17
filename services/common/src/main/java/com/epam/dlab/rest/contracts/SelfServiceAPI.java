@@ -20,4 +20,5 @@ package com.epam.dlab.rest.contracts;
 
 public interface SelfServiceAPI {
     String KEY_LOADER = "api/user/access_key/callback";
+    String USER_SETTINGS = "api/user/settings";
 }

@@ -23,7 +23,7 @@ limitations under the License.
 
   <div *ngIf="resources.length">
     <div class="resource_wrap">
-      <a class="remove_butt" [ngClass]="{'disabled' : resources[0].status != 'running' }" (click)="terminateComputationalResources(environment, resources[0])">&times;</a>
+      <a class="remove_butt" [ngClass]="{'disabled' : resources[0].status != 'running' && resources[0].status != 'failed' }" (click)="terminateComputationalResources(environment, resources[0])">&times;</a>
       <a class="detailed-link" (click)="detailComputationalResources(environment, resources[0])">
         {{resources[0].computational_name}}
         <span *ngIf="resources[0].nodes_number">{{resources[0].nodes_number}} nodes</span>
@@ -37,7 +37,7 @@ limitations under the License.
 <div *ngIf="collapse" class="source">
   <div *ngFor="let resource of resources | slice:1">
       <div class="resource_wrap">
-        <a class="remove_butt" [ngClass]="{'disabled' : resource.status != 'running' }" (click)="terminateComputationalResources(environment, resource)">&times;</a>
+        <a class="remove_butt" [ngClass]="{'disabled' : resource.status != 'running' && resource.status != 'failed' }" (click)="terminateComputationalResources(environment, resource)">&times;</a>
         <a class="detailed-link" (click)="detailComputationalResources(environment, resource)">
           {{resource.computational_name}}
           <span *ngIf="resource.nodes_number">{{resource.nodes_number}} nodes</span>

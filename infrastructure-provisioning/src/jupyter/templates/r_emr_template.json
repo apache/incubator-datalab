@@ -1,0 +1,11 @@
+{
+  "argv": ["/usr/lib/R/bin/R", "--slave", "-e", "library(SparkR, lib.loc = \"/opt/EMR_VERSION/CLUSTER_NAME/spark/R/lib\")", "-e", "sc<-sparkR.SPARK_ACTION", "-e", "IRkernel::main()", "--args", "{connection_file}"],
+  "display_name": "SparkR (R_KERNEL_VERSION, SPARK_VERSION) on [CLUSTER_NAME]",
+  "language": "R",
+  "env": {
+    "HADOOP_CONF_DIR" : "/opt/EMR_VERSION/CLUSTER_NAME/conf/",
+    "YARN_CONF_DIR": "/opt/EMR_VERSION/CLUSTER_NAME/conf/",
+    "SPARKR_SUBMIT_ARGS" : "--master YARN_CLI_TYPE sparkr-shell",
+    "SPARK_HOME": "SPARK_PATH"
+  }
+}

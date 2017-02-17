@@ -18,40 +18,76 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.dto.keyload.KeyLoadStatus;
-import com.epam.dlab.dto.keyload.UserAWSCredentialDTO;
-import com.epam.dlab.dto.keyload.UserKeyDTO;
-
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Updates.set;
 
+import com.epam.dlab.dto.keyload.KeyLoadStatus;
+import com.epam.dlab.dto.keyload.UserAWSCredentialDTO;
+import com.epam.dlab.dto.keyload.UserKeyDTO;
+import com.epam.dlab.exceptions.DlabException;
+
+/** DAO for manage the user key.
+ */
 public class KeyDAO extends BaseDAO {
-    public void uploadKey(final String user, String content) {
+	
+	/** Write the user key to Mongo database.
+	 * @param user user name
+	 * @param content key
+	 * @exception DlabException
+	 */
+    public void uploadKey(final String user, String content) throws DlabException {
         UserKeyDTO key = new UserKeyDTO().withContent(content).withStatus(KeyLoadStatus.NEW.getStatus());
         insertOne(USER_KEYS, key, user);
     }
 
-    public void updateKey(String user, String status) {
+	/** Write the status of user key to Mongo database.
+	 * @param user user name
+	 * @param status the status of user key.
+	 * @exception DlabException
+	 */
+    public void updateKey(String user, String status) throws DlabException {
         updateOne(USER_KEYS, eq(ID, user), set(STATUS, status));
     }
 
+	/** Delete the user key from Mongo database.
+	 * @param user user name
+	 */
     public void deleteKey(String user) {
         mongoService.getCollection(USER_KEYS).deleteOne(eq(ID, user));
     }
 
-    public void saveCredential(String user, UserAWSCredentialDTO credential) {
+	/** Write the credential of user to Mongo database.
+	 * @param user user name
+	 * @param credential the credential of user
+	 * @exception DlabException
+	 */
+    public void saveCredential(String user, UserAWSCredentialDTO credential) throws DlabException {
         insertOne(USER_AWS_CREDENTIALS, credential, user);
     }
 
-    public String getUserEdgeIP(String user) {
+	/** Finds and returns the IP address of EDGE notebook for user.
+	 * @param user user name
+	 * @exception DlabException
+	 */
+    public String getUserEdgeIP(String user) throws DlabException {
         return findOne(USER_AWS_CREDENTIALS, eq(ID, user), UserAWSCredentialDTO.class)
                 .orElse(new UserAWSCredentialDTO())
                 .getPublicIp();
+	}
+    
+    public UserAWSCredentialDTO getUserAWSCredential(String user) {
+    	return findOne(USER_AWS_CREDENTIALS,
+    			eq(ID, user),
+    			UserAWSCredentialDTO.class)
+    			.orElse(new UserAWSCredentialDTO());
     }
 
-    public KeyLoadStatus findKeyStatus(UserInfo userInfo) {
-        return findOne(USER_KEYS, eq(ID, userInfo.getName()), UserKeyDTO.class)
+	/** Finds and returns the status of user key.
+	 * @param user user name
+	 * @exception DlabException
+	 */
+    public KeyLoadStatus findKeyStatus(String user) throws DlabException {
+        return findOne(USER_KEYS, eq(ID, user), UserKeyDTO.class)
                 .map(UserKeyDTO::getStatus)
                 .map(KeyLoadStatus::findByStatus)
                 .orElse(KeyLoadStatus.NONE);

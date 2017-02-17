@@ -54,13 +54,23 @@ body {
   font-size: 16px;
 }
 
+.sub_nav {
+  height: 60px;
+  padding: 12px 15px;
+}
+
 .sub_nav .btn {
   background: none;
-  border: 1px solid #333;
   font-weight: 600;
   padding: 6px 25px;
   min-width: 165px;
-  margin-bottom: 12px;
+  color: #577289;
+  border: 1px solid #4E6A82;
+  outline: none;
+}
+
+.sub_nav .btn:active {
+  outline: none;
 }
 
 .sub_nav .btn .glyphicon {
@@ -70,6 +80,14 @@ body {
 .sub_nav .btn_create {
   border-color: #35afd5;
   color: #35afd5;
+}
+.sub_nav .btn_create::hover {
+  border-color: #2a8faf;
+  color: #119eca;
+}
+
+.sub_nav .btn_hide {
+  margin-right: 10px;
 }
 
 .modal .btn {
@@ -108,7 +126,8 @@ body {
   color: #f7b500;
 }
 
-.creating {
+.creating,
+.configuring {
   color: #35afd5;
 }
 

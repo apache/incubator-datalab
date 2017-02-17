@@ -28,5 +28,4 @@ import { ApplicationSecurityService } from '../services/applicationSecurity.serv
   exports: [LoginComponent],
   providers: [ApplicationSecurityService]
 })
-
 export class LoginModule { }

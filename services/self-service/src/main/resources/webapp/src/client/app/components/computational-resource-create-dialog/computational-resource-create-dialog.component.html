@@ -27,7 +27,7 @@ limitations under the License.
           <label class="control-label">Select template</label>
         </div>
         <div class="col-xs-8">
-          <dropdown-list #templatesList (selectedItem)="onUpdate($event)" [items]="model.computationalResourceApplicationTemplates"></dropdown-list>
+          <dropdown-list #templatesList (selectedItem)="onUpdate($event)"></dropdown-list>
         </div>
       </div>
       <div class="form-group row">
@@ -45,8 +45,10 @@ limitations under the License.
           <label class="control-label">Total Instance number</label>
         </div>
         <div class="col-xs-8">
-          <input type="number" class="form-control" min="1" max="999" formControlName="instance_number" (keypress)="isNumberKey($event)" />
-          <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.instance_number.valid">Only integer values greater than 0 are allowed</span>
+          <input type="number" class="form-control" min="{{minInstanceNumber}}" max="{{maxInstanceNumber}}" formControlName="instance_number" (keypress)="isNumberKey($event)" />
+          <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.instance_number.valid">
+            Only integer values greater than or equal to {{minInstanceNumber}} and less than {{maxInstanceNumber}} are allowed
+          </span>
         </div>
       </div>
       <div class="form-group row">
@@ -54,7 +56,7 @@ limitations under the License.
           <label class="control-label">Master Instance shape</label>
         </div>
         <div class="col-xs-8">
-          <dropdown-list #masterShapesList (selectedItem)="onUpdate($event)" [items]="model.selectedItem.shapes"></dropdown-list>
+          <dropdown-list #masterShapesList (selectedItem)="onUpdate($event)"></dropdown-list>
         </div>
       </div>
       <div class="form-group row">
@@ -62,7 +64,7 @@ limitations under the License.
           <label class="control-label">Slave Instance shape</label>
         </div>
         <div class="col-xs-8">
-          <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)" [items]="model.selectedItem.shapes"></dropdown-list>
+          <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
         </div>
       </div>
       <div class="text-right" *ngIf="processError">

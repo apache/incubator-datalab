@@ -110,7 +110,7 @@ public class WatchItem implements Comparable<WatchItem> {
 	}
 	
 	/** Sets time when expired for file creation in milliseconds.
-	 * @param timeout time expired for file creation in milliseconds. */
+	 * @param expiredTimeMillis time expired for file creation in milliseconds. */
 	private void setExpiredTimeMillis(long expiredTimeMillis) {
 		this.expiredTimeMillis = System.currentTimeMillis() + expiredTimeMillis;
 	}

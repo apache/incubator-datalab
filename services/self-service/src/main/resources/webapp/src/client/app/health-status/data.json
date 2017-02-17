@@ -1,0 +1,15 @@
+[{
+  "_id": "f68051a6-3f60-4210-b9e4-64c2289bd127",
+  "user": "andriana_kovalyshyn@epam.com",
+  "status": "stopped",
+  "instance_type": "Edge Node",
+  "cloud_type": "Cloud type for Edge Node",
+  "instance_ip": "188.163.232.130"
+}, {
+  "_id": "f68051a6-3f60-4210-b9e4-64c2289bd165",
+  "user": "andriana_kovalyshyn@epam.com",
+  "status": "running",
+  "instance_type": "Bucket",
+  "cloud_type": "Cloud type for Bucket",
+  "instance_path": "188.163.232.130"
+}]

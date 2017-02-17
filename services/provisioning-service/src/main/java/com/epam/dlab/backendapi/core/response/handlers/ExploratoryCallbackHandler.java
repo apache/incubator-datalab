@@ -21,14 +21,25 @@ package com.epam.dlab.backendapi.core.response.handlers;
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryURL;
 import com.epam.dlab.rest.client.RESTService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import static com.epam.dlab.rest.contracts.ApiCallbacks.EXPLORATORY;
 import static com.epam.dlab.rest.contracts.ApiCallbacks.STATUS_URI;
 
+import java.io.IOException;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ExploratoryCallbackHandler extends ResourceCallbackHandler<ExploratoryStatusDTO> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExploratoryCallbackHandler.class);
+	
     private static final String EXPLORATORY_ID_FIELD = "notebook_name";
+    private static final String EXPLORATORY_PRIVATE_IP_FIELD = "ip";
     private static final String EXPLORATORY_URL_FIELD = "exploratory_url";
     private static final String EXPLORATORY_USER_FIELD = "exploratory_user";
     private static final String EXPLORATORY_PASSWORD_FIELD = "exploratory_pass";
@@ -41,20 +52,40 @@ public class ExploratoryCallbackHandler extends ResourceCallbackHandler<Explorat
     	return uuid;
     }
 
-    public ExploratoryCallbackHandler(RESTService selfService, DockerAction action, String originalUuid, String user, String exploratoryName) {
-        super(selfService, user, originalUuid, action);
+    public ExploratoryCallbackHandler(RESTService selfService, DockerAction action, String originalUuid, String user, String exploratoryName, String accessToken) {
+        super(selfService, user, originalUuid, action, accessToken);
         this.uuid = originalUuid;
         this.exploratoryName = exploratoryName;
     }
 
+	@Override
     protected String getCallbackURI() {
         return EXPLORATORY + STATUS_URI;
     }
 
     protected ExploratoryStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryStatusDTO baseStatus) {
-        return baseStatus
-                .withExploratoryId(getTextValue(resultNode.get(EXPLORATORY_ID_FIELD)))
-                .withExploratoryUrl(getTextValue(resultNode.get(EXPLORATORY_URL_FIELD)))
+    	if (resultNode == null) {
+    		return baseStatus;
+    	}
+    	final JsonNode nodeUrl = resultNode.get(EXPLORATORY_URL_FIELD);
+    	List<ExploratoryURL> url = null;
+    	if (nodeUrl != null) {
+    		try {
+				url = MAPPER.readValue(nodeUrl.toString(), new TypeReference<List<ExploratoryURL>>() {});
+			} catch (IOException e) {
+				LOGGER.warn("Cannot parse field {} for UUID () in JSON {}", EXPLORATORY_URL_FIELD, getUUID(), nodeUrl.toString(), e);
+			}
+    	}
+
+    	String exploratoryId = getTextValue(resultNode.get(EXPLORATORY_ID_FIELD));
+    	if (getAction() == DockerAction.CREATE && exploratoryId == null) {
+            LOGGER.warn("Empty field {} for UUID () in JSON {}", RESPONSE_NODE + "." + RESULT_NODE + "." + EXPLORATORY_ID_FIELD, getUUID(), nodeUrl.toString());
+        }
+
+    	return baseStatus
+                .withExploratoryId(exploratoryId)
+                .withExploratoryUrl(url)
+                .withPrivateIp(getTextValue(resultNode.get(EXPLORATORY_PRIVATE_IP_FIELD)))
                 .withExploratoryUser(getTextValue(resultNode.get(EXPLORATORY_USER_FIELD)))
                 .withExploratoryPassword(getTextValue(resultNode.get(EXPLORATORY_PASSWORD_FIELD)));
     }

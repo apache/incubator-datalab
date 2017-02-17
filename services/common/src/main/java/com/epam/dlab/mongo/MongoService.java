@@ -52,6 +52,11 @@ public class MongoService {
         return database.getCollection(name, c);
     }
 
+    public void createCollection(String name) {
+        database.createCollection(name);
+    }
+
+
     public Document ping() {
         return database.runCommand(PING);
     }
