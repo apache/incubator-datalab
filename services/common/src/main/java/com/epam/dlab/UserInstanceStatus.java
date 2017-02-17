@@ -22,6 +22,7 @@ public enum UserInstanceStatus {
     CREATING,
     CREATED,
     STARTING,
+    CONFIGURING,
     RUNNING,
     STOPPING,
     STOPPED,

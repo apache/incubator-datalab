@@ -18,20 +18,30 @@ limitations under the License.
 
 <div class="dropdown dropdown-list">
   <button class="dropdown-toggle" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
-    <span *ngIf="items.length && label">{{label}}</span>
-    <span *ngIf="!items.length">None</span>
+    <span>{{label || 'None'}}</span>
     <span class="caret-btn">&#9663;</span>
   </button>
   <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-    <template let-item ngFor [ngForOf]="items" let-index="index">
+    <template [ngIf]="listStructure === 'array'">
+      <template let-item ngFor [ngForOf]="items" let-index="index">
         <li role="presentation">
           <a role="menuitem" (click)="selectOptions($event, item, index)">
             {{item[byField]}}
           </a>
         </li>
       </template>
-    <li *ngIf="items.length == 0">
-      <a role="menuitem"><span class="glyphicon glyphicon-eye-close"></span>No items</a>
-    </li>
+
+      <li *ngIf="items.length == 0">
+        <a role="menuitem"><span class="glyphicon glyphicon-eye-close"></span>No items</a>
+      </li>
+    </template>
+    <template [ngIf]="listStructure === 'json'">
+      <li *ngFor="let item of (items | keys); let index = index">
+        <span class="caption">{{item.key | underscoreless}}</span>
+        <a *ngFor="let list_item of item.value" (click)="selectOptions($event, list_item, index)">
+          <strong>{{list_item.size}}</strong> {{list_item[byField]}}
+        </a>
+      </li>
+    </template>
   </ul>
 </div>

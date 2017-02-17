@@ -23,15 +23,21 @@ import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.dto.StatusBaseDTO;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryURL;
 import com.epam.dlab.exceptions.DlabException;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.result.UpdateResult;
 import org.junit.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.dlab.backendapi.dao.BaseDAO.USER;
+import static com.epam.dlab.backendapi.dao.InfrastructureProvisionDAO.EXPLORATORY_NAME;
 import static com.epam.dlab.backendapi.dao.InfrastructureProvisionDAO.exploratoryCondition;
 import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
 import static junit.framework.TestCase.*;
@@ -48,8 +54,15 @@ public class InfrastructureProvisionDAOTest extends DAOTestBase {
     @Before
     public void setup() {
         cleanup();
+
+        mongoService.createCollection(USER_INSTANCES);
+        mongoService.getCollection(USER_INSTANCES).createIndex(new BasicDBObject(USER, 1).append(EXPLORATORY_NAME, 2),
+                new IndexOptions().unique(true));
+
+
         dao = new InfrastructureProvisionDAO();
         testInjector.injectMembers(dao);
+
     }
 
     @BeforeClass
@@ -176,8 +189,7 @@ public class InfrastructureProvisionDAOTest extends DAOTestBase {
                 .withImageName("jupyter")
                 .withImageVersion("jupyter-2");
 
-        Boolean isInserted = dao.insertExploratory(instance1);
-        assertTrue(isInserted);
+        dao.insertExploratory(instance1);
 
         UserInstanceDTO instance2 = new UserInstanceDTO()
                 .withUser("user1")
@@ -187,15 +199,14 @@ public class InfrastructureProvisionDAOTest extends DAOTestBase {
                 .withImageName("rstudio")
                 .withImageVersion("r-3");
 
-        Boolean isInserted2 = dao.insertExploratory(instance2);
-        assertTrue(isInserted2);
+        dao.insertExploratory(instance2);
 
-        Optional<UserInstanceDTO> testInstance = dao.fetchExploratoryFields("user1", "exp_name_2");
-        assertTrue(testInstance.isPresent());
-        assertEquals(instance2.getExploratoryId(), testInstance.get().getExploratoryId());
-        assertEquals(instance2.getStatus(), testInstance.get().getStatus());
-        assertEquals(instance2.getImageName(), testInstance.get().getImageName());
-        assertEquals(instance2.getImageVersion(), testInstance.get().getImageVersion());
+        UserInstanceDTO testInstance = dao.fetchExploratoryFields("user1", "exp_name_2");
+
+        assertEquals(instance2.getExploratoryId(), testInstance.getExploratoryId());
+        assertEquals(instance2.getStatus(), testInstance.getStatus());
+        assertEquals(instance2.getImageName(), testInstance.getImageName());
+        assertEquals(instance2.getImageVersion(), testInstance.getImageVersion());
     }
 
     @Test
@@ -206,13 +217,13 @@ public class InfrastructureProvisionDAOTest extends DAOTestBase {
                 .withExploratoryId("exp1")
                 .withStatus("created")
                 .withImageName("jupyter")
-                .withImageVersion("jupyter-2");
+                .withImageVersion("jupyter-2")
+                .withPrivateIp("192.168.1.1");
 
-        Boolean isInserted = dao.insertExploratory(instance1);
-        assertTrue(isInserted);
+        dao.insertExploratory(instance1);
 
         long insertedCount = mongoService.getCollection(USER_INSTANCES).count();
-        assertEquals(insertedCount, 1L);
+        assertEquals(1,insertedCount);
 
         Optional<UserInstanceDTO> testInstance = dao.findOne(USER_INSTANCES,
                 exploratoryCondition(instance1.getUser(), instance1.getExploratoryName()),
@@ -222,6 +233,7 @@ public class InfrastructureProvisionDAOTest extends DAOTestBase {
         assertEquals(instance1.getStatus(), testInstance.get().getStatus());
         assertEquals(instance1.getImageName(), testInstance.get().getImageName());
         assertEquals(instance1.getImageVersion(), testInstance.get().getImageVersion());
+        assertEquals(instance1.getPrivateIp(), testInstance.get().getPrivateIp());
     }
 
     @Test
@@ -241,7 +253,7 @@ public class InfrastructureProvisionDAOTest extends DAOTestBase {
         dao.insertOne(USER_INSTANCES, instance1);
         dao.insertOne(USER_INSTANCES, instance2);
 
-        StatusBaseDTO newStatus = new StatusBaseDTO();
+        StatusBaseDTO<?> newStatus = new StatusBaseDTO<>();
         newStatus.setUser("user1");
         newStatus.setExploratoryName("exp_name_1");
         newStatus.setStatus("running");
@@ -283,7 +295,10 @@ public class InfrastructureProvisionDAOTest extends DAOTestBase {
         status.setUser("user1");
         status.setExploratoryName("exp_name_1");
         status.setExploratoryId("exp2");
-        status.setExploratoryUrl("www.exp2.com");
+        List<ExploratoryURL> urls = new ArrayList<ExploratoryURL>();
+        urls.add(new ExploratoryURL().withUrl("www.exp1.com").withDescription("desc1"));
+        urls.add(new ExploratoryURL().withUrl("www.exp2.com").withDescription("desc2"));
+        status.setExploratoryUrl(urls);
         status.setStatus("running");
         status.setUptime(new Date(100));
 
@@ -297,9 +312,97 @@ public class InfrastructureProvisionDAOTest extends DAOTestBase {
 
         UserInstanceDTO instance = testInstance1.get();
         assertEquals(instance.getExploratoryId(), status.getExploratoryId());
-        assertEquals(instance.getUrl(), status.getExploratoryUrl());
+        assertEquals(instance.getExploratoryUrl().size(), status.getExploratoryUrl().size());
+        assertEquals(instance.getExploratoryUrl().get(0), status.getExploratoryUrl().get(0));
+        assertEquals(instance.getExploratoryUrl().get(1), status.getExploratoryUrl().get(1));
         assertEquals(instance.getStatus(), status.getStatus());
-        assertEquals(instance.getUptime(), status.getUptime());
+        assertEquals(instance.getUptime(), status.getUptime());    }
+
+    @Test
+    public void updateExploratoryUrlByIpSuccess() {
+
+        List<ExploratoryURL> urls = new ArrayList<>();
+        urls.add(new ExploratoryURL().withUrl("www.192.168.100.1.com").withDescription("desc1"));
+        urls.add(new ExploratoryURL().withUrl("www.192.168.100.1.com").withDescription("desc2"));
+
+        UserInstanceDTO instance1 = new UserInstanceDTO()
+                .withUser("user1")
+                .withExploratoryName("exp_name_1")
+                .withExploratoryId("exp1")
+                .withStatus("created")
+                .withPrivateIp("192.168.100.1")
+                .withExploratoryUrl(urls);
+
+        dao.insertOne(USER_INSTANCES, instance1);
+
+        ExploratoryStatusDTO status = new ExploratoryStatusDTO();
+        status.setUser("user1");
+        status.setExploratoryName("exp_name_1");
+        status.setExploratoryId("exp2");
+
+        status.setPrivateIp("8.8.8.8");
+
+        UpdateResult result = dao.updateExploratoryFields(status);
+        assertEquals(result.getModifiedCount(), 1);
+
+        Optional<UserInstanceDTO> testInstance1 = dao.findOne(USER_INSTANCES,
+                exploratoryCondition(instance1.getUser(), instance1.getExploratoryName()),
+                UserInstanceDTO.class);
+        assertTrue(testInstance1.isPresent());
+
+        UserInstanceDTO instance = testInstance1.get();
+
+        // these urls will be final, cause they depends from PrivateIp
+        List<ExploratoryURL> urlsNew = new ArrayList<>();
+        urlsNew.add(new ExploratoryURL().withUrl("www.8.8.8.8.com").withDescription("desc1"));
+        urlsNew.add(new ExploratoryURL().withUrl("www.8.8.8.8.com").withDescription("desc2"));
+
+
+        assertEquals(instance.getExploratoryId(), status.getExploratoryId());
+        assertEquals(instance.getExploratoryUrl().size(), urlsNew.size());
+        assertEquals(instance.getExploratoryUrl().get(0), urlsNew.get(0));
+        assertEquals(instance.getExploratoryUrl().get(1), urlsNew.get(1));
+        assertEquals(instance.getPrivateIp(), status.getPrivateIp());
+    }
+
+    @Test
+    public void updateExploratoryUrlByUrlSuccess() {
+
+        List<ExploratoryURL> urls = new ArrayList<>();
+        urls.add(new ExploratoryURL().withUrl("www.192.168.100.1.com").withDescription("desc1"));
+        urls.add(new ExploratoryURL().withUrl("www.192.168.100.1.com").withDescription("desc2"));
+
+        UserInstanceDTO instance1 = new UserInstanceDTO()
+                .withUser("user1")
+                .withExploratoryName("exp_name_1")
+                .withExploratoryId("exp1")
+                .withStatus("created")
+                .withPrivateIp("192.168.100.1");
+
+        dao.insertOne(USER_INSTANCES, instance1);
+
+        ExploratoryStatusDTO status = new ExploratoryStatusDTO();
+        status.setUser("user1");
+        status.setExploratoryName("exp_name_1");
+        status.setExploratoryId("exp2");
+
+        status.setExploratoryUrl(urls);
+
+        UpdateResult result = dao.updateExploratoryFields(status);
+        assertEquals(result.getModifiedCount(), 1);
+
+        Optional<UserInstanceDTO> testInstance1 = dao.findOne(USER_INSTANCES,
+                exploratoryCondition(instance1.getUser(), instance1.getExploratoryName()),
+                UserInstanceDTO.class);
+        assertTrue(testInstance1.isPresent());
+
+        UserInstanceDTO instance = testInstance1.get();
+
+        assertEquals(instance.getExploratoryId(), status.getExploratoryId());
+        assertEquals(instance.getExploratoryUrl().size(), urls.size());
+        assertEquals(instance.getExploratoryUrl().get(0), urls.get(0));
+        assertEquals(instance.getExploratoryUrl().get(1), urls.get(1));
+
     }
 
     @Test
@@ -480,7 +583,7 @@ public class InfrastructureProvisionDAOTest extends DAOTestBase {
         boolean inserted3 = dao.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp3);
         assertTrue(inserted3);
 
-        UpdateResult testResult = dao.updateComputationalStatusesForExploratory(new StatusBaseDTO()
+        UpdateResult testResult = dao.updateComputationalStatusesForExploratory(new StatusBaseDTO<>()
                 .withUser("user1")
                 .withExploratoryName("exp_name_1")
                 .withStatus(UserInstanceStatus.STOPPED));
@@ -530,7 +633,8 @@ public class InfrastructureProvisionDAOTest extends DAOTestBase {
                 .withComputationalName("comp1")
                 .withComputationalId("c1")
                 .withStatus("created")
-                .withUptime(new Date(100));
+                .withUptime(new Date(100))
+                .withVersion("version1");
         boolean inserted = dao.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp1);
         assertTrue(inserted);
 
@@ -538,7 +642,8 @@ public class InfrastructureProvisionDAOTest extends DAOTestBase {
                 .withComputationalName("comp2")
                 .withComputationalId("c2")
                 .withStatus("created")
-                .withUptime(new Date(100));
+                .withUptime(new Date(100))
+                .withVersion("version2");
         boolean inserted2 = dao.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp2);
         assertTrue(inserted2);
 
@@ -567,5 +672,16 @@ public class InfrastructureProvisionDAOTest extends DAOTestBase {
         assertEquals(status.getComputationalId(), testComp2.getComputationalId());
         assertEquals(status.getStatus(), testComp2.getStatus());
         assertEquals(status.getUptime(), testComp2.getUptime());
+        
+        testComp2 = dao.fetchComputationalFields(instance1.getUser(), instance1.getExploratoryName(), comp2.getComputationalName());
+        assertNotNull(testComp2);
+        assertEquals(status.getComputationalId(), testComp2.getComputationalId());
+        assertEquals(comp2.getComputationalName(), testComp2.getComputationalName());
+        assertEquals(comp2.getMasterShape(), testComp2.getMasterShape());
+        assertEquals(comp2.getSlaveNumber(), testComp2.getSlaveShape());
+        assertEquals(comp2.getSlaveShape(), testComp2.getSlaveShape());
+        assertEquals(status.getStatus(), testComp2.getStatus());
+        assertEquals(status.getUptime(), testComp2.getUptime());
+        assertEquals(comp2.getVersion(), testComp2.getVersion());
     }
 }

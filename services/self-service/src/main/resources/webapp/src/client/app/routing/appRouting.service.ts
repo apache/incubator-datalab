@@ -17,8 +17,8 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import {Http} from '@angular/http';
-import {Router} from '@angular/router';
+import { Http } from '@angular/http';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class AppRoutingService {
@@ -34,6 +34,6 @@ export class AppRoutingService {
   }
 
   redirectToHomePage(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/resources_list']);
   }
 }

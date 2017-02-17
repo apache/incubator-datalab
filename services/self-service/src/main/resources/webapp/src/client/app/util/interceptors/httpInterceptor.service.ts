@@ -18,7 +18,9 @@ limitations under the License.
 
 import { ConnectionBackend, RequestOptions, Http, Request, RequestOptionsArgs, Response, Headers } from '@angular/http';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/of';
+
 import HTTP_STATUS_CODES from 'http-status-enum';
 
 export class HttpInterceptor extends Http {

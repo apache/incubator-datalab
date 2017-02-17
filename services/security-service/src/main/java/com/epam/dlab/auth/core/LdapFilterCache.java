@@ -20,7 +20,6 @@ package com.epam.dlab.auth.core;
 
 import com.aegisql.conveyor.cart.command.CancelCommand;
 import com.aegisql.conveyor.utils.caching.CachingConveyor;
-import com.aegisql.conveyor.utils.caching.ImmutableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +43,12 @@ public class LdapFilterCache extends CachingConveyor<String,String,Map<String,Ob
         this.setName("LdapFilterCache");
         this.setIdleHeartBeat(1, TimeUnit.SECONDS);
         this.setDefaultCartConsumer((b,l,s)-> LOG.debug("LdapFilterCache consume {} {}",l,s.get()));
+        this.setOnTimeoutAction((s)->{
+            LOG.trace("LdapFilterCache Timeout {}",s.get());
+        });
+        this.setScrapConsumer(bin->{
+            LOG.debug("LdapFilterCache {}: {}", bin.failureType, bin.scrap);
+        });
     }
 
     public void removeLdapFilterInfo(String token) {
@@ -60,7 +65,7 @@ public class LdapFilterCache extends CachingConveyor<String,String,Map<String,Ob
     }
 
     public void save(String token, Map<String,Object> ldapInfo,long expTimeMsec) {
-        CompletableFuture<Boolean> cacheFuture = LdapFilterCache.getInstance().createBuild(token, new ImmutableReference<>(ldapInfo),expTimeMsec,TimeUnit.MILLISECONDS);
+        CompletableFuture<Boolean> cacheFuture = LdapFilterCache.getInstance().createBuild(token, CacheableReference.newInstance(ldapInfo),expTimeMsec,TimeUnit.MILLISECONDS);
         try {
             if(! cacheFuture.get() ) {
                 throw new Exception("Cache offer future returned 'false' for "+ldapInfo);

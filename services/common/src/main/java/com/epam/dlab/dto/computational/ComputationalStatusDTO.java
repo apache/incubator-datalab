@@ -20,6 +20,7 @@ package com.epam.dlab.dto.computational;
 
 import com.epam.dlab.dto.StatusBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 public class ComputationalStatusDTO extends StatusBaseDTO<ComputationalStatusDTO> {
     @JsonProperty("computational_id")
@@ -51,5 +52,17 @@ public class ComputationalStatusDTO extends StatusBaseDTO<ComputationalStatusDTO
     public ComputationalStatusDTO withComputationalName(String computationalName) {
         setComputationalName(computationalName);
         return this;
+    }
+
+    @Override
+    public ToStringHelper toStringHelper(Object self) {
+    	return super.toStringHelper(self)
+    	        .add("computationalId", computationalId)
+    	        .add("computationalName", computationalName);
+    }
+    
+    @Override
+    public String toString() {
+    	return toStringHelper(this).toString();
     }
 }

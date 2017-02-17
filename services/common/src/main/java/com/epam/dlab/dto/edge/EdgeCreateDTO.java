@@ -15,38 +15,39 @@ package com.epam.dlab.dto.edge;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EdgeCreateDTO extends EdgeBaseDTO<EdgeCreateDTO> {
-    @JsonProperty("edge_vpc_id")
-    private String vpcId;
-    @JsonProperty("creds_subnet_id")
-    private String subnetId;
-    @JsonProperty("creds_iam_user")
+    @JsonProperty("aws_vpc_id")
+    private String awsVpcId;
+    @JsonProperty("aws_subnet_id")
+    private String awsSubnetId;
+    @JsonProperty("aws_iam_user")
     private String iamUser;
-    @JsonProperty("creds_security_groups_ids")
-    private String securityGroupIds;
+    @JsonProperty("aws_security_groups_ids")
+    private String awsSecurityGroupIds;
 
-    public String getVpcId() {
-        return vpcId;
+    public String getAwsVpcId() {
+        return awsVpcId;
     }
 
-    public void setVpcId(String vpcId) {
-        this.vpcId = vpcId;
+    public void setAwsVpcId(String awsVpcId) {
+    	
+        this.awsVpcId = awsVpcId;
     }
 
-    public EdgeCreateDTO withVpcId(String vpcId) {
-        setVpcId(vpcId);
+    public EdgeCreateDTO withAwsVpcId(String awsVpcId) {
+        setAwsVpcId(awsVpcId);
         return this;
     }
 
-     public String getSubnetId() {
-        return subnetId;
+     public String getAwsSubnetId() {
+        return awsSubnetId;
     }
 
-    public void setSubnetId(String subnetId) {
-        this.subnetId = subnetId;
+    public void setAwsSubnetId(String awsSubnetId) {
+        this.awsSubnetId = awsSubnetId;
     }
 
-    public EdgeCreateDTO withSubnetId(String subnetId) {
-        setSubnetId(subnetId);
+    public EdgeCreateDTO withAwsSubnetId(String awsSubnetId) {
+        setAwsSubnetId(awsSubnetId);
         return this;
     }
 
@@ -63,16 +64,16 @@ public class EdgeCreateDTO extends EdgeBaseDTO<EdgeCreateDTO> {
         return this;
     }
 
-    public String getSecurityGroupIds() {
-        return securityGroupIds;
+    public String getAwsSecurityGroupIds() {
+        return awsSecurityGroupIds;
     }
 
-    public void setSecurityGroupIds(String securityGroupIds) {
-        this.securityGroupIds = securityGroupIds;
+    public void setAwsSecurityGroupIds(String awsSecurityGroupIds) {
+        this.awsSecurityGroupIds = awsSecurityGroupIds;
     }
 
-    public EdgeCreateDTO withSecurityGroupIds(String securityGroupIds) {
-        setSecurityGroupIds(securityGroupIds);
+    public EdgeCreateDTO withAwsSecurityGroupIds(String awsSecurityGroupIds) {
+        setAwsSecurityGroupIds(awsSecurityGroupIds);
         return this;
     }
 

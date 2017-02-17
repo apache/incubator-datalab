@@ -19,12 +19,11 @@ limitations under the License.
 import { Injectable } from '@angular/core';
 import { Response } from '@angular/http';
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class UserResourceService {
-  constructor(private applicationServiceFacade: ApplicationServiceFacade) {
-  }
+  constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
   public getExploratoryEnvironmentTemplates(): Observable<any> {
     return this.applicationServiceFacade
@@ -36,6 +35,13 @@ export class UserResourceService {
   public getComputationalResourcesTemplates(): Observable<any> {
     return this.applicationServiceFacade
       .buildGetComputationalResourcesTemplatesRequest()
+      .map((res: Response) => res.json())
+      .catch((error: any) => error);
+  }
+
+  public getComputationalResourcesLimits(): Observable<any> {
+    return this.applicationServiceFacade
+      .buildGetComputationalResourcesLimits()
       .map((res: Response) => res.json())
       .catch((error: any) => error);
   }
@@ -82,4 +88,30 @@ export class UserResourceService {
       .buildDeleteComputationalResourcesRequest(body)
       .map((response: Response) => response);
   }
+
+  public getUserPreferences(): Observable<Response> {
+    return this.applicationServiceFacade
+      .buildGetUserPreferences()
+      .map((response: Response) => response.json());
+  }
+
+  public updateUserPreferences(data): Observable<Response> {
+    let body = JSON.stringify(data);
+    return this.applicationServiceFacade
+      .buildUpdateUserPreferences(body)
+      .map((response: Response) => response);
+  }
+
+  public getEnvironmentHealthStatus(): Observable<Response> {
+    return this.applicationServiceFacade
+    .buildGetEnvironmentHealthStatus()
+    .map((response: Response) => response.json());
+  }
+
+  public getEnvironmentStatuses(): Observable<Response> {
+    return this.applicationServiceFacade
+    .buildGetEnvironmentStatuses()
+    .map((response: Response) => response.json());
+  }
+
 }

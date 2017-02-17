@@ -308,6 +308,10 @@ limitations under the License.
   margin-top: 15px;
 }
 
+.detail-info .links_block {
+  padding-left: 25px;
+}
+
 .modal a {
   color: #35afd5;
 }
@@ -317,8 +321,9 @@ limitations under the License.
 }
 
 .modal-content .danger_color {
-  padding-left: 14px;
+  padding-left: 10px;
   font-size: 12px;
+  display: inline-block;
 }
 
 .modal-content .danger_field {

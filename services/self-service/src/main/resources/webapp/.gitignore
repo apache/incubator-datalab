@@ -53,3 +53,4 @@ gulpfile.js.map
 src/client/app/shared/config/env.config.js
 src/client/app/shared/config/env.config.js.map
 /nbproject/private/
+/README.md

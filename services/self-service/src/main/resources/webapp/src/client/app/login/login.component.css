@@ -24,6 +24,7 @@ limitations under the License.
 .login_page .logo {
   display: inline-block;
   margin-bottom: 55px;
+  cursor: default;
 }
 
 .login_page {
@@ -39,8 +40,14 @@ limitations under the License.
 }
 
 .login_page .content {
-  max-width: 280px;
-  margin: 60px auto 0 auto;
+  max-width: 360px;
+  margin: 80px auto 0;
+  text-align: left;
+}
+
+.login_page form {
+  width: 280px;
+  margin: 0 auto;
 }
 
 .login_page .form-control {

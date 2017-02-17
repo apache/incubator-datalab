@@ -21,11 +21,27 @@ package com.epam.dlab.backendapi.domain.contracts;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.dto.keyload.UploadFileResultDTO;
+import com.epam.dlab.exceptions.DlabException;
 
+/** Interface for upload process the user key to notebook.
+ */
 public interface IKeyUploader {
-    KeyLoadStatus checkKey(UserInfo userInfo);
 
-    void startKeyUpload(UserInfo userInfo, String content);
+	/** Returns the status of user key.
+	 * @param userInfo user info.
+	 * @exception DlabException When the check the status of user key fails.
+	 */
+    KeyLoadStatus checkKey(UserInfo userInfo) throws DlabException ;
 
+	/** Starts upload of user key to notebook.
+	 * @param userInfo user info.
+	 * @param content the user key content.
+	 * @exception DlabException When the upload of user key fails.
+	 */
+    void startKeyUpload(UserInfo userInfo, String content) throws DlabException;
+
+	/** Event called when the user key has been uploaded to notebook.
+	 * @param result info about an upload operation.
+	 */
     void onKeyUploadComplete(UploadFileResultDTO result);
 }

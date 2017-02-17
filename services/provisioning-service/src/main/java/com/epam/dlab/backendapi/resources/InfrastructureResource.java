@@ -18,6 +18,9 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources;
 
+import com.epam.dlab.auth.UserInfo;
+import io.dropwizard.auth.Auth;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -32,7 +35,7 @@ import java.io.IOException;
 public class InfrastructureResource {
     @GET
     @Path("/status")
-    public Response status() throws IOException, InterruptedException {
+    public Response status(@Auth UserInfo ui) throws IOException, InterruptedException {
         return Response.status(Response.Status.OK).build();
     }
 }

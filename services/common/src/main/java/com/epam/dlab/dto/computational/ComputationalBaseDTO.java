@@ -20,6 +20,7 @@ package com.epam.dlab.dto.computational;
 
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 abstract public class ComputationalBaseDTO<T extends ComputationalBaseDTO<?>> extends ResourceBaseDTO<T> {
     @JsonProperty("edge_user_name")
@@ -53,5 +54,17 @@ abstract public class ComputationalBaseDTO<T extends ComputationalBaseDTO<?>> ex
     public T withComputationalName(String computationalName) {
         setComputationalName(computationalName);
         return (T) this;
+    }
+
+    @Override
+    public ToStringHelper toStringHelper(Object self) {
+    	return super.toStringHelper(self)
+    	        .add("edgeUserName", edgeUserName)
+    	        .add("computationalName", computationalName);
+    }
+    
+    @Override
+    public String toString() {
+    	return toStringHelper(this).toString();
     }
 }

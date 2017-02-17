@@ -2,7 +2,7 @@
 
 mocked: false
 
-keyDirectory: /home/ubuntu/keys
+keyDirectory: /home/${sys['user.name']}/keys
 responseDirectory: /opt/dlab/tmp
 dockerLogDirectory: ${LOG_ROOT_DIR}
 warmupPollTimeout: 10s
@@ -16,7 +16,16 @@ emrImage: docker.epmc-bdcc.projects.epam.com/dlab-aws-emr
 emrEC2RoleDefault: EMR_EC2_DefaultRole
 emrServiceRoleDefault: EMR_DefaultRole
 
+processMaxThreadsPerJvm: 50
+processMaxThreadsPerUser: 5
+processTimeout: 180m
+
 server:
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-provisioning.log
+        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-provisioning-%d.log
   applicationConnectors:
     - type: http
       port: 8084
@@ -28,6 +37,7 @@ logging:
   level: INFO
   loggers:
     com.epam: DEBUG
+    com.aegisql: INFO
   appenders:
 #    - type: console
     - type: file

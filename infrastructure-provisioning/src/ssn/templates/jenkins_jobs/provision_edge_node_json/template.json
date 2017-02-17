@@ -1,0 +1,15 @@
+{
+    "request_id":"RID",
+    "conf_resource": "edge",
+    "conf_os_family":"COF",
+    "conf_os_user":"GOS",
+    "conf_service_base_name":"SBN",
+    "edge_user_name":"UN",
+    "aws_security_groups_ids":"SGI",
+    "conf_key_name":"KN",
+    "aws_region":"CREG",
+    "aws_subnet_id":"CSI",
+    "aws_vpc_id":"EVI",
+    "aws_edge_instance_size":"EIS",
+    "aws_iam_user":"CIU"
+}

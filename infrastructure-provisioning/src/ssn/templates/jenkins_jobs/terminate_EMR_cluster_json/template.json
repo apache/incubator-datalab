@@ -1,0 +1,11 @@
+{
+    "conf_resource": "emr",
+    "request_id":"RID",
+    "conf_os_user":"GOS",
+    "conf_service_base_name":"SBN",
+    "aws_region":"CREG",
+    "edge_user_name":"EUN",
+    "emr_cluster_name":"ECN",
+    "notebook_instance_name":"NIN",
+    "conf_key_name":"KN"
+}

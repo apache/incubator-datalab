@@ -42,6 +42,8 @@ import javax.ws.rs.core.Response;
 
 import static com.epam.dlab.auth.SecurityRestAuthenticator.SECURITY_SERVICE;
 
+/** Provides the REST API for the user authorization.
+ */
 @Path("/user")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -54,29 +56,44 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
     @Named(SECURITY_SERVICE)
     RESTService securityService;
 
+    /** Login method for the dlab user.
+     * @param credential user credential.
+     * @return 500 Internal Server Error if post response fails.
+     */
     @POST
     @Path("/login")
     public Response login(@NotNull UserCredentialDTO credential) {
-        LOGGER.debug("Try login user = {}", credential.getUsername());
+        LOGGER.debug("Try login for user {}", credential.getUsername());
         try {
             dao.writeLoginAttempt(credential);
             return securityService.post(LOGIN, credential, Response.class);
         } catch (Throwable t) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(t.getMessage()).build();
+        	LOGGER.error("Try login for user {} fail", credential.getUsername(), t);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(t.getLocalizedMessage()).build();
         }
     }
 
+    /** Logout method for the DLab user.
+     * @param userInfo user info.
+     * @return 200 OK or 403 Forbidden.
+     */
     @POST
     @Path("/logout")
     public Response logout(@Auth UserInfo userInfo) {
-        LOGGER.debug("Try logout accessToken {}", userInfo.getAccessToken());
+        LOGGER.debug("Try logout for accessToken {}", userInfo.getAccessToken());
         try {
             return securityService.post(LOGOUT, userInfo.getAccessToken(), Response.class);
         } catch(Throwable t) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(t.getMessage()).build();
+        	LOGGER.error("Try logout for accessToken {}", userInfo.getAccessToken(), t.getLocalizedMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(t.getLocalizedMessage()).build();
         }
     }
 
+    /** Authorize method for the dlab user.
+     * @param userInfo user info.
+     * @param username user name.
+     * @return 500 Internal Server Error if post response fails.
+     */
     @POST
     @Path("/authorize")
     public Response authorize(@Auth UserInfo userInfo, @Valid @NotBlank String username) {

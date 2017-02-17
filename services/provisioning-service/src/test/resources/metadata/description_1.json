@@ -1,37 +1,20 @@
 {
-  "exploratory_environment_shapes" : [
-    {"Type": "cg1.4xlarge","Ram": "22.5 GB","Cpu": "16"},
-    {"Type": "t2.medium","Ram": "4.0 GB","Cpu": "2"},
-    {"Type": "t2.large","Ram": "8.0 GB","Cpu": "2"},
-    {"Type": "m4.large","Ram": "8.0 GB","Cpu": "2"},
-    {"Type": "m4.xlarge","Ram": "16.0 GB","Cpu": "4"},
-    {"Type": "m4.2xlarge","Ram": "32.0 GB","Cpu": "8"},
-    {"Type": "c4.large","Ram": "3.75 GB","Cpu": "2"},
-    {"Type": "c4.xlarge","Ram": "7.5 GB","Cpu": "4"},
-    {"Type": "c4.2xlarge","Ram": "15.0 GB","Cpu": "8"},
-    {"Type": "c4.4xlarge","Ram": "30.0 GB","Cpu": "16"},
-    {"Type": "c4.8xlarge","Ram": "60.0 GB","Cpu": "36"},
-    {"Type": "g2.2xlarge","Ram": "15.0 GB","Cpu": "8"},
-    {"Type": "g2.8xlarge","Ram": "60.0 GB","Cpu": "32"},
-    {"Type": "r3.large","Ram": "15.25 GB","Cpu": "2"},
-    {"Type": "r3.xlarge","Ram": "30.5 GB","Cpu": "4"},
-    {"Type": "i2.xlarge","Ram": "30.5 GB","Cpu": "4"},
-    {"Type": "d2.xlarge","Ram": "30.5 GB","Cpu": "4"},
-    {"Type": "hi1.4xlarge","Ram": "60.5 GB","Cpu": "16"},
-    {"Type": "m3.large","Ram": "7.5 GB","Cpu": "2"},
-    {"Type": "m3.xlarge","Ram": "15.0 GB","Cpu": "4"},
-    {"Type": "m3.2xlarge","Ram": "30.0 GB","Cpu": "8"},
-    {"Type": "c3.large","Ram": "3.75 GB","Cpu": "2"},
-    {"Type": "c3.xlarge","Ram": "7.5 GB","Cpu": "4"},
-    {"Type": "c3.2xlarge","Ram": "15.0 GB","Cpu": "8"},
-    {"Type": "c3.4xlarge","Ram": "30.0 GB","Cpu": "16"},
-    {"Type": "m1.large","Ram": "7.5 GB","Cpu": "2"},
-    {"Type": "m1.xlarge","Ram": "15.0 GB","Cpu": "4"},
-    {"Type": "c1.xlarge","Ram": "7.0 GB","Cpu": "8"},
-    {"Type": "m2.xlarge","Ram": "17.1 GB","Cpu": "2"},
-    {"Type": "m2.2xlarge","Ram": "34.2 GB","Cpu": "4"}
-  ],
-  "request_id": "rId",
+  "exploratory_environment_shapes" :
+  {
+    "Memory optimized" : [
+      {"Size": "S", "Description": "r3.xlarge", "Type": "r3.xlarge","Ram": "30.5 GB","Cpu": "4"},
+      {"Size": "M", "Description": "r3.4xlarge", "Type": "r3.4xlarge","Ram": "122 GB","Cpu": "16"},
+      {"Size": "L", "Description": "r3.8xlarge", "Type": "r3.8xlarge","Ram": "244 GB","Cpu": "32"}
+    ],
+    "GPU optimized": [
+      {"Size": "M", "Description": "g2.2xlarge", "Type": "g2.2xlarge","Ram": "15.0 GB","Cpu": "8"}
+    ],
+    "Compute optimized": [
+      {"Size": "S", "Description": "c4.large", "Type": "c4.large","Ram": "3.75 GB","Cpu": "2"},
+      {"Size": "M", "Description": "c4.2xlarge", "Type": "c4.2xlarge","Ram": "15.0 GB","Cpu": "8"},
+      {"Size": "L", "Description": "c4.8xlarge", "Type": "c4.8xlarge","Ram": "60.0 GB","Cpu": "36"}
+    ]
+  },
   "exploratory_environment_versions" :
   [
     {
@@ -39,6 +22,20 @@
       "description": "Base image with jupyter node creation routines",
       "environment_type": "exploratory",
       "version": "jupyter-1.6",
+      "vendor": "AWS"
+    },
+    {
+      "template_name": "R 3.3.2",
+      "description": "Base image with r node creation routines",
+      "environment_type": "exploratory",
+      "version": "r-3.3.2",
+      "vendor": "AWS"
+    },
+    {
+      "template_name": "Zeppelin 0.6.2",
+      "description": "Base image with zeppelin node creation routines",
+      "environment_type": "exploratory",
+      "version": "zeppelin-0.6.2",
       "vendor": "AWS"
     }
   ]

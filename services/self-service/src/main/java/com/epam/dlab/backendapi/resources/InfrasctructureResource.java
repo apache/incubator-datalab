@@ -33,6 +33,8 @@ import javax.ws.rs.core.MediaType;
 import static com.epam.dlab.backendapi.core.health.HealthChecks.MONGO_HEALTH_CHECKER;
 import static com.epam.dlab.backendapi.core.health.HealthChecks.PROVISIONING_HEALTH_CHECKER;
 
+/** Provides the REST API for the basic information about infrastructure.
+ */
 @Path("/infrastructure")
 @Produces(MediaType.APPLICATION_JSON)
 public class InfrasctructureResource {
@@ -43,11 +45,14 @@ public class InfrasctructureResource {
     @Named(PROVISIONING_HEALTH_CHECKER)
     private HealthChecker provisioningHealthChecker;
 
+    /** Returns the status of infrastructure: database and provisioning service.
+     * @param userInfo user info.
+     */
     @GET
     @Path("/status")
     public HealthStatusDTO status(@Auth UserInfo userInfo) {
         return new HealthStatusDTO()
-                .withMongoAlive(mongoHealthChecker.isAlive())
-                .withProvisioningAlive(provisioningHealthChecker.isAlive());
+                .withMongoAlive(mongoHealthChecker.isAlive(userInfo))
+                .withProvisioningAlive(provisioningHealthChecker.isAlive(userInfo));
     }
 }

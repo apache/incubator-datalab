@@ -12,13 +12,13 @@ public class CommandExecutorMock implements ICommandExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutorMock.class);
 
     @Override
-    public List<String> executeSync(String command) throws IOException, InterruptedException {
+    public List<String> executeSync(String user, String uuid, String command) throws IOException, InterruptedException {
         LOGGER.debug("Mocked execution sync: {}", command);
         return new ArrayList<String>();
     }
 
     @Override
-    public void executeAsync(String command) {
+    public void executeAsync(String user, String uuid, String command) {
         LOGGER.debug("Mocked execution Async: {}", command);
     }
 }

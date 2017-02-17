@@ -68,7 +68,7 @@ public class FolderListenerTest {
 		}
 
 		@Override
-		public void handleError() {
+		public void handleError(String errorMessage) {
 			System.out.println("handleError called for UUID " + getUUID());
 		}
 	}

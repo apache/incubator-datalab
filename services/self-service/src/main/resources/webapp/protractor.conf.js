@@ -2,7 +2,7 @@ const config = {
   baseUrl: 'http://localhost:5555/',
 
   specs: [
-    './dist/dev/**/*.e2e-spec.js'
+    './dist/e2e/**/*.e2e-spec.js'
   ],
 
   exclude: [],
@@ -27,10 +27,6 @@ const config = {
   },
 
   onPrepare: function() {
-    const SpecReporter = require('jasmine-spec-reporter');
-    // add jasmine spec reporter
-    jasmine.getEnv().addReporter(new SpecReporter({ displayStacktrace: true }));
-
     browser.ignoreSynchronization = false;
   },
 

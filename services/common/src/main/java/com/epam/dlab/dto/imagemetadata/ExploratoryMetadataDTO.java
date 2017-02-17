@@ -20,13 +20,15 @@ package com.epam.dlab.dto.imagemetadata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class ExploratoryMetadataDTO extends ImageMetadataDTO {
     @JsonProperty("exploratory_environment_versions")
     private List<ExploratoryEnvironmentVersion> exploratoryEnvironmentVersions;
     @JsonProperty("exploratory_environment_shapes")
-    private List<ComputationalResourceShapeDto> exploratoryEnvironmentShapes;
+    private HashMap<String, List<ComputationalResourceShapeDto>> exploratoryEnvironmentShapes;
     @JsonProperty
     protected String image;
     @JsonProperty("request_id")
@@ -59,12 +61,12 @@ public class ExploratoryMetadataDTO extends ImageMetadataDTO {
         this.exploratoryEnvironmentVersions = exploratoryEnvironmentVersions;
     }
 
-    public List<ComputationalResourceShapeDto> getExploratoryEnvironmentShapes() {
+    public HashMap<String, List<ComputationalResourceShapeDto>> getExploratoryEnvironmentShapes() {
         return exploratoryEnvironmentShapes;
     }
 
     public void setExploratoryEnvironmentShapes(
-            List<ComputationalResourceShapeDto> exploratoryEnvironmentShapes) {
+            HashMap<String, List<ComputationalResourceShapeDto>> exploratoryEnvironmentShapes) {
         this.exploratoryEnvironmentShapes = exploratoryEnvironmentShapes;
     }
 
@@ -107,12 +109,8 @@ public class ExploratoryMetadataDTO extends ImageMetadataDTO {
 
     @Override
     public int hashCode() {
-        int result = exploratoryEnvironmentVersions != null
-                ? exploratoryEnvironmentVersions.hashCode() : 0;
-        result = 31 * result + (exploratoryEnvironmentShapes != null
-                ? exploratoryEnvironmentShapes.hashCode() : 0);
-        result = 31 * result + (image != null ? image.hashCode() : 0);
-        result = 31 * result + (requestId != null ? requestId.hashCode() : 0);
-        return result;
+        return Objects.hash(exploratoryEnvironmentVersions,
+                exploratoryEnvironmentShapes,
+                image, requestId);
     }
 }

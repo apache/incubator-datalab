@@ -1,0 +1,9 @@
+{
+  "argv": ["/usr/lib/R/bin/R", "--slave", "-e", "library(SparkR, lib.loc = \"/opt/spark/R/lib\")", "-e", "sc<-sparkR.init()", "-e", "IRkernel::main()", "--args", "{connection_file}"],
+  "display_name": "Local SparkR (R-R_VER, Spark-SP_VER)",
+  "language": "R",
+  "env": {
+    "SPARKR_SUBMIT_ARGS" : "sparkr-shell",
+    "SPARK_HOME": "/opt/spark/"
+  }
+}

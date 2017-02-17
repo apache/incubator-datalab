@@ -17,34 +17,38 @@ limitations under the License.
 ****************************************************************************/
 /* tslint:disable:no-empty */
 
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
 import { UserResourceService } from '../../services/userResource.service';
 import { ExploratoryEnvironmentVersionModel } from '../../models/exploratoryEnvironmentVersion.model';
-import { ResourceShapeModel } from '../../models/resourceShape.model';
+import { ResourceShapeTypesModel } from '../../models/resourceShapeTypes.model';
+import { SortUtil } from '../../util/sortUtil';
 
 export class ExploratoryEnvironmentCreateModel {
 
   confirmAction: Function;
   selectedItemChanged: Function;
 
-  selectedItem: ExploratoryEnvironmentVersionModel = new ExploratoryEnvironmentVersionModel('', {}, []);
+
+  selectedItem: ExploratoryEnvironmentVersionModel = new ExploratoryEnvironmentVersionModel('', {}, new ResourceShapeTypesModel({}));
   exploratoryEnvironmentTemplates: Array<ExploratoryEnvironmentVersionModel> = [];
 
   private environment_image: string;
   private environment_name: string;
+  private environment_template_name: string;
   private environment_version: string;
   private environment_shape: string;
   private userResourceService: UserResourceService;
   private continueWith: Function;
 
   static getDefault(userResourceService): ExploratoryEnvironmentCreateModel {
-    return new ExploratoryEnvironmentCreateModel('', '', '', '', () => { }, () => { }, null, null, userResourceService);
+    return new ExploratoryEnvironmentCreateModel('', '', '', '', '', () => { }, () => { }, null, null, userResourceService);
   }
 
   constructor(
     environment_image: string,
     environment_name: string,
+    environment_template_name: string,
     environment_version: string,
     environment_shape: string,
     fnProcessResults: any,
@@ -58,6 +62,7 @@ export class ExploratoryEnvironmentCreateModel {
     this.continueWith = continueWith;
     this.prepareModel(environment_image,
       environment_name,
+      environment_template_name,
       environment_version,
       environment_shape,
       fnProcessResults, fnProcessErrors);
@@ -79,6 +84,7 @@ export class ExploratoryEnvironmentCreateModel {
   public setCreatingParams(name, shape) : void {
     this.environment_image = this.selectedItem.image;
     this.environment_version = this.selectedItem.version;
+    this.environment_template_name = this.selectedItem.template_name;
     this.environment_name = name;
     this.environment_shape = shape;
   }
@@ -92,14 +98,11 @@ export class ExploratoryEnvironmentCreateModel {
 
             let shapeJson = data[parentIndex].exploratory_environment_shapes;
             let exploratoryJson = data[parentIndex].exploratory_environment_versions;
-            let shapeArr = new Array<ResourceShapeModel>();
-
-            for (let index = 0; index < shapeJson.length; index++)
-              shapeArr.push(new ResourceShapeModel(shapeJson[index]));
+            let shapeObj: ResourceShapeTypesModel = new ResourceShapeTypesModel(SortUtil.shapesSort(shapeJson));
 
             for (let index = 0; index < exploratoryJson.length; index++)
               this.exploratoryEnvironmentTemplates.push(
-                new ExploratoryEnvironmentVersionModel(data[parentIndex].image, exploratoryJson[index], shapeArr));
+                new ExploratoryEnvironmentVersionModel(data[parentIndex].image, exploratoryJson[index], shapeObj));
           }
           if(this.exploratoryEnvironmentTemplates.length > 0) {
             this.exploratoryEnvironmentTemplates.sort(function(t1, t2) {
@@ -120,6 +123,7 @@ export class ExploratoryEnvironmentCreateModel {
   private createExploratoryEnvironment(): Observable<Response> {
     return this.userResourceService.createExploratoryEnvironment({
       image: this.environment_image,
+      template_name: this.environment_template_name,
       name: this.environment_name,
       shape: this.environment_shape,
       version: this.environment_version
@@ -129,6 +133,7 @@ export class ExploratoryEnvironmentCreateModel {
   private prepareModel(
     environment_image: string,
     environment_name: string,
+    environment_template_name: string,
     environment_version: string,
     environment_shape: string,
     fnProcessResults: any, fnProcessErrors: any): void {

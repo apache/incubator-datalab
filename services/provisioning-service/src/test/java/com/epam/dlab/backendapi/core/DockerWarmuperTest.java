@@ -32,6 +32,8 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.mockito.Matchers.anyString;
@@ -45,19 +47,22 @@ public class DockerWarmuperTest {
             "executeResult");
     private ComputationalMetadataDTO computationalMetadata = new
             ComputationalMetadataDTO("executeResult");
-    private static final String EXPLORATORY_TEST_JSON = "{\"exploratory_environment_shapes\" : [ {\"Type\":\"cg1.4xlarge\",\"Ram\": \"22.5 GB\",\"Cpu\": \"16\"}]}";
+    private static final String EXPLORATORY_TEST_JSON = "{\"exploratory_environment_shapes\" : { \"Category\" : [ {\"Size\":\"L\", \"Type\":\"cg1.4xlarge\",\"Ram\": \"22.5 GB\",\"Cpu\": \"16\"}]}}";
     private static final String COMPUTATIONAL_TEST_JSON = "{\"template_name\":\"DLab AWS EMR\"}";
 
     @Before
     public void setup() {
         createInjector().injectMembers(this);
         ComputationalResourceShapeDto computationalResourceShapeDto = new ComputationalResourceShapeDto();
+        computationalResourceShapeDto.setSize("L");
         computationalResourceShapeDto.setType("cg1.4xlarge");
         computationalResourceShapeDto.setRam("22.5 GB");
         computationalResourceShapeDto.setCpu(16);
-        ArrayList<ComputationalResourceShapeDto> metadataList = new ArrayList<>();
-        metadataList.add(computationalResourceShapeDto);
-        exploratoryMetadata.setExploratoryEnvironmentShapes(metadataList);
+        List<ComputationalResourceShapeDto> metadataArray = new ArrayList<>();
+        metadataArray.add(computationalResourceShapeDto);
+        HashMap<String, List<ComputationalResourceShapeDto>> map = new HashMap<>();
+        map.put("Category", metadataArray);
+        exploratoryMetadata.setExploratoryEnvironmentShapes(map);
         computationalMetadata.setTemplateName("DLab AWS EMR");
     }
 
@@ -109,7 +114,7 @@ public class DockerWarmuperTest {
     private ICommandExecutor createCommandExecuter() {
         ICommandExecutor result = mock(ICommandExecutor.class);
         try {
-            when(result.executeSync(anyString())).thenReturn(Collections.singletonList("executeResult"));
+            when(result.executeSync(anyString(),anyString(),anyString())).thenReturn(Collections.singletonList("executeResult"));
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -26,5 +26,4 @@ import { NavbarModule } from './../../shared/navbar/index';
   declarations: [PublicKeyGuide],
   exports: [PublicKeyGuide]
 })
-
 export class PublicKeyGuideModule { }

@@ -19,16 +19,17 @@ limitations under the License.
 package com.epam.dlab.dto.computational;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 public class ComputationalTerminateDTO extends ComputationalBaseDTO<ComputationalTerminateDTO> {
     @JsonProperty("emr_cluster_name")
     private String clusterName;
     @JsonProperty("notebook_instance_name")
     private String notebookInstanceName;
-    @JsonProperty("notebook_ssh_user")
-    private String sshUser;
-    @JsonProperty("creds_key_dir")
-    private String keyDir;
+    @JsonProperty("conf_os_user")
+    private String confOsUser;
+    @JsonProperty("conf_key_dir")
+    private String confKeyDir;
 
     public String getClusterName() {
         return clusterName;
@@ -56,29 +57,43 @@ public class ComputationalTerminateDTO extends ComputationalBaseDTO<Computationa
         return this;
     }
 
-    public String getSshUser() {
-        return sshUser;
+    public String getConfOsUser() {
+        return confOsUser;
     }
 
-    public void setSshUser(String sshUser) {
-        this.sshUser = sshUser;
+    public void setConfOsUser(String confOsUser) {
+        this.confOsUser = confOsUser;
     }
 
-    public ComputationalTerminateDTO withSshUser(String sshUser) {
-        setSshUser(sshUser);
+    public ComputationalTerminateDTO withConfOsUser(String confOsUser) {
+        setConfOsUser(confOsUser);
         return this;
     }
 
-    public String getKeyDir() {
-        return keyDir;
+    public String getConfKeyDir() {
+        return confKeyDir;
     }
 
-    public void setKeyDir(String keyDir) {
-        this.keyDir = keyDir;
+    public void setConfKeyDir(String confKeyDir) {
+        this.confKeyDir = confKeyDir;
     }
 
-    public ComputationalTerminateDTO withKeyDir(String keyDir) {
-        setKeyDir(keyDir);
+    public ComputationalTerminateDTO withConfKeyDir(String confKeyDir) {
+        setConfKeyDir(confKeyDir);
         return this;
+    }
+
+    @Override
+    public ToStringHelper toStringHelper(Object self) {
+    	return super.toStringHelper(self)
+    	        .add("clusterName", clusterName)
+    	        .add("notebookInstanceName", notebookInstanceName)
+    	        .add("confOsUser", confOsUser)
+    	        .add("confKeyDir", confKeyDir);
+    }
+    
+    @Override
+    public String toString() {
+    	return toStringHelper(this).toString();
     }
 }

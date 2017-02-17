@@ -22,6 +22,7 @@ public enum DockerAction {
     DESCRIBE,
     CREATE,
     START,
+    CONFIGURE,
     RUN,
     STOP,
     TERMINATE;

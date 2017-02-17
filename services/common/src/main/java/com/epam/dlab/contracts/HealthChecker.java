@@ -18,6 +18,8 @@ limitations under the License.
 
 package com.epam.dlab.contracts;
 
+import com.epam.dlab.auth.UserInfo;
+
 public interface HealthChecker {
-    boolean isAlive();
+    boolean isAlive(UserInfo userInfo);
 }

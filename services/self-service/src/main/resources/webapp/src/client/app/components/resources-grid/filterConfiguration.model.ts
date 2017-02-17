@@ -21,7 +21,8 @@ export class FilterConfigurationModel {
     public name: string,
     public statuses: Array<any>,
     public shapes: Array<any>,
-    public resources: Array<any>
+    public resources: Array<any>,
+    public type: string,
   ) { }
 
   resetConfigurations(): void {
@@ -29,5 +30,6 @@ export class FilterConfigurationModel {
     this.statuses = [];
     this.shapes = [];
     this.resources = [];
+    this.type = '';
   }
 }

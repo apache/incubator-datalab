@@ -15,19 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ----------------------------------------------------------------------------------------------------------- -->
-
 <sd-navbar></sd-navbar>
 
 <div class="sub_nav">
-  <div class="container-fluid">
-    <button class="btn btn_create" [disabled]="userUploadAccessKeyState == 202" (click)="createNotebook_btnClick()">
-      <span class="glyphicon glyphicon glyphicon-plus" ></span> Create new
-    </button>
-    <button class="btn btn_refresh pull-right" (click)="refreshGrid()">
-      <span class="glyphicon glyphicon-refresh"></span> Refresh
-    </button>
-    <span *ngIf="userUploadAccessKeyState == 500" class="alert alert-danger">Error happened during user access key upload. Please try to reupload the key.</span>
-  </div>
+  <button class="btn btn_create" [disabled]="userUploadAccessKeyState == 202" (click)="createNotebook_btnClick()">
+    <span class="glyphicon glyphicon glyphicon-plus" ></span> Create new
+  </button>
+  <button class="btn btn_refresh pull-right" (click)="refreshGrid()">
+    <span class="glyphicon glyphicon-refresh"></span> Refresh
+  </button>
+  <button class="btn btn_hide pull-right" (click)="toggleFiltering()">
+    <span class="glyphicon" [ngClass]="!resourcesGrid.activeFiltering ? 'glyphicon-eye-close' : 'glyphicon-eye-open'"></span>
+    <span *ngIf="!resourcesGrid.activeFiltering">Show active</span>
+    <span *ngIf="resourcesGrid.activeFiltering">Show all</span>
+  </button>
+  <span *ngIf="userUploadAccessKeyState == 500" class="alert alert-danger">Error happened during user access key upload. Please try to reupload the key.</span>
 </div>
 
 <resources-grid></resources-grid>

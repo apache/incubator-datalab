@@ -18,14 +18,24 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.dao;
 
+/** Name of fields in the Mongo collection {@link MongoCollections#SETTINGS}. */
 public enum MongoSetting {
-    SERIVICE_BASE_NAME("service_base_name"),
-    CREDS_REGION("creds_region"),
-    SECURITY_GROUPS("security_groups_ids"),
-    EXPLORATORY_SSH_USER("notebook_ssh_user"),
-    CREDS_KEY_DIRECTORY("creds_key_dir"),
-    CREDS_VPC_ID("creds_vpc_id"),
-    CREDS_SUBNET_ID("creds_subnet_id");
+	/** Base name of service. */
+    SERIVICE_BASE_NAME("conf_service_base_name"),
+	/** Name of AWS region. */
+    AWS_REGION("aws_region"),
+	/** Id of security group. */
+    AWS_SECURITY_GROUPS("aws_security_groups_ids"),
+	/** OS user name. */
+    CONF_OS_USER("conf_os_user"),
+	/** Name of OS family. */
+    CONF_OS_FAMILY("conf_os_family"),
+	/** Name of directory for user key. */
+    CONF_KEY_DIRECTORY("conf_key_dir"),
+	/** Id of virtual private cloud for AWS account. */
+    AWS_VPC_ID("aws_vpc_id"),
+	/** Id of virtual private cloud subnet for AWS account. */
+    AWS_SUBNET_ID("aws_subnet_id");
 
     private String id;
 

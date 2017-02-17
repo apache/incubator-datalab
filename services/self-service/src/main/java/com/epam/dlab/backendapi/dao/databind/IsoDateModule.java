@@ -22,8 +22,14 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.util.Date;
 
+/** Registers the deserializer for date type {@link IsoDateDeSerializer}.
+ */
 public class IsoDateModule extends SimpleModule {
+	
+	private static final long serialVersionUID = -2103066255354028256L;
 
+	/** Registers the deserializer for date type {@link IsoDateDeSerializer}.
+	 */
     public IsoDateModule() {
         super();
         addDeserializer(Date.class, new IsoDateDeSerializer());

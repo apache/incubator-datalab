@@ -28,7 +28,7 @@ limitations under the License.
         <label class="control-label">Select template</label>
       </div>
       <div class="col-xs-8">
-        <dropdown-list #templatesList (selectedItem)="onUpdate($event)" [items]="model.exploratoryEnvironmentTemplates"></dropdown-list>
+        <dropdown-list #templatesList (selectedItem)="onUpdate($event)"></dropdown-list>
       </div>
       <div class="col-xs-12" *ngIf="model.exploratoryEnvironmentTemplates">
         <small *ngIf="model.exploratoryEnvironmentTemplates && model.exploratoryEnvironmentTemplates.length > 0 && !templateDescription">{{model.exploratoryEnvironmentTemplates[0].description}}</small>
@@ -50,7 +50,7 @@ limitations under the License.
         <label class="control-label">Instance shape</label>
       </div>
       <div class="col-xs-8">
-        <dropdown-list #shapesList (selectedItem)="onUpdate($event)" [items]="model.selectedItem.shapes"></dropdown-list>
+        <dropdown-list #shapesList (selectedItem)="onUpdate($event)"></dropdown-list>
       </div>
     </div>
     <div class="text-right" *ngIf="processError">

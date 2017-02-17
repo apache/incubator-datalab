@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 /* tslint:disable:no-empty */
 
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
 import { UserAccessKeyService } from '../../services/userAccessKey.service';
 

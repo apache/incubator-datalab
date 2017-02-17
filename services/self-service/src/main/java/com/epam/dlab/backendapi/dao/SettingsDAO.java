@@ -22,38 +22,58 @@ import static com.epam.dlab.backendapi.dao.MongoSetting.*;
 import static com.mongodb.client.model.Filters.eq;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
+/** Stores the environment settings. */
 public class SettingsDAO extends BaseDAO {
     private static final String VALUE = "value";
 
+    /** Returns the base name of service. */
     public String getServiceBaseName() {
         return getSetting(SERIVICE_BASE_NAME);
     }
 
-    public String getCredsRegion() {
-        return getSetting(CREDS_REGION);
+    /** Returns the name of AWS region. */
+    public String getAwsRegion() {
+        return getSetting(AWS_REGION);
     }
 
-    public String getSecurityGroups() {
-        return getSetting(SECURITY_GROUPS);
+    /** Returns the id of security group. */
+    public String getAwsSecurityGroups() {
+        return getSetting(AWS_SECURITY_GROUPS);
     }
 
-    public String getExploratorySshUser() {
-        return getSetting(EXPLORATORY_SSH_USER);
+    /** Returns the OS user name. */
+    public String getConfOsUser() {
+        return getSetting(CONF_OS_USER);
     }
 
-    public String getCredsKeyDir() {
-        return getSetting(CREDS_KEY_DIRECTORY);
+    /** Returns the name of OS family. */
+    public String getConfOsFamily() {
+        return getSetting(CONF_OS_FAMILY);
     }
 
-    public String getCredsVpcId() {
-        return getSetting(CREDS_VPC_ID);
+    /** Returns the name of directory for user key. */
+    public String getConfKeyDir() {
+        return getSetting(CONF_KEY_DIRECTORY);
     }
 
-    public String getCredsSubnetId() {
-        return getSetting(CREDS_SUBNET_ID);
+    /** Returns the id of virtual private cloud for AWS account. */
+    public String getAwsVpcId() {
+        return getSetting(AWS_VPC_ID);
     }
 
+    /** Returns the id of virtual private cloud subnet for AWS account. */
+    public String getAwsSubnetId() {
+        return getSetting(AWS_SUBNET_ID);
+    }
+
+    /** Returns the value of property from Mongo database.
+     * @param setting the name of property.
+     */
     private String getSetting(MongoSetting setting) {
-        return mongoService.getCollection(SETTINGS).find(eq(ID, setting.getId())).first().getOrDefault(VALUE, EMPTY).toString();
+        return mongoService.getCollection(SETTINGS)
+        		.find(eq(ID, setting.getId()))
+        		.first()
+        		.getOrDefault(VALUE, EMPTY)
+        		.toString();
     }
 }

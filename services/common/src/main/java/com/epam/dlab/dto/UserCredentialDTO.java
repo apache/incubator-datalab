@@ -19,6 +19,9 @@ limitations under the License.
 package com.epam.dlab.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
+
 import org.hibernate.validator.constraints.NotBlank;
 
 public class UserCredentialDTO {
@@ -43,5 +46,17 @@ public class UserCredentialDTO {
 
     public String getAccessToken() {
         return accessToken;
+    }
+
+    public ToStringHelper toStringHelper(Object self) {
+    	return MoreObjects.toStringHelper(self)
+    	        .add("username", username)
+    	        .add("password", password)
+    	        .add("accessToken", "***");
+    }
+    
+    @Override
+    public String toString() {
+    	return toStringHelper(this).toString();
     }
 }
