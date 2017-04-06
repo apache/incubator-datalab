@@ -48,6 +48,9 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
 
     @JsonProperty
     private Duration keyLoaderPollTimeout = Duration.minutes(2);
+    
+    @JsonProperty
+    private Duration requestEnvStatusTimeout = Duration.seconds(30);
 
     @NotEmpty
     @JsonProperty
@@ -90,6 +93,11 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
 
     public Duration getKeyLoaderPollTimeout() {
         return keyLoaderPollTimeout;
+    }
+    
+    /** Return the timeout for the check the status of environment resources. */
+    public Duration getRequestEnvStatusTimeout() {
+        return requestEnvStatusTimeout;
     }
 
     public String getAdminKey() {

@@ -22,7 +22,7 @@ from fabric.api import *
 from fabric.contrib.files import exists
 
 
-def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel'):
+def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap libffi libffi-devel'):
     try:
         if not exists('/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             print "Updating repositories and installing requested tools: " + requisites

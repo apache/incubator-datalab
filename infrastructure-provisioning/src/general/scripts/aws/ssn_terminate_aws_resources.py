@@ -29,6 +29,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--tag_name', type=str)
 parser.add_argument('--nb_sg', type=str)
 parser.add_argument('--edge_sg', type=str)
+parser.add_argument('--service_base_name', type=str)
 args = parser.parse_args()
 
 
@@ -69,6 +70,10 @@ if __name__ == "__main__":
     try:
         remove_sgroups(args.nb_sg)
         remove_sgroups(args.edge_sg)
+        try:
+            remove_sgroups(args.tag_name)
+        except:
+            print "There is no pre-defined SSN SG"
     except:
         sys.exit(1)
 
@@ -93,5 +98,30 @@ if __name__ == "__main__":
     print "Removing route tables"
     try:
         remove_route_tables(args.tag_name)
+    except:
+        sys.exit(1)
+
+    print "Removing SSN subnet"
+    try:
+        remove_subnets(args.service_base_name + '-subnet')
+    except:
+        print "There is no pre-defined SSN Subnet"
+
+    print "Removing SSN VPC"
+    try:
+        vpc_id = get_vpc_by_tag(args.tag_name, args.service_base_name)
+        if vpc_id != '':
+            try:
+                remove_vpc_endpoints(vpc_id)
+            except:
+                print "There is no such VPC Endpoint"
+            try:
+                remove_internet_gateways(vpc_id, args.tag_name, args.service_base_name)
+            except:
+                print "There is no such Internet gateway"
+            remove_route_tables(args.tag_name, True)
+            remove_vpc(vpc_id)
+        else:
+            print "There is no pre-defined SSN VPC"
     except:
         sys.exit(1)

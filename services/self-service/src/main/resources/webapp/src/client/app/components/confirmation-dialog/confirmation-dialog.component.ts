@@ -18,6 +18,7 @@ limitations under the License.
 
 import { Component, ViewChild, Output, EventEmitter } from '@angular/core';
 import { UserResourceService } from './../../services/userResource.service';
+import { HealthStatusService } from './../../services/healthStatus.service';
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
 import { Response } from '@angular/http';
@@ -40,7 +41,10 @@ export class ConfirmationDialog {
   @ViewChild('bindDialog') bindDialog;
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
-  constructor(private userResourceService: UserResourceService) {
+  constructor(
+    private userResourceService: UserResourceService,
+    private healthStatusService: HealthStatusService
+  ) {
     this.model = ConfirmationDialogModel.getDefault();
   }
 
@@ -59,7 +63,8 @@ export class ConfirmationDialog {
         this.processError = true;
         this.errorMessage = ErrorMapUtils.setErrorMessage(response);
       },
-      this.userResourceService);
+      this.userResourceService,
+      this.healthStatusService);
 
     this.bindDialog.open(param);
     this.isAliveResources = this.model.isAliveResources(notebook.resources);

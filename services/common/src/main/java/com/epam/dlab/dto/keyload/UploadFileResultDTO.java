@@ -18,37 +18,36 @@ limitations under the License.
 
 package com.epam.dlab.dto.keyload;
 
+import com.epam.dlab.dto.StatusBaseDTO;
+import com.epam.dlab.dto.edge.EdgeInfoDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class UploadFileResultDTO {
+public class UploadFileResultDTO extends StatusBaseDTO<UploadFileResultDTO> {
     @JsonProperty
-    private String user;
-    @JsonProperty
-    private boolean success;
-    @JsonProperty
-    private UserAWSCredentialDTO credential;
+    private EdgeInfoDTO edgeInfo;
 
-    public UploadFileResultDTO() {
+    public EdgeInfoDTO getEdgeInfo() {
+        return edgeInfo;
     }
 
-    public UploadFileResultDTO(String user) {
-        this.user = user;
+    public void setEdgeInfo(EdgeInfoDTO edgeInfo) {
+        this.edgeInfo = edgeInfo;
     }
 
-    public String getUser() {
-        return user;
+    public UploadFileResultDTO withEdgeInfo(EdgeInfoDTO edgeInfo) {
+    	setEdgeInfo(edgeInfo);
+    	return this;
     }
-
-    public boolean isSuccess() {
-        return success;
+    
+    @Override
+    public ToStringHelper toStringHelper(Object self) {
+    	return super.toStringHelper(self)
+    			.add("edgeInfo", edgeInfo);
     }
-
-    public UserAWSCredentialDTO getCredential() {
-        return credential;
-    }
-
-    public void setSuccessAndCredential(UserAWSCredentialDTO credential) {
-        this.success = true;
-        this.credential = credential;
+    
+    @Override
+    public String toString() {
+    	return toStringHelper(this).toString();
     }
 }

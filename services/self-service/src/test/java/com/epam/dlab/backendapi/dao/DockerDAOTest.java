@@ -20,8 +20,6 @@ package com.epam.dlab.backendapi.dao;
 
 import org.junit.*;
 
-import java.util.Collections;
-
 import static com.epam.dlab.backendapi.dao.MongoCollections.DOCKER_ATTEMPTS;
 import static junit.framework.TestCase.assertEquals;
 
@@ -30,7 +28,7 @@ public class DockerDAOTest extends DAOTestBase {
     private DockerDAO dockerDAO;
 
     public DockerDAOTest() {
-        super(Collections.singletonList(DOCKER_ATTEMPTS));
+        super(DOCKER_ATTEMPTS);
     }
 
     @Before

@@ -25,11 +25,22 @@ public enum DockerAction {
     CONFIGURE,
     RUN,
     STOP,
-    TERMINATE;
+    TERMINATE,
+    STATUS;
 
     @Override
     public String toString() {
         return super.toString().toLowerCase();
     }
-
+    
+    public static DockerAction of(String action) {
+        if (action != null) {
+            for (DockerAction uis : DockerAction.values()) {
+                if (action.equalsIgnoreCase(uis.toString())) {
+                    return uis;
+                }
+            }
+        }
+        return null;
+    }
 }

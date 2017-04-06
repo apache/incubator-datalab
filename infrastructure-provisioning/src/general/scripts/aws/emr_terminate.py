@@ -77,7 +77,7 @@ if __name__ == "__main__":
                                   emr_conf['notebook_name'], os.environ['conf_os_user'], emr_conf['key_path'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to terminate EMR cluster. Exception: " + str(err))
+            append_result("Failed to terminate EMR cluster.", str(err))
             raise Exception
     except:
         sys.exit(1)

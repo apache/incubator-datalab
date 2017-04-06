@@ -18,16 +18,16 @@ limitations under the License.
 
 package com.epam.dlab.dto.computational;
 
-import com.epam.dlab.dto.StatusBaseDTO;
+import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class ComputationalStatusDTO extends StatusBaseDTO<ComputationalStatusDTO> {
+public class ComputationalStatusDTO extends StatusEnvBaseDTO<ComputationalStatusDTO> {
     @JsonProperty("computational_id")
     private String computationalId;
     @JsonProperty("computational_name")
     private String computationalName;
-
+    
     public String getComputationalId() {
         return computationalId;
     }

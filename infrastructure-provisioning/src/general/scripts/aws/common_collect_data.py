@@ -27,6 +27,7 @@ from dlab.meta_lib import *
 from dlab.fab import *
 import traceback
 import sys
+import ast
 
 
 parser = argparse.ArgumentParser()
@@ -35,16 +36,22 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    data = json.loads(args.list_resources)
+    data = ast.literal_eval(args.list_resources.replace('\'', '"'))
     statuses = {}
     try:
-        data_instances = get_list_instance_statuses(data.get('host'))
-        data_clusters = get_list_cluster_statuses(data.get('cluster'))
-        statuses['host'] = data_instances
-        statuses['cluster'] = data_clusters
+        try:
+            data_instances = get_list_instance_statuses(data.get('host'))
+            statuses['host'] = data_instances
+        except:
+            print "Hosts JSON wasn't been provided"
+        try:
+            data_clusters = get_list_cluster_statuses(data.get('cluster'))
+            statuses['cluster'] = data_clusters
+        except:
+            print "Clusters JSON wasn't been provided"
         with open('/root/result.json', 'w') as outfile:
             json.dump(statuses, outfile)
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed getting resources statuses. Exception: " + str(err))
+        append_result("Failed getting resources statuses.", str(err))
         sys.exit(1)

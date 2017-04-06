@@ -1,8 +1,0 @@
-{
-    "resource": "edge",
-    "request_id":"RID",
-    "conf_service_base_name":"SBN",
-    "creds_region":"CREG",
-    "edge_user_name":"EUN",
-    "creds_key_name":"CKN"
-}

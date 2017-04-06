@@ -102,9 +102,15 @@ public class RunDockerCommand implements DockerCommand {
         return this;
     }
 
-    public RunDockerCommand withActionConfigure(String toCreate) {
-        this.image = toCreate;
+    public RunDockerCommand withActionConfigure(String toConfigue) {
+        this.image = toConfigue;
         this.action = DockerAction.CONFIGURE;
+        return this;
+    }
+
+    public RunDockerCommand withActionStatus(String toStatus) {
+        this.image = toStatus;
+        this.action = DockerAction.STATUS;
         return this;
     }
 

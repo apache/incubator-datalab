@@ -19,10 +19,12 @@ limitations under the License.
 <table class="dashboard_table">
   <tr>
     <th *ngFor="let column of filteringColumns" ngClass="{{column.className || ''}}">{{column.title}}
-      <span *ngIf="column.filtering"
-            class="glyphicon pull-right"
-            [ngClass]="filtering && filterForm[column.name].length > 0 && !collapseFilterRow ? 'glyphicon-filter': 'glyphicon-option-vertical'"
-            (click)="toggleFilterRow()"></span>
+      <button md-icon-button *ngIf="column.filtering" aria-label="More" class="pull-right" (click)="toggleFilterRow()">
+        <i class="material-icons">
+          <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">filter_list</span>
+          <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">more_vert</span>
+        </i>
+      </button>
     </th>
   </tr>
 
@@ -41,12 +43,12 @@ limitations under the License.
     </td>
     <td>
       <div class="actions">
-        <button class="btn reset" (click)="resetFilterConfigurations()">
-          <span class="glyphicon glyphicon-remove"></span>
+        <button md-icon-button class="btn reset" (click)="resetFilterConfigurations()">
+          <i class="material-icons">close</i>
         </button>
 
-        <button class="btn apply" (click)="applyFilter_btnClick(filterForm)" [disabled]="filteredEnvironments.length == 0 && !filtering">
-          <span class="glyphicon glyphicon-ok" [ngClass]="{'not-allowed': filteredEnvironments.length == 0 && !filtering}"></span>
+        <button md-icon-button class="btn apply" (click)="applyFilter_btnClick(filterForm)" [disabled]="filteredEnvironments.length == 0 && !filtering">
+          <i class="material-icons" [ngClass]="{'not-allowed': filteredEnvironments.length == 0 && !filtering}">done</i>
         </button>
       </div>
     </td>
@@ -71,10 +73,12 @@ limitations under the License.
     </td>
     <td>
       <div class="dropdown">
-        <span data-toggle="dropdown" class="actions" (click)="dropdownPosition($event)" [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' ||
+        <span data-toggle="dropdown" class="actions" (click)="dropdownPosition($event)" 
+              [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' ||
                                       env.status.toLowerCase() == 'failed' ||
                                       env.status.toLowerCase() == 'terminating' ||
-                                      env.status.toLowerCase() == 'terminated'}">
+                                      env.status.toLowerCase() == 'terminated' ||
+                                      healthStatus === 'error'}">
         </span>
         <div class="dropdown-menu">
           <ul class="list-unstyled">

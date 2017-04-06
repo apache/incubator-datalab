@@ -27,6 +27,7 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,8 +40,11 @@ abstract class DAOTestBase {
 
     private List<String> affectedCollections;
 
-    DAOTestBase(List<String> cols) {
-        affectedCollections = cols;
+    DAOTestBase(String ... collections) {
+    	affectedCollections = new ArrayList<String>();
+    	for (String collection : collections) {
+            affectedCollections.add(collection);
+		}
     }
 
     static void setupAll() {

@@ -44,7 +44,8 @@ public class LoginConveyorTest {
 
     }
 
-    @Test
+    @SuppressWarnings("serial")
+	@Test
     public void startUserInfoBuild() throws Exception {
         CompletableFuture<UserInfo> uf = lc.startUserInfoBuild("1","test");
         UserInfo uiSource = new UserInfo("a","b");
@@ -56,7 +57,11 @@ public class LoginConveyorTest {
         lc.add("1","OK",LoginStep.LDAP_LOGIN);
         lc.add("1",uiSource,LoginStep.LDAP_USER_INFO);
         lc.add("1",true,LoginStep.AWS_USER);
-        lc.add("1",new ArrayList<AccessKeyMetadata>(){{add(new AccessKeyMetadata().withAccessKeyId("a").withStatus("Active"));}} ,LoginStep.AWS_KEYS);
+        lc.add("1",new ArrayList<AccessKeyMetadata>() {
+        		{	add(new AccessKeyMetadata()
+        				.withAccessKeyId("a")
+        				.withStatus("Active"));
+        		}} ,LoginStep.AWS_KEYS);
 
         UserInfo ui = uf.get(5, TimeUnit.SECONDS);
         System.out.println("Future now: "+ui);

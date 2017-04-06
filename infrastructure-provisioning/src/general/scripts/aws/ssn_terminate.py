@@ -42,15 +42,15 @@ if __name__ == "__main__":
     try:
         logging.info('[TERMINATE SSN]')
         print '[TERMINATE SSN]'
-        params = "--tag_name {} --edge_sg {} --nb_sg {}". \
-                 format(ssn_conf['tag_name'], ssn_conf['edge_sg'], ssn_conf['nb_sg'])
+        params = "--tag_name {} --edge_sg {} --nb_sg {} --service_base_name {}". \
+                 format(ssn_conf['tag_name'], ssn_conf['edge_sg'], ssn_conf['nb_sg'], ssn_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('ssn_terminate_aws_resources', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to terminate ssn. Exception: " + str(err))
+        append_result("Failed to terminate ssn.", str(err))
         sys.exit(1)
 
     try:

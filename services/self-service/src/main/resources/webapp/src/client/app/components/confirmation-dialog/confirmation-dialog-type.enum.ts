@@ -19,5 +19,6 @@ limitations under the License.
 export enum ConfirmationDialogType {
   StopExploratory = 0,
   TerminateExploratory = 1,
-  TerminateComputationalResources = 2
+  TerminateComputationalResources = 2,
+  StopEdgeNode = 3
 }

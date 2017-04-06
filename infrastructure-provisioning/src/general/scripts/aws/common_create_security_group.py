@@ -23,6 +23,7 @@ import argparse
 from dlab.actions_lib import *
 from dlab.meta_lib import *
 import sys
+from botocore.exceptions import ClientError
 
 
 parser = argparse.ArgumentParser()
@@ -47,20 +48,26 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
     tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
+    nb_sg_id = get_security_group_by_name(args.nb_sg_name + '-SG')
     if args.name != '':
         try:
             security_group_id = get_security_group_by_name(args.name)
             if security_group_id == '':
                 print "Creating security group %s for vpc %s with tag %s." % (args.name, args.vpc_id, json.dumps(tag))
                 security_group_id = create_security_group(args.name, args.vpc_id, rules, egress, tag)
-            elif args.force == True:
-                print "Removing old security groups."
-                if args.resource == 'edge':
-                    remove_sgroups(args.nb_sg_name)
-                remove_sgroups(args.infra_tag_value)
-                print "Creating security group %s for vpc %s with tag %s." % (args.name, args.vpc_id, json.dumps(tag))
-                security_group_id = create_security_group(args.name, args.vpc_id, rules, egress, tag)
+                if nb_sg_id != '' and args.resource == 'edge':
+                    print "Updating Notebook security group " + nb_sg_id
+                    rule = {'IpProtocol': '-1', 'FromPort': -1, 'ToPort': -1,
+                            'UserIdGroupPairs': [{'GroupId': security_group_id}]}
+                    add_inbound_sg_rule(nb_sg_id, rule)
+                    add_outbound_sg_rule(nb_sg_id, rule)
             else:
+                if nb_sg_id != '' and args.resource == 'edge':
+                    print "Updating Notebook security group " + nb_sg_id
+                    rule = {'IpProtocol': '-1', 'FromPort': -1, 'ToPort': -1,
+                            'UserIdGroupPairs': [{'GroupId': security_group_id}]}
+                    add_inbound_sg_rule(nb_sg_id, rule)
+                    add_outbound_sg_rule(nb_sg_id, rule)
                 print "REQUESTED SECURITY GROUP WITH NAME %s ALREADY EXISTS" % args.name
             print "SECURITY_GROUP_ID " + security_group_id
             if args.ssn:

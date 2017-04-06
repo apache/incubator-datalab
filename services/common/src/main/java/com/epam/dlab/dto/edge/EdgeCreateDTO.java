@@ -12,17 +12,19 @@
 
 package com.epam.dlab.dto.edge;
 
+import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class EdgeCreateDTO extends EdgeBaseDTO<EdgeCreateDTO> {
+public class EdgeCreateDTO extends ResourceSysBaseDTO<EdgeCreateDTO> {
     @JsonProperty("aws_vpc_id")
     private String awsVpcId;
     @JsonProperty("aws_subnet_id")
     private String awsSubnetId;
-    @JsonProperty("aws_iam_user")
-    private String iamUser;
     @JsonProperty("aws_security_groups_ids")
     private String awsSecurityGroupIds;
+    @JsonProperty("edge_elastic_ip")
+    private String edgeElasticIp;
 
     public String getAwsVpcId() {
         return awsVpcId;
@@ -51,19 +53,6 @@ public class EdgeCreateDTO extends EdgeBaseDTO<EdgeCreateDTO> {
         return this;
     }
 
-    public String getIamUser() {
-        return iamUser;
-    }
-
-    public void setIamUser(String iamUser) {
-        this.iamUser = iamUser;
-    }
-
-    public EdgeCreateDTO withIamUser(String iamUser) {
-        setIamUser(iamUser);
-        return this;
-    }
-
     public String getAwsSecurityGroupIds() {
         return awsSecurityGroupIds;
     }
@@ -77,4 +66,30 @@ public class EdgeCreateDTO extends EdgeBaseDTO<EdgeCreateDTO> {
         return this;
     }
 
+    public String getEdgeElasticIp() {
+        return edgeElasticIp;
+    }
+
+    public void setEdgeElasticIp(String edgeElasticIp) {
+        this.edgeElasticIp = edgeElasticIp;
+    }
+
+    public EdgeCreateDTO withEdgeElasticIp(String edgeElasticIp) {
+    	setEdgeElasticIp(edgeElasticIp);
+        return this;
+    }
+    
+    @Override
+    public ToStringHelper toStringHelper(Object self) {
+    	return super.toStringHelper(self)
+    	        .add("awsVpcId", awsVpcId)
+    	        .add("awsSubnetId", awsSubnetId)
+    	        .add("awsSecurityGroupIds", awsSecurityGroupIds)
+    	        .add("edgeElasticIp", edgeElasticIp);
+    }
+    
+    @Override
+    public String toString() {
+    	return toStringHelper(this).toString();
+    }
 }

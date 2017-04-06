@@ -1,7 +1,0 @@
-{
-    "conf_resource": "status",
-    "request_id":"RID",
-    "edge_user_name":"EUN",
-    "aws_region":"CREG",
-    "edge_list_resources":"JLOR"
-}

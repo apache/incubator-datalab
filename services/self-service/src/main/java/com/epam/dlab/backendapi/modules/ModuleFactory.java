@@ -31,8 +31,10 @@ public class ModuleFactory {
      * @param environment environment of SelfService.
      */
     public static AbstractModule getModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
-        return configuration.isMocked() ?
-                new MockModule(configuration, environment) :
-                new ProductionModule(configuration, environment);
+        return (configuration.isDevMode() ?
+        			new DevModule(configuration, environment) :
+        			(configuration.isMocked() ?
+        				new MockModule(configuration, environment) :
+        				new ProductionModule(configuration, environment)));
     }
 }

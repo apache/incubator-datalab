@@ -19,8 +19,10 @@ limitations under the License.
 package com.epam.dlab.exceptions;
 
 public class DlabException extends RuntimeException {
+	
+	private static final long serialVersionUID = 1L;
 
-    public DlabException(String message) {
+	public DlabException(String message) {
         super(message);
     }
 

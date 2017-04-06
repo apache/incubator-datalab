@@ -24,9 +24,4 @@ import { Component } from '@angular/core';
     templateUrl: 'not-found.component.html',
     styleUrls: ['not-found.component.css']
 })
-export class NotFoundComponent {
-
-    test() { if(true) { console.log(15);
-    }
-}
- }
+export class NotFoundComponent { }

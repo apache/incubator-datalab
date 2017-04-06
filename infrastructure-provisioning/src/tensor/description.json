@@ -8,10 +8,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "TensorFlow 0.12.1",
+      "template_name": "TensorFlow 1.0.0",
       "description": "Base image with TensorFlow node creation routines",
       "environment_type": "exploratory",
-      "version": "tensorflow_gpu-0.12.1",
+      "version": "tensorflow_gpu-1.0.0",
       "vendor": "AWS"
     }
   ]

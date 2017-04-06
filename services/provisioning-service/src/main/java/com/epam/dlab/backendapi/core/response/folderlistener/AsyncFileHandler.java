@@ -72,7 +72,7 @@ public final class AsyncFileHandler implements Supplier<Boolean> {
             	try {
             		Files.deleteIfExists(path);
             		Files.deleteIfExists(getLogFile());
-            		LOGGER.debug("Response {} and log files has been deleted", path.toAbsolutePath());
+            		LOGGER.trace("Response {} and log files has been deleted", path.toAbsolutePath());
             	} catch (IOException e) {
             		LOGGER.warn("Can't delete file {}", path.toAbsolutePath(), e);
             	}

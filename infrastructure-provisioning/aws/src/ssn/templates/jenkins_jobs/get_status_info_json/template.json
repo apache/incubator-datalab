@@ -1,9 +1,0 @@
-{
-    "resource": "status",
-    "request_id":"RID",
-    "conf_service_base_name":"SBN",
-    "edge_user_name":"EUN",
-    "creds_key_name":"KN",
-    "creds_region":"CREG",
-    "hostname":"SBN-EUN-edge"
-}

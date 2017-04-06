@@ -59,7 +59,7 @@ limitations under the License.
           <dropdown-list #masterShapesList (selectedItem)="onUpdate($event)"></dropdown-list>
         </div>
       </div>
-      <div class="form-group row">
+      <div class="row">
         <div  class="col-xs-4">
           <label class="control-label">Slave Instance shape</label>
         </div>
@@ -67,12 +67,32 @@ limitations under the License.
           <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
         </div>
       </div>
+      <div class="checkbox-group row">
+        <label>
+          <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" /> Spot Instance
+        </label>
+        <div class="spot-details" [ngClass]="{ show: spotInstancesSelect.nativeElement['checked'] }">
+          <div *ngIf="spotInstancesSelect.nativeElement['checked']">
+            <div class="col-xs-4">
+              <label class="control-label">Your bid for spot instance, %</label>
+            </div>
+            <div class="col-xs-8">
+              <input type="number" class="form-control" step="5" min="{{minSpotPrice}}" max="{{maxSpotPrice}}" formControlName="instance_price" (keypress)="isNumberKey($event)">
+              <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.instance_price.valid">
+                Only integer values greater than or equal to {{minSpotPrice}} and less than {{maxSpotPrice}} are allowed
+              </span>
+            </div>
+          </div>
+          <span class="info">When the current Spot price rises above your bid price, the Spot instance is reclaimed by AWS so that it can be given to another customer. Make sure to backup your data on periodic basis.</span>
+        </div>
+      </div>
       <div class="text-right" *ngIf="processError">
         <small class="danger_color">{{errorMessage}}</small>
       </div>
-      <div class="text-right">
-        <button type="button" (click)="bindDialog.close()" class="btn btn-default">Cancel</button>
-        <button type="submit" [disabled]="!createComputationalResourceForm.valid" class="btn btn-success">Create</button>
+      <div class="text-center m-top-10">
+        <button md-raised-button type="button" (click)="bindDialog.close()" class="butt">Cancel</button>
+        <button md-raised-button type="submit" [disabled]="!createComputationalResourceForm.valid"
+                class="butt butt-success" [ngClass]="{'not-allowed': !createComputationalResourceForm.valid}">Create</button>
       </div>
     </form>
   </modal-content>

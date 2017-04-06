@@ -30,6 +30,10 @@ import javax.validation.constraints.NotNull;
 public class ServiceConfiguration extends Configuration {
 
     @Valid
+    @JsonProperty
+    private boolean devMode = false;
+    
+    @Valid
     @NotNull
     @JsonProperty(ServiceConsts.MONGO_NAME)
     private MongoServiceFactory mongoFactory = new MongoServiceFactory();
@@ -50,6 +54,11 @@ public class ServiceConfiguration extends Configuration {
     private RESTServiceFactory selfFactory = new RESTServiceFactory();
 
 
+    /** Returns <b>true</b> if service is a mock. */
+    public boolean isDevMode() {
+        return devMode;
+    }
+    
     public MongoServiceFactory getMongoFactory() {
         return mongoFactory;
     }

@@ -43,7 +43,7 @@ def run():
         local("~/scripts/{}.py {}".format('common_prepare_notebook', params))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed preparing Notebook node. Exception: " + str(err))
+        append_result("Failed preparing Notebook node.", str(err))
         sys.exit(1)
 
     try:
@@ -51,7 +51,7 @@ def run():
         local("~/scripts/{}.py {}".format('tensor_configure', params))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed configuring Notebook node. Exception: " + str(err))
+        append_result("Failed configuring Notebook node.", str(err))
         sys.exit(1)
 
 
@@ -66,7 +66,7 @@ def terminate():
         local("~/scripts/{}.py".format('common_terminate_notebook'))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed terminating Notebook node. Exception: " + str(err))
+        append_result("Failed terminating Notebook node.", str(err))
         sys.exit(1)
 
 
@@ -81,7 +81,7 @@ def stop():
         local("~/scripts/{}.py".format('common_stop_notebook'))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed stopping Notebook node. Exception: " + str(err))
+        append_result("Failed stopping Notebook node.", str(err))
         sys.exit(1)
 
 
@@ -97,7 +97,7 @@ def start():
         local("~/scripts/{}.py".format('common_start_notebook'))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed starting Notebook node. Exception: " + str(err))
+        append_result("Failed starting Notebook node.", str(err))
         sys.exit(1)
 
 
@@ -113,5 +113,5 @@ def configure():
         local("~/scripts/{}.py".format('common_configure_analytic_tool'))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed configuring analytical tool on Notebook node. Exception: " + str(err))
+        append_result("Failed configuring analytical tool on Notebook node.", str(err))
         sys.exit(1)

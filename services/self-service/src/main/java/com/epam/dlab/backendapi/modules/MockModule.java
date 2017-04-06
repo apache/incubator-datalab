@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.modules;
 
+import com.epam.dlab.ModuleBase;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.mongo.MongoService;
@@ -44,7 +45,7 @@ import static org.mockito.Mockito.when;
 
 /** Mock class for an application configuration of SelfService for tests.
  */
-public class MockModule extends BaseModule implements SecurityAPI, DockerAPI {
+public class MockModule extends ModuleBase<SelfServiceApplicationConfiguration> implements SecurityAPI, DockerAPI {
 	
 	/** Instantiates an application configuration of SelfService for tests.
      * @param configuration application configuration of SelfService.
@@ -56,15 +57,12 @@ public class MockModule extends BaseModule implements SecurityAPI, DockerAPI {
 
     @Override
     protected void configure() {
-        super.configure();
         bind(SelfServiceApplicationConfiguration.class).toInstance(configuration);
         bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
         bind(RESTService.class).annotatedWith(Names.named(SECURITY_SERVICE))
                 .toInstance(createAuthenticationService());
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
                 .toInstance(createProvisioningService());
-        /*bind(RESTService.class).annotatedWith(Names.named(PROVISIONING_SERVICE))
-                .toInstance(configuration.getProvisioningFactory().build(environment, PROVISIONING_SERVICE));*/
     }
 
     /** Creates and returns the mock object for authentication service.

@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
+import com.google.common.base.MoreObjects;
 
 /** Class to store the file handler for processing.
  */
@@ -187,6 +188,19 @@ public class WatchItem implements Comparable<WatchItem> {
 		if (futureResult == null && future != null) {
 			futureResult = future.get();
 		}
-		return futureResult; 
+		return futureResult;
+	}
+	
+	@Override
+	public String toString() {
+		return MoreObjects.toStringHelper(this)
+				.add("fileHandlerCallback", fileHandlerCallback)
+				.add("timeoutMillis", timeoutMillis)
+				.add("fileLengthCheckDelay", fileLengthCheckDelay)
+				.add("expiredTimeMillis", expiredTimeMillis)
+				.add("fileName", fileName)
+				.add("future", future)
+				.add("futureResult", futureResult)
+				.toString();
 	}
 }

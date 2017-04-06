@@ -18,46 +18,30 @@ limitations under the License.
 
 package com.epam.dlab.dto.exploratory;
 
-import com.epam.dlab.dto.ResourceBaseDTO;
+import com.epam.dlab.dto.ResourceEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class ExploratoryBaseDTO<T extends ExploratoryBaseDTO<?>> extends ResourceBaseDTO<T> {
+public class ExploratoryBaseDTO<T extends ExploratoryBaseDTO<?>> extends ResourceEnvBaseDTO<T> {
     @JsonProperty("notebook_image")
     private String notebookImage;
 
-    @JsonProperty("edge_user_name")
-    private String notebookUserName;
+    @SuppressWarnings("unchecked")
+	private final T self = (T)this;
 
     public String getNotebookImage() { return notebookImage; }
 
     public void setNotebookImage(String notebookImage) { this.notebookImage = notebookImage; }
 
-    @SuppressWarnings("unchecked")
     public T withNotebookImage(String notebookImage) {
         setNotebookImage(notebookImage);
-        return (T) this;
-    }
-
-    public String getNotebookUserName() {
-        return notebookUserName;
-    }
-
-    public void setNotebookUserName(String notebookUserName) {
-        this.notebookUserName = notebookUserName;
-    }
-
-    @SuppressWarnings("unchecked")
-    public T withNotebookUserName(String notebookUserName) {
-        setNotebookUserName(notebookUserName);
-        return (T) this;
+        return self;
     }
 
     @Override
     public ToStringHelper toStringHelper(Object self) {
     	return super.toStringHelper(self)
-    	        .add("notebookImage", notebookImage)
-    	        .add("notebookUserName", notebookUserName);
+    	        .add("notebookImage", notebookImage);
     }
     
     @Override

@@ -18,7 +18,7 @@
 
 import boto3
 from botocore.client import Config
-import json
+import json, urllib2
 import time
 import logging
 import traceback
@@ -571,7 +571,7 @@ def check_security_group(security_group_name, count=0):
 def emr_waiter(tag_name):
     if len(get_emr_list(tag_name, 'Value', False, True)) > 0 or os.path.exists('/response/.emr_creating_' + os.environ['exploratory_name'] or get_not_configured_emr(tag_name)):
         with hide('stderr', 'running', 'warnings'):
-            local("echo 'Some EMR cluster is still being created, waiting..'")
+            local("echo 'Some EMR cluster is still being created/terminated, waiting..'")
         time.sleep(60)
         emr_waiter(tag_name)
     else:
@@ -615,9 +615,16 @@ def get_instance_status(instance_name):
     response = client.describe_instances(Filters=[
         {'Name': 'tag:Name', 'Values': [instance_name]}]).get('Reservations')
     for i in response:
-        inst = i.get('Instances')
-        for j in inst:
-            return j.get('State').get('Name')
+        if len(response) > 1:
+            inst = i.get('Instances')
+            for j in inst:
+                if j.get('State').get('Name') == 'running':
+                    return j.get('State').get('Name')
+        else:
+            inst = i.get('Instances')
+            for j in inst:
+                return j.get('State').get('Name')
+    return 'not-running'
 
 
 def get_list_instance_statuses(instance_ids):
@@ -631,12 +638,12 @@ def get_list_instance_statuses(instance_ids):
                 inst = i.get('Instances')
                 for j in inst:
                     host['id'] = j.get('InstanceId')
-                    host['state'] = j.get('State').get('Name')
+                    host['status'] = j.get('State').get('Name')
                     data.append(host)
         except:
             host['resource_type'] = 'host'
             host['id'] = h.get('id')
-            host['state'] = 'terminated'
+            host['status'] = 'terminated'
             data.append(host)
     return data
 
@@ -649,14 +656,71 @@ def get_list_cluster_statuses(cluster_ids, data=[]):
             response = client.describe_cluster(ClusterId=i.get('id')).get('Cluster')
             host['id'] = i.get('id')
             if response.get('Status').get('State').lower() == 'waiting':
-                host['state'] = 'running'
+                host['status'] = 'running'
             elif response.get('Status').get('State').lower() == 'running':
-                host['state'] = 'configuring'
+                host['status'] = 'configuring'
             else:
-                host['state'] = response.get('Status').get('State').lower()
+                host['status'] = response.get('Status').get('State').lower()
             data.append(host)
         except:
             host['id'] = i.get('id')
-            host['state'] = 'terminated'
+            host['status'] = 'terminated'
             data.append(host)
     return data
+
+
+def get_allocation_id_by_elastic_ip(elastic_ip):
+    try:
+        client = boto3.client('ec2')
+        response = client.describe_addresses(PublicIps=[elastic_ip]).get('Addresses')
+        for i in response:
+            return i.get('AllocationId')
+    except Exception as err:
+        logging.error("Error with getting allocation id by elastic ip: " + elastic_ip + " : " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with getting allocation id by elastic ip", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def get_ec2_price(instance_shape, region):
+    try:
+        regions = {'us-west-2': 'Oregon', 'us-east-1': 'N. Virginia', 'us-east-2': 'Ohio', 'us-west-1': 'N. California',
+                   'ca-central-1': 'Central', 'eu-west-1': 'Ireland', 'eu-central-1': 'Frankfurt',
+                   'eu-west-2': 'London', 'ap-northeast-1': 'Tokyo', 'ap-northeast-2': 'Seoul',
+                   'ap-southeast-1': 'Singapore', 'ap-southeast-2': 'Sydney', 'ap-south-1': 'Mumbai',
+                   'sa-east-1': 'Sao Paulo'}
+        response = urllib2.urlopen(
+            'https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonEC2/current/index.json')
+        price_json = response.read()
+        pricing = json.loads(price_json)
+        for i in pricing.get('products'):
+            if pricing.get('products').get(i).get('attributes').get('instanceType') == instance_shape\
+                    and pricing.get('products').get(i).get('attributes').get('operatingSystem') == 'Linux' \
+                    and regions.get(region) in pricing.get('products').get(i).get('attributes').get('location') \
+                    and pricing.get('products').get(i).get('attributes').get('tenancy') == 'Shared':
+                for j in pricing.get('terms').get('OnDemand').get(i):
+                    for h in pricing.get('terms').get('OnDemand').get(i).get(j).get('priceDimensions'):
+                        return float(pricing.get('terms').get('OnDemand').get(i).get(j).get('priceDimensions').get(h).
+                                     get('pricePerUnit').get('USD'))
+    except Exception as err:
+        logging.error("Error with getting EC2 price: " + str(err) + "\n Traceback: " +
+                      traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with getting EC2 price",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def get_spot_instances_status(cluster_id):
+    try:
+        ec2 = boto3.client('ec2')
+        response = ec2.describe_spot_instance_requests(Filters=[
+            {'Name': 'availability-zone-group', 'Values': [cluster_id]}]).get('SpotInstanceRequests')
+        for i in response:
+            if i.get('Status').get('Code') != 'request-canceled-and-instance-running':
+                return False, i.get('Status').get('Message')
+        return True, "Spot instances have been successfully created!"
+    except Exception as err:
+        logging.error("Error with getting Spot instances status: " + str(err) + "\n Traceback: " +
+                      traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with getting Spot instances status",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)

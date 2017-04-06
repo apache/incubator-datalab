@@ -16,43 +16,42 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component } from '@angular/core';
-import { UserResourceService } from './../services/userResource.service';
+import { Component, OnInit } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
+import { HealthStatusService } from './../services/healthStatus.service';
 
 @Component({
     moduleId: module.id,
     selector: 'health-status',
-    templateUrl: 'health-status.component.html',
-    styleUrls: ['health-status.component.css',
-                '../components/resources-grid/resources-grid.component.css']
+    templateUrl: 'health-status.component.html'
 })
-export class HealthStatusComponent {
-  environmentsHealthStatuses: EnvironmentStatusModel[];
+export class HealthStatusComponent { 
 
-  constructor(
-    private userResourceService: UserResourceService
-  ) { }
+    environmentsHealthStatuses: Array<EnvironmentStatusModel>;
+    healthStatus: string;
 
-  ngOnInit(): void {
-    this.buildGrid();
-  }
+    constructor( private healthStatusService: HealthStatusService) { }
 
-  buildGrid(): void {
-    this.userResourceService.getEnvironmentStatuses()
-      .subscribe((result) => {
-        this.environmentsHealthStatuses = this.loadHealthStatusList(result);
-      });
-  }
+    ngOnInit(): void {
+      this.buildGrid();
+    }
 
-  loadHealthStatusList(healthStatusList): Array<EnvironmentStatusModel> {
-    return healthStatusList.map((value) => {
-      return new EnvironmentStatusModel(
-        value.instance_type,
-        value.cloud_type,
-        value.instance_ip,
-        value.instance_path,
-        value.status);
-    });
-  }
+    buildGrid(): void {
+      this.healthStatusService.getEnvironmentStatuses()
+        .subscribe((result) => {
+            this.environmentsHealthStatuses = this.loadHealthStatusList(result); 
+        });
+    }
+
+    loadHealthStatusList(healthStatusList): Array<EnvironmentStatusModel> {
+        this.healthStatus = healthStatusList.status;
+
+        if (healthStatusList.list_resources)
+            return healthStatusList.list_resources.map((value) => {
+                return new EnvironmentStatusModel(
+                value.type,
+                value.resource_id,
+                value.status);
+            });
+    }
 }

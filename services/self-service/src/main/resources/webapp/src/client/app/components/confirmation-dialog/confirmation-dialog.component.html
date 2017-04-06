@@ -19,7 +19,13 @@ limitations under the License.
 
 <modal-dialog #bindDialog modalClass="confirmation-dialog modal-md">
   <modal-header>
-    <h4 class="modal-title">Exploratory Environment: {{model.notebook.name}}</h4>
+    <h4 class="modal-title">
+      <span *ngIf="model.notebook.name">Exploratory Environment: {{model.notebook.name}}</span>
+      <span *ngIf="model.notebook.type">
+        <i class="glyphicon glyphicon-warning-sign"></i>
+        Warning
+        </span>
+    </h4>
   </modal-header>
   <modal-content>
       <div class="row">
@@ -27,7 +33,7 @@ limitations under the License.
           <p>{{model.title}}</p>
         </div>
       </div>
-      <div class="row">
+      <div *ngIf="model.notebook.resources" class="row">
         <div class="col-xs-6">
           <p>Computational resources:</p>
         </div>
@@ -39,16 +45,17 @@ limitations under the License.
         </div>
       </div>
       <div class="row">
-        <div class="col-xs-5">
-          <p>Do you want to proceed?</p>
+        <div class="col-xs-8">
+          <p *ngIf="model.notebook.name">Do you want to proceed?</p>
+          <p *ngIf="model.notebook.type">Are you sure you want to continue?</p>
         </div>
       </div>
       <div class="text-right" *ngIf="processError">
         <small class="danger_color">{{errorMessage}}</small>
       </div>
-      <div class="text-center">
-        <button type="button" class="btn btn-default" (click)="bindDialog.close()">No</button>
-        <button type="button" class="btn btn-success" (click)="model.confirmAction()">Yes</button>
+      <div class="text-center m-top-10">
+        <button md-raised-button type="button" class="butt" (click)="bindDialog.close()">No</button>
+        <button md-raised-button type="button" class="butt butt-success" (click)="model.confirmAction()">Yes</button>
       </div>
   </modal-content>
 </modal-dialog>

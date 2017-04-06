@@ -108,9 +108,8 @@ public class WatchItemList {
 					list.add(index - 1, item);
 				}
 			} else {
-				String oldUUID = get(index).getFileHandlerCallback().getUUID();
-				LOGGER.debug("Handler for UUID {} for folder {} will be replaced. Status: {}, Result: {}",
-						oldUUID, directoryFullName, get(index).getStatus(), get(index).getFutureResult());
+				LOGGER.warn("Handler for UUID {} for folder {} will be replaced. Old item is: {}",
+						fileHandlerCallback.getUUID(), directoryFullName, get(index));
 				list.set(index, item);
 			}
 	    }
@@ -176,7 +175,7 @@ public class WatchItemList {
 	 * @param item the file handler.
 	 */
 	private void runAsync(WatchItem item) {
-		LOGGER.debug("Process file {} for folder {}", item.getFileName(), directoryFullName);
+		LOGGER.trace("Process file {} for folder {}", item.getFileName(), directoryFullName);
 		item.setFuture(CompletableFuture.supplyAsync(
 				new AsyncFileHandler(item.getFileName(), getDirectoryName(),
 					item.getFileHandlerCallback(), Duration.milliseconds(item.getFileLengthCheckDelay()))));
@@ -212,7 +211,7 @@ public class WatchItemList {
 			}
 		}
 		if (count > 0) {
-			LOGGER.debug("Starts processing {} files for folder {}", count, directoryName);
+			LOGGER.trace("Starts processing {} files for folder {}", count, directoryName);
 		}
 		return count;
 	}

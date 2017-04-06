@@ -33,12 +33,12 @@ public interface IKeyUploader {
 	 */
     KeyLoadStatus checkKey(UserInfo userInfo) throws DlabException ;
 
-	/** Starts upload of user key to notebook.
+	/** Starts upload of user key to notebook and returns UUID of request.
 	 * @param userInfo user info.
 	 * @param content the user key content.
 	 * @exception DlabException When the upload of user key fails.
 	 */
-    void startKeyUpload(UserInfo userInfo, String content) throws DlabException;
+    String startKeyUpload(UserInfo userInfo, String content) throws DlabException;
 
 	/** Event called when the user key has been uploaded to notebook.
 	 * @param result info about an upload operation.

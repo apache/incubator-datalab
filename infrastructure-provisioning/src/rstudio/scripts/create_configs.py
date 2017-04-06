@@ -86,5 +86,5 @@ if __name__ == "__main__":
         yarn(args, yarn_dir)
         install_emr_spark(args)
         spark_defaults(args)
-        configuring_notebook(args)
+        configuring_notebook(args.emr_version)
         configure_rstudio()

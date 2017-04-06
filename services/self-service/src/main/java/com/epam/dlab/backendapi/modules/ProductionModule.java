@@ -27,9 +27,11 @@ import io.dropwizard.setup.Environment;
 
 import static com.epam.dlab.auth.SecurityRestAuthenticator.SECURITY_SERVICE;
 
+import com.epam.dlab.ModuleBase;
+
 /** Production class for an application configuration of SelfService.
  */
-public class ProductionModule extends BaseModule {
+public class ProductionModule extends ModuleBase<SelfServiceApplicationConfiguration> {
 	
 	/** Instantiates an application configuration of SelfService for production environment.
      * @param configuration application configuration of SelfService.
@@ -41,7 +43,6 @@ public class ProductionModule extends BaseModule {
 
     @Override
     protected void configure() {
-        super.configure();
         bind(SelfServiceApplicationConfiguration.class).toInstance(configuration);
         bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
         bind(RESTService.class).annotatedWith(Names.named(SECURITY_SERVICE))

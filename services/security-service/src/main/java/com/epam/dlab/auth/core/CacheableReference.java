@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import com.aegisql.conveyor.BuilderSupplier;
-import com.epam.dlab.auth.UserInfo;
 
 import java.util.function.Supplier;
 

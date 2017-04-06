@@ -29,7 +29,7 @@ public interface MongoCollections {
     /** User keys and credentials. */
     String USER_KEYS = "userKeys";
     /** User AWS credentials. */
-    String USER_AWS_CREDENTIALS = "userAWSCredentials";
+    String USER_EDGE = "userAWSCredentials";
     /** Instances of user. */
     String USER_INSTANCES = "userInstances";
     /** Name of shapes. */

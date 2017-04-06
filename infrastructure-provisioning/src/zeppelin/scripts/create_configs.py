@@ -39,60 +39,43 @@ parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--dry_run', type=str, default='false')
 parser.add_argument('--emr_version', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
+parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--excluded_lines', type=str, default='')
 parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--edge_hostname', type=str, default='')
+parser.add_argument('--proxy_port', type=str, default='')
+parser.add_argument('--livy_version', type=str, default='')
+parser.add_argument('--multiple_emrs', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
 kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
 spark_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/'
 yarn_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/conf/'
+if args.region == 'us-east-1':
+    endpoint_url = 'https://s3.amazonaws.com'
+else:
+    endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
 
 
-def configure_zeppelin_emr_interpreter(args):
-    try:
-        zeppelin_restarted = False
-        spark_libs = "/opt/" + args.emr_version + "/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-core*.jar /opt/" + args.emr_version + "/jars/usr/lib/hadoop/hadoop-aws*.jar /opt/" + args.emr_version + "/jars/usr/share/aws/aws-java-sdk/aws-java-sdk-s3-*.jar /opt/" + args.emr_version + "/jars/usr/lib/hadoop-lzo/lib/hadoop-lzo-*.jar"
-        local('echo \"Configuring emr path for Zeppelin\"')
-        local('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/' + args.emr_version + '\/' + args.cluster_name + '\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-        local('sed -i \"s/^export HADOOP_CONF_DIR.*/export HADOOP_CONF_DIR=\/opt\/' + args.emr_version + '\/' + args.cluster_name + '\/conf/\" /opt/' + args.emr_version + '/' + args.cluster_name + '/spark/conf/spark-env.sh')
-        local('echo \"spark.jars $(ls ' + spark_libs + ' | tr \'\\n\' \',\')\" >> /opt/' + args.emr_version + '/' + args.cluster_name + '/spark/conf/spark-defaults.conf')
-        local('echo \"spark.executorEnv.PYTHONPATH pyspark.zip:py4j-src.zip\" >> /opt/' + args.emr_version + '/' + args.cluster_name + '/spark/conf/spark-defaults.conf')
-        local('sed -i \'/spark.yarn.dist.files/s/$/,file:\/opt\/' + args.emr_version + '\/' + args.cluster_name + '\/spark\/python\/lib\/py4j-src.zip,file:\/opt\/' + args.emr_version + '\/' + args.cluster_name + '\/spark\/python\/lib\/pyspark.zip/\' /opt/' + args.emr_version + '/' +  args.cluster_name + '/spark/conf/spark-defaults.conf')
-        local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
-        local('sudo service zeppelin-notebook restart')
-        while not zeppelin_restarted:
-            result = local('nc -z localhost 8080; echo $?', capture=True)
-            if result == '0':
-                zeppelin_restarted = True
-        local('echo \"Configuring emr spark interpreter for Zeppelin\"')
-        template_file = "/tmp/emr_spark_interpreter.json"
-        p_versions = ["2"]
-        for p_version in p_versions:
-            fr = open(template_file, 'r+')
-            text = fr.read()
-            text = text.replace('CLUSTERNAME', args.cluster_name)
-            text = text.replace('PYTHONVERSION', p_version)
-            text = text.replace('EMRVERSION', args.cluster_name)
-            tmp_file = "/tmp/emr_spark_py" + p_version + "_interpreter.json"
-            fw = open(tmp_file, 'w')
-            fw.write(text)
-            fw.close()
-            for _ in range(5):
-                try:
-                    local("curl --noproxy localhost -H 'Content-Type: application/json' -X POST -d " +
-                          "@/tmp/emr_spark_py" + p_version +
-                          "_interpreter.json http://localhost:8080/api/interpreter/setting")
-                    break
-                except:
-                    local('sleep 5')
-                    pass
-        local('touch /home/' + args.os_user + '/.ensure_dir/emr_' + args.cluster_name + '_interpreter_ensured')
-    except:
-            sys.exit(1)
+def install_remote_livy(args):
+    local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
+    local('sudo service zeppelin-notebook stop')
+    local('sudo -i wget http://archive.cloudera.com/beta/livy/livy-server-' + args.livy_version + '.zip -O /opt/'
+          + args.emr_version + '/' + args.cluster_name + '/livy-server-' + args.livy_version + '.zip')
+    local('sudo unzip /opt/'
+          + args.emr_version + '/' + args.cluster_name + '/livy-server-' + args.livy_version + '.zip -d /opt/'
+          + args.emr_version + '/' + args.cluster_name + '/')
+    local('sudo mv /opt/' + args.emr_version + '/' + args.cluster_name + '/livy-server-' + args.livy_version +
+          '/ /opt/' + args.emr_version + '/' + args.cluster_name + '/livy/')
+    livy_path = '/opt/' + args.emr_version + '/' + args.cluster_name + '/livy/'
+    local('sudo mkdir -p ' + livy_path + '/logs')
+    local('sudo mkdir -p /var/run/livy')
+    local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /var/run/livy')
+    local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R ' + livy_path)
 
 
 if __name__ == "__main__":
@@ -105,5 +88,9 @@ if __name__ == "__main__":
         yarn(args, yarn_dir)
         install_emr_spark(args)
         spark_defaults(args)
-        configuring_notebook(args)
-        configure_zeppelin_emr_interpreter(args)
+        configuring_notebook(args.emr_version)
+        if args.multiple_emrs == 'true':
+            install_remote_livy(args)
+        installing_python(args.region, args.bucket, args.user_name, args.cluster_name)
+        configure_zeppelin_emr_interpreter(args.emr_version, args.cluster_name, args.region, spark_dir, args.os_user,
+                                           yarn_dir, args.bucket, args.user_name, endpoint_url, args.multiple_emrs)

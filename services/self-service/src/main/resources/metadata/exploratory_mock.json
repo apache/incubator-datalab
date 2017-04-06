@@ -1,5 +1,5 @@
 {
-  "image": "docker.epmc-bdcc.projects.epam.com/dlab-aws-rstudio",
+  "image": "docker.dlab-rstudio",
   "exploratory_environment_shapes" :
   {
     "For testing" : [

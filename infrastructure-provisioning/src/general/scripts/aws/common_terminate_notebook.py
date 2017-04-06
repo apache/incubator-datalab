@@ -79,7 +79,7 @@ if __name__ == "__main__":
             terminate_nb(notebook_config['notebook_name'], notebook_config['bucket_name'], notebook_config['tag_name'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to terminate notebook. Exception: " + str(err))
+            append_result("Failed to terminate notebook.", str(err))
             raise Exception
     except:
         sys.exit(1)

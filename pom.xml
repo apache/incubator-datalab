@@ -33,6 +33,7 @@
     </modules>
 
     <properties>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <io.dropwizard.version>1.0.2</io.dropwizard.version>
         <com.google.inject.version>4.1.0</com.google.inject.version>
         <org.mongodb.version>3.3.0</org.mongodb.version>

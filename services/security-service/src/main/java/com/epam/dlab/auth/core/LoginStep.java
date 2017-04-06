@@ -34,7 +34,8 @@ public enum LoginStep implements SmartLabel<UserInfoBuilder> {
     AWS_KEYS_ERROR(UserInfoBuilder::awsKeysError),
     ;
     BiConsumer<UserInfoBuilder, Object> setter;
-    <T> LoginStep (BiConsumer<UserInfoBuilder,T> setter) {
+    @SuppressWarnings("unchecked")
+	<T extends Object> LoginStep (BiConsumer<UserInfoBuilder,T> setter) {
         this.setter = (BiConsumer<UserInfoBuilder, Object>) setter;
     }
     @Override

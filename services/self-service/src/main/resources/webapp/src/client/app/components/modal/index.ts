@@ -19,6 +19,7 @@ limitations under the License.
 import { Modal } from './modal.component';
 import { CommonModule } from '@angular/common';
 import { NgModule, Component } from '@angular/core';
+import { MaterialModule } from '@angular/material';
 
 export * from './modal.component';
 
@@ -42,7 +43,7 @@ export class ModalFooter { }
 
 
 @NgModule({
-  imports: [CommonModule],
+  imports: [CommonModule, MaterialModule.forRoot()],
   declarations: [Modal, ModalHeader, ModalContent, ModalFooter],
   exports: [Modal, ModalHeader, ModalContent, ModalFooter]
 })

@@ -19,9 +19,7 @@ limitations under the License.
 export class EnvironmentStatusModel {
   constructor(
     public type: string,
-    public cloud_type: string,
-    public ip: string,
-    public path: string,
+    public resource_id: string,
     public status: string
   ) { }
 }

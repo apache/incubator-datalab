@@ -44,7 +44,8 @@ local_spark_path = '/opt/spark/'
 s3_jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
-
+r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2', 'evaluate', 'formatR', 'yaml',
+          'Rcpp', 'rmarkdown', 'base64enc', 'tibble']
 
 ##############
 # Run script #
@@ -73,6 +74,9 @@ if __name__ == "__main__":
 
     print "Install python3 libraries"
     ensure_python3_libraries(args.os_user)
+
+    print "Installing R"
+    ensure_r(args.os_user, r_libs)
 
     print "Install RStudio"
     install_rstudio(args.os_user, local_spark_path, args.rstudio_pass)

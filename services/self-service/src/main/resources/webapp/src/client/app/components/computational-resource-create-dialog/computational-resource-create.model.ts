@@ -34,6 +34,8 @@ export class ComputationalResourceCreateModel {
   computational_resource_master_shape: string;
   computational_resource_slave_shape: string;
   notebook_name: string;
+  emr_slave_instance_spot: boolean;
+  emr_slave_instance_price: number;
 
   selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({},
     new ResourceShapeTypesModel({}));
@@ -71,11 +73,13 @@ export class ComputationalResourceCreateModel {
     this.selectedItem = item;
   }
 
-  public setCreatingParams(name: string, count: number, shape_master: string, shape_slave: string): void {
+  public setCreatingParams(name: string, count: number, shape_master: string, shape_slave: string, spot: boolean, price: number): void {
     this.computational_resource_alias = name;
     this.computational_resource_count = count;
     this.computational_resource_master_shape = shape_master;
     this.computational_resource_slave_shape = shape_slave;
+    this.emr_slave_instance_spot = spot;
+    this.emr_slave_instance_price = price;
   }
 
   public loadTemplates(): void {
@@ -126,7 +130,9 @@ export class ComputationalResourceCreateModel {
       emr_master_instance_type: this.computational_resource_master_shape,
       emr_slave_instance_type: this.computational_resource_slave_shape,
       emr_version: this.selectedItem.version,
-      notebook_name: this.notebook_name
+      notebook_name: this.notebook_name,
+      emr_slave_instance_spot: this.emr_slave_instance_spot,
+      emr_slave_instance_spot_pct_price: this.emr_slave_instance_price
     });
   };
 }

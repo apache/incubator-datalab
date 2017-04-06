@@ -24,10 +24,10 @@ limitations under the License.
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
     </button>
-    <!--<ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+    <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
       <li><a [routerLink]="['/resources_list']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">List of Resources</a></li>
       <li><a [routerLink]="['/environment_health_status']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Health Status</a></li>
-    </ul>-->
+    </ul>
   </div>
   <a href="#/resources_list" class="navbar-logo">
     <img src="assets/img/logo-nav.png" alt="">
@@ -37,8 +37,8 @@ limitations under the License.
       Log out
     <span class="user-name">{{currentUserName}}</span>
   </button>
-  <!--<a [routerLink]="['/environment_health_status']" class="statusbar">
+  <a *ngIf="healthStatus" [routerLink]="['/environment_health_status']" class="statusbar">
     <span class="glyphicon glyphicon-record" ngClass="{{healthStatus || ''}}"></span>
-     <span class="status ok"></span> 
-  </a>-->
+     <span class="status"></span> 
+  </a>
 </nav>

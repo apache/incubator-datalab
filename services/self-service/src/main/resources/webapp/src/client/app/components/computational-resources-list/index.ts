@@ -22,11 +22,18 @@ import { CommonModule } from '@angular/common';
 import { ModalModule } from './../modal/index';
 import { ConfirmationComputationalResourcesModule } from './../confirmation-computational-resources/index';
 import { DetailComputationalResourcesModule } from './../detail-computational-resources/index';
+import { MaterialModule } from '@angular/material';
 
 export * from './computational-resources-list.component';
 
 @NgModule({
-  imports: [CommonModule, ModalModule, ConfirmationComputationalResourcesModule, DetailComputationalResourcesModule],
+  imports: [
+    CommonModule,
+    ModalModule,
+    ConfirmationComputationalResourcesModule,
+    DetailComputationalResourcesModule,
+    MaterialModule.forRoot()
+  ],
   declarations: [ComputationalResourcesList],
   exports: [ComputationalResourcesList],
 })

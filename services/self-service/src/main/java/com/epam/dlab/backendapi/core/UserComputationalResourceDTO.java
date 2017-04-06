@@ -40,6 +40,10 @@ public class UserComputationalResourceDTO {
     private String masterShape;
     @JsonProperty("slave_node_shape")
     private String slaveShape;
+    @JsonProperty("slave_node_spot")
+    private Boolean slaveSpot = false;
+    @JsonProperty("slave_node_spot_pct_price")
+    private Integer slaveSpotPctPrice;
     @JsonProperty("total_instance_number")
     private String slaveNumber;
     @JsonProperty("emr_version")
@@ -146,14 +150,29 @@ public class UserComputationalResourceDTO {
         return slaveShape;
     }
 
+
     /** Sets the name of slave shape. */
     public void setSlaveShape(String slaveShape) {
         this.slaveShape = slaveShape;
     }
 
+    public Boolean isSlaveSpot() {
+        return slaveSpot;
+    }
+
+    public void setSlaveSpot(Boolean slaveSpot) {
+        this.slaveSpot = slaveSpot;
+
+    }
     /** Sets the name of slave shape. */
     public UserComputationalResourceDTO withSlaveShape(String slaveShape) {
         setSlaveShape(slaveShape);
+        return this;
+    }
+
+    /** Sets the name of slave shape. */
+    public UserComputationalResourceDTO withSlaveSpot(Boolean slaveSpot) {
+        setSlaveSpot(slaveSpot);
         return this;
     }
 
@@ -188,6 +207,19 @@ public class UserComputationalResourceDTO {
         setVersion(version);
         return this;
     }
+
+    public Integer getSlaveSpotPctPrice() {
+        return slaveSpotPctPrice;
+    }
+
+    public void setSlaveSpotPctPrice(Integer slaveSpotPctPrice) {
+        this.slaveSpotPctPrice = slaveSpotPctPrice;
+    }
+
+    public UserComputationalResourceDTO withSlaveSpotPctPrice(Integer slaveSpotPctPrice) {
+        setSlaveSpotPctPrice(slaveSpotPctPrice);
+        return this;
+    }
     
     @Override
     public String toString() {
@@ -197,6 +229,8 @@ public class UserComputationalResourceDTO {
     			.add("version", version)
     	        .add("masterShape", masterShape)
     			.add("slaveShape", slaveShape)
+                .add("slaveSpot", slaveSpot)
+                .add("slaveSpotPctPrice", slaveSpotPctPrice)
     			.add("slaveNumber", slaveNumber)
     			.add("uptime", uptime)
     	        .add("status", status)

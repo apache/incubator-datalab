@@ -91,7 +91,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to configure proxy. Exception: " + str(err))
+        append_result("Failed to configure proxy.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -106,7 +106,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed installing apps: apt & pip. Exception: " + str(err))
+        append_result("Failed installing apps: apt & pip.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to configure TensorFlow. Exception: " + str(err))
+        append_result("Failed to configure TensorFlow.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -138,7 +138,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to install python libs. Exception: " + str(err))
+        append_result("Failed to install python libs.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -147,15 +147,15 @@ if __name__ == "__main__":
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": notebook_config['user_keyname'],
                              "user_keydir": "/root/keys/"}
-        params = "--hostname {} --keyfile {} --additional_config '{}'".format(
-            instance_hostname, keyfile_name, json.dumps(additional_config))
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            instance_hostname, keyfile_name, json.dumps(additional_config), os.environ['conf_os_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed installing users key. Exception: " + str(err))
+        append_result("Failed installing users key.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -170,15 +170,14 @@ if __name__ == "__main__":
             if image_id != '':
                 print "Image was successfully created. It's ID is " + image_id
     except Exception as err:
-        append_result("Failed installing users key. Exception: " + str(err))
+        append_result("Failed installing users key.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # generating output information
     ip_address = get_instance_ip_address(notebook_config['instance_name']).get('Private')
     dns_name = get_instance_hostname(notebook_config['instance_name'])
-    tensorboard_python2_url = "http://" + ip_address + ":6006/"
-    tensorboard_python3_url = "http://" + ip_address + ":6007/"
+    tensorboard_url = "http://" + ip_address + ":6006/"
     jupyter_ip_url = "http://" + ip_address + ":8888/"
     print '[SUMMARY]'
     logging.info('[SUMMARY]')
@@ -192,11 +191,8 @@ if __name__ == "__main__":
     print "AMI name: " + notebook_config['expected_ami_name']
     print "Profile name: " + notebook_config['role_profile_name']
     print "SG name: " + notebook_config['security_group_name']
-    print "TensorBoard python2 URL: " + tensorboard_python2_url
-    print "TensorBoard python3 URL: " + tensorboard_python3_url
-    print "TensorBoard python2 log dir: /var/log/tensorboard_py2"
-    print "TensorBoard python3 log dir: /var/log/tensorboard_py3"
-    print "Jupyter URL: " + jupyter_ip_url
+    print "TensorBoard URL: " + tensorboard_url
+    print "TensorBoard log dir: /var/log/tensorboard"
     print "Jupyter URL: " + jupyter_ip_url
     print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
         'key_name'] + '.pem ' + os.environ['conf_os_user'] + '@' + ip_address
@@ -208,15 +204,12 @@ if __name__ == "__main__":
                "ip": ip_address,
                "instance_id": get_instance_by_name(notebook_config['instance_name']),
                "master_keyname": os.environ['conf_key_name'],
-               "tensorboard_python2_log_dir": "/var/log/tensorboard_py2",
-               "tensorboard_python3_log_dir": "/var/log/tensorboard_py3",
+               "tensorboard_log_dir": "/var/log/tensorboard",
                "notebook_name": notebook_config['instance_name'],
                "Action": "Create new notebook server",
                "exploratory_url": [
-                   {"description": "TensorBoard for python 2.x",
-                    "url": tensorboard_python2_url},
-                   {"description": "TensorBoard for python 3.x",
-                    "url": tensorboard_python3_url},
+                   {"description": "TensorBoard",
+                    "url": tensorboard_url},
                    {"description": "Jupyter",
                     "url": jupyter_ip_url}]}
         result.write(json.dumps(res))

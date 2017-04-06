@@ -20,6 +20,7 @@ import { Component } from '@angular/core';
 import { LoginModel } from './loginModel';
 import { AppRoutingService } from '../routing/appRouting.service';
 import { ApplicationSecurityService } from '../services/applicationSecurity.service';
+import { HealthStatusService } from '../services/healthStatus.service';
 
 @Component({
   moduleId: module.id,
@@ -37,14 +38,14 @@ export class LoginComponent {
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
-    private appRoutingService : AppRoutingService
+    private appRoutingService : AppRoutingService,
+    private healthStatusService : HealthStatusService
   ) { }
 
   ngOnInit() {
     this.applicationSecurityService.isLoggedIn()
       .subscribe(result => {
-      if (result)
-        this.appRoutingService.redirectToHomePage();
+        this.checkHealthStatusAndRedirect(result);
     });
   }
 
@@ -56,7 +57,7 @@ export class LoginComponent {
       .login(this.model)
       .subscribe((result) => {
         if (result) {
-          this.appRoutingService.redirectToHomePage();
+          this.checkHealthStatusAndRedirect(result);
           return true;
         }
 
@@ -67,5 +68,17 @@ export class LoginComponent {
         });
 
     return false;
+  }
+
+  checkHealthStatusAndRedirect(isLoggedIn) {
+   if(isLoggedIn)
+     this.healthStatusService.isHealthStatusOk()
+      .subscribe(isHealthStatusOk => {
+        if(isLoggedIn && !isHealthStatusOk) {
+          this.appRoutingService.redirectToHealthStatusPage();
+        } else {
+          this.appRoutingService.redirectToHomePage();
+        }
+      });
   }
 }

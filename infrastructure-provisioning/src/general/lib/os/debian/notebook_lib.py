@@ -49,22 +49,6 @@ def enable_proxy(proxy_host, proxy_port):
 def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
     if not exists('/home/' + os_user + '/.ensure_dir/r_local_kernel_ensured'):
         try:
-            sudo('apt-get install -y r-base r-base-dev r-cran-rcurl')
-            sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
-            sudo('apt-get install -y cmake')
-            sudo('R CMD javareconf')
-            sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
-            sudo('R -e "install.packages(\'R6\',repos=\'http://cran.us.r-project.org\')"')
-            sudo('R -e "install.packages(\'pbdZMQ\',repos=\'http://cran.us.r-project.org\')"')
-            sudo('R -e "install.packages(\'RCurl\',repos=\'http://cran.us.r-project.org\')"')
-            sudo('R -e "install.packages(\'devtools\',repos=\'http://cran.us.r-project.org\')"')
-            sudo('R -e "install.packages(\'reshape2\',repos=\'http://cran.us.r-project.org\')"')
-            sudo('R -e "install.packages(\'caTools\',repos=\'http://cran.us.r-project.org\')"')
-            sudo('R -e "install.packages(\'rJava\',repos=\'http://cran.us.r-project.org\')"')
-            sudo('R -e "install.packages(\'ggplot2\',repos=\'http://cran.us.r-project.org\')"')
-            sudo('R -e "library(\'devtools\');install.packages(repos=\'http://cran.us.r-project.org\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"')
-            sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
-            sudo('R -e "install.packages(\'RJDBC\',repos=\'http://cran.us.r-project.org\',dep=TRUE)"')
             sudo('R -e "IRkernel::installspec()"')
             r_version = sudo("R --version | awk '/version / {print $3}'")
             put(templates_dir + 'r_template.json', '/tmp/r_template.json')
@@ -74,6 +58,54 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             sudo('cd /usr/local/spark/R/lib/SparkR; R -e "devtools::install(\'.\')"')
             sudo('chown -R ' + os_user + ':' + os_user + ' /home/' + os_user + '/.local')
             sudo('touch /home/' + os_user + '/.ensure_dir/r_local_kernel_ensured')
+        except:
+            sys.exit(1)
+
+
+def ensure_r(os_user, r_libs):
+    if not exists('/home/' + os_user + '/.ensure_dir/r_ensured'):
+        try:
+            sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
+            sudo('apt-get install -y cmake')
+            sudo('apt-get install -y r-base r-base-dev')
+            sudo('R CMD javareconf')
+            sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
+            for i in r_libs:
+                sudo('R -e "install.packages(\'{}\',repos=\'http://cran.us.r-project.org\')"'.format(i))
+            sudo('R -e "library(\'devtools\');install.packages(repos=\'http://cran.us.r-project.org\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"')
+            sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
+            sudo('R -e "install.packages(\'RJDBC\',repos=\'http://cran.us.r-project.org\',dep=TRUE)"')
+            sudo('touch /home/' + os_user + '/.ensure_dir/r_ensured')
+        except:
+            sys.exit(1)
+
+
+def install_rstudio(os_user, local_spark_path, rstudio_pass):
+    if not exists('/home/' + os_user + '/.ensure_dir/rstudio_ensured'):
+        try:
+            sudo('apt-get install -y r-base')
+            sudo('apt-get install -y gdebi-core')
+            sudo('wget https://download2.rstudio.org/rstudio-server-1.0.44-amd64.deb')
+            sudo('gdebi -n rstudio-server-1.0.44-amd64.deb')
+            sudo('mkdir /mnt/var')
+            sudo('chown ' + os_user + ':' + os_user + ' /mnt/var')
+            sudo('touch /home/' + os_user + '/.Renviron')
+            sudo('chown ' + os_user + ':' + os_user + ' /home/' + os_user + '/.Renviron')
+            sudo('''echo 'SPARK_HOME="''' + local_spark_path + '''"' >> /home/''' + os_user + '''/.Renviron''')
+            sudo('touch /home/' + os_user + '/.Rprofile')
+            sudo('chown ' + os_user + ':' + os_user + ' /home/' + os_user + '/.Rprofile')
+            sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/''' + os_user + '''/.Rprofile''')
+            sudo('rstudio-server start')
+            sudo('echo "' + os_user + ':' + rstudio_pass + '" | chpasswd')
+            sudo("sed -i '/exit 0/d' /etc/rc.local")
+            sudo('''bash -c "echo \'sed -i 's/^#SPARK_HOME/SPARK_HOME/' /home/''' + os_user + '''/.Renviron\' >> /etc/rc.local"''')
+            sudo("bash -c 'echo exit 0 >> /etc/rc.local'")
+            sudo('touch /home/' + os_user + '/.ensure_dir/rstudio_ensured')
+        except:
+            sys.exit(1)
+    else:
+        try:
+            sudo('echo "' + os_user + ':' + rstudio_pass + '" | chpasswd')
         except:
             sys.exit(1)
 
@@ -177,52 +209,25 @@ def ensure_python3_libraries(os_user):
             sys.exit(1)
 
 
-def install_rstudio(os_user, local_spark_path, rstudio_pass):
-    if not exists('/home/' + os_user + '/.ensure_dir/rstudio_ensured'):
-        try:
-            sudo('apt-get install -y r-base')
-            sudo('apt-get install -y gdebi-core')
-            sudo('apt-get install -y r-cran-rjava r-cran-evaluate r-cran-formatr r-cran-yaml r-cran-rcpp r-cran-catools r-cran-jsonlite r-cran-ggplot2')
-            sudo('R CMD javareconf')
-            sudo('R -e \'install.packages("rmarkdown", repos = "https://cran.revolutionanalytics.com")\'')
-            sudo('R -e \'install.packages("base64enc", repos = "https://cran.revolutionanalytics.com")\'')
-            sudo('R -e \'install.packages("tibble", repos = "https://cran.revolutionanalytics.com")\'')
-            sudo('wget https://download2.rstudio.org/rstudio-server-1.0.44-amd64.deb')
-            sudo('gdebi -n rstudio-server-1.0.44-amd64.deb')
-            sudo('mkdir /mnt/var')
-            sudo('chown ' + os_user + ':' + os_user + ' /mnt/var')
-            sudo('touch /home/' + os_user + '/.Renviron')
-            sudo('chown ' + os_user + ':' + os_user + ' /home/' + os_user + '/.Renviron')
-            sudo('''echo 'SPARK_HOME="''' + local_spark_path + '''"' >> /home/''' + os_user + '''/.Renviron''')
-            sudo('touch /home/' + os_user + '/.Rprofile')
-            sudo('chown ' + os_user + ':' + os_user + ' /home/' + os_user + '/.Rprofile')
-            sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/''' + os_user + '''/.Rprofile''')
-            sudo('rstudio-server start')
-            sudo('echo "' + os_user + ':' + rstudio_pass + '" | chpasswd')
-            sudo("sed -i '/exit 0/d' /etc/rc.local")
-            sudo('''bash -c "echo \'sed -i 's/^#SPARK_HOME/SPARK_HOME/' /home/''' + os_user + '''/.Renviron\' >> /etc/rc.local"''')
-            sudo("bash -c 'echo exit 0 >> /etc/rc.local'")
-            sudo('touch /home/' + os_user + '/.ensure_dir/rstudio_ensured')
-        except:
-            sys.exit(1)
-    else:
-        try:
-            sudo('echo "' + os_user + ':' + rstudio_pass + '" | chpasswd')
-        except:
-            sys.exit(1)
-
-
 def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
     if not exists('/home/' + os_user + '/.ensure_dir/tensor_ensured'):
         try:
+            # install nvidia drivers
+            sudo('echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf')
+            sudo('echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf')
+            sudo('update-initramfs -u')
+            sudo('shutdown -r 1')
+            time.sleep(90)
+            sudo('apt-get -y install linux-image-extra-`uname -r`')
+            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/367.57/NVIDIA-Linux-x86_64-367.57.run -O /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run')
+            sudo('/bin/bash /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run -s --no-install-libglvnd')
+            sudo('rm -f /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run')
             # install cuda
-            sudo('curl -O http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.44-1_amd64.deb')
-            sudo('dpkg -i cuda-repo-ubuntu1604_8.0.44-1_amd64.deb')
-            sudo('apt-get update')
-            sudo('apt-get -y install cuda')
+            sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run')
+            sudo('sh /opt/cuda_8.0.44_linux-run --silent --toolkit')
             sudo('mv /usr/local/cuda-8.0 /opt/')
             sudo('ln -s /opt/cuda-8.0 /usr/local/cuda-8.0')
-            sudo('rm -f /home/' + os_user + '/cuda-repo-ubuntu1604_8.0.44-1_amd64.deb')
+            sudo('rm -f /opt/cuda_8.0.44_linux-run')
             # install cuDNN
             put(files_dir + 'cudnn-8.0-linux-x64-v5.1.tgz', '/tmp/cudnn-8.0-linux-x64-v5.1.tgz')
             run('tar xvzf /tmp/cudnn-8.0-linux-x64-v5.1.tgz -C /tmp')
@@ -231,26 +236,49 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64\"" >> ~/.bash_profile')
+            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bash_profile')
             # install TensorFlow and run TensorBoard
             sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl')
             sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl')
-            sudo('mkdir /var/log/tensorboard')
-            put(templates_dir + 'tensorboard-python2.service', '/tmp/tensorboard-python2.service')
-            put(templates_dir + 'tensorboard-python3.service', '/tmp/tensorboard-python3.service')
-            sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/tensorboard-python*")
-            sudo("chmod 644 /tmp/tensorboard-python*")
-            sudo('\cp /tmp/tensorboard-python* /etc/systemd/system/')
-            sudo('mkdir -p /var/log/tensorboard_py2; chown ' + os_user + ':' + os_user + ' -R /var/log/tensorboard_py2')
-            sudo('mkdir -p /var/log/tensorboard_py3; chown ' + os_user + ':' + os_user + ' -R /var/log/tensorboard_py3')
+            sudo('mkdir /var/log/tensorboard; chown ' + os_user + ':' + os_user + ' -R /var/log/tensorboard')
+            put(templates_dir + 'tensorboard.service', '/tmp/tensorboard.service')
+            sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/tensorboard.service")
+            sudo("chmod 644 /tmp/tensorboard.service")
+            sudo('\cp /tmp/tensorboard.service /etc/systemd/system/')
             sudo("systemctl daemon-reload")
-            sudo("systemctl enable tensorboard-python2")
-            sudo("systemctl enable tensorboard-python3")
-            sudo("systemctl start tensorboard-python2")
-            sudo("systemctl start tensorboard-python3")
+            sudo("systemctl enable tensorboard")
+            sudo("systemctl start tensorboard")
             # install Theano
             sudo('python2.7 -m pip install Theano')
             sudo('python3 -m pip install Theano')
             sudo('touch /home/' + os_user + '/.ensure_dir/tensor_ensured')
         except:
             sys.exit(1)
+
+
+def install_maven(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/maven_ensured'):
+        sudo('apt-get -y install maven')
+        sudo('touch /home/' + os_user + '/.ensure_dir/maven_ensured')
+
+
+def install_livy_dependencies(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
+        sudo('apt-get -y install libkrb5-dev')
+        sudo('pip install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        sudo('pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        sudo('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
+
+
+def install_maven_emr(os_user):
+    if not os.path.exists('/home/' + os_user + '/.ensure_dir/maven_ensured'):
+        local('sudo apt-get -y install maven')
+        local('touch /home/' + os_user + '/.ensure_dir/maven_ensured')
+
+
+def install_livy_dependencies_emr(os_user):
+    if not os.path.exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
+        local('sudo apt-get -y install libkrb5-dev')
+        local('sudo pip install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')

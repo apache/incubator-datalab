@@ -51,7 +51,7 @@ public class RuntimeExceptionMapper extends GenericExceptionMapper<RuntimeExcept
     }
 
     private Response web(RuntimeException exception, Response.StatusType status) {
-        LOGGER.error("Web application exception: {}", exception.getMessage());
+        LOGGER.error("Web application exception: {}", exception.getMessage(), exception);
         return Response.status(status).build();
     }
 }

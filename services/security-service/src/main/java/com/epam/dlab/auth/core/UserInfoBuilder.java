@@ -34,8 +34,6 @@ public class UserInfoBuilder implements Supplier<UserInfo>, Testing {
 
     private final static Logger LOG = LoggerFactory.getLogger(UserInfoBuilder.class);
 
-    private String token;
-    private String username;
     private UserInfo userInfo;
 
     private RuntimeException ldapError      = null;
@@ -117,9 +115,7 @@ public class UserInfoBuilder implements Supplier<UserInfo>, Testing {
     }
 
     public UserInfoBuilder(String token, String username) {
-        this.token    = token;
-        this.username = username;
-        this.userInfo = new UserInfo(username,token);
+        this.userInfo = new UserInfo(username, token);
     }
 
     public UserInfoBuilder() {

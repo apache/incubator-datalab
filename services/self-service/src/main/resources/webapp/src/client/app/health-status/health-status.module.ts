@@ -18,13 +18,18 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { routing  } from './health-status.routes';
-
+import { NavbarModule } from './../shared/navbar/index';
 import { HealthStatusComponent } from './health-status.component';
+import { HealthStatusGridModule } from './components/health-status-grid/health-status-grid.module';
+import { MaterialModule } from '@angular/material';
 
 @NgModule({
-    imports: [CommonModule, RouterModule, routing],
+    imports: [
+        CommonModule,
+        NavbarModule,
+        HealthStatusGridModule,
+        MaterialModule.forRoot()
+    ],
     declarations: [HealthStatusComponent],
     exports: [HealthStatusComponent]
 })

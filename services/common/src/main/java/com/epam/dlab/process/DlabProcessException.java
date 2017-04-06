@@ -16,7 +16,9 @@ limitations under the License.
 package com.epam.dlab.process;
 
 public class DlabProcessException extends RuntimeException {
-    public DlabProcessException() {
+	private static final long serialVersionUID = 1L;
+
+	public DlabProcessException() {
     }
 
     public DlabProcessException(String message) {

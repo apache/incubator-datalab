@@ -39,9 +39,9 @@ export class UserResourceService {
       .catch((error: any) => error);
   }
 
-  public getComputationalResourcesLimits(): Observable<any> {
+  public getComputationalResourcesConfiguration(): Observable<any> {
     return this.applicationServiceFacade
-      .buildGetComputationalResourcesLimits()
+      .buildGetComputationalResourcesConfiguration()
       .map((res: Response) => res.json())
       .catch((error: any) => error);
   }
@@ -101,17 +101,4 @@ export class UserResourceService {
       .buildUpdateUserPreferences(body)
       .map((response: Response) => response);
   }
-
-  public getEnvironmentHealthStatus(): Observable<Response> {
-    return this.applicationServiceFacade
-    .buildGetEnvironmentHealthStatus()
-    .map((response: Response) => response.json());
-  }
-
-  public getEnvironmentStatuses(): Observable<Response> {
-    return this.applicationServiceFacade
-    .buildGetEnvironmentStatuses()
-    .map((response: Response) => response.json());
-  }
-
 }

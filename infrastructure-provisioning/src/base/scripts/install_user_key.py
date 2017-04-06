@@ -19,6 +19,7 @@
 # ******************************************************************************
 
 from fabric.api import *
+from dlab.fab import *
 import argparse
 import json
 import sys
@@ -53,9 +54,16 @@ if __name__ == "__main__":
     except:
         sys.exit(2)
 
+    print "Ensuring safest ssh ciphers"
+    try:
+        ensure_ciphers()
+    except:
+        sys.exit(1)
+
     print "Installing users key..."
     if copy_key(deeper_config):
         sys.exit(0)
     else:
         print "Users keyfile {0}.pub could not be found at {1}/{0}".format(args.keyfile, deeper_config['user_keydir'])
         sys.exit(1)
+

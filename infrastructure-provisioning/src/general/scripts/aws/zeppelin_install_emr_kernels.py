@@ -32,9 +32,12 @@ parser.add_argument('--emr_version', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--notebook_ip', type=str, default='')
+parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--emr_excluded_spark_properties', type=str, default='')
 parser.add_argument('--edge_user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--edge_hostname', type=str, default='')
+parser.add_argument('--proxy_port', type=str, default='')
 args = parser.parse_args()
 
 
@@ -42,7 +45,10 @@ def configure_notebook(args):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
     files_dir = '/root/files/'
-    put(templates_dir + 'emr_spark_interpreter.json', '/tmp/emr_spark_interpreter.json')
+    if os.environ['notebook_multiple_emrs'] == 'true':
+        put(templates_dir + 'emr_interpreter_livy.json', '/tmp/emr_interpreter.json')
+    else:
+        put(templates_dir + 'emr_interpreter_spark.json', '/tmp/emr_interpreter.json')
     put(scripts_dir + 'create_configs.py', '/tmp/create_configs.py')
     sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
     sudo('chmod 755 /usr/local/bin/create_configs.py')
@@ -51,6 +57,8 @@ def configure_notebook(args):
     local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
     run('chmod a+x /tmp/dlab_libs/*')
     sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
+    if exists('/usr/lib64'):
+        sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
 
 
 if __name__ == "__main__":
@@ -61,7 +69,11 @@ if __name__ == "__main__":
     configure_notebook(args)
     spark_version = get_spark_version(args.cluster_name)
     hadoop_version = get_hadoop_version(args.cluster_name)
+    livy_version = os.environ['notebook_livy_version']
     sudo("/usr/bin/python /usr/local/bin/create_configs.py --bucket " + args.bucket + " --cluster_name "
          + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " + spark_version
          + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
-         + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user)
+         + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user +
+         " --edge_hostname " + args.edge_hostname + " --proxy_port " + args.proxy_port + " --scala_version " +
+         args.scala_version + " --livy_version " + livy_version + " --multiple_emrs " +
+         os.environ['notebook_multiple_emrs'])

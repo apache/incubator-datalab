@@ -29,12 +29,14 @@ import org.slf4j.LoggerFactory;
 public class CommandBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandBuilder.class);
 
-    public String buildCommand(RunDockerCommand runDockerCommand, ResourceBaseDTO resourceBaseDTO) throws JsonProcessingException {
+    public String buildCommand(RunDockerCommand runDockerCommand, ResourceBaseDTO<?> resourceBaseDTO) throws JsonProcessingException {
         StringBuilder builder = new StringBuilder();
         if (resourceBaseDTO != null) {
             builder.append("echo -e '");
             try {
-                builder.append(JsonGenerator.generateJson(resourceBaseDTO));
+                String str = JsonGenerator.generateJson(resourceBaseDTO);
+                LOGGER.info("Serialized DTO to: " +  str);
+                builder.append(str);
             } catch (JsonProcessingException e) {
                 LOGGER.error("ERROR generating json from dockerRunParameters: " + e.getMessage());
                 throw e;

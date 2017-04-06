@@ -19,11 +19,11 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotFoundComponent } from './not-found.component';
+import { NavbarModule } from './../shared/navbar/index';
 
 @NgModule({
-    imports: [CommonModule],
+    imports: [CommonModule, NavbarModule],
     declarations: [NotFoundComponent],
     exports: [NotFoundComponent]
 })
-
 export class NotFoundModule { }

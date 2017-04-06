@@ -29,7 +29,11 @@ limitations under the License.
         <span *ngIf="resources[0].nodes_number">{{resources[0].nodes_number}} nodes</span>
       </a>
     </div>
-    <span *ngIf="resources.length > 1" class="glyphicon arrow_icon" [ngClass]="{'glyphicon-triangle-bottom': !collapse, 'glyphicon-triangle-top': collapse}" (click)="toggleResourceList()"></span>
+
+    <span class="material-icons arrow_icon" *ngIf="resources.length > 1" (click)="toggleResourceList()">
+      <strong *ngIf="!collapse">keyboard_arrow_down</strong>
+      <strong *ngIf="collapse">keyboard_arrow_up</strong>
+    </span>
     <span ngClass="{{resources[0].status.toLowerCase() || ''}}" class="emt_status">{{resources[0].status}}</span>
   </div>
 </div>

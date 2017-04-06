@@ -21,9 +21,10 @@ import { CommonModule } from '@angular/common';
 import { LoginComponent } from './login.component';
 import { FormsModule } from '@angular/forms';
 import { ApplicationSecurityService } from '../services/applicationSecurity.service';
+import { MaterialModule } from '@angular/material';
 
 @NgModule({
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MaterialModule.forRoot()],
   declarations: [LoginComponent],
   exports: [LoginComponent],
   providers: [ApplicationSecurityService]

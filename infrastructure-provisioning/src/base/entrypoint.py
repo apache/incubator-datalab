@@ -68,7 +68,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     for option in passed_as_json:
-        os.environ[option] = passed_as_json[option]
+        try:
+            os.environ[option] = passed_as_json[option]
+        except:
+            os.environ[option] = str(passed_as_json[option])
 
     # Get config (defaults) from files. Will not overwrite any env
     for filename in os.listdir('/root/conf'):
@@ -138,3 +141,7 @@ if __name__ == "__main__":
     elif args.action == 'configure':
         with hide('running'):
             local("/bin/configure.py")
+
+    elif args.action == 'recreate':
+        with hide('running'):
+            local("/bin/recreate.py")

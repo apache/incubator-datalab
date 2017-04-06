@@ -18,8 +18,6 @@
 
 package com.epam.dlab.auth.core;
 
-import com.aegisql.conveyor.State;
-import com.aegisql.conveyor.Testing;
 import com.aegisql.conveyor.cart.command.CancelCommand;
 import com.aegisql.conveyor.utils.caching.CachingConveyor;
 import com.epam.dlab.auth.UserInfo;
@@ -28,8 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public class LoginCache extends CachingConveyor<String,String,UserInfo> {

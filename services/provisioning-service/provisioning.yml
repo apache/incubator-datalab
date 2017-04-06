@@ -6,13 +6,14 @@ keyDirectory: /home/${sys['user.name']}/keys
 responseDirectory: /opt/dlab/tmp
 dockerLogDirectory: ${LOG_ROOT_DIR}
 warmupPollTimeout: 10s
-resourceStatusPollTimeout: 60m
+resourceStatusPollTimeout: 80m
 keyLoaderPollTimeout: 20m
+requestEnvStatusTimeout: 30s
 adminKey: BDCC-DSS-POC
-edgeImage: docker.epmc-bdcc.projects.epam.com/dlab-aws-edge
+edgeImage: docker.dlab-edge
 fileLengthCheckDelay: 500ms
 
-emrImage: docker.epmc-bdcc.projects.epam.com/dlab-aws-emr
+emrImage: docker.dlab-emr
 emrEC2RoleDefault: EMR_EC2_DefaultRole
 emrServiceRoleDefault: EMR_DefaultRole
 
@@ -39,7 +40,9 @@ logging:
     com.epam: DEBUG
     com.aegisql: INFO
   appenders:
-#    - type: console
+<#if DEV_MODE == "true">
+    - type: console
+</#if>
     - type: file
       currentLogFilename: ${LOG_ROOT_DIR}/ssn/provisioning.log
       archive: true
