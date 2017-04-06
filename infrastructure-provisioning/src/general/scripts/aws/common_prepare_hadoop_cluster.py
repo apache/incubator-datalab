@@ -84,6 +84,11 @@ if __name__ == "__main__":
     tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']), "Value": "{}-{}-subnet".format(emr_conf['service_base_name'], os.environ['edge_user_name'])}
     emr_conf['subnet_cidr'] = get_subnet_by_tag(tag)
     emr_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
+    if os.environ['emr_slave_instance_spot'] == 'True':
+        emr_conf['slave_bid_price'] = (float(get_ec2_price(emr_conf['slave_instance_type'], emr_conf['region'])) *
+                                       int(os.environ['emr_slave_instance_spot_pct_price']))/100
+    else:
+        emr_conf['slave_bid_price'] = 0
 
     try:
         emr_conf['emr_timeout'] = os.environ['emr_timeout']
@@ -99,22 +104,22 @@ if __name__ == "__main__":
         local('touch /response/.emr_creating_' + os.environ['exploratory_name'])
     except Exception as err:
         traceback.print_exc()
-        append_result("EMR waiter fail. Exception: " + str(err))
+        append_result("EMR waiter fail.", str(err))
         sys.exit(1)
 
-    with hide('stderr', 'running', 'warnings'):
-        local("echo Waiting for changes to propagate; sleep 10")
+    local("echo Waiting for changes to propagate; sleep 10")
 
     try:
         logging.info('[Creating EMR Cluster]')
         print '[Creating EMR Cluster]'
-        params = "--name {} --applications '{}' --master_instance_type {} --slave_instance_type {} --instance_count {} --ssh_key {} --release_label {} --emr_timeout {} --subnet {} --service_role {} --ec2_role {} --nbs_ip {} --nbs_user {} --s3_bucket {} --region {} --tags '{}' --key_dir {} --edge_user_name {}"\
+        params = "--name {} --applications '{}' --master_instance_type {} --slave_instance_type {} --instance_count {} --ssh_key {} --release_label {} --emr_timeout {} --subnet {} --service_role {} --ec2_role {} --nbs_ip {} --nbs_user {} --s3_bucket {} --region {} --tags '{}' --key_dir {} --edge_user_name {} --slave_instance_spot {} --bid_price {}"\
             .format(emr_conf['cluster_name'], emr_conf['apps'], emr_conf['master_instance_type'],
                     emr_conf['slave_instance_type'], emr_conf['instance_count'], emr_conf['key_name'],
                     emr_conf['release_label'], emr_conf['emr_timeout'], emr_conf['subnet_cidr'],
                     emr_conf['role_service_name'], emr_conf['role_ec2_name'], emr_conf['notebook_ip'],
                     os.environ['conf_os_user'], emr_conf['bucket_name'], emr_conf['region'], emr_conf['tags'],
-                    os.environ['conf_key_dir'], os.environ['edge_user_name'])
+                    os.environ['conf_key_dir'], os.environ['edge_user_name'], os.environ['emr_slave_instance_spot'],
+                    str(emr_conf['slave_bid_price']))
         try:
             local("~/scripts/{}.py {}".format('emr_create', params))
         except:
@@ -125,7 +130,7 @@ if __name__ == "__main__":
         keyfile_name = "/root/keys/{}.pem".format(emr_conf['key_name'])
         local('rm /response/.emr_creating_' + os.environ['exploratory_name'])
     except Exception as err:
-        append_result("Failed to create EMR Cluster. Exception: " + str(err))
+        append_result("Failed to create EMR Cluster.", str(err))
         local('rm /response/.emr_creating_' + os.environ['exploratory_name'])
         emr_id = get_emr_id_by_name(emr_conf['cluster_name'])
         terminate_emr(emr_id)

@@ -81,7 +81,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to configure proxy. Exception: " + str(err))
+        append_result("Failed to configure proxy.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -97,7 +97,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed installing apps: apt & pip. Exception: " + str(err))
+        append_result("Failed installing apps: apt & pip.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -114,7 +114,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to configure rstudio. Exception: " + str(err))
+        append_result("Failed to configure rstudio.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -123,15 +123,15 @@ if __name__ == "__main__":
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": notebook_config['user_keyname'],
                              "user_keydir": "/root/keys/"}
-        params = "--hostname {} --keyfile {} --additional_config '{}'".format(
-            instance_hostname, keyfile_name, json.dumps(additional_config))
+        params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
+            instance_hostname, keyfile_name, json.dumps(additional_config), os.environ['conf_os_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed installing users key. Exception: " + str(err))
+        append_result("Failed installing users key.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -146,7 +146,7 @@ if __name__ == "__main__":
             if image_id != '':
                 print "Image was successfully created. It's ID is " + image_id
     except Exception as err:
-        append_result("Failed installing users key. Exception: " + str(err))
+        append_result("Failed installing users key.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 

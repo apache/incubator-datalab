@@ -81,6 +81,8 @@ public class RESTService {
     }
 
     public WebTarget getWebTarget(String path) {
-        return client.target(url).path(path);
+        return client
+        		.target(url)
+        		.path(path);
     }
 }

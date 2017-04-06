@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.UserSettingsDAO;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.rest.contracts.SelfServiceAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 
@@ -41,7 +40,7 @@ import io.dropwizard.auth.Auth;
 @Path("/user/settings")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class UserSettingsResource implements SelfServiceAPI {
+public class UserSettingsResource {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserSettingsResource.class);
 
     @Inject

@@ -37,14 +37,14 @@ def run():
         local("~/scripts/{}.py".format('ssn_prepare'))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed preparing SSN node. Exception: " + str(err))
+        append_result("Failed preparing SSN node.", str(err))
         sys.exit(1)
 
     try:
         local("~/scripts/{}.py".format('ssn_configure'))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed configuring SSN node. Exception: " + str(err))
+        append_result("Failed configuring SSN node.", str(err))
         sys.exit(1)
 
 
@@ -59,5 +59,5 @@ def terminate():
         local("~/scripts/{}.py".format('ssn_terminate'))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed terminating SSN node. Exception: " + str(err))
+        append_result("Failed terminating SSN node.", str(err))
         sys.exit(1)

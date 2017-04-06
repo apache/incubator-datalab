@@ -40,6 +40,7 @@ public class DeepMap {
 	}
 	
 	public DeepMap getBranch(String branchName) {
+		@SuppressWarnings("unchecked")
 		Map<String, Object> branch = (Map<String, Object>) root.get(branchName);
 		if( branch == null ) {
 			branch = new HashMap<>();

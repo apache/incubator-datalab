@@ -15,23 +15,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ----------------------------------------------------------------------------------------------------------- -->
-<sd-navbar></sd-navbar>
+<sd-navbar [healthStatus]="healthStatus"></sd-navbar>
 
 <div class="sub_nav">
-  <button class="btn btn_create" [disabled]="userUploadAccessKeyState == 202" (click)="createNotebook_btnClick()">
-    <span class="glyphicon glyphicon glyphicon-plus" ></span> Create new
+  <button md-raised-button class="butt butt-create" [disabled]="userUploadAccessKeyState == 202 || healthStatus === 'error'" (click)="createNotebook_btnClick()">
+    <i class="material-icons">add</i>Create new
   </button>
-  <button class="btn btn_refresh pull-right" (click)="refreshGrid()">
-    <span class="glyphicon glyphicon-refresh"></span> Refresh
+  <button md-raised-button class="butt pull-right" (click)="refreshGrid()">
+    <i class="material-icons">autorenew</i>Refresh
   </button>
-  <button class="btn btn_hide pull-right" (click)="toggleFiltering()">
-    <span class="glyphicon" [ngClass]="!resourcesGrid.activeFiltering ? 'glyphicon-eye-close' : 'glyphicon-eye-open'"></span>
-    <span *ngIf="!resourcesGrid.activeFiltering">Show active</span>
-    <span *ngIf="resourcesGrid.activeFiltering">Show all</span>
+  <button md-raised-button class="butt butt-filter pull-right" (click)="toggleFiltering()">
+    <span *ngIf="!resourcesGrid.activeFiltering">
+      <i class="material-icons">visibility_off</i>Show active
+    </span>
+    <span *ngIf="resourcesGrid.activeFiltering">
+      <i class="material-icons">visibility</i>
+      Show all
+    </span>
   </button>
   <span *ngIf="userUploadAccessKeyState == 500" class="alert alert-danger">Error happened during user access key upload. Please try to reupload the key.</span>
 </div>
-
 <resources-grid></resources-grid>
 
 <exploratory-environment-create-dialog #createAnalyticalModal (buildGrid)="refreshGrid($event)"></exploratory-environment-create-dialog>

@@ -27,11 +27,11 @@ public final class JsonGenerator {
 
     private JsonGenerator() { }
 
-    public static String generateJson(ResourceBaseDTO resourceBaseDTO) throws JsonProcessingException {
+    public static String generateJson(ResourceBaseDTO<?> resourceBaseDTO) throws JsonProcessingException {
         return generateJson(resourceBaseDTO, false);
     }
 
-    public static String generateJson(ResourceBaseDTO resourceBaseDTO, boolean pretty) throws JsonProcessingException {
+    public static String generateJson(ResourceBaseDTO<?> resourceBaseDTO, boolean pretty) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         if(pretty) {
             return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(resourceBaseDTO);

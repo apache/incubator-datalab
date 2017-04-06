@@ -48,11 +48,11 @@ if __name__ == "__main__":
         'edge_user_name'] + '-nb-SG'
     tag = {"Key": edge_conf['tag_name'], "Value": "{}-{}-subnet".format(edge_conf['service_base_name'], os.environ['edge_user_name'])}
     edge_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
+    edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['instance_name']).get('Public')
+    edge_conf['edge_private_ip'] = get_instance_ip_address(edge_conf['instance_name']).get('Private')
+    edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
 
     instance_hostname = get_instance_hostname(edge_conf['instance_name'])
-    addresses = get_instance_ip_address(edge_conf['instance_name'])
-    ip_address = addresses.get('Private')
-    public_ip_address = addresses.get('Public')
     keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
 
     try:
@@ -65,7 +65,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed installing apps: apt & pip. Exception: " + str(err))
+        append_result("Failed installing apps: apt & pip.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
@@ -87,7 +87,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed installing http proxy. Exception: " + str(err))
+        append_result("Failed installing http proxy.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
@@ -124,8 +124,8 @@ if __name__ == "__main__":
         logging.info('[SUMMARY]')
         print "Instance name: " + edge_conf['instance_name']
         print "Hostname: " + instance_hostname
-        print "Public IP: " + public_ip_address
-        print "Private IP: " + ip_address
+        print "Public IP: " + edge_conf['edge_public_ip']
+        print "Private IP: " + edge_conf['edge_private_ip']
         print "Instance ID: " + get_instance_by_name(edge_conf['instance_name'])
         print "Key name: " + edge_conf['key_name']
         print "Bucket name: " + edge_conf['bucket_name']
@@ -135,8 +135,8 @@ if __name__ == "__main__":
         print "Notebook subnet: " + edge_conf['private_subnet_cidr']
         with open("/root/result.json", 'w') as result:
             res = {"hostname": instance_hostname,
-                   "public_ip": public_ip_address,
-                   "ip": ip_address,
+                   "public_ip": edge_conf['edge_public_ip'],
+                   "ip": edge_conf['edge_private_ip'],
                    "instance_id": get_instance_by_name(edge_conf['instance_name']),
                    "key_name": edge_conf['key_name'],
                    "user_own_bicket_name": edge_conf['bucket_name'],

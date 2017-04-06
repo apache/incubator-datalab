@@ -23,34 +23,15 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 abstract public class ResourceBaseDTO<T extends ResourceBaseDTO<?>> {
-    @JsonProperty("conf_service_base_name")
-    private String serviceBaseName;
     @JsonProperty("aws_region")
     private String awsRegion;
-    @JsonProperty("exploratory_name")
-    private String exploratoryName;
-    @JsonProperty("iam_user_name")
-    private String iamUserName;
-    @JsonProperty("conf_os_user")
-    private String confOsUser;
-    @JsonProperty("conf_os_family")
-    private String confOsFamily;
-    @JsonProperty("application")
-    private String applicationName;
-
-    public String getServiceBaseName() {
-        return serviceBaseName;
-    }
-
-    public void setServiceBaseName(String serviceBaseName) {
-        this.serviceBaseName = serviceBaseName;
-    }
+    @JsonProperty("aws_iam_user")
+    private String awsIamUser;
+    @JsonProperty("edge_user_name")
+    private String edgeUserName;
 
     @SuppressWarnings("unchecked")
-    public T withServiceBaseName(String serviceBaseName) {
-        setServiceBaseName(serviceBaseName);
-        return (T) this;
-    }
+	private final T self = (T)this;
 
     public String getAwsRegion() {
         return awsRegion;
@@ -60,91 +41,42 @@ abstract public class ResourceBaseDTO<T extends ResourceBaseDTO<?>> {
         this.awsRegion = awsRegion;
     }
 
-    @SuppressWarnings("unchecked")
     public T withAwsRegion(String region) {
         setAwsRegion(region);
-        return (T) this;
+        return self;
     }
 
-    public String getExploratoryName() {
-        return exploratoryName;
+    public String getAwsIamUser() {
+        return awsIamUser;
     }
 
-    public void setExploratoryName(String exploratoryName) {
-        this.exploratoryName = exploratoryName;
+    public void setAwsIamUser(String awsIamUser) {
+        this.awsIamUser = awsIamUser;
     }
 
-    @SuppressWarnings("unchecked")
-    public T withExploratoryName(String exploratoryName) {
-        setExploratoryName(exploratoryName);
-        return (T) this;
+    public T withAwsIamUser(String awsIamUser) {
+        setAwsIamUser(awsIamUser);
+        return self;
     }
 
-    public String getIamUserName() {
-        return iamUserName;
+    public String getEdgeUserName() {
+        return edgeUserName;
     }
 
-    public void setIamUserName(String iamUserName) {
-        this.iamUserName = iamUserName;
+    public void setEdgeUserName(String edgeUserName) {
+        this.edgeUserName = edgeUserName;
     }
 
-    @SuppressWarnings("unchecked")
-    public T withIamUserName(String iamUserName) {
-        setIamUserName(iamUserName);
-        return (T) this;
+    public T withEdgeUserName(String edgeUserName) {
+        setEdgeUserName(edgeUserName);
+        return self;
     }
 
-    public String getConfOsUser() {
-        return confOsUser;
-    }
-
-    public void setConfOsUser(String confOsUser) {
-        this.confOsUser = confOsUser;
-    }
-
-    @SuppressWarnings("unchecked")
-    public T withConfOsUser(String confOsUser) {
-        setConfOsUser(confOsUser);
-        return (T) this;
-    }
-    
-    public String getConfOsFamily() {
-        return confOsFamily;
-    }
-
-    public void setConfOsFamily(String confOsFamily) {
-        this.confOsFamily = confOsFamily;
-    }
-
-    @SuppressWarnings("unchecked")
-    public T withConfOsFamily(String confOsFamily) {
-        setConfOsFamily(confOsFamily);
-        return (T) this;
-    }
-
-    public String getApplicationName() {
-        return applicationName;
-    }
-
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
-    }
-
-    @SuppressWarnings("unchecked")
-    public T withApplicationName(String applicationName) {
-        setApplicationName(applicationName);
-        return (T) this;
-    }
-    
     public ToStringHelper toStringHelper(Object self) {
     	return MoreObjects.toStringHelper(self)
-    	        .add("serviceBaseName", serviceBaseName)
-    	        .add("applicationName", applicationName)
-    	        .add("exploratoryName", exploratoryName)
-    	        .add("iamUserName", iamUserName)
     	        .add("awsRegion", awsRegion)
-    	        .add("confOsUser", confOsUser)
-    	        .add("confOsFamily", confOsFamily);
+    	        .add("awsIamUser", awsIamUser)
+    	        .add("edgeUserName", edgeUserName);
     }
     
     @Override

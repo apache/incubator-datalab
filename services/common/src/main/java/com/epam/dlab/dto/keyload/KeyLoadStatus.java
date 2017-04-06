@@ -54,6 +54,6 @@ public enum KeyLoadStatus {
     }
 
     public static KeyLoadStatus findByStatus(String status) {
-        return Arrays.stream(values()).reduce(NONE, (result, next) -> next.status.equals(status) ? next : result);
+        return Arrays.stream(values()).reduce(NONE, (result, next) -> next.status.equalsIgnoreCase(status) ? next : result);
     }
 }

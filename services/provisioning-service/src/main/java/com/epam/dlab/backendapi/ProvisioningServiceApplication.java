@@ -19,18 +19,21 @@ limitations under the License.
 package com.epam.dlab.backendapi;
 
 import com.epam.dlab.auth.SecurityFactory;
-import com.epam.dlab.backendapi.core.*;
-import com.epam.dlab.backendapi.core.commands.CommandExecutor;
-import com.epam.dlab.backendapi.resources.*;
+import com.epam.dlab.backendapi.core.DirectoriesCreator;
+import com.epam.dlab.backendapi.core.DockerWarmuper;
+import com.epam.dlab.backendapi.modules.ModuleFactory;
+import com.epam.dlab.backendapi.resources.ComputationalResource;
+import com.epam.dlab.backendapi.resources.DockerResource;
+import com.epam.dlab.backendapi.resources.EdgeResource;
+import com.epam.dlab.backendapi.resources.ExploratoryResource;
+import com.epam.dlab.backendapi.resources.InfrastructureResource;
 import com.epam.dlab.process.DlabProcess;
-import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
 import com.epam.dlab.rest.mappers.RuntimeExceptionMapper;
 import com.epam.dlab.utils.ServiceUtils;
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.name.Names;
+
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -38,10 +41,13 @@ import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-import static com.epam.dlab.constants.ServiceConsts.SECURITY_SERVICE_NAME;
-import static com.epam.dlab.constants.ServiceConsts.SELF_SERVICE_NAME;
-
 public class ProvisioningServiceApplication extends Application<ProvisioningServiceApplicationConfiguration> {
+	private static Injector injector;
+	
+	public static Injector getInjector() {
+		return injector;
+	}
+	
     public static void main(String[] args) throws Exception {
         new ProvisioningServiceApplication().run(args);
     }
@@ -58,34 +64,20 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
         DlabProcess.getInstance().setProcessTimeout(configuration.getProcessTimeout());
         DlabProcess.getInstance().setMaxProcessesPerBox(configuration.getProcessMaxThreadsPerJvm());
         DlabProcess.getInstance().setMaxProcessesPerUser(configuration.getProcessMaxThreadsPerUser());
-        Injector injector = createInjector(configuration, environment);
+        
+        injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment));
         injector.getInstance(SecurityFactory.class).configure(injector, environment);
+        
         environment.lifecycle().manage(injector.getInstance(DirectoriesCreator.class));
         environment.lifecycle().manage(injector.getInstance(DockerWarmuper.class));
+        
         JerseyEnvironment jersey = environment.jersey();
         jersey.register(new RuntimeExceptionMapper());
         jersey.register(new JsonProcessingExceptionMapper());
         jersey.register(injector.getInstance(DockerResource.class));
-        jersey.register(injector.getInstance(KeyLoaderResource.class));
-        jersey.register(injector.getInstance(KeyLoaderResource.class));
+        jersey.register(injector.getInstance(EdgeResource.class));
         jersey.register(injector.getInstance(ExploratoryResource.class));
         jersey.register(injector.getInstance(ComputationalResource.class));
         jersey.register(injector.getInstance(InfrastructureResource.class));
-    }
-
-    private Injector createInjector(ProvisioningServiceApplicationConfiguration configuration, Environment environment) {
-        return Guice.createInjector(new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(ProvisioningServiceApplicationConfiguration.class).toInstance(configuration);
-                bind(MetadataHolder.class).to(DockerWarmuper.class);
-                bind(RESTService.class).toInstance(configuration.getSelfFactory().build(environment, SELF_SERVICE_NAME));
-                bind(RESTService.class).annotatedWith(Names.named(SECURITY_SERVICE_NAME))
-                        .toInstance(configuration.getSecurityFactory().build(environment, SECURITY_SERVICE_NAME));
-                bind(ICommandExecutor.class)
-                        .to(configuration.isMocked() ? CommandExecutorMock.class : CommandExecutor.class)
-                        .asEagerSingleton();
-            }
-        });
     }
 }

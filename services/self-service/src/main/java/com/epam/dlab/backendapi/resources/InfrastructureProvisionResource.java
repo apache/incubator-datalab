@@ -34,12 +34,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.InfrastructureProvisionDAO;
+import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.dto.edge.EdgeInfoDTO;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
-import com.epam.dlab.dto.keyload.UserAWSCredentialDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
@@ -58,7 +58,7 @@ public class InfrastructureProvisionResource implements DockerAPI {
     private static final Logger LOGGER = LoggerFactory.getLogger(InfrastructureProvisionResource.class);
 
     @Inject
-    private InfrastructureProvisionDAO dao;
+    private ExploratoryDAO dao;
     @Inject
     private KeyDAO keyDAO;
     @Inject
@@ -70,10 +70,10 @@ public class InfrastructureProvisionResource implements DockerAPI {
      */
     @GET
     @Path("/provisioned_user_resources")
-    public Iterable<Document> getList(@Auth UserInfo userInfo) throws DlabException {
+    public Iterable<Document> getUserResources(@Auth UserInfo userInfo) throws DlabException {
         LOGGER.debug("Loading list of provisioned resources for user {}", userInfo.getName());
         try {
-        	Iterable<Document> documents = appendEdgeInfo(dao.find(userInfo.getName()), userInfo.getName());
+        	Iterable<Document> documents = appendEdgeInfo(dao.findExploratory(userInfo.getName()), userInfo.getName());
     		int i = 0;
     		for (Document d : documents) {
     			LOGGER.debug("Notebook[{}]: {}", ++i, d);
@@ -86,11 +86,11 @@ public class InfrastructureProvisionResource implements DockerAPI {
     }
 
     private List<Document> appendEdgeInfo(Iterable<Document> documents, String username) {
-        UserAWSCredentialDTO cred = keyDAO.getUserAWSCredential(username);
+        EdgeInfoDTO cred = keyDAO.getEdgeInfo(username);
         return StreamSupport.stream(documents.spliterator(), false)
                 .map(document -> document
                 		.append(EDGE_IP, cred.getPublicIp())
-                		.append(UserAWSCredentialDTO.USER_OWN_BUCKET_NAME, cred.getUserOwnBucketName()))
+                		.append(EdgeInfoDTO.USER_OWN_BUCKET_NAME, cred.getUserOwnBucketName()))
                 .collect(Collectors.toList());
     }
 

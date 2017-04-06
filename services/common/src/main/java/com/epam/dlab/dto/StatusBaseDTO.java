@@ -26,21 +26,33 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 
 import java.util.Date;
 
-public class StatusBaseDTO<T extends StatusBaseDTO<?>> {
+abstract public class StatusBaseDTO<T extends StatusBaseDTO<?>> {
+	@JsonProperty("request_id")
+    private String requestId;
     @JsonProperty
     private String user;
-    @JsonProperty("instance_id")
-    private String instanceId;
-    @JsonProperty("exploratory_name")
-    private String exploratoryName;
-    @JsonProperty("exploratory_template_name")
-    private String exploratoryTemplateName;
     @JsonProperty
     private String status;
     @JsonProperty("error_message")
     private String errorMessage;
     @JsonProperty("up_time")
     private Date uptime;
+
+    @SuppressWarnings("unchecked")
+	private final T self = (T)this;
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    public T withRequestId(String requestId) {
+        setRequestId(requestId);
+        return self;
+    }
 
     public String getUser() {
         return user;
@@ -50,52 +62,9 @@ public class StatusBaseDTO<T extends StatusBaseDTO<?>> {
         this.user = user;
     }
 
-    @SuppressWarnings("unchecked")
     public T withUser(String user) {
         setUser(user);
-        return (T) this;
-    }
-
-    public String getInstanceId() {
-        return instanceId;
-    }
-
-    public void setInstanceId(String instanceId) {
-        this.instanceId = instanceId;
-    }
-
-    @SuppressWarnings("unchecked")
-    public T withInstanceId(String instanceId) {
-    	setInstanceId(instanceId);
-        return (T) this;
-    }
-
-    public String getExploratoryName() {
-        return exploratoryName;
-    }
-
-    public void setExploratoryName(String exploratoryName) {
-        this.exploratoryName = exploratoryName;
-    }
-
-    @SuppressWarnings("unchecked")
-    public T withExploratoryName(String exploratoryName) {
-        setExploratoryName(exploratoryName);
-        return (T) this;
-    }
-
-    public String getExploratoryTemplateName() {
-        return exploratoryTemplateName;
-    }
-
-    public void setExploratoryTemplateName(String exploratoryTemplateName) {
-        this.exploratoryTemplateName = exploratoryTemplateName;
-    }
-
-    @SuppressWarnings("unchecked")
-    public T withExploratoryTemplateName(String exploratoryTemplateName) {
-        setExploratoryTemplateName(exploratoryTemplateName);
-        return (T) this;
+        return self;
     }
 
     public String getStatus() {
@@ -106,10 +75,9 @@ public class StatusBaseDTO<T extends StatusBaseDTO<?>> {
         this.status = status;
     }
 
-    @SuppressWarnings("unchecked")
     public T withStatus(String status) {
         setStatus(status);
-        return (T) this;
+        return self;
     }
 
     public T withStatus(UserInstanceStatus status) {
@@ -124,10 +92,9 @@ public class StatusBaseDTO<T extends StatusBaseDTO<?>> {
         this.errorMessage = errorMessage;
     }
 
-    @SuppressWarnings("unchecked")
     public T withErrorMessage(String errorMessage) {
         setErrorMessage(errorMessage);
-        return (T) this;
+        return self;
     }
 
     public Date getUptime() {
@@ -146,9 +113,8 @@ public class StatusBaseDTO<T extends StatusBaseDTO<?>> {
     
     public ToStringHelper toStringHelper(Object self) {
     	return MoreObjects.toStringHelper(self)
-    	        .add("instanceId", instanceId)
-    	        .add("exploratoryName", exploratoryName)
-    	        .add("exploratoryTemplateName", exploratoryTemplateName)
+    			.add("requestId", requestId)
+    	        .add("user", user)
     	        .add("status", status)
     	        .add("errorMessage", errorMessage)
     	        .add("uptime", uptime);

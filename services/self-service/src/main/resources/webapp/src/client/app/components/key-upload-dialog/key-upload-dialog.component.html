@@ -34,7 +34,7 @@ limitations under the License.
           </div>
         </div>
         <div class="col-xs-5 text-right">
-          <span class="btn btn-default btn-file">
+          <span md-raised-button class="butt butt-file">
             <span class="upload-icon"></span> Upload
             <input #userAccessKeyUploadControl (change)="uploadUserAccessKey_onChange($event)" type="file" name="file" accept=".pub" />
           </span>
@@ -44,9 +44,9 @@ limitations under the License.
       <div class="text-right" *ngIf="processError">
         <small class="danger_color">{{errorMessage}}</small>
       </div>
-      <div class="text-right">
-        <button type="button" class="btn btn-default" (click)="close()">Cancel</button>
-        <button type="submit" class="btn btn-success" [disabled]="!model.accessKeyFormValid">Create</button>
+      <div class="text-center m-top-30">
+        <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
+        <button md-raised-button type="submit" class="butt butt-success" [disabled]="!model.accessKeyFormValid">Create</button>
       </div>
     </form>
   </modal-content>

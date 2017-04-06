@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi;
 
 import com.epam.dlab.auth.SecurityFactory;
 import com.epam.dlab.backendapi.dao.IndexCreator;
+import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.utils.ServiceUtils;
@@ -60,16 +61,18 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         Injector injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment));
         environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
         injector.getInstance(SecurityFactory.class).configure(injector, environment);
+        environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
         JerseyEnvironment jersey = environment.jersey();
         jersey.register(new RuntimeExceptionMapper());
         jersey.register(new JsonProcessingExceptionMapper());
         jersey.register(MultiPartFeature.class);
         jersey.register(injector.getInstance(SecurityResource.class));
         jersey.register(injector.getInstance(KeyUploaderResource.class));
+        jersey.register(injector.getInstance(EdgeResource.class));
         jersey.register(injector.getInstance(InfrastructureProvisionResource.class));
         jersey.register(injector.getInstance(ComputationalResource.class));
         jersey.register(injector.getInstance(ExploratoryResource.class));
-        jersey.register(injector.getInstance(InfrasctructureResource.class));
+        jersey.register(injector.getInstance(InfrastructureResource.class));
         jersey.register(injector.getInstance(UserSettingsResource.class));
     }
 }

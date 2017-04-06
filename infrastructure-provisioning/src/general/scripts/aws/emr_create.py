@@ -62,19 +62,26 @@ parser.add_argument('--configurations', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--key_dir', type=str, default='')
 parser.add_argument('--edge_user_name', type=str, default='')
+parser.add_argument('--slave_instance_spot', type=str, default='False')
+parser.add_argument('--bid_price', type=str, default='')
 args = parser.parse_args()
 
-cp_config = "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hive/conf/hive-site.xml s3://{0}/{4}/{5}/config/hive-site.xml --endpoint-url https://s3-{3}.amazonaws.com --region {3}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
-            "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hadoop/conf/ s3://{0}/{4}/{5}/config/ --recursive --endpoint-url https://s3-{3}.amazonaws.com --region {3}, ActionOnFailure=TERMINATE_CLUSTER, Jar=command-runner.jar; " \
-            "Name=CUSTOM_JAR, Args=sudo -u hadoop hdfs dfs -mkdir /user/{2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
-            "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/{4}/{4}.pub /tmp/{4}.pub --endpoint-url https://s3-{3}.amazonaws.com --region {3}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
-            "Name=CUSTOM_JAR, Args=sudo -u hadoop hdfs dfs -chown -R {2}:{2} /user/{2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".format(
-    args.s3_bucket, args.name, args.nbs_user, args.region, args.edge_user_name, args.name)
+if args.region == 'us-east-1':
+    endpoint_url = 'https://s3.amazonaws.com'
+else:
+    endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
 
-cp_jars = "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/jars_parser.sh /tmp/jars_parser.sh --endpoint-url https://s3-{2}.amazonaws.com --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
-          "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/key_importer.sh /tmp/key_importer.sh --endpoint-url https://s3-{2}.amazonaws.com --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
+cp_config = "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hive/conf/hive-site.xml s3://{0}/{4}/{5}/config/hive-site.xml --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
+            "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hadoop/conf/ s3://{0}/{4}/{5}/config/ --recursive --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER, Jar=command-runner.jar; " \
+            "Name=CUSTOM_JAR, Args=sudo -u hadoop hdfs dfs -mkdir /user/{2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
+            "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/{4}/{4}.pub /tmp/{4}.pub --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
+            "Name=CUSTOM_JAR, Args=sudo -u hadoop hdfs dfs -chown -R {2}:{2} /user/{2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".format(
+    args.s3_bucket, args.name, args.nbs_user, args.region, args.edge_user_name, args.name, endpoint_url)
+
+cp_jars = "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/jars_parser.sh /tmp/jars_parser.sh --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
+          "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/key_importer.sh /tmp/key_importer.sh --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
           "Name=CUSTOM_JAR, Args=sh /tmp/key_importer.sh {4}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
-          "Name=CUSTOM_JAR, Args=sh /tmp/jars_parser.sh {0} {3} {2} {4} {5}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".format(args.s3_bucket, args.release_label, args.region, args.release_label, args.edge_user_name, args.name)
+          "Name=CUSTOM_JAR, Args=sh /tmp/jars_parser.sh {0} {3} {2} {4} {5}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".format(args.s3_bucket, args.release_label, args.region, args.release_label, args.edge_user_name, args.name, endpoint_url)
 
 logfile = '{}_creation.log'.format(args.name)
 logpath = '/response/' + logfile
@@ -232,23 +239,48 @@ def build_emr_cluster(args):
 
     if not args.dry_run:
         socket = boto3.client('emr')
-        result = socket.run_job_flow(
-            Name=args.name,
-            ReleaseLabel=args.release_label,
-            Instances={'MasterInstanceType': args.master_instance_type,
-                       'SlaveInstanceType': args.slave_instance_type,
-                       'InstanceCount': args.instance_count,
-                       'Ec2KeyName': args.ssh_key,
-                       # 'Placement': {'AvailabilityZone': args.availability_zone},
-                       'KeepJobFlowAliveWhenNoSteps': not args.auto_terminate,
-                       'Ec2SubnetId': get_subnet_by_cidr(args.subnet)},
-            Applications=names,
-            Tags=tags,
-            Steps=steps,
-            VisibleToAllUsers=not args.auto_terminate,
-            JobFlowRole=args.ec2_role,
-            ServiceRole=args.service_role,
-            Configurations=read_json(args.configurations))
+        if args.slave_instance_spot == 'True':
+            result = socket.run_job_flow(
+                Name=args.name,
+                ReleaseLabel=args.release_label,
+                Instances={'Ec2KeyName': args.ssh_key,
+                           'KeepJobFlowAliveWhenNoSteps': not args.auto_terminate,
+                           'Ec2SubnetId': get_subnet_by_cidr(args.subnet),
+                           'InstanceGroups': [
+                               {'Market': 'SPOT',
+                                'BidPrice': args.bid_price[:5],
+                                'InstanceRole': 'CORE',
+                                'InstanceType': args.slave_instance_type,
+                                'InstanceCount': int(args.instance_count) - 1},
+                               {'Market': 'ON_DEMAND',
+                                'InstanceRole': 'MASTER',
+                                'InstanceType': args.master_instance_type,
+                                'InstanceCount': 1}]},
+                Applications=names,
+                Tags=tags,
+                Steps=steps,
+                VisibleToAllUsers=not args.auto_terminate,
+                JobFlowRole=args.ec2_role,
+                ServiceRole=args.service_role,
+                Configurations=read_json(args.configurations))
+        else:
+            result = socket.run_job_flow(
+                Name=args.name,
+                ReleaseLabel=args.release_label,
+                Instances={'MasterInstanceType': args.master_instance_type,
+                           'SlaveInstanceType': args.slave_instance_type,
+                           'InstanceCount': args.instance_count,
+                           'Ec2KeyName': args.ssh_key,
+                           # 'Placement': {'AvailabilityZone': args.availability_zone},
+                           'KeepJobFlowAliveWhenNoSteps': not args.auto_terminate,
+                           'Ec2SubnetId': get_subnet_by_cidr(args.subnet)},
+                Applications=names,
+                Tags=tags,
+                Steps=steps,
+                VisibleToAllUsers=not args.auto_terminate,
+                JobFlowRole=args.ec2_role,
+                ServiceRole=args.service_role,
+                Configurations=read_json(args.configurations))
         print "Cluster_id " + result.get('JobFlowId')
         return result.get('JobFlowId')
 
@@ -277,6 +309,14 @@ if __name__ == "__main__":
         out.write('[BUILDING NEW CLUSTER - {}\n]'.format(args.name))
         cluster_id = build_emr_cluster(args)
         out.write('Cluster ID: {}\n'.format(cluster_id))
+        if args.slave_instance_spot == 'True':
+            time.sleep(420)
+            spot_instances_status = get_spot_instances_status(cluster_id)
+            if spot_instances_status[0]:
+                print "Spot instances status: " + spot_instances_status[1]
+            else:
+                append_result("Error with Spot request: " + spot_instances_status[1])
+                sys.exit(1)
         if wait_emr(args.s3_bucket, args.name, args.emr_timeout):
             # Append Cluster's SGs to the Notebook server to grant access
             sg_list=[]

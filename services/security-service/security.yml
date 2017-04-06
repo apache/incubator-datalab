@@ -132,7 +132,9 @@ logging:
     com.epam: DEBUG
     com.aegisql: INFO
   appenders:
-#    - type: console
+<#if DEV_MODE == "true">
+    - type: console
+</#if>
     - type: file
       currentLogFilename: ${LOG_ROOT_DIR}/ssn/security.log
       archive: true

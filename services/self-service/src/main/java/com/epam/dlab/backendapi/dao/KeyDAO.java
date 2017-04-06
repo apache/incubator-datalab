@@ -19,24 +19,35 @@ limitations under the License.
 package com.epam.dlab.backendapi.dao;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.set;
 
+import java.util.Optional;
+
+import org.bson.Document;
+
+import com.epam.dlab.dto.edge.EdgeInfoDTO;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
-import com.epam.dlab.dto.keyload.UserAWSCredentialDTO;
 import com.epam.dlab.dto.keyload.UserKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.mongodb.client.model.Updates;
 
 /** DAO for manage the user key.
  */
 public class KeyDAO extends BaseDAO {
+	protected static final String EDGE_STATUS = "edge_status";
 	
-	/** Write the user key to Mongo database.
+	/** Store the user key to Mongo database.
 	 * @param user user name
 	 * @param content key
 	 * @exception DlabException
 	 */
-    public void uploadKey(final String user, String content) throws DlabException {
-        UserKeyDTO key = new UserKeyDTO().withContent(content).withStatus(KeyLoadStatus.NEW.getStatus());
+    public void insertKey(final String user, String content) throws DlabException {
+        UserKeyDTO key = new UserKeyDTO()
+        		.withContent(content)
+        		.withStatus(KeyLoadStatus.NEW.getStatus());
         insertOne(USER_KEYS, key, user);
     }
 
@@ -55,31 +66,42 @@ public class KeyDAO extends BaseDAO {
     public void deleteKey(String user) {
         mongoService.getCollection(USER_KEYS).deleteOne(eq(ID, user));
     }
+    
+    /** Finds and returns the user key.
+     * @param user user name.
+     * @exception DlabException
+     */
+    public UserKeyDTO fetchKey(String user) throws DlabException {
+        Optional<UserKeyDTO> opt = findOne(USER_KEYS,
+        		eq(ID, user),
+        		UserKeyDTO.class);
 
-	/** Write the credential of user to Mongo database.
-	 * @param user user name
-	 * @param credential the credential of user
-	 * @exception DlabException
-	 */
-    public void saveCredential(String user, UserAWSCredentialDTO credential) throws DlabException {
-        insertOne(USER_AWS_CREDENTIALS, credential, user);
+        if( opt.isPresent() ) {
+            return opt.get();
+        }
+        throw new DlabException("Key of user " + user + " not found.");
     }
 
-	/** Finds and returns the IP address of EDGE notebook for user.
+	/** Store the EDGE of user to Mongo database.
 	 * @param user user name
+	 * @param edgeInfo the EDGE of user
 	 * @exception DlabException
 	 */
-    public String getUserEdgeIP(String user) throws DlabException {
-        return findOne(USER_AWS_CREDENTIALS, eq(ID, user), UserAWSCredentialDTO.class)
-                .orElse(new UserAWSCredentialDTO())
-                .getPublicIp();
-	}
-    
-    public UserAWSCredentialDTO getUserAWSCredential(String user) {
-    	return findOne(USER_AWS_CREDENTIALS,
+    public void updateEdgeInfo(String user, EdgeInfoDTO edgeInfo) throws DlabException {
+    	Document d = new Document(SET,
+    					convertToBson(edgeInfo)
+    						.append(ID, user));
+        updateOne(USER_EDGE,
+        		eq(ID, user),
+        		d,
+        		true);
+    }
+
+    public EdgeInfoDTO getEdgeInfo(String user) {
+    	return findOne(USER_EDGE,
     			eq(ID, user),
-    			UserAWSCredentialDTO.class)
-    			.orElse(new UserAWSCredentialDTO());
+    			EdgeInfoDTO.class)
+    			.orElse(new EdgeInfoDTO());
     }
 
 	/** Finds and returns the status of user key.
@@ -91,5 +113,27 @@ public class KeyDAO extends BaseDAO {
                 .map(UserKeyDTO::getStatus)
                 .map(KeyLoadStatus::findByStatus)
                 .orElse(KeyLoadStatus.NONE);
+    }
+    
+    /** Updates the status of EDGE node.
+     * @param user user name
+	 * @param status status of EDGE node
+     * @throws DlabException
+     */
+    public void updateEdgeStatus(String user, String status) throws DlabException {
+    	updateOne(USER_EDGE,
+        		eq(ID, user),
+        		Updates.set(EDGE_STATUS, status));
+    }
+
+    /** Return the status of EDGE node.
+     * @param user user name
+     * @throws DlabException
+     */
+    public String getEdgeStatus(String user) throws DlabException {
+    	Document d = findOne(USER_EDGE,
+    			eq(ID, user),
+    			fields(include(EDGE_STATUS), excludeId())).orElse(null);
+    	return (d == null ? "" : d.getString(EDGE_STATUS));
     }
 }

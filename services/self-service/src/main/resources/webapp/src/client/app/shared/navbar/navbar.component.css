@@ -24,7 +24,8 @@ limitations under the License.
 }
 
 .navbar {
-  min-height: 48px;
+  min-height: 48px!important;
+  height: 48px;
   margin-bottom: 0;
   border-radius: 0;
 }
@@ -44,7 +45,6 @@ limitations under the License.
 
 .navbar .navbar-toggle {
   display: inline-block;
-  float: none;
   margin: 0;
   padding: 16px;
   border: 0;
@@ -57,12 +57,16 @@ limitations under the License.
 }
 
 .navbar .navbar-logo {
-  display: inline-block;
+  display: block;
+  width: 65px;
+  position: absolute;
+  top: 12px;
+  left: 60px;
 }
 
 .navbar .navbar-logo img {
-  width: 65px;
-  vertical-align: bottom;
+  display: block;
+  width: 100%;
 }
 
 .navbar .navigation .dropdown-menu {
@@ -125,7 +129,7 @@ limitations under the License.
 .navbar .statusbar .warning {
   color: #f7b500;
 }
-.navbar .statusbar .critical {
+.navbar .statusbar .error {
   color: #ef5c4b;
 }
 

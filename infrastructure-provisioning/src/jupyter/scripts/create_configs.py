@@ -143,6 +143,12 @@ def add_breeze_library_emr(args):
           breeze_tmp_dir + 'breeze-macros_2.11-0.12.jar')
     local('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_2.11/0.12/breeze-parent_2.11-0.12.jar -O ' +
           breeze_tmp_dir + 'breeze-parent_2.11-0.12.jar')
+    local('wget http://central.maven.org/maven2/org/jfree/jfreechart/1.0.19/jfreechart-1.0.19.jar -O ' +
+          breeze_tmp_dir + 'jfreechart-1.0.19.jar')
+    local('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
+          breeze_tmp_dir + 'jcommon-1.0.24.jar')
+    local('wget https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
+          breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
     local('sudo mv ' + breeze_tmp_dir + '* ' + new_jars_directory_path)
     local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/s/$/:\/opt\/""" + args.emr_version +
           """\/jars\/usr\/other\/*/' """ + spark_defaults_path + """" """)
@@ -161,5 +167,5 @@ if __name__ == "__main__":
         toree_kernel(args)
         spark_defaults(args)
         r_kernel(args)
-        configuring_notebook(args)
+        configuring_notebook(args.emr_version)
         add_breeze_library_emr(args)

@@ -17,7 +17,7 @@
 # ******************************************************************************
 
 
-FROM docker.epmc-bdcc.projects.epam.com/dlab-aws-base:latest
+FROM docker.dlab-base:latest
 
 ARG OS
 ARG CLOUD

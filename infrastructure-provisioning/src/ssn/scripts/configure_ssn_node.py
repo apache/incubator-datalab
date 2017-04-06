@@ -108,4 +108,10 @@ if __name__ == "__main__":
     if not cp_key(args.keyfile, env.host_string, args.os_user):
         sys.exit(1)
 
+    print "Ensuring safest ssh ciphers"
+    try:
+        ensure_ciphers()
+    except:
+        sys.exit(1)
+
     sys.exit(0)

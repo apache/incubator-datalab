@@ -18,29 +18,16 @@ limitations under the License.
 
 package com.epam.dlab.dto.computational;
 
-import com.epam.dlab.dto.ResourceBaseDTO;
+import com.epam.dlab.dto.ResourceEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-abstract public class ComputationalBaseDTO<T extends ComputationalBaseDTO<?>> extends ResourceBaseDTO<T> {
-    @JsonProperty("edge_user_name")
-    private String edgeUserName;
+abstract public class ComputationalBaseDTO<T extends ComputationalBaseDTO<?>> extends ResourceEnvBaseDTO<T> {
     @JsonProperty("computational_name")
     private String computationalName;
 
-    public String getEdgeUserName() {
-        return edgeUserName;
-    }
-
-    public void setEdgeUserName(String edgeUserName) {
-        this.edgeUserName = edgeUserName;
-    }
-
     @SuppressWarnings("unchecked")
-    public T withEdgeUserName(String edgeUserName) {
-        setEdgeUserName(edgeUserName);
-        return (T) this;
-    }
+	private final T self = (T)this;
 
     public String getComputationalName() {
         return computationalName;
@@ -50,16 +37,14 @@ abstract public class ComputationalBaseDTO<T extends ComputationalBaseDTO<?>> ex
         this.computationalName = computationalName;
     }
 
-    @SuppressWarnings("unchecked")
     public T withComputationalName(String computationalName) {
         setComputationalName(computationalName);
-        return (T) this;
+        return self;
     }
 
     @Override
     public ToStringHelper toStringHelper(Object self) {
     	return super.toStringHelper(self)
-    	        .add("edgeUserName", edgeUserName)
     	        .add("computationalName", computationalName);
     }
     

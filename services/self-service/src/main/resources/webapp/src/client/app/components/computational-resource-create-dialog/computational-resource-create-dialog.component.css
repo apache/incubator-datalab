@@ -1,0 +1,49 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+.checkbox-group {
+  text-align: right;
+}
+
+.checkbox-group .spot-details {
+  height: 0;
+  opacity: 0;
+  visibility: hidden;
+  text-align: left;
+  transition: all .35s linear .2s;
+}
+
+.checkbox-group > label {
+  display: inline-block;
+  line-height: 30px;
+  padding: 5px 15px 0;
+  cursor: pointer;
+}
+
+.checkbox-group .spot-details span.info {
+  color: #35afd5;
+  font-size: 13px;
+  text-align: justify;
+  display: inline-block;
+  padding: 25px 15px 0;
+}
+
+.checkbox-group .spot-details.show {
+  height: 140px;
+  visibility: visible;
+  opacity: 1;
+}

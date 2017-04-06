@@ -22,7 +22,6 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.ICommandExecutor;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
@@ -54,7 +53,7 @@ public class ExploratoryResource implements DockerCommands {
     @Inject
     private FolderListenerExecutor folderListenerExecutor;
     @Inject
-    private ICommandExecutor commandExecuter;
+    private ICommandExecutor commandExecutor;
     @Inject
     private CommandBuilder commandBuilder;
     @Inject
@@ -64,37 +63,37 @@ public class ExploratoryResource implements DockerCommands {
     @Path("/create")
     @POST
     public String create(@Auth UserInfo ui, ExploratoryCreateDTO dto) throws IOException, InterruptedException {
-        return action(ui.getName(), ui.getAccessToken(), dto, DockerAction.CREATE);
+        return action(ui.getName(), dto, DockerAction.CREATE);
     }
 
     @Path("/start")
     @POST
-    public String start(@Auth UserInfo ui, ExploratoryActionDTO dto) throws IOException, InterruptedException {
-        return action(ui.getName(), ui.getAccessToken(), dto, DockerAction.START);
+    public String start(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws IOException, InterruptedException {
+        return action(ui.getName(), dto, DockerAction.START);
     }
 
     @Path("/terminate")
     @POST
-    public String terminate(@Auth UserInfo ui, ExploratoryActionDTO dto) throws IOException, InterruptedException {
-        return action(ui.getName(), ui.getAccessToken(), dto, DockerAction.TERMINATE);
+    public String terminate(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws IOException, InterruptedException {
+        return action(ui.getName(), dto, DockerAction.TERMINATE);
     }
 
     @Path("/stop")
     @POST
     public String stop(@Auth UserInfo ui, ExploratoryStopDTO dto) throws IOException, InterruptedException {
-        return action(ui.getName(), ui.getAccessToken(), dto, DockerAction.STOP);
+        return action(ui.getName(), dto, DockerAction.STOP);
     }
 
-    private String action(String username, String accessToken, ExploratoryBaseDTO dto, DockerAction action) throws IOException, InterruptedException {
+    private String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws IOException, InterruptedException {
         LOGGER.debug("{} exploratory environment", action);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
-                getFileHandlerCallback(action, uuid, dto, accessToken));
+                getFileHandlerCallback(action, uuid, dto));
 
         RunDockerCommand runDockerCommand = new RunDockerCommand()
                 .withInteractive()
-                .withName(nameContainer(dto.getNotebookUserName(), action, dto.getExploratoryName()))
+                .withName(nameContainer(dto.getEdgeUserName(), action, dto.getExploratoryName()))
                 .withVolumeForRootKeys(configuration.getKeyDirectory())
                 .withVolumeForResponse(configuration.getImagesDirectory())
                 .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
@@ -104,12 +103,12 @@ public class ExploratoryResource implements DockerCommands {
                 .withImage(dto.getNotebookImage())
                 .withAction(action);
 
-        commandExecuter.executeAsync(username,uuid,commandBuilder.buildCommand(runDockerCommand, dto));
+        commandExecutor.executeAsync(username, uuid, commandBuilder.buildCommand(runDockerCommand, dto));
         return uuid;
     }
 
-    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String originalUuid, ExploratoryBaseDTO dto, String accessToken) {
-        return new ExploratoryCallbackHandler(selfService, action, originalUuid, dto.getIamUserName(), dto.getExploratoryName(), accessToken);
+    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
+        return new ExploratoryCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName());
     }
 
     private String nameContainer(String user, DockerAction action, String name) {

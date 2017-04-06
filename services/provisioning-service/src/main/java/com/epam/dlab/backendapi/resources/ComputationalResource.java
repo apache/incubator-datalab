@@ -18,7 +18,6 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources;
 
-import static com.epam.dlab.backendapi.core.commands.DockerAction.CONFIGURE;
 import static com.epam.dlab.backendapi.core.commands.DockerAction.CREATE;
 import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
 
@@ -37,15 +36,14 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.ICommandExecutor;
 import com.epam.dlab.backendapi.core.commands.CommandBuilder;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.core.commands.DockerCommands;
+import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.dto.computational.ComputationalBaseDTO;
-import com.epam.dlab.dto.computational.ComputationalConfigDTO;
 import com.epam.dlab.dto.computational.ComputationalCreateDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -65,7 +63,7 @@ public class ComputationalResource implements DockerCommands {
     @Inject
     private FolderListenerExecutor folderListenerExecutor;
     @Inject
-    private ICommandExecutor commandExecuter;
+    private ICommandExecutor commandExecutor;
     @Inject
     private CommandBuilder commandBuilder;
     @Inject
@@ -78,10 +76,10 @@ public class ComputationalResource implements DockerCommands {
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
-                getFileHandlerCallback(CREATE, uuid, dto, ui.getAccessToken()));
+                getFileHandlerCallback(CREATE, uuid, dto));
         try {
             long timeout = configuration.getResourceStatusPollTimeout().toSeconds();
-            commandExecuter.executeAsync(
+            commandExecutor.executeAsync(
                     ui.getName(),
                     uuid,
                     commandBuilder.buildCommand(
@@ -107,39 +105,6 @@ public class ComputationalResource implements DockerCommands {
         return uuid;
     }
 
-    @Path("/configure")
-    @POST
-    public String configure(@Auth UserInfo ui, ComputationalConfigDTO dto) throws IOException, InterruptedException {
-    	LOGGER.debug("Configure computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
-        String uuid = DockerCommands.generateUUID();
-        folderListenerExecutor.start(
-        		configuration.getImagesDirectory(),
-                configuration.getResourceStatusPollTimeout(),
-                getFileHandlerCallback(CONFIGURE, uuid, dto, ui.getAccessToken()));
-        try {
-            commandExecuter.executeAsync(
-            		ui.getName(),
-                    uuid,
-                    commandBuilder.buildCommand(
-                            new RunDockerCommand()
-                                    .withInteractive()
-                                    .withName(nameContainer(dto.getEdgeUserName(), CONFIGURE, dto.getComputationalName()))
-                                    .withVolumeForRootKeys(configuration.getKeyDirectory())
-                                    .withVolumeForResponse(configuration.getImagesDirectory())
-                                    .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
-                                    .withResource(getResourceType())
-                                    .withRequestId(uuid)
-                                    .withConfKeyName(configuration.getAdminKey())
-                                    .withActionConfigure(getImageConfigure(dto.getApplicationName())),
-                            dto
-                    )
-            );
-        } catch (Throwable t) {
-            throw new DlabException("Could not configure computational resource cluster", t);
-        }
-    	return uuid;
-    }
-
     @Path("/terminate")
     @POST
     public String terminate(@Auth UserInfo ui, ComputationalTerminateDTO dto) throws IOException, InterruptedException {
@@ -147,9 +112,9 @@ public class ComputationalResource implements DockerCommands {
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
-                getFileHandlerCallback(TERMINATE, uuid, dto, ui.getAccessToken()));
+                getFileHandlerCallback(TERMINATE, uuid, dto));
         try {
-            commandExecuter.executeAsync(
+            commandExecutor.executeAsync(
                     ui.getName(),
                     uuid,
                     commandBuilder.buildCommand(
@@ -172,8 +137,8 @@ public class ComputationalResource implements DockerCommands {
         return uuid;
     }
 
-    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String originalUuid, ComputationalBaseDTO<?> dto, String accessToken) {
-        return new ComputationalCallbackHandler(selfService, action, originalUuid, dto, accessToken);
+    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBaseDTO<?> dto) {
+        return new ComputationalCallbackHandler(selfService, action, uuid, dto);
     }
 
     private String nameContainer(String user, DockerAction action, String name) {
@@ -182,14 +147,5 @@ public class ComputationalResource implements DockerCommands {
 
     public String getResourceType() {
         return Directories.EMR_LOG_DIRECTORY;
-    }
-    
-    private String getImageConfigure(String application) throws DlabException {
-    	String imageName = configuration.getEmrImage();
-    	int pos = imageName.lastIndexOf('-');
-    	if (pos > 0) {
-    		return imageName.substring(0, pos + 1) + application;
-    	}
-        throw new DlabException("Could not describe the image name for computational resources from image " + imageName + " and application " + application);
     }
 }

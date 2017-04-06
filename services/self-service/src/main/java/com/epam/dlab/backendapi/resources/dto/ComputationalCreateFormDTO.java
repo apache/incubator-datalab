@@ -42,6 +42,12 @@ public class ComputationalCreateFormDTO {
     @JsonProperty("emr_slave_instance_type")
     private String slaveInstanceType;
 
+    @JsonProperty("emr_slave_instance_spot")
+    private Boolean slaveInstanceSpot = false;
+
+    @JsonProperty("emr_slave_instance_spot_pct_price")
+    private Integer slaveInstanceSpotPctPrice;
+
     @NotBlank
     @JsonProperty("emr_version")
     private String version;
@@ -70,6 +76,11 @@ public class ComputationalCreateFormDTO {
         return slaveInstanceType;
     }
 
+    /** Returns the flag is slave spot or not. */
+    public Boolean getSlaveInstanceSpot() {
+        return slaveInstanceSpot;
+    }
+
     /** Returns the version of resource. */
     public String getVersion() {
         return version;
@@ -79,7 +90,11 @@ public class ComputationalCreateFormDTO {
     public String getNotebookName() {
         return notebookName;
     }
-    
+
+    public Integer getSlaveInstanceSpotPctPrice() {
+        return slaveInstanceSpotPctPrice;
+    }
+
     @Override
     public String toString() {
     	return MoreObjects.toStringHelper(this)
@@ -88,6 +103,8 @@ public class ComputationalCreateFormDTO {
     			.add("version", version)
     			.add("masterInstanceType", masterInstanceType)
     	        .add("slaveInstanceType", slaveInstanceType)
+                .add("slaveInstanceSpot", slaveInstanceSpot)
+                .add("slaveInstanceSpotPctPrice", slaveInstanceSpotPctPrice)
     			.add("instanceCount", instanceCount)
     	        .toString();
     }

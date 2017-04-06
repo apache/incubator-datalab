@@ -191,7 +191,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user):
                 sudo('rmdir /tmp/yml_tmp/')
             except Exception as err:
                 traceback.print_exc()
-                append_result("Unable to upload webapp jars. Exception: " + str(err))
+                append_result("Unable to upload webapp jars. ", str(err))
                 sys.exit(1)
 
             sudo('systemctl restart supervisord')

@@ -61,8 +61,16 @@ if __name__ == "__main__":
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
-    notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
+    if os.environ['application'] == 'zeppelin':
+        if os.environ['notebook_multiple_emrs'] == 'true':
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+                'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
+        else:
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+                'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
+    else:
+        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+            'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
     notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
                                            os.environ['edge_user_name'] + "-nb-Profile"
     notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
@@ -98,5 +106,5 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to create instance. Exception: " + str(err))
+        append_result("Failed to create instance.", str(err))
         sys.exit(1)

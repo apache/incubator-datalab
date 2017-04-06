@@ -23,6 +23,7 @@ from dlab.fab import *
 from dlab.meta_lib import *
 import sys, time, os
 from dlab.actions_lib import *
+import traceback
 
 
 if __name__ == "__main__":
@@ -79,7 +80,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to create subnet. Exception: " + str(err))
+        append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
     tag = {"Key": edge_conf['tag_name'], "Value": "{}-{}-subnet".format(edge_conf['service_base_name'], os.environ['edge_user_name'])}
@@ -98,7 +99,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to creating roles. Exception: " + str(err))
+        append_result("Failed to creating roles.", str(err))
         sys.exit(1)
 
     try:
@@ -113,7 +114,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to creating roles. Exception: " + str(err))
+        append_result("Failed to creating roles.", str(err))
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         sys.exit(1)
 
@@ -166,12 +167,6 @@ if __name__ == "__main__":
             },
             {
                 "PrefixListIds": [],
-                "FromPort": 6007,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 6007, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
                 "FromPort": 20888,
                 "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
                 "ToPort": 20888, "IpProtocol": "tcp", "UserIdGroupPairs": []
@@ -214,13 +209,14 @@ if __name__ == "__main__":
             }
         ]
         params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} --egress '{}' --force {} --nb_sg_name {} --resource {}".\
-            format(edge_conf['edge_security_group_name'], edge_conf['vpc_id'], json.dumps(sg_rules_template),edge_conf['service_base_name'],
-                   edge_conf['instance_name'], json.dumps(sg_rules_template_egress), True, edge_conf['notebook_instance_name'], 'edge')
+            format(edge_conf['edge_security_group_name'], edge_conf['vpc_id'], json.dumps(sg_rules_template),
+                   edge_conf['service_base_name'], edge_conf['instance_name'], json.dumps(sg_rules_template_egress),
+                   True, edge_conf['notebook_instance_name'], 'edge')
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed creating security group for edge node. Exception: " + str(err))
+            append_result("Failed creating security group for edge node.", str(err))
             raise Exception
 
         with hide('stderr', 'running', 'warnings'):
@@ -262,7 +258,7 @@ if __name__ == "__main__":
             print 'Waiting for changes to propagate'
             time.sleep(10)
     except Exception as err:
-        append_result("Failed creating security group for private subnet. Exception: " + str(err))
+        append_result("Failed creating security group for private subnet.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         remove_sgroups(edge_conf['notebook_instance_name'])
@@ -281,7 +277,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to create bucket. Exception: " + str(err))
+        append_result("Failed to create bucket.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         remove_sgroups(edge_conf['notebook_instance_name'])
@@ -298,7 +294,7 @@ if __name__ == "__main__":
         except:
             traceback.print_exc()
     except Exception as err:
-        append_result("Failed to create bucket policy. Exception: " + str(err))
+        append_result("Failed to create bucket policy.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         remove_sgroups(edge_conf['notebook_instance_name'])
@@ -321,7 +317,37 @@ if __name__ == "__main__":
             raise Exception
 
     except Exception as err:
-        append_result("Failed to create instance. Exception: " + str(err))
+        append_result("Failed to create instance.", str(err))
+        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
+        remove_all_iam_resources('edge', os.environ['edge_user_name'])
+        remove_sgroups(edge_conf['notebook_instance_name'])
+        remove_sgroups(edge_conf['instance_name'])
+        remove_s3('edge', os.environ['edge_user_name'])
+        sys.exit(1)
+
+
+    try:
+        logging.info('[ASSOCIATING ELASTIC IP]')
+        print '[ASSOCIATING ELASTIC IP]'
+        edge_conf['edge_id'] = get_instance_by_name(edge_conf['instance_name'])
+        try:
+            edge_conf['elastic_ip'] = os.environ['edge_elastic_ip']
+        except:
+            edge_conf['elastic_ip'] = 'None'
+        params = "--elastic_ip {} --edge_id {}".format(edge_conf['elastic_ip'], edge_conf['edge_id'])
+        try:
+            local("~/scripts/{}.py {}".format('edge_associate_elastic_ip', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed to associate elastic ip.", str(err))
+        try:
+            edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['instance_name']).get('Public')
+            edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
+        except:
+            print "No Elastic IPs to release!"
+        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         remove_sgroups(edge_conf['notebook_instance_name'])

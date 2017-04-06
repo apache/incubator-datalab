@@ -186,3 +186,9 @@ limitations under the License.
 .message_block td {
   text-align: left !important;
 }
+
+
+.mat-icon-button .mat-icon, .mat-icon-button i {
+  line-height: 42px;
+  font-size: 18px;
+}

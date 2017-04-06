@@ -45,5 +45,13 @@ public enum UserInstanceStatus {
         }
         return null;
     }
-
+    
+    public boolean in(UserInstanceStatus ... statusList) {
+    	for (UserInstanceStatus status : statusList) {
+			if (this.equals(status)) {
+				return true;
+			}
+		}
+		return false;
+    }
 }

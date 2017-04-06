@@ -66,6 +66,9 @@ limitations under the License.
   color: #455c74;
   font-size: 18px;
 }
+.modal-header .glyphicon-warning-sign {
+  margin: 0 5px 0;
+}
 
 .modal {
   color: #718ba6;
@@ -135,15 +138,22 @@ limitations under the License.
   margin-top: 0;
 }
 
-.modal .btn-file {
+.modal .butt-file {
   position: relative;
   overflow: hidden;
   margin-top: 10px;
   margin-bottom: 10px;
   display: inline-block;
-  border: 1px solid #35afd5;
   color: #35afd5;
   padding: 6px 29px 6px 23px;
+  width: 100%;
+  font: 600 16px/1.45 'Open Sans';
+  text-align: center;
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+.modal .butt-file:active {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
 
 .upload-icon {
@@ -161,7 +171,7 @@ limitations under the License.
   font-size: 12px;
 }
 
-.modal .btn-file input[type=file] {
+.modal .butt-file input[type=file] {
   width: 100%;
   height: 100%;
   position: absolute;

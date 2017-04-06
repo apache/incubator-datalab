@@ -20,11 +20,11 @@ package com.epam.dlab.dto.exploratory;
 
 import java.util.List;
 
-import com.epam.dlab.dto.StatusBaseDTO;
+import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class ExploratoryStatusDTO extends StatusBaseDTO<ExploratoryStatusDTO> {
+public class ExploratoryStatusDTO extends StatusEnvBaseDTO<ExploratoryStatusDTO> {
     @JsonProperty("exploratory_id")
     private String exploratoryId;
     @JsonProperty("exploratory_url")

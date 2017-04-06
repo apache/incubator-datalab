@@ -16,10 +16,10 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewEncapsulation, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation, Input, OnInit } from '@angular/core';
 import { ApplicationSecurityService } from '../../services/applicationSecurity.service';
 import { AppRoutingService } from '../../routing/appRouting.service';
-import { UserResourceService } from '../../services/userResource.service';
+import { HealthStatusService } from '../../services/healthStatus.service';
 
 @Component({
   moduleId: module.id,
@@ -31,12 +31,13 @@ import { UserResourceService } from '../../services/userResource.service';
 
 export class NavbarComponent implements OnInit {
   currentUserName: string;
-  healthStatus: string;
+
+  @Input() healthStatus: string;
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
-    private userResourceService: UserResourceService
+    private healthStatusService: HealthStatusService
   ) { }
 
   ngOnInit() {
@@ -53,12 +54,5 @@ export class NavbarComponent implements OnInit {
       () => this.appRoutingService.redirectToLoginPage(),
       error => console.log(error),
       () => this.appRoutingService.redirectToLoginPage());
-  }
-
-  getEnvironmentHealthStatus() {
-    this.userResourceService.getEnvironmentHealthStatus()
-      .subscribe((result) => {
-        console.log(result);
-      });
   }
 }

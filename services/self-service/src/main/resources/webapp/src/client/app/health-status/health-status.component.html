@@ -16,33 +16,12 @@ limitations under the License.
 
 ----------------------------------------------------------------------------------------------------------- -->
 
-<div class="sub_nav"></div>
+<sd-navbar [healthStatus]="healthStatus"></sd-navbar>
 
-<table class="dashboard_table">
-  <tr>
-    <th class="th_name">Type</th>
-    <th>Cloud Type</th>
-    <th>IP / Path</th>
-    <th class="th_status">Status</th>
-    <th class="th_actions">Action</th>
-  </tr>
-  <tr *ngFor="let env of environmentsHealthStatuses">
-    <td>{{env.type}}</td>
-    <td>{{env.cloud_type}}</td>
-    <td>{{env.ip}} {{env.path}}</td>
-    <td class="status" ngClass="{{env.status || ''}}">{{env.status}}</td>
-    <td>
-      <div class="dropdown">
-        <span data-toggle="dropdown" class="actions"></span>
-        <div class="dropdown-menu">
-          <ul class="list-unstyled">
-            <li *ngIf="env.status.toLowerCase() == 'terminated'">Recreate</li>
-            <li *ngIf="env.status.toLowerCase() == 'stopped'">Start</li>
-            <li *ngIf="env.status.toLowerCase() == 'running'">Stop</li>
-            <li *ngIf="env.status.toLowerCase() == 'running'">Terminate</li>
-          </ul>
-        </div>
-      </div>
-    </td>
-  </tr>
-</table>
+<div class="sub_nav">
+  <button md-raised-button class="butt pull-right" (click)="buildGrid()">
+    <i class="material-icons">autorenew</i>Refresh
+  </button>
+</div>
+
+<health-status-grid [environmentsHealthStatuses]="environmentsHealthStatuses" (refreshGrid)="buildGrid($event)"></health-status-grid>

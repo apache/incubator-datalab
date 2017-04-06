@@ -44,6 +44,7 @@ export class ResourcesGrid implements OnInit {
   collapseFilterRow: boolean = false;
   filtering: boolean = false;
   activeFiltering: boolean = false;
+  healthStatus: string = '';
 
   @ViewChild('computationalResourceModal') computationalResourceModal;
   @ViewChild('confirmationDialog') confirmationDialog;

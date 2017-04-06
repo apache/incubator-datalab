@@ -19,7 +19,7 @@ limitations under the License.
 package com.epam.dlab.backendapi.core;
 
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.core.commands.CommandExecutor;
+import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.dto.imagemetadata.*;
 import com.google.inject.AbstractModule;
@@ -99,7 +99,7 @@ public class DockerWarmuperTest {
             protected void configure() {
                 bind(FolderListenerExecutor.class).toInstance(mock(FolderListenerExecutor.class));
                 bind(ProvisioningServiceApplicationConfiguration.class).toInstance(createConfiguration());
-                bind(ICommandExecutor.class).toInstance(createCommandExecuter());
+                bind(ICommandExecutor.class).toInstance(createCommandExecutor());
             }
         });
     }
@@ -111,7 +111,7 @@ public class DockerWarmuperTest {
         return result;
     }
 
-    private ICommandExecutor createCommandExecuter() {
+    private ICommandExecutor createCommandExecutor() {
         ICommandExecutor result = mock(ICommandExecutor.class);
         try {
             when(result.executeSync(anyString(),anyString(),anyString())).thenReturn(Collections.singletonList("executeResult"));

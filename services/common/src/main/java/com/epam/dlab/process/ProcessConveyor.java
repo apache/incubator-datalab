@@ -15,19 +15,15 @@ limitations under the License.
 */
 package com.epam.dlab.process;
 
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
 import com.aegisql.conveyor.AssemblingConveyor;
 import com.aegisql.conveyor.BuildingSite;
 import com.aegisql.conveyor.cart.Cart;
 import com.aegisql.conveyor.cart.FutureCart;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-
 public class ProcessConveyor extends AssemblingConveyor<ProcessId,ProcessStep,ProcessInfo>{
-
-    private final ConcurrentHashMap<String,ConcurrentLinkedQueue<String>> users = new ConcurrentHashMap<>();
 
     public ProcessConveyor() {
         super();
@@ -38,7 +34,8 @@ public class ProcessConveyor extends AssemblingConveyor<ProcessId,ProcessStep,Pr
         this.setDefaultCartConsumer((l,v,b)->{
             LOG.warn("default processor for {} {} {}",l,v,b.get());
             if(v instanceof FutureCart) {
-                FutureCart fc = (FutureCart)v;
+                @SuppressWarnings("rawtypes")
+				FutureCart fc = (FutureCart)v;
                 fc.get().cancel(true);
             }
         });

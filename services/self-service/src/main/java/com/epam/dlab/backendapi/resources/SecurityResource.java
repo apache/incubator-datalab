@@ -21,6 +21,8 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.MongoCollections;
 import com.epam.dlab.backendapi.dao.SecurityDAO;
+import com.epam.dlab.backendapi.dao.SettingsDAO;
+import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.SecurityAPI;
@@ -39,6 +41,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import static com.epam.dlab.auth.SecurityRestAuthenticator.SECURITY_SERVICE;
 
@@ -55,6 +58,8 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
     @Inject
     @Named(SECURITY_SERVICE)
     RESTService securityService;
+    @Inject
+    private SettingsDAO settingsDAO;
 
     /** Login method for the dlab user.
      * @param credential user credential.
@@ -66,11 +71,30 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
         LOGGER.debug("Try login for user {}", credential.getUsername());
         try {
             dao.writeLoginAttempt(credential);
-            return securityService.post(LOGIN, credential, Response.class);
+			return securityService.post(LOGIN, credential, Response.class);
         } catch (Throwable t) {
         	LOGGER.error("Try login for user {} fail", credential.getUsername(), t);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(t.getLocalizedMessage()).build();
         }
+    }
+
+
+    /** Authorize method for the dlab user.
+     * @param userInfo user info.
+     * @param username user name.
+     * @return 500 Internal Server Error if post response fails.
+     */
+    @POST
+    @Path("/authorize")
+    public Response authorize(@Auth UserInfo userInfo, @Valid @NotBlank String username) {
+        LOGGER.debug("Try authorize accessToken {} for user info {}", userInfo.getAccessToken(), userInfo);
+        Status status = userInfo.getName().equalsIgnoreCase(username) ?
+                Status.OK :
+                Status.FORBIDDEN;
+        if (status == Status.OK) {
+        	EnvStatusListener.listen(userInfo.getName(), userInfo.getAccessToken(), settingsDAO.getAwsRegion());
+        }
+        return Response.status(status).build();
     }
 
     /** Logout method for the DLab user.
@@ -82,26 +106,11 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
     public Response logout(@Auth UserInfo userInfo) {
         LOGGER.debug("Try logout for accessToken {}", userInfo.getAccessToken());
         try {
+        	EnvStatusListener.listenStop(userInfo.getName());
             return securityService.post(LOGOUT, userInfo.getAccessToken(), Response.class);
         } catch(Throwable t) {
         	LOGGER.error("Try logout for accessToken {}", userInfo.getAccessToken(), t.getLocalizedMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(t.getLocalizedMessage()).build();
         }
-    }
-
-    /** Authorize method for the dlab user.
-     * @param userInfo user info.
-     * @param username user name.
-     * @return 500 Internal Server Error if post response fails.
-     */
-    @POST
-    @Path("/authorize")
-    public Response authorize(@Auth UserInfo userInfo, @Valid @NotBlank String username) {
-        LOGGER.debug("Try authorize accessToken {}", userInfo.getAccessToken());
-        return Response
-                .status(userInfo.getName().toLowerCase().equals(username.toLowerCase()) ?
-                        Response.Status.OK :
-                        Response.Status.FORBIDDEN)
-                .build();
     }
 }

@@ -48,8 +48,10 @@ def put_to_bucket(bucket_name, local_file, destination_file):
 def create_s3_bucket(bucket_name, tag, region):
     try:
         s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
-        bucket = s3.create_bucket(Bucket=bucket_name,
-                                  CreateBucketConfiguration={'LocationConstraint': region})
+        if region == "us-east-1":
+            bucket = s3.create_bucket(Bucket=bucket_name)
+        else:
+            bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
         tagging = bucket.Tagging()
         tagging.put(Tagging={'TagSet': [tag]})
         tagging.reload()
@@ -289,16 +291,83 @@ def create_attach_policy(policy_name, role_name, file_path):
         traceback.print_exc(file=sys.stdout)
 
 
+def allocate_elastic_ip():
+    try:
+        client = boto3.client('ec2')
+        response = client.allocate_address(Domain='vpc')
+        return response.get('AllocationId')
+    except Exception as err:
+        logging.info("Unable to allocate Elastic IP: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to allocate Elastic IP",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def release_elastic_ip(allocation_id):
+    try:
+        client = boto3.client('ec2')
+        client.release_address(AllocationId=allocation_id)
+    except Exception as err:
+        logging.info("Unable to release Elastic IP: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to release Elastic IP",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def associate_elastic_ip(instance_id, allocation_id):
+    try:
+        client = boto3.client('ec2')
+        response = client.associate_address(InstanceId=instance_id, AllocationId=allocation_id)
+        return response.get('AssociationId')
+    except Exception as err:
+        logging.info("Unable to associate Elastic IP: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to associate Elastic IP",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def disassociate_elastic_ip(association_id):
+    try:
+        client = boto3.client('ec2')
+        client.disassociate_address(AssociationId=association_id)
+    except Exception as err:
+        logging.info("Unable to disassociate Elastic IP: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to disassociate Elastic IP",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
 def remove_ec2(tag_name, tag_value):
     try:
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
+        allocation_id = ''
         inst = ec2.instances.filter(
             Filters=[{'Name': 'instance-state-name', 'Values': ['running', 'stopped', 'pending', 'stopping']},
                      {'Name': 'tag:{}'.format(tag_name), 'Values': ['{}'.format(tag_value)]}])
         instances = list(inst)
         if instances:
             for instance in instances:
+                try:
+                    response = client.describe_instances(InstanceIds=[instance.id])
+                    for i in response.get('Reservations'):
+                        for h in i.get('Instances'):
+                            elastic_ip = h.get('PublicIpAddress')
+                            try:
+                                response = client.describe_addresses(PublicIps=[elastic_ip]).get('Addresses')
+                                for el_ip in response:
+                                    allocation_id = el_ip.get('AllocationId')
+                                    release_elastic_ip(allocation_id)
+                                    print "Releasing Elastic IP: " + elastic_ip
+                            except:
+                                print "There is no such Elastic IP: " + elastic_ip
+                except Exception as err:
+                    print err
+                    print "There is no Elastic IP to disassociate from instance: " + instance.id
                 client.terminate_instances(InstanceIds=[instance.id])
                 waiter = client.get_waiter('instance_terminated')
                 waiter.wait(InstanceIds=[instance.id])
@@ -587,6 +656,40 @@ def remove_sgroups(tag_value):
         traceback.print_exc(file=sys.stdout)
 
 
+def add_inbound_sg_rule(sg_id, rule):
+    try:
+        client = boto3.client('ec2')
+        client.authorize_security_group_ingress(
+            GroupId=sg_id,
+            IpPermissions=[rule]
+        )
+    except Exception as err:
+        if err.response['Error']['Code'] == 'InvalidPermission.Duplicate':
+            print "The following inbound rule is already exist:"
+            print str(rule)
+        else:
+            logging.info("Unable to add inbound rule to SG: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to add inbound rule to SG", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+
+def add_outbound_sg_rule(sg_id, rule):
+    try:
+        client = boto3.client('ec2')
+        client.authorize_security_group_egress(
+            GroupId=sg_id,
+            IpPermissions=[rule]
+        )
+    except Exception as err:
+        if err.response['Error']['Code'] == 'InvalidPermission.Duplicate':
+            print "The following outbound rule is already exist:"
+            print str(rule)
+        else:
+            logging.info("Unable to add outbound rule to SG: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to add outbound rule to SG", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+
 def deregister_image(scientist):
     try:
         client = boto3.client('ec2')
@@ -634,9 +737,18 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                 env.user = "{}".format(ssh_user)
                 env.key_filename = "{}".format(key_path)
                 env.host_string = env.user + "@" + env.hosts
-                sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
                 sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, emr_name))
                 if exists('/home/{}/.ensure_dir/emr_{}_interpreter_ensured'.format(ssh_user, emr_name)):
+                    if os.environ['notebook_multiple_emrs'] == 'true':
+                        try:
+                            livy_port = sudo("cat /opt/" + emr_version + "/" + emr_name
+                                             + "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
+                            process_number = sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                                                  "' | awk '{print $7}' | sed 's|/.*||g'")
+                            sudo('kill -9 ' + process_number)
+                            sudo('systemctl disable livy-server-' + livy_port)
+                        except:
+                            print "Wasn't able to find Livy server for this EMR!"
                     sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
                     sudo("rm -rf /home/{}/.ensure_dir/emr_interpreter_ensure".format(ssh_user))
                     zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
@@ -654,13 +766,24 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                             url = opener.open(request)
                             print url.read()
                     sudo('chown ' + ssh_user + ':' + ssh_user + ' -R /opt/zeppelin/')
-                    sudo("service zeppelin-notebook restart")
+                    sudo('systemctl daemon-reload')
+                    sudo("service zeppelin-notebook stop")
+                    sudo("service zeppelin-notebook start")
+                    zeppelin_restarted = False
+                    while not zeppelin_restarted:
+                        sudo('sleep 5')
+                        result = sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                        result = result[:1]
+                        if result == '1':
+                            zeppelin_restarted = True
+                    sudo('sleep 5')
                     sudo('rm -rf /home/{}/.ensure_dir/emr_{}_interpreter_ensured'.format(ssh_user, emr_name))
                 if exists('/home/{}/.ensure_dir/rstudio_emr_ensured'.format(ssh_user)):
                     sudo("sed -i '/" + emr_name + "/d' /home/{}/.Renviron".format(ssh_user))
                     if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(ssh_user)):
                         sudo("sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".format(ssh_user))
                     sudo("sed -i 's|/opt/" + emr_version + '/' + emr_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(ssh_user))
+                sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
                 print "Notebook's " + env.hosts + " kernels were removed"
         else:
             print "There are no notebooks to clean kernels."
@@ -798,70 +921,8 @@ def get_files(s3client, s3resource, dist, bucket, local):
                 s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
 
 
-def installing_python(region, bucket, user_name, cluster_name):
+def get_cluster_python_version(region, bucket, user_name, cluster_name):
     s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=region)
     s3_client.download_file(bucket, user_name + '/' + cluster_name + '/python_version', '/tmp/python_version')
-    with file('/tmp/python_version') as f:
-        python_version = f.read()
-    python_version = python_version[0:5]
-    if not os.path.exists('/opt/python/python' + python_version):
-        local('wget https://www.python.org/ftp/python/' + python_version + '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz' )
-        local('tar zxvf /tmp/Python-' + python_version + '.tgz -C /tmp/')
-        with lcd('/tmp/Python-' + python_version):
-            local('./configure --prefix=/opt/python/python' + python_version + ' --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install')
-            local('sudo make altinstall')
-        with lcd('/tmp/'):
-            local('sudo rm -rf Python-' + python_version + '/')
-        local('sudo -i virtualenv /opt/python/python' + python_version)
-        venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
-        pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
-        local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
-        local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
-        local(venv_command + ' && sudo -i ' + pip_command + ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
 
 
-def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region):
-    spark_path = '/opt/' + emr_version + '/' + cluster_name + '/spark/'
-    local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
-    kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
-    template_file = "/tmp/pyspark_emr_template.json"
-    with open(template_file, 'r') as f:
-        text = f.read()
-    text = text.replace('CLUSTER_NAME', cluster_name)
-    text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
-    text = text.replace('SPARK_PATH', spark_path)
-    text = text.replace('PYTHON_SHORT_VERSION', '2.7')
-    text = text.replace('PYTHON_FULL_VERSION', '2.7')
-    text = text.replace('PYTHON_PATH', '/usr/bin/python2.7')
-    text = text.replace('EMR_VERSION', emr_version)
-    with open(kernel_path, 'w') as f:
-        f.write(text)
-    local('touch /tmp/kernel_var.json')
-    local(
-        "PYJ=`find /opt/" + emr_version + "/" + cluster_name + "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path + " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
-    local('sudo mv /tmp/kernel_var.json ' + kernel_path)
-    s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=region)
-    s3_client.download_file(bucket, user_name + '/' + cluster_name + '/python_version', '/tmp/python_version')
-    with file('/tmp/python_version') as f:
-        python_version = f.read()
-    # python_version = python_version[0:3]
-    if python_version != '\n':
-        installing_python(region, bucket, user_name, cluster_name)
-        local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
-        kernel_path = kernels_dir + "py3spark_" + cluster_name + "/kernel.json"
-        template_file = "/tmp/pyspark_emr_template.json"
-        with open(template_file, 'r') as f:
-            text = f.read()
-        text = text.replace('CLUSTER_NAME', cluster_name)
-        text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
-        text = text.replace('SPARK_PATH', spark_path)
-        text = text.replace('PYTHON_SHORT_VERSION', python_version[0:3])
-        text = text.replace('PYTHON_FULL_VERSION', python_version[0:5])
-        text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' + python_version[:3])
-        text = text.replace('EMR_VERSION', emr_version)
-        with open(kernel_path, 'w') as f:
-            f.write(text)
-        local('touch /tmp/kernel_var.json')
-        local(
-            "PYJ=`find /opt/" + emr_version + "/" + cluster_name + "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path + " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
-        local('sudo mv /tmp/kernel_var.json ' + kernel_path)

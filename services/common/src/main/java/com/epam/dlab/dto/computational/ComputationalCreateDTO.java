@@ -28,6 +28,10 @@ public class ComputationalCreateDTO extends ComputationalBaseDTO<ComputationalCr
     private String masterInstanceType;
     @JsonProperty("emr_slave_instance_type")
     private String slaveInstanceType;
+    @JsonProperty("emr_slave_instance_spot")
+    private Boolean slaveInstanceSpot;
+    @JsonProperty("emr_slave_instance_spot_pct_price")
+    private Integer slaveInstanceSpotPctPrice;
     @JsonProperty("emr_version")
     private String version;
     @JsonProperty("notebook_instance_name")
@@ -71,6 +75,32 @@ public class ComputationalCreateDTO extends ComputationalBaseDTO<ComputationalCr
 
     public ComputationalCreateDTO withSlaveInstanceType(String slaveInstanceType) {
         setSlaveInstanceType(slaveInstanceType);
+        return this;
+    }
+
+    public Boolean getSlaveInstanceSpot() {
+        return slaveInstanceSpot;
+    }
+
+    public void setSlaveInstanceSpot(Boolean slaveInstanceSpot) {
+        this.slaveInstanceSpot = slaveInstanceSpot;
+    }
+
+    public ComputationalCreateDTO withSlaveInstanceSpot(Boolean slaveInstanceSpot) {
+        setSlaveInstanceSpot(slaveInstanceSpot);
+        return this;
+    }
+
+    public Integer getSlaveInstanceSpotPctPrice() {
+        return slaveInstanceSpotPctPrice;
+    }
+
+    public void setSlaveInstanceSpotPctPrice(Integer slaveInstanceSpotPctPrice) {
+        this.slaveInstanceSpotPctPrice = slaveInstanceSpotPctPrice;
+    }
+
+    public ComputationalCreateDTO withSlaveInstanceSpotPctPrice(Integer slaveInstanceSpotPctPrice) {
+        setSlaveInstanceSpotPctPrice(slaveInstanceSpotPctPrice);
         return this;
     }
 
@@ -121,6 +151,8 @@ public class ComputationalCreateDTO extends ComputationalBaseDTO<ComputationalCr
     	        .add("version", version)
     	        .add("masterInstanceType", masterInstanceType)
     	        .add("slaveInstanceType", slaveInstanceType)
+    	        .add("slaveInstanceSpot", slaveInstanceSpot)
+    	        .add("slaveInstanceSpotPctPrice", slaveInstanceSpotPctPrice)
     	        .add("instanceCount", instanceCount);
     }
     

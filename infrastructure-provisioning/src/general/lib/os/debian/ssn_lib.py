@@ -192,6 +192,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user):
 
             sudo('service supervisor start')
             sudo('service nginx restart')
+            sudo('service supervisor restart')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/ss_started')
         return True
     except:

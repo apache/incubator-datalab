@@ -60,6 +60,7 @@ class BaseDAO implements MongoCollections {
     public static final String FIELD_SET_DELIMETER = ".$.";
     public static final String FIELD_PROJECTION_DELIMITER = "$";
     public static final String ID = "_id";
+    public static final String SET = "$set";
     public static final String USER = "user";
     public static final String INSTANCE_ID = "instance_id";
     public static final String STATUS = "status";
@@ -115,8 +116,8 @@ class BaseDAO implements MongoCollections {
     	try {
     		mongoService.getCollection(collection)
     			.insertOne(convertToBson(object)
-                .append(ID, uuid)
-                .append(TIMESTAMP, new Date()));
+    						.append(ID, uuid)
+    						.append(TIMESTAMP, new Date()));
     	} catch (MongoException e) {
     		LOGGER.warn("Insert to Mongo DB fails: {}", e.getLocalizedMessage(), e);
     		throw new DlabException("Insert to Mongo DB fails: " + e.getLocalizedMessage(), e);
@@ -135,7 +136,28 @@ class BaseDAO implements MongoCollections {
     			.updateOne(condition, document);
     	} catch (MongoException e) {
     		LOGGER.warn("Update Mongo DB fails: {}", e.getLocalizedMessage(), e);
-    		throw new DlabException("Insert to Mongo DB fails: " + e.getLocalizedMessage(), e);
+    		throw new DlabException("Update to Mongo DB fails: " + e.getLocalizedMessage(), e);
+    	}
+    }
+
+    /** Update or insert single document in the collection by condition.
+     * @param collection collection name.
+     * @param condition condition for search documents in collection.
+     * @param document document.
+     * @param isUpsert if <b>true</b> document will be updated or inserted.
+     * @exception DlabException
+     */
+    protected void updateOne(String collection, Bson condition, Bson document, boolean isUpsert) throws DlabException {
+    	try {
+    		if (isUpsert) {
+    			mongoService.getCollection(collection).updateOne(condition, document,
+    				new UpdateOptions().upsert(isUpsert));
+    		} else {
+    			mongoService.getCollection(collection).updateOne(condition, document);
+    		}
+    	} catch (MongoException e) {
+    		LOGGER.warn("Upsert Mongo DB fails: {}", e.getLocalizedMessage(), e);
+    		throw new DlabException("Upsert to Mongo DB fails: " + e.getLocalizedMessage(), e);
     	}
     }
 
@@ -212,15 +234,6 @@ class BaseDAO implements MongoCollections {
         return limitOne(found);
     }
     
-    protected void update(String collection, Bson condition, Bson value, boolean isUpsert) {
-    	if (isUpsert) {
-    		mongoService.getCollection(collection).updateOne(condition, value,
-    				new UpdateOptions().upsert(isUpsert));
-    	} else {
-    		mongoService.getCollection(collection).updateOne(condition, value);
-    	}
-    }
-
     /** Finds and returns one document with the specified fields from the collection by condition.
      * @param collection collection name.
      * @param condition condition for search documents in collection.

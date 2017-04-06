@@ -17,6 +17,46 @@ limitations under the License.
 ****************************************************************************/
 
 @import 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800';
+
+@import 'https://fonts.googleapis.com/icon?family=Material+Icons';
+@import './deeppurple-amber.css';
+
+
+/* material buttons */
+.mat-raised-button.butt {
+  width: 160px;
+  height: 35px;
+  padding: 0 20px;
+  border-radius: 0;
+  font: 600 16px/1.45 'Open Sans';
+  color: #577289;
+}
+
+.mat-raised-button.butt i,
+.mat-raised-button.butt span i {
+  margin: 0 5px 0 0;
+  font-size: 20px;
+  vertical-align: sub;
+}
+.mat-raised-button.butt.butt-success {
+  background-color: #49af38;
+  margin-left: 15px;
+  color: #fff;
+}
+
+.mat-raised-button.butt:disabled {
+  cursor: not-allowed;
+  opacity: .6;
+}
+
+.mat-button-focus-overlay {
+  background-color: rgba(255, 0, 0, 0)!important;
+}
+
+.mat-button-ripple.mat-button-ripple-round.mat-ripple {
+  border-radius: 0;
+}
+
 [hidden] {
   display: none !important;
 }
@@ -50,44 +90,9 @@ body {
   color: #d9534f;
 }
 
-.btn {
-  font-size: 16px;
-}
-
 .sub_nav {
   height: 60px;
   padding: 12px 15px;
-}
-
-.sub_nav .btn {
-  background: none;
-  font-weight: 600;
-  padding: 6px 25px;
-  min-width: 165px;
-  color: #577289;
-  border: 1px solid #4E6A82;
-  outline: none;
-}
-
-.sub_nav .btn:active {
-  outline: none;
-}
-
-.sub_nav .btn .glyphicon {
-  margin-right: 4px;
-}
-
-.sub_nav .btn_create {
-  border-color: #35afd5;
-  color: #35afd5;
-}
-.sub_nav .btn_create::hover {
-  border-color: #2a8faf;
-  color: #119eca;
-}
-
-.sub_nav .btn_hide {
-  margin-right: 10px;
 }
 
 .modal .btn {
@@ -139,6 +144,7 @@ body {
 
 .not-allowed {
   cursor: not-allowed !important;
+  opacity: 0.6;
 }
 
 @-webkit-keyframes spin {
@@ -163,6 +169,7 @@ body {
 .tooltip-wrap {
   position: relative;
   -webkit-transform: translateZ(0);
+  transform: translateZ(0);
   /* webkit flicker fix */
   -webkit-font-smoothing: antialiased;
   /* webkit text rendering fix */
@@ -254,3 +261,8 @@ input[type=number]::-webkit-outer-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+/* helper classes */
+.text-center { text-align: center!important; }
+.m-top-10 { margin-top: 10px; }
+.m-top-30 { margin-top: 30px; }

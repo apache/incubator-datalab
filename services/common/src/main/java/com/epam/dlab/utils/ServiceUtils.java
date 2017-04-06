@@ -9,8 +9,12 @@ public class ServiceUtils {
 	static {
         includePath = System.getenv(ServiceConsts.DLAB_CONF_DIR_NAME);
         if ( includePath == null || includePath.isEmpty() ) {
-        	includePath = System.getProperty("user.dir");
+        	includePath = getUserDir();
         }
+	}
+	
+	public static String getUserDir() {
+		return System.getProperty("user.dir");
 	}
 	
 	public static String getConfPath() {

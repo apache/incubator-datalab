@@ -44,9 +44,11 @@ def read_yml_conf(path, section, param):
 
 def update_resource_status(resource, status):
     path = "/etc/mongod.conf"
+    mongo_passwd = "XS3ms9R3tP"
     mongo_ip = read_yml_conf(path, 'net', 'bindIp')
     mongo_port = read_yml_conf(path, 'net', 'port')
     client = MongoClient(mongo_ip + ':' + str(mongo_port))
+    client = MongoClient("mongodb://admin:" + mongo_passwd + "@" + mongo_ip + ':' + str(mongo_port) + "/dlabdb")
     client.dlabdb.statuses.save({"_id": resource, "value": status})
 
 if __name__ == "__main__":

@@ -33,7 +33,6 @@ public interface DockerCommands {
             .pipe(UnixCommand.grep("base", "-v"))
             .pipe(UnixCommand.grep("ssn", "-v"))
             .pipe(UnixCommand.grep("edge", "-v"))
-            .pipe(UnixCommand.grep("tensor", "-v"))
             .toCMD();
 
     ObjectMapper MAPPER = new ObjectMapper()

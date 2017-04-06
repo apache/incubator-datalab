@@ -1,0 +1,14 @@
+[Unit]
+Description=Livy server
+
+[Service]
+Type=simple
+PIDFile=/var/run/livy/livy-server-%H.pid
+ExecStart=LIVY_PATHbin/livy-server
+ExecStop=LIVY_PATHbin/livy-server stop
+User=OS_USER
+Group=OS_USER
+WorkingDirectory=LIVY_PATH
+
+[Install]
+WantedBy=multi-user.target

@@ -21,17 +21,19 @@ import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
 import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
 import { UserResourceService } from '../../services/userResource.service';
+import { HealthStatusService } from '../../services/healthStatus.service';
 
 export class ConfirmationDialogModel {
   private title: string;
   private notebook: any;
   private confirmAction: Function;
   private userResourceService: UserResourceService;
+  private healthStatusService: HealthStatusService;
 
   static getDefault(): ConfirmationDialogModel {
     return new
       ConfirmationDialogModel(
-      ConfirmationDialogType.StopExploratory, { name: '', resources: [] }, () => { }, () => { }, null);
+      ConfirmationDialogType.StopExploratory, { name: '', resources: [] }, () => { }, () => { }, null, null);
   }
 
   constructor(
@@ -39,16 +41,19 @@ export class ConfirmationDialogModel {
     notebook: any,
     fnProcessResults: any,
     fnProcessErrors: any,
-    userResourceService: UserResourceService
+    userResourceService: UserResourceService,
+    healthStatusService: HealthStatusService
   ) {
     this.userResourceService = userResourceService;
+    this.healthStatusService = healthStatusService;
     this.setup(confirmationType, notebook, fnProcessResults, fnProcessErrors);
   }
 
   public isAliveResources(resources): boolean {
-    for (var i = 0, len = resources.length; i < len; i++)
-      if (resources[i].status.toLowerCase() === 'running')
-        return true;
+    if(resources)
+      for (var i = 0, len = resources.length; i < len; i++)
+        if (resources[i].status.toLowerCase() === 'running')
+          return true;
 
     return false;
   }
@@ -62,6 +67,10 @@ export class ConfirmationDialogModel {
     return this.userResourceService.suspendExploratoryEnvironment(this.notebook, 'terminate');
   }
 
+  private stopEdgeNode(): Observable<Response> {
+    return this.healthStatusService.suspendEdgeNode();
+  }
+
   private setup(confirmationType: ConfirmationDialogType, notebook: any, fnProcessResults: any, fnProcessErrors: any): void {
 
     let containRunningResourcesStopMessage = 'Exploratory Environment will be stopped\
@@ -71,6 +80,8 @@ export class ConfirmationDialogModel {
     let containRunningResourcesTerminateMessage = 'Exploratory Environment and all connected computational resources\
      will be terminated.';
     let defaultTerminateMessage = 'Exploratory Environment will be terminated.';
+
+    let edgeNodeStopMessage = 'Edge node will be stopped. You will need to start it later to proceed working with DLAB.';
 
     switch (confirmationType) {
       case ConfirmationDialogType.StopExploratory: {
@@ -85,6 +96,14 @@ export class ConfirmationDialogModel {
         this.title = this.isAliveResources(notebook.resources) ? containRunningResourcesTerminateMessage : defaultTerminateMessage;
         this.notebook = notebook;
         this.confirmAction = () => this.terminateExploratory()
+          .subscribe((response: Response) => fnProcessResults(response),
+          (response: Response) => fnProcessErrors(response));
+      }
+        break;
+      case ConfirmationDialogType.StopEdgeNode: {
+        this.title = edgeNodeStopMessage;
+        this.notebook = notebook;
+        this.confirmAction = () => this.stopEdgeNode()
           .subscribe((response: Response) => fnProcessResults(response),
           (response: Response) => fnProcessErrors(response));
       }

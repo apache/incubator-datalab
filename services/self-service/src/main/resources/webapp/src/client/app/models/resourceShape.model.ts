@@ -22,6 +22,8 @@ export class ResourceShapeModel {
   ram: string;
   cpu: number;
   description: string;
+  spot: boolean;
+  price: number;
 
   constructor(jsonModel: any) {
     this.size = jsonModel.Size;
@@ -29,5 +31,7 @@ export class ResourceShapeModel {
     this.ram = jsonModel.Ram;
     this.cpu = jsonModel.Cpu;
     this.description = jsonModel.Description;
+    this.spot = jsonModel.Spot;
+    this.price = jsonModel.SpotPctPrice;
   }
 }

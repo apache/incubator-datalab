@@ -33,6 +33,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     instance = 'ssn'
     pre_defined_vpc = False
+    pre_defined_subnet = False
     pre_defined_sg = False
     try:
         logging.info('[CREATE AWS CONFIG FILE]')
@@ -62,7 +63,10 @@ if __name__ == "__main__":
         vpc_cidr = '172.31.0.0/16'
         sg_name = instance_name + '-SG'
 
-        if os.environ['aws_vpc_id'] == '' or os.environ['aws_vpc_id'] == 'PUT_YOUR_VALUE_HERE':
+        try:
+            if os.environ['aws_vpc_id'] == '':
+                raise KeyError
+        except KeyError:
             try:
                 pre_defined_vpc = True
                 logging.info('[CREATE VPC AND ROUTE TABLE]')
@@ -74,15 +78,16 @@ if __name__ == "__main__":
                     traceback.print_exc()
                     raise Exception
                 os.environ['aws_vpc_id'] = get_vpc_by_tag(tag_name, service_base_name)
-                enable_vpc_dns(os.environ['aws_vpc_id'])
-                rt_id = create_rt(os.environ['aws_vpc_id'], tag_name, service_base_name)
             except Exception as err:
                 append_result("Failed to create VPC. Exception:" + str(err))
                 sys.exit(1)
 
-        if os.environ['aws_subnet_id'] == '' or os.environ['aws_subnet_id'] == 'PUT_YOUR_VALUE_HERE':
+        try:
+            if os.environ['aws_subnet_id'] == '':
+                raise KeyError
+        except KeyError:
             try:
-                pre_defined_vpc = True
+                pre_defined_subnet = True
                 logging.info('[CREATE SUBNET]')
                 print '[CREATE SUBNET]'
                 params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc_id'], 'ssn', tag_name, service_base_name, '20', True)
@@ -95,7 +100,7 @@ if __name__ == "__main__":
                     os.environ['aws_subnet_id'] = f.read()
                 enable_auto_assign_ip(os.environ['aws_subnet_id'])
             except Exception as err:
-                append_result("Failed to create Subnet. Exception: " + str(err))
+                append_result("Failed to create Subnet.", str(err))
                 if pre_defined_vpc:
                     remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
                     remove_route_tables(tag_name, True)
@@ -106,7 +111,10 @@ if __name__ == "__main__":
                     remove_vpc(os.environ['aws_vpc_id'])
                 sys.exit(1)
 
-        if os.environ['aws_security_groups_ids'] == '' or os.environ['aws_security_groups_ids'] == 'PUT_YOUR_VALUE_HERE':
+        try:
+            if os.environ['aws_security_groups_ids'] == '':
+                raise KeyError
+        except KeyError:
             try:
                 pre_defined_sg = True
                 logging.info('[CREATE SG FOR SSN]')
@@ -162,7 +170,7 @@ if __name__ == "__main__":
                 with open('/tmp/ssn_sg_id', 'r') as f:
                     os.environ['aws_security_groups_ids'] = f.read()
             except Exception as err:
-                append_result("Failed creating security group for SSN. Exception: " + str(err))
+                append_result("Failed creating security group for SSN.", str(err))
                 if pre_defined_vpc:
                     remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
                     remove_subnets(service_base_name + "-subnet")
@@ -179,12 +187,13 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Unable to create roles. Exception: " + str(err))
+        append_result("Unable to create roles.", str(err))
         if pre_defined_sg:
             remove_sgroups(tag_name)
-        if pre_defined_vpc:
+        if pre_defined_subnet:
             remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
             remove_subnets(service_base_name + "-subnet")
+        if pre_defined_vpc:
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
         sys.exit(1)
@@ -200,13 +209,14 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Unable to create an endpoint. Exception: " + str(err))
+        append_result("Unable to create an endpoint.", str(err))
         remove_all_iam_resources(instance)
         if pre_defined_sg:
             remove_sgroups(tag_name)
-        if pre_defined_vpc:
+        if pre_defined_subnet:
             remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
             remove_subnets(service_base_name + "-subnet")
+        if pre_defined_vpc:
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
         sys.exit(1)
@@ -223,14 +233,15 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Unable to create bucket. Exception: " + str(err))
+        append_result("Unable to create bucket.", str(err))
         remove_all_iam_resources(instance)
         if pre_defined_sg:
             remove_sgroups(tag_name)
-        if pre_defined_vpc:
-            remove_vpc_endpoints(os.environ['aws_vpc_id'])
+        if pre_defined_subnet:
             remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
             remove_subnets(service_base_name + "-subnet")
+        if pre_defined_vpc:
+            remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
         sys.exit(1)
@@ -249,15 +260,16 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Unable to create ssn instance. Exception: " + str(err))
+        append_result("Unable to create ssn instance.", str(err))
         remove_all_iam_resources(instance)
         remove_s3(instance)
         if pre_defined_sg:
             remove_sgroups(tag_name)
-        if pre_defined_vpc:
-            remove_vpc_endpoints(os.environ['aws_vpc_id'])
+        if pre_defined_subnet:
             remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
             remove_subnets(service_base_name + "-subnet")
+        if pre_defined_vpc:
+            remove_vpc_endpoints(os.environ['aws_vpc_id'])
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
         sys.exit(1)
