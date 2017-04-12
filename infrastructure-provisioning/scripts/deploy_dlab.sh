@@ -37,7 +37,7 @@ function buildServices(){
 function buildDockers(){
   # Build base and ssn docker
   cd infrastructure-provisioning/src || exit 1
-  sudo docker build --build-arg OS=$OS_family --build-arg CLOUD=$Cloud_provider --file base/Dockerfile -t docker.dlab-base .
+  sudo docker build --build-arg OS=$OS_family --build-arg CLOUD=$Cloud_provider --file base/Dockerfile -t docker.dlab-base base/
   sudo docker build --build-arg OS=$OS_family --build-arg CLOUD=$Cloud_provider --file ssn/Dockerfile -t docker.dlab-ssn .
 }
 
@@ -58,7 +58,7 @@ function deployDlab(){
   sudo docker run -i -v ${Key_path}${Key_name}.pem:/root/keys/${Key_name}.pem \
     -v "$WORKSPACE"/web_app:/root/web_app -e "conf_os_family=$OS_family" -e "conf_os_user=$OS_user" \
         -e "conf_cloud_provider=$Cloud_provider" -e "conf_resource=ssn" -e "aws_ssn_instance_size=t2.medium" \
-        -e "aws_region=$Region" -e "aws_vpc_id=$VPC_id" -e "aws_subnet_id=$Subnet_id" \
+        -e "aws_region=us-west-2" -e "aws_vpc_id=$VPC_id" -e "aws_subnet_id=$Subnet_id" \
         -e "aws_security_groups_ids=$Sg_ids" -e "conf_key_name=$Key_name" \
         -e "conf_service_base_name=$Infrastructure_Tag" \
         -e "aws_access_key=$Access_Key_ID" -e "aws_secret_access_key=$Secret_Access_Key" \

@@ -450,6 +450,10 @@ export class SeedConfig {
       'rxjs': {
         main: 'Rx.js',
         defaultExtension: 'js'
+      },
+      '@angular/material': {
+        main: 'index.js',
+        defaultExtension: 'js'
       }
     }
   };
