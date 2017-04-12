@@ -62,8 +62,6 @@ public class MockModule extends ModuleBase<SelfServiceApplicationConfiguration> 
                 .toInstance(createAuthenticationService());
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
                 .toInstance(createProvisioningService());
-        bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.BILLING_SERVICE_NAME))
-        		.toInstance(createBillingService());
     }
 
     /** Creates and returns the mock object for authentication service.

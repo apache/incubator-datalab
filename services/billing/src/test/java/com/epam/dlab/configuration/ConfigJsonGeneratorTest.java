@@ -19,32 +19,41 @@ limitations under the License.
 package com.epam.dlab.configuration;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 
 import java.io.IOException;
 
 import org.junit.Test;
 
-import com.epam.dlab.module.ModuleName;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class ConfigJsonGeneratorTest {
+	
+	private void checkProperty(JsonNode conf, String module, String name, String expectedValue) {
+		JsonNode m = conf.get(module);
+		assertNotNull("Module \"" + module + "\" not found in JSON configuration", m);
+		
+		JsonNode item = m.get(0);
+		assertNotNull("Property \"" + module + "." + name + "\" not found in JSON configuration", item);
+		
+		JsonNode p = item.get(name);
+		assertNotNull("Property \"" + module + "." + name + "\" not found in JSON configuration", p);
+		
+		assertEquals(expectedValue, p.asText());
+	}
 
 	@Test
-	public void test() throws IOException {
-		JsonNode config = new ConfigJsonGenerator()
-				.withAdapterIn("type", ModuleName.ADAPTER_FILE,
-						"adapterIn", "adapterInProperty")
-				.withAdapterOut("type", ModuleName.ADAPTER_CONSOLE,
-						"adapterOut", "adapterOutProperty")
-				.withParser("type", ModuleName.PARSER_CSV,
-					"columnMapping", "accountId=PayerAccountId;usageIntervalStart=UsageStartDate;usageIntervalEnd=UsageEndDate;zone=AvailabilityZone;product=ProductName;resourceId=ResourceId;usageType=UsageType;usage=UsageQuantity;cost=BlendedCost;tags=user:department,user:environment,user:team",
-					"fieldSeparator", ",",
-					"fieldTerminator", "\"",
-					"escapeChar", "\\",
-					"headerLineNo", "1",
-					"skipLines", "1")
-				.withFilter("type", ModuleName.FILTER_AWS)
+	public void build() throws IOException {
+		JsonNode conf = new ConfigJsonGenerator()
+				.withAdapterIn("adapterInProperty", "adapterInValue")
+				.withAdapterOut("adapterOutProperty", "adapterOutValue")
+				.withParser("parserProperty", "parserValue")
+				.withFilter("filterProperty", "filterValue")
 				.build();
 		
+		checkProperty(conf, "adapterIn", "adapterInProperty", "adapterInValue");
+		checkProperty(conf, "adapterOut", "adapterOutProperty", "adapterOutValue");
+		checkProperty(conf, "parser", "parserProperty", "parserValue");
+		checkProperty(conf, "filter", "filterProperty", "filterValue");
 	}
 }

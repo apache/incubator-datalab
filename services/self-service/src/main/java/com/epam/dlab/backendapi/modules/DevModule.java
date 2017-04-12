@@ -57,8 +57,6 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
                 .toInstance(createAuthenticationService());
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
         		.toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
-        bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.BILLING_SERVICE_NAME))
-        .toInstance(configuration.getBillingFactory().build(environment, ServiceConsts.BILLING_SERVICE_NAME));
     }
 
     /** Creates and returns the mock object for authentication service.

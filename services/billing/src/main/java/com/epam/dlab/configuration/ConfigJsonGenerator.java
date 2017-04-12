@@ -18,7 +18,6 @@ limitations under the License.
 
 package com.epam.dlab.configuration;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 

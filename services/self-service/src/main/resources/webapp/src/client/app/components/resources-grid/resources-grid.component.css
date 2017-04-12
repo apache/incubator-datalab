@@ -218,6 +218,7 @@ limitations under the License.
     text-align: center;
     line-height: 16px;
     padding-left: 1px;
+}
 
 .mat-icon-button .mat-icon, .mat-icon-button i {
   line-height: 42px;

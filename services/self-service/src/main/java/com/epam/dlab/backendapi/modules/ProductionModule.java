@@ -47,7 +47,5 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
                 .toInstance(configuration.getSecurityFactory().build(environment, ServiceConsts.SECURITY_SERVICE_NAME));
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
                 .toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
-        bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.BILLING_SERVICE_NAME))
-                .toInstance(configuration.getBillingFactory().build(environment, ServiceConsts.BILLING_SERVICE_NAME));
     }
 }

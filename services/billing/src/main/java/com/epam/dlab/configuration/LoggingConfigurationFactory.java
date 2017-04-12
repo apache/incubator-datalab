@@ -46,13 +46,8 @@ public class LoggingConfigurationFactory {
 	private Level level = Level.INFO;
 
 	/** List of logging levels for appenders. */
-	@Valid
-	@JsonProperty
-	private ImmutableMap<String, JsonNode> loggers = ImmutableMap.of();
-
-	/** List of logging levels for appenders. */
 	@JsonIgnore
-	private ImmutableMap<String, Level> levels = ImmutableMap.of();
+	private ImmutableMap<String, Level> loggers = ImmutableMap.of();
 
 	/** List of logging appenders. */
 	@Valid
@@ -71,19 +66,20 @@ public class LoggingConfigurationFactory {
 	}
 
 	/** Return the list of logging levels for appenders. */
-	public ImmutableMap<String, JsonNode> getLoggers() {
+	public ImmutableMap<String, Level> getLoggers() {
 		return loggers;
 	}
 
 	/** Set the list of logging levels for appenders. */
+	@Valid
+	@JsonProperty
 	public void setLoggers(ImmutableMap<String, JsonNode> loggers) throws InitializationException {
 		ImmutableMap.Builder<String, Level> levels = new ImmutableMap.Builder<String, Level>();
 		for(String key : loggers.keySet()) {
 			JsonNode node = loggers.get(key);
 			levels.put(key, toLevel(node.asText()));
 		}
-		this.loggers = loggers;
-		this.levels = levels.build();
+		this.loggers = levels.build();
 	}
 
 	/** Return the list of logging appenders. */
@@ -126,9 +122,9 @@ public class LoggingConfigurationFactory {
 
 		Logger logger = context.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
 		logger.setLevel(level);
-		for (String name : levels.keySet()) {
+		for (String name : loggers.keySet()) {
 			logger = context.getLogger(name);
-            logger.setLevel(levels.get(name));
+            logger.setLevel(loggers.get(name));
 		}
 	}
 	
@@ -139,7 +135,7 @@ public class LoggingConfigurationFactory {
 	public ToStringHelper toStringHelper(Object self) {
     	return MoreObjects.toStringHelper(self)
     			.add("level", level)
-    			.add("levels", levels)
+    			.add("loggers", loggers)
     			.add("appenders", appenders);
     }
     

@@ -19,13 +19,36 @@ limitations under the License.
 package com.epam.dlab.configuration;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.fail;
+
+import javax.validation.constraints.NotNull;
 
 import org.junit.Test;
 
+import com.epam.dlab.exception.InitializationException;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ConfigurationValidatorTest {
 	
-	@Test
-	public void test() {
+	class TestProperty {
 		
+		@JsonProperty
+		@NotNull
+		String property;
+	}
+	
+	@Test
+	public void validate() throws InitializationException {
+		ConfigurationValidator<TestProperty> v = new ConfigurationValidator<>();
+		TestProperty o = new TestProperty();
+		try {
+			v.validate(o);
+			fail("Property is null but validate is passed");
+		} catch (InitializationException e) {
+			// OK
+		}
+		o.property = "value";
+		v.validate(o);
+		assertEquals("value", o.property);
 	}
 }

@@ -30,7 +30,7 @@ function buildFrontend(){
 }
 
 function buildServices(){
-  # Build provisioning-service, billing-service, security-service, self-service
+  # Build provisioning-service, security-service, self-service, billing
   mvn -DskipTests package
 }
 
