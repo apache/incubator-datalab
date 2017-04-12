@@ -32,6 +32,10 @@ limitations under the License.
   width: 580px;
 }
 
+.modal-xl {
+  width: 980px;
+}
+
 .modal-backdrop {
   transition: .3s ease-in-out;
 }

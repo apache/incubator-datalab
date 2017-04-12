@@ -24,6 +24,8 @@ import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
+import com.epam.dlab.rest.contracts.EdgeAPI;
+import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.epam.dlab.rest.contracts.SecurityAPI;
 import com.epam.dlab.utils.ResourceUtils;
 import com.google.inject.name.Names;
@@ -34,9 +36,6 @@ import java.util.UUID;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
-import static com.epam.dlab.auth.SecurityRestAuthenticator.SECURITY_SERVICE;
-import static com.epam.dlab.rest.contracts.ExploratoryAPI.EXPLORATORY_CREATE;
-import static com.epam.dlab.rest.contracts.KeyLoaderAPI.KEY_LOADER;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -45,7 +44,7 @@ import static org.mockito.Mockito.when;
 
 /** Mock class for an application configuration of SelfService for tests.
  */
-public class MockModule extends ModuleBase<SelfServiceApplicationConfiguration> implements SecurityAPI, DockerAPI {
+public class MockModule extends ModuleBase<SelfServiceApplicationConfiguration> implements SecurityAPI, DockerAPI, EdgeAPI, ExploratoryAPI {
 	
 	/** Instantiates an application configuration of SelfService for tests.
      * @param configuration application configuration of SelfService.
@@ -59,10 +58,12 @@ public class MockModule extends ModuleBase<SelfServiceApplicationConfiguration> 
     protected void configure() {
         bind(SelfServiceApplicationConfiguration.class).toInstance(configuration);
         bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
-        bind(RESTService.class).annotatedWith(Names.named(SECURITY_SERVICE))
+        bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
                 .toInstance(createAuthenticationService());
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
                 .toInstance(createProvisioningService());
+        bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.BILLING_SERVICE_NAME))
+        		.toInstance(createBillingService());
     }
 
     /** Creates and returns the mock object for authentication service.
@@ -79,7 +80,7 @@ public class MockModule extends ModuleBase<SelfServiceApplicationConfiguration> 
      */
     private RESTService createProvisioningService() {
         RESTService result = mock(RESTService.class);
-        when(result.post(eq(KEY_LOADER), any(), eq(Response.class)))
+        when(result.post(eq(EDGE_CREATE), any(), eq(Response.class)))
                 .then(invocationOnMock -> Response.accepted().build());
         when(result.get(eq(DOCKER_EXPLORATORY), any(), eq(ExploratoryMetadataDTO[].class)))
                 .thenReturn(new ExploratoryMetadataDTO[]{
@@ -118,4 +119,14 @@ public class MockModule extends ModuleBase<SelfServiceApplicationConfiguration> 
             return null;
         }
     }
+
+    /** Creates and returns the mock object for billing service.
+     */
+    private RESTService createBillingService() {
+        RESTService result = mock(RESTService.class);
+        when(result.post(eq("billing"), any(), eq(Response.class)))
+                .then(invocationOnMock -> Response.accepted().build());
+        return result;
+    }
+
 }

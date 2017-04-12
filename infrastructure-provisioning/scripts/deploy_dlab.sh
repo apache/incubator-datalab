@@ -30,7 +30,7 @@ function buildFrontend(){
 }
 
 function buildServices(){
-  # Build provisioning-service, security-service, self-service
+  # Build provisioning-service, billing-service, security-service, self-service
   mvn -DskipTests package
 }
 
@@ -45,12 +45,15 @@ function deployDlab(){
   # Prepare files for deployment
   mkdir -p "$WORKSPACE"/web_app || exit 1
   mkdir -p "$WORKSPACE"/web_app/provisioning-service/ || exit 1
+  mkdir -p "$WORKSPACE"/web_app/billing/ || exit 1
   mkdir -p "$WORKSPACE"/web_app/security-service/ || exit 1
   mkdir -p "$WORKSPACE"/web_app/self-service/ || exit 1
   cp "$WORKSPACE"/services/self-service/self-service.yml "$WORKSPACE"/web_app/self-service/
   cp "$WORKSPACE"/services/self-service/target/self-service-1.0.jar "$WORKSPACE"/web_app/self-service/
   cp "$WORKSPACE"/services/provisioning-service/provisioning.yml "$WORKSPACE"/web_app/provisioning-service/
   cp "$WORKSPACE"/services/provisioning-service/target/provisioning-service-1.0.jar "$WORKSPACE"/web_app/provisioning-service/
+  cp "$WORKSPACE"/services/billing/billing.yml "$WORKSPACE"/web_app/billing/
+  cp "$WORKSPACE"/services/billing/target/billing-1.0.jar "$WORKSPACE"/web_app/billing/
   cp "$WORKSPACE"/services/security-service/security.yml "$WORKSPACE"/web_app/security-service/
   cp "$WORKSPACE"/services/security-service/target/security-service-1.0.jar "$WORKSPACE"/web_app/security-service/
 

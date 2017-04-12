@@ -62,6 +62,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
         injector.getInstance(SecurityFactory.class).configure(injector, environment);
         environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
+        
         JerseyEnvironment jersey = environment.jersey();
         jersey.register(new RuntimeExceptionMapper());
         jersey.register(new JsonProcessingExceptionMapper());

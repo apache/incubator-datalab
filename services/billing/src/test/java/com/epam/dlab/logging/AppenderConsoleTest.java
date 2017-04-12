@@ -16,8 +16,17 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.rest.contracts;
+package com.epam.dlab.logging;
 
-public interface KeyLoaderAPI {
-    String KEY_LOADER = "keyloader";
+import static junit.framework.TestCase.assertEquals;
+
+import org.junit.Test;
+
+public class AppenderConsoleTest {
+
+	@Test
+	public void config() {
+		AppenderConsole appender = new AppenderConsole();
+		assertEquals("console", appender.getType());
+	}
 }

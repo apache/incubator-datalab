@@ -26,6 +26,7 @@ import { ConfirmationDialogModule } from './../confirmation-dialog/index';
 import { DetailDialogModule } from './../detail-dialog/index';
 import { MultiSelectDropdownModule } from './../form-controls/multi-select-dropdown/index';
 import { MaterialModule } from '@angular/material';
+import { CostDetailsDialogModule } from './../cost-details-dialog/index';
 
 export * from './resources-grid.component';
 
@@ -38,7 +39,8 @@ export * from './resources-grid.component';
     DetailDialogModule,
     ComputationalResourceCreateDialogModule,
     MultiSelectDropdownModule,
-    MaterialModule.forRoot()
+    MaterialModule.forRoot(),
+    CostDetailsDialogModule
   ],
   declarations: [ResourcesGrid],
   exports: [ResourcesGrid]

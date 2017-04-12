@@ -18,10 +18,10 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -58,7 +58,7 @@ public class InfrastructureProvisionResource implements DockerAPI {
     private static final Logger LOGGER = LoggerFactory.getLogger(InfrastructureProvisionResource.class);
 
     @Inject
-    private ExploratoryDAO dao;
+    private ExploratoryDAO expDAO;
     @Inject
     private KeyDAO keyDAO;
     @Inject
@@ -73,25 +73,22 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Iterable<Document> getUserResources(@Auth UserInfo userInfo) throws DlabException {
         LOGGER.debug("Loading list of provisioned resources for user {}", userInfo.getName());
         try {
-        	Iterable<Document> documents = appendEdgeInfo(dao.findExploratory(userInfo.getName()), userInfo.getName());
-    		int i = 0;
+        	Iterable<Document> documents = expDAO.findExploratory(userInfo.getName());
+        	EdgeInfoDTO edgeInfo = keyDAO.getEdgeInfo(userInfo.getName());
+        	List<Document> notebooks = new ArrayList<Document>();
+        	
+        	int i = 0;
     		for (Document d : documents) {
-    			LOGGER.debug("Notebook[{}]: {}", ++i, d);
-			}
-    		return documents;
+        		d.append(EDGE_IP, edgeInfo.getPublicIp())
+    			 .append(EdgeInfoDTO.USER_OWN_BUCKET_NAME, edgeInfo.getUserOwnBucketName());
+        		notebooks.add(d);
+        		LOGGER.debug("Notebook[{}]: {}", ++i, d);
+        	}
+    		return notebooks;
         } catch (Throwable t) {
         	LOGGER.error("Could not load list of provisioned resources for user: {}", userInfo.getName(), t);
             throw new DlabException("Could not load list of provisioned resources for user " + userInfo.getName() + ": " + t.getLocalizedMessage(), t);
         }
-    }
-
-    private List<Document> appendEdgeInfo(Iterable<Document> documents, String username) {
-        EdgeInfoDTO cred = keyDAO.getEdgeInfo(username);
-        return StreamSupport.stream(documents.spliterator(), false)
-                .map(document -> document
-                		.append(EDGE_IP, cred.getPublicIp())
-                		.append(EdgeInfoDTO.USER_OWN_BUCKET_NAME, cred.getUserOwnBucketName()))
-                .collect(Collectors.toList());
     }
 
     /** Returns the list of the computational resources templates for user.

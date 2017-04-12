@@ -1,0 +1,13 @@
+Usage:
+  java ${CLASSNAME} <option>
+Options:
+  --help           this help screen;
+  --help conf      help about configuration;
+  --help {adapter | parser | filter | logappender} <type>
+                   help about adapter, parser, filter, log appender
+                   configuration, <type> is the type of module;
+  --conf filename  the name of configuration file;
+  --json content   the content of json configuration.
+Example:
+  java ${CLASSNAME} --conf billing.yml
+  java ${CLASSNAME} --json '{...}'
