@@ -9,6 +9,6 @@ target
 .settings
 /services/common/bin
 /services/provisioning-service/bin
-/services/provisioning-service/response
 /services/security-service/bin
 /services/self-service/bin
+/services/provisioning-service/response

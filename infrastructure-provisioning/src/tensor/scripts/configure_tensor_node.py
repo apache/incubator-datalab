@@ -39,6 +39,7 @@ args = parser.parse_args()
 spark_version = os.environ['notebook_spark_version']
 hadoop_version = os.environ['notebook_hadoop_version']
 tensorflow_version = os.environ['notebook_tensorflow_version']
+jupyter_version = os.environ['notebook_jupyter_version']
 spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
 pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/pyspark_local/'
 py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/py3spark_local/'
@@ -81,7 +82,7 @@ if __name__ == "__main__":
     install_tensor(args.os_user, tensorflow_version, files_dir, templates_dir)
 
     print "Install Jupyter"
-    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir)
+    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version)
 
     print "Install local Spark"
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path )

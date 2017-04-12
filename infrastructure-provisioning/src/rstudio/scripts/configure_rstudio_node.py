@@ -35,6 +35,7 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--rstudio_pass', type=str, default='')
+parser.add_argument('--rstudio_version', type=str, default='')
 args = parser.parse_args()
 
 spark_version = os.environ['notebook_spark_version']
@@ -79,7 +80,7 @@ if __name__ == "__main__":
     ensure_r(args.os_user, r_libs)
 
     print "Install RStudio"
-    install_rstudio(args.os_user, local_spark_path, args.rstudio_pass)
+    install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version)
 
     print "Install local Spark"
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)

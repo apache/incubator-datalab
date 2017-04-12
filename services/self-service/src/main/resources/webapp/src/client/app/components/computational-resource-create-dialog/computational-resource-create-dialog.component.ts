@@ -37,7 +37,7 @@ export class ComputationalResourceCreateDialog {
   notebook_instance: any;
   shapes: any;
   spotInstance: boolean = false;
-  
+
   computationalResourceExist: boolean = false;
   checkValidity: boolean = false;
   clusterNamePattern: string = '[-_a-zA-Z0-9]+';
@@ -220,7 +220,9 @@ export class ComputationalResourceCreateDialog {
   }
 
   private validInstanceSpotRange(control) {
-    return this.spotInstancesSelect.nativeElement['checked'] ? (control.value >= this.minSpotPrice && control.value <= 100 ? null : { valid: false }): control.value;
+    return this.spotInstancesSelect.nativeElement['checked']
+      ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
+      : control.value;
   }
 
   private setDefaultParams(): void {

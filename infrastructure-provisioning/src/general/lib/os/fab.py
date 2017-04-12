@@ -177,9 +177,10 @@ def put_resource_status(resource, status, dlab_path, os_user):
     sudo('python ' + dlab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
 
 
-def configure_jupyter(os_user, jupyter_conf_file, templates_dir):
+def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version):
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
+            sudo('pip install notebook=={} --no-cache-dir'.format(jupyter_version))
             sudo('pip install jupyter --no-cache-dir')
             sudo('rm -rf ' + jupyter_conf_file)
             run('jupyter notebook --generate-config --config ' + jupyter_conf_file)
@@ -192,16 +193,19 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir):
             sudo("chmod 644 /tmp/jupyter-notebook.service")
             if os.environ['application'] == 'tensor':
                 sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
-            sudo("sed -i 's|CONF_PATH|" + jupyter_conf_file + "|' /tmp/jupyter-notebook.service")
-            sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/jupyter-notebook.service")
+            sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
+            sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
             sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
-            sudo('chown -R ' + os_user + ':' + os_user + ' /home/' + os_user + '/.local')
+            sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             sudo('mkdir /mnt/var')
-            sudo('chown ' + os_user + ':' + os_user + ' /mnt/var')
+            sudo('chown {0}:{0} /mnt/var'.format(os_user))
+            if os.environ['application'] == 'jupyter':
+                sudo('jupyter-kernelspec remove -f python2')
+                sudo('jupyter-kernelspec remove -f python3')
             sudo("systemctl daemon-reload")
             sudo("systemctl enable jupyter-notebook")
             sudo("systemctl start jupyter-notebook")
-            sudo('touch /home/' + os_user + '/.ensure_dir/jupyter_ensured')
+            sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
 

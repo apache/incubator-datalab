@@ -80,32 +80,32 @@ def ensure_r(os_user, r_libs):
             sys.exit(1)
 
 
-def install_rstudio(os_user, local_spark_path, rstudio_pass):
+def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
     if not exists('/home/' + os_user + '/.ensure_dir/rstudio_ensured'):
         try:
             sudo('apt-get install -y r-base')
             sudo('apt-get install -y gdebi-core')
-            sudo('wget https://download2.rstudio.org/rstudio-server-1.0.44-amd64.deb')
-            sudo('gdebi -n rstudio-server-1.0.44-amd64.deb')
+            sudo('wget https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(rstudio_version))
+            sudo('gdebi -n rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('mkdir /mnt/var')
-            sudo('chown ' + os_user + ':' + os_user + ' /mnt/var')
-            sudo('touch /home/' + os_user + '/.Renviron')
-            sudo('chown ' + os_user + ':' + os_user + ' /home/' + os_user + '/.Renviron')
-            sudo('''echo 'SPARK_HOME="''' + local_spark_path + '''"' >> /home/''' + os_user + '''/.Renviron''')
-            sudo('touch /home/' + os_user + '/.Rprofile')
-            sudo('chown ' + os_user + ':' + os_user + ' /home/' + os_user + '/.Rprofile')
-            sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/''' + os_user + '''/.Rprofile''')
+            sudo('chown {0}:{0} /mnt/var'.format(os_user))
+            sudo('touch /home/{}/.Renviron'.format(os_user))
+            sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
+            sudo('''echo 'SPARK_HOME="{0}"' >> /home/{1}/.Renviron'''.format(local_spark_path, os_user))
+            sudo('touch /home/{}/.Rprofile'.format(os_user))
+            sudo('chown {0}:{0} /home/{0}/.Rprofile'.format(os_user))
+            sudo('''echo 'library(SparkR, lib.loc = c(file.path(Sys.getenv("SPARK_HOME"), "R", "lib")))' >> /home/{}/.Rprofile'''.format(os_user))
             sudo('rstudio-server start')
-            sudo('echo "' + os_user + ':' + rstudio_pass + '" | chpasswd')
+            sudo('echo "{0}:{1}" | chpasswd'.format(os_user, rstudio_pass))
             sudo("sed -i '/exit 0/d' /etc/rc.local")
-            sudo('''bash -c "echo \'sed -i 's/^#SPARK_HOME/SPARK_HOME/' /home/''' + os_user + '''/.Renviron\' >> /etc/rc.local"''')
+            sudo('''bash -c "echo \'sed -i 's/^#SPARK_HOME/SPARK_HOME/' /home/{}/.Renviron\' >> /etc/rc.local"'''.format(os_user))
             sudo("bash -c 'echo exit 0 >> /etc/rc.local'")
-            sudo('touch /home/' + os_user + '/.ensure_dir/rstudio_ensured')
+            sudo('touch /home/{}/.ensure_dir/rstudio_ensured'.format(os_user))
         except:
             sys.exit(1)
     else:
         try:
-            sudo('echo "' + os_user + ':' + rstudio_pass + '" | chpasswd')
+            sudo('echo "{0}:{1}" | chpasswd'.format(os_user, rstudio_pass))
         except:
             sys.exit(1)
 
