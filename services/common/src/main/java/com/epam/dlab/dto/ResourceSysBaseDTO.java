@@ -24,6 +24,8 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends ResourceBaseDTO<T> {
     @JsonProperty("conf_service_base_name")
     private String serviceBaseName;
+    @JsonProperty("conf_tag_resource_id")
+    private String confTagResourceId;
     @JsonProperty("conf_os_user")
     private String confOsUser;
     @JsonProperty("conf_os_family")
@@ -42,6 +44,19 @@ public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends Resourc
 
     public T withServiceBaseName(String serviceBaseName) {
         setServiceBaseName(serviceBaseName);
+        return self;
+    }
+    
+    public String getConfTagResourceId() {
+        return confTagResourceId;
+    }
+
+    public void setConfTagResourceId(String confTagResourceId) {
+        this.confTagResourceId = confTagResourceId;
+    }
+
+    public T withConfTagResourceId(String confTagResourceId) {
+        setConfTagResourceId(confTagResourceId);
         return self;
     }
     

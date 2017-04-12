@@ -41,6 +41,12 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 /** Self Service based on Dropwizard application.
  */
 public class SelfServiceApplication extends Application<SelfServiceApplicationConfiguration> {
+	private static Injector injector;
+	
+	public static Injector getInjector() {
+		return injector;
+	}
+	
     public static void main(String... args) throws Exception {
         new SelfServiceApplication().run(args);
     }
@@ -58,7 +64,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 
     @Override
     public void run(SelfServiceApplicationConfiguration configuration, Environment environment) throws Exception {
-        Injector injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment));
+        injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment));
         environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
         injector.getInstance(SecurityFactory.class).configure(injector, environment);
         environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));

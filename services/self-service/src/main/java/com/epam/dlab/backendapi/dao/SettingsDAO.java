@@ -66,6 +66,11 @@ public class SettingsDAO extends BaseDAO {
         return getSetting(AWS_SUBNET_ID);
     }
 
+    /** Returns the name of tag for resource id. */
+    public String getConfTagResourceId() {
+        return getSetting(CONF_TAG_RESOURCE_ID);
+    }
+
     /** Returns the value of property from Mongo database.
      * @param setting the name of property.
      */
