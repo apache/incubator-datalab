@@ -18,7 +18,6 @@ limitations under the License.
 
 package com.epam.dlab.core.parser;
 
-import java.io.File;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -35,11 +34,6 @@ import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.exception.ParseException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 /** Abstract module of parser.<br>
@@ -55,10 +49,9 @@ public abstract class ParserBase extends ModuleBase {
 	/** Default character used for thousands separator. */
 	public static final char DECIMAL_GROUPING_SEPARATOR_DEFAULT = ' ';
 	
-	/** Name of file to store filter data. */
-	@JsonProperty
-	private String dataFile;
-
+	/** Name of key for date report data. */
+	public static final String DATA_KEY_START_DATE = "maxStartDate";
+	
 	/** Report column name of date report data. */
 	@JsonProperty
 	private String columnStartDate;
@@ -121,16 +114,6 @@ public abstract class ParserBase extends ModuleBase {
 	private final ParserStatistics statistics = new ParserStatistics();
 	
 	
-	/** Return the name of file to store filter data. */
-	public String getDataFile() {
-		return dataFile;
-	}
-
-	/** Set the name of file to store filter data */
-	public void setDatafile(String datafile) {
-		this.dataFile = datafile;
-	}
-
 	/** Return report column name of date report data. */
 	public String getColumnStartDate() {
 		return columnStartDate;
@@ -268,13 +251,14 @@ public abstract class ParserBase extends ModuleBase {
 	 * @param adapterOut the adapter for writing converted data.
 	 * @param filter the filter for source and converted data. May be <b>null<b>.
 	 */
-	public void build(AdapterBase adapterIn, AdapterBase adapterOut, FilterBase filter) {
+	public ParserBase build(AdapterBase adapterIn, AdapterBase adapterOut, FilterBase filter) {
 		this.adapterIn = adapterIn;
 		this.adapterOut = adapterOut;
 		if (filter != null) {
 			filter.setParser(this);
 		}
 		this.filter = filter;
+		return this;
 	}
 	
 	
@@ -303,71 +287,21 @@ public abstract class ParserBase extends ModuleBase {
 			getAdapterOut().writeHeader(columnMeta.getTargetColumnNames());
 		}
 		
-		loadDataFile();
+		startDateIndex = (getColumnStartDate() == null || getColumnStartDate().trim().isEmpty() ?
+				-1 : getSourceColumnIndexByName(getColumnStartDate()));
+		maxStartDate = (startDateIndex == -1 ? "" : getModuleData().get(DATA_KEY_START_DATE));
+		newMaxStartDate = maxStartDate;
 	}
 	
-	/** Extract and return the value from JSON, if node is <b>null</b> or the value of node is <b>null</b> return
-	 * defaultValue.
-	 * @param node the node of JSON.
-	 * @param name the name of JSON property.
-	 * @param defaultValue the default value of property.
-	 * @return the value of property.
-	 */
-	private String getJsonValue(JsonNode node, String name, String defaultValue) {
-		if (node == null || (node = node.get(name)) == null) {
-			return defaultValue;
-		}
-		String value = node.textValue();
-        return (value == null ? defaultValue : value);
-    }
 	
-	/** Load working data of parser.
+	/** Store working data of modules.
 	 * @throws InitializationException
 	 */
-	protected void loadDataFile() throws InitializationException {
-		if (getDataFile() == null || getDataFile().trim().isEmpty() ||
-			getColumnStartDate() == null || getColumnStartDate().trim().isEmpty()) {
-			startDateIndex = -1;
-			maxStartDate = "";
-		} else {
-			startDateIndex = getSourceColumnIndexByName(getColumnStartDate());
-			File file = new File(getDataFile());
-			if (file.exists()) {
-				ObjectMapper mapper = new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
-				JsonNode node;
-				try {
-					node = mapper.readTree(file);
-				} catch (Exception e) {
-					throw new InitializationException("Cannot load parser data file " + getDataFile() + ". " +
-							e.getLocalizedMessage(), e);
-				}
-				maxStartDate = getJsonValue(node, "maxStartDate", "");
-			} else {
-				maxStartDate = "";
-			}
-			newMaxStartDate = maxStartDate;
+	protected void storeModuleDate() throws InitializationException {
+		if (startDateIndex != -1) {
+			getModuleData().set(DATA_KEY_START_DATE, newMaxStartDate);
 		}
-	}
-	
-	/** Store working data of parser.
-	 * @throws InitializationException
-	 */
-	protected void storeDataFile() throws InitializationException {
-		if (getDataFile() == null || getDataFile().trim().isEmpty() ||
-			getColumnStartDate() == null || getColumnStartDate().trim().isEmpty()) {
-			return;
-		}
-		JsonNodeFactory factory = JsonNodeFactory.instance;
-		ObjectNode node = factory.objectNode();
-		node.put("maxStartDate", newMaxStartDate);
-		
-		File file = new File(getDataFile());
-		try {
-			new ObjectMapper().writeValue(file, node);
-		} catch (Exception e) {
-			throw new InitializationException("Cannot sotore parser data file " + getDataFile() + ". " +
-					e.getLocalizedMessage(), e);
-		}
+		getModuleData().store();
 	}
 	
 	/** Return the index of source column by column name. 
@@ -383,7 +317,7 @@ public abstract class ParserBase extends ModuleBase {
 	 * @param row the report line.
 	 */
 	public boolean checkStartDate(List<String> row) {
-		if (startDateIndex != -1 ) {
+		if (startDateIndex != -1) {
 			if (row.size() <= startDateIndex ) {
 				return false;
 			}
@@ -405,7 +339,6 @@ public abstract class ParserBase extends ModuleBase {
     			.add("adapterIn", (adapterIn == null ? null : adapterIn.getType()))
     			.add("adapterOut", (adapterOut == null ? null : adapterOut.getType()))
     			.add("filter", (filter == null ? null : filter.getType()))
-				.add("datafile", dataFile)
 				.add("columnStartDate", columnStartDate)
     			.add("columnMapping", columnMapping)
     			.add("whereCondition", whereCondition)

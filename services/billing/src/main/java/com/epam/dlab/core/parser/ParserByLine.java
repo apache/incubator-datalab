@@ -172,7 +172,7 @@ public abstract class ParserByLine extends ParserBase {
 				}
 			}
 			
-			storeDataFile();
+			storeModuleDate();
 			if (getAggregate() != AggregateGranularity.NONE) {
 				for (int i = 0; i < getAggregator().size(); i++) {
 					getAdapterOut().writeRow(getAggregator().get(i));

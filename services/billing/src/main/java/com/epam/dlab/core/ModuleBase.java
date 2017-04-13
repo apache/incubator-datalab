@@ -35,6 +35,10 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public abstract class ModuleBase {
 	
+	/** Working data of module. */
+	@JsonIgnore
+	private ModuleData moduleData;
+	
 	/** Return the name of type for appender. */
 	@JsonIgnore
 	public String getType() {
@@ -43,6 +47,15 @@ public abstract class ModuleBase {
 				clazz.getAnnotation(JsonTypeName.class).value() : clazz.getName());
 	}
 	
+	/** Return the working data of module. */
+	public ModuleData getModuleData() {
+		return moduleData;
+	}
+	
+	/** Set the working data of module. */
+	public void setModuleData(ModuleData moduleData) {
+		this.moduleData = moduleData;
+	}
 	
 	/** Returns a string representation of the object.
 	 * @param self the object to generate the string for (typically this), used only for its class name.

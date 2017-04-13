@@ -117,14 +117,4 @@ public class MockModule extends ModuleBase<SelfServiceApplicationConfiguration> 
             return null;
         }
     }
-
-    /** Creates and returns the mock object for billing service.
-     */
-    private RESTService createBillingService() {
-        RESTService result = mock(RESTService.class);
-        when(result.post(eq("billing"), any(), eq(Response.class)))
-                .then(invocationOnMock -> Response.accepted().build());
-        return result;
-    }
-
 }

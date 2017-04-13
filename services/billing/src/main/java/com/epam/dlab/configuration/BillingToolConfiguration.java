@@ -26,7 +26,10 @@ import com.epam.dlab.core.AdapterBase;
 import com.epam.dlab.core.AdapterBase.Mode;
 import com.epam.dlab.core.parser.ParserBase;
 import com.epam.dlab.core.FilterBase;
+import com.epam.dlab.core.ModuleBase;
+import com.epam.dlab.core.ModuleData;
 import com.epam.dlab.exception.InitializationException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
@@ -35,7 +38,11 @@ import com.google.common.collect.ImmutableList;
 /** Describe configuration for {@link BillingTool}
  */
 public class BillingToolConfiguration {
-
+	
+	/** Working data file name of modules. */
+	@Valid
+	private String workingFile;
+	
 	/** Adapter for reading source data. */
 	@Valid
     @NotNull
@@ -64,6 +71,21 @@ public class BillingToolConfiguration {
     @JsonProperty
 	private LoggingConfigurationFactory logging = null;
     
+	
+	/** Working data of modules. */
+	@JsonIgnore
+	private ModuleData moduleData;
+
+
+	/** Return the working data file name of modules. */
+	public String getWorkingFile () {
+		return workingFile;
+	}
+	
+	/** Set the working data file name of modules. */
+	public void setWorkingFile (String workingFile) {
+		this.workingFile = workingFile;
+	}
 	
 	/** Return the adapter for reading source data. */
 	public ImmutableList<AdapterBase> getAdapterIn() {
@@ -122,6 +144,12 @@ public class BillingToolConfiguration {
 	}
 
 	
+	/** Return the working data of modules. */
+	@JsonIgnore
+	public ModuleData getModuleData() {
+		return moduleData;
+	}
+
 	/** Check and return module.
 	 * @param modules the list of modules.
 	 * @param name the name of module.
@@ -129,7 +157,7 @@ public class BillingToolConfiguration {
 	 * @return module
 	 * @throws InitializationException
 	 */
-	private <T> T getModule(ImmutableList<T> modules, String name, boolean isOptional) throws InitializationException {
+	private <T extends ModuleBase> T getModule(ImmutableList<T> modules, String name, boolean isOptional) throws InitializationException {
 		T module = (modules != null && modules.size() == 1 ? modules.get(0) : null);
 		if (!isOptional && module == null) {
 			throw new InitializationException("Invalid configuration for property " + name);
@@ -143,11 +171,18 @@ public class BillingToolConfiguration {
 	 */
 	public ParserBase build() throws InitializationException {
 		ParserBase parser = getModule(this.parser, "parser", false);
-		parser.build(
-				getModule(adapterIn, "adapterIn", false),
-				getModule(adapterOut, "adapterOut", false),
-				getModule(filter, "filter", true));
-		return parser;
+		AdapterBase in = getModule(adapterIn, "adapterIn", false);
+		AdapterBase out = getModule(adapterOut, "adapterOut", false);
+		FilterBase f = getModule(filter, "filter", true);
+		
+		moduleData = new ModuleData(workingFile);
+		
+		parser.setModuleData(moduleData);
+		in.setModuleData(moduleData);
+		out.setModuleData(moduleData);
+		f.setModuleData(moduleData);
+		
+		return parser.build(in, out, f);
 	}
 
 	
@@ -156,6 +191,8 @@ public class BillingToolConfiguration {
 	 */
 	public ToStringHelper toStringHelper(Object self) {
     	return MoreObjects.toStringHelper(self)
+    			.add("workingFile", workingFile)
+    			.add("moduleData", moduleData)
     			.add("adapterIn", adapterIn)
     			.add("adapterOut", adapterOut)
     			.add("filter", filter)

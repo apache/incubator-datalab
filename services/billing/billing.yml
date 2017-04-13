@@ -1,3 +1,5 @@
+workingFile: /opt/dlab/tmp/result/billing-data.json
+
 # Adapter for reading source data. Known types: file, s3file
 adapterIn:
   - type: file
@@ -34,7 +36,6 @@ filter:
 # Parser of source data to common format.
 parser:
   - type: csv
-    dataFile: /opt/dlab/tmp/result/billing.json
     columnStartDate: UsageStartDate
     headerLineNo: 1
     skipLines: 1

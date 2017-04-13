@@ -71,7 +71,6 @@ public class LoggingConfigurationFactory {
 	}
 
 	/** Set the list of logging levels for appenders. */
-	@Valid
 	@JsonProperty
 	public void setLoggers(ImmutableMap<String, JsonNode> loggers) throws InitializationException {
 		ImmutableMap.Builder<String, Level> levels = new ImmutableMap.Builder<String, Level>();

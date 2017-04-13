@@ -43,9 +43,8 @@ public class BillingTool {
 	 * @throws ParseException
 	 */
 	public void run(BillingToolConfiguration conf) throws InitializationException, AdapterException, ParseException {
-		LOGGER.debug("Billing Tool Configuration: {}", conf);
-
 		ParserBase parser = conf.build();
+		LOGGER.debug("Billing Tool Configuration: {}", conf);
 		LOGGER.debug("Parser configuration: {}", parser);
 		
 		parser.parse();

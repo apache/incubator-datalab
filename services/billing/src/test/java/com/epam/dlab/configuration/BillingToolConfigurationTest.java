@@ -46,7 +46,6 @@ public class BillingToolConfigurationTest {
 							"columnDlabTag", "user:user:tag",
 							"serviceBaseName", "sbn")
 				.withParser("type", ModuleName.PARSER_CSV,
-							"dataFile", "data.json",
 							"columnStartDate", "UsageStartDate",
 							"columnMapping", "dlab_id=user:user:tag;usage_date=UsageStartDate;product=ProductName;" +
 											"tags=Operation,ItemDescription",
@@ -82,7 +81,6 @@ public class BillingToolConfigurationTest {
 		assertEquals(parser, filter.getParser());
 		
 		assertEquals(ModuleName.PARSER_CSV, parser.getType());
-		assertEquals("data.json", parser.getDataFile());
 		assertEquals("UsageStartDate", parser.getColumnStartDate());
 		assertEquals("dlab_id=user:user:tag;usage_date=UsageStartDate;product=ProductName;tags=Operation,ItemDescription",
 				parser.getColumnMapping());
