@@ -47,6 +47,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.dto.edge.EdgeCreateDTO;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.dto.keyload.UploadFileDTO;
@@ -179,16 +180,10 @@ public class KeyUploaderResource implements EdgeAPI {
     	}
     	
         try {
-            EdgeCreateDTO edge = new EdgeCreateDTO()
-                    .withAwsIamUser(userInfo.getName())
-                    .withEdgeUserName(userInfo.getSimpleName())
-                    .withServiceBaseName(settingsDAO.getServiceBaseName())
+            EdgeCreateDTO edge = ResourceUtils.newResourceSysBaseDTO(userInfo, EdgeCreateDTO.class)
                     .withAwsSecurityGroupIds(settingsDAO.getAwsSecurityGroups())
-                    .withAwsRegion(settingsDAO.getAwsRegion())
                     .withAwsVpcId(settingsDAO.getAwsVpcId())
                     .withAwsSubnetId(settingsDAO.getAwsSubnetId())
-                    .withConfOsUser(settingsDAO.getConfOsUser())
-                    .withConfOsFamily(settingsDAO.getConfOsFamily())
 		            .withEdgeElasticIp(publicIp);
             
             UploadFileDTO dto = new UploadFileDTO()

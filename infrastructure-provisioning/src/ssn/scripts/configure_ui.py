@@ -41,6 +41,7 @@ parser.add_argument('--service_base_name', type=str, default='')
 parser.add_argument('--security_groups_ids', type=str, default='')
 parser.add_argument('--vpc_id', type=str, default='')
 parser.add_argument('--subnet_id', type=str, default='')
+parser.add_argument('--tag_resource_id', type=str, default='')
 args = parser.parse_args()
 
 dlab_conf_dir = args.dlab_path + 'conf/'
@@ -67,7 +68,7 @@ def configure_mongo():
         local('scp -i {} /root/scripts/configure_mongo.py {}:/tmp/configure_mongo.py'.format(args.keyfile,
                                                                                              env.host_string))
         sudo('mv /tmp/configure_mongo.py ' + args.dlab_path + 'tmp/')
-        sudo('python ' + args.dlab_path + 'tmp/configure_mongo.py --region {} --base_name {} --sg "{}" --vpc {} --subnet {} --dlab_path {} --os_user {} --os_family {}'.format(args.region, args.service_base_name, args.security_groups_ids.replace(" ", ""), args.vpc_id, args.subnet_id, args.dlab_path, args.os_user, args.os_family))
+        sudo('python ' + args.dlab_path + 'tmp/configure_mongo.py --region {} --base_name {} --sg "{}" --vpc {} --subnet {} --dlab_path {} --os_user {} --os_family {} --tag_resource_id {}'.format(args.region, args.service_base_name, args.security_groups_ids.replace(" ", ""), args.vpc_id, args.subnet_id, args.dlab_path, args.os_user, args.os_family, args.tag_resource_id))
         return True
     except:
         return False

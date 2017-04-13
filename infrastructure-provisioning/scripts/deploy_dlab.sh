@@ -58,7 +58,7 @@ function deployDlab(){
   sudo docker run -i -v ${Key_path}${Key_name}.pem:/root/keys/${Key_name}.pem \
     -v "$WORKSPACE"/web_app:/root/web_app -e "conf_os_family=$OS_family" -e "conf_os_user=$OS_user" \
         -e "conf_cloud_provider=$Cloud_provider" -e "conf_resource=ssn" -e "aws_ssn_instance_size=t2.medium" \
-        -e "aws_region=us-west-2" -e "aws_vpc_id=$VPC_id" -e "aws_subnet_id=$Subnet_id" \
+        -e "aws_region=us-west-2" -e "aws_vpc_id=$VPC_id" -e "aws_subnet_id=$Subnet_id" -e "conf_tag_resource_id=$Tag_resource_id" \
         -e "aws_security_groups_ids=$Sg_ids" -e "conf_key_name=$Key_name" \
         -e "conf_service_base_name=$Infrastructure_Tag" \
         -e "aws_access_key=$Access_Key_ID" -e "aws_secret_access_key=$Secret_Access_Key" \
@@ -180,6 +180,10 @@ do
         ;;
         --action)
         Action="$2"
+        shift # past argument
+        ;;
+        --tag_resource_id)
+        Tag_resource_id="$2"
         shift # past argument
         ;;
         -h|--help)

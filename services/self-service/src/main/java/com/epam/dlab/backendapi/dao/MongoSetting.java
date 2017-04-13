@@ -35,7 +35,9 @@ public enum MongoSetting {
 	/** Id of virtual private cloud for AWS account. */
     AWS_VPC_ID("aws_vpc_id"),
 	/** Id of virtual private cloud subnet for AWS account. */
-    AWS_SUBNET_ID("aws_subnet_id");
+    AWS_SUBNET_ID("aws_subnet_id"),
+	/** Name of resource id. */
+    CONF_TAG_RESOURCE_ID("conf_tag_resource_id");
 
     private String id;
 

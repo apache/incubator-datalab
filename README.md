@@ -198,6 +198,7 @@ List of parameters for SSN node deployment:
 | sg\_ids             | One or more ID\`s of AWS Security Groups, which will be assigned to SSN node            |
 | key\_path           | Path to admin key (without key name)                                                    |
 | key\_name           | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| tag\_resource\_id   | The name of tag for billing reports                                                     |
 | action              | In case of SSN node creation, this parameter should be set to “create”                  |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
@@ -264,6 +265,7 @@ List of parameters for Edge node creation:
 | aws\_security\_groups\_ids | One or more id’s of the SSN instance security group                               |
 | aws\_subnet\_id            | ID of the AWS public subnet where Edge will be deployed                           |
 | aws\_iam\_user             | Name of AWS IAM user                                                              |
+| conf\_tag\_resource\_id    | Name of tag for billing                                                                  |
 | action                     | create                                                                            |
 
 ### Start/Stop <a name=""></a>
@@ -302,6 +304,7 @@ List of parameters for Edge node recreation:
 | aws\_subnet\_id            | ID of the AWS public subnet where Edge was deployed                               |
 | aws\_iam\_user             | Name of AWS IAM user                                                              |
 | edge\_elastic\_ip          | AWS Elastic IP address which was associated to Edge node                          |
+| conf\_tag\_resource\_id    | Name of tag for billing reports                                                   |
 | action                     | Create                                                                            |
 
 ## Notebook node <a name="Notebook_node"></a>
@@ -325,6 +328,7 @@ List of parameters for Notebook node creation:
 | aws\_notebook\_instance\_type | Value of the Notebook EC2 instance shape                                          |
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | aws\_security\_groups\_ids    | ID of the SSN instance's security group                                           |
+| conf\_tag\_resource\_id       | Name of tag for billing                                                           |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor)                   |
 | action                        | Create                                                                            |
 
@@ -387,6 +391,7 @@ List of parameters for EMR cluster creation:
 | notebook\_instance\_name    | Name of the Notebook EMR will be linked to                   |
 | edge\_user\_name            | Value that previously was used when Edge being provisioned   |
 | aws\_region                 | AWS region where infrastructure was deployed                 |
+| conf\_tag\_resource\_id     | Name of tag for billing                                      |
 | action                      | create                                                       |
 
 **Note:** If “Spot instances” is enabled, EMR Slave nodes will be created as EC2 Spot instances.
@@ -784,7 +789,7 @@ Using this Docker file, all required scripts and files will be copied to Docker 
 
 -   Docker command for building SSN:
 ```
-docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_os_family=debian" -e "conf_os_user=ubuntu" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "aws_ssn_instance_size=t2.medium" -e "aws_region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" docker.dlab-ssn --action create ;
+docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_tag_resource_id=dlab" "-e "conf_os_family=debian" -e "conf_os_user=ubuntu" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "aws_ssn_instance_size=t2.medium" -e "aws_region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" docker.dlab-ssn --action create ;
 ```
 
 -   Docker executes *entrypoint.py* script with action *create*. *Entrypoint.py* will set environment variables, which were provided from Docker and execute *general/api/create.py* script:
