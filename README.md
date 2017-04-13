@@ -99,10 +99,10 @@ The following diagram demonstrates high-level physical architecture of DLab
 
 Creation of self-service node – is the first step for deploying DLab. SSN is a main server with following pre-installed services:
 
--   DLab Web UI – is Web user interface for managing/deploying all components of DLab. It is accessible by the following URL: http://SSN\_Public\_IP\_or\_Public\_DNS
+-   DLab Web UI – is Web user interface for managing/deploying all components of DLab. It is accessible by the following URL: http://SSN_Public_IP_or_Public_DNS
 -   MongoDB – is a database, which contains part of DLab’s configuration, user’s exploratory environments description as well as user’s preferences.
 -   Docker – used for building DLab Docker containers, which will be used for provisioning other components.
--   Jenkins – is an alternative to Web UI. It is accessible by the following link: http://SSN\_Public\_IP\_or\_Public\_DNS/jenkins
+-   Jenkins – is an alternative to Web UI. It is accessible by the following link: http://SSN_Public_IP_or_Public_DNS/jenkins
 
 ## Edge node
 
