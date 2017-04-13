@@ -65,7 +65,7 @@ logging:
   appenders:
     - type: console
     - type: file
-      currentLogFilename: D:\\DLab\\sources\\dlab\\services\\billing-tool\\billing.log
+      currentLogFilename: /var/opt/dlab/log/ssn/billing.log
       archive: true
-      archivedLogFilenamePattern: D:\\DLab\\sources\\dlab\\services\\billing-tool\\billing-%d{yyyy-MM-dd}.log.gz
+      archivedLogFilenamePattern: /var/opt/dlab/log/ssn/billing-%d{yyyy-MM-dd}.log.gz
       archivedFileCount: 10
