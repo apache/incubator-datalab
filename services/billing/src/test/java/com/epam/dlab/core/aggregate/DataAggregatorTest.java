@@ -16,29 +16,31 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.util;
+package com.epam.dlab.core.aggregate;
 
-/** The type of billing modules: adapter, filter, parser or log appender.
- */
-public enum ModuleType {
-	ADAPTER,
-	FILTER,
-	PARSER,
-	LOGAPPENDER;
-	
-    @Override
-    public String toString() {
-        return super.toString().toLowerCase();
-    }
+import static junit.framework.TestCase.assertEquals;
 
-    public static ModuleType of(String string) {
-        if (string != null) {
-            for (ModuleType value : ModuleType.values()) {
-                if (string.equalsIgnoreCase(value.toString())) {
-                    return value;
-                }
-            }
-        }
-        return null;
-    }
+import org.junit.Test;
+
+public class DataAggregatorTest {
+
+	@Test
+	public void append() {
+		UsageDataList list = new UsageDataList();
+		
+		list.append("2017-04-12");
+		list.append("2017-04-12");
+		list.append("2017-04-14");
+		
+		assertEquals(2, list.size());
+		
+		assertEquals(Boolean.FALSE, list.get("2017-04-12"));
+		assertEquals(Boolean.FALSE, list.get("2017-04-14"));
+		
+		list.set("2017-04-14", true);
+		assertEquals(Boolean.TRUE, list.get("2017-04-14"));
+		
+		list.clear();
+		assertEquals(0, list.size());
+	}
 }

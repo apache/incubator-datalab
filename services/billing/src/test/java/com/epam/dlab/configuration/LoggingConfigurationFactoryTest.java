@@ -26,11 +26,11 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.logging.AppenderBase;
 import com.epam.dlab.logging.AppenderConsole;
 import com.epam.dlab.logging.AppenderFile;
-import com.epam.dlab.util.BillingUtils;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,7 +50,7 @@ public class LoggingConfigurationFactoryTest {
 	}
 
 	@Test
-	public void test() throws IOException, InitializationException {
+	public void config() throws IOException, InitializationException {
 		// {"filter":[{"filterProperty":"filterValue"}],"parser":[{"parserProperty":"parserValue"}],"adapterIn":[{"adapterInProperty":"adapterInValue"}],"adapterOut":[{"adapterOutProperty":"adapterOutValue"}]}
 		final String jsonString =
 			"{\n" +

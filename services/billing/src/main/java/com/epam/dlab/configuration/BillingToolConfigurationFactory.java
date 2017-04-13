@@ -21,8 +21,8 @@ package com.epam.dlab.configuration;
 import java.io.File;
 import java.io.IOException;
 
+import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.exception.InitializationException;
-import com.epam.dlab.util.BillingUtils;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

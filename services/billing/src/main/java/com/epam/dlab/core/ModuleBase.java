@@ -30,6 +30,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
  * 1. Create a class which extends one of {@link AdapterBase}, {@link FilterBase} or {@link ParserBase} classes.<br>
  * 2. Annotate it with {@link JsonTypeName} annotation and give it a unique type name for this type of modules.<br>
  * 3. Add full the name of your class to main/resources/com.epam.dlab.configuration.BillingToolConfigurationFactory file.
+ * 4. Annotate it with {@link JsonClassDescription] annotation and describe all properties of module.
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public abstract class ModuleBase {

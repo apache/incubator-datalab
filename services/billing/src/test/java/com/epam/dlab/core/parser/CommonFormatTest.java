@@ -24,9 +24,9 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.exception.ParseException;
-import com.epam.dlab.util.BillingUtils;
 import com.google.common.collect.Lists;
 
 import jersey.repackaged.com.google.common.collect.Maps;

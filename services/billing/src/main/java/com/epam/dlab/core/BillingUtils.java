@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.util;
+package com.epam.dlab.core;
 
 import java.io.IOException;
 import java.net.URL;
@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.epam.dlab.configuration.BillingToolConfigurationFactory;
-import com.epam.dlab.core.AdapterBase;
-import com.epam.dlab.core.FilterBase;
 import com.epam.dlab.core.parser.ParserBase;
 import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.logging.AppenderBase;

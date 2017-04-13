@@ -23,8 +23,8 @@ import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 
+import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.exception.InitializationException;
-import com.epam.dlab.util.BillingUtils;
 
 /** Json properties validator.
  * @param <T> Class for validation.

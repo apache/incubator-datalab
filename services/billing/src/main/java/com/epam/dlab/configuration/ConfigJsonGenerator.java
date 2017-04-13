@@ -21,7 +21,7 @@ package com.epam.dlab.configuration;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.epam.dlab.util.BillingUtils;
+import com.epam.dlab.core.BillingUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -39,8 +39,10 @@ import com.google.common.base.MoreObjects.ToStringHelper;
     "Filter report data and select line item only. Set column projectCode and\n" +
     "currencyCode to user values.\n" +
 	"  - type: " + ModuleName.FILTER_AWS + "\n" +
-    "    [projectCode: <string>]   - user value for projectCode column.\n" +
-    "    [currencyCode: <string>]  - user value for currencyCode column."
+    "    [currencyCode: <string>]    - user value for currencyCode column.\n" +
+    "    [columnDlabTag: <string>]   - name of column tag of DLab resource id.\n" +
+    "    [serviceBaseName: <string>] - DLab's service base name."
+    
 	)
 public class FilterAWS extends FilterBase {
 	

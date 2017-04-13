@@ -22,8 +22,8 @@ import static junit.framework.TestCase.assertEquals;
 
 import org.junit.Test;
 
+import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.exception.ParseException;
-import com.epam.dlab.util.BillingUtils;
 
 import jersey.repackaged.com.google.common.collect.Maps;
 

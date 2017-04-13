@@ -43,10 +43,24 @@ public class DataAggregator {
 	
 	
 	public DataAggregator(AggregateGranularity granularity) {
+		switch (granularity) {
+		case DAY:
+			truncateDateLength = 10;
+			break;
+		case MONTH:
+			truncateDateLength = 7;
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid value of granularity argument: expected DAY or MONTH, actual is " + granularity);
+		}
 		this.granularity = granularity;
-		truncateDateLength = (granularity == AggregateGranularity.DAY ? 10 : 7);
 	}
 	
+	/** Return granularity for aggregation. */
+	public AggregateGranularity getGranularity() {
+		return granularity;
+	}
+
 	/** Appends the report line to the list and returns it.
 	 * @param row the line of report.
 	 * @return Instance of the aggregated report line.
@@ -90,11 +104,6 @@ public class DataAggregator {
 		return reportLines.size();
 	}
 
-	/** Return the list of the report lines. */
-	public Vector<ReportLine> getReportLines() {
-		return reportLines;
-	}
-	
 	/** Returns the report line.
 	 * @param index index of the report line.
 	 */
@@ -108,11 +117,6 @@ public class DataAggregator {
 		reportLines.clear();
 	}
 	
-	/** Return granularity for aggregation. */
-	public AggregateGranularity getGranularity() {
-		return granularity;
-	}
-
 	/** Comparator for aggregation. */
 	private class AggComparator implements Comparator<ReportLine> {
 		@Override
