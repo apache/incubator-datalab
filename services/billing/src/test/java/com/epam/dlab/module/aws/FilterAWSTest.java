@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.module;
+package com.epam.dlab.module.aws;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -24,6 +24,8 @@ import org.junit.Test;
 
 import com.epam.dlab.core.parser.ReportLine;
 import com.epam.dlab.exception.ParseException;
+import com.epam.dlab.module.ModuleName;
+import com.epam.dlab.module.aws.FilterAWS;
 
 public class FilterAWSTest {
 

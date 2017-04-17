@@ -28,9 +28,9 @@ import com.epam.dlab.core.aggregate.AggregateGranularity;
 import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.module.AdapterConsole;
 import com.epam.dlab.module.AdapterFile;
-import com.epam.dlab.module.FilterAWS;
 import com.epam.dlab.module.ModuleName;
 import com.epam.dlab.module.ParserCsv;
+import com.epam.dlab.module.aws.FilterAWS;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class BillingToolConfigurationTest {

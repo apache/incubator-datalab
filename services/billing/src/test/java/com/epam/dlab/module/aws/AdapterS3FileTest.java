@@ -16,13 +16,15 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.module;
+package com.epam.dlab.module.aws;
 
 import static junit.framework.TestCase.assertEquals;
 
 import org.junit.Test;
 
 import com.epam.dlab.core.AdapterBase.Mode;
+import com.epam.dlab.module.ModuleName;
+import com.epam.dlab.module.aws.AdapterS3File;
 
 public class AdapterS3FileTest {
 

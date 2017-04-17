@@ -33,9 +33,9 @@ import com.epam.dlab.logging.AppenderConsole;
 import com.epam.dlab.logging.AppenderFile;
 import com.epam.dlab.module.AdapterConsole;
 import com.epam.dlab.module.AdapterFile;
-import com.epam.dlab.module.AdapterS3File;
-import com.epam.dlab.module.FilterAWS;
 import com.epam.dlab.module.ParserCsv;
+import com.epam.dlab.module.aws.AdapterS3File;
+import com.epam.dlab.module.aws.FilterAWS;
 import com.epam.dlab.mongo.AdapterMongoDb;
 
 public class BillingUtilsTest {

@@ -5,10 +5,10 @@ adapterIn:
   - type: file
     file: D:\DLab\BillingSampleData\dlab-billing-detailed-tags-2017-03-27.csv
 #  - type: s3file
-#    bucket: andriana-1143-17-2-ssn-bucket
+#    bucket: bucketName
 #    file: test_report/test_aws_detail_report.csv
-#    accessKeyId: AKIAJS2J7QIANW6SNPKQ
-#    secretAccessKey: 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
+#    accessKeyId: accessKeyId
+#    secretAccessKey: secretAccessKey
 
 # Adapter for writing converted data. Known types: console, file, s3file, mongodb
 adapterOut:

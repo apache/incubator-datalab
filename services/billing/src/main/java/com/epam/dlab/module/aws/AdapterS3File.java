@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.module;
+package com.epam.dlab.module.aws;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -38,6 +38,7 @@ import com.epam.dlab.core.AdapterBase;
 import com.epam.dlab.core.parser.CommonFormat;
 import com.epam.dlab.core.parser.ReportLine;
 import com.epam.dlab.exception.AdapterException;
+import com.epam.dlab.module.ModuleName;
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

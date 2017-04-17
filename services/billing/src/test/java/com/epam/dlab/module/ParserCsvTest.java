@@ -27,6 +27,7 @@ import org.junit.Test;
 import com.epam.dlab.core.aggregate.AggregateGranularity;
 import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.exception.ParseException;
+import com.epam.dlab.module.aws.FilterAWS;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 
