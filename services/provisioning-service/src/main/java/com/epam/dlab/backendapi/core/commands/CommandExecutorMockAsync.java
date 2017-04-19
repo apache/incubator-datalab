@@ -161,7 +161,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
         		return dir;
         	}
         	throw new FileNotFoundException("Directory \"" + dir + "\" not found. " +
-        			"Please set the value docker.dir property to the \".../infrastructure-provisioning/src\" directory");
+        			"Please set JVM argument -Ddocker.dir to the \".../infrastructure-provisioning/src\" directory");
     	}
     	dir = getAbsolutePath(
     			".",
