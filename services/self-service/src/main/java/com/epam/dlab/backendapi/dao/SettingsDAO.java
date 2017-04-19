@@ -22,6 +22,10 @@ import static com.epam.dlab.backendapi.dao.MongoSetting.*;
 import static com.mongodb.client.model.Filters.eq;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
+import org.bson.Document;
+
+import com.epam.dlab.exceptions.DlabException;
+
 /** Stores the environment settings. */
 public class SettingsDAO extends BaseDAO {
     private static final String VALUE = "value";
@@ -75,10 +79,14 @@ public class SettingsDAO extends BaseDAO {
      * @param setting the name of property.
      */
     private String getSetting(MongoSetting setting) {
-        return mongoService.getCollection(SETTINGS)
-        		.find(eq(ID, setting.getId()))
-        		.first()
-        		.getOrDefault(VALUE, EMPTY)
-        		.toString();
+    	Document d = mongoService
+                        .getCollection(SETTINGS)
+                        .find(eq(ID, setting.getId()))
+                        .first();
+	    if (d == null) {
+	        throw new DlabException("Setting property " + setting + " not found");
+        }
+        return d.getOrDefault(VALUE, EMPTY)
+                .toString();
     }
 }

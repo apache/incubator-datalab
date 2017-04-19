@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi.core.commands;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
@@ -99,29 +100,36 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     		throw new DlabException("Docker action not defined");
     	}
 
-    	switch (action) {
-		case DESCRIBE:
-			describe();
-			break;
-		case CREATE:
-		case START:
-		case STOP:
-		case TERMINATE:
-			action(user, action);
-			break;
-		case CONFIGURE:
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) { }
-			action(user, action);
-			break;
-		case STATUS:
-			parser.getVariables().put("list_resources", getResponseStatus(true));
-			action(user, action);
-			break;
-		default:
-			break;
-		}
+    	try {
+	    	switch (action) {
+			case DESCRIBE:
+				describe();
+				break;
+			case CREATE:
+			case START:
+			case STOP:
+			case TERMINATE:
+				action(user, action);
+				break;
+			case CONFIGURE:
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) { }
+				action(user, action);
+				break;
+			case STATUS:
+				parser.getVariables().put("list_resources", getResponseStatus(true));
+				action(user, action);
+				break;
+			default:
+				break;
+			}
+    	} catch (Exception e) {
+    		String msg = "Cannot execute command for user " + user + " with UUID " + uuid + ". " +
+    				e.getLocalizedMessage();
+    		LOGGER.error(msg, e);
+    		throw new DlabException(msg, e);
+    	}
     }
     
     /** Return absolute path to the file or folder.
@@ -132,22 +140,72 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	return Paths.get(first, more).toAbsolutePath().toString();
     }
 
+    /** Tests the directory exists.
+     * @param dir the name of directory.
+     * @return <b>true</b> if the directory exists otherwise return <b>false</b>.
+     */
+    private boolean dirExists(String dir) {
+    	File file = new File(dir);
+    	return (file.exists() && file.isDirectory());
+    }
+    
+    /** Find and return the directory "infrastructure-provisioning/src".
+     * @throws FileNotFoundException
+     */
+    private String findTemplatesDir() throws FileNotFoundException {
+    	String dir = System.getProperty("docker.dir");
+    	
+    	if (dir != null) {
+    		dir = getAbsolutePath(dir);
+        	if (dirExists(dir)) {
+        		return dir;
+        	}
+        	throw new FileNotFoundException("Directory \"" + dir + "\" not found. " +
+        			"Please set the value docker.dir property to the \".../infrastructure-provisioning/src\" directory");
+    	}
+    	dir = getAbsolutePath(
+    			".",
+    			"../../infrastructure-provisioning/src");
+    	if (dirExists(dir)) {
+    		return dir;
+    	}
+    	dir = getAbsolutePath(
+    			ServiceUtils.getUserDir(),
+    			"../../infrastructure-provisioning/src");
+    	if (dirExists(dir)) {
+    		return dir;
+    	}
+    	throw new FileNotFoundException("Directory \"" + dir + "\" not found. " +
+    			"Please set the value docker.dir property to the \".../infrastructure-provisioning/src\" directory");
+    }
     
     /** Describe action.
+     * @throws FileNotFoundException 
      */
-    private void describe() {
-    	String templateFileName = getAbsolutePath(
-    			ServiceUtils.getUserDir(),
-    			"../../infrastructure-provisioning/src",
-    			parser.getImageType(),
-    			"description.json");
+    private void describe() throws DlabException {
+    	String templateFileName;
+		try {
+			templateFileName = getAbsolutePath(
+					findTemplatesDir(),
+					parser.getImageType(),
+					"description.json");
+		} catch (FileNotFoundException e) {
+			throw new DlabException("Cannot describe image " + parser.getImageType() + ". " + e.getLocalizedMessage(), e);
+		}
     	responseFileName = getAbsolutePath(parser.getResponsePath(), parser.getRequestId() + ".json");
 
     	LOGGER.debug("Create response file from {} to {}", templateFileName, responseFileName);
     	File fileResponse = new File(responseFileName);
+    	File fileTemplate = new File(templateFileName);
 		try {
+			if (!fileTemplate.exists()) {
+				throw new FileNotFoundException("File \"" + fileTemplate + "\" not found.");
+			}
+			if (!fileTemplate.canRead()) {
+				throw new IOException("Cannot read file \"" + fileTemplate + "\".");
+			}
 			Files.createParentDirs(fileResponse);
-			Files.copy(new File(templateFileName), fileResponse);
+			Files.copy(fileTemplate, fileResponse);
 		} catch (IOException e) {
 			throw new DlabException("Can't create response file " + responseFileName + ": " + e.getLocalizedMessage(), e);
 		}
