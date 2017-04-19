@@ -6,7 +6,9 @@ adapterIn:
     file: D:\DLab\BillingSampleData\dlab-billing-detailed-tags-2017-03-27.csv
 #  - type: s3file
 #    bucket: bucketName
-#    file: test_report/test_aws_detail_report.csv
+#    prefix: path
+#    report: reportName
+#    assemblyId: ID
 #    accessKeyId: accessKeyId
 #    secretAccessKey: secretAccessKey
 

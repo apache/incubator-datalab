@@ -54,22 +54,36 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 	"  - type: " + ModuleName.ADAPTER_S3_FILE + "\n" +
 	"    [writeHeader: <true | false>] - write header of data to the adapterOut.\n" +
 	"    bucket: <bucketname>          - the name of S3 bucket.\n" +
-	"    file: <filename>              - the name of file.\n" +
+	"    prefix: <path>                - the path to report.\n" +
+	"    report: <reportname>          - the name of report.\n" +
+	"    assemblyId: <id>              - the ID of linked account.\n" +
 	"    [accessKeyId: <string>]       - Amazon access key ID.\n" +
 	"    [secretAccessKey: <string>]   - Amazon secret access key."
 	)
 public class AdapterS3File extends AdapterBase {
+	
+	/** Name of key for last loaded file. */
+	public static final String DATA_KEY_LAST_LOADED_FILE = "maxStartDate";
 
 	/** The name of bucket. */
 	@NotNull
 	@JsonProperty
 	private String bucket;
 
-	/** The name of file. */
+	/** Prefix assigned to the report when you created the report in AWS. */
+	@JsonProperty
+	private String prefix;
+	
+	/** Name of report assigned to the report when you created the report in AWS. */
 	@NotNull
 	@JsonProperty
-	private String file;
+	private String report;
 	
+	/** ID that AWS creates each time that the report is updated. */
+	@NotNull
+	@JsonProperty
+	private String assemblyId;
+
 	/** Access key ID for Amazon Web Services. */
 	@JsonProperty
 	private String accessKeyId;
@@ -100,14 +114,34 @@ public class AdapterS3File extends AdapterBase {
 		this.bucket = bucket;
 	}
 
-	/** Return the name of file. */
-	public String getFile() {
-		return file;
+	/** Return the prefix assigned to the report when you created the report in AWS. */
+	public String getPrefix() {
+		return prefix;
 	}
 	
-	/** Set the name of file. */
-	public void setFile(String file) {
-		this.file = file;
+	/** Set the prefix assigned to the report when you created the report in AWS. */
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+
+	/** Return the name of report assigned to the report when you created the report in AWS. */
+	public String getReport() {
+		return report;
+	}
+	
+	/** Set the name of report assigned to the report when you created the report in AWS. */
+	public void setReport(String report) {
+		this.report = report;
+	}
+
+	/** Return the ID that AWS creates each time that the report is updated. */
+	public String getAssemblyId() {
+		return assemblyId;
+	}
+	
+	/** Set the ID that AWS creates each time that the report is updated. */
+	public void setAssemblyId(String assemblyId) {
+		this.assemblyId = assemblyId;
 	}
 
 	/** Return the access key ID for Amazon Web Services. */
@@ -135,13 +169,11 @@ public class AdapterS3File extends AdapterBase {
 	@JsonIgnore
 	private BufferedReader reader;
 	
-	/** Writer for adapter. */
-	@JsonIgnore
-	private BufferedWriter writer;
+	/** List of report files for loading. */
+	private List<String> filelist;
 	
-	/** Temporary file for writing.*/
-	private File tempFile;
-
+	/** Index of current report file. */
+	private int currentFileIndex;
 	
 	/** Creates and returns the Amazon client, as well as checks bucket existence.
 	 * @throws AdapterException
@@ -158,43 +190,36 @@ public class AdapterS3File extends AdapterBase {
 		return s3;
 	}
 	
+	private String getCurrentFileName() {
+		return (filelist == null || currentFileIndex < 0 ? null : filelist.get(currentFileIndex));
+	}
+	
 	/** Open the source file and return reader.
+	 * @param filename the name of file.
 	 * @throws AdapterException
 	 */
 	private BufferedReader getReader() throws AdapterException {
 		AmazonS3 s3 = getAmazonClient();
 		try {
-			GetObjectRequest request = new GetObjectRequest(bucket, getFile());
+			GetObjectRequest request = new GetObjectRequest(bucket, getCurrentFileName());
 			S3Object object = s3.getObject(request);
 			return new BufferedReader(
 						new InputStreamReader(
 							object.getObjectContent()));
 		} catch (Exception e) {
-			throw new AdapterException("Cannot open file " + bucket + "/" + file + ". " + e.getLocalizedMessage(), e);
-		}
-	}
-	
-	/** Open the target file and return writer.
-	 * @throws AdapterException
-	 */
-	private BufferedWriter getWriter() throws AdapterException {
-		try {
-			int pos = Math.max(getFile().indexOf('/'), getFile().indexOf('\\')) + 1;
-			String filename = (pos > 0 ? getFile().substring(pos) : "billing.csv");
-			tempFile = new File(System.getProperty("java.io.tmpdir"), filename);
-			return new BufferedWriter(
-						new FileWriter(tempFile));
-		} catch (Exception e) {
-			throw new AdapterException("Cannot open file " + tempFile.getAbsolutePath() + ". " + e.getLocalizedMessage(), e);
+			throw new AdapterException("Cannot open file " + bucket + "/" + getCurrentFileName() + ". " + e.getLocalizedMessage(), e);
 		}
 	}
 	
 	@Override
 	public void open() throws AdapterException {
 		if (getMode() == Mode.READ) {
+			S3FileList s3files = new S3FileList(bucket, prefix, report, assemblyId, getModuleData().get(DATA_KEY_LAST_LOADED_FILE));
+			filelist = s3files.getFiles(getAmazonClient());
+			currentFileIndex = (filelist.size() == 0 ? -1 : 0);
 			reader = getReader();
 		} else if (getMode() == Mode.WRITE) {
-			writer = getWriter();
+			throw new AdapterException("Write mode is unimplemented");
 		} else {
 			throw new AdapterException("Mode of adapter unknown or not defined. Set mode to " + Mode.READ + " or " + Mode.WRITE + ".");
 		}
@@ -206,26 +231,10 @@ public class AdapterS3File extends AdapterBase {
 			try {
 				reader.close();
 			} catch (IOException e) {
-				throw new AdapterException("Cannot close file " + file + ". " + e.getLocalizedMessage(), e);
+				throw new AdapterException("Cannot close file " + getCurrentFileName() + ". " + e.getLocalizedMessage(), e);
 			} finally {
 				reader = null;
-			}
-		}
-		
-		if (writer != null) {
-			try {
-				writer.close();
-			} catch (IOException e) {
-				throw new AdapterException("Cannot close file " + tempFile.getAbsolutePath() + ". " + e.getLocalizedMessage(), e);
-			} finally {
-				writer = null;
-			}
-			AmazonS3 s3 = getAmazonClient();
-			try {
-		        s3.putObject(new PutObjectRequest(bucket, file, tempFile));
-			} catch (Exception e) {
-				throw new AdapterException("Cannot copy file \"" + tempFile.getAbsolutePath() +
-						"\" to \"" + bucket + "/" + file + "\"" + e.getLocalizedMessage(), e);
+				currentFileIndex++;
 			}
 		}
 	}
@@ -233,38 +242,46 @@ public class AdapterS3File extends AdapterBase {
 	@Override
 	public String readLine() throws AdapterException {
 		try {
-			return reader.readLine();
+			String line = reader.readLine();
+			if (line == null) {
+				line = getLineFromNextFile();
+			}
+			return line;
 		} catch (IOException e) {
-			throw new AdapterException("Cannot read file " + file + ". " + e.getLocalizedMessage(), e);
+			throw new AdapterException("Cannot read file " + getCurrentFileName() + ". " + e.getLocalizedMessage(), e);
 		}
 	}
 
 	@Override
 	public void writeHeader(List<String> header) throws AdapterException {
-		try {
-			writer.write(CommonFormat.rowToString(header));
-			writer.write(System.lineSeparator());
-		} catch (IOException e) {
-			throw new AdapterException("Cannot write file " + tempFile.getAbsolutePath() + ". " + e.getLocalizedMessage(), e);
-		}
+		throw new AdapterException("Unimplemented method");
 	}
 	
 	@Override
 	public void writeRow(ReportLine row) throws AdapterException {
-		try {
-			writer.write(CommonFormat.rowToString(row));
-			writer.write(System.lineSeparator());
-		} catch (IOException e) {
-			throw new AdapterException("Cannot write file " + tempFile.getAbsolutePath() + ". " + e.getLocalizedMessage(), e);
-		}
+		throw new AdapterException("Unimplemented method");
 	}
 	
+	
+	private String getLineFromNextFile() throws AdapterException {
+		close();
+		currentFileIndex++;
+		if (currentFileIndex >= filelist.size()) {
+			close();
+			return null;
+		}
+		reader = getReader();
+		//TODO Skip lines
+		return null;
+	}
 	
 	@Override
 	public ToStringHelper toStringHelper(Object self) {
 		return super.toStringHelper(self)
 				.add("bucket", bucket)
-				.add("file", file)
+				.add("prefix", prefix)
+				.add("report", report)
+				.add("assemblyId", assemblyId)
 				.add("accessKeyId", accessKeyId)
 				.add("secretAccessKey", secretAccessKey);
 	}
