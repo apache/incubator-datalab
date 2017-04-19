@@ -815,9 +815,11 @@ docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/we
         sys.exit(1)
 ```
 -   The scripts *general/scripts/aws/ssn\_prepare.py* an *general/scripts/aws/ssn\_configure.py* will execute other Python scripts/functions for:
+
 *ssn\_prepate.py:*
 1. Creating AWS configuration file
 2. Creating VPC, Subnet, Security Group, IAM roles, Endpoint, Route table, S3 bucket and EC2 instance.
+
 *ssn\_configure.py:*
 1. Installing prerequisites
 2. Installing required packages
