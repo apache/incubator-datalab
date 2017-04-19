@@ -103,6 +103,9 @@ if __name__ == "__main__":
         client.dlabdb.settings.insert_one({"_id": "conf_os_family", "value": args.os_family})
         client.dlabdb.settings.insert_one({"_id": "conf_tag_resource_id", "value": args.tag_resource_id})
         client.dlabdb.settings.insert_one({"_id": "conf_key_dir", "value": "/root/keys"})
+        with open(args.dlab_path + 'tmp/mongo_roles.json') as data:
+            ssn_roles = json.load(data)
+            client.dlabdb.settings.insert(ssn_roles)
         client.dlabdb.security.insert({ "expireAt": "1" }, { "expireAfterSeconds": "3600" })
         client.dlabdb.shapes.insert(shapes)
         if add_2_yml_config(path,'security','authorization','enabled'):

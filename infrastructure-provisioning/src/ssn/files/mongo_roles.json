@@ -1,0 +1,17 @@
+{
+    "_id" : "jupyter",
+    "description" : "Notebook Jupyter",
+    "groups" : [
+        "group1",
+        "group2",
+        "groupN"
+    ],
+    "exploratories" : [
+        "jupyter"
+    ],
+    "shapes" : [
+        "c4.large",
+        "c4.2xlarge",
+        "c4.8xlarge"
+    ]
+}
