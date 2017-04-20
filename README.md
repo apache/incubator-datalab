@@ -265,7 +265,7 @@ List of parameters for Edge node creation:
 | aws\_security\_groups\_ids | One or more id’s of the SSN instance security group                               |
 | aws\_subnet\_id            | ID of the AWS public subnet where Edge will be deployed                           |
 | aws\_iam\_user             | Name of AWS IAM user                                                              |
-| tag\_resource\_id          | The name of tag for billing reports                                                      |
+| conf\_tag\_resource\_id          | The name of tag for billing reports                                                      |
 | action                     | create                                                                            |
 
 ### Start/Stop <a name=""></a>
@@ -304,7 +304,7 @@ List of parameters for Edge node recreation:
 | aws\_subnet\_id            | ID of the AWS public subnet where Edge was deployed                               |
 | aws\_iam\_user             | Name of AWS IAM user                                                              |
 | edge\_elastic\_ip          | AWS Elastic IP address which was associated to Edge node                          |
-| tag\_resource\_id          | The name of tag for billing reports                                                      |
+| conf\_tag\_resource\_id          | The name of tag for billing reports                                                      |
 | action                     | Create                                                                            |
 
 ## Notebook node <a name="Notebook_node"></a>
@@ -329,7 +329,7 @@ List of parameters for Notebook node creation:
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | aws\_security\_groups\_ids    | ID of the SSN instance's security group                                           |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor)                   |
-| tag\_resource\_id             | The name of tag for billing reports                                                         |
+| conf\_tag\_resource\_id             | The name of tag for billing reports                                                         |
 | action                        | Create                                                                            |
 
 ### Stop
@@ -391,7 +391,7 @@ List of parameters for EMR cluster creation:
 | notebook\_instance\_name    | Name of the Notebook EMR will be linked to                   |
 | edge\_user\_name            | Value that previously was used when Edge being provisioned   |
 | aws\_region                 | AWS region where infrastructure was deployed                 |
-| tag\_resource\_id           | The name of tag for billing reports                          |
+| conf\_tag\_resource\_id           | The name of tag for billing reports                          |
 | action                      | create                                                       |
 
 **Note:** If “Spot instances” is enabled, EMR Slave nodes will be created as EC2 Spot instances.
