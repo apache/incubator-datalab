@@ -43,6 +43,7 @@ import com.google.inject.Inject;
 import com.mongodb.MongoException;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.UpdateOptions;
@@ -69,6 +70,20 @@ class BaseDAO implements MongoCollections {
 
     @Inject
     protected MongoService mongoService;
+
+    /** Return <b>true</b> if collection exists.
+     * @param name collection name.
+     */
+    public boolean collectionExists(String name) {
+        return mongoService.collectionExists(name);
+    }
+    
+    /** Return Mongo collection.
+     * @param collection collection name.
+     */
+    public MongoCollection<Document> getCollection(String collection) {
+        return mongoService.getCollection(collection);
+    }
 
     /** Inserts the document into the collection.
      * @param collection collection name.

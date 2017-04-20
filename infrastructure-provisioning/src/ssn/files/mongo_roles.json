@@ -1,17 +1,36 @@
 {
-    "_id" : "jupyter",
+    "_id" : "nbJupyter",
     "description" : "Notebook Jupyter",
     "groups" : [
-        "group1",
-        "group2",
-        "groupN"
-    ],
-    "exploratories" : [
+        ],
+    "exploratories" : [ 
         "jupyter"
-    ],
-    "shapes" : [
-        "c4.large",
-        "c4.2xlarge",
-        "c4.8xlarge"
-    ]
+        ]
+}
+{
+    "_id" : "nbRstudio",
+    "description" : "Notebook R-Studio",
+    "groups" : [
+        ],
+    "exploratories" : [ 
+        "rstudio"
+        ]
+}
+{
+    "_id" : "nbTensor",
+    "description" : "Notebook Tensor Flow",
+    "groups" : [
+        ],
+    "exploratories" : [ 
+        "tensor"
+        ]
+}
+{
+    "_id" : "nbZeppelin",
+    "description" : "Notebook Zeppelin",
+    "groups" : [
+        ],
+    "exploratories" : [ 
+        "zeppelin"
+        ]
 }

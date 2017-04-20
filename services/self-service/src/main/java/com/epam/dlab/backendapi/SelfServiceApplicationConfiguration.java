@@ -51,6 +51,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     
     @Valid
     @JsonProperty
+    private boolean rolePolicyEnabled = false;
+    
+    @Valid
+    @JsonProperty
     private Duration checkEnvStatusTimeout = Duration.minutes(10);
 
 
@@ -80,6 +84,11 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
     public int getMaxEmrSpotInstanceBidPct() {
         return maxEmrSpotInstanceBidPct;
+    }
+
+    /** Return the <b>true</b> if using roles policy to DLab features. */
+    public boolean isRolePolicyEnabled() {
+        return rolePolicyEnabled;
     }
 
     public SelfServiceApplicationConfiguration withCheckEnvStatusTimeout(Duration checkEnvStatusTimeout) {
