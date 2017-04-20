@@ -64,6 +64,7 @@ parser.add_argument('--key_dir', type=str, default='')
 parser.add_argument('--edge_user_name', type=str, default='')
 parser.add_argument('--slave_instance_spot', type=str, default='False')
 parser.add_argument('--bid_price', type=str, default='')
+parser.add_argument('--service_base_name', type=str, default='')
 args = parser.parse_args()
 
 if args.region == 'us-east-1':
