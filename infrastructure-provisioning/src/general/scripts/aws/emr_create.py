@@ -211,6 +211,7 @@ def build_emr_cluster(args):
     for i in parser:
         key, value = i.split("=")
         tags.append({"Value": value, "Key": key})
+    tags.append({'Key': os.environ['conf_tag_resource_id'], 'Value': args.service_base_name})
 
     prefix = "jars/" + args.release_label + "/lib/"
     jars_exist = get_object_count(args.s3_bucket, prefix)
