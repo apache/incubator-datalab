@@ -52,7 +52,6 @@ local_log_filepath = "/logs/" + args.resource + "/" + local_log_filename
 logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.INFO,
                     filename=local_log_filepath)
-mongo_passwd = id_generator()
 
 
 def configure_mongo(mongo_passwd):
@@ -99,6 +98,14 @@ if __name__ == "__main__":
     print "Installing MongoDB"
     if not ensure_mongo():
         logging.error('Failed to install MongoDB')
+        sys.exit(1)
+
+    print "Generating MongoDB admin password"
+    try:
+        password = id_generator()
+        unicode_pass = unicode('\"' + password + '\"', 'iso-8859-1')
+        mongo_passwd = unicode_pass.encode('utf-16-le')
+    except:
         sys.exit(1)
 
     print "Configuring MongoDB"
