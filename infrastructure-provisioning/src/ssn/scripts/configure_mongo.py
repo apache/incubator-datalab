@@ -74,8 +74,7 @@ def read_yml_conf(path, section, param):
 
 
 if __name__ == "__main__":
-    # mongo_passwd = id_generator()
-    mongo_passwd = "XS3ms9R3tP"
+    mongo_passwd = "PASSWORD"
     mongo_ip = read_yml_conf(path,'net','bindIp')
     mongo_port = read_yml_conf(path,'net','port')
 

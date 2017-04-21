@@ -99,10 +99,10 @@ The following diagram demonstrates high-level physical architecture of DLab
 
 Creation of self-service node – is the first step for deploying DLab. SSN is a main server with following pre-installed services:
 
--   DLab Web UI – is Web user interface for managing/deploying all components of DLab. It is accessible by the following URL: http://SSN_Public_IP_or_Public_DNS
+-   DLab Web UI – is Web user interface for managing/deploying all components of DLab. It is accessible by the following URL: http://SSN\_Public\_IP\_or\_Public\_DNS
 -   MongoDB – is a database, which contains part of DLab’s configuration, user’s exploratory environments description as well as user’s preferences.
 -   Docker – used for building DLab Docker containers, which will be used for provisioning other components.
--   Jenkins – is an alternative to Web UI. It is accessible by the following link: http://SSN_Public_IP_or_Public_DNS/jenkins
+-   Jenkins – is an alternative to Web UI. It is accessible by the following link: http://SSN\_Public\_IP\_or\_Public\_DNS/jenkins
 
 ## Edge node
 
@@ -177,7 +177,7 @@ To build SSN node, following steps should be executed:
 2.  Go to *dlab* directory.
 3.  Execute following script:
 ```
-/bin/bash infrastructure-provisioning/scripts/deploy_dlab.sh --infrastructure_tag dlab_test --access_key_id XXXXXXX --secret_access_key XXXXXXXXXX --region us-west-2 --os_family debian --cloud_provider aws --os_user ubuntu --vpc_id vpc-xxxxx --subnet_id subnet-xxxxx --sg_ids sg-xxxxx,sg-xxxx --key_path /root/ --key_name Test --action create
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --infrastructure_tag dlab_test --access_key_id XXXXXXX --secret_access_key XXXXXXXXXX --region us-west-2 --os_family debian --cloud_provider aws --os_user ubuntu --vpc_id vpc-xxxxx --subnet_id subnet-xxxxx --sg_ids sg-xxxxx,sg-xxxx --key_path /root/ --key_name Test --tag_resource_id dlab --action create
 ```
 
 This bash script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
@@ -219,7 +219,7 @@ After SSN node deployment following AWS resources will be created:
 Terminating SSN node will also remove all nodes and components related to it. Basically, terminating Self-service node will terminate all DLab’s infrastructure.
 Example of command for terminating DLab environment:
 ```
-/bin/bash infrastructure-provisioning/scripts/deploy_dlab.sh --infrastructure_tag dlab_test --access_key_id XXXXXXX --secret_access_key XXXXXXXXXX --region us-west-2 --key_path /root/ --key_name Test --action terminate
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --infrastructure_tag dlab_test --access_key_id XXXXXXX --secret_access_key XXXXXXXXXX --region us-west-2 --key_path /root/ --key_name Test --action terminate
 ```
 List of parameters for SSN node termination:
 
@@ -265,7 +265,7 @@ List of parameters for Edge node creation:
 | aws\_security\_groups\_ids | One or more id’s of the SSN instance security group                               |
 | aws\_subnet\_id            | ID of the AWS public subnet where Edge will be deployed                           |
 | aws\_iam\_user             | Name of AWS IAM user                                                              |
-| conf\_tag\_resource\_id    | Name of tag for billing                                                                  |
+| conf\_tag\_resource\_id          | The name of tag for billing reports                                                      |
 | action                     | create                                                                            |
 
 ### Start/Stop <a name=""></a>
@@ -304,7 +304,7 @@ List of parameters for Edge node recreation:
 | aws\_subnet\_id            | ID of the AWS public subnet where Edge was deployed                               |
 | aws\_iam\_user             | Name of AWS IAM user                                                              |
 | edge\_elastic\_ip          | AWS Elastic IP address which was associated to Edge node                          |
-| conf\_tag\_resource\_id    | Name of tag for billing reports                                                   |
+| conf\_tag\_resource\_id          | The name of tag for billing reports                                                      |
 | action                     | Create                                                                            |
 
 ## Notebook node <a name="Notebook_node"></a>
@@ -328,8 +328,8 @@ List of parameters for Notebook node creation:
 | aws\_notebook\_instance\_type | Value of the Notebook EC2 instance shape                                          |
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | aws\_security\_groups\_ids    | ID of the SSN instance's security group                                           |
-| conf\_tag\_resource\_id       | Name of tag for billing                                                           |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor)                   |
+| conf\_tag\_resource\_id             | The name of tag for billing reports                                                         |
 | action                        | Create                                                                            |
 
 ### Stop
@@ -391,7 +391,7 @@ List of parameters for EMR cluster creation:
 | notebook\_instance\_name    | Name of the Notebook EMR will be linked to                   |
 | edge\_user\_name            | Value that previously was used when Edge being provisioned   |
 | aws\_region                 | AWS region where infrastructure was deployed                 |
-| conf\_tag\_resource\_id     | Name of tag for billing                                      |
+| conf\_tag\_resource\_id           | The name of tag for billing reports                          |
 | action                      | create                                                       |
 
 **Note:** If “Spot instances” is enabled, EMR Slave nodes will be created as EC2 Spot instances.
@@ -497,6 +497,7 @@ In order to start development of Front-end Web UI part of DLab - Git repository 
 
 -   Git 1.7 or higher
 -   Maven 3.3 or higher
+-   Python 2.7
 -   Mongo DB 3.0 or higher
 -   Docker 1.12 - Infrastructure provisioning
 -   Java Development Kit 8 – Back-end
@@ -789,7 +790,7 @@ Using this Docker file, all required scripts and files will be copied to Docker 
 
 -   Docker command for building SSN:
 ```
-docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_tag_resource_id=dlab" "-e "conf_os_family=debian" -e "conf_os_user=ubuntu" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "aws_ssn_instance_size=t2.medium" -e "aws_region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" docker.dlab-ssn --action create ;
+docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_os_family=debian" -e "conf_os_user=ubuntu" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "aws_ssn_instance_size=t2.medium" -e "aws_region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" -e "conf_tag_resource_id=dlab" docker.dlab-ssn --action create ;
 ```
 
 -   Docker executes *entrypoint.py* script with action *create*. *Entrypoint.py* will set environment variables, which were provided from Docker and execute *general/api/create.py* script:
