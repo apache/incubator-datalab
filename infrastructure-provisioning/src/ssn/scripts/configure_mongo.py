@@ -19,7 +19,7 @@
 # ******************************************************************************
 
 from pymongo import MongoClient
-import yaml, json
+import yaml, json, sys
 import subprocess
 import time
 import argparse
@@ -112,8 +112,8 @@ if __name__ == "__main__":
             command = ['service', 'mongod', 'restart']
             subprocess.call(command, shell=False)
     except:
-        print "Looks like MongoDB have already been secured"
-        pass_upd = False
+        print "Couldn't insert values into MongoDB"
+        sys.exit(1)
 
     # Generating output config
     add_2_yml_config(outfile, 'network', 'ip', mongo_ip)
