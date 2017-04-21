@@ -1,16 +1,15 @@
 {
     "_id" : "_Example",
     "description" : "Example role",
-    ,
     "exploratories" : [ 
         "comma separated list of exploratory names from description.json", 
         "exploratory name"
-    ]",
+    ],
     "computationals" : [ 
         "comma separated list of computational names from description.json", 
         "computational name"
-    ]",
-    groups" : [ 
+    ],
+    "groups" : [ 
         "comma separated list of the external group's names in lower case", 
         "other group"
     ],
@@ -22,45 +21,45 @@
 {
     "_id" : "nbJupyter",
     "description" : "Notebook Jupyter",
-    "groups" : [
-        ],
     "exploratories" : [ 
         "jupyter"
+        ],
+    "groups" : [
         ]
 }
 {
     "_id" : "nbRstudio",
     "description" : "Notebook R-Studio",
-    "groups" : [
-        ],
     "exploratories" : [ 
         "rstudio"
+        ],
+    "groups" : [
         ]
 }
 {
     "_id" : "nbTensor",
     "description" : "Notebook Tensor Flow",
-    "groups" : [
-        ],
     "exploratories" : [ 
         "tensor"
+        ],
+    "groups" : [
         ]
 }
 {
     "_id" : "nbZeppelin",
     "description" : "Notebook Zeppelin",
-    "groups" : [
-        ],
     "exploratories" : [ 
         "zeppelin"
+        ],
+    "groups" : [
         ]
 }
 {
     "_id" : "nbEMR",
     "description" : "EMR",
-    "groups" : [
-        ],
     "computationals" : [ 
         "emr"
+        ],
+    "groups" : [
         ]
 }
