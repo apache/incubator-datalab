@@ -70,17 +70,23 @@ public class SettingsDAO extends BaseDAO {
         return getSetting(AWS_SUBNET_ID);
     }
 
+    /** Returns the name of tag for resource id. */
+    public String getConfTagResourceId() {
+        return getSetting(CONF_TAG_RESOURCE_ID);
+    }
+
     /** Returns the value of property from Mongo database.
      * @param setting the name of property.
      */
-    private String getSetting(MongoSetting setting) throws DlabException {
-    	Document d = mongoService.getCollection(SETTINGS)
-    					.find(eq(ID, setting.getId()))
-    					.first();
-		if (d == null) {
-			throw new DlabException("Setting property " + setting + " not found");
-		}
+    private String getSetting(MongoSetting setting) {
+    	Document d = mongoService
+                        .getCollection(SETTINGS)
+                        .find(eq(ID, setting.getId()))
+                        .first();
+	    if (d == null) {
+	        throw new DlabException("Setting property " + setting + " not found");
+        }
         return d.getOrDefault(VALUE, EMPTY)
-        		.toString();
+                .toString();
     }
 }

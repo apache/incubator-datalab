@@ -68,7 +68,7 @@ def ensure_jenkins(dlab_path):
         return False
 
 
-def configure_jenkins(dlab_path, os_user, config):
+def configure_jenkins(dlab_path, os_user, config, tag_resource_id):
     try:
         if not exists(dlab_path + 'tmp/jenkins_configured'):
             sudo('echo \'JENKINS_ARGS="--prefix=/jenkins --httpPort=8070"\' >> /etc/default/jenkins')
@@ -76,7 +76,7 @@ def configure_jenkins(dlab_path, os_user, config):
             sudo('mkdir -p /var/lib/jenkins/jobs/')
             sudo('chown -R ' + os_user + ':' + os_user + ' /var/lib/jenkins/')
             put('/root/templates/jenkins_jobs/*', '/var/lib/jenkins/jobs/')
-            sudo("find /var/lib/jenkins/jobs/ -type f | xargs sed -i \'s/OS_USR/{}/g; s/SBN/{}/g; s/SGI/{}/g; s/VPC/{}/g; s/SNI/{}/g; s/AKEY/{}/g\'".format(os_user, config['service_base_name'], config['security_group_id'], config['vpc_id'], config['subnet_id'], config['admin_key']))
+            sudo("find /var/lib/jenkins/jobs/ -type f | xargs sed -i \'s/OS_USR/{}/g; s/SBN/{}/g; s/CTUN/{}/g; s/SGI/{}/g; s/VPC/{}/g; s/SNI/{}/g; s/AKEY/{}/g\'".format(os_user, config['service_base_name'], tag_resource_id, config['security_group_id'], config['vpc_id'], config['subnet_id'], config['admin_key']))
             sudo('chown -R jenkins:jenkins /var/lib/jenkins')
             sudo('/etc/init.d/jenkins stop; sleep 5')
             sudo('sysv-rc-conf jenkins on')
@@ -150,10 +150,11 @@ def ensure_mongo():
         return False
 
 
-def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user):
+def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
+            local('sed -i "s|PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')

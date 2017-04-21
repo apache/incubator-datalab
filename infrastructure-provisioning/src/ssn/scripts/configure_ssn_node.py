@@ -31,6 +31,7 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--dlab_path', type=str, default='')
+parser.add_argument('--tag_resource_id', type=str, default='')
 args = parser.parse_args()
 
 
@@ -101,7 +102,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print "Configuring jenkins."
-    if not configure_jenkins(args.dlab_path, args.os_user, deeper_config):
+    if not configure_jenkins(args.dlab_path, args.os_user, deeper_config, args.tag_resource_id):
         sys.exit(1)
 
     print "Copying key"

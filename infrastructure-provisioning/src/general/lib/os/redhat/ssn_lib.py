@@ -64,7 +64,7 @@ def ensure_jenkins(dlab_path):
         return False
 
 
-def configure_jenkins(dlab_path, os_user, config):
+def configure_jenkins(dlab_path, os_user, config, tag_resource_id):
     try:
         if not exists('{}tmp/jenkins_configured'.format(dlab_path)):
             sudo('rm -rf /var/lib/jenkins/*')
@@ -72,7 +72,7 @@ def configure_jenkins(dlab_path, os_user, config):
             sudo('chown -R {0}:{0} /var/lib/jenkins/'.format(os_user))
             put('/root/templates/jenkins_jobs/*', '/var/lib/jenkins/jobs/')
             #sudo("find /var/lib/jenkins/jobs/ -type f | xargs sed -i \'s/OS_USR/{}/g\'".format(os_user))
-            sudo("find /var/lib/jenkins/jobs/ -type f | xargs sed -i \'s/OS_USR/{}/g; s/SBN/{}/g; s/SGI/{}/g; s/VPC/{}/g; s/SNI/{}/g; s/AKEY/{}/g\'".format(os_user, config['service_base_name'], config['security_group_id'], config['vpc_id'], config['subnet_id'], config['admin_key']))
+            sudo("find /var/lib/jenkins/jobs/ -type f | xargs sed -i \'s/OS_USR/{}/g; s/SBN/{}/g; s/CTUN/{}/g; s/SGI/{}/g; s/VPC/{}/g; s/SNI/{}/g; s/AKEY/{}/g\'".format(os_user, config['service_base_name'], tag_resource_id, config['security_group_id'], config['vpc_id'], config['subnet_id'], config['admin_key']))
             sudo('chown -R jenkins:jenkins /var/lib/jenkins')
             sudo('/etc/init.d/jenkins stop; sleep 5')
             sudo('sed -i \'/JENKINS_PORT/ s/^/#/\' /etc/sysconfig/jenkins; echo \'JENKINS_PORT="8070"\' >> /etc/sysconfig/jenkins')
@@ -153,10 +153,11 @@ def ensure_mongo():
         return False
 
 
-def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user):
+def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd):
     try:
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_dlab_path'])):
             supervisor_conf = '/etc/supervisord.d/supervisor_svc.ini'
+            local('sed -i "s|PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
