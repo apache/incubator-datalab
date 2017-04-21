@@ -23,16 +23,28 @@ import java.util.Set;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+/** Describe role.
+ */
 public class UserRole implements Comparable<UserRole> {
-	
+
+	/** Type of role. */
 	private final RoleType type;
 	
+	/** Name of role. */
 	private final String name;
 	
+	/** Names of external groups. */
 	private final Set<String> groups;
 	
+	/** Name of DLab's users. */
 	private final Set<String> users;
 	
+	/** Instantiate the role.
+	 * @param type type of role.
+	 * @param name the name of role.
+	 * @param groups the names of external groups.
+	 * @param users the name of DLab's users.
+	 */
 	public UserRole(RoleType type, String name, Set<String> groups, Set<String> users) {
 		this.type = type;
 		this.name = name;
@@ -40,18 +52,26 @@ public class UserRole implements Comparable<UserRole> {
 		this.users = users;
 	}
 	
+	/** Return the type of role.
+	 */
 	public RoleType getType() {
 		return type;
 	}
 
+	/** Return the name of role.
+	 */
 	public String getName() {
 		return name;
 	}
 	
+	/** Return the names of external groups.
+	 */
 	public Set<String> getGroups() {
 		return groups;
 	}
-	
+
+	/** Return the name of DLab's users.
+	 */
 	public Set<String> getUsers() {
 		return users;
 	}

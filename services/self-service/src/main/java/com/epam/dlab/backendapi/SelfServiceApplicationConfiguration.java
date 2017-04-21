@@ -55,6 +55,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     
     @Valid
     @JsonProperty
+    private boolean roleDefaultAccess = false;
+    
+    @Valid
+    @JsonProperty
     private Duration checkEnvStatusTimeout = Duration.minutes(10);
 
 
@@ -89,6 +93,11 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     /** Return the <b>true</b> if using roles policy to DLab features. */
     public boolean isRolePolicyEnabled() {
         return rolePolicyEnabled;
+    }
+    
+    /** Return the default access to DLab features using roles policy. */
+    public boolean getRoleDefaultAccess() {
+    	return roleDefaultAccess;
     }
 
     public SelfServiceApplicationConfiguration withCheckEnvStatusTimeout(Duration checkEnvStatusTimeout) {

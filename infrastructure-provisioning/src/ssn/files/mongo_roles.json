@@ -1,4 +1,25 @@
 {
+    "_id" : "_Example",
+    "description" : "Example role",
+    ,
+    "exploratories" : [ 
+        "comma separated list of exploratory names from description.json", 
+        "exploratory name"
+    ]",
+    "computationals" : [ 
+        "comma separated list of computational names from description.json", 
+        "computational name"
+    ]",
+    groups" : [ 
+        "comma separated list of the external group's names in lower case", 
+        "other group"
+    ],
+    "users" : [ 
+        "comma separated list of the DLab's users in lower case", 
+        "example@user"
+    ]
+}
+{
     "_id" : "nbJupyter",
     "description" : "Notebook Jupyter",
     "groups" : [
@@ -32,5 +53,14 @@
         ],
     "exploratories" : [ 
         "zeppelin"
+        ]
+}
+{
+    "_id" : "nbEMR",
+    "description" : "EMR",
+    "groups" : [
+        ],
+    "computationals" : [ 
+        "emr"
         ]
 }

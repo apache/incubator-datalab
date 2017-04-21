@@ -15,6 +15,8 @@ checkEnvStatusTimeout: 5m
 
 #Restrict access to DLab features using roles policy
 rolePolicyEnabled : false
+#Default access to DLab features using roles policy
+roleDefaultAccess : false
 
 server:
   requestLog:

@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.dao;
 
+import static com.mongodb.client.model.Filters.ne;
 import static com.mongodb.client.model.Projections.exclude;
 import static com.mongodb.client.model.Projections.fields;
 
@@ -43,12 +44,13 @@ public class SecurityDAO extends BaseDAO {
                 () -> new Document("login", credentials.getUsername()).append("iamlogin", UsernameUtils.removeDomain(credentials.getUsername())));
     }
     
+    /** Return the roles or throw exception if roles collection does not exists.
+     * @throws DlabException
+     */
     public FindIterable<Document> getRoles() throws DlabException {
     	if (!collectionExists(ROLES)) {
     		throw new DlabException("Collection \"" + ROLES + "\" does not exists.");
     	}
-		return getCollection(ROLES)
-				.find()
-				.projection(fields(exclude(ID, "description")));
+		return find(ROLES, ne(ID, "_Example"), fields(exclude(ID, "description")));
     }
 }

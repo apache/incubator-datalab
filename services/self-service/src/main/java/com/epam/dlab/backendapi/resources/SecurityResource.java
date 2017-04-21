@@ -100,7 +100,7 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
         	if (status == Status.OK) {
         		EnvStatusListener.listen(userInfo.getName(), userInfo.getAccessToken(), settingsDAO.getAwsRegion());
         		if (configuration.isRolePolicyEnabled()) {
-        			UserRoles.initialize(dao);
+        			UserRoles.initialize(dao, configuration.getRoleDefaultAccess());
         		}
         	}
             return Response.status(status).build();

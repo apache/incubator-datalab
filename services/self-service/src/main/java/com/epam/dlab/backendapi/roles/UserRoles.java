@@ -34,16 +34,60 @@ import com.epam.dlab.exceptions.DlabException;
 import com.google.common.base.MoreObjects;
 import com.mongodb.client.FindIterable;
 
+/** Provides user roles access to features.
+ */
 public class UserRoles {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserRoles.class);
 	
-	private static final String GROUPS = "groups";
-	private static final String USERS = "users";
+	/** Single instance of the user roles. */
+	private static UserRoles userRoles = null;
 	
-	private static List<UserRole> roles = null;
+	/** Node name of groups. */
+	private final String GROUPS = "groups";
 	
-    public static synchronized void initialize(SecurityDAO dao) throws DlabException {
+	/** Node name of user. */
+	private final String USERS = "users";
+	
+	/**List of roles. */
+	private List<UserRole> roles = null;
+	
+	/** Default access to features if the role is not defined. */
+	private boolean defaultAccess = false;
+	
+	/** Initialize user roles for all users.
+	 * @param dao security DAO.
+	 * @throws DlabException
+	 */
+    public static void initialize(SecurityDAO dao, boolean defaultAccess) throws DlabException {
     	LOGGER.trace("Loading roles from database");
+    	if (userRoles == null) {
+    		userRoles = new UserRoles();
+    	}
+    	userRoles.load(dao, defaultAccess);
+    	LOGGER.trace("New roles is {}", getRoles());
+    }
+
+    /** Return the list of roles for all users. */
+    public static List<UserRole> getRoles() {
+    	return (userRoles == null ? null : userRoles.roles);
+    }
+    
+    /** Check access for user to the role.
+     * @param userInfo user info.
+     * @param type the type of role.
+     * @param name the name of role.
+     * @return
+     */
+	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name) {
+		return (userRoles == null ? true : userRoles.hasAccess(userInfo, type, name));
+	}
+
+    /** Loading the user roles for all users from Mongo database.
+	 * @param dao security DAO.
+	 * @throws DlabException
+	 */
+    private synchronized void load(SecurityDAO dao, boolean defaultAccess) throws DlabException {
+    	this.defaultAccess = defaultAccess;
     	try {
 			FindIterable<Document> docs = dao.getRoles();
     		roles = new ArrayList<>();
@@ -63,34 +107,17 @@ public class UserRoles {
     	} catch (Exception e) {
     		throw new DlabException("Cannot load roles from database. " + e.getLocalizedMessage(), e);
     	}
-    	LOGGER.trace("New roles is {}", roles);
     }
     
-    public static List<UserRole> getRoles() {
-    	return roles;
-    }
-    
-	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name) {
-		if (roles == null) {
-			return true;
-		}
-		UserRole role = get(type, name);
-		if (role == null ||
-			(role.getUsers() != null && role.getUsers().contains(userInfo.getSimpleName()))) {
-			return true; // No restriction
-		}
-		Set<String> groups = role.getGroups();
-		if (groups != null) {
-			for (String group : userInfo.getRoles()) {
-				if (groups.contains(group)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	private static UserRole append(RoleType type, String name, Set<String> groups, Set<String> users) {
+	/** Append new role to the list if role not exists in list an return it, otherwise return
+	 * existence role.
+	 * @param type type of role.
+	 * @param name the name of role.
+	 * @param groups the names of external groups.
+	 * @param users the name of DLab's users.
+	 * @return role.
+	 */
+	private UserRole append(RoleType type, String name, Set<String> groups, Set<String> users) {
 		UserRole item = new UserRole(type, name, groups, users);
 	    synchronized (roles) {
 			int index = Collections.binarySearch(roles, item);
@@ -106,7 +133,11 @@ public class UserRoles {
 		return item;
 	}
 	
-	private static UserRole get(RoleType type, String name) {
+	/** Find and return role by type and name. 
+	 * @param type type of role.
+	 * @param name the name of role.
+	 */
+	private UserRole get(RoleType type, String name) {
 		UserRole item = new UserRole(type, name, null, null);
 		synchronized (roles) {
 			int i = Collections.binarySearch(roles, item);
@@ -114,7 +145,11 @@ public class UserRoles {
 		}
 	}
 	
-	private static Set<String> getAndRemoveSet(Document document, String key) {
+	/** Find and return a list by key from JSON document, otherwise return <b>null</b>.
+	 * @param document the document.
+	 * @param key the name of node.
+	 */
+	private Set<String> getAndRemoveSet(Document document, String key) {
     	Object o = document.get(key);
     	if (o == null || !(o instanceof ArrayList)) {
     		return null;
@@ -128,12 +163,42 @@ public class UserRoles {
     	
     	Set<String> set = new HashSet<>();
     	for (String value : list) {
-			set.add(value);
+			set.add(value.toLowerCase());
 		}
 		document.remove(key);
 		return set;
     }
 	
+    /** Check access for user to the role.
+     * @param userInfo user info.
+     * @param type the type of role.
+     * @param name the name of role.
+     * @return
+     */
+	private boolean hasAccess(UserInfo userInfo, RoleType type, String name) {
+		if (userRoles == null) {
+			return true;
+		}
+		UserRole role = get(type, name);
+		if (role == null) {
+			return defaultAccess;
+		}
+		if (role.getUsers() != null &&
+			userInfo.getName() != null &&
+			role.getUsers().contains(userInfo.getName().toLowerCase())) {
+			return true;
+		}
+		Set<String> groups = role.getGroups();
+		if (groups != null) {
+			for (String group : userInfo.getRoles()) {
+				if (group != null && groups.contains(group.toLowerCase())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(roles)

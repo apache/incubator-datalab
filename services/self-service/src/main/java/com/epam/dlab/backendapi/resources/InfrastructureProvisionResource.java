@@ -21,7 +21,6 @@ package com.epam.dlab.backendapi.resources;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.ws.rs.Consumes;
@@ -105,8 +104,14 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Iterable<ComputationalMetadataDTO> getComputationalTemplates(@Auth UserInfo userInfo) {
         LOGGER.debug("Loading list of computational templates for user {}", userInfo.getName());
         try {
-        	return Stream.of(provisioningService.get(DOCKER_COMPUTATIONAL, userInfo.getAccessToken(), ComputationalMetadataDTO[].class))
-                .collect(Collectors.toSet());
+        	ComputationalMetadataDTO [] array = provisioningService.get(DOCKER_COMPUTATIONAL, userInfo.getAccessToken(), ComputationalMetadataDTO[].class);
+        	List<ComputationalMetadataDTO> list = new ArrayList<>();
+        	for (int i = 0; i < array.length; i++) {
+        		if (UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, array[i].getName())) {
+        			list.add(array[i]);
+        		}
+        	}
+	        return list;
         } catch (Throwable t) {
         	LOGGER.error("Could not load list of computational templates for user: {}", userInfo.getName(), t);
             throw new DlabException("Could not load list of computational templates for user " + userInfo.getName() + ": " + t.getLocalizedMessage(), t);

@@ -18,7 +18,10 @@
 
 package com.epam.dlab.backendapi.roles;
 
+/** Types of roles.
+ */
 public enum RoleType {
+	COMPUTATIONAL("computationals"),
 	EXPLORATORY("exploratories");
 	
     private String nodeName;
@@ -27,6 +30,7 @@ public enum RoleType {
         this.nodeName = nodeName;
     }
 
+    /** Return name of node in JSON for type. */
     public String getNodeName() {
         return nodeName;
     }
