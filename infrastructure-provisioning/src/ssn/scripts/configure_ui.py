@@ -26,6 +26,7 @@ import json
 import sys
 import os
 from dlab.ssn_lib import *
+from dlab.fab import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -51,9 +52,10 @@ local_log_filepath = "/logs/" + args.resource + "/" + local_log_filename
 logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.INFO,
                     filename=local_log_filepath)
+mongo_passwd = id_generator()
 
 
-def configure_mongo():
+def configure_mongo(mongo_passwd):
     try:
         if not exists("/lib/systemd/system/mongod.service"):
             local('scp -i {} /root/templates/mongod.service_template {}:/tmp/mongod.service'.format(args.keyfile,
@@ -62,9 +64,11 @@ def configure_mongo():
         local('scp -i {} /root/files/ssn_instance_shapes.lst {}:/tmp/ssn_instance_shapes.lst'.format(args.keyfile,
                                                                                                  env.host_string))
         sudo('mv /tmp/ssn_instance_shapes.lst ' + args.dlab_path + 'tmp/')
+        local('sed -i "s|PASSWORD|{}|g" /root/scripts/resource_status.py'.format(mongo_passwd))
         local('scp -i {} /root/scripts/resource_status.py {}:/tmp/resource_status.py'.format(args.keyfile,
                                                                                                       env.host_string))
         sudo('mv /tmp/resource_status.py ' + os.environ['ssn_dlab_path'] + 'tmp/')
+        local('sed -i "s|PASSWORD|{}|g" /root/scripts/configure_mongo.py'.format(mongo_passwd))
         local('scp -i {} /root/scripts/configure_mongo.py {}:/tmp/configure_mongo.py'.format(args.keyfile,
                                                                                              env.host_string))
         sudo('mv /tmp/configure_mongo.py ' + args.dlab_path + 'tmp/')
@@ -101,7 +105,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print "Configuring MongoDB"
-    if not configure_mongo():
+    if not configure_mongo(mongo_passwd):
         logging.error('MongoDB configuration script has failed.')
         sys.exit(1)
 
@@ -109,7 +113,7 @@ if __name__ == "__main__":
     sudo('echo export DLAB_CONF_DIR >> /etc/profile')
 
     print "Starting Self-Service(UI)"
-    if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path, args.os_user):
+    if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path, args.os_user, mongo_passwd):
         logging.error('Failed to start UI')
         sys.exit(1)
 

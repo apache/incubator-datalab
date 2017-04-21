@@ -18,9 +18,9 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import javax.ws.rs.Consumes;
@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.edge.EdgeInfoDTO;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
@@ -102,8 +104,14 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Iterable<ComputationalMetadataDTO> getComputationalTemplates(@Auth UserInfo userInfo) {
         LOGGER.debug("Loading list of computational templates for user {}", userInfo.getName());
         try {
-        	return Stream.of(provisioningService.get(DOCKER_COMPUTATIONAL, userInfo.getAccessToken(), ComputationalMetadataDTO[].class))
-                .collect(Collectors.toSet());
+        	ComputationalMetadataDTO [] array = provisioningService.get(DOCKER_COMPUTATIONAL, userInfo.getAccessToken(), ComputationalMetadataDTO[].class);
+        	List<ComputationalMetadataDTO> list = new ArrayList<>();
+        	for (int i = 0; i < array.length; i++) {
+        		if (UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, array[i].getName())) {
+        			list.add(array[i]);
+        		}
+        	}
+	        return list;
         } catch (Throwable t) {
         	LOGGER.error("Could not load list of computational templates for user: {}", userInfo.getName(), t);
             throw new DlabException("Could not load list of computational templates for user " + userInfo.getName() + ": " + t.getLocalizedMessage(), t);
@@ -118,14 +126,17 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Iterable<ExploratoryMetadataDTO> getExploratoryTemplates(@Auth UserInfo userInfo) {
         LOGGER.debug("Loading list of exploratory templates for user {}", userInfo.getName());
         try {
-	        List<ExploratoryMetadataDTO> list = Stream.of(provisioningService.get(DOCKER_EXPLORATORY, userInfo.getAccessToken(), ExploratoryMetadataDTO[].class))
-	        		.collect(Collectors.toList());
-	        list.forEach(m -> {
-	            int separatorIndex = m.getImage().indexOf(":");
-	            if(separatorIndex > 0) {
-	                m.setImage(m.getImage().substring(0, separatorIndex));
-	            }
-	        });
+        	ExploratoryMetadataDTO [] array = provisioningService.get(DOCKER_EXPLORATORY, userInfo.getAccessToken(), ExploratoryMetadataDTO[].class);
+        	List<ExploratoryMetadataDTO> list = new ArrayList<>();
+        	for (int i = 0; i < array.length; i++) {
+        		if (UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, array[i].getName())) {
+        			int separatorIndex = array[i].getImage().indexOf(":");
+    	            if(separatorIndex > 0) {
+    	            	array[i].setImage(array[i].getImage().substring(0, separatorIndex));
+    	            }
+        			list.add(array[i]);
+        		}
+        	}
 	        return list;
         } catch (Throwable t) {
         	LOGGER.error("Could not load list of exploratory templates for user: {}", userInfo.getName(), t);

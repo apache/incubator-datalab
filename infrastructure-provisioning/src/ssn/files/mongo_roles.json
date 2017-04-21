@@ -1,17 +1,65 @@
 {
-    "_id" : "jupyter",
-    "description" : "Notebook Jupyter",
-    "groups" : [
-        "group1",
-        "group2",
-        "groupN"
+    "_id" : "_Example",
+    "description" : "Example role",
+    "exploratories" : [ 
+        "comma separated list of exploratory names from description.json", 
+        "exploratory name"
     ],
-    "exploratories" : [
-        "jupyter"
+    "computationals" : [ 
+        "comma separated list of computational names from description.json", 
+        "computational name"
     ],
-    "shapes" : [
-        "c4.large",
-        "c4.2xlarge",
-        "c4.8xlarge"
+    "groups" : [ 
+        "comma separated list of the external group's names in lower case", 
+        "other group"
+    ],
+    "users" : [ 
+        "comma separated list of the DLab's users in lower case", 
+        "example@user"
     ]
+}
+{
+    "_id" : "nbJupyter",
+    "description" : "Notebook Jupyter",
+    "exploratories" : [ 
+        "jupyter"
+        ],
+    "groups" : [
+        ]
+}
+{
+    "_id" : "nbRstudio",
+    "description" : "Notebook R-Studio",
+    "exploratories" : [ 
+        "rstudio"
+        ],
+    "groups" : [
+        ]
+}
+{
+    "_id" : "nbTensor",
+    "description" : "Notebook Tensor Flow",
+    "exploratories" : [ 
+        "tensor"
+        ],
+    "groups" : [
+        ]
+}
+{
+    "_id" : "nbZeppelin",
+    "description" : "Notebook Zeppelin",
+    "exploratories" : [ 
+        "zeppelin"
+        ],
+    "groups" : [
+        ]
+}
+{
+    "_id" : "nbEMR",
+    "description" : "EMR",
+    "computationals" : [ 
+        "emr"
+        ],
+    "groups" : [
+        ]
 }

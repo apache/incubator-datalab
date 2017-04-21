@@ -79,10 +79,10 @@ cp_config = "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hive/conf/hive-site.xml s3://{
             "Name=CUSTOM_JAR, Args=sudo -u hadoop hdfs dfs -chown -R {2}:{2} /user/{2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".format(
     args.s3_bucket, args.name, args.nbs_user, args.region, args.edge_user_name, args.name, endpoint_url)
 
-cp_jars = "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/jars_parser.sh /tmp/jars_parser.sh --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
-          "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/key_importer.sh /tmp/key_importer.sh --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
-          "Name=CUSTOM_JAR, Args=sh /tmp/key_importer.sh {4}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
-          "Name=CUSTOM_JAR, Args=sh /tmp/jars_parser.sh {0} {3} {2} {4} {5}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".format(args.s3_bucket, args.release_label, args.region, args.release_label, args.edge_user_name, args.name, endpoint_url)
+cp_jars = "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/jars_parser.py /tmp/jars_parser.py --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
+          "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/key_importer.py /tmp/key_importer.py --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
+          "Name=CUSTOM_JAR, Args=sudo /usr/bin/python /tmp/key_importer.py --user_name {4}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
+          "Name=CUSTOM_JAR, Args=/usr/bin/python /tmp/jars_parser.py --bucket {0} --emr_version {3} --region {2} --user_name {4} --cluster_name {5}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".format(args.s3_bucket, args.release_label, args.region, args.release_label, args.edge_user_name, args.name, endpoint_url)
 
 logfile = '{}_creation.log'.format(args.name)
 logpath = '/response/' + logfile
@@ -107,13 +107,13 @@ def get_object_count(bucket, prefix):
 
 def upload_jars_parser(args):
     s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
-    s3.meta.client.upload_file('/root/scripts/jars_parser.sh', args.s3_bucket, 'jars_parser.sh')
+    s3.meta.client.upload_file('/root/scripts/jars_parser.py', args.s3_bucket, 'jars_parser.py')
 
 
 def upload_user_key(args):
     s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
     s3.meta.client.upload_file(args.key_dir + '/' + args.edge_user_name + '.pub', args.s3_bucket, args.edge_user_name + '/' + args.edge_user_name + '.pub')
-    s3.meta.client.upload_file('/root/scripts/key_importer.sh', args.s3_bucket, 'key_importer.sh')
+    s3.meta.client.upload_file('/root/scripts/key_importer.py', args.s3_bucket, 'key_importer.py')
 
 
 def remove_user_key(args):
