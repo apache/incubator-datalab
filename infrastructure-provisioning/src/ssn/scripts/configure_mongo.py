@@ -86,7 +86,6 @@ if __name__ == "__main__":
 
     # Setting up admin's password and enabling security
     client = MongoClient(mongo_ip + ':' + str(mongo_port))
-    pass_upd = True
     try:
         command = ['service', 'mongod', 'start']
         subprocess.call(command, shell=False)
@@ -118,6 +117,5 @@ if __name__ == "__main__":
     add_2_yml_config(outfile, 'network', 'ip', mongo_ip)
     add_2_yml_config(outfile, 'network', 'port', mongo_port)
     add_2_yml_config(outfile, 'account', 'user', 'admin')
-    if pass_upd:
-        add_2_yml_config(outfile, 'account', 'pass', mongo_passwd)
+    add_2_yml_config(outfile, 'account', 'pass', mongo_passwd)
 
