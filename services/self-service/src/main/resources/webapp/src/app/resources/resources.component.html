@@ -1,0 +1,42 @@
+<!------------------------------------------------------------------------------------------------------------
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+----------------------------------------------------------------------------------------------------------- -->
+<dlab-navbar [healthStatus]="healthStatus"></dlab-navbar>
+
+<div class="sub_nav">
+  <button md-raised-button class="butt butt-create" [disabled]="userUploadAccessKeyState == 202 || healthStatus === 'error'" (click)="createNotebook_btnClick()">
+    <i class="material-icons">add</i>Create new
+  </button>
+  <button md-raised-button class="butt pull-right" (click)="refreshGrid()">
+    <i class="material-icons">autorenew</i>Refresh
+  </button>
+  <button md-raised-button class="butt butt-filter pull-right" (click)="toggleFiltering()">
+    <span *ngIf="!resourcesGrid.activeFiltering">
+      <i class="material-icons">visibility_off</i>Show active
+    </span>
+    <span *ngIf="resourcesGrid.activeFiltering">
+      <i class="material-icons">visibility</i>
+      Show all
+    </span>
+  </button>
+  <span *ngIf="userUploadAccessKeyState == 500" class="alert alert-danger">Error happened during user access key upload. Please try to reupload the key.</span>
+</div>
+<resources-grid></resources-grid>
+
+<exploratory-environment-create-dialog #createAnalyticalModal (buildGrid)="refreshGrid($event)"></exploratory-environment-create-dialog>
+<key-upload-dialog #keyUploadModal (checkInfrastructureCreationProgress)="checkInfrastructureCreationProgress($event)"></key-upload-dialog>
+<progress-dialog #preloaderModal [configs]="progressDialogConfig"></progress-dialog>
