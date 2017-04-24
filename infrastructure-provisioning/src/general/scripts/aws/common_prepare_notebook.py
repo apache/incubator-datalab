@@ -68,6 +68,8 @@ if __name__ == "__main__":
         else:
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
                 'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
+    elif os.environ['application'] == 'deeplearning':
+        notebook_config['expected_ami_name'] = os.environ['notebook_deeplearning_ami_name']
     else:
         notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
             'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
