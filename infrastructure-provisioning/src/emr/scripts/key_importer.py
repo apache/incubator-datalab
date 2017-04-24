@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/python
 
 # *****************************************************************************
 #
@@ -18,5 +18,13 @@
 #
 # ******************************************************************************
 
-USER_NAME=$1
-cat /tmp/${USER_NAME}.pub >> /home/hadoop/.ssh/authorized_keys
+import argparse
+import subprocess
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--user_name', type=str, default='')
+args = parser.parse_args()
+
+if __name__ == "__main__":
+    subprocess.Popen('cat /tmp/{}.pub >> /home/hadoop/.ssh/authorized_keys'.format(args.user_name), shell=True)

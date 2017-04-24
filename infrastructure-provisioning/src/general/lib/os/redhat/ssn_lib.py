@@ -153,10 +153,11 @@ def ensure_mongo():
         return False
 
 
-def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user):
+def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd):
     try:
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_dlab_path'])):
             supervisor_conf = '/etc/supervisord.d/supervisor_svc.ini'
+            local('sed -i "s|PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
