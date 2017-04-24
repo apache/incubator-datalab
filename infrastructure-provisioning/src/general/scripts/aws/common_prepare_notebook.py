@@ -61,6 +61,10 @@ if __name__ == "__main__":
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
+    if os.environ['application'] == 'deeplearning':
+        notebook_config['primary_disk_size'] = '50'
+    else:
+        notebook_config['primary_disk_size'] = '12'
     if os.environ['application'] == 'zeppelin':
         if os.environ['notebook_multiple_emrs'] == 'true':
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
@@ -85,8 +89,13 @@ if __name__ == "__main__":
         print 'Preconfigured image found. Using: ' + ami_id
         notebook_config['ami_id'] = ami_id
     else:
-        notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
-        print 'No preconfigured image found. Using default one: ' + notebook_config['ami_id']
+        if os.environ['application'] == 'deeplearning':
+            print "ERROR: Deep Learning image wasn't found. Aborting..."
+            append_result('ERROR: Deep Learning image was not found.')
+            sys.exit(1)
+        else:
+            notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
+            print 'No preconfigured image found. Using default one: ' + notebook_config['ami_id']
 
     tag = {"Key": notebook_config['tag_name'],
            "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
@@ -96,12 +105,12 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
         print '[CREATE NOTEBOOK INSTANCE]'
-        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {} --instance_class {} --instance_disk_size {}" \
+        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {} --instance_class {} --instance_disk_size {} --primary_disk_size {}" \
             .format(notebook_config['instance_name'], notebook_config['ami_id'], notebook_config['instance_type'],
                     notebook_config['key_name'], get_security_group_by_name(notebook_config['security_group_name']),
                     get_subnet_by_cidr(notebook_config['subnet_cidr']), notebook_config['role_profile_name'],
                     notebook_config['tag_name'], notebook_config['instance_name'], instance_class,
-                    os.environ['notebook_disk_size'])
+                    os.environ['notebook_disk_size'], notebook_config['primary_disk_size'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
