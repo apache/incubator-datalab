@@ -39,13 +39,14 @@ templates_dir = '/root/templates/'
 
 def configure_tensor(args):
     sudo('mkdir /var/log/tensorboard; chown ' + args.os_user + ':' + args.os_user + ' -R /var/log/tensorboard')
-    put(templates_dir + 'tensorboard.service', '/tmp/tensorboard.service')
-    sudo("sed -i 's|OS_USR|" + args.os_user + "|' /tmp/tensorboard.service")
-    sudo("chmod 644 /tmp/tensorboard.service")
-    sudo('\cp /tmp/tensorboard.service /etc/systemd/system/')
-    sudo("systemctl daemon-reload")
-    sudo("systemctl enable tensorboard")
-    sudo("systemctl start tensorboard")
+    put(templates_dir + 'tensorboard.conf', '/tmp/tensorboard.conf')
+    sudo("sed -i 's|OS_USR|" + args.os_user + "|' /tmp/tensorboard.conf")
+    sudo("chmod 644 /tmp/tensorboard.conf")
+    sudo('\cp /tmp/tensorboard.conf /etc/init/')
+    sudo('\cp /tmp/tensorboard.conf /etc/init.d/tensorboard')
+    sudo('update-rc.d tensorboard defaults')
+    sudo('update-rc.d tensorboard enable')
+    sudo('service tensorboard start')
 
 
 if __name__ == "__main__":
