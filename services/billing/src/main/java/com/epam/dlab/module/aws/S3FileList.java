@@ -20,11 +20,9 @@ package com.epam.dlab.module.aws;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
@@ -33,50 +31,66 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.epam.dlab.exception.AdapterException;
 
 /** Create a file listing of reports from AWS bucket.
- * The AWS Cost and Usage report S3 organization and naming conventions: 
- * {@code <report-prefix>/<report-name>/yyyymmdd-yyyymmdd/<assemblyId>/<report-name>-<file-number>.csv.<zip|gz>}
+ * Format of the report file name: {@code <AWS account number>-aws-billing-detailed-line-items-with-resources-and-tags-yyyy-mm.csv.zip} 
  * <br>
  * See details in
- * <a href="http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports.html#enhanced-organization">
- * AWS Cost and Usage Report Files</a>.
+ * <a href="http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-reports.html#detailed-report-with-resources-tags">
+ * Detailed billing report with resources and tags</a>.
 */
 public class S3FileList {
-	/** Delimiter for AWS object keys.*/
+	/** Delimiter for AWS object keys. */
 	private static final char S3O_DELIMITER = '/';
 	
-	/** Pattern of date range.*/
-	private static final String PATTERN_DATE = "20[0-9]{2}[0-1][0-9][0-3][0-9]";
+	/** Pattern of date format YYYY-MM. */
+	private static final Pattern PATTERN_DATE = Pattern.compile("^20[0-9]{2}-[0-1][0-9]$");
 	
-	/** Bucket name.*/
+	/** Report prefix without account id. */
+	private static final String REPORT_PREFIX = "-aws-billing-detailed-line-items-with-resources-and-tags-";
+
+	/** Report suffix without date. */
+	private static final String REPORT_SUFIX = ".csv.zip";
+
+	
+	/** Bucket name. */
 	private final String bucket;
 	
-	/** Prefix assigned to the report when you created the report in AWS. */
+	/** Report prefix without date. */
 	private final String reportPrefix;
-	
-	/** Name of report assigned to the report when you created the report in AWS. */
-	private final String reportName;
-	
-	/** ID that AWS creates each time that the report is updated. */
-	private final String assemblyId;
 	
 	/** Name of last file which is loaded or <b>null</b> for loading all files in bucket folder. */
 	private final String lastFilename;
 	
-	private final AwsFilesComparator comparator = new AwsFilesComparator();
+	/** Date of last file modification. */
+	private final Date lastModificationDate;
 	
 	/** Instantiate file find class.
 	 * @param bucket the name of bucket.
-	 * @param reportPrefix the prefix assigned to the report when you created the report in AWS.
-	 * @param reportName the name of report assigned to the report when you created the report in AWS.
-	 * @param assemblyId ID that AWS creates each time that the report is updated.
-	 * @param lastFilename the name of file which is loaded last time or <b>null</b> for loading all files in bucket folder.
+	 * @param path the path to report.
+	 * @param accountId the AWS account number.
+	 * @param lastFilename the name of file which is loaded last time or <b>null</b> for loading all report files in the bucket folder.
+	 * @param lastModificationDate the modification date of file which is loaded last time or <b>null</b> if it is unknown.
 	 */
-	public S3FileList(String bucket, String reportPrefix, String reportName, String assemblyId, String lastFilename) {
+	public S3FileList(String bucket, String path, String accountId, String lastFilename, Date lastModificationDate) {
 		this.bucket = bucket;
-		this.reportPrefix = reportPrefix;
-		this.reportName = reportName;
-		this.assemblyId = assemblyId;
+		this.reportPrefix = (path == null ? "" : path + S3O_DELIMITER) + accountId + REPORT_PREFIX;
 		this.lastFilename = lastFilename;
+		this.lastModificationDate = lastModificationDate;
+	}
+	
+	/** Add new file name to the list.
+	 * @param files the list of files.
+	 * @param filename the name of file.
+	 */
+	private void addFileToList(List<String> files, String filename) {
+		for (int i = files.size() - 1; i >= 0; i--) {
+			int compare = filename.compareTo(files.get(i));
+			if (compare == 0) {
+				return;
+			} else if (compare > 0) {
+				break;
+			}
+		}
+		files.add(filename);
 	}
 
 	/** Return the list of files for new reports.
@@ -85,30 +99,33 @@ public class S3FileList {
 	 * @throws AdapterException
 	 */
 	public List<String> getFiles(AmazonS3 s3Client) throws AdapterException {
-		final Pattern pattern = Pattern.compile("^report-prefix/report/" + PATTERN_DATE + "-" + PATTERN_DATE +
-				S3O_DELIMITER + assemblyId + S3O_DELIMITER + reportName + "-*[0-9]{0,3}\\.csv");//[0-9]");
-		final String prefix = (reportPrefix == null || reportPrefix.isEmpty() ?
-				reportName + S3O_DELIMITER :
-				reportPrefix + S3O_DELIMITER + reportName + S3O_DELIMITER);
-		final String startAfter = (lastFilename == null ? prefix : lastFilename);
-		
 		ListObjectsV2Request request = new ListObjectsV2Request()
 				.withBucketName(bucket)
-				.withPrefix(prefix)
-				.withStartAfter(startAfter);
+				.withPrefix(reportPrefix)
+				;
 		ListObjectsV2Result result;
 		List<String> list = new ArrayList<>();
 		try {
 			do {
 				result = s3Client.listObjectsV2(request);
 				for(S3ObjectSummary item : result.getObjectSummaries()) {
-					if (pattern.matcher(item.getKey()).matches()) {
-						list.add(item.getKey());
+					String filename = item.getKey();
+					if (filename.endsWith(REPORT_SUFIX)) {
+						String dateName = filename.substring(reportPrefix.length(), filename.length() - REPORT_SUFIX.length());
+						if (PATTERN_DATE.matcher(dateName).matches()) {
+							int compare = (lastFilename == null ? 1 : filename.compareTo(lastFilename));
+							if (compare > 0) {
+								addFileToList(list, filename);
+							} else if (compare == 0 &&
+										(lastModificationDate == null || item.getLastModified().compareTo(lastModificationDate) > 0)) {
+								addFileToList(list, filename);
+							}
+						}
 					}
 				}
 			} while (result.isTruncated());
 		} catch (Exception e) {
-			throw new AdapterException("Cannot get listing of bucket \"" + bucket + S3O_DELIMITER + prefix + "\". " +
+			throw new AdapterException("Cannot get the file listing of bucket \"" + bucket + S3O_DELIMITER + reportPrefix + "*\". " +
 					e.getLocalizedMessage(), e);
 		}
 		
@@ -116,71 +133,15 @@ public class S3FileList {
 		return list;
 	}
 	
-	protected void sort(List<String> list) {
-		list.sort(comparator);
-	}
-	
-	
-	/** Comparator for sort file list.
+	/** Sort the list of file names.
+	 * @param list the list of file names.
 	 */
-	class AwsFilesComparator implements Comparator<String> {
-		
-		/** Return the extension of report file.
-		 * @param filename the name of file.
-		 */
-		private String getExt(String filename) {
-			int pos = filename.lastIndexOf(".csv");
-			return (pos < 0 ? null : filename.substring(pos));
-		}
-		
-		/** Find index of file number and return if found the name of report file without extension and number of file
-		 * otherwise filename and -1.
-		 * @param filename the name of file.
-		 * @param ext the extension of file.
-		 * @return pair name of file and index.
-		 */
-		private Pair<String, Integer> getFileOrder(String filename, String ext) {
-			MutablePair<String, Integer> p = new MutablePair<>(filename, -1);
-			filename = filename.substring(0, filename.length() - ext.length());
-			int pos = filename.lastIndexOf('-');
-			if (pos < 0 && pos < filename.length()) {
-				return p;
-			}
-			
-			try {
-				p.setRight(Integer.parseInt(filename.substring(pos + 1)));
-				p.setLeft(filename.substring(0, pos));
-				return p;
-			} catch (NumberFormatException e) {
-				return p;
-			}
-		}
-		
-		@Override
-		public int compare(String s1, String s2) {
-			if (s1 == s2) {
-	            return 0;
-	        } else if (s1 == null) {
-	            return -1;
-	        } else if (s2 == null) {
-	            return 1;
-	        }
-			
-			String ext = getExt(s1);
-			if (ext == null || !s2.endsWith(ext)) {
+	protected void sort(List<String> list) {
+		list.sort(new Comparator<String>() {
+			@Override
+			public int compare(String s1, String s2) {
 				return s1.compareTo(s2);
 			}
-			
-			Pair<String, Integer> p1 = getFileOrder(s1, ext);
-			if (p1.getValue() == -1) {
-				return s1.compareTo(s2);
-			}
-			Pair<String, Integer> p2 = getFileOrder(s2, ext);
-			if (p2.getValue() == -1) {
-				return s1.compareTo(s2);
-			}
-			
-			return p1.compareTo(p2);
-		}		
+		});
 	}
 }

@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * See description of {@link ModuleBase} how to create your own parser.
  */
 public abstract class ParserByLine extends ParserBase {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ParserBase.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ParserByLine.class);
 
 	/** Parse the header of source data and return it.
 	 * @return the header of source data.
@@ -71,19 +71,34 @@ public abstract class ParserByLine extends ParserBase {
 	 * @throws AdapterException
 	 * @throws ParseException
 	 */
-	protected void init() throws InitializationException, AdapterException, ParseException {
+	protected boolean init() throws InitializationException, AdapterException, ParseException {
 		getStatistics().start();
 
 		getAdapterIn().open();
+		LOGGER.debug("Source data has multy entry {}", getAdapterIn().hasMultyEntry());
 		getAdapterOut().open();
 
+		return initEntry();
+	}
+	
+	/** Initialize for each entry ParserBase.
+	 * @throws InitializationException
+	 * @throws AdapterException
+	 * @throws ParseException
+	 */
+	private boolean initEntry() throws InitializationException, AdapterException, ParseException {
+		if (getAdapterIn().hasMultyEntry() && !getAdapterIn().hasEntryData()) {
+			return false;
+		}
+		
 		super.init(parseHeader());
 		initialize();
 		if (getFilter() != null) {
 			getFilter().initialize();
 		}
+		return true;
 	}
-	
+
 	/** Close adapters.
 	 * @throws AdapterException
 	 */
@@ -118,66 +133,79 @@ public abstract class ParserByLine extends ParserBase {
 	 */
 	public void parse() throws InitializationException, AdapterException, ParseException {
 		try {
-			init();
-			
-			String line;
-			List<String> row;
-			ReportLine reportLine;
-			while (true) {
-				if ((line = getNextRow()) == null) {
-					break;
-				}
-				if (getFilter() != null && (line = getFilter().canParse(line)) == null) {
-					getStatistics().incrRowFiltered();
-					continue;
-				}
+			if (init()) {
+				String line;
+				List<String> row;
+				ReportLine reportLine;
 				
-				row = parseRow(line);
-				if (!checkStartDate(row) ||
-					(getFilter() != null && (row = getFilter().canTransform(row)) == null)) {
-					getStatistics().incrRowFiltered();
-					continue;
-				}
-				try {
-					if (getCondition() != null && !getCondition().evaluate(row)) {
-						getStatistics().incrRowFiltered();
-						continue;
+				do {
+					while ((line = getNextRow()) != null) {
+						if (getFilter() != null && (line = getFilter().canParse(line)) == null) {
+							getStatistics().incrRowFiltered();
+							continue;
+						}
+						
+						row = parseRow(line);
+						if (!checkStartDate(row) ||
+							(getFilter() != null && (row = getFilter().canTransform(row)) == null)) {
+							getStatistics().incrRowFiltered();
+							continue;
+						}
+						try {
+							if (getCondition() != null && !getCondition().evaluate(row)) {
+								getStatistics().incrRowFiltered();
+								continue;
+							}
+						} catch (ParseException e) {
+							throw new ParseException(e.getLocalizedMessage() + "\nSource line[" +
+									getStatistics().getRowReaded() + "]: " + line, e);
+						} catch (Exception e) {
+							throw new ParseException("Cannot evaluate condition " + getWhereCondition() + ". " +
+									e.getLocalizedMessage() + "\nSource line[" + getStatistics().getRowReaded() + "]: " + line, e);
+						}
+						
+						try {
+							reportLine = getCommonFormat().toCommonFormat(row);
+						} catch (ParseException e) {
+							throw new ParseException("Cannot cast row to common format. " +
+									e.getLocalizedMessage() + "\nSource line[" + getStatistics().getRowReaded() + "]: " + line, e);
+						}
+						if (getFilter() != null && (reportLine = getFilter().canAccept(reportLine)) == null) {
+							getStatistics().incrRowFiltered();
+							continue;
+						}
+						
+						getStatistics().incrRowParsed();
+						getStatistics().incrTotalCost(reportLine.getCost());
+						if (getAggregate() != AggregateGranularity.NONE) {
+							getAggregator().append(reportLine);
+						} else {
+							getAdapterOut().writeRow(reportLine);
+							getStatistics().incrRowWritten();
+						}
 					}
-				} catch (ParseException e) {
-					throw new ParseException(e.getLocalizedMessage() + "\nSource line[" +
-							getStatistics().getRowReaded() + "]: " + line, e);
-				} catch (Exception e) {
-					throw new ParseException("Cannot evaluate condition " + getWhereCondition() + ". " +
-							e.getLocalizedMessage() + "\nSource line[" + getStatistics().getRowReaded() + "]: " + line, e);
-				}
-				
-				try {
-					reportLine = getCommonFormat().toCommonFormat(row);
-				} catch (ParseException e) {
-					throw new ParseException("Cannot cast row to common format. " +
-							e.getLocalizedMessage() + "\nSource line[" + getStatistics().getRowReaded() + "]: " + line, e);
-				}
-				if (getFilter() != null && (reportLine = getFilter().canAccept(reportLine)) == null) {
-					getStatistics().incrRowFiltered();
-					continue;
-				}
-				
-				getStatistics().incrRowParsed();
-				getStatistics().incrTotalCost(reportLine.getCost());
-				if (getAggregate() != AggregateGranularity.NONE) {
-					getAggregator().append(reportLine);
-				} else {
-					getAdapterOut().writeRow(reportLine);
-					getStatistics().incrRowWritten();
-				}
-			}
-			
-			storeModuleDate();
-			if (getAggregate() != AggregateGranularity.NONE) {
-				for (int i = 0; i < getAggregator().size(); i++) {
-					getAdapterOut().writeRow(getAggregator().get(i));
-					getStatistics().incrRowWritten();
-				}
+					
+					if (getAggregate() != AggregateGranularity.NONE) {
+						for (int i = 0; i < getAggregator().size(); i++) {
+							getAdapterOut().writeRow(getAggregator().get(i));
+							getStatistics().incrRowWritten();
+						}
+					}
+					storeModuleDate();
+					
+					if (getAdapterIn().hasMultyEntry()) {
+						if (getAdapterIn().openNextEntry()) {
+							// Search entry with data
+							while (!initEntry()) {
+								if (!getAdapterIn().openNextEntry()) {
+									break;
+								}
+							}
+						} else {
+							break;
+						}
+					}
+				} while (getAdapterIn().hasMultyEntry() && getAdapterIn().hasEntryData());
 			}
 		} catch (GenericException e) {
 			closeAdapters(true);
@@ -188,7 +216,7 @@ public abstract class ParserByLine extends ParserBase {
 			getStatistics().stop();
 			throw new ParseException("Unknown parser error. " + e.getLocalizedMessage(), e);
 		}
-		
+			
 		closeAdapters(false);
 		getStatistics().stop();
 	}

@@ -19,6 +19,9 @@ limitations under the License.
 package com.epam.dlab.core;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +35,10 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 /** Provides loading and storing the working data of modules.
  */
 public class ModuleData {
+	
+	/** Date formatter. */ 
+	private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+	
 	/** Entries of data. */
 	private Map<String, String> entries = new HashMap<>();
 	
@@ -67,8 +74,17 @@ public class ModuleData {
 	/** Return the value for given key or <b>null</b> if value not found.
 	 * @param key the key of entry.
 	 */
-	public String get(String key) {
+	public String getString(String key) {
 		return entries.get(key);
+	}
+
+	/** Return the date value for given key or <b>null</b> if value not found.
+	 * @param key the key of entry.
+	 * @throws ParseException 
+	 */
+	public Date getDate(String key) throws ParseException {
+		String value = entries.get(key);
+		return (value == null ? null : dateFormat.parse(value));
 	}
 
 	/** Set value for given key or delete entry if the value is <b>null</b>.
@@ -84,6 +100,14 @@ public class ModuleData {
 			entries.put(key, value);
 		}
 		modified = true;
+	}
+	
+	/** Set value for given key or delete entry if the value is <b>null</b>.
+	 * @param key the key of entry.
+	 * @param value the date.
+	 */
+	public void set(String key, Date value) {
+		set(key, dateFormat.format(value));
 	}
 	
 	/** Load the data entries from data file.
@@ -125,7 +149,7 @@ public class ModuleData {
 			ObjectMapper mapper = new ObjectMapper();
 			mapper.writeValue(file, entries);
 		} catch (Exception e) {
-			throw new InitializationException("Cannot load module data from file \"" +
+			throw new InitializationException("Cannot to store working data file \"" +
 					filename + "\". " + e.getLocalizedMessage(), e);
 		}
 		

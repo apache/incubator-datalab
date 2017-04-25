@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import com.epam.dlab.core.AdapterBase.Mode;
 import com.epam.dlab.module.ModuleName;
-import com.epam.dlab.module.aws.AdapterS3File;
 
 public class AdapterS3FileTest {
 
@@ -33,16 +32,18 @@ public class AdapterS3FileTest {
 		AdapterS3File adapter = new AdapterS3File();
 		adapter.setMode(Mode.READ);
 		adapter.setWriteHeader(true);
-		adapter.setFile("filename");
 		adapter.setBucket("bucket");
+		adapter.setPath("path");
+		adapter.setAccountId("accountId");
 		adapter.setAccessKeyId("accessKeyId");
 		adapter.setSecretAccessKey("secretAccessKey");
 		
 		assertEquals(ModuleName.ADAPTER_S3_FILE, adapter.getType());
 		assertEquals(Mode.READ, adapter.getMode());
 		assertEquals(true, adapter.isWriteHeader());
-		assertEquals("filename", adapter.getFile());
 		assertEquals("bucket", adapter.getBucket());
+		assertEquals("path", adapter.getPath());
+		assertEquals("accountId", adapter.getAccountId());
 		assertEquals("accessKeyId", adapter.getAccessKeyId());
 		assertEquals("secretAccessKey", adapter.getSecretAccessKey());
 	}

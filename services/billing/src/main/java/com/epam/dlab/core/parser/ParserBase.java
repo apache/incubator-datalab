@@ -41,8 +41,6 @@ import com.google.common.base.MoreObjects.ToStringHelper;
  */
 public abstract class ParserBase extends ModuleBase {
 	
-	//TODO Add filter for interval start
-	
 	/** Default character used for decimal sign. */
 	public static final char DECIMAL_SEPARATOR_DEFAULT = '.';
 	
@@ -50,7 +48,7 @@ public abstract class ParserBase extends ModuleBase {
 	public static final char DECIMAL_GROUPING_SEPARATOR_DEFAULT = ' ';
 	
 	/** Name of key for date report data. */
-	public static final String DATA_KEY_START_DATE = "maxStartDate";
+	public static final String DATA_KEY_START_DATE = "ParserBase.maxStartDate";
 	
 	/** Report column name of date report data. */
 	@JsonProperty
@@ -289,7 +287,7 @@ public abstract class ParserBase extends ModuleBase {
 		
 		startDateIndex = (getColumnStartDate() == null || getColumnStartDate().trim().isEmpty() ?
 				-1 : getSourceColumnIndexByName(getColumnStartDate()));
-		maxStartDate = (startDateIndex == -1 ? "" : getModuleData().get(DATA_KEY_START_DATE));
+		maxStartDate = (startDateIndex == -1 ? "" : getModuleData().getString(DATA_KEY_START_DATE));
 		newMaxStartDate = maxStartDate;
 	}
 	
