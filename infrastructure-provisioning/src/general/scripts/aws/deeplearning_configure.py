@@ -141,5 +141,7 @@ if __name__ == "__main__":
                "master_keyname": os.environ['conf_key_name'],
                "notebook_name": notebook_config['instance_name'],
                "Action": "Create new notebook server",
-               "exploratory_url": "Jupyter"}
+               "exploratory_url": [
+                   {"description": "Deep Learning",
+                    "url": ip_address}]}
         result.write(json.dumps(res))
