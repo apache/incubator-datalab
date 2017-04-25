@@ -23,7 +23,7 @@ import 'rxjs/add/observable/of';
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { AppRoutingService } from './appRouting.service';
 import { LoginModel } from '../../login/login.model';
-// import HTTP_STATUS_CODES from 'http-status-enum';
+import { HTTP_STATUS_CODES } from '../util';
 
 @Injectable()
 export class ApplicationSecurityService {
@@ -39,7 +39,7 @@ export class ApplicationSecurityService {
     return this.serviceFacade
       .buildLoginRequest(loginModel.toJsonString())
       .map((response: Response) => {
-        if (response.status === 200) { //HTTP_STATUS_CODES
+        if (response.status === HTTP_STATUS_CODES.OK) {
           this.setAuthToken(response.text());
           this.setUserName(loginModel.username);
 
@@ -58,7 +58,7 @@ export class ApplicationSecurityService {
         .map((response: Response) => {
           this.clearAuthToken();
 
-          return response.status === 200; //HTTP_STATUS_CODES
+          return response.status === HTTP_STATUS_CODES.OK;
         }, this);
     }
 
@@ -81,7 +81,7 @@ export class ApplicationSecurityService {
       return this.serviceFacade
         .buildAuthorizeRequest(currentUser)
         .map((response: Response) => {
-          if (response.status === 200) //HTTP_STATUS_CODES
+          if (response.status === HTTP_STATUS_CODES.OK)
             return true;
 
           this.clearAuthToken();

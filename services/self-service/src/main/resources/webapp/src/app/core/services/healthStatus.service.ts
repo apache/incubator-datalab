@@ -21,7 +21,7 @@ import { Response } from '@angular/http';
 import { ApplicationServiceFacade } from './applicationServiceFacade.service';
 import { AppRoutingService } from './appRouting.service';
 import { Observable } from 'rxjs/Observable';
-// import HTTP_STATUS_CODES from 'http-status-enum';
+import { HTTP_STATUS_CODES } from '../util';
 
 @Injectable()
 export class HealthStatusService {
@@ -34,7 +34,7 @@ export class HealthStatusService {
       return this.applicationServiceFacade
         .buildGetEnvironmentHealthStatus()
         .map((response: Response) => {
-          if (response.status === 200)
+          if (response.status === HTTP_STATUS_CODES.OK)
             if(response.json().status === 'ok')
               return true;
 

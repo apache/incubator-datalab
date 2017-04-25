@@ -23,7 +23,7 @@ import { UserResourceService } from '../../../core/services/userResource.service
 import { ComputationalResourceCreateModel } from './computational-resource-create.model';
 
 import { ErrorMapUtils } from '../../../core/util/errorMapUtils';
-// import HTTP_STATUS_CODES from 'http-status-enum';
+import { HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   moduleId: module.id,
@@ -163,7 +163,7 @@ export class ComputationalResourceCreateDialog {
       this.notebook_instance = notebook_instance;
 
       this.model = new ComputationalResourceCreateModel('', 0, '', '', notebook_instance.name, (response: Response) => {
-        if (response.status === 200) { //HTTP_STATUS_CODES.OK
+        if (response.status === HTTP_STATUS_CODES.OK) {
           this.computationalResourceExist = false;
           this.close();
           this.buildGrid.emit();

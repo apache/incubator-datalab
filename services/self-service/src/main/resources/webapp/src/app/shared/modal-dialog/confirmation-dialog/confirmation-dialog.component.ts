@@ -23,7 +23,7 @@ import { UserResourceService, HealthStatusService } from '../../../core/services
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
 import { ErrorMapUtils } from '../../../core/util/errorMapUtils';
-// import HTTP_STATUS_CODES from 'http-status-enum';
+import { HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   moduleId: module.id,
@@ -53,7 +53,7 @@ export class ConfirmationDialog {
 
   public open(param, notebook: any, type: ConfirmationDialogType) {
     this.model = new ConfirmationDialogModel(type, notebook, (response: Response) => {
-      if (response.status === 200) { //HTTP_STATUS_CODES.OK
+      if (response.status === HTTP_STATUS_CODES.OK) {
         this.close();
         this.buildGrid.emit();
       }

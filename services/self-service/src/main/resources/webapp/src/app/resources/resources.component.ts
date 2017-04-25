@@ -25,8 +25,7 @@ import { ResourcesGrid } from './resources-grid/resources-grid.component';
 import { NavbarComponent } from '../shared/navbar/navbar.component';
 import { ExploratoryEnvironmentVersionModel } from '../core/models/exploratoryEnvironmentVersion.model';
 import { ComputationalResourceImage } from '../core/models/computationalResourceImage.model';
-
-// import HTTP_STATUS_CODES from 'http-status-enum';
+import { HTTP_STATUS_CODES } from '../core/util';
 
 @Component({
   moduleId: module.id,
@@ -57,7 +56,7 @@ export class ResourcesComponent implements OnInit {
     private healthStatusService: HealthStatusService,
     private appRoutingService: AppRoutingService
   ) {
-    this.userUploadAccessKeyState = 404; //HTTP_STATUS_CODES.NOT_FOUND
+    this.userUploadAccessKeyState = HTTP_STATUS_CODES.NOT_FOUND;
   }
 
   ngOnInit() {
@@ -119,14 +118,14 @@ export class ResourcesComponent implements OnInit {
   private processAccessKeyStatus(status: number, forceShowKeyUploadDialog: boolean) {
     this.userUploadAccessKeyState = status;
 
-    if (status === 404) {// key haven't been uploaded HTTP_STATUS_CODES.NOT_FOUND
+    if (status === HTTP_STATUS_CODES.NOT_FOUND) {// key haven't been uploaded
       this.toggleDialogs(true, false, false);
-    } else if (status === 202) { // Key uploading HTTP_STATUS_CODES.ACCEPTED
+    } else if (status === HTTP_STATUS_CODES.ACCEPTED) { // Key uploading
       this.toggleDialogs(false, true, false);
       setTimeout(() => this.checkInfrastructureCreationProgress(), this.CHECK_ACCESS_KEY_TIMEOUT);
-    } else if (status === 200 && forceShowKeyUploadDialog) { //HTTP_STATUS_CODES.OK
+    } else if (status === HTTP_STATUS_CODES.OK && forceShowKeyUploadDialog) {
       this.toggleDialogs(false, false, true);
-    } else if (status === 200) { // Key uploaded HTTP_STATUS_CODES.OK
+    } else if (status === HTTP_STATUS_CODES.OK) { // Key uploaded
       this.toggleDialogs(false, false, false);
     }
   }

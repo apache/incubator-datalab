@@ -22,7 +22,7 @@ import { Response } from '@angular/http';
 import { KeyUploadDialogModel } from './key-upload.model';
 import { UserAccessKeyService } from '../../../core/services';
 import { ErrorMapUtils } from '../../../core/util/errorMapUtils';
-// import HTTP_STATUS_CODES from 'http-status-enum';
+import { HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   moduleId: module.id,
@@ -62,7 +62,7 @@ export class UploadKeyDialog {
   open(params) {
     if (!this.bindDialog.isOpened) {
       this.model = new KeyUploadDialogModel(null, (response: Response) => {
-        if (response.status === 200) { //HTTP_STATUS_CODES.OK
+        if (response.status === HTTP_STATUS_CODES.OK) {
           this.close();
           this.checkInfrastructureCreationProgress.emit();
         }
