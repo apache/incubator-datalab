@@ -164,6 +164,11 @@ public class AdapterMongoDb extends DBAdapterBase {
 	}
 
 	@Override
+	public String getEntryName() {
+		return MongoConstants.COLLECTION_BILLING;
+	}
+
+	@Override
 	public String readLine() throws AdapterException {
 		throw new AdapterException("Unimplemented method called.");
 	}

@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.core.parser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -109,7 +110,11 @@ public abstract class ParserBase extends ModuleBase {
 
 	/** Parser statistics. */
 	@JsonIgnore
-	private final ParserStatistics statistics = new ParserStatistics();
+	private final List<ParserStatistics> statistics = new ArrayList<>();
+	
+	/** Current parser statistics. */
+	@JsonIgnore
+	ParserStatistics currentStatistics = null; 
 	
 	
 	/** Return report column name of date report data. */
@@ -218,8 +223,22 @@ public abstract class ParserBase extends ModuleBase {
 	}
 	
 	/** Return the parser statistics. */
-	public ParserStatistics getStatistics() {
+	public List<ParserStatistics> getStatistics() {
 		return statistics;
+	}
+	
+	/** Add and return the new instance for statistics.
+	 * @param entryName the name of new entry.
+	 */
+	public ParserStatistics addStatistics(String entryName) {
+		currentStatistics = new ParserStatistics(entryName);
+		statistics.add(currentStatistics);
+		return currentStatistics;
+	}
+	
+	/** Return the current parser statistics. */
+	public ParserStatistics getCurrentStatistics() {
+		return currentStatistics;
 	}
 
 	/** Index of column of date report data. */

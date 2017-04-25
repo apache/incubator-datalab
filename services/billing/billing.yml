@@ -2,15 +2,14 @@ workingFile: /opt/dlab/tmp/result/billing-data.json
 
 # Adapter for reading source data. Known types: file, s3file
 adapterIn:
-  - type: file
-    file: D:\DLab\BillingSampleData\dlab-billing-detailed-tags-2017-03-27.csv
-#  - type: s3file
-#    bucket: bucketName
-#    prefix: path
-#    report: reportName
-#    assemblyId: ID
-#    accessKeyId: accessKeyId
-#    secretAccessKey: secretAccessKey
+#  - type: file
+#    file: D:\DLab\BillingSampleData\dlab-billing-detailed-tags-2017-03-27.csv
+  - type: s3file
+    bucket: bucket-name
+#    path:
+    accountId: 1234567890
+    accessKeyId: accessKeyId
+    secretAccessKey: secretAccessKey
 
 # Adapter for writing converted data. Known types: console, file, s3file, mongodb
 adapterOut:
@@ -23,7 +22,7 @@ adapterOut:
     host: localhost
     port: 27017
     username: admin
-    password: XS3ms9R3tP
+    password: PASSWORD
     database: dlabdb
 #    bufferSize: 10000
     upsert: true

@@ -165,20 +165,20 @@ public class ParserCsv extends ParserByLine {
 		List<String> header = null;
 		
 		if (headerLineNo > 0) {
-    		while(getStatistics().getRowReaded() < headerLineNo) {
+    		while(getCurrentStatistics().getRowReaded() < headerLineNo) {
     			if ((line = getNextRow()) == null) {
     				return null;
     			}
-    			getStatistics().incrRowSkipped();
+    			getCurrentStatistics().incrRowSkipped();
     		}
     		header = parseRow(line);
     	}
     	
-    	while (getStatistics().getRowReaded() < skipLines) {
+    	while (getCurrentStatistics().getRowReaded() < skipLines) {
     		if (getNextRow() == null) {
     			break;
     		}
-    		getStatistics().incrRowSkipped();
+    		getCurrentStatistics().incrRowSkipped();
     	}
     	
     	return header;

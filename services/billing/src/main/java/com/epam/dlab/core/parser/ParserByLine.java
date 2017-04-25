@@ -62,7 +62,7 @@ public abstract class ParserByLine extends ParserBase {
 		if (line == null) {
 			return null;
 		}
-		getStatistics().incrRowReaded();
+		getCurrentStatistics().incrRowReaded();
 		return line;
 	}
 
@@ -72,13 +72,13 @@ public abstract class ParserByLine extends ParserBase {
 	 * @throws ParseException
 	 */
 	protected boolean init() throws InitializationException, AdapterException, ParseException {
-		getStatistics().start();
-
 		getAdapterIn().open();
 		LOGGER.debug("Source data has multy entry {}", getAdapterIn().hasMultyEntry());
+		if (!initEntry()) {
+			return false;
+		}
 		getAdapterOut().open();
-
-		return initEntry();
+		return true;
 	}
 	
 	/** Initialize for each entry ParserBase.
@@ -90,6 +90,8 @@ public abstract class ParserByLine extends ParserBase {
 		if (getAdapterIn().hasMultyEntry() && !getAdapterIn().hasEntryData()) {
 			return false;
 		}
+		addStatistics(getAdapterIn().getEntryName());
+		getCurrentStatistics().start();
 		
 		super.init(parseHeader());
 		initialize();
@@ -141,54 +143,56 @@ public abstract class ParserByLine extends ParserBase {
 				do {
 					while ((line = getNextRow()) != null) {
 						if (getFilter() != null && (line = getFilter().canParse(line)) == null) {
-							getStatistics().incrRowFiltered();
+							getCurrentStatistics().incrRowFiltered();
 							continue;
 						}
 						
 						row = parseRow(line);
 						if (!checkStartDate(row) ||
 							(getFilter() != null && (row = getFilter().canTransform(row)) == null)) {
-							getStatistics().incrRowFiltered();
+							getCurrentStatistics().incrRowFiltered();
 							continue;
 						}
 						try {
 							if (getCondition() != null && !getCondition().evaluate(row)) {
-								getStatistics().incrRowFiltered();
+								getCurrentStatistics().incrRowFiltered();
 								continue;
 							}
 						} catch (ParseException e) {
-							throw new ParseException(e.getLocalizedMessage() + "\nSource line[" +
-									getStatistics().getRowReaded() + "]: " + line, e);
+							throw new ParseException(e.getLocalizedMessage() + "\nEntry name: " + getCurrentStatistics().getEntryName() +
+									"\nSource line[" +
+									getCurrentStatistics().getRowReaded() + "]: " + line, e);
 						} catch (Exception e) {
 							throw new ParseException("Cannot evaluate condition " + getWhereCondition() + ". " +
-									e.getLocalizedMessage() + "\nSource line[" + getStatistics().getRowReaded() + "]: " + line, e);
+									e.getLocalizedMessage() + "\nEntry name: " + getCurrentStatistics().getEntryName()
+									+ "\nSource line[" + getCurrentStatistics().getRowReaded() + "]: " + line, e);
 						}
 						
 						try {
 							reportLine = getCommonFormat().toCommonFormat(row);
 						} catch (ParseException e) {
 							throw new ParseException("Cannot cast row to common format. " +
-									e.getLocalizedMessage() + "\nSource line[" + getStatistics().getRowReaded() + "]: " + line, e);
+									e.getLocalizedMessage() + "\nEntry name: " + getCurrentStatistics().getEntryName() +
+									"\nSource line[" + getCurrentStatistics().getRowReaded() + "]: " + line, e);
 						}
 						if (getFilter() != null && (reportLine = getFilter().canAccept(reportLine)) == null) {
-							getStatistics().incrRowFiltered();
+							getCurrentStatistics().incrRowFiltered();
 							continue;
 						}
 						
-						getStatistics().incrRowParsed();
-						getStatistics().incrTotalCost(reportLine.getCost());
+						getCurrentStatistics().incrRowParsed();
 						if (getAggregate() != AggregateGranularity.NONE) {
 							getAggregator().append(reportLine);
 						} else {
 							getAdapterOut().writeRow(reportLine);
-							getStatistics().incrRowWritten();
+							getCurrentStatistics().incrRowWritten();
 						}
 					}
 					
 					if (getAggregate() != AggregateGranularity.NONE) {
 						for (int i = 0; i < getAggregator().size(); i++) {
 							getAdapterOut().writeRow(getAggregator().get(i));
-							getStatistics().incrRowWritten();
+							getCurrentStatistics().incrRowWritten();
 						}
 					}
 					storeModuleDate();
@@ -209,15 +213,17 @@ public abstract class ParserByLine extends ParserBase {
 			}
 		} catch (GenericException e) {
 			closeAdapters(true);
-			getStatistics().stop();
+			getCurrentStatistics().stop();
 			throw e;
 		} catch (Exception e) {
 			closeAdapters(true);
-			getStatistics().stop();
+			getCurrentStatistics().stop();
 			throw new ParseException("Unknown parser error. " + e.getLocalizedMessage(), e);
 		}
 			
 		closeAdapters(false);
-		getStatistics().stop();
+		if (getCurrentStatistics() != null) {
+			getCurrentStatistics().stop();
+		}
 	}
 }

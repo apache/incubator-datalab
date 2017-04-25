@@ -62,6 +62,11 @@ public class AdapterConsole extends AdapterBase {
 	}
 
 	@Override
+	public String getEntryName() {
+		return "console";
+	}
+
+	@Override
 	public String readLine() throws AdapterException {
 		throw new AdapterException("Unimplemented method called.");
 	}

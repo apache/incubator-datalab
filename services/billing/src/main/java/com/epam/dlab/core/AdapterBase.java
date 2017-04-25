@@ -104,6 +104,10 @@ public abstract class AdapterBase extends ModuleBase {
 	 */
 	public abstract void close() throws AdapterException;
 	
+	/** Return the current processed entry name.
+	 */
+	public abstract String getEntryName();
+	
 	/** Read the line of data from adapter and return it.
 	 * @throws AdapterException
 	 */

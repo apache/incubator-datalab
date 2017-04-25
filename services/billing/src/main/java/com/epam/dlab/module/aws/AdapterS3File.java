@@ -166,6 +166,10 @@ public class AdapterS3File extends AdapterBase {
 	@JsonIgnore
 	private int currentFileIndex = -1;
 	
+	/** Index of current report file. */
+	@JsonIgnore
+	private String entryName = null;
+	
 	/** Amazon S3 client. */
 	@JsonIgnore
 	private AmazonS3 clientS3 = null;
@@ -197,6 +201,7 @@ public class AdapterS3File extends AdapterBase {
 			currentFileIndex = (filelist.size() == 0 ? -1 : 0);
 			fileInputStream = null;
 			reader = null;
+			entryName = null;
 			openNextEntry();
 			LOGGER.debug("Adapter S3 has been opened");
 		} else if (getMode() == Mode.WRITE) {
@@ -220,6 +225,7 @@ public class AdapterS3File extends AdapterBase {
 			}
 			return false;
 		}
+		entryName = filename;
 		LOGGER.debug("Open a next entry in file {}", filename);
 		
 		if (fileInputStream == null) {
@@ -254,6 +260,11 @@ public class AdapterS3File extends AdapterBase {
 	@Override
 	public void close() throws AdapterException {
 		closeZipFile(getCurrentFileName());
+	}
+
+	@Override
+	public String getEntryName() {
+		return entryName;
 	}
 
 	@Override
@@ -351,6 +362,7 @@ public class AdapterS3File extends AdapterBase {
 		try {
 			entry = zipInputStream.getNextEntry();
 			if (entry != null) {
+				entryName = filename + ":" + entry.getName();
 				LOGGER.debug("Next the zip entry {}", (entry == null ? null : entry.getName()));
 				reader = new BufferedReader(new InputStreamReader(zipInputStream));
 			} else {
