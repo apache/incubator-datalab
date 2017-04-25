@@ -25,7 +25,8 @@ ARG CLOUD
 COPY deeplearning/ /root/
 COPY general/scripts/${CLOUD}/deeplearning_* /root/scripts/
 COPY general/scripts/os/notebook_configure_proxy.py /root/scripts/
-COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
+COPY general/lib/os/debian/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
+COPY general/lib/os/debian/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
