@@ -12,3 +12,6 @@ target
 /services/security-service/bin
 /services/self-service/bin
 /services/provisioning-service/response
+
+/services/self-service/src/main/resources/webapp/ts-node-*
+/web_app
