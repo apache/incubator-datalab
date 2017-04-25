@@ -99,6 +99,21 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
+    try:
+        logging.info('[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]')
+        print '[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]'
+        params = "--hostname {} --keyfile {} --os_user {}" \
+                 .format(instance_hostname, keyfile_name, os.environ['conf_os_user'])
+        try:
+            local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed to configure Deep Learning node.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     # try:
     #     print '[CREATING AMI]'
     #     logging.info('[CREATING AMI]')
@@ -117,6 +132,7 @@ if __name__ == "__main__":
     # generating output information
     ip_address = get_instance_ip_address(notebook_config['instance_name']).get('Private')
     dns_name = get_instance_hostname(notebook_config['instance_name'])
+    tensor_board_url = 'http://' + ip_address + ':6006'
     print '[SUMMARY]'
     logging.info('[SUMMARY]')
     print "Instance name: " + notebook_config['instance_name']
@@ -142,6 +158,6 @@ if __name__ == "__main__":
                "notebook_name": notebook_config['instance_name'],
                "Action": "Create new notebook server",
                "exploratory_url": [
-                   {"description": "Deep Learning",
-                    "url": ip_address}]}
+                   {"description": "TensorBoard",
+                    "url": tensor_board_url}]}
         result.write(json.dumps(res))
