@@ -57,6 +57,7 @@ ldapSearch:
     attributes: 
       - cn
       - gidNumber
+      - memberUid
     timeLimit: 0
     base: dc=example,dc=com
     filter: "(&(objectClass=posixGroup))"
@@ -68,17 +69,34 @@ ldapSearch:
           name = ui.getName();
           key = ('uid='+name+',ou=People,dc=example,dc=com').toLowerCase();
           userInfo=context['userInfo'];
-          if( userInfo[key] == undefined ) {
+          if( userInfo[key] === undefined ) {
             throw 'JavaScript LDAP UserInfo not found for '+key;
           }
           uid= userInfo[key];
           userGid = uid['gidnumber'];
           groupInfo=context['groupInfo'];
+
           for( dn in groupInfo ) {
             group = groupInfo[dn];
-            if( userGid == group['gidnumber'] ) {
+            if( userGid == group['gidnumber']) {
               ui.addRole(group['cn']);
-            }
+            } else {
+                grMembers = group['memberuid'];
+                if (grMembers !== undefined) {
+                  index = grMembers.split(",");
+                  members = new Array();
+                  for(i in index) {
+                    members[i] = grMembers.split(",")[i];
+                  }
+                  for (member in members) {
+                    if (members[member] !== undefined) {
+                      if (members[member].toLowerCase() == name.toLowerCase()) {
+                        ui.addRole(group['cn']);
+                      }
+                    }
+                  }
+                }
+              }
           }
           return ui;
         }
