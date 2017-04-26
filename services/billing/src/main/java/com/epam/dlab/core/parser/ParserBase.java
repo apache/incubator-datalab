@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.core.parser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -41,8 +42,6 @@ import com.google.common.base.MoreObjects.ToStringHelper;
  */
 public abstract class ParserBase extends ModuleBase {
 	
-	//TODO Add filter for interval start
-	
 	/** Default character used for decimal sign. */
 	public static final char DECIMAL_SEPARATOR_DEFAULT = '.';
 	
@@ -50,7 +49,7 @@ public abstract class ParserBase extends ModuleBase {
 	public static final char DECIMAL_GROUPING_SEPARATOR_DEFAULT = ' ';
 	
 	/** Name of key for date report data. */
-	public static final String DATA_KEY_START_DATE = "maxStartDate";
+	public static final String DATA_KEY_START_DATE = "ParserBase.maxStartDate";
 	
 	/** Report column name of date report data. */
 	@JsonProperty
@@ -111,7 +110,11 @@ public abstract class ParserBase extends ModuleBase {
 
 	/** Parser statistics. */
 	@JsonIgnore
-	private final ParserStatistics statistics = new ParserStatistics();
+	private final List<ParserStatistics> statistics = new ArrayList<>();
+	
+	/** Current parser statistics. */
+	@JsonIgnore
+	ParserStatistics currentStatistics = null; 
 	
 	
 	/** Return report column name of date report data. */
@@ -220,8 +223,22 @@ public abstract class ParserBase extends ModuleBase {
 	}
 	
 	/** Return the parser statistics. */
-	public ParserStatistics getStatistics() {
+	public List<ParserStatistics> getStatistics() {
 		return statistics;
+	}
+	
+	/** Add and return the new instance for statistics.
+	 * @param entryName the name of new entry.
+	 */
+	public ParserStatistics addStatistics(String entryName) {
+		currentStatistics = new ParserStatistics(entryName);
+		statistics.add(currentStatistics);
+		return currentStatistics;
+	}
+	
+	/** Return the current parser statistics. */
+	public ParserStatistics getCurrentStatistics() {
+		return currentStatistics;
 	}
 
 	/** Index of column of date report data. */
@@ -289,7 +306,7 @@ public abstract class ParserBase extends ModuleBase {
 		
 		startDateIndex = (getColumnStartDate() == null || getColumnStartDate().trim().isEmpty() ?
 				-1 : getSourceColumnIndexByName(getColumnStartDate()));
-		maxStartDate = (startDateIndex == -1 ? "" : getModuleData().get(DATA_KEY_START_DATE));
+		maxStartDate = (startDateIndex == -1 ? "" : getModuleData().getString(DATA_KEY_START_DATE));
 		newMaxStartDate = maxStartDate;
 	}
 	

@@ -37,8 +37,8 @@ import org.slf4j.LoggerFactory;
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
-import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.dto.keyload.UploadFileResultDTO;
@@ -59,8 +59,6 @@ import io.dropwizard.auth.Auth;
 public class EdgeResource implements EdgeAPI {
     private static final Logger LOGGER = LoggerFactory.getLogger(EdgeResource.class);
 
-    @Inject
-    private SettingsDAO settingsDAO;
     @Inject
     private KeyDAO keyDAO;
     @Inject
@@ -143,14 +141,7 @@ public class EdgeResource implements EdgeAPI {
     private String action(UserInfo userInfo, String action, UserInstanceStatus status) throws DlabException {
         try {
         	keyDAO.updateEdgeStatus(userInfo.getName(), status.toString());
-        	ResourceSysBaseDTO<?> dto = new ResourceSysBaseDTO<>()
-                	.withAwsIamUser(userInfo.getName())
-                	.withAwsRegion(settingsDAO.getAwsRegion())
-                	.withConfOsFamily(settingsDAO.getConfOsFamily())
-                	.withConfOsUser(settingsDAO.getConfOsUser())
-                	.withEdgeUserName(userInfo.getSimpleName())
-                	.withServiceBaseName(settingsDAO.getServiceBaseName());
-
+        	ResourceSysBaseDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ResourceSysBaseDTO.class);
             String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return uuid;

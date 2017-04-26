@@ -61,10 +61,25 @@ public class ReportLineTest {
 		checkGetters(r);
 	}
 
+	private void checkResourceType(String product, String resourceTypeId,
+			ResourceType expectedResourceType, String expectedResourceId) throws ParseException {
+		ReportLine r = new ReportLine();
+		r.setProduct(product);
+		r.setResourceTypeId(resourceTypeId);
+		
+		assertEquals(expectedResourceType, r.getResourceType());
+		assertEquals(expectedResourceId, r.getResourceId());
+	}
+	
 	@Test
-	public void resourceType() {
-		// TODO Test: ResourceType + ResourceTypeId
-		//assertEquals(ResourceType.IP_ADDRESS, r.getResourceType());
-		//assertEquals("resourceTypeId", r.getResourceTypeId());
+	public void resourceType() throws ParseException {
+		checkResourceType("Amazon Elastic Compute Cloud", "i-000c0e51d117e3b4a", ResourceType.COMPUTER, "i-000c0e51d117e3b4a");
+		checkResourceType("Amazon Elastic Compute Cloud", "vol-04c20f339836c56b6", ResourceType.STORAGE, "vol-04c20f339836c56b6");
+		checkResourceType("Amazon Elastic Compute Cloud", "34.208.106.54", ResourceType.IP_ADDRESS, "34.208.106.54");
+
+		checkResourceType("Amazon Elastic MapReduce", "arn:aws:elasticmapreduce:us-west-2:203753054073:cluster/j-1FOBGFRC8X4XY", ResourceType.CLUSTER, "j-1FOBGFRC8X4XY");
+
+		checkResourceType("Amazon Simple Storage Service", "dlab-s3", ResourceType.STORAGE_BUCKET, "dlab-s3");
+		checkResourceType("AmazonCloudWatch", "arn:aws:logs:us-west-2:203753054073:log-group:CloudTrail/DefaultLogGroup", ResourceType.OTHER, "arn:aws:logs:us-west-2:203753054073:log-group:CloudTrail/DefaultLogGroup");
 	}
 }

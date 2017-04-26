@@ -44,7 +44,7 @@ def read_yml_conf(path, section, param):
 
 def update_resource_status(resource, status):
     path = "/etc/mongod.conf"
-    mongo_passwd = "XS3ms9R3tP"
+    mongo_passwd = "PASSWORD"
     mongo_ip = read_yml_conf(path, 'net', 'bindIp')
     mongo_port = read_yml_conf(path, 'net', 'port')
     client = MongoClient(mongo_ip + ':' + str(mongo_port))

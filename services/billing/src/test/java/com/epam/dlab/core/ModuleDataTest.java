@@ -32,10 +32,10 @@ public class ModuleDataTest {
 		ModuleData d = new ModuleData(null);
 		assertEquals(false, d.isModified());
 		d.set("key1", "value1");
-		assertEquals("value1", d.get("key1"));
+		assertEquals("value1", d.getString("key1"));
 		assertEquals(true, d.isModified());
-		d.set("key1", null);
-		assertEquals(null, d.get("key1"));
+		d.set("key1", (String)null);
+		assertEquals(null, d.getString("key1"));
 		
 		try {
 			d.store();

@@ -125,6 +125,11 @@ public class AdapterFile extends AdapterBase {
 	}
 
 	@Override
+	public String getEntryName() {
+		return getFile();
+	}
+
+	@Override
 	public String readLine() throws AdapterException {
 		try {
 			return reader.readLine();

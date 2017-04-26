@@ -24,6 +24,9 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 /** Store the statistic of parser processing.
  */
 public class ParserStatistics {
+	/** Name of parsed entry. */
+	private final String entryName;
+	
 	/** Time is milliseconds when parser has been started. */
 	private long timeStartInMillis = 0;
 	
@@ -45,8 +48,10 @@ public class ParserStatistics {
 	/** Number of rows write. */
 	private long rowWritten;
 	
-	/** Total cost.*/
-	private double totalCost;
+	
+	public ParserStatistics(String entryName) {
+		this.entryName = entryName;
+	}
 	
 	public void start() {
 		timeStartInMillis = System.currentTimeMillis();
@@ -56,7 +61,6 @@ public class ParserStatistics {
 		rowFiltered = 0;
 		rowParsed = 0;
 		rowWritten = 0;
-		totalCost = 0;
 	}
 	
 	public void stop() {
@@ -66,6 +70,11 @@ public class ParserStatistics {
 		}
 	}
 	
+	
+	/** Return the name of parsed entry. */
+	public String getEntryName() {
+		return entryName;
+	}
 	
 	/** Return the elapsed time in milliseconds of initializing, reading, filtering, parsing and writing operations. */
 	public long getElapsedTime() {
@@ -99,12 +108,6 @@ public class ParserStatistics {
 		return rowWritten;
 	}
 	
-	/** Return the total cost.*/
-	public double getTotalCost() {
-		return totalCost;
-	}
-
-	
 	/** Increment the number of rows read. */
 	public void incrRowReaded() {
 		rowReaded++;
@@ -131,21 +134,15 @@ public class ParserStatistics {
 	}
 	
 
-	/** Increment the total cost. */
-	public void incrTotalCost(double cost) {
-		totalCost += cost;
-	}
-	
-	
 	public ToStringHelper toStringHelper(Object self) {
     	return MoreObjects.toStringHelper(self)
+    			.add("entryName", entryName)
     			.add("elapsedTime", getElapsedTime())
     			.add("rowReaded", rowReaded)
     			.add("rowSkipped", rowSkipped)
     			.add("rowFiltered", rowFiltered)
     			.add("rowParsed", rowParsed)
-    			.add("rowWritten", rowWritten)
-    			.add("totalCost", totalCost);
+    			.add("rowWritten", rowWritten);
     }
 	
 	@Override

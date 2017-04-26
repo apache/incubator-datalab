@@ -36,6 +36,7 @@ parser.add_argument('--sg', type=str, default='')
 parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--os_family', type=str, default='')
+parser.add_argument('--tag_resource_id', type=str, default='')
 args = parser.parse_args()
 
 
@@ -73,8 +74,7 @@ def read_yml_conf(path, section, param):
 
 
 if __name__ == "__main__":
-    # mongo_passwd = id_generator()
-    mongo_passwd = "XS3ms9R3tP"
+    mongo_passwd = "PASSWORD"
     mongo_ip = read_yml_conf(path,'net','bindIp')
     mongo_port = read_yml_conf(path,'net','port')
 
@@ -100,6 +100,7 @@ if __name__ == "__main__":
         client.dlabdb.settings.insert_one({"_id": "aws_security_groups_ids", "value": args.sg})
         client.dlabdb.settings.insert_one({"_id": "conf_os_user", "value": args.os_user})
         client.dlabdb.settings.insert_one({"_id": "conf_os_family", "value": args.os_family})
+        client.dlabdb.settings.insert_one({"_id": "conf_tag_resource_id", "value": args.tag_resource_id})
         client.dlabdb.settings.insert_one({"_id": "conf_key_dir", "value": "/root/keys"})
         client.dlabdb.security.insert({ "expireAt": "1" }, { "expireAfterSeconds": "3600" })
         client.dlabdb.shapes.insert(shapes)

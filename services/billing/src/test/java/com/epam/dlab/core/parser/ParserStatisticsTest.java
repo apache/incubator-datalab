@@ -26,8 +26,10 @@ public class ParserStatisticsTest {
 
 	@Test
 	public void test() {
-		ParserStatistics s = new ParserStatistics();
+		ParserStatistics s = new ParserStatistics("name");
 		
+		assertEquals("name", s.getEntryName());
+
 		assertEquals(0, s.getRowFiltered());
 		s.incrRowFiltered();
 		assertEquals(1, s.getRowFiltered());
@@ -50,13 +52,6 @@ public class ParserStatisticsTest {
 		
 		assertEquals(0, s.getElapsedTime());
 		
-		assertEquals(0.0, s.getTotalCost());
-		s.incrTotalCost(12.34);
-		assertEquals(12.34, s.getTotalCost());
-		s.incrTotalCost(11.22);
-		assertEquals(12.34 + 11.22, s.getTotalCost());
-		
-		
 		s.start();
 		assertEquals(0, s.getRowFiltered());
 		assertEquals(0, s.getRowParsed());
@@ -64,6 +59,5 @@ public class ParserStatisticsTest {
 		assertEquals(0, s.getRowSkipped());
 		assertEquals(0, s.getRowWritten());
 		assertEquals(0, s.getElapsedTime());
-		assertEquals(0.0, s.getTotalCost());
 	}
 }

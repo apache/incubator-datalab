@@ -80,10 +80,33 @@ public abstract class AdapterBase extends ModuleBase {
 	 */
 	public abstract void open() throws AdapterException;
 	
+	/** Return <b>true</b> if adapter has the multiply entries of data.
+	 */
+	public boolean hasMultyEntry() {
+		return false;
+	}
+	
+	/** Return <b>true</b> if current entry has the data.
+	 */
+	public boolean hasEntryData() {
+		return true;
+	}
+	
+	/** Open next entry if exists and return <b>true</b> otherwise return <b>false</b>.
+	 * @throws AdapterException if cannot open entry.
+	 */
+	public boolean openNextEntry() throws AdapterException {
+		return false;
+	}
+	
 	/** Close connection.
 	 * @throws AdapterException if cannot close connection.
 	 */
 	public abstract void close() throws AdapterException;
+	
+	/** Return the current processed entry name.
+	 */
+	public abstract String getEntryName();
 	
 	/** Read the line of data from adapter and return it.
 	 * @throws AdapterException
