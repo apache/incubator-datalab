@@ -86,6 +86,7 @@ if __name__ == "__main__":
 
     # Setting up admin's password and enabling security
     client = MongoClient(mongo_ip + ':' + str(mongo_port))
+    pass_upd = True
     try:
         command = ['service', 'mongod', 'start']
         subprocess.call(command, shell=False)
@@ -110,12 +111,13 @@ if __name__ == "__main__":
             command = ['service', 'mongod', 'restart']
             subprocess.call(command, shell=False)
     except:
-        print "Couldn't insert values into MongoDB"
-        sys.exit(1)
+        print "Looks like MongoDB have already been secured"
+        pass_upd = False
 
     # Generating output config
     add_2_yml_config(outfile, 'network', 'ip', mongo_ip)
     add_2_yml_config(outfile, 'network', 'port', mongo_port)
     add_2_yml_config(outfile, 'account', 'user', 'admin')
-    add_2_yml_config(outfile, 'account', 'pass', mongo_passwd)
+    if pass_upd:
+        add_2_yml_config(outfile, 'account', 'pass', mongo_passwd)
 
