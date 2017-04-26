@@ -1,5 +1,9 @@
 workingFile: /opt/dlab/tmp/result/billing-data.json
 
+scheduler:
+# Schedule is comma separated values of time in format hh[:mm[:ss]]. hh - in the 24-hour clock, at 8:15PM is 20:15.
+  schedule: 12:00,13:30:23, 08:50,7:30
+
 # Adapter for reading source data. Known types: file, s3file
 adapterIn:
 #  - type: file

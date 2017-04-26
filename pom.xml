@@ -37,6 +37,9 @@
     	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <io.dropwizard.version>1.0.2</io.dropwizard.version>
         <com.google.inject.version>4.1.0</com.google.inject.version>
+        <dropwizard-template-config.version>1.4.0</dropwizard-template-config.version>
+        <com.fasterxml.jackson.version>2.7.6</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.annotations.version>2.7.0</com.fasterxml.jackson.annotations.version>
         <org.mongodb.version>3.3.0</org.mongodb.version>
         <com.fasterxml.jackson.core.version>2.7.6</com.fasterxml.jackson.core.version>
         <junit.version>4.12</junit.version>
@@ -46,7 +49,7 @@
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>io.dropwizard</groupId>
@@ -66,7 +69,22 @@
         <dependency>
             <groupId>de.thomaskrille</groupId>
             <artifactId>dropwizard-template-config</artifactId>
-            <version>1.4.0</version>
+            <version>${dropwizard-template-config.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${com.fasterxml.jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${com.fasterxml.jackson.annotations.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${com.fasterxml.jackson.version}</version>
         </dependency>
         
         <dependency>

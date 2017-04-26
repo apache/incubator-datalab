@@ -213,14 +213,18 @@ public abstract class ParserByLine extends ParserBase {
 			}
 		} catch (GenericException e) {
 			closeAdapters(true);
-			getCurrentStatistics().stop();
+			if (getCurrentStatistics() != null) {
+				getCurrentStatistics().stop();
+			}
 			throw e;
 		} catch (Exception e) {
 			closeAdapters(true);
-			getCurrentStatistics().stop();
+			if (getCurrentStatistics() != null) {
+				getCurrentStatistics().stop();
+			}
 			throw new ParseException("Unknown parser error. " + e.getLocalizedMessage(), e);
 		}
-			
+		
 		closeAdapters(false);
 		if (getCurrentStatistics() != null) {
 			getCurrentStatistics().stop();
