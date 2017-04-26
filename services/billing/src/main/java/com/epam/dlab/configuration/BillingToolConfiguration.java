@@ -41,7 +41,13 @@ public class BillingToolConfiguration {
 	
 	/** Working data file name of modules. */
 	@Valid
+	@JsonProperty
 	private String workingFile;
+	
+	/** Working data file name of modules. */
+	@Valid
+	@JsonProperty
+	private SchedulerConfiguration scheduler = null;
 	
 	/** Adapter for reading source data. */
 	@Valid
@@ -83,13 +89,23 @@ public class BillingToolConfiguration {
 	}
 	
 	/** Set the working data file name of modules. */
-	public void setWorkingFile (String workingFile) {
+	public void setWorkingFile(String workingFile) {
 		this.workingFile = workingFile;
 	}
 	
 	/** Return the adapter for reading source data. */
 	public ImmutableList<AdapterBase> getAdapterIn() {
 		return adapterIn;
+	}
+	
+	/** Set the scheduler. */
+	public void setScheduler(SchedulerConfiguration scheduler) {
+		this.scheduler = scheduler;
+	}
+	
+	/** Return the scheduler. */
+	public SchedulerConfiguration getScheduler() {
+		return scheduler;
 	}
 
 	/** Set the adapter for reading source data. */
@@ -182,6 +198,14 @@ public class BillingToolConfiguration {
 		out.setModuleData(moduleData);
 		f.setModuleData(moduleData);
 		
+		if (scheduler != null) {
+			try {
+				scheduler.configure();
+			} catch (Exception e) {
+				throw new InitializationException("Cannot configure scheduler. " + e.getLocalizedMessage(), e);
+			}
+		}
+		
 		return parser.build(in, out, f);
 	}
 
@@ -193,6 +217,7 @@ public class BillingToolConfiguration {
     	return MoreObjects.toStringHelper(self)
     			.add("workingFile", workingFile)
     			.add("moduleData", moduleData)
+    			.add("scheduler", scheduler)
     			.add("adapterIn", adapterIn)
     			.add("adapterOut", adapterOut)
     			.add("filter", filter)
