@@ -1,0 +1,349 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+.modal-xs {
+  width: 375px;
+}
+
+.modal-sm {
+  width: 525px;
+}
+
+.modal-md {
+  width: 545px;
+}
+
+.modal-lg {
+  width: 580px;
+}
+
+.modal-xl {
+  width: 900px;
+}
+
+.modal-backdrop {
+  transition: .3s ease-in-out;
+}
+
+.header-white .modal-header {
+  background: #fff;
+}
+
+.modal .info-label {
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.transparent-header .modal-header {
+  background: transparent;
+  border-bottom: 0;
+  height: 30px;
+}
+
+.modal-header {
+  padding: 13px 22px;
+  background: #f6fafe;
+  border-bottom: 1px solid #edf1f5;
+}
+
+.modal-body {
+  padding: 30px 50px 45px 50px;
+}
+
+.modal-header .modal-title {
+  font-weight: 600;
+  color: #455c74;
+  font-size: 18px;
+}
+.modal-header .glyphicon-warning-sign {
+  margin: 0 5px 0;
+}
+
+.modal {
+  color: #718ba6;
+  font-size: 14px;
+}
+
+.modal .control-label {
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.modal .form-control {
+  font-size: 16px;
+  height: 38px;
+  color: #455c74;
+}
+
+.modal .form-group small {
+  font-size: 12px;
+  color: #9cadbe;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.modal .btn-success {
+  margin-left: 40px;
+  margin-right: 2px;
+}
+
+.modal-content {
+  border-radius: 3px;
+}
+
+.modal-header .close {
+  margin-top: 3px;
+}
+
+.modal {
+  display: block;
+  visibility: hidden;
+}
+
+.modal.in {
+  visibility: visible;
+}
+
+.modal .modal-dialog {
+  transition: .3s ease-in-out;
+  opacity: 0;
+  -webkit-transform: translateY(-20px);
+  transform: translateY(-20px);
+}
+
+.modal.in .modal-dialog {
+  opacity: 1;
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+}
+
+.modal .btn {
+  padding: 6px 15px;
+  min-width: 140px;
+  font-weight: 600;
+}
+
+.modal-footer .btn {
+  margin-top: 0;
+}
+
+.modal .butt-file {
+  position: relative;
+  overflow: hidden;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: inline-block;
+  color: #35afd5;
+  padding: 6px 29px 6px 23px;
+  width: 100%;
+  font: 600 16px/1.45 'Open Sans';
+  text-align: center;
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+.modal .butt-file:active {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.upload-icon {
+  background: url(../../../assets/img/upload-icon.png) no-repeat;
+  background-size: 100%;
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  margin-right: 8px;
+  position: relative;
+  top: 2px;
+}
+
+.glyphicon-question-sign {
+  font-size: 12px;
+}
+
+.modal .butt-file input[type=file] {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 100px;
+  text-align: right;
+  opacity: 0;
+  outline: none;
+  background: #fff;
+  cursor: inherit;
+  display: block;
+}
+
+.modal-dialog {
+  margin: 10% auto;
+}
+
+.modal-content {
+  display: block;
+}
+
+.upload-key {
+  margin-bottom: 20px;
+}
+
+.upload-key > div > div {
+  margin-top: 5px;
+}
+
+.confirmation-dialog {
+  color: #718ba6;
+}
+
+.confirmation-dialog p {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.confirmation-dialog .truncate-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+.confirmation-dialog li {
+  font-size: 14px;
+  color: #9cadbe;
+  word-wrap: break-word;
+  width: 90%;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  vertical-align: middle;
+  text-overflow: ellipsis;
+}
+
+.confirmation-dialog.modal-dialog {
+  width: 550px;
+}
+
+.detail-dialog .modal-header {
+  border-bottom: 0;
+}
+
+.detail-dialog .modal-body {
+  padding-top: 0;
+}
+
+.detail-header-wrap {
+  margin: 0 -50px 40px -50px;
+}
+
+.detail-header {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.detail-header td {
+  border: 1px solid #edf1f5;
+  padding: 18px 15px;
+  text-align: center;
+}
+
+.detail-header .modal-title {
+  background: #f6fafe;
+  font-size: 16px;
+  font-weight: 600;
+  color: #455c74;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detail-header .tooltip-wrap {
+  background: #f6fafe;
+}
+
+.detail-header .tooltip-wrap .hint-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #455c74;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.helper_instruction::before {
+  content: "?";
+  display: inline-block;
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #35afd5;
+  border-radius: 50%;
+  font-size: 12px;
+  margin-right: 7px;
+  text-align: center;
+  line-height: 16px;
+  padding-left: 1px;
+}
+
+.detail-info span {
+  font-size: 14px;
+  color: #9cadbe;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.detail-info p {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.detail-info p small {
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.detail-info .time_info {
+  margin-top: 15px;
+}
+
+.detail-info .links_block {
+  padding-left: 25px;
+}
+
+.modal a {
+  color: #35afd5;
+}
+
+.detail-dialog .glyphicon-question-sign {
+  margin-right: 5px;
+}
+
+.modal-content .danger_color {
+  padding-left: 10px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.modal-content .danger_field {
+  border-color: #d9534f;
+}
+
+.progress-dialog .modal-body {
+  padding: 30px 30px 45px 30px;
+}

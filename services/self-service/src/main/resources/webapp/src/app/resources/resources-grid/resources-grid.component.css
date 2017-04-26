@@ -1,0 +1,227 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+.dashboard_table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.dashboard_table .th_status {
+  width: 16%;
+}
+
+.dashboard_table .th_shape {
+  width: 17%;
+}
+
+.dashboard_table .th_resources {
+  width: 32%;
+}
+
+.dashboard_table .th_cost {
+  width: 10%;
+}
+
+.dashboard_table .th_actions {
+  width: 8%;
+}
+
+.dashboard_table tr {
+  vertical-align: top;
+}
+
+.dashboard_table tr th span {
+  width: 50px;
+  text-align: center;
+  height: 100%;
+  line-height: 40px;
+}
+
+.dashboard_table tr td {
+  font-size: 14px;
+  padding: 26px 14px;
+}
+
+.dashboard_table tr td,
+.dashboard_table tr th {
+  border-right: 1px solid #d5dfea;
+  border-bottom: 1px solid #d5dfea;
+}
+
+.dashboard_table tr td:last-child {
+  text-align: center;
+}
+
+.dashboard_table tr td:first-child {
+  background: #f3fbfd;
+  color: #455c74;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashboard_table tr:nth-child(2n+1) {
+  background: #f9fafb;
+}
+
+.dashboard_table tr.filter-row td {
+  padding: 10px;
+}
+
+.dashboard_table tr.filter-row td:first-child {
+  font-weight: 400;
+}
+
+.dashboard_table tr.filter-row td:last-child {
+  padding: 10px 0;
+}
+
+.filter-row .actions {
+  text-align: center;
+}
+
+.filter-row .actions button {
+  background: #fff;
+  border-color: #35afd5;
+  color: #35afd5;
+  outline: none;
+}
+
+.filter-row .actions .reset:hover {
+  border-color: #f1696e;
+  background: #f9fafb;
+  color: #f1696e;
+}
+
+.filter-row .actions .apply:hover {
+  border-color: #49af38;
+  background: #f9fafb;
+  color: #49af38;
+}
+
+.dashboard_table tr:nth-child(2n+1) td:first-child {
+  background: #edf6f9;
+}
+
+.dashboard_table th {
+  background: #a1b7d1;
+  color: #fff;
+  font-weight: 600;
+  line-height: 40px;
+  text-transform: uppercase;
+  padding-left: 12px;
+  font-size: 12px;
+}
+
+.dashboard_table .status {
+  text-transform: capitalize;
+}
+
+.dashboard_table .glyphicon-cog {
+  font-size: 16px;
+}
+
+.dashboard_table .glyphicon {
+  cursor: pointer;
+}
+
+.dashboard_table .dropdown-menu {
+  left: auto;
+  margin-left: 0;
+  right: 15px;
+  padding: 10px 15px;
+  box-shadow: 0 0 20px 0 rgba(0, 0, 0, .175);
+  border: none;
+}
+
+.dashboard_table .dropdown-outscreen .dropdown-menu {
+  top: -110px;
+  right: 55px;
+}
+
+.dropdown .disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.dropdown .actions {
+  background-image: url(../../../assets/svg/settings_icon.svg);
+  width: 16px;
+  height: 16px;
+  margin-top: 5px;
+  display: inline-block;
+  text-align: center;
+  zoom: 1.2;
+}
+
+.dashboard_table .dropdown-menu li {
+  font-size: 14px;
+  border-bottom: 1px solid #edf1f5;
+  padding: 12px 15px;
+  cursor: pointer;
+  margin: 5px -5px;
+}
+
+.dashboard_table .dropdown-menu li:last-child {
+  border-bottom: 0;
+}
+
+.dashboard_table .dropdown-menu ul {
+  margin-bottom: 0;
+}
+
+.message_block td {
+  text-align: left !important;
+}
+
+
+.dashboard_table .total_cost {
+  display: inline-block;
+  width: 70%;
+  color: #455c74;
+}
+
+.currency_details {
+  text-align: right;
+  color: #35afd5;
+  cursor: pointer;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.currency_details::before {
+    content: "?";
+    display: inline-block;
+    position: relative;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #35afd5;
+    border-radius: 50%;
+    font-size: 12px;
+    margin-right: 7px;
+    text-align: center;
+    line-height: 16px;
+    padding-left: 1px;
+}
+
+.mat-icon-button .mat-icon, .mat-icon-button i {
+  line-height: 42px;
+  font-size: 18px;
+}
