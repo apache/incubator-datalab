@@ -102,8 +102,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]')
         print '[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]'
-        params = "--hostname {} --keyfile {} --os_user {}" \
-                 .format(instance_hostname, keyfile_name, os.environ['conf_os_user'])
+        params = "--hostname {} --keyfile {} --os_user {} --jupyter_version {}" \
+                 .format(instance_hostname, keyfile_name, os.environ['conf_os_user'],
+                         os.environ['notebook_jupyter_version'])
         try:
             local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))
         except:
@@ -133,6 +134,7 @@ if __name__ == "__main__":
     ip_address = get_instance_ip_address(notebook_config['instance_name']).get('Private')
     dns_name = get_instance_hostname(notebook_config['instance_name'])
     tensor_board_url = 'http://' + ip_address + ':6006'
+    jupyter_url = 'http://' + ip_address + ':8888'
     print '[SUMMARY]'
     logging.info('[SUMMARY]')
     print "Instance name: " + notebook_config['instance_name']
@@ -159,5 +161,8 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "TensorBoard",
-                    "url": tensor_board_url}]}
+                    "url": tensor_board_url},
+                   {"description": "Jupyter",
+                    "url": jupyter_url}
+               ]}
         result.write(json.dumps(res))

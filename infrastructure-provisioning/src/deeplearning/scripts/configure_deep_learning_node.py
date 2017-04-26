@@ -31,9 +31,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--jupyter_version', type=str, default='')
 args = parser.parse_args()
 
 
+jupyter_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_notebook_config.py'
 templates_dir = '/root/templates/'
 
 
@@ -67,5 +69,15 @@ if __name__ == "__main__":
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
 
+    print "Configuring Deep Learning node."
+    try:
+        if not exists('/home/' + args.os_user + '/.ensure_dir'):
+            sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+    except:
+        sys.exit(1)
+
     print "Configuring TensorFlow"
     configure_tensor(args)
+
+    print "Configuring Jupyter"
+    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version)
