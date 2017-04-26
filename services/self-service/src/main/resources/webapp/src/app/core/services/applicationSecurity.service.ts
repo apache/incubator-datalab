@@ -20,9 +20,9 @@ import { Injectable } from '@angular/core';
 import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
-import { ApplicationServiceFacade } from './applicationServiceFacade.service';
-import { AppRoutingService } from './appRouting.service';
+
 import { LoginModel } from '../../login/login.model';
+import { ApplicationServiceFacade, AppRoutingService } from './';
 import { HTTP_STATUS_CODES } from '../util';
 
 @Injectable()

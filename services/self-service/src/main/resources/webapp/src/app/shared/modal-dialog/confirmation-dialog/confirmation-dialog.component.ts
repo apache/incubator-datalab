@@ -19,11 +19,10 @@ limitations under the License.
 import { Component, ViewChild, Output, EventEmitter } from '@angular/core';
 import { Response } from '@angular/http';
 
-import { UserResourceService, HealthStatusService } from '../../../core/services';
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
 import { ConfirmationDialogType } from './confirmation-dialog-type.enum';
-import { ErrorMapUtils } from '../../../core/util/errorMapUtils';
-import { HTTP_STATUS_CODES } from '../../../core/util';
+import { UserResourceService, HealthStatusService } from '../../../core/services';
+import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   moduleId: module.id,

@@ -19,11 +19,10 @@ limitations under the License.
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
-import { UserResourceService } from '../../../core/services/userResource.service';
-import { ComputationalResourceCreateModel } from './computational-resource-create.model';
 
-import { ErrorMapUtils } from '../../../core/util/errorMapUtils';
-import { HTTP_STATUS_CODES } from '../../../core/util';
+import { ComputationalResourceCreateModel } from './';
+import { UserResourceService } from '../../../core/services';
+import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   moduleId: module.id,

@@ -19,10 +19,11 @@ limitations under the License.
 
 import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
-import { UserResourceService } from '../../../core/services/userResource.service';
-import { ComputationalResourceImage } from '../../../core/models/computationalResourceImage.model';
-import { ComputationalResourceApplicationTemplate } from '../../../core/models/computationalResourceApplicationTemplate.model';
-import { ResourceShapeTypesModel } from '../../../core/models/resourceShapeTypes.model';
+
+import { UserResourceService } from '../../../core/services';
+import { ComputationalResourceImage, 
+         ComputationalResourceApplicationTemplate, 
+         ResourceShapeTypesModel } from '../../../core/models';
 
 export class ComputationalResourceCreateModel {
 

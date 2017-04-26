@@ -20,10 +20,9 @@ import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
 
+import { ExploratoryEnvironmentCreateModel } from './';
 import { UserResourceService } from '../../../core/services';
-import { ExploratoryEnvironmentCreateModel } from './exploratory-environment-create.model';
-import { ErrorMapUtils } from '../../../core/util/errorMapUtils';
-import { HTTP_STATUS_CODES } from '../../../core/util';
+import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   moduleId: module.id,

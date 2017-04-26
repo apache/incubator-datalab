@@ -17,15 +17,11 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { UserAccessKeyService } from '../core/services/userAccessKey.service';
-import { UserResourceService } from '../core/services/userResource.service';
-import { HealthStatusService } from '../core/services/healthStatus.service';
-import { AppRoutingService } from '../core/services/appRouting.service';
-import { ResourcesGrid } from './resources-grid/resources-grid.component';
-import { NavbarComponent } from '../shared/navbar/navbar.component';
-import { ExploratoryEnvironmentVersionModel } from '../core/models/exploratoryEnvironmentVersion.model';
-import { ComputationalResourceImage } from '../core/models/computationalResourceImage.model';
+import { ResourcesGrid } from './resources-grid';
+import { UserAccessKeyService, UserResourceService, HealthStatusService, AppRoutingService } from '../core/services';
+import { ExploratoryEnvironmentVersionModel, ComputationalResourceImage } from '../core/models';
 import { HTTP_STATUS_CODES } from '../core/util';
+import { NavbarComponent } from '../shared';
 
 @Component({
   moduleId: module.id,

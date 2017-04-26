@@ -19,10 +19,10 @@ limitations under the License.
 
 import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
+
+import { ExploratoryEnvironmentVersionModel, ResourceShapeTypesModel } from '../../../core/models';
 import { UserResourceService } from '../../../core/services';
-import { ExploratoryEnvironmentVersionModel } from '../../../core/models/exploratoryEnvironmentVersion.model';
-import { ResourceShapeTypesModel } from '../../../core/models/resourceShapeTypes.model';
-import { SortUtil } from '../../../core/util/sortUtil';
+import { SortUtil } from '../../../core/util';
 
 export class ExploratoryEnvironmentCreateModel {
 

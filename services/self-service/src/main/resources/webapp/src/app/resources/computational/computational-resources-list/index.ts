@@ -20,10 +20,10 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@angular/material';
 
-import { ModalModule } from '../../../shared/modal-dialog/index';
+import { ModalModule } from '../../../shared';
 import { ComputationalResourcesList } from './computational-resources-list.component';
-import { ConfirmationComputationalResourcesModule } from './../confirmation-computational-resources/index';
-import { DetailComputationalResourcesModule } from './../detail-computational-resources/index';
+import { ConfirmationComputationalResourcesModule } from './../confirmation-computational-resources';
+import { DetailComputationalResourcesModule } from './../detail-computational-resources';
 
 export * from './computational-resources-list.component';
 

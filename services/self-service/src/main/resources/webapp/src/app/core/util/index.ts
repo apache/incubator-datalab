@@ -16,5 +16,9 @@ limitations under the License.
 
 ****************************************************************************/
 
-export { HTTP_STATUS_CODES } from './http-status-codes';
+export * from './collections/dictionary/dictionary';
 
+export * from './http-status-codes';
+export * from './sortUtil';
+export * from './errorMapUtils';
+export * from './dateUtils';

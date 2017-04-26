@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { ApplicationSecurityService } from '../services/applicationSecurity.service';
+import { ApplicationSecurityService } from './';
 
 @Injectable()
 export class AuthorizationGuard implements CanActivate {

@@ -16,9 +16,11 @@ limitations under the License.
 
 ****************************************************************************/
 
-export class CreateEmrModel {
-  constructor(
-    public name: string,
-    public count: string
-  ) { }
-}
+export * from './resourceShapeTypes.model';
+export * from './resourceShape.model';
+export * from './exploratoryEnvironmentVersion.model';
+export * from './computationalResourceImage.model';
+export * from './computationalResourceApplicationTemplate.model';
+export * from './computationalResourceApplication.model';
+export * from './imageType.enum';
+

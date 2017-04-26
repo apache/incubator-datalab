@@ -18,9 +18,9 @@ limitations under the License.
 
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 
-import { HealthStatusService } from '../../core/services';
 import { EnvironmentStatusModel } from '../environment-status.model';
-import { ConfirmationDialogType } from '../../shared/modal-dialog/confirmation-dialog/confirmation-dialog-type.enum';
+import { HealthStatusService } from '../../core/services';
+import { ConfirmationDialogType } from '../../shared';
 
 @Component({
   moduleId: module.id,
