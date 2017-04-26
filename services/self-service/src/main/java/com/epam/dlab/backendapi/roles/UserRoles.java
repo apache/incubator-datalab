@@ -179,23 +179,28 @@ public class UserRoles {
 		if (userRoles == null) {
 			return true;
 		}
+		LOGGER.trace("Check access for user {} with groups {} to {}/{}", userInfo.getName(), userInfo.getRoles(), type, name);
 		UserRole role = get(type, name);
 		if (role == null) {
+			LOGGER.trace("Got default access {}", defaultAccess);
 			return defaultAccess;
 		}
 		if (role.getUsers() != null &&
 			userInfo.getName() != null &&
 			role.getUsers().contains(userInfo.getName().toLowerCase())) {
+			LOGGER.trace("Got access by name");
 			return true;
 		}
 		Set<String> groups = role.getGroups();
 		if (groups != null) {
 			for (String group : userInfo.getRoles()) {
 				if (group != null && groups.contains(group.toLowerCase())) {
+					LOGGER.trace("Got access by group {}", group);
 					return true;
 				}
 			}
 		}
+		LOGGER.trace("Access denied for user {} to {}/{}", userInfo.getName(), type, name);
 		return false;
 	}
 
