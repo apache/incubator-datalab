@@ -19,9 +19,9 @@ limitations under the License.
 import { Component, ViewChild, Output, EventEmitter } from '@angular/core';
 import { Response } from '@angular/http';
 
+import { ComputationalResourcesModel } from './';
 import { UserResourceService } from '../../../core/services';
-import { ComputationalResourcesModel } from './confirmation-computational-resources.model';
-import { ErrorMapUtils } from '../../../core/util/errorMapUtils';
+import { ErrorMapUtils } from '../../../core/util';
 
 @Component({
   moduleId: module.id,

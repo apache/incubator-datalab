@@ -17,9 +17,7 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, ViewChild } from '@angular/core';
-
-import { DateUtils } from '../../../core/util/dateUtils';
-
+import { DateUtils } from '../../../core/util';
 
 @Component({
   moduleId: module.id,

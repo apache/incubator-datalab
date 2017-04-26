@@ -21,11 +21,8 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@angular/material';
 
 import { ResourcesComponent } from './resources.component';
-import { NavbarModule } from './../shared/navbar/index';
-import { ModalModule } from './../shared/modal-dialog';
 import { ResourcesGridModule } from './resources-grid';
-import { ProgressDialogModule } from './../shared/modal-dialog/progress-dialog';
-import { UploadKeyDialogModule } from './../shared/modal-dialog/key-upload-dialog';
+import { NavbarModule, ModalModule, ProgressDialogModule, UploadKeyDialogModule } from './../shared';
 import { ExploratoryEnvironmentCreateDialogModule } from './exploratory/exploratory-environment-create-dialog';
 
 @NgModule({

@@ -20,10 +20,11 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@angular/material';
 
-import { ModalModule } from '../../../shared/modal-dialog/index';
+import { ModalModule } from '../../../shared';
 import { ConfirmationComputationalResources } from './confirmation-computational-resources.component';
 
 export * from './confirmation-computational-resources.component';
+export * from './confirmation-computational-resources.model';
 
 @NgModule({
   imports: [ModalModule, CommonModule, MaterialModule.forRoot()],

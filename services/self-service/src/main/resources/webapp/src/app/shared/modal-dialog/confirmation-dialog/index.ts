@@ -23,6 +23,7 @@ import { ConfirmationDialog } from './confirmation-dialog.component';
 import { MaterialModule } from '@angular/material';
 
 export * from './confirmation-dialog.component';
+export * from './confirmation-dialog-type.enum';
 
 @NgModule({
   imports: [CommonModule, ModalModule, MaterialModule.forRoot()],

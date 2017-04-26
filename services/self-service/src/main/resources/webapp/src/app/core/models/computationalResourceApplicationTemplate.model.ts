@@ -16,8 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { ComputationalResourceApplication } from './computationalResourceApplication.model';
-import { ResourceShapeTypesModel } from './resourceShapeTypes.model';
+import { ComputationalResourceApplication, ResourceShapeTypesModel } from './';
 
 export class ComputationalResourceApplicationTemplate {
   version: string;

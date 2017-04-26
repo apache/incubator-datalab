@@ -20,7 +20,7 @@ import { Injectable } from '@angular/core';
 import { Http, Response, RequestOptions, RequestMethod, Headers } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
-import { Dictionary } from '../util/collections/dictionary/dictionary';
+import { Dictionary } from '../util';
 
 @Injectable()
 export class ApplicationServiceFacade {
@@ -238,8 +238,6 @@ export class ApplicationServiceFacade {
     } else if (method === RequestMethod.Put) {
       return this.http.put(url, body, opt);
     } else return this.http.get(body ? (url + body) : url, opt);
-
-    // else return this.http.get(url, opt);
   }
 
   private getRequestOptions(json: boolean, auth: boolean): RequestOptions {

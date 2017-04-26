@@ -20,7 +20,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@angular/material';
 
-import { NavbarModule } from './../shared/navbar/index';
+import { NavbarModule } from './../shared';
 import { HealthStatusComponent } from './health-status.component';
 import { HealthStatusGridModule } from './health-status-grid/health-status-grid.module';
 

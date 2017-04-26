@@ -21,11 +21,12 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@angular/material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { ModalModule } from '../../../shared/modal-dialog/index';
+import { ModalModule } from '../../../shared/modal-dialog';
 import { ComputationalResourceCreateDialog } from './computational-resource-create-dialog.component';
 import { FormControlsModule } from '../../../shared/form-controls';
 
 export * from './computational-resource-create-dialog.component';
+export * from './computational-resource-create.model';
 
 @NgModule({
   imports: [

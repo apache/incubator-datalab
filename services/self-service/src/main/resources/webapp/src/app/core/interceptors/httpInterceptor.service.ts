@@ -22,7 +22,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/throw';
 
-// import HTTP_STATUS_CODES from 'http-status-enum';
+import { HTTP_STATUS_CODES } from '../util';
 
 export class HttpInterceptor extends Http {
   constructor(
@@ -70,9 +70,8 @@ export class HttpInterceptor extends Http {
         url = url.substr(0, url.indexOf('?'));
       }
 
-      //HTTP_STATUS_CODES.FORBIDDEN & HTTP_STATUS_CODES.UNAUTHORIZED
-      if ((err.status === 403
-        || err.status === 401)
+      if ((err.status === HTTP_STATUS_CODES.FORBIDDEN
+        || err.status === HTTP_STATUS_CODES.UNAUTHORIZED)
         && !url.endsWith('login')) {
         localStorage.removeItem('access_token');
         this.router.navigate(['/login']);

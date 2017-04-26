@@ -16,25 +16,9 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Injectable } from '@angular/core';
-import { Response } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
-
-import { ApplicationServiceFacade } from './';
-
-@Injectable()
-export class UserAccessKeyService {
-  constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
-
-  public checkUserAccessKey(): Observable<Response> {
-    return this.applicationServiceFacade
-      .buildCheckUserAccessKeyRequest()
-      .map(response => response);
-  }
-
-  public uploadUserAccessKey(data): Observable<Response> {
-    return this.applicationServiceFacade
-      .buildUploadUserAccessKeyRequest(data)
-      .map((response: Response) => response);
-  }
+export class CreateResourceModel {
+  constructor(
+    public name: string,
+    public count: string
+  ) { }
 }
