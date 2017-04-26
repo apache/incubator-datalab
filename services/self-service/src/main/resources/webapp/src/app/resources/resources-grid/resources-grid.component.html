@@ -56,11 +56,11 @@ limitations under the License.
   </tr>
 
   <tr *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering" class="message_block">
-    <td colspan="5">To start working, please, create new environment</td>
+    <td colspan="6">To start working, please, create new environment</td>
   </tr>
 
   <tr *ngIf="(filteredEnvironments.length == 0) && filtering" class="message_block">
-    <td colspan="5">No matches found</td>
+    <td colspan="6">No matches found</td>
   </tr>
 
   <tr *ngFor="let env of filteredEnvironments;" [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
