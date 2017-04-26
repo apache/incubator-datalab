@@ -38,6 +38,10 @@ templates_dir = '/root/templates/'
 
 
 def configure_tensor(args):
+    tensor_board_started = False
+    sudo('apt-add-repository -y ppa:pi-rho/security')
+    sudo('apt-get update')
+    sudo('apt-get install -y nmap')
     sudo('mkdir /var/log/tensorboard; chown ' + args.os_user + ':' + args.os_user + ' -R /var/log/tensorboard')
     put(templates_dir + 'tensorboard.conf', '/tmp/tensorboard.conf')
     sudo("sed -i 's|OS_USR|" + args.os_user + "|' /tmp/tensorboard.conf")
@@ -47,6 +51,14 @@ def configure_tensor(args):
     sudo('update-rc.d tensorboard defaults')
     sudo('update-rc.d tensorboard enable')
     sudo('service tensorboard start')
+    while not tensor_board_started:
+        tensor_port = sudo('nmap -p 6006 localhost | grep "closed" > /dev/null; echo $?')
+        tensor_port = tensor_port[:1]
+        if tensor_port == '1':
+            tensor_board_started = True
+        else:
+            print "Tensor Board is still starting."
+            sudo('sleep 5')
 
 
 if __name__ == "__main__":
