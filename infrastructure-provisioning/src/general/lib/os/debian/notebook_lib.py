@@ -67,13 +67,26 @@ def ensure_r(os_user, r_libs):
         try:
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
             sudo('apt-get install -y cmake')
-            sudo('apt-get install -y r-base r-base-dev')
+            if os.environ['application'] == 'deeplearning':
+                try:
+                    sudo("""sh -c 'echo "deb http://cran.rstudio.com/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list'""")
+                    sudo('gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9')
+                    sudo('gpg -a --export E084DAB9 |  apt-key add -')
+                    sudo('apt-get update')
+                except:
+                    sudo('apt-get update')
+                sudo('apt-get -y --force-yes install r-base')
+            else:
+                sudo('apt-get install -y r-base r-base-dev')
             sudo('R CMD javareconf')
             sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
             for i in r_libs:
                 sudo('R -e "install.packages(\'{}\',repos=\'http://cran.us.r-project.org\')"'.format(i))
             sudo('R -e "library(\'devtools\');install.packages(repos=\'http://cran.us.r-project.org\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"')
-            sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
+            try:
+                sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
+            except:
+                sudo('R -e "options(download.file.method = "wget");library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
             sudo('R -e "install.packages(\'RJDBC\',repos=\'http://cran.us.r-project.org\',dep=TRUE)"')
             sudo('touch /home/' + os_user + '/.ensure_dir/r_ensured')
         except:

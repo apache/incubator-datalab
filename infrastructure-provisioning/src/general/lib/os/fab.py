@@ -445,3 +445,20 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
     except:
             sys.exit(1)
 
+
+def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir, scala_version, spark_version):
+    if not exists('/home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured'):
+        try:
+            sudo('pip install ' + toree_link + ' --no-cache-dir')
+            sudo('ln -s /opt/spark/ /usr/local/spark')
+            sudo('jupyter toree install')
+            sudo('mv ' + scala_kernel_path + 'lib/* /tmp/')
+            put(files_dir + 'toree-assembly-0.2.0.jar', '/tmp/toree-assembly-0.2.0.jar')
+            sudo('mv /tmp/toree-assembly-0.2.0.jar ' + scala_kernel_path + 'lib/')
+            sudo(
+                'sed -i "s|Apache Toree - Scala|Local Apache Toree - Scala (Scala-' + scala_version +
+                ', Spark-' + spark_version + ')|g" ' + scala_kernel_path + 'kernel.json')
+            sudo('touch /home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured')
+        except:
+            sys.exit(1)
+

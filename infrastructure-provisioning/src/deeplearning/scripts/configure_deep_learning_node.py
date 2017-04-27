@@ -52,6 +52,8 @@ pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernel
 py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/py3spark_local/'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
 r_kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
+toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snapshots/dev1/toree-pip/toree-0.2.0.dev1.tar.gz'
+scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 
 
 def configure_tensor(args):
@@ -119,7 +121,7 @@ if __name__ == "__main__":
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
 
     print "Install Toree-Scala kernel for Jupyter"
-    ensure_toree_local_kernel()
+    ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
 
     print "Installing R"
     ensure_r(args.os_user, r_libs)

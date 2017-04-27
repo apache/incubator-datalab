@@ -38,6 +38,8 @@ COPY general/templates/os/run_template.sh /root/templates/
 COPY general/templates/os/toree_emr_template.json /root/templates/
 COPY general/templates/os/toree_emr_templatev2.json /root/templates/
 COPY general/scripts/os/create_configs.py /root/scripts/
+COPY general/files/os/toree-assembly-0.2.0.jar /root/files/
+COPY general/files/os/toree_kernel.tar.gz /root/files/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
