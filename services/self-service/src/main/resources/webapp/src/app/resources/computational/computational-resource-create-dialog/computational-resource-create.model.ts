@@ -35,6 +35,8 @@ export class ComputationalResourceCreateModel {
   computational_resource_master_shape: string;
   computational_resource_slave_shape: string;
   notebook_name: string;
+  environment_image: string;
+  environment_template_name: string;
   emr_slave_instance_spot: boolean;
   emr_slave_instance_price: number;
 
@@ -47,7 +49,7 @@ export class ComputationalResourceCreateModel {
   private continueWith: Function;
 
   static getDefault(userResourceService): ComputationalResourceCreateModel {
-    return new ComputationalResourceCreateModel('', 0, '', '', '', () => { }, () => { }, null, null, userResourceService);
+    return new ComputationalResourceCreateModel('', 0, '', '', '', '', '', () => { }, () => { }, null, null, userResourceService);
   }
 
   constructor(
@@ -56,6 +58,8 @@ export class ComputationalResourceCreateModel {
     computational_resource_master_shape: string,
     computational_resource_slave_shape: string,
     notebook_name: string,
+    environment_image: string,
+    environment_template_name: string,
     fnProcessResults: any,
     fnProcessErrors: any,
     selectedItemChanged: Function,
@@ -63,6 +67,8 @@ export class ComputationalResourceCreateModel {
     userResourceService: UserResourceService
   ) {
     this.notebook_name = notebook_name;
+    this.environment_image = environment_image;
+    this.environment_template_name = environment_template_name;
     this.userResourceService = userResourceService;
     this.selectedItemChanged = selectedItemChanged;
     this.continueWith = continueWith;
@@ -132,6 +138,8 @@ export class ComputationalResourceCreateModel {
       emr_slave_instance_type: this.computational_resource_slave_shape,
       emr_version: this.selectedItem.version,
       notebook_name: this.notebook_name,
+      image: this.environment_image,
+      template_name: this.environment_template_name,
       emr_slave_instance_spot: this.emr_slave_instance_spot,
       emr_slave_instance_spot_pct_price: this.emr_slave_instance_price
     });
