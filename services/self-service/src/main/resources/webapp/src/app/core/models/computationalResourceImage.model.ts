@@ -20,6 +20,7 @@ import { ComputationalResourceApplicationTemplate, ResourceShapeTypesModel, Imag
 import { SortUtil } from '../util';
 
 export class ComputationalResourceImage {
+  image: string;
   template_name: string;
   description: string;
   environment_type: ImageType;
@@ -27,6 +28,7 @@ export class ComputationalResourceImage {
   application_templates: Array<ComputationalResourceApplicationTemplate>;
 
   constructor(jsonModel: any) {
+    this.image = jsonModel.image;
     this.template_name = jsonModel.template_name;
     this.description = jsonModel.description;
     this.environment_type = ImageType.СOMPUTATIONAL;
@@ -36,7 +38,8 @@ export class ComputationalResourceImage {
 
     if (jsonModel.templates && jsonModel.templates.length > 0)
       for (let index = 0; index < jsonModel.templates.length; index++)
-        this.application_templates.push(new ComputationalResourceApplicationTemplate(jsonModel.templates[index], this.shapes));
+        this.application_templates.push(
+          new ComputationalResourceApplicationTemplate(jsonModel.templates[index], this.shapes, this.image, this.template_name, this.description));
 
   }
 }

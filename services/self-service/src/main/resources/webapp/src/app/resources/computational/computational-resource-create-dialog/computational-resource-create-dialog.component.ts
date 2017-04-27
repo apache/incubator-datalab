@@ -160,9 +160,7 @@ export class ComputationalResourceCreateDialog {
   public open(params, notebook_instance): void {
     if (!this.bindDialog.isOpened) {
       this.notebook_instance = notebook_instance;
-      this.model = new ComputationalResourceCreateModel('', 0, '', '',
-                        notebook_instance.name, notebook_instance.image,
-                        notebook_instance.template_name, (response: Response) => {
+      this.model = new ComputationalResourceCreateModel('', 0, '', '', notebook_instance.name, (response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
           this.computationalResourceExist = false;
           this.close();
