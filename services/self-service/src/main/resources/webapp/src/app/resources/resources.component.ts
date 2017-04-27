@@ -141,9 +141,7 @@ export class ResourcesComponent implements OnInit {
       .subscribe(
         (result) => {
           this.healthStatus = result.status;
-
-          if(this.healthStatus === 'error')
-            this.resourcesGrid.healthStatus = this.healthStatus;
+          this.resourcesGrid.healthStatus = this.healthStatus;
         });
   }
 }
