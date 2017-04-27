@@ -102,9 +102,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]')
         print '[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]'
-        params = "--hostname {} --keyfile {} --os_user {} --jupyter_version {}" \
+        params = "--hostname {} --keyfile {} --os_user {} --jupyter_version {} --scala_version {} --spark_version {} --hadoop_version {} --region {}" \
                  .format(instance_hostname, keyfile_name, os.environ['conf_os_user'],
-                         os.environ['notebook_jupyter_version'])
+                         os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
+                         os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
+                         os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))
         except:

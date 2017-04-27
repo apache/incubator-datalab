@@ -31,12 +31,27 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--region', type=str, default='')
 parser.add_argument('--jupyter_version', type=str, default='')
+parser.add_argument('--scala_version', type=str, default='')
+parser.add_argument('--spark_version', type=str, default='')
+parser.add_argument('--hadoop_version', type=str, default='')
 args = parser.parse_args()
 
 
 jupyter_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_notebook_config.py'
 templates_dir = '/root/templates/'
+scala_link = "http://www.scala-lang.org/files/archive/"
+spark_version = args.spark_version
+hadoop_version = args.hadoop_version
+spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
+local_spark_path = '/opt/spark/'
+s3_jars_dir = '/opt/jars/'
+files_dir = '/root/files/'
+pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/pyspark_local/'
+py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/py3spark_local/'
+r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
+r_kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
 
 
 def configure_tensor(args):
@@ -76,8 +91,41 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
+    print "Install Java"
+    ensure_jre_jdk(args.os_user)
+
+    print "Install Scala"
+    ensure_scala(scala_link, args.scala_version, args.os_user)
+
+    print "Install python2 libraries"
+    ensure_python2_libraries(args.os_user)
+
+    print "Install python3 libraries"
+    ensure_python3_libraries(args.os_user)
+
     print "Configuring TensorFlow"
     configure_tensor(args)
 
     print "Configuring Jupyter"
     configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version)
+
+    print "Install local Spark"
+    ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
+
+    print "Install local jars"
+    ensure_local_jars(args.os_user, s3_jars_dir, files_dir, args.region, templates_dir)
+
+    print "Install pyspark local kernel for Jupyter"
+    ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
+
+    print "Install py3spark local kernel for Jupyter"
+    ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
+
+    print "Install Toree-Scala kernel for Jupyter"
+    ensure_toree_local_kernel()
+
+    print "Installing R"
+    ensure_r(args.os_user, r_libs)
+
+    print "Install R kernel for Jupyter"
+    ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
