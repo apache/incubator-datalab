@@ -53,7 +53,7 @@ def create_s3_bucket(bucket_name, tag, region):
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
         tagging = bucket.Tagging()
-        tagging.put(Tagging={'TagSet': [tag, {'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name']}]})
+        tagging.put(Tagging={'TagSet': [tag, {'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' + bucket_name}]})
         tagging.reload()
         return bucket.name
     except Exception as err:
@@ -113,7 +113,7 @@ def create_tag(resource, tag):
                 resource_tag,
                 {
                     'Key': os.environ['conf_tag_resource_id'],
-                    'Value': os.environ['conf_service_base_name']
+                    'Value': os.environ['conf_service_base_name'] + ':' + resource_name
                 }
             ]
         )
