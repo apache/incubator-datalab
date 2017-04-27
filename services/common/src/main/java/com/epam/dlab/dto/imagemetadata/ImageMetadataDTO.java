@@ -33,17 +33,6 @@ public abstract class ImageMetadataDTO {
 	@JsonProperty("image_type")
     protected ImageType imageType;
 
-	@JsonProperty
-    protected String name;
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
     public ImageType getImageType() {
         return imageType;
     }
