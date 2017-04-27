@@ -34,6 +34,7 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
 export class ComputationalResourceCreateDialog {
   model: ComputationalResourceCreateModel;
   notebook_instance: any;
+  template_description: string;
   shapes: any;
   spotInstance: boolean = false;
 
@@ -172,7 +173,7 @@ export class ComputationalResourceCreateDialog {
           this.errorMessage = ErrorMapUtils.setErrorMessage(response);
         },
         () => {
-          // this.templateDescription = this.model.selectedItem.description;
+          this.template_description = this.model.selectedItem.description;
         },
         () => {
           this.bindDialog.open(params);
