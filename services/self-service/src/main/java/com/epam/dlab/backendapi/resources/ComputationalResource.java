@@ -99,7 +99,7 @@ public class ComputationalResource implements ComputationalAPI {
     @PUT
     public Response create(@Auth UserInfo userInfo, @Valid @NotNull ComputationalCreateFormDTO formDTO) throws DlabException {
     	LOGGER.debug("Send request for creation the computational resource {} for user {}", formDTO.getName(), userInfo.getName());
-		if (!UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, formDTO.getImage())) {
+		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage())) {
 			LOGGER.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
 			throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());
 		}
