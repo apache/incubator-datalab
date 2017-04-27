@@ -185,7 +185,11 @@ def ensure_python3_specific_version(python3_version, os_user):
 def ensure_python2_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python2_libraries_ensured'):
         try:
-            sudo('apt-get install -y libssl-dev python-virtualenv')
+            try:
+                sudo('apt-get install -y libssl-dev python-virtualenv')
+            except:
+                sudo('pip2 install virtualenv')
+                sudo('apt-get install -y libssl-dev')
             sudo('pip2 install ipython ipykernel --no-cache-dir')
             sudo('pip2 install -U pip --no-cache-dir')
             sudo('pip2 install boto3 --no-cache-dir')
