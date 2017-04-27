@@ -32,5 +32,5 @@
 }
 {
     "_id" : "conf_tag_resource_id",
-    "value" : "dlab:tag"
+    "value" : "user:tag"
 }
