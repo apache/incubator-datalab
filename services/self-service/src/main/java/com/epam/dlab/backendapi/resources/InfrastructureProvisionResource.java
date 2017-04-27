@@ -107,7 +107,8 @@ public class InfrastructureProvisionResource implements DockerAPI {
         	ComputationalMetadataDTO [] array = provisioningService.get(DOCKER_COMPUTATIONAL, userInfo.getAccessToken(), ComputationalMetadataDTO[].class);
         	List<ComputationalMetadataDTO> list = new ArrayList<>();
         	for (int i = 0; i < array.length; i++) {
-        		if (UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, array[i].getName())) {
+        		array[i].setImage(getSimpleImageName(array[i].getImage()));
+	            if (UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, array[i].getImage())) {
         			list.add(array[i]);
         		}
         	}
@@ -129,11 +130,8 @@ public class InfrastructureProvisionResource implements DockerAPI {
         	ExploratoryMetadataDTO [] array = provisioningService.get(DOCKER_EXPLORATORY, userInfo.getAccessToken(), ExploratoryMetadataDTO[].class);
         	List<ExploratoryMetadataDTO> list = new ArrayList<>();
         	for (int i = 0; i < array.length; i++) {
-        		if (UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, array[i].getName())) {
-        			int separatorIndex = array[i].getImage().indexOf(":");
-    	            if(separatorIndex > 0) {
-    	            	array[i].setImage(array[i].getImage().substring(0, separatorIndex));
-    	            }
+    			array[i].setImage(getSimpleImageName(array[i].getImage()));
+	            if (UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, array[i].getImage())) {
         			list.add(array[i]);
         		}
         	}
@@ -142,6 +140,14 @@ public class InfrastructureProvisionResource implements DockerAPI {
         	LOGGER.error("Could not load list of exploratory templates for user: {}", userInfo.getName(), t);
             throw new DlabException("Could not load list of exploratory templates for user " + userInfo.getName() + ": " + t.getLocalizedMessage(), t);
         }
+    }
+    
+    /** Return the image name without suffix version.
+     * @param imageName the name of image.
+     */
+    private String getSimpleImageName(String imageName) {
+    	int separatorIndex = imageName.indexOf(":");
+        return (separatorIndex > 0 ? imageName.substring(0, separatorIndex) : imageName);
     }
 }
 

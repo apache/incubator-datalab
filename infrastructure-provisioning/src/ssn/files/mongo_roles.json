@@ -2,27 +2,27 @@
     "_id" : "_Example",
     "description" : "Example role",
     "exploratories" : [ 
-        "comma separated list of exploratory names from description.json", 
-        "exploratory name"
-    ],
+        "comma separated list of exploratories image names from description.json", 
+        "explorartory image name"
+        ],
     "computationals" : [ 
-        "comma separated list of computational names from description.json", 
-        "computational name"
-    ],
+        "comma separated list of computationals image names from description.json", 
+        "computational image name"
+        ],
     "groups" : [ 
         "comma separated list of the external group's names in lower case", 
         "other group"
-    ],
+        ],
     "users" : [ 
         "comma separated list of the DLab's users in lower case", 
         "example@user"
-    ]
+        ]
 }
 {
     "_id" : "nbJupyter",
     "description" : "Notebook Jupyter",
     "exploratories" : [ 
-        "jupyter"
+        "docker.dlab-jupyter"
         ],
     "groups" : [
         ]
@@ -31,7 +31,7 @@
     "_id" : "nbRstudio",
     "description" : "Notebook R-Studio",
     "exploratories" : [ 
-        "rstudio"
+        "docker.dlab-rstudio"
         ],
     "groups" : [
         ]
@@ -40,7 +40,7 @@
     "_id" : "nbTensor",
     "description" : "Notebook Tensor Flow",
     "exploratories" : [ 
-        "tensor"
+        "docker.dlab-tensor"
         ],
     "groups" : [
         ]
@@ -49,7 +49,7 @@
     "_id" : "nbZeppelin",
     "description" : "Notebook Zeppelin",
     "exploratories" : [ 
-        "zeppelin"
+        "docker.dlab-zeppelin"
         ],
     "groups" : [
         ]
@@ -58,7 +58,7 @@
     "_id" : "nbEMR",
     "description" : "EMR",
     "computationals" : [ 
-        "emr"
+        "docker.dlab-emr"
         ],
     "groups" : [
         ]
