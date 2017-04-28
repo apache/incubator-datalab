@@ -37,4 +37,6 @@ public interface MongoCollections {
     String USER_UI_SETTINGS = "userUISettings";
     /* Billing data. */
     String BILLING = "billing";
+    /** User roles. */
+    String ROLES = "roles";
 }
