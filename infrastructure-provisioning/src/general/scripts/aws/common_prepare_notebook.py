@@ -72,8 +72,8 @@ if __name__ == "__main__":
         else:
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
                 'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
-    #elif os.environ['application'] == 'deeplearning':
-    #    notebook_config['expected_ami_name'] = os.environ['notebook_deeplearning_ami_name']
+    elif os.environ['application'] == 'deeplearning':
+        notebook_config['expected_ami_name'] = os.environ['notebook_deeplearning_ami_name']
     else:
         notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
             'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
@@ -90,9 +90,9 @@ if __name__ == "__main__":
         notebook_config['ami_id'] = ami_id
     else:
         if os.environ['application'] == 'deeplearning':
-            ami_id = get_ami_id_by_name(os.environ['notebook_deeplearning_ami_name'], 'available')
-            notebook_config['ami_id'] = ami_id
-            print 'No preconfigured image found. Using default one: ' + notebook_config['ami_id']
+            print "ERROR: Deep Learning image wasn't found. Aborting..."
+            append_result('ERROR: Deep Learning image was not found.')
+            sys.exit(1)
         else:
             notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
             print 'No preconfigured image found. Using default one: ' + notebook_config['ami_id']
