@@ -206,6 +206,12 @@ if __name__ == "__main__":
                 "FromPort": 443,
                 "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
                 "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 8085,
+                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
+                "ToPort": 8085, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
         ]
         params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} --egress '{}' --force {} --nb_sg_name {} --resource {}".\

@@ -95,3 +95,6 @@ if __name__ == "__main__":
 
     print "Install py3spark local kernel for Jupyter"
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
+
+    print "Install GitWeb"
+    install_gitweb(args.os_user)
