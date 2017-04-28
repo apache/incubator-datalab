@@ -117,20 +117,20 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    # try:
-    #     print '[CREATING AMI]'
-    #     logging.info('[CREATING AMI]')
-    #     ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
-    #     if ami_id == '':
-    #         print "Looks like it's first time we configure notebook server. Creating image."
-    #         image_id = create_image_from_instance(instance_name=notebook_config['instance_name'],
-    #                                               image_name=notebook_config['expected_ami_name'])
-    #         if image_id != '':
-    #             print "Image was successfully created. It's ID is " + image_id
-    # except Exception as err:
-    #     append_result("Failed installing users key.", str(err))
-    #     remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
-    #     sys.exit(1)
+    try:
+        print '[CREATING AMI]'
+        logging.info('[CREATING AMI]')
+        ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
+        if ami_id == '':
+            print "Looks like it's first time we configure notebook server. Creating image."
+            image_id = create_image_from_instance(instance_name=notebook_config['instance_name'],
+                                                  image_name=notebook_config['expected_ami_name'])
+            if image_id != '':
+                print "Image was successfully created. It's ID is " + image_id
+    except Exception as err:
+        append_result("Failed installing users key.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
 
     # generating output information
     ip_address = get_instance_ip_address(notebook_config['instance_name']).get('Private')
