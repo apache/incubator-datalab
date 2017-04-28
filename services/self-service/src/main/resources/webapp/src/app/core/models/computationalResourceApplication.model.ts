@@ -21,7 +21,7 @@ export class ComputationalResourceApplication {
   version: string;
 
   constructor(jsonModel: any) {
-    this.name = jsonModel.name;
-    this.version = jsonModel.version;
+    this.name = jsonModel.Name;
+    this.version = jsonModel.Version;
   }
 }

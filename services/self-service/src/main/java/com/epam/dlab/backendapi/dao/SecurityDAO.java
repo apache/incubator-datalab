@@ -18,11 +18,17 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.dao;
 
+import static com.mongodb.client.model.Filters.ne;
+import static com.mongodb.client.model.Projections.exclude;
+import static com.mongodb.client.model.Projections.fields;
+
+import org.bson.Document;
+
 import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.utils.UsernameUtils;
 import com.google.inject.Singleton;
-import org.bson.Document;
+import com.mongodb.client.FindIterable;
 
 /** DAO write the attempt of user login into DLab.
  * */
@@ -36,5 +42,15 @@ public class SecurityDAO extends BaseDAO {
     public void writeLoginAttempt(UserCredentialDTO credentials) throws DlabException {
         insertOne(LOGIN_ATTEMPTS,
                 () -> new Document("login", credentials.getUsername()).append("iamlogin", UsernameUtils.removeDomain(credentials.getUsername())));
+    }
+    
+    /** Return the roles or throw exception if roles collection does not exists.
+     * @throws DlabException
+     */
+    public FindIterable<Document> getRoles() throws DlabException {
+    	if (!collectionExists(ROLES)) {
+    		throw new DlabException("Collection \"" + ROLES + "\" does not exists.");
+    	}
+		return find(ROLES, ne(ID, "_Example"), fields(exclude(ID, "description")));
     }
 }

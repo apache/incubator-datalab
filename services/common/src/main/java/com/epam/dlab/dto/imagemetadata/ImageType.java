@@ -31,4 +31,15 @@ public enum ImageType {
     public String getType() {
         return type;
     }
+    
+    public static ImageType of(String type) {
+        if (type != null) {
+            for (ImageType value : ImageType.values()) {
+                if (type.equalsIgnoreCase(value.toString())) {
+                    return value;
+                }
+            }
+        }
+        return null;
+    }
 }

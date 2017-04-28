@@ -19,6 +19,7 @@ limitations under the License.
 package com.epam.dlab.auth.dao.script;
 
 import com.epam.dlab.auth.dao.filter.SearchResultMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.message.SearchResultEntry;
@@ -26,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class SearchResultToDictionaryMapper implements SearchResultMapper<Map<String,Object>> {
@@ -58,8 +61,20 @@ public class SearchResultToDictionaryMapper implements SearchResultMapper<Map<St
 				LOG.debug("\tEntryDN {}",dn);
 				DeepMap dnBranch = reqBranch.getBranch(dn.toLowerCase());
 				resultEntry.forEach(attr -> {
-					dnBranch.put(attr.getId() + "", attr.get() + "");
-					LOG.debug("\t\tAttr {}",attr);
+
+					// Since there might be multiple attributes with the same name, it is required to collect all their values (i.e. memberUid in group)
+					if(attr.size() > 1) {
+
+						List<Object> list = new ArrayList<>();
+						attr.iterator().forEachRemaining(list::add);
+
+						String join = StringUtils.join(list, ",");
+						dnBranch.put(attr.getId() + "", join);
+						LOG.debug("\t\tAttr {} : {} ",attr.getId(), join);
+					} else {
+						dnBranch.put(attr.getId() + "", attr.get() + "");
+						LOG.debug("\t\tAttr {}",attr);
+					}
 				});
 			}
 		});
