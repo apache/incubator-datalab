@@ -25,9 +25,6 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.epam.dlab.BillingTool;
-import com.epam.dlab.exception.AdapterException;
-import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.exception.ParseException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
@@ -50,8 +47,8 @@ public class SchedulerConfiguration {
 	
 	/** Set the schedule of user.
 	 */
-	public String setSchedule(String units) {
-		return units;
+	public void setSchedule(String schedule) {
+		this.schedule = schedule;
 	}
 	
 	
@@ -61,7 +58,7 @@ public class SchedulerConfiguration {
 	/** Build the schedule from user' schedule.
 	 * @throws ParseException
 	 */
-	public void configure() throws ParseException {
+	public void build() throws ParseException {
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
 		String [] unitArray = schedule.split(",");
 		realSchedule.clear();
@@ -129,17 +126,16 @@ public class SchedulerConfiguration {
 		}
 	}
 	
-	/** Return the key of the next start time from schedule.
+	/** Return the key of the next start time from the schedule.
 	 */
 	public String getNextTimeKey() {
-		Calendar now = Calendar.getInstance();
+		long now = System.currentTimeMillis();
 		String nextKey = null;
-		Calendar nextTime = null;
+		long nextTime = -1;
+		
 		for(String key : realSchedule.keySet()) {
-			Calendar time = realSchedule.get(key);
-			if (nextTime == null) {
-				nextKey = key;
-			} else if (time.after(now) && time.before(nextTime)) {
+			long time = realSchedule.get(key).getTimeInMillis();
+			if ((time >= now && time < nextTime) || nextTime == -1) {
 				nextTime = time;
 				nextKey = key;
 			}
@@ -147,13 +143,36 @@ public class SchedulerConfiguration {
 		return nextKey;
 	}
 	
-	/** Return the next start time from schedule.
+	/** Return the next start time from the schedule.
 	 */
 	public Calendar getNextTime() {
 		String key = getNextTimeKey();
 		return (key == null ? null : realSchedule.get(key));
 	}
 	
+	/** Return the key of the near start time from the schedule to the current time.
+	 */
+	public String getNearTimeKey() {
+		long now = System.currentTimeMillis();
+		String nextKey = null;
+		long nextTime = -1;
+		
+		for(String key : realSchedule.keySet()) {
+			long time = Math.abs(now - realSchedule.get(key).getTimeInMillis());
+			if (time < nextTime || nextTime == -1) {
+				nextTime = time;
+				nextKey = key;
+			}
+		}
+		return nextKey;
+	}
+	
+	/** Return the near start time from the schedule to the current time.
+	 */
+	public Calendar getNearTime() {
+		String key = getNearTimeKey();
+		return (key == null ? null : realSchedule.get(key));
+	}
 	
 	/** Returns a string representation of the object.
 	 * @param self the object to generate the string for (typically this), used only for its class name.
@@ -174,16 +193,11 @@ public class SchedulerConfiguration {
     			.toString();
     }
     
-    
-    
-    public static void main(String [] args) {
-    	try {
-    		BillingTool conf = new BillingTool();
-    		conf.run("billing.yml");
-    		
-		} catch (InitializationException | AdapterException | ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    @Override
+    public boolean equals(Object obj) {
+    	if (obj instanceof SchedulerConfiguration) {
+    		return realSchedule.keySet().equals(((SchedulerConfiguration) obj).realSchedule.keySet()); 
+    	}
+    	return false;
     }
 }

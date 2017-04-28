@@ -60,6 +60,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @Valid
     @JsonProperty
     private Duration checkEnvStatusTimeout = Duration.minutes(10);
+    
+    @Valid
+    @JsonProperty
+    private String billingConfFile = null;
 
 
     /** Returns <b>true</b> if service is a mock. */
@@ -103,5 +107,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     public SelfServiceApplicationConfiguration withCheckEnvStatusTimeout(Duration checkEnvStatusTimeout) {
     	this.checkEnvStatusTimeout = checkEnvStatusTimeout;
     	return this;
+    }
+    
+    /** Return the default access to DLab features using roles policy. */
+    public String getBillingConfFile() {
+    	return billingConfFile;
     }
 }

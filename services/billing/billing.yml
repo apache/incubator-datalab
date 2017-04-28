@@ -2,41 +2,41 @@ workingFile: /opt/dlab/tmp/result/billing-data.json
 
 scheduler:
 # Schedule is comma separated values of time in format hh[:mm[:ss]]. hh - in the 24-hour clock, at 8:15PM is 20:15.
-  schedule: 12:00,13:30:23, 08:50,7:30
-
+  schedule: 12:00,13:30:23, 08:50,7:30, 16:53:30
+  
 # Adapter for reading source data. Known types: file, s3file
 adapterIn:
-#  - type: file
-#    file: D:\DLab\BillingSampleData\dlab-billing-detailed-tags-2017-03-27.csv
-  - type: s3file
-    bucket: bucket-name
+  - type: file
+    file: D:\Sources\dlab\report-samples\203753054073-aws-billing-detailed-line-items-with-resources-and-tags-2017-04-28.csv
+#  - type: s3file
+#    bucket: bucket-name
 #    path:
-    accountId: 1234567890
-    accessKeyId: accessKeyId
-    secretAccessKey: secretAccessKey
+#    accountId: 1234567890
+#    accessKeyId: accessKeyId
+#    secretAccessKey: secretAccessKey
 
 # Adapter for writing converted data. Known types: console, file, s3file, mongodb
 adapterOut:
-#  - type: console
-#    writeHeader: true
+  - type: console
+    writeHeader: true
 #  - type: fs
 #    file: D:\DLab\BillingSampleData\test_out.csv
 #    writeHeader: true
-  - type: mongodlab
-    host: localhost
-    port: 27017
-    username: admin
-    password: PASSWORD
-    database: dlabdb
+#  - type: mongodlab
+#    host: localhost
+#    port: 27017
+#    username: admin
+#    password: PASSWORD
+#    database: dlabdb
 #    bufferSize: 10000
-    upsert: true
+#    upsert: true
 
 # Filter for source and converted data.
 filter:
   - type: aws
     currencyCode: USD
     columnDlabTag: user:user:tag
-    serviceBaseName: dlab_tag_0327c
+    serviceBaseName: usein1206v9
 
 # Parser of source data to common format.
 parser:

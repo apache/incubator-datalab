@@ -200,9 +200,9 @@ public class BillingToolConfiguration {
 		
 		if (scheduler != null) {
 			try {
-				scheduler.configure();
+				scheduler.build();
 			} catch (Exception e) {
-				throw new InitializationException("Cannot configure scheduler. " + e.getLocalizedMessage(), e);
+				throw new InitializationException("Cannot configure billing scheduler. " + e.getLocalizedMessage(), e);
 			}
 		}
 		

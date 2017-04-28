@@ -10,13 +10,21 @@ maxEmrInstanceCount: 14
 minEmrSpotInstanceBidPct: 20
 maxEmrSpotInstanceBidPct: 90
 
-#Timeout for check the status of environment via provisioning service
+# Timeout for check the status of environment via provisioning service
 checkEnvStatusTimeout: 5m
 
-#Restrict access to DLab features using roles policy
+# Restrict access to DLab features using roles policy
 rolePolicyEnabled : false
-#Default access to DLab features using roles policy
+# Default access to DLab features using roles policy
 roleDefaultAccess : false
+
+# Name of configuration file for billing report. Uncomment this lines to enable the scheduler of billing report. 
+<#if DEV_MODE == "true">
+  billingConfFile: ${sys['user.dir']}/../billing/billing.yml
+<#else>
+  billingConfFile: ${DLAB_CONF_DIR}/billing.yml
+</#if>
+
 
 server:
   requestLog:
