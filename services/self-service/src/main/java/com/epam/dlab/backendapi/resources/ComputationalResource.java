@@ -123,6 +123,8 @@ public class ComputationalResource implements ComputationalAPI {
         boolean isAdded = infCompDAO.addComputational(userInfo.getName(), formDTO.getNotebookName(),
                 new UserComputationalResourceDTO()
                         .withComputationalName(formDTO.getName())
+                        .withImageName(formDTO.getImage())
+                        .withTemplateName(formDTO.getTemplateName())
                         .withStatus(CREATING.toString())
                         .withMasterShape(formDTO.getMasterInstanceType())
                         .withSlaveShape(formDTO.getSlaveInstanceType())

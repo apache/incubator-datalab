@@ -19,8 +19,8 @@
         ]
 }
 {
-    "_id" : "nbJupyter",
-    "description" : "Notebook Jupyter",
+    "_id" : "nbCreateJupyter",
+    "description" : "Create Notebook Jupyter",
     "exploratories" : [ 
         "docker.dlab-jupyter"
         ],
@@ -28,8 +28,8 @@
         ]
 }
 {
-    "_id" : "nbRstudio",
-    "description" : "Notebook R-Studio",
+    "_id" : "nbCreateRstudio",
+    "description" : "Create Notebook R-Studio",
     "exploratories" : [ 
         "docker.dlab-rstudio"
         ],
@@ -37,8 +37,8 @@
         ]
 }
 {
-    "_id" : "nbTensor",
-    "description" : "Notebook Tensor Flow",
+    "_id" : "nbCreateTensor",
+    "description" : "Create Notebook Tensor Flow",
     "exploratories" : [ 
         "docker.dlab-tensor"
         ],
@@ -46,8 +46,8 @@
         ]
 }
 {
-    "_id" : "nbZeppelin",
-    "description" : "Notebook Zeppelin",
+    "_id" : "nbCreateZeppelin",
+    "description" : "Create Notebook Zeppelin",
     "exploratories" : [ 
         "docker.dlab-zeppelin"
         ],
@@ -55,8 +55,8 @@
         ]
 }
 {
-    "_id" : "nbEMR",
-    "description" : "EMR",
+    "_id" : "nbCreateEMR",
+    "description" : "Create EMR",
     "computationals" : [ 
         "docker.dlab-emr"
         ],

@@ -32,6 +32,10 @@ public class UserComputationalResourceDTO {
     private String computationalId;
     @JsonProperty("instance_id")
     private String instanceId;
+    @JsonProperty("image")
+    private String imageName;
+    @JsonProperty("template_name")
+    private String templateName;
     @JsonProperty
     private String status;
     @JsonProperty("up_time")
@@ -94,6 +98,38 @@ public class UserComputationalResourceDTO {
     /** Sets the id of instance in Amazon. */
     public UserComputationalResourceDTO withInstanceId(String instanceId) {
     	setInstanceId(instanceId);
+        return this;
+    }
+
+    /** Returns the image name. */
+    public String getImageName() {
+    	return imageName;
+    }
+
+    /** Sets the image name. */
+    public void setImageName(String imageName) {
+    	this.imageName = imageName;
+    }
+
+    /** Sets the image name. */
+    public UserComputationalResourceDTO withImageName(String imageName) {
+        setImageName(imageName);
+        return this;
+    }
+
+    /** Returns the name of template. */
+    public String getTemplateName() {
+    	return templateName;
+    }
+
+    /** Sets the name of template. */
+    public void setTemplateName(String templateName) {
+    	this.templateName = templateName;
+    }
+
+    /** Sets the name of template. */
+    public UserComputationalResourceDTO withTemplateName(String templateName) {
+        setTemplateName(templateName);
         return this;
     }
 
@@ -226,6 +262,9 @@ public class UserComputationalResourceDTO {
     	return MoreObjects.toStringHelper(this)
     			.add("computationalId", computationalId)
     			.add("computationalName", computationalName)
+    			.add("instanceId", instanceId)
+    			.add("imageName", imageName)
+    			.add("templateName", templateName)
     			.add("version", version)
     	        .add("masterShape", masterShape)
     			.add("slaveShape", slaveShape)
