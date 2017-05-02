@@ -1,5 +1,12 @@
 Configuration syntax:
 
+# Working file for store billing report variables.
+workingFile: /opt/dlab/tmp/result/billing-data.json
+
+scheduler:
+# Schedule is comma separated values of time in format hh[:mm[:ss]]. hh - in the 24-hour clock, at 8:15PM is 20:15.
+  schedule: 0:00, 3:00, 6:00, 9:00, 12:00, 15:00, 18:00, 21:00
+
 # Adapter for reading source data.
 #<name> may by one of next: ${ADAPTERS}
 adapterIn:

@@ -32,6 +32,7 @@
         <org.apache.commons.version>3.5</org.apache.commons.version>
         <com.amazonaws.version>1.10.77</com.amazonaws.version>
         <org.apache.jexl3.version>3.0</org.apache.jexl3.version>
+        <org.freemarker.version>2.3.22</org.freemarker.version>
     </properties>
 
     <dependencies>
@@ -57,6 +58,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-jexl3</artifactId>
             <version>${org.apache.jexl3.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>${org.freemarker.version}</version>
         </dependency>
     </dependencies>
     <build>

@@ -63,6 +63,10 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     
     @Valid
     @JsonProperty
+    private boolean billingSchedulerEnabled = false;
+    
+    @Valid
+    @JsonProperty
     private String billingConfFile = null;
 
 
@@ -107,6 +111,11 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     public SelfServiceApplicationConfiguration withCheckEnvStatusTimeout(Duration checkEnvStatusTimeout) {
     	this.checkEnvStatusTimeout = checkEnvStatusTimeout;
     	return this;
+    }
+    
+    /** Return the <b>true</b> if the billing scheduler is enabled. */
+    public boolean isBillingSchedulerEnabled() {
+    	return billingSchedulerEnabled;
     }
     
     /** Return the default access to DLab features using roles policy. */

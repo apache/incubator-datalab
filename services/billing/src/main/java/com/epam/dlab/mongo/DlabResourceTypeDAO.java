@@ -173,7 +173,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
 		resourceId = resourceId.substring(serviceBaseNameId.length());
 		
 		ResourceItem resource = resourceList.getById(resourceId);
-		Document d = new Document();
+		Document d = new Document(ReportLine.FIELD_DLAB_ID, resourceId);
 		if (resource == null) {
 			d.put(FIELD_DLAB_RESOURCE_ID, null);
 			d.put(FIELD_DLAB_RESOURCE_TYPE, null);

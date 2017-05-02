@@ -18,8 +18,8 @@ limitations under the License.
 
 package com.epam.dlab.configuration;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.exception.InitializationException;
@@ -44,7 +44,8 @@ public class BillingToolConfigurationFactory {
 	 */
 	public static <T extends BillingToolConfiguration> T build(String filename, Class<T> confClass) throws InitializationException {
 		try {
-			JsonNode node = getMapper().readTree(new YAMLFactory().createParser(new File(filename)));
+			InputStream is = new FreeMarkerConfig().getInputStream(filename);
+			JsonNode node = getMapper().readTree(new YAMLFactory().createParser(is));
 			return build(node, confClass);
 		} catch (IOException | InitializationException e) {
 			throw new InitializationException("Cannot parse configuration file " + filename + ". " + e.getLocalizedMessage(), e);

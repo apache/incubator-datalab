@@ -18,13 +18,14 @@ rolePolicyEnabled : false
 # Default access to DLab features using roles policy
 roleDefaultAccess : false
 
-# Name of configuration file for billing report. Uncomment this lines to enable the scheduler of billing report. 
+# Set to true to enable the scheduler of billing report.
+billingSchedulerEnabled: false
+# Name of configuration file for billing report.
 <#if DEV_MODE == "true">
-  billingConfFile: ${sys['user.dir']}/../billing/billing.yml
+billingConfFile: ${sys['user.dir']}/../billing/billing.yml
 <#else>
-  billingConfFile: ${DLAB_CONF_DIR}/billing.yml
+billingConfFile: ${DLAB_CONF_DIR}/billing.yml
 </#if>
-
 
 server:
   requestLog:
