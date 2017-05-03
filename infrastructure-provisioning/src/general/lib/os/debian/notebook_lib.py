@@ -282,3 +282,15 @@ def install_livy_dependencies_emr(os_user):
         local('sudo pip install cloudpickle requests requests-kerberos flake8 flaky pytest')
         local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest')
         local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
+
+
+def install_gitweb(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/gitweb_ensured'):
+        sudo('apt-get install -y fcgiwrap gitweb libapache2-mod-perl2 libcgi-pm-perl apache2')
+        sudo('sed -i -e "s/80/8085/g" /etc/apache2/ports.conf')
+        sudo('sed -i -e "s/\/var\/lib\/git/\/home\/' + os_user + '/g" /etc/gitweb.conf')
+        put('/root/templates/gitweb-virtualhost.conf', '/tmp/gitweb-virtualhost.conf')
+        sudo('mv -f /tmp/gitweb-virtualhost.conf /etc/apache2/sites-available/000-default.conf')
+        sudo('a2enmod cgi')
+        sudo('systemctl restart apache2.service')
+        sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')

@@ -35,4 +35,6 @@ public interface MongoCollections {
     /** Name of shapes. */
     String SHAPES = "shapes";
     String USER_UI_SETTINGS = "userUISettings";
+    /** User roles. */
+    String ROLES = "roles";
 }

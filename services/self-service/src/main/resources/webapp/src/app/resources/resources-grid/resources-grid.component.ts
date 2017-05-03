@@ -183,6 +183,7 @@ export class ResourcesGridComponent implements OnInit {
       return exploratoryList.map((value) => {
         return new ResourcesGridRowModel(value.exploratory_name,
           value.template_name,
+          value.image,
           value.status,
           value.shape,
           value.computational_resources,

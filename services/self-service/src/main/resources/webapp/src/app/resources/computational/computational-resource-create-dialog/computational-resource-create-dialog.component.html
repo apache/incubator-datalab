@@ -29,6 +29,10 @@ limitations under the License.
         <div class="col-xs-8">
           <dropdown-list #templatesList (selectedItem)="onUpdate($event)"></dropdown-list>
         </div>
+        <div class="col-xs-12" *ngIf="model.computationalResourceApplicationTemplates">
+          <small *ngIf="model.computationalResourceApplicationTemplates && model.computationalResourceApplicationTemplates.length > 0 && !template_description">{{model.computationalResourceApplicationTemplates[0].description}}</small>
+          <small *ngIf="template_description">{{template_description}}</small>
+        </div>
       </div>
       <div class="form-group row">
         <div  class="col-xs-4">

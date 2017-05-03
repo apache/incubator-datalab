@@ -87,3 +87,6 @@ if __name__ == "__main__":
 
     print "Install local jars"
     ensure_local_jars(args.os_user, s3_jars_dir, files_dir, args.region, templates_dir)
+
+    print "Install GitWeb"
+    install_gitweb(args.os_user)

@@ -28,6 +28,8 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
@@ -41,6 +43,7 @@ import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.dropwizard.auth.Auth;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,6 +86,10 @@ public class ExploratoryResource implements ExploratoryAPI {
     public Response create(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryCreateFormDTO formDTO) throws DlabException {
         LOGGER.debug("Creating exploratory environment {} with name {} for user {}",
                 formDTO.getImage(), formDTO.getName(), userInfo.getName());
+		if (!UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, formDTO.getImage())) {
+			LOGGER.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
+			throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());
+		}
         boolean isAdded = false;
         try {
             infExpDAO.insertExploratory(new UserInstanceDTO()
