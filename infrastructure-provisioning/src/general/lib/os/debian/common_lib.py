@@ -44,3 +44,16 @@ def renew_gpg_key():
         sudo('apt-key update')
     except:
         sys.exit(1)
+
+
+def install_os_pkg(requisites):
+    try:
+        print "Updating repositories and installing requested tools: " + requisites
+        sudo('apt-get update')
+        sudo('apt-get -y install python-pip python3-pip')
+        sudo('apt-get -y install ' + requisites)
+        sudo('unattended-upgrades -v')
+        sudo('export LC_ALL=C')
+        return True
+    except:
+        return False

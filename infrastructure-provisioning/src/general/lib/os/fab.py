@@ -41,6 +41,28 @@ def ensure_pip(requisites):
         return False
 
 
+def install_pip2(requisites):
+    try:
+        sudo('pip2 install -U pip setuptools')
+        sudo('pip2 install -U pip --no-cache-dir')
+        sudo('pip2 install --upgrade pip')
+        sudo('pip2 install ' + requisites + ' --no-cache-dir')
+        return True
+    except:
+        return False
+
+
+def install_pip3(requisites):
+    try:
+        sudo('pip3 install -U pip setuptools')
+        sudo('pip3 install -U pip --no-cache-dir')
+        sudo('pip3 install --upgrade pip')
+        sudo('pip3 install ' + requisites + ' --no-cache-dir')
+        return True
+    except:
+        return False
+
+
 def create_aws_config_files(generate_full_config=False):
     try:
         aws_user_dir = os.environ['AWS_DIR']

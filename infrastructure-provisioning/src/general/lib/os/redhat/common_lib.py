@@ -40,3 +40,16 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
         return True
     except:
         return False
+
+
+def install_pkg(requisites):
+    try:
+        print "Updating repositories and installing requested tools: " + requisites
+        sudo('yum update-minimal --security -y')
+        if not exists('/bin/pip3'):
+            sudo('ln -s /bin/pip3.5 /bin/pip3')
+        sudo('export LC_ALL=C')
+        sudo('yum -y install ' + requisites)
+        return True
+    except:
+        return False
