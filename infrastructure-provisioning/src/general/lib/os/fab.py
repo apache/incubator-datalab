@@ -189,22 +189,35 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo('echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
             sudo('''echo "c.NotebookApp.token = u''" >> ''' + jupyter_conf_file)
             sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> ' + jupyter_conf_file)
-            put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
-            sudo("chmod 644 /tmp/jupyter-notebook.service")
-            if os.environ['application'] == 'tensor':
-                sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
-            sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
-            sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
-            sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
+            if os.environ['application'] == 'deeplearning':
+                put(templates_dir + 'jupyter-notebook.conf', '/tmp/jupyter-notebook.conf')
+                sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/jupyter-notebook.conf")
+                sudo("sed -i 's|CONF_PATH|" + jupyter_conf_file + "|' /tmp/jupyter-notebook.conf")
+                sudo("chmod 644 /tmp/jupyter-notebook.conf")
+                sudo('\cp /tmp/jupyter-notebook.conf /etc/init/')
+                sudo('\cp /tmp/jupyter-notebook.conf /etc/init.d/jupyter-notebook')
+            else:
+                put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
+                sudo("chmod 644 /tmp/jupyter-notebook.service")
+                if os.environ['application'] == 'tensor':
+                    sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
+                sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
+                sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
+                sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
             sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             sudo('mkdir /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             if os.environ['application'] == 'jupyter':
                 sudo('jupyter-kernelspec remove -f python2')
                 sudo('jupyter-kernelspec remove -f python3')
-            sudo("systemctl daemon-reload")
-            sudo("systemctl enable jupyter-notebook")
-            sudo("systemctl start jupyter-notebook")
+            if os.environ['application'] == 'deeplearning':
+                sudo('update-rc.d jupyter-notebook defaults')
+                sudo('update-rc.d jupyter-notebook enable')
+                sudo('service jupyter-notebook start')
+            else:
+                sudo("systemctl daemon-reload")
+                sudo("systemctl enable jupyter-notebook")
+                sudo("systemctl start jupyter-notebook")
             sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -245,7 +258,10 @@ def ensure_ciphers():
     sudo('echo -e "Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config')
     sudo('echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
     sudo('echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
-    sudo('systemctl reload sshd')
+    try:
+        sudo('service ssh restart')
+    except:
+        sudo('service sshd restart')
 
 
 def installing_python(region, bucket, user_name, cluster_name):
@@ -267,9 +283,9 @@ def installing_python(region, bucket, user_name, cluster_name):
         local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
         local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
         local(venv_command + ' && sudo -i ' + pip_command + ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
-        local('sudo rm -rf /usr/bin/python' + python_version[0:3])
+        local('sudo rm -rf /usr/bin/python' + python_version[0:5])
         local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
-              ' /usr/bin/python' + python_version[0:3])
+              ' /usr/bin/python' + python_version[0:5])
 
 
 def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region):
@@ -427,5 +443,22 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                         pass
         local('touch /home/' + os_user + '/.ensure_dir/emr_' + cluster_name + '_interpreter_ensured')
     except:
+            sys.exit(1)
+
+
+def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir, scala_version, spark_version):
+    if not exists('/home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured'):
+        try:
+            sudo('pip install ' + toree_link + ' --no-cache-dir')
+            sudo('ln -s /opt/spark/ /usr/local/spark')
+            sudo('jupyter toree install')
+            sudo('mv ' + scala_kernel_path + 'lib/* /tmp/')
+            put(files_dir + 'toree-assembly-0.2.0.jar', '/tmp/toree-assembly-0.2.0.jar')
+            sudo('mv /tmp/toree-assembly-0.2.0.jar ' + scala_kernel_path + 'lib/')
+            sudo(
+                'sed -i "s|Apache Toree - Scala|Local Apache Toree - Scala (Scala-' + scala_version +
+                ', Spark-' + spark_version + ')|g" ' + scala_kernel_path + 'kernel.json')
+            sudo('touch /home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured')
+        except:
             sys.exit(1)
 
