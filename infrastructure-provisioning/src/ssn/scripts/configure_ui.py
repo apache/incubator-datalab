@@ -87,19 +87,6 @@ def configure_mongo(mongo_passwd):
         return False
 
 
-def configure_billing(args):
-    try:
-        local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(args.keyfile,
-                                                                                                 env.host_string))
-        run('python /tmp/configure_billing.py --cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {}'.
-            format(args.cloud_provider, args.service_base_name, args.tag_resource_id, args.account_id,
-                   args.billing_bucket, args.report_path, mongo_passwd, args.dlab_path))
-        return True
-    except Exception as err:
-        print err
-        return False
-
-
 ##############
 # Run script #
 ##############
@@ -131,14 +118,10 @@ if __name__ == "__main__":
     sudo('echo DLAB_CONF_DIR={} >> /etc/profile'.format(dlab_conf_dir))
     sudo('echo export DLAB_CONF_DIR >> /etc/profile')
 
-    if args.billing_enabled:
-        print "Configuring billing"
-        if not configure_billing(args):
-            logging.error('Failed configure billing')
-            sys.exit(1)
-
     print "Starting Self-Service(UI)"
-    if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path, args.os_user, mongo_passwd):
+    if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path, args.os_user, mongo_passwd,
+                    args.cloud_provider, args.service_base_name, args.tag_resource_id, args.account_id,
+                    args.billing_bucket, args.dlab_path, args.billing_enabled, args.report_path):
         logging.error('Failed to start UI')
         sys.exit(1)
 
