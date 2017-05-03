@@ -29,42 +29,31 @@ parser.add_argument('--cloud_provider', type=str,
 parser.add_argument('--infrastructure_tag', type=str, help='unique name for DLab environment')
 parser.add_argument('--access_key_id', type=str, help='AWS Access Key ID')
 parser.add_argument('--secret_access_key', type=str, help='AWS Secret Access Key')
-parser.add_argument('--tag_resource_id', type=str, default='dlab', help='The name of user tag')
-
+parser.add_argument('--tag_resource_id', type=str, default='user:tag', help='The name of user tag')
 parser.add_argument('--account_id', type=str, help='The ID of ASW linked account')
 parser.add_argument('--billing_bucket', type=str, help='The name of bucket')
 parser.add_argument('--report_path', type=str, default='', help='The path to report folder')
-
 parser.add_argument('--mongo_password', type=str, help='The password for Mongo DB')
+parser.add_argument('--dlab_dir', type=str, help='The path to dlab dir')
 args = parser.parse_args()
+
 
 def yml_billing(path):
     try:
-        try:
-            with open(path, 'r') as config_yml_r:
-                config_orig = yaml.load(config_yml_r)
-        except:
-            config_orig = {}
-        
-        section = 'adapterIn'
+        with open(path, 'r') as config_yml_r:
+            config_orig = config_yml_r.read()
         if args.cloud_provider == 'aws':
-            config_orig[section].update({'bucket':args.billing_bucket})
-            config_orig[section].update({'path':args.report_path})
-            config_orig[section].update({'accountId':args.account_id})
-            config_orig[section].update({'accessKeyId':args.access_key_id})
-            config_orig[section].update({'secretAccessKey':args.secret_access_key})
-        
-        section = 'adapterOut'
-        config_orig[section].update({'password':args.mongo_password})
-        
-        section = 'filter'
-        if args.cloud_provider == 'aws':
-            config_orig[section].update({'columnDlabTag':args.tag_resource_id})
-            config_orig[section].update({'serviceBaseName':args.infrastructure_tag})
-
-        with open(path, 'w') as outfile_yml_w:
-            yaml.dump(config_orig, outfile_yml_w, default_flow_style=False)
-        return True
+            config_orig = config_orig.replace('<BILLING_BUCKET_NAME>', args.billing_bucket)
+            config_orig = config_orig.replace('<REPORT_PATH>', args.report_path)
+            config_orig = config_orig.replace('<ACCOUNT_ID>', args.account_id)
+            config_orig = config_orig.replace('<ACCESS_KEY_ID>', args.access_key_id)
+            config_orig = config_orig.replace('<SECRET_ACCESS_KEY>', args.secret_access_key)
+            config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
+            config_orig = config_orig.replace('<CONF_TAG_RESOURCE_ID>', args.tag_resource_id)
+            config_orig = config_orig.replace('<CONF_SERVICE_BASE_NAME>', args.infrastructure_tag)
+        f = open(path, 'w')
+        f.write(config_orig)
+        f.close()
     except:
         print "Could not write the target file " + path
 
@@ -77,7 +66,7 @@ def yml_self_service(path):
         except:
             config_orig = {}
         
-        config_orig.update({'billingSchedulerEnabled':true})
+        config_orig.update({'billingSchedulerEnabled':True})
 
         with open(path, 'w') as outfile_yml_w:
             yaml.dump(config_orig, outfile_yml_w, default_flow_style=False)
@@ -93,8 +82,8 @@ if __name__ == "__main__":
     # Check cloud provider
     # Access to the bucket without credentials?
     try:
-        yml_billing('PATH/billing.yml')
-        yml_self_service('PATH/self-service.yml')
+        yml_billing(args.dlab_dir + 'conf/billing.yml')
+        yml_self_service(args.dlab_dir + 'conf/self-service.yml')
     except:
         sys.exit(1)
 

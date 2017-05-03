@@ -34,6 +34,7 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--cloud_provider', type=str, default='')
 parser.add_argument('--os_family', type=str, default='')
 parser.add_argument('--request_id', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
@@ -43,6 +44,10 @@ parser.add_argument('--security_groups_ids', type=str, default='')
 parser.add_argument('--vpc_id', type=str, default='')
 parser.add_argument('--subnet_id', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default='')
+parser.add_argument('--account_id', type=str, default='')
+parser.add_argument('--billing_bucket', type=str, default='')
+parser.add_argument('--report_path', type=str, default='')
+parser.add_argument('--billing_enabled', type=bool, default=False)
 args = parser.parse_args()
 
 dlab_conf_dir = args.dlab_path + 'conf/'
@@ -81,6 +86,18 @@ def configure_mongo(mongo_passwd):
         return False
 
 
+def configure_billing(args):
+    try:
+        local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(args.keyfile,
+                                                                                                 env.host_string))
+        sudo('python /tmp/configure_billing.py --cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} --billing_bucket {} --report_path {} --mongo_password {} --dlab_dir {}'.
+             format(args.cloud_provider, args.service_base_name, args.tag_resource_id, args.account_id,
+                    args.billing_bucket, args.report_path, mongo_passwd, args.dlab_path))
+        return True
+    except:
+        return False
+
+
 ##############
 # Run script #
 ##############
@@ -111,6 +128,12 @@ if __name__ == "__main__":
 
     sudo('echo DLAB_CONF_DIR={} >> /etc/profile'.format(dlab_conf_dir))
     sudo('echo export DLAB_CONF_DIR >> /etc/profile')
+
+    if args.billing_enabled:
+        print "Configuring billing"
+        if not configure_billing(args):
+            logging.error('Failed configure billing')
+            sys.exit(1)
 
     print "Starting Self-Service(UI)"
     if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path, args.os_user, mongo_passwd):
