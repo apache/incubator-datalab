@@ -91,8 +91,8 @@ def configure_billing(args):
         local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(args.keyfile,
                                                                                                  env.host_string))
         run('python /tmp/configure_billing.py --cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {}'.
-             format(args.cloud_provider, args.service_base_name, args.tag_resource_id, args.account_id,
-                    args.billing_bucket, args.report_path, mongo_passwd, args.dlab_path))
+            format(args.cloud_provider, args.service_base_name, args.tag_resource_id, args.account_id,
+                   args.billing_bucket, args.report_path, mongo_passwd, args.dlab_path))
         return True
     except:
         return False
