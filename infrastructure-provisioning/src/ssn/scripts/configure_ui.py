@@ -82,7 +82,8 @@ def configure_mongo(mongo_passwd):
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
         sudo('python ' + args.dlab_path + 'tmp/configure_mongo.py --region {} --base_name {} --sg "{}" --vpc {} --subnet {} --dlab_path {} --os_user {} --os_family {} --tag_resource_id {}'.format(args.region, args.service_base_name, args.security_groups_ids.replace(" ", ""), args.vpc_id, args.subnet_id, args.dlab_path, args.os_user, args.os_family, args.tag_resource_id))
         return True
-    except:
+    except Exception as err:
+        print err
         return False
 
 
@@ -94,7 +95,8 @@ def configure_billing(args):
             format(args.cloud_provider, args.service_base_name, args.tag_resource_id, args.account_id,
                    args.billing_bucket, args.report_path, mongo_passwd, args.dlab_path))
         return True
-    except:
+    except Exception as err:
+        print err
         return False
 
 
