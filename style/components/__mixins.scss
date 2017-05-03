@@ -1,0 +1,188 @@
+@import 'flexbox';
+
+$font: 'Open Sans', 'Arial', sans-serif;
+$container: 1180px;
+$font-base: 24px;
+
+$yellow: #efc714;
+$blue: #2f2f77;
+
+/// Strips the unit from a number.
+@function strip-units($value) {
+    @return ($value / ($value * 0 + 1));
+}
+
+// Convert pixels to rems
+// eg. for a relational value of 12px write rem(12)
+// Assumes $em-base is the font-size of <html>
+
+@function rem($pxval) {
+    @if not unitless($pxval) {
+        $pxval: strip-units($pxval);
+    }
+    $base: $font-base;
+    @if not unitless($base) {
+        $base: strip-units($base);
+    }
+    @return ($pxval / $base) * 1rem;
+}
+
+@mixin add-font($font-family, $font-filename, $font-weight : normal, $font-style :normal) {
+    @font-face {
+        font-family: '#{$font-family}';
+        src: url('fonts/#{$font-filename}.eot');
+        src: url('fonts/#{$font-filename}.eot?#iefix') format('embedded-opentype'),
+            url('fonts/#{$font-filename}.woff') format('woff'),
+            url('fonts/#{$font-filename}.ttf') format('truetype'),
+            url('fonts/#{$font-filename}.svg##{$font-family}') format('svg');
+        font-weight: $font-weight;
+        font-style: $font-style
+    }
+}
+@mixin add-svg-font($font-family, $font-filename, $font-weight : normal, $font-style :normal) {
+    @font-face {
+        font-family: '#{$font-family}';
+        src: url('fonts/#{$font-filename}.svg##{$font-family}') format('svg');
+        font-weight: $font-weight;
+        font-style: $font-style
+    }
+}
+/* Usage
+    @include add-font('FontName', 'fontfilename', 400);
+
+    @media screen and (-webkit-min-device-pixel-ratio:0) {
+        @include add-svg-font('FontName', 'fontfilename', 400);
+    }
+*/
+
+@mixin prefixer($property, $value, $prefixes: webkit moz ms o) {
+    @each $prefix in $prefixes {
+        #{"-" + $prefix + "-" + $property}: $value;
+    }
+    #{$property}: $value;
+}
+
+@mixin placeholder {
+  &::-webkit-input-placeholder {@content}
+  &:-moz-placeholder           {@content}
+  &::-moz-placeholder          {@content}
+  &:-ms-input-placeholder      {@content}
+}
+
+@mixin border-radius($radius) {
+    @include prefixer('border-radius', $radius);
+}
+@mixin box-sizing($type: border-box) {
+    @include prefixer('box-sizing', $type);
+}
+@mixin background-size($size: cover) {
+    @include prefixer('background-size', $size);
+}
+@mixin box-shadow($shadow) {
+    @include prefixer('box-shadow', $shadow);
+}
+@mixin transition($property: all, $duration: .5s, $easing: ease) {
+    $transitions: ($property $duration $easing);
+    @include prefixer('transition', $transitions);
+}
+@mixin position($position: relative, $top:0, $right:0, $bottom:0, $left:0, $zIndex: 0) {
+    position: $position;
+    z-index: $zIndex;
+    bottom: $bottom;
+    right: $right;
+    left: $left;
+    top: $top;
+}
+@mixin transform($params, $backface: false) {
+    @include prefixer('transform', $params);
+    @if $backface {
+        -webkit-backface-visibility:hidden;
+        backface-visibility:hidden;
+    }
+}
+@mixin transform-origin($params) {
+    @include prefixer('transform-origin', $params);
+}
+@mixin user-select($select) {
+    -webkit-touch-callout: $select;
+    @include prefixer('user-select', $select);
+}
+@mixin columns($count: 2, $gap: 0) {
+    @include prefixer('column-count', $count);
+    @include prefixer('column-gap', $gap);
+}
+@mixin gradient( $start: #f1f1f1, $from: 0%, $stop: #d9d9d9, $to: 100% ) {
+    background: $start;
+    background: -webkit-gradient(linear, left top, left bottom, from(ie-hex-str($start)), to(ie-hex-str($stop)));
+    background: -moz-linear-gradient(center top, $start $from, $stop $to);
+    background: -moz-gradient(center top, $start $from, $stop $to);
+    background: -webkit-linear-gradient(top, $start $from,$stop $to);
+    background: -o-linear-gradient(top, $start $from,$stop $to);
+    background: -ms-linear-gradient(top, $start $from,$stop $to);
+    background: linear-gradient(to bottom, $start $from,$stop $to);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#{ie-hex-str($start)}', endColorstr='#{ie-hex-str($stop)}',GradientType=0 );
+}
+@mixin cfx(){
+    &:after {content:".";display:block;clear:both;visibility:hidden;line-height:0;height:0}
+}
+@mixin imagenize(){
+    image-rendering: -moz-crisp-edges;
+    image-rendering:   -o-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+// KEYFRAMES
+@mixin keyframes($animation-name) {
+    @-webkit-keyframes #{$animation-name} {
+        @content;
+    }
+    @-moz-keyframes #{$animation-name} {
+        @content;
+    }
+    @-ms-keyframes #{$animation-name} {
+        @content;
+    }
+    @-o-keyframes #{$animation-name} {
+        @content;
+    }
+    @keyframes #{$animation-name} {
+        @content;
+    }
+}
+
+// ANIMATION
+@mixin animation($str) {
+    @include prefixer('animation', $str);
+}
+
+//SCSS Triangle
+@mixin triangle ($width:10px, $height:10px, $color:#000, $direction: down) {
+    content: '';
+    display: inline-block;
+    width: 0px;
+    height: 0px;
+
+    @if $direction == up {
+        border-top: 0;
+        border-left: $width solid transparent;
+        border-right: $width solid transparent;
+        border-bottom: $height solid $color;
+    } @else if $direction == right {
+        border-right: 0;
+        border-top: $width solid transparent;
+        border-bottom: $width solid transparent;
+        border-left: $height solid $color;
+    } @else if $direction == down {
+        border-bottom: 0;
+        border-left: $width solid transparent;
+        border-right: $width solid transparent;
+        border-top: $height solid $color;
+    } @else {
+        border-left: 0;
+        border-top: $width solid transparent;
+        border-bottom: $width solid transparent;
+        border-right: $height solid $color;
+    }
+
+}

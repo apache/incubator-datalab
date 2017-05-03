@@ -1,0 +1,8 @@
+#IDE configuration files
+.idea
+.vscode
+
+.DS_Store
+
+git-
+node_modules
