@@ -32,8 +32,7 @@ import { NotFoundModule } from './not-found/not-found.module';
 import { ResourcesModule } from './resources/resources.module';
 import { HealthStatusModule } from './health-status/health-status.module';
 import { LogInterceptorFactory } from './core/interceptors/logInterceptor.factory';
-
-import { 
+import {
   UserAccessKeyService,
   UserResourceService,
   HealthStatusService,
@@ -49,13 +48,11 @@ import {
     BrowserModule,
     FormsModule,
     HttpModule,
-
     LoginModule,
     ResourcesModule,
     GuidesModule,
     NotFoundModule,
     HealthStatusModule,
-    
     RouterModule,
     AppRoutingModule
   ],

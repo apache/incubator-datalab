@@ -23,7 +23,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { ModalModule } from '../../../shared';
 import { FormControlsModule } from '../../../shared/form-controls';
-import { ExploratoryEnvironmentCreateDialog } from './exploratory-environment-create-dialog.component';
+import { ExploratoryEnvironmentCreateDialogComponent } from './exploratory-environment-create-dialog.component';
 
 export * from './exploratory-environment-create-dialog.component';
 export * from './exploratory-environment-create.model';
@@ -37,8 +37,8 @@ export * from './exploratory-environment-create.model';
     FormControlsModule,
     MaterialModule.forRoot()
   ],
-  declarations: [ExploratoryEnvironmentCreateDialog],
-  exports: [ExploratoryEnvironmentCreateDialog]
+  declarations: [ExploratoryEnvironmentCreateDialogComponent],
+  exports: [ExploratoryEnvironmentCreateDialogComponent]
 })
 
 export class ExploratoryEnvironmentCreateDialogModule { }

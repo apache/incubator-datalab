@@ -21,7 +21,7 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@angular/material';
 
 import { ModalModule } from '../../../shared';
-import { ComputationalResourcesList } from './computational-resources-list.component';
+import { ComputationalResourcesListComponent } from './computational-resources-list.component';
 import { ConfirmationComputationalResourcesModule } from './../confirmation-computational-resources';
 import { DetailComputationalResourcesModule } from './../detail-computational-resources';
 
@@ -35,8 +35,8 @@ export * from './computational-resources-list.component';
     DetailComputationalResourcesModule,
     MaterialModule.forRoot()
   ],
-  declarations: [ComputationalResourcesList],
-  exports: [ComputationalResourcesList],
+  declarations: [ComputationalResourcesListComponent],
+  exports: [ComputationalResourcesListComponent],
 })
 
 export class ComputationalResourcesModule { }

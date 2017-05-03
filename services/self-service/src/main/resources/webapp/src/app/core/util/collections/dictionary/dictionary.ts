@@ -37,7 +37,7 @@ export class Dictionary<T> implements IDictionary<T> {
   }
 
   public Remove(key: string): T {
-    var val = this.items[key];
+    const val = this.items[key];
     delete this.items[key];
     this.count--;
     return val;
@@ -48,9 +48,9 @@ export class Dictionary<T> implements IDictionary<T> {
   }
 
   public Keys(): string[] {
-    var keySet: string[] = [];
+    const keySet: string[] = [];
 
-    for (var prop in this.items) {
+    for (const prop in this.items) {
       if (this.items.hasOwnProperty(prop)) {
         keySet.push(prop);
       }
@@ -60,9 +60,9 @@ export class Dictionary<T> implements IDictionary<T> {
   }
 
   public Values(): T[] {
-    var values: T[] = [];
+    const values: T[] = [];
 
-    for (var prop in this.items) {
+    for (const prop in this.items) {
       if (this.items.hasOwnProperty(prop)) {
         values.push(this.items[prop]);
       }

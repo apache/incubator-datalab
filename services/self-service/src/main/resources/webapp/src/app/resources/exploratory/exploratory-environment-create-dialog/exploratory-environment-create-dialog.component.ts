@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
 
@@ -30,7 +30,7 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
   templateUrl: 'exploratory-environment-create-dialog.component.html'
 })
 
-export class ExploratoryEnvironmentCreateDialog {
+export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   model: ExploratoryEnvironmentCreateModel;
   notebookExist: boolean = false;
   checkValidity: boolean = false;
@@ -70,7 +70,8 @@ export class ExploratoryEnvironmentCreateDialog {
   }
 
   shapePlaceholder(resourceShapes, byField: string): string {
-    for (var index in resourceShapes) return resourceShapes[index][0][byField];
+    for (const index in resourceShapes)
+      return resourceShapes[index][0][byField];
   }
 
   setDefaultParams(): void {
@@ -83,14 +84,14 @@ export class ExploratoryEnvironmentCreateDialog {
   }
 
   onUpdate($event): void {
-    if($event.model.type === 'template') {
+    if ($event.model.type === 'template') {
       this.model.setSelectedTemplate($event.model.index);
       this.shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
         this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'shape', 'description', 'json');
       this.environment_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
     }
 
-    if($event.model.type === 'shape')
+    if ($event.model.type === 'shape')
       this.environment_shape = $event.model.value.type;
   }
 

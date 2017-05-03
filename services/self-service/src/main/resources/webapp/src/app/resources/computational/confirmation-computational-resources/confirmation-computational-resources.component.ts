@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { Response } from '@angular/http';
 
 import { ComputationalResourcesModel } from './';
@@ -29,7 +29,7 @@ import { ErrorMapUtils } from '../../../core/util';
   templateUrl: 'confirmation-computational-resources.component.html'
 })
 
-export class ConfirmationComputationalResources {
+export class ConfirmationComputationalResourcesComponent implements OnInit {
   model: ComputationalResourcesModel;
 
   processError: boolean = false;

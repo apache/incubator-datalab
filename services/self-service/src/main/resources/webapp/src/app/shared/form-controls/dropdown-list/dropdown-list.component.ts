@@ -27,7 +27,7 @@ import { DropdownListModel } from './dropdown-list.model';
   encapsulation: ViewEncapsulation.None
 })
 
-export class DropdownList {
+export class DropdownListComponent {
   model: DropdownListModel;
   label: string;
   type: string;

@@ -26,7 +26,7 @@ import 'rxjs/add/operator/do';
   selector: '[clickOutside]'
 })
 
-export class ClickOutside implements OnInit, OnDestroy {
+export class ClickOutsideDirective implements OnInit, OnDestroy {
 
   @Output('clickOutside') clickOutside: EventEmitter<Object>;
 

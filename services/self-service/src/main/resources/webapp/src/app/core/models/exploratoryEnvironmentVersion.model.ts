@@ -29,7 +29,7 @@ export class ExploratoryEnvironmentVersionModel {
 
   constructor(
     parentImage: string,
-    jsonModel:any,
+    jsonModel: any,
     shapes: ResourceShapeTypesModel
   ) {
     this.image = parentImage;

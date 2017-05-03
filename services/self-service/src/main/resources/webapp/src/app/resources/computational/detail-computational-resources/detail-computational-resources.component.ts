@@ -25,7 +25,7 @@ import { DateUtils } from '../../../core/util';
   templateUrl: 'detail-computational-resources.component.html'
 })
 
-export class DetailComputationalResources {
+export class DetailComputationalResourcesComponent {
   resource: any;
   environment: any;
   @ViewChild('bindDialog') bindDialog;

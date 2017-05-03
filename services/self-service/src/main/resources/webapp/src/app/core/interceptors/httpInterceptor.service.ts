@@ -16,7 +16,17 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { ConnectionBackend, RequestOptions, Http, HttpModule, XHRBackend, Request, RequestOptionsArgs, Response, Headers } from '@angular/http';
+import {
+  ConnectionBackend,
+  RequestOptions,
+  Http,
+  HttpModule,
+  XHRBackend,
+  Request,
+  RequestOptionsArgs,
+  Response,
+  Headers
+} from '@angular/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
@@ -83,8 +93,8 @@ export class HttpInterceptor extends Http {
   }
 
   private addNoCacheToUrl(url: string) {
-    let separator = url.indexOf('?') === -1 ? '?' : '&';
-    let returnUrl = url + separator + 'noCache=' + new Date().getTime();
+    const separator = url.indexOf('?') === -1 ? '?' : '&';
+    const returnUrl = url + separator + 'noCache=' + new Date().getTime();
 
     return returnUrl;
   }

@@ -22,10 +22,9 @@ import { Routes, RouterModule } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { ResourcesComponent } from './resources/resources.component';
 import { HealthStatusComponent } from './health-status/health-status.component';
-import { AccessNotebookGuide } from './help/accessnotebookguide/accessnotebookguide.component';
-import { PublicKeyGuide } from './help/publickeyguide/publickeyguide.component';
-import { AuthorizationGuard } from './core/services/authorization.guard';
+import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './not-found/not-found.component';
+import { AuthorizationGuard } from './core/services';
 
 const routes: Routes = [{
     path: 'login',
@@ -40,11 +39,11 @@ const routes: Routes = [{
     canActivate: [AuthorizationGuard]
   }, {
     path: 'help/publickeyguide',
-    component: PublicKeyGuide,
+    component: PublicKeyGuideComponent,
     canActivate: [AuthorizationGuard]
   }, {
     path: 'help/accessnotebookguide',
-    component: AccessNotebookGuide,
+    component: AccessNotebookGuideComponent,
     canActivate: [AuthorizationGuard]
   }, {
     path: '',

@@ -50,8 +50,8 @@ export class ConfirmationDialogModel {
   }
 
   public isAliveResources(resources): boolean {
-    if(resources)
-      for (var i = 0, len = resources.length; i < len; i++)
+    if (resources)
+      for (let i = 0; i < resources.length; i++)
         if (resources[i].status.toLowerCase() === 'running')
           return true;
 
@@ -73,15 +73,15 @@ export class ConfirmationDialogModel {
 
   private setup(confirmationType: ConfirmationDialogType, notebook: any, fnProcessResults: any, fnProcessErrors: any): void {
 
-    let containRunningResourcesStopMessage = 'Exploratory Environment will be stopped\
+    const containRunningResourcesStopMessage = 'Exploratory Environment will be stopped\
      and all connected computational resources will be terminated.';
-    let defaultStopMessage = 'Exploratory Environment will be stopped';
+    const defaultStopMessage = 'Exploratory Environment will be stopped';
 
-    let containRunningResourcesTerminateMessage = 'Exploratory Environment and all connected computational resources\
+    const containRunningResourcesTerminateMessage = 'Exploratory Environment and all connected computational resources\
      will be terminated.';
-    let defaultTerminateMessage = 'Exploratory Environment will be terminated.';
+    const defaultTerminateMessage = 'Exploratory Environment will be terminated.';
 
-    let edgeNodeStopMessage = 'Edge node will be stopped. You will need to start it later to proceed working with DLAB.';
+    const edgeNodeStopMessage = 'Edge node will be stopped. You will need to start it later to proceed working with DLAB.';
 
     switch (confirmationType) {
       case ConfirmationDialogType.StopExploratory: {

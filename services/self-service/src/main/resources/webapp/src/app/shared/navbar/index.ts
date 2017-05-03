@@ -25,7 +25,7 @@ export * from './navbar.component';
 
 @NgModule({
   imports: [
-    CommonModule, 
+    CommonModule,
     RouterModule
   ],
   declarations: [NavbarComponent],

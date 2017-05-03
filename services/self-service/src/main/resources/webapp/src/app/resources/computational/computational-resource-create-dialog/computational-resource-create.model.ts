@@ -21,8 +21,8 @@ import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
 
 import { UserResourceService } from '../../../core/services';
-import { ComputationalResourceImage, 
-         ComputationalResourceApplicationTemplate, 
+import { ComputationalResourceImage,
+         ComputationalResourceApplicationTemplate,
          ResourceShapeTypesModel } from '../../../core/models';
 
 export class ComputationalResourceCreateModel {
@@ -89,7 +89,7 @@ export class ComputationalResourceCreateModel {
         .subscribe(
         data => {
           for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
-            let computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
+            const computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
             this.computationalResourceImages.push(computationalResourceImage);
 
             for (let index = 0; index < computationalResourceImage.application_templates.length; index++)
@@ -114,7 +114,6 @@ export class ComputationalResourceCreateModel {
   public resetModel() {
     this.setSelectedTemplate(0);
   }
-
 
   private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
     this.confirmAction = () => this.createComputationalResource()

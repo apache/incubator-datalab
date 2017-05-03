@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { LoginModel } from './login.model';
 import { AppRoutingService, HealthStatusService, ApplicationSecurityService } from '../core/services';
@@ -29,7 +29,7 @@ import { AppRoutingService, HealthStatusService, ApplicationSecurityService } fr
   providers: [ApplicationSecurityService]
 })
 
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   model = new LoginModel('', '');
   error = '';
   loading = false;
@@ -37,8 +37,8 @@ export class LoginComponent {
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
-    private appRoutingService : AppRoutingService,
-    private healthStatusService : HealthStatusService
+    private appRoutingService: AppRoutingService,
+    private healthStatusService: HealthStatusService
   ) { }
 
   ngOnInit() {
@@ -70,10 +70,10 @@ export class LoginComponent {
   }
 
   checkHealthStatusAndRedirect(isLoggedIn) {
-   if(isLoggedIn)
+   if (isLoggedIn)
      this.healthStatusService.isHealthStatusOk()
       .subscribe(isHealthStatusOk => {
-        if(isLoggedIn && !isHealthStatusOk) {
+        if (isLoggedIn && !isHealthStatusOk) {
           this.appRoutingService.redirectToHealthStatusPage();
         } else {
           this.appRoutingService.redirectToHomePage();

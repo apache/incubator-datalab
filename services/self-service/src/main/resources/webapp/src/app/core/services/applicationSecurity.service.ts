@@ -50,7 +50,7 @@ export class ApplicationSecurityService {
   }
 
   public logout(): Observable<boolean> {
-    let authToken = this.getAuthToken();
+    const authToken = this.getAuthToken();
 
     if (!!authToken) {
       return this.serviceFacade
@@ -74,8 +74,8 @@ export class ApplicationSecurityService {
   }
 
   public isLoggedIn(): Observable<boolean> {
-    let authToken = this.getAuthToken();
-    let currentUser = this.getCurrentUserName();
+    const authToken = this.getAuthToken();
+    const currentUser = this.getCurrentUserName();
 
     if (authToken && currentUser) {
       return this.serviceFacade
@@ -99,7 +99,7 @@ export class ApplicationSecurityService {
   }
 
   private setAuthToken(accessToken): void {
-    let encodedToken = accessToken;
+    const encodedToken = accessToken;
     localStorage.setItem(this.accessTokenKey, encodedToken);
   }
 

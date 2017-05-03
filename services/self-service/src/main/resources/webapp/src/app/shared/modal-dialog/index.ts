@@ -16,10 +16,11 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Modal } from './modal.component';
 import { CommonModule } from '@angular/common';
 import { NgModule, Component } from '@angular/core';
 import { MaterialModule } from '@angular/material';
+
+import { ModalComponent } from './modal.component';
 
 export * from './modal.component';
 
@@ -27,24 +28,24 @@ export * from './modal.component';
   selector: 'modal-header',
   template: `<ng-content></ng-content>`
 })
-export class ModalHeader { }
+export class ModalHeaderComponent { }
 
 @Component({
   selector: 'modal-content',
   template: `<ng-content></ng-content>`
 })
-export class ModalContent { }
+export class ModalContentComponent { }
 
 @Component({
   selector: 'modal-footer',
   template: `<ng-content></ng-content>`
 })
-export class ModalFooter { }
+export class ModalFooterComponent { }
 
 
 @NgModule({
   imports: [CommonModule, MaterialModule.forRoot()],
-  declarations: [Modal, ModalHeader, ModalContent, ModalFooter],
-  exports: [Modal, ModalHeader, ModalContent, ModalFooter]
+  declarations: [ModalComponent, ModalHeaderComponent, ModalContentComponent, ModalFooterComponent],
+  exports: [ModalComponent, ModalHeaderComponent, ModalContentComponent, ModalFooterComponent]
 })
 export class ModalModule { }
