@@ -56,6 +56,7 @@ def yml_billing(path):
         f.close()
     except:
         print "Could not write the target file " + path
+        sys.exit(1)
 
 
 def yml_self_service(path):
@@ -72,6 +73,7 @@ def yml_self_service(path):
             yaml.dump(config_orig, outfile_yml_w, default_flow_style=False)
     except:
         print "Could not write the target file " + path
+        sys.exit(1)
 
 
 ##############
