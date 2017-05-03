@@ -78,10 +78,12 @@ if __name__ == "__main__":
                 raise KeyError
             if os.environ['aws_billing_bucket'] == '':
                 raise KeyError
-            if os.environ['aws_report_path'] == '':
-                raise KeyError
         except KeyError:
             billing_enabled = False
+        if not billing_enabled:
+            os.environ['aws_account_id'] = 'None'
+            os.environ['aws_billing_bucket'] = 'None'
+            os.environ['aws_report_path'] = 'None'
     except:
         sys.exit(1)
 
