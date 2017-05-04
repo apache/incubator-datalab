@@ -27,10 +27,10 @@
 
     <modules>
         <module>services/common</module>
-        <module>services/self-service</module>
+        <module>services/billing</module>
         <module>services/security-service</module>
         <module>services/provisioning-service</module>
-        <module>services/billing</module>
+        <module>services/self-service</module>
     </modules>
 
     <properties>
@@ -38,10 +38,7 @@
         <io.dropwizard.version>1.0.2</io.dropwizard.version>
         <com.google.inject.version>4.1.0</com.google.inject.version>
         <dropwizard-template-config.version>1.4.0</dropwizard-template-config.version>
-        <com.fasterxml.jackson.version>2.7.6</com.fasterxml.jackson.version>
-        <com.fasterxml.jackson.annotations.version>2.7.0</com.fasterxml.jackson.annotations.version>
         <org.mongodb.version>3.3.0</org.mongodb.version>
-        <com.fasterxml.jackson.core.version>2.7.6</com.fasterxml.jackson.core.version>
         <junit.version>4.12</junit.version>
         <org.mockito.version>1.10.19</org.mockito.version>
 
@@ -49,18 +46,8 @@
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
     </properties>
-
+    
     <dependencies>
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-core</artifactId>
-            <version>${io.dropwizard.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-auth</artifactId>
-            <version>${io.dropwizard.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
@@ -71,43 +58,7 @@
             <artifactId>dropwizard-template-config</artifactId>
             <version>${dropwizard-template-config.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${com.fasterxml.jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${com.fasterxml.jackson.annotations.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${com.fasterxml.jackson.version}</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-guava</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
