@@ -28,8 +28,7 @@ import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.exception.ParseException;
 import com.google.common.collect.Lists;
-
-import jersey.repackaged.com.google.common.collect.Maps;
+import com.google.common.collect.Maps;
 
 public class CommonFormatTest {
 

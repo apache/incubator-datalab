@@ -24,8 +24,7 @@ import org.junit.Test;
 
 import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.exception.ParseException;
-
-import jersey.repackaged.com.google.common.collect.Maps;
+import com.google.common.collect.Maps;
 
 public class ReportLineTest {
 
