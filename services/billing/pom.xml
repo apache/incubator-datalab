@@ -38,6 +38,9 @@
         <ch.qos.logback.version>1.2.3</ch.qos.logback.version>
         <com.google.guava.version>19.0</com.google.guava.version>
         <org.hibernate.validator.version>5.3.5.Final</org.hibernate.validator.version>
+        
+        <javax.el.version>2.2.4</javax.el.version>
+        <org.glassfish.web.version>2.2.4</org.glassfish.web.version>
     </properties>
 
     <dependencies>
@@ -71,6 +74,17 @@
             <version>${org.freemarker.version}</version>
         </dependency>
         
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${ch.qos.logback.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${com.google.guava.version}</version>
+        </dependency>
         
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -98,23 +112,20 @@
             <version>${com.fasterxml.jackson.annotations.version}</version>
         </dependency>
         
-        
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${ch.qos.logback.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${com.google.guava.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>${org.hibernate.validator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+            <version>${javax.el.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>javax.el</artifactId>
+            <version>${org.glassfish.web.version}</version>
         </dependency>
     </dependencies>
     <build>
