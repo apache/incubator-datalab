@@ -23,11 +23,11 @@ import { ApplicationSecurityService } from './';
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
   constructor(
-    private applicationSecurityService : ApplicationSecurityService,
+    private applicationSecurityService: ApplicationSecurityService,
     private router: Router
   ) { }
 
-  canActivate(next:ActivatedRouteSnapshot, state:RouterStateSnapshot)  {
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     return this.applicationSecurityService.isLoggedIn();
   }
 }

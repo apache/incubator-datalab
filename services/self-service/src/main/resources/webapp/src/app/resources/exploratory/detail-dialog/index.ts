@@ -20,14 +20,14 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { ModalModule } from '../../../shared';
-import { DetailDialog } from './detail-dialog.component';
+import { DetailDialogComponent } from './detail-dialog.component';
 
 export * from './detail-dialog.component';
 
 @NgModule({
   imports: [CommonModule, ModalModule],
-  declarations: [DetailDialog],
-  exports: [DetailDialog],
+  declarations: [DetailDialogComponent],
+  exports: [DetailDialogComponent],
 })
 
 export class DetailDialogModule { }

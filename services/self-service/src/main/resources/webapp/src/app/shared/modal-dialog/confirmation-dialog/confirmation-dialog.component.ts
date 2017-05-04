@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { Response } from '@angular/http';
 
 import { ConfirmationDialogModel } from './confirmation-dialog.model';
@@ -30,7 +30,7 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
   templateUrl: 'confirmation-dialog.component.html'
 })
 
-export class ConfirmationDialog {
+export class ConfirmationDialogComponent implements OnInit {
   model: ConfirmationDialogModel;
   isAliveResources: boolean;
   processError: boolean = false;

@@ -19,8 +19,8 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { DropdownList } from './dropdown-list/dropdown-list.component';
-import { MultiSelectDropdown } from './multi-select-dropdown/multi-select-dropdown.component';
+import { DropdownListComponent } from './dropdown-list/dropdown-list.component';
+import { MultiSelectDropdownComponent } from './multi-select-dropdown/multi-select-dropdown.component';
 import { ClickOutsideModule } from '../../core/directives/click-outside/index';
 import { KeysPipeModule, UnderscorelessPipeModule } from '../../core/pipes';
 
@@ -35,12 +35,12 @@ export * from './dropdown-list/dropdown-list.component';
     UnderscorelessPipeModule
   ],
   declarations: [
-    DropdownList,
-    MultiSelectDropdown
+    DropdownListComponent,
+    MultiSelectDropdownComponent
   ],
   exports: [
-    DropdownList,
-    MultiSelectDropdown
+    DropdownListComponent,
+    MultiSelectDropdownComponent
   ]
 })
 

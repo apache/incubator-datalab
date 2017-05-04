@@ -29,7 +29,7 @@ import { ConfirmationDialogType } from '../../shared';
   styleUrls: ['./health-status-grid.component.css',
               '../../resources/resources-grid/resources-grid.component.css']
 })
-export class HealthStatusGridComponent {
+export class HealthStatusGridComponent implements OnInit {
 
    @Input() environmentsHealthStatuses: Array<EnvironmentStatusModel>;
    @Output() refreshGrid: EventEmitter<{}> = new EventEmitter();

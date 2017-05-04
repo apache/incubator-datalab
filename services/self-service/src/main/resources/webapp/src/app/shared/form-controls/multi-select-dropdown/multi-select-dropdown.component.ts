@@ -27,7 +27,7 @@ import { Input, Output, Component, EventEmitter, ViewEncapsulation } from '@angu
   encapsulation: ViewEncapsulation.None
 })
 
-export class MultiSelectDropdown {
+export class MultiSelectDropdownComponent {
   isOpen: boolean = false;
 
   @Input() items: Array<any>;
@@ -47,7 +47,7 @@ export class MultiSelectDropdown {
   }
 
   toggleSelectedOptions($event, model, value) {
-    let index = model.indexOf(value);
+    const index = model.indexOf(value);
     (index >= 0) ? model.splice(index, 1) : model.push(value);
 
     this.onUpdate();

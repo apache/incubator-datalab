@@ -65,24 +65,24 @@ export class ExploratoryEnvironmentCreateModel {
       environment_template_name,
       environment_version,
       environment_shape,
-      fnProcessResults, 
+      fnProcessResults,
       fnProcessErrors);
     this.loadTemplates();
   }
 
-  public setSelectedItem(item: ExploratoryEnvironmentVersionModel) : void {
+  public setSelectedItem(item: ExploratoryEnvironmentVersionModel): void {
     this.selectedItem = item;
   }
 
-  public setSelectedTemplate(index) : void {
-    if(this.exploratoryEnvironmentTemplates && this.exploratoryEnvironmentTemplates[index]) {
+  public setSelectedTemplate(index): void {
+    if (this.exploratoryEnvironmentTemplates && this.exploratoryEnvironmentTemplates[index]) {
       this.selectedItem = this.exploratoryEnvironmentTemplates[index];
-      if(this.selectedItemChanged)
+      if (this.selectedItemChanged)
         this.selectedItemChanged();
     }
   }
 
-  public setCreatingParams(name, shape) : void {
+  public setCreatingParams(name, shape): void {
     this.environment_image = this.selectedItem.image;
     this.environment_version = this.selectedItem.version;
     this.environment_template_name = this.selectedItem.template_name;
@@ -97,15 +97,15 @@ export class ExploratoryEnvironmentCreateModel {
         data => {
           for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
 
-            let shapeJson = data[parentIndex].exploratory_environment_shapes;
-            let exploratoryJson = data[parentIndex].exploratory_environment_versions;
-            let shapeObj: ResourceShapeTypesModel = new ResourceShapeTypesModel(SortUtil.shapesSort(shapeJson));
+            const shapeJson = data[parentIndex].exploratory_environment_shapes;
+            const exploratoryJson = data[parentIndex].exploratory_environment_versions;
+            const shapeObj: ResourceShapeTypesModel = new ResourceShapeTypesModel(SortUtil.shapesSort(shapeJson));
 
             for (let index = 0; index < exploratoryJson.length; index++)
               this.exploratoryEnvironmentTemplates.push(
                 new ExploratoryEnvironmentVersionModel(data[parentIndex].image, exploratoryJson[index], shapeObj));
           }
-          if(this.exploratoryEnvironmentTemplates.length > 0) {
+          if (this.exploratoryEnvironmentTemplates.length > 0) {
             this.exploratoryEnvironmentTemplates.sort(function(t1, t2) {
               return ((t1.template_name < t2.template_name) ? -1 : ((t1.template_name > t2.template_name) ? 1 : 0));
             });
