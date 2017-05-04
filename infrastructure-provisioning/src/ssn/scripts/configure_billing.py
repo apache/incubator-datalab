@@ -61,16 +61,14 @@ def yml_billing(path):
 
 def yml_self_service(path):
     try:
-        try:
-            with open(path, 'r') as config_yml_r:
-                config_orig = yaml.load(config_yml_r)
-        except:
-            config_orig = {}
-        
-        config_orig.update({'billingSchedulerEnabled':True})
+        with open(path, 'r') as config_yml_r:
+            config_orig = config_yml_r.read()
 
-        with open(path, 'w') as outfile_yml_w:
-            yaml.dump(config_orig, outfile_yml_w, default_flow_style=False)
+        config_orig = config_orig.replace('billingSchedulerEnabled: false', 'billingSchedulerEnabled: true')
+
+        f = open(path, 'w')
+        f.write(config_orig)
+        f.close()
     except:
         print "Could not write the target file " + path
         sys.exit(1)
