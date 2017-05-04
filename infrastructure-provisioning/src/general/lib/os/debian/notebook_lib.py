@@ -309,5 +309,5 @@ def install_gitweb(os_user):
         put('/root/templates/gitweb-virtualhost.conf', '/tmp/gitweb-virtualhost.conf')
         sudo('mv -f /tmp/gitweb-virtualhost.conf /etc/apache2/sites-available/000-default.conf')
         sudo('a2enmod cgi')
-        sudo('systemctl restart apache2.service')
+        sudo('service apache2 restart')
         sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')
