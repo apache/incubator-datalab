@@ -137,7 +137,7 @@ if __name__ == "__main__":
     dns_name = get_instance_hostname(notebook_config['instance_name'])
     tensor_board_url = 'http://' + ip_address + ':6006'
     jupyter_url = 'http://' + ip_address + ':8888'
-    gitweb_ip_url = "http://" + ip_address + ":8085/"
+    gitweb_ip_url = "http://" + ip_address + ":8085"
     print '[SUMMARY]'
     logging.info('[SUMMARY]')
     print "Instance name: " + notebook_config['instance_name']
