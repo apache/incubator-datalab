@@ -197,7 +197,7 @@ def enable_auto_assign_ip(subnet_id):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_instance(definitions, instance_tag):
+def create_instance(definitions, instance_tag, primary_disk_size=12):
     try:
         ec2 = boto3.resource('ec2')
         security_groups_ids = []
@@ -219,7 +219,7 @@ def create_instance(definitions, instance_tag):
                                                      "DeviceName": "/dev/sda1",
                                                      "Ebs":
                                                          {
-                                                             "VolumeSize": 12
+                                                             "VolumeSize": int(primary_disk_size)
                                                          }
                                                  },
                                                  {
