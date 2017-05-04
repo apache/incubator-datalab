@@ -284,11 +284,11 @@ public class EnvStatusDAO extends BaseDAO {
     }
     
     /** Update the status of exploratory if it needed.
-     * @param user the user name
-     * @param exploratoryName the name of exploratory
-     * @param clusterId the Id of cluster
-     * @param oldStatus old status
-     * @param newStatus new status
+     * @param user the user name.
+     * @param exploratoryName the name of exploratory.
+     * @param computationalName the name of computational.
+     * @param oldStatus old status.
+     * @param newStatus new status.
      */
 	private void updateComputationalStatus(String user, String exploratoryName, String computationalName,
 			String oldStatus, String newStatus) {
@@ -317,6 +317,12 @@ public class EnvStatusDAO extends BaseDAO {
     	}
 	}
 
+	/** Terminate EMR if it is spot.
+     * @param user the user name.
+     * @param exploratoryName the name of exploratory.
+     * @param computationalName the name of computational.
+	 * @return <b>true</b> if computational is spot and should be terminated by docker, otherwise <b>false</b>.
+	 */
     private boolean terminateComputationalSpot(String user, String exploratoryName, String computationalName) {
     	LOGGER.trace("Check computatation is spot for user {} with exploratory {} and computational {}", user, exploratoryName, computationalName);
 		Document doc = findOne(USER_INSTANCES,
@@ -338,16 +344,22 @@ public class EnvStatusDAO extends BaseDAO {
 		}
     	
     	EnvStatusListenerUserInfo userInfo = EnvStatusListener.getUserInfo(user);
-    	String accessToken = (userInfo == null ? null : userInfo.getAccessToken());
+    	if (userInfo == null) {
+    		// User logged off. Computational will be terminated when user logged in.
+    		return true;
+    	}
     	
-    	LOGGER.debug("Call terminate. Exploratory {}, Computational {}, User {}, AccessToken {}",
-				exploratoryName, computationalName, user, (userInfo == null ? null : userInfo.getAccessToken()));
+    	String accessToken = (userInfo == null ? null : userInfo.getAccessToken());
+    	LOGGER.debug("Computational will be terminated for user {} with exploratory {} and computational {}",
+    			user, exploratoryName, computationalName);
     	try {
+    		// Send post request to provisioning service to terminate spot EMR.
     		ComputationalResource computational = new ComputationalResource();
     		SelfServiceApplication.getInjector().injectMembers(computational);
     		UserInfo ui = new UserInfo(user, accessToken);
     		computational.terminate(ui, exploratoryName, computationalName);
     	} catch (Exception e) {
+    		// Cannot terminate EMR, just update status to terminated
         	LOGGER.warn("Can't terminate computational for user {} with exploratory {} and computational {}. {}",
         			user, exploratoryName, computationalName, e.getLocalizedMessage(), e);
         	return false;
