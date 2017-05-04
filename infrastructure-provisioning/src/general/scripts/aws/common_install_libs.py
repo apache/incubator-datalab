@@ -52,7 +52,7 @@ if __name__ == "__main__":
                     notebook_config['keyfile'], additional_libs)
         try:
             # Run script to install additional libs
-            local("~/scripts/{}.py {}".format('install_libs', params))
+            local("~/scripts/{}.py {}".format('install_additional_libs', params))
 
         except:
             traceback.print_exc()
