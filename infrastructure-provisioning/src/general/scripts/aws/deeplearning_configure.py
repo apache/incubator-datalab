@@ -137,6 +137,7 @@ if __name__ == "__main__":
     dns_name = get_instance_hostname(notebook_config['instance_name'])
     tensor_board_url = 'http://' + ip_address + ':6006'
     jupyter_url = 'http://' + ip_address + ':8888'
+    gitweb_ip_url = "http://" + ip_address + ":8085/"
     print '[SUMMARY]'
     logging.info('[SUMMARY]')
     print "Instance name: " + notebook_config['instance_name']
@@ -149,6 +150,8 @@ if __name__ == "__main__":
     print "AMI name: " + notebook_config['expected_ami_name']
     print "Profile name: " + notebook_config['role_profile_name']
     print "SG name: " + notebook_config['security_group_name']
+
+    print "GitWeb URL: " + gitweb_ip_url
     print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
         'key_name'] + '.pem ' + os.environ['conf_os_user'] + '@' + ip_address
     print 'SSH access (from Edge node, via FQDN): ssh -i ' + notebook_config['key_name'] + '.pem ' + \
@@ -165,6 +168,8 @@ if __name__ == "__main__":
                    {"description": "TensorBoard",
                     "url": tensor_board_url},
                    {"description": "Jupyter",
-                    "url": jupyter_url}
+                    "url": jupyter_url},
+                   {"description": "GitWeb",
+                    "url": gitweb_ip_url}
                ]}
         result.write(json.dumps(res))
