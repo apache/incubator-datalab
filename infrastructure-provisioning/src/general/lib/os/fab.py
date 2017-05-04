@@ -41,7 +41,7 @@ def ensure_pip(requisites):
         return False
 
 
-def install_pip2(requisites):
+def install_pip2_pkg(requisites):
     try:
         sudo('pip2 install -U pip setuptools')
         sudo('pip2 install -U pip --no-cache-dir')
@@ -52,7 +52,7 @@ def install_pip2(requisites):
         return False
 
 
-def install_pip3(requisites):
+def install_pip3_pkg(requisites):
     try:
         sudo('pip3 install -U pip setuptools')
         sudo('pip3 install -U pip --no-cache-dir')
@@ -451,3 +451,11 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
     except:
             sys.exit(1)
 
+
+def install_r_pkg(requisites):
+    try:
+        for pkg in requisites:
+            sudo('R -e \'install.packages("'+ pkg +'", repos="http://cran.us.r-project.org", dep=TRUE)\'')
+        return True
+    except:
+        return False

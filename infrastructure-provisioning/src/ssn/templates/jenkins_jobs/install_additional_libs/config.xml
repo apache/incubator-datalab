@@ -86,11 +86,11 @@
             {'libraries':[
               {'Name': 'requests', 'Type': 'pip2'},
               {'Name': 'configparser', 'Type': 'pip3'},
-              {'Name': 'nmap', 'Type': 'pkg'},
-              {'Name': 'htop', 'Type': 'pkg'}
+              {'Name': 'htop', 'Type': 'os_pkg'},
+              {'Name': 'rmarkdown', 'Type': 'r_pkg'}
             ]}
             Note: Use only single quotes and write all in one line!
-            Types: for OS - os_pkg, for Python - pip2/pip3
+            Types: for OS - os_pkg, for Python - pip2/pip3, for R - r_pkg
           </description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
