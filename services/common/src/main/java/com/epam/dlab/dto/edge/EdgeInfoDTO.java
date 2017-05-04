@@ -58,6 +58,11 @@ public class EdgeInfoDTO {
     	return instanceId;
     }
     
+    public EdgeInfoDTO withInstanceId(String instanceId) {
+    	this.instanceId = instanceId;
+    	return this;
+    }
+    
     public String getPublicIp() {
         return publicIp;
     }
