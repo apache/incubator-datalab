@@ -53,7 +53,7 @@ def create_s3_bucket(bucket_name, tag, region):
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
         tagging = bucket.Tagging()
-        tagging.put(Tagging={'TagSet': [tag, {'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name']}]})
+        tagging.put(Tagging={'TagSet': [tag, {'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' + bucket_name}]})
         tagging.reload()
         return bucket.name
     except Exception as err:
@@ -113,7 +113,7 @@ def create_tag(resource, tag):
                 resource_tag,
                 {
                     'Key': os.environ['conf_tag_resource_id'],
-                    'Value': os.environ['conf_service_base_name']
+                    'Value': os.environ['conf_service_base_name'] + ':' + resource_name
                 }
             ]
         )
@@ -197,7 +197,7 @@ def enable_auto_assign_ip(subnet_id):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_instance(definitions, instance_tag):
+def create_instance(definitions, instance_tag, primary_disk_size=12):
     try:
         ec2 = boto3.resource('ec2')
         security_groups_ids = []
@@ -219,7 +219,7 @@ def create_instance(definitions, instance_tag):
                                                      "DeviceName": "/dev/sda1",
                                                      "Ebs":
                                                          {
-                                                             "VolumeSize": 12
+                                                             "VolumeSize": int(primary_disk_size)
                                                          }
                                                  },
                                                  {

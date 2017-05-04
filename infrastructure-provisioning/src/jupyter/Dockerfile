@@ -31,7 +31,16 @@ COPY general/templates/os/${OS}/jupyter-notebook.service /root/templates/
 COPY general/templates/os/pyspark_local_template.json /root/templates/
 COPY general/templates/os/py3spark_local_template.json /root/templates/
 COPY general/templates/os/pyspark_emr_template.json /root/templates/
+COPY general/templates/os/${OS}/gitweb-virtualhost.conf /root/templates/
 COPY general/files/os/notebook_local_jars.tar.gz /root/files/
+COPY general/templates/os/r_emr_template.json /root/templates/
+COPY general/templates/os/r_template.json /root/templates/
+COPY general/templates/os/run_template.sh /root/templates/
+COPY general/templates/os/toree_emr_template.json /root/templates/
+COPY general/templates/os/toree_emr_templatev2.json /root/templates/
+COPY general/scripts/os/create_configs.py /root/scripts/
+COPY general/files/os/toree-assembly-0.2.0.jar /root/files/
+COPY general/files/os/toree_kernel.tar.gz /root/files/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

@@ -38,6 +38,7 @@ parser.add_argument('--infra_tag_value', type=str, default='')
 parser.add_argument('--user_data_file', type=str, default='')
 parser.add_argument('--instance_class', type=str, default='')
 parser.add_argument('--instance_disk_size', type=str, default='')
+parser.add_argument('--primary_disk_size', type=str, default='12')
 args = parser.parse_args()
 
 
@@ -50,7 +51,7 @@ if __name__ == "__main__":
             if instance_id == '':
                 print "Creating instance %s of type %s in subnet %s with tag %s." % \
                       (args.node_name, args.instance_type, args.subnet_id, json.dumps(instance_tag))
-                instance_id = create_instance(args, instance_tag)
+                instance_id = create_instance(args, instance_tag, args.primary_disk_size)
             else:
                 print "REQUESTED INSTANCE ALREADY EXISTS AND RUNNING"
             print "Instance_id " + instance_id

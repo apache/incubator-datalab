@@ -19,11 +19,10 @@ limitations under the License.
 import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
-import { UserResourceService } from '../../../core/services/userResource.service';
-import { ComputationalResourceCreateModel } from './computational-resource-create.model';
 
-import { ErrorMapUtils } from '../../../core/util/errorMapUtils';
-// import HTTP_STATUS_CODES from 'http-status-enum';
+import { ComputationalResourceCreateModel } from './';
+import { UserResourceService } from '../../../core/services';
+import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   moduleId: module.id,
@@ -35,6 +34,7 @@ import { ErrorMapUtils } from '../../../core/util/errorMapUtils';
 export class ComputationalResourceCreateDialog {
   model: ComputationalResourceCreateModel;
   notebook_instance: any;
+  template_description: string;
   shapes: any;
   spotInstance: boolean = false;
 
@@ -161,9 +161,8 @@ export class ComputationalResourceCreateDialog {
   public open(params, notebook_instance): void {
     if (!this.bindDialog.isOpened) {
       this.notebook_instance = notebook_instance;
-
       this.model = new ComputationalResourceCreateModel('', 0, '', '', notebook_instance.name, (response: Response) => {
-        if (response.status === 200) { //HTTP_STATUS_CODES.OK
+        if (response.status === HTTP_STATUS_CODES.OK) {
           this.computationalResourceExist = false;
           this.close();
           this.buildGrid.emit();
@@ -174,7 +173,7 @@ export class ComputationalResourceCreateDialog {
           this.errorMessage = ErrorMapUtils.setErrorMessage(response);
         },
         () => {
-          // this.templateDescription = this.model.selectedItem.description;
+          this.template_description = this.model.selectedItem.description;
         },
         () => {
           this.bindDialog.open(params);

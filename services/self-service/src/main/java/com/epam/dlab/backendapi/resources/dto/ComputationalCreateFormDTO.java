@@ -28,6 +28,14 @@ import org.hibernate.validator.constraints.NotBlank;
 public class ComputationalCreateFormDTO {
     @NotBlank
     @JsonProperty
+    private String image;
+
+    @NotBlank
+    @JsonProperty("template_name")
+    private String templateName;
+
+    @NotBlank
+    @JsonProperty
     private String name;
 
     @NotBlank
@@ -55,6 +63,26 @@ public class ComputationalCreateFormDTO {
     @NotBlank
     @JsonProperty("notebook_name")
     private String notebookName;
+
+    /** Returns the image name of EMR. */
+    public String getImage() {
+    	return image;
+    }
+
+    /** Sets the image name of EMR. */
+    public void setImage(String image) {
+    	this.image = image;
+    }
+
+    /** Returns name of template. */
+    public String getTemplateName() {
+    	return templateName;
+    }
+
+    /** Sets name of template. */
+    public void setTemplateName(String templateName) {
+    	this.templateName = templateName;
+    }
 
     /** Returns the name of resource. */
     public String getName() {

@@ -20,7 +20,7 @@ import { Injectable } from '@angular/core';
 import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
-import { ApplicationServiceFacade } from './applicationServiceFacade.service';
+import { ApplicationServiceFacade } from './';
 
 @Injectable()
 export class UserAccessKeyService {

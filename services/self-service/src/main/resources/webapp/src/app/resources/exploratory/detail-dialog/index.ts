@@ -19,7 +19,7 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ModalModule } from '../../../shared/modal-dialog/index';
+import { ModalModule } from '../../../shared';
 import { DetailDialog } from './detail-dialog.component';
 
 export * from './detail-dialog.component';

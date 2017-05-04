@@ -19,11 +19,9 @@ limitations under the License.
 
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { UserResourceService } from '../../core/services';
-import { ResourcesGridRowModel } from './resources-grid.model';
-import { FilterConfigurationModel } from './filterConfiguration.model';
-import { CreateEmrModel } from './createEmrModel';
-import { ConfirmationDialogType } from '../../shared/modal-dialog/confirmation-dialog/confirmation-dialog-type.enum';
-import { SortUtil } from '../../core/util/sortUtil';
+import { ResourcesGridRowModel, FilterConfigurationModel, CreateResourceModel } from './';
+import { ConfirmationDialogType } from '../../shared';
+import { SortUtil } from '../../core/util';
 
 @Component({
   moduleId: module.id,
@@ -38,7 +36,7 @@ export class ResourcesGrid implements OnInit {
   filteredEnvironments: Array<ResourcesGridRowModel> = [];
   filterConfiguration: FilterConfigurationModel;
   filterForm: FilterConfigurationModel = new FilterConfigurationModel('', [], [], [], '');
-  model = new CreateEmrModel('', '');
+  model = new CreateResourceModel('', '');
   notebookName: string;
   isOutscreenDropdown: boolean;
   collapseFilterRow: boolean = false;
@@ -185,6 +183,7 @@ export class ResourcesGrid implements OnInit {
       return exploratoryList.map((value) => {
         return new ResourcesGridRowModel(value.exploratory_name,
           value.template_name,
+          value.image,
           value.status,
           value.shape,
           value.computational_resources,

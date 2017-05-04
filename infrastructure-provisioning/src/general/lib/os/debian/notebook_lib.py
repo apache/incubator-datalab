@@ -67,13 +67,26 @@ def ensure_r(os_user, r_libs):
         try:
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
             sudo('apt-get install -y cmake')
-            sudo('apt-get install -y r-base r-base-dev')
+            if os.environ['application'] == 'deeplearning':
+                try:
+                    sudo("""sh -c 'echo "deb http://cran.rstudio.com/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list'""")
+                    sudo('gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9')
+                    sudo('gpg -a --export E084DAB9 |  apt-key add -')
+                    sudo('apt-get update')
+                except:
+                    sudo('apt-get update')
+                sudo('apt-get -y --force-yes install r-base')
+            else:
+                sudo('apt-get install -y r-base r-base-dev')
             sudo('R CMD javareconf')
             sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
             for i in r_libs:
                 sudo('R -e "install.packages(\'{}\',repos=\'http://cran.us.r-project.org\')"'.format(i))
             sudo('R -e "library(\'devtools\');install.packages(repos=\'http://cran.us.r-project.org\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"')
-            sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
+            try:
+                sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
+            except:
+                sudo('R -e "options(download.file.method = "wget");library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
             sudo('R -e "install.packages(\'RJDBC\',repos=\'http://cran.us.r-project.org\',dep=TRUE)"')
             sudo('touch /home/' + os_user + '/.ensure_dir/r_ensured')
         except:
@@ -185,7 +198,11 @@ def ensure_python3_specific_version(python3_version, os_user):
 def ensure_python2_libraries(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python2_libraries_ensured'):
         try:
-            sudo('apt-get install -y libssl-dev python-virtualenv')
+            try:
+                sudo('apt-get install -y libssl-dev python-virtualenv')
+            except:
+                sudo('pip2 install virtualenv')
+                sudo('apt-get install -y libssl-dev')
             sudo('pip2 install ipython ipykernel --no-cache-dir')
             sudo('pip2 install -U pip --no-cache-dir')
             sudo('pip2 install boto3 --no-cache-dir')
@@ -265,7 +282,7 @@ def install_maven(os_user):
 def install_livy_dependencies(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
         sudo('apt-get -y install libkrb5-dev')
-        sudo('pip install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest')
         sudo('pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest')
         sudo('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
@@ -279,6 +296,18 @@ def install_maven_emr(os_user):
 def install_livy_dependencies_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
         local('sudo apt-get -y install libkrb5-dev')
-        local('sudo pip install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        local('sudo pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest')
         local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest')
         local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
+
+
+def install_gitweb(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/gitweb_ensured'):
+        sudo('apt-get install -y fcgiwrap gitweb libapache2-mod-perl2 libcgi-pm-perl apache2')
+        sudo('sed -i -e "s/80/8085/g" /etc/apache2/ports.conf')
+        sudo('sed -i -e "s/\/var\/lib\/git/\/home\/' + os_user + '/g" /etc/gitweb.conf')
+        put('/root/templates/gitweb-virtualhost.conf', '/tmp/gitweb-virtualhost.conf')
+        sudo('mv -f /tmp/gitweb-virtualhost.conf /etc/apache2/sites-available/000-default.conf')
+        sudo('a2enmod cgi')
+        sudo('systemctl restart apache2.service')
+        sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')

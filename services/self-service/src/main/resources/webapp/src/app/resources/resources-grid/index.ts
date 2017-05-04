@@ -18,16 +18,19 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ResourcesGrid } from './resources-grid.component';
-import { ComputationalResourcesModule } from './../computational/computational-resources-list/index';
-import { ModalModule } from './../../shared/modal-dialog/index';
-import { ComputationalResourceCreateDialogModule } from './../computational/computational-resource-create-dialog/index';
-import { ConfirmationDialogModule } from './../../shared/modal-dialog/confirmation-dialog/index';
-import { DetailDialogModule } from './../exploratory/detail-dialog/index';
-import { FormControlsModule } from '../../shared/form-controls';
 import { MaterialModule } from '@angular/material';
 
+import { ResourcesGrid } from './resources-grid.component';
+import { ComputationalResourcesModule } from './../computational/computational-resources-list';
+import { ModalModule, ConfirmationDialogModule } from './../../shared';
+import { ComputationalResourceCreateDialogModule } from './../computational/computational-resource-create-dialog';
+import { DetailDialogModule } from './../exploratory/detail-dialog';
+import { FormControlsModule } from '../../shared/form-controls';
+
 export * from './resources-grid.component';
+export * from './resources-grid.model';
+export * from './create-resource.model';
+export * from './filter-configuration.model';
 
 @NgModule({
   imports: [

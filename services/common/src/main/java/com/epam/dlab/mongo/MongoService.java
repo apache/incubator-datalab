@@ -44,6 +44,15 @@ public class MongoService {
         this.database = client.getDatabase(databaseName);
     }
 
+    public boolean collectionExists(String name) {
+        for (String c : database.listCollectionNames()) {
+        	if (c.equals(name)) {
+        		return true;
+        	}
+        }
+        return false;
+    }
+
     public MongoCollection<Document> getCollection(String name) {
         return database.getCollection(name, Document.class);
     }

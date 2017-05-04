@@ -19,10 +19,11 @@ limitations under the License.
 
 import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
-import { UserResourceService } from '../../../core/services/userResource.service';
-import { ComputationalResourceImage } from '../../../core/models/computationalResourceImage.model';
-import { ComputationalResourceApplicationTemplate } from '../../../core/models/computationalResourceApplicationTemplate.model';
-import { ResourceShapeTypesModel } from '../../../core/models/resourceShapeTypes.model';
+
+import { UserResourceService } from '../../../core/services';
+import { ComputationalResourceImage, 
+         ComputationalResourceApplicationTemplate, 
+         ResourceShapeTypesModel } from '../../../core/models';
 
 export class ComputationalResourceCreateModel {
 
@@ -38,7 +39,7 @@ export class ComputationalResourceCreateModel {
   emr_slave_instance_price: number;
 
   selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({},
-    new ResourceShapeTypesModel({}));
+    new ResourceShapeTypesModel({}), '', '', '');
   computationalResourceImages: Array<ComputationalResourceImage> = [];
   computationalResourceApplicationTemplates: Array<ComputationalResourceApplicationTemplate> = [];
 
@@ -131,6 +132,8 @@ export class ComputationalResourceCreateModel {
       emr_slave_instance_type: this.computational_resource_slave_shape,
       emr_version: this.selectedItem.version,
       notebook_name: this.notebook_name,
+      image: this.selectedItem.image,
+      template_name: this.selectedItem.template_name,
       emr_slave_instance_spot: this.emr_slave_instance_spot,
       emr_slave_instance_spot_pct_price: this.emr_slave_instance_price
     });

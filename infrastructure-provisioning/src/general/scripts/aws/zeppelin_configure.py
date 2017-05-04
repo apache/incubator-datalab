@@ -186,6 +186,7 @@ if __name__ == "__main__":
     dns_name = get_instance_hostname(notebook_config['instance_name'])
     zeppelin_ip_url = "http://" + ip_address + ":8080/"
     zeppelin_dns_url = "http://" + dns_name + ":8080/"
+    gitweb_ip_url = "http://" + ip_address + ":8085/"
     print '[SUMMARY]'
     logging.info('[SUMMARY]')
     print "Instance name: " + notebook_config['instance_name']
@@ -200,6 +201,7 @@ if __name__ == "__main__":
     print "SG name: " + notebook_config['security_group_name']
     print "Zeppelin URL: " + zeppelin_ip_url
     print "Zeppelin URL: " + zeppelin_dns_url
+    print "GitWeb URL: " + gitweb_ip_url
     print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
         'key_name'] + '.pem ' + os.environ['conf_os_user'] + '@' + ip_address
     print 'SSH access (from Edge node, via FQDN): ssh -i ' + notebook_config['key_name'] + '.pem ' \
@@ -214,5 +216,7 @@ if __name__ == "__main__":
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Zeppelin",
-                    "url": zeppelin_ip_url}]}
+                    "url": zeppelin_ip_url},
+                   {"description": "GitWeb",
+                    "url": gitweb_ip_url}]}
         result.write(json.dumps(res))
