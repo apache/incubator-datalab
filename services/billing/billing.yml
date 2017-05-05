@@ -54,22 +54,22 @@ parser:
 
 
 # Logging configuration.
-logging:
+#logging:
   # Default logging level
-  level: INFO
+#  level: INFO
   # Logging levels for appenders.
-  loggers:
-    com.epam: DEBUG
-    org.apache.http: WARN
-    org.mongodb.driver: WARN
-    org.hibernate: WARN
+#  loggers:
+#    com.epam: DEBUG
+#    org.apache.http: WARN
+#    org.mongodb.driver: WARN
+#    org.hibernate: WARN
   # Logging appenders
-  appenders:
-<#if DEV_MODE == "true">
-    - type: console
-</#if>
-    - type: file
-      currentLogFilename: ${LOG_ROOT_DIR}/ssn/billing.log
-      archive: true
-      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/billing-%d{yyyy-MM-dd}.log.gz
-      archivedFileCount: 10
+#  appenders:
+#<#if DEV_MODE == "true">
+#    - type: console
+#</#if>
+#    - type: file
+#      currentLogFilename: ${LOG_ROOT_DIR}/ssn/billing.log
+#      archive: true
+#      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/billing-%d{yyyy-MM-dd}.log.gz
+#      archivedFileCount: 10
