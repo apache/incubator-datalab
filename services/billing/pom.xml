@@ -33,12 +33,9 @@
         <org.apache.jexl3.version>3.0</org.apache.jexl3.version>
         <com.amazonaws.version>1.10.77</com.amazonaws.version>
         <org.freemarker.version>2.3.22</org.freemarker.version>
-        <com.fasterxml.jackson.core.version>2.8.8</com.fasterxml.jackson.core.version>
-        <com.fasterxml.jackson.annotations.version>2.8.0</com.fasterxml.jackson.annotations.version>
         <ch.qos.logback.version>1.2.3</ch.qos.logback.version>
         <com.google.guava.version>19.0</com.google.guava.version>
         <org.hibernate.validator.version>5.3.5.Final</org.hibernate.validator.version>
-        
         <javax.el.version>2.2.4</javax.el.version>
         <org.glassfish.web.version>2.2.4</org.glassfish.web.version>
     </properties>
@@ -55,63 +52,31 @@
             <artifactId>commons-jexl3</artifactId>
             <version>${org.apache.jexl3.version}</version>
         </dependency>
-        
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>${org.mongodb.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk</artifactId>
             <version>${com.amazonaws.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <version>${org.freemarker.version}</version>
         </dependency>
-        
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${ch.qos.logback.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${com.google.guava.version}</version>
         </dependency>
-        
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-guava</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${com.fasterxml.jackson.annotations.version}</version>
-        </dependency>
-        
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
