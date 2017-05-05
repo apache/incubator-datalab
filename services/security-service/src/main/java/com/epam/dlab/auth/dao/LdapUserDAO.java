@@ -77,11 +77,9 @@ public class LdapUserDAO {
 
             userAttributes = searchUsersAttributes(username, userCon);
             String bindAttribute = userAttributes.get(ldapBindAttribute).toString();
-            LOG.info("getUserInfo bindAttribute : {}", bindAttribute);
             bindUser(username, password, bindAttribute, userCon);
 
             UserInfo userInfo = new UserInfo(username, "******");
-            LOG.info("getUserInfo context with attributes : {}", userAttributes);
             for(Map.Entry<String, Object> entry: userAttributes.entrySet()) {
                 userInfo.addKey(entry.getKey().toLowerCase(), entry.getValue().toString());
                 LOG.debug("Adding attribute {} : {}", entry.getKey().toLowerCase(), entry.getValue().toString());
@@ -118,7 +116,6 @@ public class LdapUserDAO {
                 });
                 String filter = sr.getFilter().toString();
                 contextMap = LdapFilterCache.getInstance().getLdapFilterInfo(filter);
-                LOG.info("searchUsersAttributes context before mapping is: {}", contextMap);
                 SearchResultToDictionaryMapper mapper = new SearchResultToDictionaryMapper(request.getName(),
                         new HashMap<>());
                 LOG.debug("Retrieving new branch {} for {}", request.getName(), filter);
@@ -131,7 +128,7 @@ public class LdapUserDAO {
                 }
             }
         }
-        LOG.info("searchUsersAttributes context is: {}", contextMap);
+        LOG.info("User context is: {}", userAttributes);
         return userAttributes;
     }
 
@@ -148,7 +145,6 @@ public class LdapUserDAO {
                     continue;
                 } else if (req.getName().equalsIgnoreCase(USER_LOOK_UP)) {
                     Map<String, Object> usersAttributes = searchUsersAttributes(username, searchCon);
-                    LOG.info("enrichUserInfo context is: {}", usersAttributes);
                     for (Map.Entry<String, Object> attribute : usersAttributes.entrySet()) {
                         if (null != attribute.getValue()) {
                             ui.addKey(attribute.getKey().toLowerCase(), attribute.getValue().toString());
