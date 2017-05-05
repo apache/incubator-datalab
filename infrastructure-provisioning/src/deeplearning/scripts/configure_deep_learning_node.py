@@ -56,6 +56,16 @@ toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snaps
 scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 
 
+def install_itorch(args):
+    if not exists('/home/{}/.ensure_dir/itorch_ensured'.format(args.os_user)):
+        sudo('git clone https://github.com/facebook/iTorch.git')
+        with cd('/home/{}/iTorch/'.format(args.os_user)):
+            sudo('luarocks make')
+        sudo('cp -rf /home/{0}/.ipython/kernels/itorch/ /home/{0}/.local/share/jupyter/kernels/'.format(args.os_user))
+        sudo('chown -R {0}:{0} /home/{0}/.local/share/jupyter/'.format(args.os_user))
+        sudo('touch /home/{}/.ensure_dir/itorch_ensured'.format(args.os_user))
+
+
 def configure_tensor(args):
     tensor_board_started = False
     sudo('apt-add-repository -y ppa:pi-rho/security')
@@ -131,3 +141,6 @@ if __name__ == "__main__":
 
     print "Install GitWeb"
     install_gitweb(args.os_user)
+
+    print "Installing ITorch kernel"
+    install_itorch(args)
