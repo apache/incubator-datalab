@@ -25,7 +25,7 @@ import { DateUtils } from '../../../core/util';
   templateUrl: 'detail-dialog.component.html'
 })
 
-export class DetailDialog {
+export class DetailDialogComponent {
   notebook: any;
   upTimeInHours: number;
   upTimeSince: string = '';

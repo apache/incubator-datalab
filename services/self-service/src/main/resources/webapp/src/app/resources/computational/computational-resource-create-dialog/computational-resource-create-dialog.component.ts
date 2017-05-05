@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
 
@@ -31,7 +31,7 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
   styleUrls: ['./computational-resource-create-dialog.component.css'],
 })
 
-export class ComputationalResourceCreateDialog {
+export class ComputationalResourceCreateDialogComponent implements OnInit {
   model: ComputationalResourceCreateModel;
   notebook_instance: any;
   template_description: string;
@@ -77,7 +77,7 @@ export class ComputationalResourceCreateDialog {
   }
 
   public isNumberKey($event): boolean {
-    let charCode = ($event.which) ? $event.which : $event.keyCode;
+    const charCode = ($event.which) ? $event.which : $event.keyCode;
     if (charCode !== 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
       $event.preventDefault();
       return false;
@@ -100,7 +100,7 @@ export class ComputationalResourceCreateDialog {
     if (this.shapes[$event.model.type])
       this.shapes[$event.model.type] = $event.model.value.type;
 
-    if($event.model.type === 'slave_shape' && this.spotInstancesSelect.nativeElement['checked']) {
+    if ($event.model.type === 'slave_shape' && this.spotInstancesSelect.nativeElement['checked']) {
       this.spotInstance = $event.model.value.spot;
     }
   }
@@ -123,21 +123,21 @@ export class ComputationalResourceCreateDialog {
 
   public containsComputationalResource(conputational_resource_name: string): boolean {
     if (conputational_resource_name)
-      for (var index = 0; index < this.notebook_instance.resources.length; index++)
-        var computational_name = this.notebook_instance.resources[index].computational_name.toString().toLowerCase();
+      for (let index = 0; index < this.notebook_instance.resources.length; index++) {
+        const computational_name = this.notebook_instance.resources[index].computational_name.toString().toLowerCase();
 
         if (conputational_resource_name.toLowerCase() === computational_name)
           return true;
-
+      }
     return false;
   }
 
   public selectSpotInstances($event): void {
-    if($event.target.checked) {
-      let filtered = JSON.parse(JSON.stringify(this.slave_shapes_list.items));
-      for(var item in  this.slave_shapes_list.items) {
+    if ($event.target.checked) {
+      const filtered = JSON.parse(JSON.stringify(this.slave_shapes_list.items));
+      for (const item in this.slave_shapes_list.items) {
           filtered[item] = filtered[item].filter(el => el.spot);
-          if(filtered[item].length <= 0) {
+          if (filtered[item].length <= 0) {
             delete filtered[item];
           }
       }
@@ -198,7 +198,7 @@ export class ComputationalResourceCreateDialog {
   }
 
   private shapePlaceholder(resourceShapes, byField: string) {
-    for (var index in resourceShapes) return resourceShapes[index][0][byField];
+    for (const index in resourceShapes) return resourceShapes[index][0][byField];
   }
 
   private getComputationalResourceLimits(): void {

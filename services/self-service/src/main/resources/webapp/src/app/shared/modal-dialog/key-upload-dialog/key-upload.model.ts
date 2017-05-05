@@ -52,7 +52,7 @@ export class KeyUploadDialogModel {
   }
 
   private uploadUserAccessKey(): Observable<Response> {
-    let formData = new FormData();
+    const formData = new FormData();
     formData.append('file', this.newAccessKeyForUpload);
 
     return this.userAccessKeyService.uploadUserAccessKey(formData);

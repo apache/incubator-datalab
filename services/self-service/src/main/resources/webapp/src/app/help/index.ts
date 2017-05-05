@@ -19,22 +19,25 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { AccessNotebookGuide } from './accessnotebookguide/accessnotebookguide.component';
-import { PublicKeyGuide } from './publickeyguide/publickeyguide.component';
+import { AccessNotebookGuideComponent } from './accessnotebookguide/accessnotebookguide.component';
+import { PublicKeyGuideComponent } from './publickeyguide/publickeyguide.component';
 import { NavbarModule } from './../shared';
+
+export * from './accessnotebookguide/accessnotebookguide.component';
+export * from './publickeyguide/publickeyguide.component';
 
 @NgModule({
   imports: [
-    CommonModule, 
+    CommonModule,
     NavbarModule
   ],
   declarations: [
-    AccessNotebookGuide,
-    PublicKeyGuide
+    AccessNotebookGuideComponent,
+    PublicKeyGuideComponent
   ],
   exports: [
-    AccessNotebookGuide,
-    PublicKeyGuide
+    AccessNotebookGuideComponent,
+    PublicKeyGuideComponent
   ]
 })
 export class GuidesModule { }

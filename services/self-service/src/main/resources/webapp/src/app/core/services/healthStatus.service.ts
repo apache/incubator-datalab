@@ -35,7 +35,7 @@ export class HealthStatusService {
         .buildGetEnvironmentHealthStatus()
         .map((response: Response) => {
           if (response.status === HTTP_STATUS_CODES.OK)
-            if(response.json().status === 'ok')
+            if (response.json().status === 'ok')
               return true;
 
           return false;
@@ -50,7 +50,7 @@ export class HealthStatusService {
   }
 
   public getEnvironmentStatuses(): Observable<Response> {
-    let body = '?full=1';
+    const body = '?full=1';
     return this.applicationServiceFacade
     .buildGetEnvironmentStatuses(body)
     .map((response: Response) => response.json())

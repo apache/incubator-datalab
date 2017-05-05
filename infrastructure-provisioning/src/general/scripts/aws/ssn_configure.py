@@ -156,6 +156,7 @@ if __name__ == "__main__":
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
+                             {"name": "deeplearning", "tag": "latest"},
                              {"name": "emr", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),

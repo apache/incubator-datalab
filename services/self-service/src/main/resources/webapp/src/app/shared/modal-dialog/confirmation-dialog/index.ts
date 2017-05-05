@@ -19,7 +19,7 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModalModule } from '../index';
-import { ConfirmationDialog } from './confirmation-dialog.component';
+import { ConfirmationDialogComponent } from './confirmation-dialog.component';
 import { MaterialModule } from '@angular/material';
 
 export * from './confirmation-dialog.component';
@@ -27,8 +27,8 @@ export * from './confirmation-dialog-type.enum';
 
 @NgModule({
   imports: [CommonModule, ModalModule, MaterialModule.forRoot()],
-  declarations: [ConfirmationDialog],
-  exports: [ConfirmationDialog],
+  declarations: [ConfirmationDialogComponent],
+  exports: [ConfirmationDialogComponent],
 })
 
 export class ConfirmationDialogModule { }

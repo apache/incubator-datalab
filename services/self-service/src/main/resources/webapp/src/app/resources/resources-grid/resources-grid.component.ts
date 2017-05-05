@@ -30,7 +30,7 @@ import { SortUtil } from '../../core/util';
   styleUrls: ['./resources-grid.component.css']
 })
 
-export class ResourcesGrid implements OnInit {
+export class ResourcesGridComponent implements OnInit {
 
   environments: Array<ResourcesGridRowModel>;
   filteredEnvironments: Array<ResourcesGridRowModel> = [];
@@ -69,11 +69,11 @@ export class ResourcesGrid implements OnInit {
 
   toggleFilterRow(): void {
     this.collapseFilterRow = !this.collapseFilterRow;
-  } 
+  }
 
   getDefaultFilterConfiguration(): void {
-    let data: Array<ResourcesGridRowModel> = this.environments;
-    let shapes = [], statuses = [], resources = [];
+    const data: Array<ResourcesGridRowModel> = this.environments;
+    const shapes = [], statuses = [], resources = [];
 
     data.forEach((item: any) => {
       if (shapes.indexOf(item.shape) === -1)
@@ -97,16 +97,16 @@ export class ResourcesGrid implements OnInit {
 
     // let filteredData: Array<ResourcesGridRowModel> = this.environments.map(env => (<any>Object).assign({}, env));
     let filteredData: Array<ResourcesGridRowModel> = this.environments.map(env => (<any>Object).create(env));
-    let containsStatus = (list, selectedItems) => {
+    const containsStatus = (list, selectedItems) => {
       return list.filter((item: any) => { if (selectedItems.indexOf(item.status) !== -1) return item; });
     };
 
     filteredData = filteredData.filter((item: any) => {
-      let isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
-      let isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
-      let isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
+      const isName = item.name.toLowerCase().indexOf(config.name.toLowerCase()) !== -1;
+      const isStatus = config.statuses.length > 0 ? (config.statuses.indexOf(item.status) !== -1) : (config.type !== 'active');
+      const isShape = config.shapes.length > 0 ? (config.shapes.indexOf(item.shape) !== -1) : true;
 
-      let modifiedResources = containsStatus(item.resources, config.resources);
+      const modifiedResources = containsStatus(item.resources, config.resources);
       let isResources = config.resources.length > 0 ? (modifiedResources.length > 0) : true;
 
       if (config.resources.length > 0 && modifiedResources.length > 0) { item.resources = modifiedResources; }
@@ -126,10 +126,10 @@ export class ResourcesGrid implements OnInit {
   }
 
   showActiveInstances(): void {
-    let filteredData = (<any>Object).assign({}, this.filterConfiguration);
+    const filteredData = (<any>Object).assign({}, this.filterConfiguration);
     filteredData.type = 'active';
 
-    for (let index in filteredData) {
+    for (const index in filteredData) {
       if (filteredData[index] instanceof Array)
         filteredData[index] = filteredData[index].filter((item: string) => {
           return (item !== 'failed' && item !== 'terminated' && item !== 'terminating');
@@ -143,8 +143,8 @@ export class ResourcesGrid implements OnInit {
   }
 
   aliveStatuses(сonfig): void {
-    for (let index in this.filterConfiguration) {
-      if(сonfig[index] && сonfig[index] instanceof Array)
+    for (const index in this.filterConfiguration) {
+      if (сonfig[index] && сonfig[index] instanceof Array)
          сonfig[index] = сonfig[index].filter(item => this.filterConfiguration[index].includes(item));
     }
 
@@ -173,7 +173,7 @@ export class ResourcesGrid implements OnInit {
 
   containsNotebook(notebook_name: string): boolean {
     if (notebook_name)
-      for (var index = 0; index < this.environments.length; index++)
+      for (let index = 0; index < this.environments.length; index++)
         if (notebook_name.toLowerCase() === this.environments[index].name.toString().toLowerCase())
           return true;
 
@@ -233,7 +233,7 @@ export class ResourcesGrid implements OnInit {
   isActiveFilter(filterConfig): void {
     this.activeFiltering = false;
 
-    for (let index in filterConfig)
+    for (const index in filterConfig)
       if (filterConfig[index].length)
         this.activeFiltering = true;
   }
@@ -266,7 +266,7 @@ export class ResourcesGrid implements OnInit {
   }
 
   dropdownPosition($event): void {
-    let contentHeight = document.body.offsetHeight > window.outerHeight ? document.body.offsetHeight : window.outerHeight;
+    const contentHeight = document.body.offsetHeight > window.outerHeight ? document.body.offsetHeight : window.outerHeight;
     this.isOutscreenDropdown = $event.pageY + 215 > contentHeight ? true : false;
   }
 }

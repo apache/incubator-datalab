@@ -18,11 +18,11 @@ limitations under the License.
 
 export class LoginModel {
   constructor(
-    public username : string,
+    public username: string,
     public password: string
   ) { }
 
-  toJsonString() : string {
+  toJsonString(): string {
     return JSON.stringify({'username': this.username, 'password': this.password, 'access_token': ''});
   }
 }

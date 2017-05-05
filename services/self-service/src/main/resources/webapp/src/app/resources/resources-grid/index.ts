@@ -20,7 +20,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@angular/material';
 
-import { ResourcesGrid } from './resources-grid.component';
+import { ResourcesGridComponent } from './resources-grid.component';
 import { ComputationalResourcesModule } from './../computational/computational-resources-list';
 import { ModalModule, ConfirmationDialogModule } from './../../shared';
 import { ComputationalResourceCreateDialogModule } from './../computational/computational-resource-create-dialog';
@@ -45,8 +45,8 @@ export * from './filter-configuration.model';
     CostDetailsDialogModule,
     MaterialModule.forRoot()
   ],
-  declarations: [ResourcesGrid],
-  exports: [ResourcesGrid]
+  declarations: [ResourcesGridComponent],
+  exports: [ResourcesGridComponent]
 })
 
 export class ResourcesGridModule { }

@@ -23,7 +23,7 @@ import { NavbarModule } from './../shared';
 
 @NgModule({
     imports: [
-        CommonModule, 
+        CommonModule,
         NavbarModule
     ],
     declarations: [NotFoundComponent],

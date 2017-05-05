@@ -18,9 +18,10 @@ limitations under the License.
 
 export class ErrorMapUtils {
   public static setErrorMessage(errorCode): string {
-    if(errorCode)
-      var defaultStatus = 'Error status [' + errorCode.status + ']. ';
+    if (errorCode) {
+      const defaultStatus = 'Error status [' + errorCode.status + ']. ';
 
       return defaultStatus.concat(errorCode.statusText);
+    }
   }
 }

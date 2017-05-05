@@ -17,15 +17,15 @@ limitations under the License.
 ****************************************************************************/
 
 export class SortUtil {
-  public static statusSort(arg1:string, arg2:string): number {
-    let order = ['creating', 'running', 'stopping', 'stopped', 'terminating', 'terminated', 'failed'];
+  public static statusSort(arg1: string, arg2: string): number {
+    const order = ['creating', 'running', 'stopping', 'stopped', 'terminating', 'terminated', 'failed'];
 
     return order.indexOf(arg1) - order.indexOf(arg2);
   }
 
   public static shapesSort(shapesJson) {
-    let sortOrder = ['For testing', 'Memory optimized', 'GPU optimized', 'Compute optimized'];
-    let sortedShapes = {};
+    const sortOrder = ['For testing', 'Memory optimized', 'GPU optimized', 'Compute optimized'];
+    const sortedShapes = {};
 
     Object.keys(shapesJson)
       .sort((a, b) => sortOrder.indexOf(a) - sortOrder.indexOf(b))
