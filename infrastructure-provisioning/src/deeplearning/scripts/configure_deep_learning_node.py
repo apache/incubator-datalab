@@ -152,4 +152,5 @@ if __name__ == "__main__":
     install_itorch(args)
 
     print "Install CNTK Python library"
-    install_cntk()
+    install_cntk(args)
+
