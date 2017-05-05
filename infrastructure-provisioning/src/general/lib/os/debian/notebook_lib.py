@@ -29,6 +29,7 @@ from dlab.notebook_lib import *
 from dlab.fab import *
 from dlab.common_lib import *
 import os
+import re
 
 
 def enable_proxy(proxy_host, proxy_port):
@@ -294,3 +295,17 @@ def install_gitweb(os_user):
         sudo('a2enmod cgi')
         sudo('systemctl restart apache2.service')
         sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')
+
+
+def get_available_os_pkgs():
+    try:
+        os_pkgs = dict()
+        ansi_escape = re.compile(r'\x1b[^m]*m')
+        apt_raw = sudo("apt list")
+        apt_list = ansi_escape.sub('', apt_raw).split("\r\n")
+        for pkg in apt_list:
+            if "/" in pkg:
+                os_pkgs[pkg.split('/')[0]] = pkg.split(' ')[1]
+        return os_pkgs
+    except:
+        sys.exit(1)
