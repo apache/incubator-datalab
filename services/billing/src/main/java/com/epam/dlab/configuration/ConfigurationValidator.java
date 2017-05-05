@@ -22,6 +22,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.exception.InitializationException;
@@ -54,9 +57,9 @@ public class ConfigurationValidator<T> {
 	 * @throws InitializationException
 	 */
 	public void validate(T clazz) throws InitializationException {
-		Set<ConstraintViolation<T>> violations = javax.validation.Validation.buildDefaultValidatorFactory()
-				.getValidator()
-				.validate(clazz);
+		ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+		Validator validator = validatorFactory.getValidator();
+		Set<ConstraintViolation<T>> violations = validator.validate(clazz);
 		for (ConstraintViolation<T> violation : violations) {
 			throw new InitializationException(getMessage(violation));
 		}

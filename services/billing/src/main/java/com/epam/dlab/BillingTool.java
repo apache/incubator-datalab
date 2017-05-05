@@ -30,6 +30,7 @@ import com.epam.dlab.exception.AdapterException;
 import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.exception.ParseException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /** Provides billing parser features.
  */
@@ -83,16 +84,6 @@ public class BillingTool {
 				("/" + keyName).equalsIgnoreCase(arg));
 	}
 	
-	/** Sets system error code and throws exception.
-	 * @param exitCode error code.
-	 * @param message the error message.
-	 * @throws InitializationException
-	 */
-	private static void exitWithError(int exitCode, String message) throws InitializationException {
-		System.exit(exitCode);
-		throw new InitializationException(message);
-	}
-	
 	/** Runs parser for given configuration.
 	 * @param args the arguments of command line. 
 	 * @throws InitializationException
@@ -105,45 +96,44 @@ public class BillingTool {
 			if (isKey("help", args[i])) {
 				i++;
 				Help.usage(i < args.length ? Arrays.copyOfRange(args, i, args.length) : null);
-				System.exit(0);
 				return;
 			} else if (isKey("conf", args[i])) {
 				i++;
 				if (i < args.length) {
 					confName = args[i];
 				} else {
-					exitWithError(2, "Missing the name of configuration file");
+					throw new InitializationException("Missing the name of configuration file");
 				}
 			} else if (isKey("json", args[i])) {
 				i++;
 				if (i < args.length) {
 					json = args[i];
 				} else {
-					exitWithError(2, "Missing the content of json configuration");
+					throw new InitializationException("Missing the content of json configuration");
 				}
 			} else {
-				exitWithError(2, "Unknow argument: " + args[i]);
+				throw new InitializationException("Unknow argument: " + args[i]);
 			}
 		}
-		
+
 		if (confName == null && json == null) {
 			Help.usage();
-			exitWithError(2, "Missing arguments");
+			throw new InitializationException("Missing arguments");
 		}
 		
 		if (confName != null && json != null) {
 			Help.usage();
-			exitWithError(2, "Invalid arguments.");
+			throw new InitializationException("Invalid arguments.");
 		}
 
 		try {
 			if (confName != null) {
 				new BillingTool().run(confName);
 			} else {
-				new BillingTool().run(json);
+				JsonNode jsonNode = new ObjectMapper().valueToTree(json);
+				new BillingTool().run(jsonNode);
 			}
 		} catch (Exception e) {
-			System.exit(1);
 			e.printStackTrace();
 		}
 	}
