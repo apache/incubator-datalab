@@ -68,17 +68,22 @@ def install_libs(libraries):
             elif libraries[lib] == "r_pkg":
                 r_pkg_libs.append(lib)
 
-        if not install_os_pkg(os_pkg_libs):
-            sys.exit(1)
+        if not os_pkg_libs:
+            if not install_os_pkg(os_pkg_libs):
+                sys.exit(1)
 
-        if not install_pip2_pkg(pip2_libs):
-            sys.exit(1)
+        if not pip2_libs:
+            if not install_pip2_pkg(pip2_libs):
+                sys.exit(1)
 
-        if not install_pip3_pkg(pip3_libs):
-            sys.exit(1)
+        if not pip3_libs:
+            if not install_pip3_pkg(pip3_libs):
+                sys.exit(1)
 
-        if not install_r_pkg(r_pkg_libs):
-            sys.exit(1)
+        if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin']:
+            if not r_pkg_libs:
+                if not install_r_pkg(r_pkg_libs):
+                    sys.exit(1)
     except:
         return False
 

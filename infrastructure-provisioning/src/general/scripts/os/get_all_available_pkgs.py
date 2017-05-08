@@ -18,7 +18,7 @@
 #
 # ******************************************************************************
 
-import sys
+import os
 import argparse
 from dlab.notebook_lib import *
 from dlab.fab import *
@@ -36,16 +36,11 @@ args = parser.parse_args()
 def get_available_pip_pkgs(version):
     pip_pkgs = dict()
     client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
-    all_pkgs = client.browse(["Programming Language :: Python :: " + version + ""])
+    raw_pkgs = client.browse(["Programming Language :: Python :: " + version + ""])
+    all_pkgs = [i[0] for i in raw_pkgs]
     for pkg in all_pkgs:
         pip_pkgs[pkg] = "N/A"
-
     return pip_pkgs
-
-
-# def get_available_r_pkgs():
-#     r_pkgs = dict()
-#     status, output = commands.getstatusoutput("sudo R -e 'available.packages(contriburl=\"http://cran.us.r-project.org/src/contrib\")'")
 
 
 if __name__ == "__main__":
@@ -58,6 +53,9 @@ if __name__ == "__main__":
     all_pkgs['os_pkg'] = get_available_os_pkgs() # from notebook_lib
     all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
     all_pkgs['pip3'] = get_available_pip_pkgs("3.5")
+
+    if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin']:
+        all_pkgs['r_pkg'] = get_available_r_pkgs() # from fab
 
     with open("/root/all_pkgs.json", 'w') as result:
         result.write(json.dumps(all_pkgs))

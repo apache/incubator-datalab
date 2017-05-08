@@ -23,7 +23,7 @@ import os
 import random
 import sys
 import string
-import json, uuid, time, datetime
+import json, uuid, time, datetime, csv
 from dlab.meta_lib import *
 from dlab.actions_lib import *
 
@@ -459,3 +459,17 @@ def install_r_pkg(requisites):
         return True
     except:
         return False
+
+
+def get_available_r_pkgs():
+    try:
+        r_pkgs = dict()
+        sudo('R -e \'write.table(available.packages(contriburl="http://cran.us.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
+        get("/tmp/r.csv", "r.csv")
+        with open('r.csv', 'rb') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                r_pkgs[row[0]] = row[1]
+        return r_pkgs
+    except:
+        sys.exit(1)

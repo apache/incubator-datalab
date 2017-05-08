@@ -60,15 +60,13 @@ if __name__ == "__main__":
                                                    os.environ['request_id']), 'w') as response_file:
             response_file.write(json.dumps(reply))
 
-    try:
+    if os.environ['conf_resource'] == 'notebook':
         with open("/root/all_pkgs.json") as f:
             tmp = json.loads(f.read())
             with open("/response/{}_{}_{}_all_pkgs.json".format(os.environ['conf_resource'],
                                                                os.environ['edge_user_name'],
-                                                               os.environ['exploratory_name']), 'w') as response_file:
+                                                               os.environ['application']), 'w') as response_file:
                 response_file.write(json.dumps(tmp))
-    except:
-        pass
 
     try:
         local('chmod 666 /response/*')
