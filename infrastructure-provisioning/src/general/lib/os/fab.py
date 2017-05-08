@@ -54,6 +54,8 @@ def install_pip2_pkg(requisites):
 
 def install_pip3_pkg(requisites):
     try:
+        if not exists('/bin/pip3'):
+            sudo('ln -s /bin/pip3.5 /bin/pip3')
         sudo('pip3 install -U pip setuptools')
         sudo('pip3 install -U pip --no-cache-dir')
         sudo('pip3 install --upgrade pip')

@@ -320,3 +320,14 @@ def install_gitweb(os_user):
         sudo('systemctl enable httpd.service')
         sudo('systemctl start httpd.service')
         sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')
+
+
+def get_available_os_pkgs():
+    try:
+        os_pkgs = dict()
+        # ansi_escape = re.compile(r'\x1b[^m]*m')
+        yum_raw = sudo("yum list available")
+        # TBD...
+        return os_pkgs
+    except:
+        sys.exit(1)
