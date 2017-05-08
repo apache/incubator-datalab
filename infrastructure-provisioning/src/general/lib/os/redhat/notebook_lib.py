@@ -322,6 +322,17 @@ def install_gitweb(os_user):
         sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')
 
 
+def install_os_pkg(requisites):
+    try:
+        print "Updating repositories and installing requested tools: " + requisites
+        sudo('yum update-minimal --security -y')
+        sudo('export LC_ALL=C')
+        sudo('yum -y install ' + requisites)
+        return True
+    except:
+        return False
+
+
 def get_available_os_pkgs():
     try:
         os_pkgs = dict()
