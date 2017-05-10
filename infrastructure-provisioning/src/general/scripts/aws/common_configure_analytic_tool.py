@@ -51,6 +51,10 @@ if __name__ == "__main__":
     notebook_config['cluster_id'] = get_emr_id_by_name(notebook_config['cluster_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_instance_hostname = get_instance_hostname(edge_instance_name)
+    if os.environ['application'] == 'deeplearning':
+        application = 'jupyter'
+    else:
+        application = os.environ['application']
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
@@ -61,7 +65,7 @@ if __name__ == "__main__":
                     os.environ['emr_excluded_spark_properties'], os.environ['edge_user_name'],
                     os.environ['conf_os_user'], edge_instance_hostname, '3128', os.environ['notebook_scala_version'])
         try:
-            local("~/scripts/{}_{}.py {}".format(os.environ['application'], 'install_emr_kernels', params))
+            local("~/scripts/{}_{}.py {}".format(application, 'install_emr_kernels', params))
             remove_emr_tag(notebook_config['cluster_id'], ['State'])
         except:
             traceback.print_exc()

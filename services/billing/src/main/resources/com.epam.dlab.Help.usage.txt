@@ -1,0 +1,19 @@
+Usage:
+  java -jar billing-x.y.jar <option>
+  or
+  java -cp billing-x.y.jar ${CLASSNAME} <option>
+Options:
+  --help           this help screen;
+  --help conf      help about configuration;
+  --help {adapter | parser | filter | logappender} <type>
+                   help about adapter, parser, filter, log appender
+                   configuration, <type> is the type of module;
+  --conf filename  the name of configuration file;
+  --json content   the content of json configuration.
+Example:
+  java -jar billing-x.y.jar --conf billing.yml
+    Loads billing data using configuration file billing.yml.
+  java -jar billing-x.y.jar --json '{...}'
+    Loads billing data using JSON configuration.
+  java -cp billing-x.x.jar ${CLASSNAME} --conf billing.yml
+    Runs billing scheduler for loading billing data using configuration file billing.yml.

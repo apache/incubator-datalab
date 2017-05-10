@@ -241,12 +241,12 @@ export class ApplicationServiceFacade {
   }
 
   private getRequestOptions(json: boolean, auth: boolean): RequestOptions {
-    let headers = new Headers();
+    const headers = new Headers();
     if (json)
       headers.append('Content-type', 'application/json; charset=utf-8');
     if (auth)
       headers.append('Authorization', 'Bearer ' + localStorage.getItem(this.accessTokenKey));
-    let reqOpt = new RequestOptions({ headers: headers });
+    const reqOpt = new RequestOptions({ headers: headers });
     return reqOpt;
   }
 }

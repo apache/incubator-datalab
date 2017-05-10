@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ResourcesGrid } from './resources-grid';
+import { ResourcesGridComponent } from './resources-grid';
 import { UserAccessKeyService, UserResourceService, HealthStatusService, AppRoutingService } from '../core/services';
 import { ExploratoryEnvironmentVersionModel, ComputationalResourceImage } from '../core/models';
 import { HTTP_STATUS_CODES } from '../core/util';
@@ -41,10 +41,10 @@ export class ResourcesComponent implements OnInit {
   @ViewChild('keyUploadModal') keyUploadModal;
   @ViewChild('preloaderModal') preloaderModal;
   @ViewChild('createAnalyticalModal') createAnalyticalModal;
-  @ViewChild(ResourcesGrid) resourcesGrid: ResourcesGrid;
+  @ViewChild(ResourcesGridComponent) resourcesGrid: ResourcesGridComponent;
   @ViewChild(NavbarComponent) navbarComponent: NavbarComponent;
 
-  private readonly CHECK_ACCESS_KEY_TIMEOUT : number = 20000;
+  private readonly CHECK_ACCESS_KEY_TIMEOUT: number = 20000;
 
   constructor(
     private userAccessKeyService: UserAccessKeyService,

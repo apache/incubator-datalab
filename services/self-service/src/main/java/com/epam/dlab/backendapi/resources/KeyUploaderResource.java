@@ -49,6 +49,7 @@ import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.dto.edge.EdgeCreateDTO;
+import com.epam.dlab.dto.edge.EdgeInfoDTO;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.dto.keyload.UploadFileDTO;
 import com.epam.dlab.dto.keyload.UploadFileResultDTO;
@@ -136,7 +137,8 @@ public class KeyUploaderResource implements EdgeAPI {
     public Response recover(@Auth UserInfo userInfo) throws DlabException {
         LOGGER.debug("Recreating edge node for user {}", userInfo.getName());
 
-        UserInstanceStatus status = UserInstanceStatus.of(keyDAO.getEdgeStatus(userInfo.getName()));
+        EdgeInfoDTO edgeInfo = keyDAO.getEdgeInfo(userInfo.getName());
+        UserInstanceStatus status = UserInstanceStatus.of(edgeInfo.getEdgeStatus());
     	if (status == null || !status.in(FAILED, TERMINATED)) {
         	LOGGER.error("Could not create EDGE node for user {} because the status of instance is {}", userInfo.getName(), status);
             throw new DlabException("Could not create EDGE node because the status of instance is " + status);
@@ -150,7 +152,9 @@ public class KeyUploaderResource implements EdgeAPI {
         }
     	
         try {
-        	keyDAO.updateEdgeStatus(userInfo.getName(), UserInstanceStatus.CREATING.toString());
+        	edgeInfo.withInstanceId(null)
+        			.withEdgeStatus(UserInstanceStatus.CREATING.toString());
+        	keyDAO.updateEdgeInfo(userInfo.getName(), edgeInfo);
         } catch (DlabException e) {
         	LOGGER.error("Could not update the status of EDGE node for user {}", userInfo.getName(), e);
             throw new DlabException("Could not create EDGE node: " + e.getLocalizedMessage(), e);
@@ -159,7 +163,7 @@ public class KeyUploaderResource implements EdgeAPI {
         try {
             String uuid = startKeyUpload(userInfo,
             		key.getContent(),
-            		keyDAO.getEdgeInfo(userInfo.getName()).getPublicIp());
+            		edgeInfo.getPublicIp());
             return Response.ok(uuid).build();
         } catch (Throwable e) {
             LOGGER.error("Could not create the EDGE node for user {}", userInfo.getName(), e);

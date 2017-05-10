@@ -18,14 +18,14 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ClickOutside } from './click-outside.directive';
+import { ClickOutsideDirective } from './click-outside.directive';
 
 export * from './click-outside.directive';
 
 @NgModule({
   imports: [CommonModule],
-  declarations: [ClickOutside],
-  exports: [ClickOutside]
+  declarations: [ClickOutsideDirective],
+  exports: [ClickOutsideDirective]
 })
 
 export class ClickOutsideModule { }

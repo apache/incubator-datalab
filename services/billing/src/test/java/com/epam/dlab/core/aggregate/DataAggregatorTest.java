@@ -16,8 +16,31 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.rest.contracts;
+package com.epam.dlab.core.aggregate;
 
-public interface KeyLoaderAPI {
-    String KEY_LOADER = "keyloader";
+import static junit.framework.TestCase.assertEquals;
+
+import org.junit.Test;
+
+public class DataAggregatorTest {
+
+	@Test
+	public void append() {
+		UsageDataList list = new UsageDataList();
+		
+		list.append("2017-04-12");
+		list.append("2017-04-12");
+		list.append("2017-04-14");
+		
+		assertEquals(2, list.size());
+		
+		assertEquals(Boolean.FALSE, list.get("2017-04-12"));
+		assertEquals(Boolean.FALSE, list.get("2017-04-14"));
+		
+		list.set("2017-04-14", true);
+		assertEquals(Boolean.TRUE, list.get("2017-04-14"));
+		
+		list.clear();
+		assertEquals(0, list.size());
+	}
 }

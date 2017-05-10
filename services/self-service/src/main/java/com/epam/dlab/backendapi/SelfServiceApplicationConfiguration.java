@@ -60,6 +60,14 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @Valid
     @JsonProperty
     private Duration checkEnvStatusTimeout = Duration.minutes(10);
+    
+    @Valid
+    @JsonProperty
+    private boolean billingSchedulerEnabled = false;
+    
+    @Valid
+    @JsonProperty
+    private String billingConfFile = null;
 
 
     /** Returns <b>true</b> if service is a mock. */
@@ -103,5 +111,15 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     public SelfServiceApplicationConfiguration withCheckEnvStatusTimeout(Duration checkEnvStatusTimeout) {
     	this.checkEnvStatusTimeout = checkEnvStatusTimeout;
     	return this;
+    }
+    
+    /** Return the <b>true</b> if the billing scheduler is enabled. */
+    public boolean isBillingSchedulerEnabled() {
+    	return billingSchedulerEnabled;
+    }
+    
+    /** Return the default access to DLab features using roles policy. */
+    public String getBillingConfFile() {
+    	return billingConfFile;
     }
 }

@@ -23,9 +23,9 @@ export class ResourceShapeTypesModel {
   constructor(jsonModel: any) {
     this.resourcesShapeTypes = {};
 
-    for(let parentIndex in jsonModel) {
+    for (const parentIndex in jsonModel) {
       if (jsonModel[parentIndex] && jsonModel[parentIndex].length > 0) {
-        let tmpl = [];
+        const tmpl = [];
         for (let index = 0; index < jsonModel[parentIndex].length; index++)
           tmpl.push(new ResourceShapeModel(jsonModel[parentIndex][index]));
 

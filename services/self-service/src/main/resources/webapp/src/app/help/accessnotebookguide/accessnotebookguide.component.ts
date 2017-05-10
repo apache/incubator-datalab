@@ -25,4 +25,4 @@ import { Component } from '@angular/core';
   styleUrls: ['./accessnotebookguide.component.css']
 })
 
-export class AccessNotebookGuide { }
+export class AccessNotebookGuideComponent { }

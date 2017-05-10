@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, OnDestroy, Input, Output, EventEmitter, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core';
 
 @Component({
   moduleId: module.id,
@@ -26,7 +26,7 @@ import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, ViewEnca
   encapsulation: ViewEncapsulation.None
 })
 
-export class Modal {
+export class ModalComponent implements OnDestroy {
 
   isOpened: boolean = false;
   isHeader: boolean = true;
@@ -68,7 +68,7 @@ export class Modal {
       return;
 
     if (option) {
-      for (let key in option) {
+      for (const key in option) {
         this[key] = option[key];
       }
     }

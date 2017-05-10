@@ -26,7 +26,7 @@ import { UserResourceService } from '../../../core/services';
   styleUrls: ['./computational-resources-list.component.css']
 })
 
-export class ComputationalResourcesList {
+export class ComputationalResourcesListComponent {
   @ViewChild('terminateConfirmateResource') terminateConfirmateResource;
   @ViewChild('detailComputationalResource') detailComputationalResource;
   @Input() resources: any[];

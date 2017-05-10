@@ -25,4 +25,4 @@ import { Component } from '@angular/core';
   styleUrls: ['./publickeyguide.component.css']
 })
 
-export class PublicKeyGuide { }
+export class PublicKeyGuideComponent { }

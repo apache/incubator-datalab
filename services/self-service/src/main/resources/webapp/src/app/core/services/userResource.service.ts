@@ -55,21 +55,21 @@ export class UserResourceService {
   }
 
   public createExploratoryEnvironment(data): Observable<Response> {
-    let body = JSON.stringify(data);
+    const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildCreateExploratoryEnvironmentRequest(body)
       .map((response: Response) => response);
   }
 
   public runExploratoryEnvironment(data): Observable<Response> {
-    let body = JSON.stringify(data);
+    const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildRunExploratoryEnvironmentRequest(body)
       .map((response: Response) => response);
   }
 
   public suspendExploratoryEnvironment(notebook: any, action): Observable<Response> {
-    let url = '/' + notebook.name + '/' + action;
+    const url = '/' + notebook.name + '/' + action;
 
     return this.applicationServiceFacade
       .buildSuspendExploratoryEnvironmentRequest(JSON.stringify(url))
@@ -77,14 +77,14 @@ export class UserResourceService {
   }
 
   public createComputationalResource(data): Observable<Response> {
-    let body = JSON.stringify(data);
+    const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildCreateComputationalResourcesRequest(body)
       .map((response: Response) => response);
   }
 
   public suspendComputationalResource(notebookName: string, computationalResourceName: string): Observable<Response> {
-    let body = JSON.stringify('/' + notebookName + '/' + computationalResourceName + '/terminate');
+    const body = JSON.stringify('/' + notebookName + '/' + computationalResourceName + '/terminate');
     return this.applicationServiceFacade
       .buildDeleteComputationalResourcesRequest(body)
       .map((response: Response) => response);
@@ -97,7 +97,7 @@ export class UserResourceService {
   }
 
   public updateUserPreferences(data): Observable<Response> {
-    let body = JSON.stringify(data);
+    const body = JSON.stringify(data);
     return this.applicationServiceFacade
       .buildUpdateUserPreferences(body)
       .map((response: Response) => response);

@@ -20,12 +20,13 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@angular/material';
 
-import { ResourcesGrid } from './resources-grid.component';
+import { ResourcesGridComponent } from './resources-grid.component';
 import { ComputationalResourcesModule } from './../computational/computational-resources-list';
 import { ModalModule, ConfirmationDialogModule } from './../../shared';
 import { ComputationalResourceCreateDialogModule } from './../computational/computational-resource-create-dialog';
 import { DetailDialogModule } from './../exploratory/detail-dialog';
 import { FormControlsModule } from '../../shared/form-controls';
+import { CostDetailsDialogModule } from './../billing/cost-details-dialog';
 
 export * from './resources-grid.component';
 export * from './resources-grid.model';
@@ -41,10 +42,11 @@ export * from './filter-configuration.model';
     DetailDialogModule,
     ComputationalResourceCreateDialogModule,
     FormControlsModule,
+    CostDetailsDialogModule,
     MaterialModule.forRoot()
   ],
-  declarations: [ResourcesGrid],
-  exports: [ResourcesGrid]
+  declarations: [ResourcesGridComponent],
+  exports: [ResourcesGridComponent]
 })
 
 export class ResourcesGridModule { }

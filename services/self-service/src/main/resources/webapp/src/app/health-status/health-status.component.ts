@@ -25,12 +25,12 @@ import { HealthStatusService } from '../core/services';
     selector: 'health-status',
     templateUrl: 'health-status.component.html'
 })
-export class HealthStatusComponent { 
+export class HealthStatusComponent implements OnInit {
 
     environmentsHealthStatuses: Array<EnvironmentStatusModel>;
     healthStatus: string;
 
-    constructor( private healthStatusService: HealthStatusService) { }
+    constructor(private healthStatusService: HealthStatusService) { }
 
     ngOnInit(): void {
       this.buildGrid();
@@ -39,7 +39,7 @@ export class HealthStatusComponent {
     buildGrid(): void {
       this.healthStatusService.getEnvironmentStatuses()
         .subscribe((result) => {
-            this.environmentsHealthStatuses = this.loadHealthStatusList(result); 
+            this.environmentsHealthStatuses = this.loadHealthStatusList(result);
         });
     }
 

@@ -24,7 +24,7 @@ import { Component, OnInit, ViewChild, Input } from '@angular/core';
   templateUrl: 'progress-dialog.component.html'
 })
 
-export class ProgressDialog implements OnInit {
+export class ProgressDialogComponent implements OnInit {
   @Input() configs: string;
   @Input() theBoundCallback: Function;
 

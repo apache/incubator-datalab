@@ -150,7 +150,8 @@ def ensure_mongo():
         return False
 
 
-def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd):
+def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, cloud_provider, service_base_name,
+             tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path=''):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
@@ -174,6 +175,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
             sudo('mkdir -p /var/log/application')
             sudo('mkdir -p ' + web_path)
             sudo('mkdir -p ' + web_path + 'provisioning-service/')
+            sudo('mkdir -p ' + web_path + 'billing/')
             sudo('mkdir -p ' + web_path + 'security-service/')
             sudo('mkdir -p ' + web_path + 'self-service/')
             sudo('chown -R {0}:{0} {1}'.format(os_user, web_path))
@@ -181,16 +183,23 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                 local('scp -r -i {} /root/web_app/self-service/*.jar {}:'.format(keyfile, host_string) + web_path + 'self-service/')
                 local('scp -r -i {} /root/web_app/security-service/*.jar {}:'.format(keyfile, host_string) + web_path + 'security-service/')
                 local('scp -r -i {} /root/web_app/provisioning-service/*.jar {}:'.format(keyfile, host_string) + web_path + 'provisioning-service/')
+                local('scp -r -i {} /root/web_app/billing/*.jar {}:'.format(keyfile, host_string) + web_path + 'billing/')
                 run('mkdir -p /tmp/yml_tmp/')
                 local('scp -r -i {} /root/web_app/self-service/*.yml {}:'.format(keyfile, host_string) + '/tmp/yml_tmp/')
                 local('scp -r -i {} /root/web_app/security-service/*.yml {}:'.format(keyfile, host_string) + '/tmp/yml_tmp/')
                 local('scp -r -i {} /root/web_app/provisioning-service/*.yml {}:'.format(keyfile, host_string) + '/tmp/yml_tmp/')
+                local('scp -r -i {} /root/web_app/billing/*.yml {}:'.format(keyfile, host_string) + '/tmp/yml_tmp/')
                 sudo('mv /tmp/yml_tmp/* ' + os.environ['ssn_dlab_path'] + 'conf/')
                 sudo('rmdir /tmp/yml_tmp/')
             except:
                 append_result("Unable to upload webapp jars")
                 sys.exit(1)
-
+            if billing_enabled:
+                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
+                                                                                                         host_string))
+                sudo('python /tmp/configure_billing.py --cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {}'.
+                     format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
+                            mongo_passwd, dlab_path))
             sudo('service supervisor start')
             sudo('service nginx restart')
             sudo('service supervisor restart')

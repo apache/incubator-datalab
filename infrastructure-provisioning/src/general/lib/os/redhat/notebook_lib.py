@@ -280,7 +280,7 @@ def install_maven(os_user):
 
 def install_livy_dependencies(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
-        sudo('pip install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest')
         sudo('pip3.5 install cloudpickle requests requests-kerberos flake8 flaky pytest')
         sudo('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
@@ -295,7 +295,7 @@ def install_maven_emr(os_user):
 
 def install_livy_dependencies_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
-        local('sudo -i pip install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        local('sudo -i pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest')
         local('sudo -i pip3.5 install cloudpickle requests requests-kerberos flake8 flaky pytest')
         local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 

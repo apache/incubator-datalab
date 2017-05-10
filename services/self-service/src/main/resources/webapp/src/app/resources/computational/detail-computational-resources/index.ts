@@ -20,14 +20,14 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { ModalModule } from '../../../shared';
-import { DetailComputationalResources } from './detail-computational-resources.component';
+import { DetailComputationalResourcesComponent } from './detail-computational-resources.component';
 
 export * from './detail-computational-resources.component';
 
 @NgModule({
   imports: [CommonModule, ModalModule],
-  declarations: [DetailComputationalResources],
-  exports: [DetailComputationalResources],
+  declarations: [DetailComputationalResourcesComponent],
+  exports: [DetailComputationalResourcesComponent],
 })
 
 export class DetailComputationalResourcesModule { }
