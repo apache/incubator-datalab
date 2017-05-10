@@ -1,0 +1,67 @@
+<!------------------------------------------------------------------------------------------------------------
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+----------------------------------------------------------------------------------------------------------- -->
+
+<modal-dialog #bindDialog modalClass="detail-dialog modal-xl">
+  <modal-header>
+    <h4 class="modal-title">Billing details</h4>
+  </modal-header>
+  <modal-content>
+    <div *ngIf="notebook">
+
+      <div class="detail-header-wrap">
+        <table class="detail-header">
+          <tr>
+            <td>
+              <div>{{notebook.name}}</div>
+            </td>
+            <td>
+              <div>{{notebook.template_name}}</div>
+            </td>
+            <td><span class="status" ngClass="{{notebook.status || ''}}">{{notebook.status}}</span></td>
+            <td>{{notebook.shape}}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="billing-detail">
+        <table>
+          <tr>
+            <th>Name</th>
+            <th>Product</th>
+            <th>Type</th>
+            <th>Cost</th>
+            <th>Start</th>
+            <th>End</th>
+          </tr>
+          <tr *ngFor="let item of notebook.billing">
+            <td>{{item.resource_name}}</td>
+            <td>{{item.product}}</td>
+            <td>{{item.resource_type}}</td>
+            <td>{{item.cost}} {{item.currency_code}}</td>
+            <td>{{item.usage_date_start | date}}</td>
+            <td>{{item.usage_date_end | date}}</td>
+          </tr>
+        </table>
+        <div class="total"><strong>Total: </strong>{{notebook.cost}} {{notebook.currency_code}}</div>
+      </div>
+     
+      <!--<div class="text-center m-top-30">
+        <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
+      </div>-->
+    </div>
+  </modal-content>
+</modal-dialog>

@@ -18,7 +18,6 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.modules;
 
-import static com.epam.dlab.auth.SecurityRestAuthenticator.SECURITY_SERVICE;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -54,7 +53,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
     protected void configure() {
         bind(SelfServiceApplicationConfiguration.class).toInstance(configuration);
         bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
-        bind(RESTService.class).annotatedWith(Names.named(SECURITY_SERVICE))
+        bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
                 .toInstance(createAuthenticationService());
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
         		.toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));

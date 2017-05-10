@@ -1,0 +1,63 @@
+Configuration syntax:
+
+# Working file for store billing report variables.
+workingFile: /opt/dlab/tmp/result/billing-data.json
+
+scheduler:
+# Schedule is comma separated values of time in format hh[:mm[:ss]]. hh - in the 24-hour clock, at 8:15PM is 20:15.
+  schedule: 0:00, 3:00, 6:00, 9:00, 12:00, 15:00, 18:00, 21:00
+
+# Adapter for reading source data.
+#<name> may by one of next: ${ADAPTERS}
+adapterIn:
+  - type: <name>
+    <property1>: <value>
+    ...
+    <propertyN>: <value>
+
+# Adapter for writing converted data.
+#<name> may by one of next: ${ADAPTERS}
+adapterOut:
+  - type: <name>
+    <property1>: <value>
+    ...
+    <propertyN>: <value>
+
+# Filter and can transform the source and converted data. This section is optional.
+#<name> may by one of next: ${FILTERS}
+filter:
+  - type: <name>
+    <property1>: <value>
+    ...
+    <propertyN>: <value>
+
+# Parser of source data to common format.
+#<name> may by one of next: ${PARSERS}
+parser:
+  - type: <name>
+    <property1>: <value>
+    ...
+    <propertyN>: <value>
+
+# Logging configuration. This section is optional
+logging:
+  # Default logging level. <level> may by one of next value: ERROR, WARN, INFO,
+  # DEBUG or TRACE.
+  level: <level>
+  # Custom logging levels. This section is optional. See possible value
+  # for <level> above.
+  loggers:
+    <logger1>: <level>
+    ...
+    <loggerN>: <level>
+  # Logging appenders
+  #<appenderN> may by one of next: ${LOGAPPENDERS}
+  appenders:
+    - type: <appender1>
+    <property1>: <value>
+    ...
+    <propertyN>: <value>
+    - type: <appenderN>
+    <property1>: <value>
+    ...
+    <propertyN>: <value>

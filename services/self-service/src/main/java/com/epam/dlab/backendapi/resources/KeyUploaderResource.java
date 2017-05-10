@@ -161,13 +161,6 @@ public class KeyUploaderResource implements EdgeAPI {
         }
         
         try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-        
-        try {
             String uuid = startKeyUpload(userInfo,
             		key.getContent(),
             		edgeInfo.getPublicIp());

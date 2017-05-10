@@ -18,7 +18,6 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.modules;
 
-import static com.epam.dlab.auth.SecurityRestAuthenticator.SECURITY_SERVICE;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -56,7 +55,7 @@ public class MockModule extends ModuleBase<ProvisioningServiceApplicationConfigu
     @Override
     protected void configure() {
         bind(ProvisioningServiceApplicationConfiguration.class).toInstance(configuration);
-        bind(RESTService.class).annotatedWith(Names.named(SECURITY_SERVICE)).toInstance(createAuthenticationService());
+        bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME)).toInstance(createAuthenticationService());
         bind(RESTService.class).toInstance(configuration.getSelfFactory().build(environment, ServiceConsts.SELF_SERVICE_NAME));
         bind(MetadataHolder.class).to(DockerWarmuper.class);
         bind(ICommandExecutor.class).to(CommandExecutorMock.class).asEagerSingleton();

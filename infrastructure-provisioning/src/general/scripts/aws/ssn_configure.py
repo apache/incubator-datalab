@@ -52,6 +52,7 @@ if __name__ == "__main__":
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_sg = False
+        billing_enabled = True
         try:
             if os.environ['aws_vpc_id'] == '':
                 raise KeyError
@@ -72,6 +73,17 @@ if __name__ == "__main__":
         except KeyError:
             os.environ['aws_security_groups_ids'] = get_security_group_by_name(sg_name)
             pre_defined_sg = True
+        try:
+            if os.environ['aws_account_id'] == '':
+                raise KeyError
+            if os.environ['aws_billing_bucket'] == '':
+                raise KeyError
+        except KeyError:
+            billing_enabled = False
+        if not billing_enabled:
+            os.environ['aws_account_id'] = 'None'
+            os.environ['aws_billing_bucket'] = 'None'
+            os.environ['aws_report_path'] = 'None'
     except:
         sys.exit(1)
 
@@ -175,11 +187,13 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {}". \
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']), os.environ['ssn_dlab_path'],
                    os.environ['conf_os_user'], os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'], os.environ['aws_region'],
                    os.environ['conf_service_base_name'], os.environ['aws_security_groups_ids'], os.environ['aws_vpc_id'],
-                   os.environ['aws_subnet_id'], os.environ['conf_tag_resource_id'])
+                   os.environ['aws_subnet_id'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
+                   os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],
+                   billing_enabled)
 
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))

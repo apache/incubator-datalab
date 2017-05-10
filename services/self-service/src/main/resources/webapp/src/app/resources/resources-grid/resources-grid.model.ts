@@ -29,6 +29,9 @@ export class ResourcesGridRowModel {
               public username: string,
               public password: string,
               public bucket_name: string,
-              public error_message: string
+              public error_message: string,
+              public cost: number,
+              public currency_code: string,
+              public billing: Array<any>
             ) { }
 }

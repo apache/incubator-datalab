@@ -25,8 +25,6 @@ import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.name.Names;
 import io.dropwizard.setup.Environment;
 
-import static com.epam.dlab.auth.SecurityRestAuthenticator.SECURITY_SERVICE;
-
 import com.epam.dlab.ModuleBase;
 
 /** Production class for an application configuration of SelfService.
@@ -45,8 +43,8 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
     protected void configure() {
         bind(SelfServiceApplicationConfiguration.class).toInstance(configuration);
         bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
-        bind(RESTService.class).annotatedWith(Names.named(SECURITY_SERVICE))
-                .toInstance(configuration.getSecurityFactory().build(environment, SECURITY_SERVICE));
+        bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
+                .toInstance(configuration.getSecurityFactory().build(environment, ServiceConsts.SECURITY_SERVICE_NAME));
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
                 .toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
     }
