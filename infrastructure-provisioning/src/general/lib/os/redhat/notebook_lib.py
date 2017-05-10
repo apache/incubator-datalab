@@ -335,10 +335,9 @@ def install_os_pkg(requisites):
 
 def get_available_os_pkgs():
     try:
-        os_pkgs = dict()
-        # ansi_escape = re.compile(r'\x1b[^m]*m')
-        yum_raw = sudo("yum list available")
-        # TBD...
+        yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
+        yum_list = yum_raw.split('\r\n')[1].replace("'","\"")
+        os_pkgs = json.loads(yum_list)
         return os_pkgs
     except:
         sys.exit(1)

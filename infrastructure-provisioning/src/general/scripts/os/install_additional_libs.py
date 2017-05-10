@@ -80,7 +80,7 @@ def install_libs(libraries):
             if not install_pip3_pkg(pip3_libs):
                 sys.exit(1)
 
-        if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin']:
+        if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
             if not r_pkg_libs:
                 if not install_r_pkg(r_pkg_libs):
                     sys.exit(1)
