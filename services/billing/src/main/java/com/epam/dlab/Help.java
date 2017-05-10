@@ -47,7 +47,7 @@ public class Help {
 		if (substitute == null) {
 			substitute = new HashMap<>();
 		}
-		substitute.put("classname", BillingTool.class.getName());
+		substitute.put("classname", BillingScheduler.class.getName());
 		
 		for (String key : substitute.keySet()) {
 			help = StringUtils.replace(help, "${" + key.toUpperCase() + "}", substitute.get(key));

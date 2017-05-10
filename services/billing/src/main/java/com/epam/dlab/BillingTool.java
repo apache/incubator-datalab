@@ -32,6 +32,9 @@ import com.epam.dlab.exception.ParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+
 /** Provides billing parser features.
  */
 public class BillingTool {
@@ -73,15 +76,29 @@ public class BillingTool {
 	}
 	
 	
-	
 	/** Check the key name for command line.
 	 * @param keyName the name of key.
 	 * @param arg the argument from command line.
 	 * @return <b>true</b> if given argument is key.
 	 */
-	private static boolean isKey(String keyName, String arg) {
+	protected static boolean isKey(String keyName, String arg) {
 		return (("--" + keyName).equalsIgnoreCase(arg) ||
 				("/" + keyName).equalsIgnoreCase(arg));
+	}
+	
+	/** Set the level of loggers to INFO for external loggers.
+	 */
+	protected static void setLoggerLevel() {
+		ch.qos.logback.classic.LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+		ch.qos.logback.classic.Logger logger = context.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+		String [] loggers = {
+			"org.hibernate",
+			"org.jboss.logging"
+		};
+		for (String name : loggers) {
+			logger = context.getLogger(name);
+            logger.setLevel(Level.INFO);
+		}
 	}
 	
 	/** Runs parser for given configuration.
@@ -126,6 +143,7 @@ public class BillingTool {
 			throw new InitializationException("Invalid arguments.");
 		}
 
+		setLoggerLevel();
 		try {
 			if (confName != null) {
 				new BillingTool().run(confName);

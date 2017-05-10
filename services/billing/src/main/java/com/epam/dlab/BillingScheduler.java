@@ -18,6 +18,8 @@ limitations under the License.
 
 package com.epam.dlab;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -185,5 +187,43 @@ public class BillingScheduler implements Runnable {
 		}
 		
 		LOGGER.info("Scheduler has been stopped");
+	}
+	
+	
+	/** Runs billing scheduler for given configuration file.
+	 * @param args the arguments of command line. 
+	 * @throws InitializationException
+	 */
+	public static void main(String[] args) throws InitializationException {
+		String confName = null;
+		
+		for(int i = 0; i < args.length; i++) {
+			if (BillingTool.isKey("help", args[i])) {
+				i++;
+				Help.usage(i < args.length ? Arrays.copyOfRange(args, i, args.length) : null);
+				return;
+			} else if (BillingTool.isKey("conf", args[i])) {
+				i++;
+				if (i < args.length) {
+					confName = args[i];
+				} else {
+					throw new InitializationException("Missing the name of configuration file");
+				}
+			} else {
+				throw new InitializationException("Unknow argument: " + args[i]);
+			}
+		}
+
+		if (confName == null) {
+			Help.usage();
+			throw new InitializationException("Missing arguments");
+		}
+		
+		BillingTool.setLoggerLevel();
+		try {
+			start(confName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
