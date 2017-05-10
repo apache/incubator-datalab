@@ -68,20 +68,20 @@ def install_libs(libraries):
             elif libraries[lib] == "r_pkg":
                 r_pkg_libs.append(lib)
 
-        if not os_pkg_libs:
+        if os_pkg_libs:
             if not install_os_pkg(os_pkg_libs):
                 sys.exit(1)
 
-        if not pip2_libs:
+        if pip2_libs:
             if not install_pip2_pkg(pip2_libs):
                 sys.exit(1)
 
-        if not pip3_libs:
+        if pip3_libs:
             if not install_pip3_pkg(pip3_libs):
                 sys.exit(1)
 
         if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
-            if not r_pkg_libs:
+            if r_pkg_libs:
                 if not install_r_pkg(r_pkg_libs):
                     sys.exit(1)
     except:
@@ -98,3 +98,7 @@ if __name__ == "__main__":
 
     print "Installing libraries: " + args.libs
     install_libs(libraries)
+
+    with open("/root/result.json", 'w') as result:
+        res = {"Action": "Install additional libs"}
+        result.write(json.dumps(res))
