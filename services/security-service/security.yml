@@ -84,7 +84,7 @@ ldapSearch:
           name = ui.getName();
           key = ('uid='+name+',ou=People,dc=example,dc=com').toLowerCase();
           userInfo=context['userInfo'];
-          if( userInfo[key] === undefined ) {
+          if( userInfo[key] == undefined ) {
             throw 'JavaScript LDAP UserInfo not found for '+key;
           }
           uid= userInfo[key];
