@@ -47,8 +47,7 @@ def parse_json_libs(libs):
             libs_list[key] = value
         return libs_list
     except:
-        traceback.print_exc()
-        raise Exception
+        sys.exit(1)
 
 def install_libs(libraries):
     try:
@@ -91,8 +90,7 @@ def install_libs(libraries):
                     sys.exit(1)
 
     except:
-        traceback.print_exc()
-        raise Exception
+        sys.exit(1)
 
 if __name__ == "__main__":
     instance_class = 'notebook'
