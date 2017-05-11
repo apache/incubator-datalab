@@ -41,21 +41,19 @@ if __name__ == "__main__":
     notebook_config['os_user'] = os.environ['conf_os_user']
     notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['notebook_name']).get('Private')
     notebook_config['keyfile'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
-    additional_libs = os.environ['additional_libs']
 
     try:
-        logging.info('[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]')
-        print '[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]'
-        params = "--os_user {} --notebook_ip {} --keyfile '{}' --libs \"{}\"" \
-            .format(notebook_config['os_user'], notebook_config['notebook_ip'],
-                    notebook_config['keyfile'], additional_libs)
+        logging.info('[GETTING ALL AVAILABLE PACKAGES]')
+        print '[GETTING ALL AVAILABLE PACKAGES]'
+        params = "--os_user {} --notebook_ip {} --keyfile '{}'" \
+            .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
-            # Run script to install additional libs
-            local("~/scripts/{}.py {}".format('install_additional_libs', params))
+            # Run script to get available libs
+            local("~/scripts/{}.py {}".format('get_all_available_pkgs', params))
 
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to install additional libraries. Exception: " + str(err))
+        append_result("Failed to get available libraries. Exception: " + str(err))
         sys.exit(1)

@@ -8,6 +8,5 @@
     "aws_region":"CREG",
     "notebook_instance_name":"NIN",
     "conf_key_name":"CKN",
-    "additional_libs": "ADL",
-    "application": "APP"
+    "application":"APP"
 }

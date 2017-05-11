@@ -47,7 +47,8 @@ def parse_json_libs(libs):
             libs_list[key] = value
         return libs_list
     except:
-        sys.exit(1)
+        traceback.print_exc()
+        raise Exception
 
 def install_libs(libraries):
     try:
@@ -69,6 +70,7 @@ def install_libs(libraries):
                 r_pkg_libs.append(lib)
 
         if os_pkg_libs:
+            logging.info('Installing os packages.')
             if not install_os_pkg(os_pkg_libs):
                 sys.exit(1)
 
@@ -84,10 +86,20 @@ def install_libs(libraries):
             if r_pkg_libs:
                 if not install_r_pkg(r_pkg_libs):
                     sys.exit(1)
+
     except:
-        return False
+        traceback.print_exc()
+        raise Exception
 
 if __name__ == "__main__":
+    instance_class = 'notebook'
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+
     env.hosts = "{}".format(args.notebook_ip)
     env['connection_attempts'] = 100
     env.user = args.os_user
@@ -100,5 +112,6 @@ if __name__ == "__main__":
     install_libs(libraries)
 
     with open("/root/result.json", 'w') as result:
-        res = {"Action": "Install additional libs"}
+        res = {"Action": "Install additional libs",
+               "Libs": str(libraries)}
         result.write(json.dumps(res))

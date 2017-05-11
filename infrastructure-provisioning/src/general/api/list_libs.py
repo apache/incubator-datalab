@@ -27,7 +27,7 @@ from fabric.api import local
 if __name__ == "__main__":
     success = True
     try:
-        local('cd /root; fab run')
+        local('cd /root; fab list_libs')
     except:
         success = False
 
@@ -46,19 +46,27 @@ if __name__ == "__main__":
     except:
         reply['response']['result'] = {"error": "Failed to open result.json"}
 
-    if os.environ['conf_resource'] == 'ssn':
-        reply['response']['log'] = "/response/{}.log".format(os.environ['request_id'])
+    reply['response']['log'] = "/var/log/dlab/{0}/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
+                                                                          os.environ['edge_user_name'],
+                                                                          os.environ['request_id'])
 
-        with open("/response/{}.json".format(os.environ['request_id']), 'w') as response_file:
-            response_file.write(json.dumps(reply))
-    else:
-        reply['response']['log'] = "/var/log/dlab/{0}/{0}_{1}_{2}.log".format(os.environ['conf_resource'],
-                                                                              os.environ['edge_user_name'],
-                                                                              os.environ['request_id'])
+    reply['response']['file'] = "/opt/dlab/tmp/result/{0}_{1}_{2}_all_pkgs.json".format(os.environ['edge_user_name'],
+                                                                                        os.environ['application'],
+                                                                                        os.environ['request_id'])
 
-        with open("/response/{}_{}_{}.json".format(os.environ['conf_resource'], os.environ['edge_user_name'],
-                                                   os.environ['request_id']), 'w') as response_file:
-            response_file.write(json.dumps(reply))
+    with open("/response/{}_{}_{}.json".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id']), 'w') as response_file:
+        response_file.write(json.dumps(reply))
+
+    try:
+        with open("/root/all_pkgs.json") as f:
+            tmp = json.loads(f.read())
+            with open("/response/{}_{}_{}_all_pkgs.json".format(os.environ['edge_user_name'],
+                                                                os.environ['application'],
+                                                                os.environ['request_id']), 'w') as response_file:
+                response_file.write(json.dumps(tmp))
+    except:
+        success = False
 
     try:
         local('chmod 666 /response/*')

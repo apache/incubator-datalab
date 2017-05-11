@@ -149,3 +149,7 @@ if __name__ == "__main__":
     elif args.action == 'install_libs':
         with hide('running'):
             local("/bin/install_libs.py")
+
+    elif args.action == 'list_libs':
+        with hide('running'):
+            local("/bin/list_libs.py")

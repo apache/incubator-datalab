@@ -131,3 +131,20 @@ def install_libs():
         traceback.print_exc()
         append_result("Failed installing additional libs for Notebook node. Exception: " + str(err))
         sys.exit(1)
+
+
+# Main function for get available libraries for notebook
+def list_libs():
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+
+    try:
+        local("~/scripts/{}.py".format('common_list_libs'))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed get available libraries for notebook node. Exception: " + str(err))
+        sys.exit(1)

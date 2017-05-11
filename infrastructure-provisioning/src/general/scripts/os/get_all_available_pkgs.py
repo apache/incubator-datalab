@@ -27,9 +27,9 @@ import json
 import xmlrpclib
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--hostname', type=str, default='')
-parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--notebook_ip', type=str, default='')
+parser.add_argument('--keyfile', type=str, default='')
 args = parser.parse_args()
 
 
@@ -47,15 +47,20 @@ if __name__ == "__main__":
     print "Configure connections"
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
-    env.host_string = '{}@{}'.format(args.os_user, args.hostname)
+    env.host_string = '{}@{}'.format(args.os_user, args.notebook_ip)
 
     all_pkgs = dict()
-    all_pkgs['os_pkg'] = get_available_os_pkgs() # from notebook_lib
+    all_pkgs['os_pkg'] = get_available_os_pkgs()
     all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
     all_pkgs['pip3'] = get_available_pip_pkgs("3.5")
 
     if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
-        all_pkgs['r_pkg'] = get_available_r_pkgs() # from fab
+        all_pkgs['r_pkg'] = get_available_r_pkgs()
+
+    # Writing response file & json file with all pkgs
+    with open("/root/result.json", 'w') as result:
+        res = {"Action": "Get available libraries"}
+        result.write(json.dumps(res))
 
     with open("/root/all_pkgs.json", 'w') as result:
         result.write(json.dumps(all_pkgs))

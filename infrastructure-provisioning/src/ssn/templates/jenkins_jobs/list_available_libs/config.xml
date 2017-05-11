@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Installs libs on notebook server.</description>
+  <description>List available libs on notebook server.</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
@@ -76,25 +76,10 @@
           <description></description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>install_libs</string>
+              <string>list_libs</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>Libs</name>
-          <description>
-            List of additional libs in json format. For example:
-            {'libraries':[
-              {'Name': 'requests', 'Type': 'pip2'},
-              {'Name': 'configparser', 'Type': 'pip3'},
-              {'Name': 'htop', 'Type': 'os_pkg'},
-              {'Name': 'rmarkdown', 'Type': 'r_pkg'}
-            ]}
-            Note: Use only single quotes and write all in one line!
-            Types: for OS - os_pkg, for Python - pip2/pip3, for R - r_pkg
-          </description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -107,7 +92,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rand=`openssl rand -hex 10`; sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/install_additional_libs/template.json | sed &apos;s/GOS/&apos;${os_user}&apos;/g&apos; | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/ovs/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &quot;s/ADL/${Libs}/g&quot; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sudo docker run -i -v /home/${os_user}/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/notebook:/logs/notebook docker.dlab-${notebook_app} --action $Action
+      <command>rand=`openssl rand -hex 10`; sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/list_available_libs/template.json | sed &apos;s/GOS/&apos;${os_user}&apos;/g&apos; | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/ovs/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sudo docker run -i -v /home/${os_user}/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/notebook:/logs/notebook docker.dlab-${notebook_app} --action $Action
       </command>
     </hudson.tasks.Shell>
   </builders>

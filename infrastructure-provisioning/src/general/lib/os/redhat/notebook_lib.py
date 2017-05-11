@@ -335,6 +335,7 @@ def install_os_pkg(requisites):
 
 def get_available_os_pkgs():
     try:
+        sudo('yum update-minimal --security -y')
         yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
         yum_list = yum_raw.split('\r\n')[1].replace("'","\"")
         os_pkgs = json.loads(yum_list)

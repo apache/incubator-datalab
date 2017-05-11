@@ -131,20 +131,6 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    # getting all available packages
-    try:
-        logging.info('[GETTING ALL AVAILABLE PACKAGES]')
-        print('[GETTING ALL AVAILABLE PACKAGES]')
-        params = "--hostname {} --keyfile {} --os_user {}".format(instance_hostname, keyfile_name, os.environ['conf_os_user'])
-        try:
-            local("~/scripts/{}.py {}".format('get_all_available_pkgs', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed to get all available packages.", str(err))
-        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
-        sys.exit(1)
 
     try:
         print '[INSTALLING USERs KEY]'

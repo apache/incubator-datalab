@@ -331,6 +331,7 @@ def get_available_os_pkgs():
     try:
         os_pkgs = dict()
         ansi_escape = re.compile(r'\x1b[^m]*m')
+        sudo('apt-get update')
         apt_raw = sudo("apt list")
         apt_list = ansi_escape.sub('', apt_raw).split("\r\n")
         for pkg in apt_list:
