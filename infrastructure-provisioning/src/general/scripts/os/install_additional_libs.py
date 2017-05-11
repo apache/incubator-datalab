@@ -75,15 +75,18 @@ def install_libs(libraries):
                 sys.exit(1)
 
         if pip2_libs:
+            logging.info('Installing pip2 packages.')
             if not install_pip2_pkg(pip2_libs):
                 sys.exit(1)
 
         if pip3_libs:
+            logging.info('Installing pip3 packages.')
             if not install_pip3_pkg(pip3_libs):
                 sys.exit(1)
 
         if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
             if r_pkg_libs:
+                logging.info('Installing R packages.')
                 if not install_r_pkg(r_pkg_libs):
                     sys.exit(1)
 
@@ -109,6 +112,7 @@ if __name__ == "__main__":
     libraries = parse_json_libs(args.libs)
 
     print "Installing libraries: " + args.libs
+    logging.info('Installing libraries:' + args.libs)
     install_libs(libraries)
 
     with open("/root/result.json", 'w') as result:
