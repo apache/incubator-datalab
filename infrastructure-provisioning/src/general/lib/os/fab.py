@@ -48,9 +48,9 @@ def install_pip2_pkg(requisites):
         sudo('pip2 install --upgrade pip')
         for pkg in requisites:
             sudo('pip2 install ' + pkg + ' --no-cache-dir')
-        return True
+        return (True, "Ok")
     except:
-        return False
+        return (False, pkg)
 
 
 def install_pip3_pkg(requisites):
@@ -62,9 +62,9 @@ def install_pip3_pkg(requisites):
         sudo('pip3 install --upgrade pip')
         for pkg in requisites:
             sudo('pip3 install ' + pkg + ' --no-cache-dir')
-        return True
+        return (True, "Ok")
     except:
-        return False
+        return (False, pkg)
 
 
 def create_aws_config_files(generate_full_config=False):
@@ -477,9 +477,9 @@ def install_r_pkg(requisites):
     try:
         for pkg in requisites:
             sudo('R -e \'install.packages("'+ pkg +'", repos="http://cran.us.r-project.org", dep=TRUE)\'')
-        return True
+        return (True, "Ok")
     except:
-        return False
+        return (False, pkg)
 
 
 def get_available_r_pkgs():

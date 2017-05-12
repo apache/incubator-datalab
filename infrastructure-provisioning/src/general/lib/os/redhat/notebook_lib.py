@@ -329,9 +329,9 @@ def install_os_pkg(requisites):
         sudo('export LC_ALL=C')
         for pkg in requisites:
             sudo('yum -y install ' + pkg)
-        return True
+        return (True, "Ok")
     except:
-        return False
+        return (False, pkg)
 
 
 def get_available_os_pkgs():

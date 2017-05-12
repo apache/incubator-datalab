@@ -323,9 +323,9 @@ def install_os_pkg(requisites):
             sudo('apt-get -y install ' + pkg)
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
-        return True
+        return (True, "Ok")
     except:
-        return False
+        return (False, pkg)
 
 
 def get_available_os_pkgs():

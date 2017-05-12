@@ -61,23 +61,35 @@ def install_libs(libraries):
 
         if os_pkg_libs:
             print 'Installing os packages:', os_pkg_libs
-            if not install_os_pkg(os_pkg_libs):
+            status = install_os_pkg(os_pkg_libs)
+            if not status[0]:
+                global fail_on
+                fail_on += " " + status[1]
                 sys.exit(1)
 
         if pip2_libs:
             print 'Installing pip2 packages:', pip2_libs
-            if not install_pip2_pkg(pip2_libs):
+            status = install_pip2_pkg(pip2_libs)
+            if not status[0]:
+                global fail_on
+                fail_on += " " + status[1]
                 sys.exit(1)
 
         if pip3_libs:
             print 'Installing pip3 packages:', pip3_libs
-            if not install_pip3_pkg(pip3_libs):
+            status = install_pip3_pkg(pip3_libs)
+            if not status[0]:
+                global fail_on
+                fail_on += " " + status[1]
                 sys.exit(1)
 
         if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
             if r_pkg_libs:
                 print 'Installing R packages:', r_pkg_libs
-                if not install_r_pkg(r_pkg_libs):
+                status = install_r_pkg(r_pkg_libs)
+                if not status[0]:
+                    global fail_on
+                    fail_on += " " + status[1]
                     sys.exit(1)
 
     except:
@@ -92,8 +104,10 @@ if __name__ == "__main__":
 
     print 'Installing libraries:' + args.libs
     install_libs(args.libs)
+    fail_on = ""
 
     with open("/root/result.json", 'w') as result:
         res = {"Action": "Install additional libs",
-               "Libs": args.libs}
+               "Libs": args.libs,
+               "Fail": fail_on}
         result.write(json.dumps(res))
