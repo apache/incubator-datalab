@@ -177,7 +177,7 @@ To build SSN node, following steps should be executed:
 2.  Go to *dlab* directory.
 3.  Execute following script:
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --infrastructure_tag dlab_test --access_key_id XXXXXXX --secret_access_key XXXXXXXXXX --region us-west-2 --os_family debian --cloud_provider aws --os_user ubuntu --vpc_id vpc-xxxxx --subnet_id subnet-xxxxx --sg_ids sg-xxxxx,sg-xxxx --key_path /root/ --key_name Test --tag_resource_id dlab --action create
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --infrastructure_tag dlab_test --access_key_id XXXXXXX --secret_access_key XXXXXXXXXX --region us-west-2 --os_family debian --cloud_provider aws --os_user ubuntu --vpc_id vpc-xxxxx --subnet_id subnet-xxxxx --sg_ids sg-xxxxx,sg-xxxx --key_path /root/ --key_name Test --tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
 ```
 
 This bash script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
@@ -199,12 +199,20 @@ List of parameters for SSN node deployment:
 | key\_path           | Path to admin key (without key name)                                                    |
 | key\_name           | Name of the uploaded SSH key file (without “.pem” extension)                            |
 | tag\_resource\_id   | The name of tag for billing reports                                                     |
+| aws\_account\_id    | The The ID of Amazon account                                                            |
+| aws\_billing\_bucket| The name of S3 bucket where billing reports will be placed                              |
+| aws\_report\_path   | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
 | action              | In case of SSN node creation, this parameter should be set to “create”                  |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
 -   vpc\_id
 -   subnet\_id
 -   sg\_ids
+
+**Note:** If billing won't be using, the following parameters are not required:
+-   aws\_account\_id
+-   aws\_billing\_bucket
+-   aws\_report\_path
 
 After SSN node deployment following AWS resources will be created:
 
