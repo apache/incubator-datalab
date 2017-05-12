@@ -1085,7 +1085,7 @@ The scripts above were created to flexibly manage user`s security configuration.
 Major properties are: 
 - **attributes**             - list of attributes that will be retrieved from LDAP (-name, -cn, -uid, -member, etc);
 - **filter**               - the filter, based on which the object will be retrieved from LDAP; 
-- **searchResultProcessor:**    - optional. If only LDAP object attributes retrieving is required, this property should be empty. For example, “userLookup” script only retrieves list of "attributes". Otherwise, code customization (like user enrichment, user to groups matching, etc.) should be added into sub-properties below:
+- **searchResultProcessor**    - optional. If only LDAP object attributes retrieving is required, this property should be empty. For example, “userLookup” script only retrieves list of "attributes". Otherwise, code customization (like user enrichment, user to groups matching, etc.) should be added into sub-properties below:
   - **language**                - the script language - "python" or "JavaScript" 
   - **code**                    - the script code.
      
