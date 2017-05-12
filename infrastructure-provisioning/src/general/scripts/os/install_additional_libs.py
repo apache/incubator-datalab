@@ -37,44 +37,6 @@ parser.add_argument('--libs', type=str, default='')
 args = parser.parse_args()
 
 
-def install_libs(libraries):
-    global fail_on
-    try:
-        pkgs = json.loads(libraries.replace("'", "\""))
-
-        if "os_pkg" in pkgs['libraries'].keys():
-            print 'Installing os packages:', pkgs['libraries']['os_pkg']
-            status, fail_pkg = install_os_pkg(pkgs['libraries']['os_pkg'])
-            if not status:
-                fail_on += " os_pkg:" + fail_pkg
-                # sys.exit(1)
-
-        if "pip2" in pkgs['libraries'].keys():
-            print 'Installing pip2 packages:', pkgs['libraries']['pip2']
-            status, fail_pkg = install_pip2_pkg(pkgs['libraries']['pip2'])
-            if not status:
-                fail_on += " pip2:" + fail_pkg
-                # sys.exit(1)
-
-        if "pip3" in pkgs['libraries'].keys():
-            print 'Installing pip3 packages:', pkgs['libraries']['pip3']
-            status, fail_pkg = install_pip3_pkg(pkgs['libraries']['pip3'])
-            if not status:
-                fail_on += " pip3:" + fail_pkg
-                # sys.exit(1)
-
-        if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
-            if "r_pkg" in pkgs['libraries'].keys():
-                print 'Installing R packages:', pkgs['libraries']['r_pkg']
-                status, fail_pkg = install_r_pkg(pkgs['libraries']['r_pkg'])
-                if not status:
-                    fail_on += " r_pkg:" + fail_pkg
-                    # sys.exit(1)
-
-    except:
-        sys.exit(1)
-
-
 if __name__ == "__main__":
     env.hosts = "{}".format(args.notebook_ip)
     env['connection_attempts'] = 100
@@ -83,8 +45,52 @@ if __name__ == "__main__":
     env.host_string = env.user + "@" + env.hosts
 
     print 'Installing libraries:' + args.libs
-    install_libs(args.libs)
     fail_on = ""
+
+    pkgs = json.loads(args.libs.replace("'", "\""))
+
+    try:
+        print 'Installing os packages:', pkgs['libraries']['os_pkg']
+        status, fail_pkg = install_os_pkg(pkgs['libraries']['os_pkg'])
+        print status, fail_pkg
+        if not status:
+            fail_on += " os_pkg:" + fail_pkg
+            # sys.exit(1)
+    except KeyError:
+        pass
+
+    try:
+        print 'Installing pip2 packages:', pkgs['libraries']['pip2']
+        status, fail_pkg = install_pip2_pkg(pkgs['libraries']['pip2'])
+        print status, fail_pkg
+        if not status:
+            fail_on += " pip2:" + fail_pkg
+            # sys.exit(1)
+    except KeyError:
+        pass
+
+    try:
+        print 'Installing pip3 packages:', pkgs['libraries']['pip3']
+        status, fail_pkg = install_pip3_pkg(pkgs['libraries']['pip3'])
+        print status, fail_pkg
+        if not status:
+            fail_on += " pip3:" + fail_pkg
+            # sys.exit(1)
+    except KeyError:
+        pass
+
+    if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
+        try:
+            print 'Installing R packages:', pkgs['libraries']['r_pkg']
+            status, fail_pkg = install_r_pkg(pkgs['libraries']['r_pkg'])
+            print status, fail_pkg
+            print status, fail_pkg
+            if not status:
+                fail_on += " r_pkg:" + fail_pkg
+                # sys.exit(1)
+        except KeyError:
+            pass
+
 
     with open("/root/result.json", 'w') as result:
         res = {"Action": "Install additional libs",
