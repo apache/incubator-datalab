@@ -19,6 +19,7 @@
 # ******************************************************************************
 
 import os
+import sys
 import argparse
 from dlab.notebook_lib import *
 from dlab.fab import *
@@ -34,17 +35,19 @@ args = parser.parse_args()
 
 
 def get_available_pip_pkgs(version):
-    pip_pkgs = dict()
-    client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
-    raw_pkgs = client.browse(["Programming Language :: Python :: " + version + ""])
-    all_pkgs = [i[0] for i in raw_pkgs]
-    for pkg in all_pkgs:
-        pip_pkgs[pkg] = "N/A"
-    return pip_pkgs
+    try:
+        pip_pkgs = dict()
+        client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
+        raw_pkgs = client.browse(["Programming Language :: Python :: " + version + ""])
+        all_pkgs = [i[0] for i in raw_pkgs]
+        for pkg in all_pkgs:
+            pip_pkgs[pkg] = "N/A"
+        return pip_pkgs
+    except:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    print "Configure connections"
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = '{}@{}'.format(args.os_user, args.notebook_ip)
@@ -59,7 +62,7 @@ if __name__ == "__main__":
 
     # Writing response file & json file with all pkgs
     with open("/root/result.json", 'w') as result:
-        res = {"Action": "Get available libraries"}
+        res = {"Action": "Get all available libraries"}
         result.write(json.dumps(res))
 
     with open("/root/all_pkgs.json", 'w') as result:

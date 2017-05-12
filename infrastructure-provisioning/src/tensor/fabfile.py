@@ -130,7 +130,7 @@ def install_libs():
         local("~/scripts/{}.py".format('common_install_libs'))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed installing additional libs for Notebook node. Exception: " + str(err))
+        append_result("Failed installing additional libs for Notebook node.", str(err))
         sys.exit(1)
 
 
@@ -147,5 +147,5 @@ def list_libs():
         local("~/scripts/{}.py".format('common_list_libs'))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed get available libraries for notebook node. Exception: " + str(err))
+        append_result("Failed get available libraries for notebook node.", str(err))
         sys.exit(1)

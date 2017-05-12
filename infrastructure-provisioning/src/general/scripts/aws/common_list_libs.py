@@ -50,10 +50,9 @@ if __name__ == "__main__":
         try:
             # Run script to get available libs
             local("~/scripts/{}.py {}".format('get_all_available_pkgs', params))
-
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to get available libraries. Exception: " + str(err))
+        append_result("Failed to get available libraries.", str(err))
         sys.exit(1)

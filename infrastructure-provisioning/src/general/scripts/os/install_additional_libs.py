@@ -36,56 +36,46 @@ parser.add_argument('--libs', type=str, default='')
 args = parser.parse_args()
 
 
-def parse_json_libs(libs):
-    try:
-        libs_list = dict()
-        data = json.loads(libs.replace("'","\""))
-        node = data['libraries']
-        for n in node:
-            key = n['Name']
-            value = n['Type']
-            libs_list[key] = value
-        return libs_list
-    except:
-        sys.exit(1)
-
 def install_libs(libraries):
     try:
-        print "Installing additional libraries."
-
         os_pkg_libs = ''
         pip2_libs = ''
         pip3_libs = ''
         r_pkg_libs = list()
 
-        for lib in libraries:
-            if libraries[lib] == "os_pkg":
-                os_pkg_libs += " " + lib
-            elif libraries[lib] == "pip2":
-                pip2_libs += " " + lib
-            elif libraries[lib] == "pip3":
-                pip3_libs += " " + lib
-            elif libraries[lib] == "r_pkg":
-                r_pkg_libs.append(lib)
+        pkgs = json.loads(libraries.replace("'", "\""))
+
+        if "os_pkg" in pkgs['libraries'].keys():
+            for pkg in pkgs['libraries']['os_pkg']:
+                os_pkg_libs += " " + pkg
+        if "pip2" in pkgs['libraries'].keys():
+            for pkg in pkgs['libraries']['pip2']:
+                pip2_libs += " " + pkg
+        if "pip3" in pkgs['libraries'].keys():
+            for pkg in pkgs['libraries']['pip3']:
+                pip3_libs += " " + pkg
+        if "r_pkg" in pkgs['libraries'].keys():
+            for pkg in pkgs['libraries']['r_pkg']:
+                r_pkg_libs.append(pkg)
 
         if os_pkg_libs:
-            logging.info('Installing os packages.')
+            print 'Installing os packages:', os_pkg_libs
             if not install_os_pkg(os_pkg_libs):
                 sys.exit(1)
 
         if pip2_libs:
-            logging.info('Installing pip2 packages.')
+            print 'Installing pip2 packages:', pip2_libs
             if not install_pip2_pkg(pip2_libs):
                 sys.exit(1)
 
         if pip3_libs:
-            logging.info('Installing pip3 packages.')
+            print 'Installing pip3 packages:', pip3_libs
             if not install_pip3_pkg(pip3_libs):
                 sys.exit(1)
 
         if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
             if r_pkg_libs:
-                logging.info('Installing R packages.')
+                print 'Installing R packages:', r_pkg_libs
                 if not install_r_pkg(r_pkg_libs):
                     sys.exit(1)
 
@@ -93,27 +83,16 @@ def install_libs(libraries):
         sys.exit(1)
 
 if __name__ == "__main__":
-    instance_class = 'notebook'
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
-                                               os.environ['request_id'])
-    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
-    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
-                        level=logging.DEBUG,
-                        filename=local_log_filepath)
-
     env.hosts = "{}".format(args.notebook_ip)
     env['connection_attempts'] = 100
     env.user = args.os_user
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
 
-    libraries = parse_json_libs(args.libs)
-
-    print "Installing libraries: " + args.libs
-    logging.info('Installing libraries:' + args.libs)
-    install_libs(libraries)
+    print 'Installing libraries:' + args.libs
+    install_libs(args.libs)
 
     with open("/root/result.json", 'w') as result:
         res = {"Action": "Install additional libs",
-               "Libs": str(libraries)}
+               "Libs": args.libs}
         result.write(json.dumps(res))

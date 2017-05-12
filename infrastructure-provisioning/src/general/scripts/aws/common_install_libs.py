@@ -52,10 +52,9 @@ if __name__ == "__main__":
         try:
             # Run script to install additional libs
             local("~/scripts/{}.py {}".format('install_additional_libs', params))
-
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to install additional libraries. Exception: ", str(err))
+        append_result("Failed to install additional libraries.", str(err))
         sys.exit(1)

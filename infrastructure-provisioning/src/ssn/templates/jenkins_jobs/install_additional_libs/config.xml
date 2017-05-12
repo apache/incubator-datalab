@@ -84,12 +84,14 @@
           <name>Libs</name>
           <description>
             List of additional libs in json format. For example:
-            {'libraries':[
-              {'Name': 'requests', 'Type': 'pip2'},
-              {'Name': 'configparser', 'Type': 'pip3'},
-              {'Name': 'htop', 'Type': 'os_pkg'},
-              {'Name': 'rmarkdown', 'Type': 'r_pkg'}
-            ]}
+            {
+              'libraries': {
+                'os_pkg': ['nmap', 'htop'],
+                'pip2': ['requests', 'configparser'],
+                'pip3': ['configparser'],
+                'r_pkg': ['rmarkdown']
+              }
+            }
             Note: Use only single quotes and write all in one line!
             Types: for OS - os_pkg, for Python - pip2/pip3, for R - r_pkg
           </description>
