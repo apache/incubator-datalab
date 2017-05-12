@@ -201,7 +201,7 @@ List of parameters for SSN node deployment:
 | tag\_resource\_id   | The name of tag for billing reports                                                     |
 | aws\_account\_id    | The The ID of Amazon account                                                            |
 | aws\_billing\_bucket| The name of S3 bucket where billing reports will be placed                              |
-| aws\_report\_path   | The path to billing reports directory in S3 bucket                                      |
+| aws\_report\_path   | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
 | action              | In case of SSN node creation, this parameter should be set to “create”                  |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
