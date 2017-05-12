@@ -148,8 +148,7 @@ public abstract class ParserByLine extends ParserBase {
 						}
 						
 						row = parseRow(line);
-						if (!checkStartDate(row) ||
-							(getFilter() != null && (row = getFilter().canTransform(row)) == null)) {
+						if ((getFilter() != null && (row = getFilter().canTransform(row)) == null)) {
 							getCurrentStatistics().incrRowFiltered();
 							continue;
 						}
@@ -195,7 +194,6 @@ public abstract class ParserByLine extends ParserBase {
 							getCurrentStatistics().incrRowWritten();
 						}
 					}
-					storeModuleDate();
 					
 					if (getAdapterIn().hasMultyEntry()) {
 						if (getAdapterIn().openNextEntry()) {

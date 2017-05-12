@@ -109,7 +109,7 @@ public class BillingScheduler implements Runnable {
 			}
 		}
 		
-		LOGGER.info("Billing report configuration: {}", parser);
+		LOGGER.info("Billing report configuration: {}", configuration);
 		parser.parse();
 		if (parser.getStatistics().size() > 0) {
 			LOGGER.info("Billing report parser statistics:");
