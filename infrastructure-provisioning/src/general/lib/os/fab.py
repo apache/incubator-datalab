@@ -46,7 +46,8 @@ def install_pip2_pkg(requisites):
         sudo('pip2 install -U pip setuptools')
         sudo('pip2 install -U pip --no-cache-dir')
         sudo('pip2 install --upgrade pip')
-        sudo('pip2 install ' + requisites + ' --no-cache-dir')
+        for pkg in requisites:
+            sudo('pip2 install ' + pkg + ' --no-cache-dir')
         return True
     except:
         return False
@@ -59,7 +60,8 @@ def install_pip3_pkg(requisites):
         sudo('pip3 install -U pip setuptools')
         sudo('pip3 install -U pip --no-cache-dir')
         sudo('pip3 install --upgrade pip')
-        sudo('pip3 install ' + requisites + ' --no-cache-dir')
+        for pkg in requisites:
+            sudo('pip3 install ' + pkg + ' --no-cache-dir')
         return True
     except:
         return False

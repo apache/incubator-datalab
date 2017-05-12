@@ -327,7 +327,8 @@ def install_os_pkg(requisites):
         print "Updating repositories and installing requested tools: " + requisites
         sudo('yum update-minimal --security -y')
         sudo('export LC_ALL=C')
-        sudo('yum -y install ' + requisites)
+        for pkg in requisites:
+            sudo('yum -y install ' + pkg)
         return True
     except:
         return False

@@ -319,7 +319,8 @@ def install_os_pkg(requisites):
         print "Updating repositories and installing requested tools: " + requisites
         sudo('apt-get update')
         sudo('apt-get -y install python-pip python3-pip')
-        sudo('apt-get -y install ' + requisites)
+        for pkg in requisites:
+            sudo('apt-get -y install ' + pkg)
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
         return True

@@ -20,6 +20,7 @@
 
 import argparse
 import sys
+import os
 from dlab.actions_lib import *
 from dlab.common_lib import *
 from dlab.notebook_lib import *
@@ -38,22 +39,22 @@ args = parser.parse_args()
 
 def install_libs(libraries):
     try:
-        os_pkg_libs = ''
-        pip2_libs = ''
-        pip3_libs = ''
+        os_pkg_libs = list()
+        pip2_libs = list()
+        pip3_libs = list()
         r_pkg_libs = list()
 
         pkgs = json.loads(libraries.replace("'", "\""))
 
         if "os_pkg" in pkgs['libraries'].keys():
             for pkg in pkgs['libraries']['os_pkg']:
-                os_pkg_libs += " " + pkg
+                os_pkg_libs.append(pkg)
         if "pip2" in pkgs['libraries'].keys():
             for pkg in pkgs['libraries']['pip2']:
-                pip2_libs += " " + pkg
+                pip2_libs.append(pkg)
         if "pip3" in pkgs['libraries'].keys():
             for pkg in pkgs['libraries']['pip3']:
-                pip3_libs += " " + pkg
+                pip3_libs.append(pkg)
         if "r_pkg" in pkgs['libraries'].keys():
             for pkg in pkgs['libraries']['r_pkg']:
                 r_pkg_libs.append(pkg)
