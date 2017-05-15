@@ -73,7 +73,7 @@ public class ReportLineTest {
 	@Test
 	public void resourceType() throws ParseException {
 		checkResourceType("Amazon Elastic Compute Cloud", "i-000c0e51d117e3b4a", ResourceType.COMPUTER, "i-000c0e51d117e3b4a");
-		checkResourceType("Amazon Elastic Compute Cloud", "vol-04c20f339836c56b6", ResourceType.STORAGE, "vol-04c20f339836c56b6");
+		checkResourceType("Amazon Elastic Compute Cloud", "vol-04c20f339836c56b6", ResourceType.STORAGE_ESB, "vol-04c20f339836c56b6");
 		checkResourceType("Amazon Elastic Compute Cloud", "34.208.106.54", ResourceType.IP_ADDRESS, "34.208.106.54");
 
 		checkResourceType("Amazon Elastic MapReduce", "arn:aws:elasticmapreduce:us-west-2:203753054073:cluster/j-1FOBGFRC8X4XY", ResourceType.CLUSTER, "j-1FOBGFRC8X4XY");
