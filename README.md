@@ -29,7 +29,7 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Starting/Stopping services](#Starting_Stopping_services)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Billing report](#Billing-Report)
+&nbsp; &nbsp; &nbsp; &nbsp; [Billing report](#Billing_Report)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Troubleshooting](#Troubleshooting)
 
@@ -474,13 +474,13 @@ After you have configured the billing. You can running it as a process of Self-S
 sudo supervisorctl stop ui
 sudo supervisorctl start ui
 ```
-If you want to load report by manually or to use external scheduler use next command
+If you want to load report by manually or to use external scheduler use next command:
 ```
 java -jar /opt/dlab/webapp/lib/billing/billing-x.y.jar --conf /opt/dlab/conf/billing.yml
 or
 java -cp /opt/dlab/webapp/lib/billing/billing-x.y.jar com.epam.dlab.BillingTool --conf /opt/dlab/conf/billing.yml
 ```
-If you want the billing to work as a separate process from the Self-Service use next command
+If you want the billing to work as a separate process from the Self-Service use next command:
 ```
 java -cp /opt/dlab/webapp/lib/billing/billing-x.y.jar com.epam.dlab.BillingScheduler --conf /opt/dlab/conf/billing.yml
 ```
