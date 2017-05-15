@@ -55,22 +55,45 @@ public class LoginConveyorTest {
 
         lc.add("1","127.0.0.1",LoginStep.REMOTE_IP);
         lc.add("1","OK",LoginStep.LDAP_LOGIN);
-        lc.add("1",uiSource,LoginStep.LDAP_USER_INFO);
-        lc.add("1",true,LoginStep.AWS_USER);
+        lc.add("1",uiSource, LoginStep.LDAP_USER_INFO);
+        lc.add("1",true, LoginStep.AWS_USER);
         lc.add("1",new ArrayList<AccessKeyMetadata>() {
         		{	add(new AccessKeyMetadata()
         				.withAccessKeyId("a")
         				.withStatus("Active"));
         		}} ,LoginStep.AWS_KEYS);
 
-        UserInfo ui = uf.get(5, TimeUnit.SECONDS);
+
+
+        UserInfo ui = uf.get(15, TimeUnit.SECONDS);
+        System.out.println("Future now: "+ui);
+    }
+
+    @SuppressWarnings("serial")
+    @Test
+    public void startUserInfoBuildWithoutAws() throws Exception {
+        CompletableFuture<UserInfo> uf = lc.startUserInfoBuild("1","test");
+        UserInfo uiSource = new UserInfo("a","b");
+        uiSource.setFirstName("test");
+        uiSource.setLastName("user");
+        uiSource.addRole("admin");
+
+        lc.add("1","127.0.0.1",LoginStep.REMOTE_IP);
+        lc.add("1","OK",LoginStep.LDAP_LOGIN);
+        lc.add("1",uiSource, LoginStep.LDAP_USER_INFO);
+        lc.add("1",true, LoginStep.AWS_USER);
+        lc.add("1",new ArrayList<AccessKeyMetadata>() ,LoginStep.AWS_KEYS_EMPTY);
+
+
+
+        UserInfo ui = uf.get(15, TimeUnit.SECONDS);
         System.out.println("Future now: "+ui);
     }
 
     @Test(expected = CancellationException.class)
     public void cacheTest() throws ExecutionException, InterruptedException, TimeoutException {
         LoginCache cache = LoginCache.getInstance();
-System.out.println("---cacheTest");
+        System.out.println("---cacheTest");
         //Just for this test
         cache.setDefaultBuilderTimeout(1,TimeUnit.SECONDS);
         cache.setExpirationPostponeTime(1,TimeUnit.SECONDS);
