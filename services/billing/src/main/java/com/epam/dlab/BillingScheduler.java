@@ -109,7 +109,7 @@ public class BillingScheduler implements Runnable {
 			}
 		}
 		
-		LOGGER.info("Billing report configuration: {}", configuration);
+		LOGGER.info("Try to laod billing report for configuration: {}", configuration);
 		parser.parse();
 		if (parser.getStatistics().size() > 0) {
 			LOGGER.info("Billing report parser statistics:");
@@ -157,35 +157,41 @@ public class BillingScheduler implements Runnable {
 		LOGGER.info("Billing scheduler has been started");
 		long startTimeMillis = schedule.getNextTime().getTimeInMillis();
 		long timeMillis;
-		LOGGER.debug("Billing report will be loaded at {}", schedule.getNextTime().getTime());
+		LOGGER.info("Billing report will be loaded at {}", schedule.getNextTime().getTime());
 		
-		while (true) {
-			if (startTimeMillis <= System.currentTimeMillis()) {
-				try {
-					LOGGER.debug("Try to load billing report");
-					load();
+		try {
+			while (true) {
+				if (startTimeMillis <= System.currentTimeMillis()) {
+					try {
+						LOGGER.debug("Try to load billing report for schedule {}", schedule.getNextTime().getTime());
+						load();
+					} catch (InitializationException | AdapterException | ParseException e) {
+						LOGGER.error("Error loading billing report: {}", e.getLocalizedMessage(), e);
+					}
 					startTimeMillis = schedule.getNextTime().getTimeInMillis();
-					LOGGER.debug("Billing report will be loaded at {}", schedule.getNextTime().getTime());
-				} catch (InitializationException | AdapterException | ParseException e) {
-					LOGGER.error("Error loading billing report: {}", e.getLocalizedMessage(), e);
+					LOGGER.info("Billing report will be loaded at {}", schedule.getNextTime().getTime());
+				} else {
+					schedule.adjustStartTime();
+					timeMillis = schedule.getNextTime().getTimeInMillis();
+					if (startTimeMillis != timeMillis) {
+						LOGGER.info("Billing report will be loaded at {}", schedule.getNextTime().getTime());
+						startTimeMillis = timeMillis;
+					}
 				}
-			} else {
-				schedule.adjustStartTime();
-				timeMillis = schedule.getNextTime().getTimeInMillis();
-				if (startTimeMillis != timeMillis) {
-					LOGGER.debug("Billing report will be loaded at {}", schedule.getNextTime().getTime());
-					startTimeMillis = timeMillis;
+				
+				try {
+					timeMillis = startTimeMillis - System.currentTimeMillis();
+					if (timeMillis > 0) {
+						timeMillis = Math.min(CHECK_TIMEOUT_MILLIS, timeMillis);
+						Thread.sleep(timeMillis);
+					}
+				} catch (InterruptedException e) {
+					break;
 				}
 			}
-			
-			try {
-				timeMillis = Math.min(CHECK_TIMEOUT_MILLIS, Math.abs(startTimeMillis - System.currentTimeMillis()));
-				Thread.sleep(timeMillis);
-			} catch (InterruptedException e) {
-				break;
-			}
+		} catch (Exception e) {
+			LOGGER.error("Unhandled billing report error: {}", e.getLocalizedMessage(), e);
 		}
-		
 		LOGGER.info("Scheduler has been stopped");
 	}
 	
