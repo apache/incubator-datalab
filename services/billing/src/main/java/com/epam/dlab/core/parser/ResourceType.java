@@ -24,6 +24,7 @@ public enum ResourceType {
 	COMPUTER,
 	CLUSTER,
 	STORAGE,
+	STORAGE_ESB,
 	STORAGE_BUCKET,
 	IP_ADDRESS,
 	OTHER;
@@ -45,13 +46,15 @@ public enum ResourceType {
     public static String category(ResourceType resourceType) {
     	switch (resourceType) {
 		case COMPUTER:
-			return "Compute";
-		case CLUSTER:
 			return "EC2";
+		case CLUSTER:
+			return "Compute";
 		case STORAGE:
-			return "S3";
-		case STORAGE_BUCKET:
 			return "Storage";
+		case STORAGE_ESB:
+			return "ESB";
+		case STORAGE_BUCKET:
+			return "S3";
 		case IP_ADDRESS:
 			return "Static";
 		default:
