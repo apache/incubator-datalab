@@ -69,7 +69,7 @@ Self-Service is a service, which provides RESTful user API with Web User Interfa
 
 ## Billing
 
-Billing is a module, which provides loading a billing report for environment to a database. It may be running as part of the Self-Service or a separate process.
+Billing is a module, which provides a loading of the billing report for the environment to the database. It can be running as part of the Self-Service or a separate process.
 
 ## Provisioning Service
 
@@ -451,6 +451,10 @@ sudo supervisorctl {start | stop | status} [all | provserv | secserv | ui]
 -   provserv – execute command for Provisioning Service;
 -   secserv – execute command for Security Service;
 -   ui – execute command for Self-Service.
+
+## Billing report <a name="BillingReport"></a>
+
+If the parameter dlab\_path of configuration file dlab.ini wasn’t changed, the path to DLab service would default to:
 
 ## Troubleshooting <a name="Troubleshooting"></a>
 
