@@ -630,7 +630,8 @@ h2.heading {
 
 .technologies {
   margin-bottom: 60px;
-  background-color: #F9FAFC; }
+  background-color: #F9FAFC;
+  padding: 10px 0; }
   .technologies .row {
     -webkit-box-pack: justify;
     -ms-flex-pack: justify;
