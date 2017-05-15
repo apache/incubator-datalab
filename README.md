@@ -29,6 +29,8 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Starting/Stopping services](#Starting_Stopping_services)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Billing report](#Billing-Report)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Troubleshooting](#Troubleshooting)
 
 [Development](#Development)
@@ -452,9 +454,36 @@ sudo supervisorctl {start | stop | status} [all | provserv | secserv | ui]
 -   secserv – execute command for Security Service;
 -   ui – execute command for Self-Service.
 
-## Billing report <a name="BillingReport"></a>
+## Billing report <a name="Billing_Report"></a>
 
-If the parameter dlab\_path of configuration file dlab.ini wasn’t changed, the path to DLab service would default to:
+Billing module is implemented as a separate jar file and can be running in the follow modes:
+
+-   part of the Self-Service;
+-   separate system process;
+-   manual loading or use external scheduler.
+
+The billing  module is running as part of the Self-Service when you deploying SSN and switch on billing, see for details section [Self-Service Node](#Self_Service_Node). In all other cases you should to manually configure file billing.yml. See the descriptions how to do this in the configuration file. Also you should to add an entry in the Mongo database to the collection
+```
+{
+    "_id": "conf_tag_resource_id",
+    "Value": "<CONF_TAG_RESOURCE_ID>"
+}
+```
+After you have configured the billing. You can running it as a process of Self-Service. To do this, in the configuration file self-service.yml set the property **BillingSchedulerEnabled** to **true** and restart the Self-Service
+```
+sudo supervisorctl stop ui
+sudo supervisorctl start ui
+```
+If you want to load report by manually or to use external scheduler use next command
+```
+java -jar /opt/dlab/webapp/lib/billing/billing-x.y.jar --conf /opt/dlab/conf/billing.yml
+or
+java -cp /opt/dlab/webapp/lib/billing/billing-x.y.jar com.epam.dlab.BillingTool --conf /opt/dlab/conf/billing.yml
+```
+If you want the billing to work as a separate process from the Self-Service use next command
+```
+java -cp /opt/dlab/webapp/lib/billing/billing-x.y.jar com.epam.dlab.BillingScheduler --conf /opt/dlab/conf/billing.yml
+```
 
 ## Troubleshooting <a name="Troubleshooting"></a>
 
