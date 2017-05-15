@@ -42,29 +42,37 @@ def ensure_pip(requisites):
 
 
 def install_pip2_pkg(requisites):
+    failed = list()
     try:
         sudo('pip2 install -U pip setuptools')
         sudo('pip2 install -U pip --no-cache-dir')
         sudo('pip2 install --upgrade pip')
-        for pkg in requisites:
-            sudo('pip2 install ' + pkg + ' --no-cache-dir')
-        return (True, "Ok")
+        for pip2_pkg in requisites:
+            try:
+                sudo('pip2 install ' + pip2_pkg + ' --no-cache-dir')
+            except:
+                failed.append(pip2_pkg)
+        return failed
     except:
-        return (False, pkg)
+        return "Fail to install pip2 packages"
 
 
 def install_pip3_pkg(requisites):
+    failed = list()
     try:
         if not exists('/bin/pip3'):
             sudo('ln -s /bin/pip3.5 /bin/pip3')
         sudo('pip3 install -U pip setuptools')
         sudo('pip3 install -U pip --no-cache-dir')
         sudo('pip3 install --upgrade pip')
-        for pkg in requisites:
-            sudo('pip3 install ' + pkg + ' --no-cache-dir')
-        return (True, "Ok")
+        for pip3_pkg in requisites:
+            try:
+                sudo('pip3 install ' + pip3_pkg + ' --no-cache-dir')
+            except:
+                failed.append(pip3_pkg)
+        return failed
     except:
-        return (False, pkg)
+        return "Fail to install pip3 packages"
 
 
 def create_aws_config_files(generate_full_config=False):
@@ -474,12 +482,16 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
 
 
 def install_r_pkg(requisites):
+    failed = list()
     try:
-        for pkg in requisites:
-            sudo('R -e \'install.packages("'+ pkg +'", repos="http://cran.us.r-project.org", dep=TRUE)\'')
-        return (True, "Ok")
+        for r_pkg in requisites:
+            try:
+                sudo('R -e \'install.packages("'+ r_pkg +'", repos="http://cran.us.r-project.org", dep=TRUE)\'')
+            except:
+                failed.append(r_pkg)
+        return failed
     except:
-        return (False, pkg)
+        return "Fail to install R packages"
 
 
 def get_available_r_pkgs():

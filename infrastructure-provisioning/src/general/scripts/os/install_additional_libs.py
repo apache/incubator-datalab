@@ -45,55 +45,46 @@ if __name__ == "__main__":
     env.host_string = env.user + "@" + env.hosts
 
     print 'Installing libraries:' + args.libs
-    fail_on = ""
+    failed = dict()
 
     pkgs = json.loads(args.libs.replace("'", "\""))
 
     try:
         print 'Installing os packages:', pkgs['libraries']['os_pkg']
-        status, fail_pkg = install_os_pkg(pkgs['libraries']['os_pkg'])
-        print status, fail_pkg
-        if not status:
-            fail_on += " os_pkg:" + fail_pkg
-            # sys.exit(1)
+        status = install_os_pkg(pkgs['libraries']['os_pkg'])
+        if status:
+            failed['os_pkg'] = status
     except KeyError:
         pass
 
     try:
         print 'Installing pip2 packages:', pkgs['libraries']['pip2']
-        status, fail_pkg = install_pip2_pkg(pkgs['libraries']['pip2'])
-        print status, fail_pkg
-        if not status:
-            fail_on += " pip2:" + fail_pkg
-            # sys.exit(1)
+        status = install_pip2_pkg(pkgs['libraries']['pip2'])
+        if status:
+            failed['pip2'] = status
     except KeyError:
         pass
 
     try:
         print 'Installing pip3 packages:', pkgs['libraries']['pip3']
-        status, fail_pkg = install_pip3_pkg(pkgs['libraries']['pip3'])
-        print status, fail_pkg
-        if not status:
-            fail_on += " pip3:" + fail_pkg
-            # sys.exit(1)
+        status = install_pip3_pkg(pkgs['libraries']['pip3'])
+        if status:
+            failed['pip3'] = status
     except KeyError:
         pass
 
     if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
         try:
             print 'Installing R packages:', pkgs['libraries']['r_pkg']
-            status, fail_pkg = install_r_pkg(pkgs['libraries']['r_pkg'])
-            print status, fail_pkg
-            print status, fail_pkg
-            if not status:
-                fail_on += " r_pkg:" + fail_pkg
-                # sys.exit(1)
+            status = install_r_pkg(pkgs['libraries']['r_pkg'])
+            if status:
+                failed['r_pkg'] = status
         except KeyError:
             pass
 
 
     with open("/root/result.json", 'w') as result:
         res = {"Action": "Install additional libs",
-               "Libs": args.libs,
-               "Fail": fail_on}
+               "Libs": pkgs['libraries'],
+               "Fail": failed}
         result.write(json.dumps(res))

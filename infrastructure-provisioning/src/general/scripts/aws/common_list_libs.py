@@ -49,7 +49,7 @@ if __name__ == "__main__":
             .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
             # Run script to get available libs
-            local("~/scripts/{}.py {}".format('get_all_available_pkgs', params))
+            local("~/scripts/{}.py {}".format('get_list_available_pkgs', params))
         except:
             traceback.print_exc()
             raise Exception

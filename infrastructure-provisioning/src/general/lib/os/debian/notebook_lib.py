@@ -315,21 +315,21 @@ def install_gitweb(os_user):
 
 
 def install_os_pkg(requisites):
-    status = ""
+    failed = list()
     try:
-        print "Updating repositories and installing requested tools: ", requisites
+        print "Updating repositories and installing requested tools:", requisites
         sudo('apt-get update')
         sudo('apt-get -y install python-pip python3-pip')
         for os_pkg in requisites:
             try:
                 sudo('apt-get -y install ' + os_pkg)
             except:
-                status += os_pkg
+                failed.append(os_pkg)
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
-        return (True, "Ok")
+        return failed
     except:
-        return (False, os_pkg)
+        return "Fail to install OS packages"
 
 
 def get_available_os_pkgs():

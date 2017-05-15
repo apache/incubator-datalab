@@ -323,15 +323,19 @@ def install_gitweb(os_user):
 
 
 def install_os_pkg(requisites):
+    failed = list()
     try:
         print "Updating repositories and installing requested tools: " + requisites
         sudo('yum update-minimal --security -y')
         sudo('export LC_ALL=C')
-        for pkg in requisites:
-            sudo('yum -y install ' + pkg)
-        return (True, "Ok")
+        for os_pkg in requisites:
+            try:
+                sudo('yum -y install ' + os_pkg)
+            except:
+                failed.append(os_pkg)
+        return failed
     except:
-        return (False, pkg)
+        return "Fail to install OS packages"
 
 
 def get_available_os_pkgs():
