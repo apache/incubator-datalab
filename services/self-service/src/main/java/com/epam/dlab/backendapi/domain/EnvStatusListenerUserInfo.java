@@ -5,7 +5,7 @@ import com.epam.dlab.utils.UsernameUtils;
 
 /** Store info for the requests about the environment status of user. 
  */
-class EnvStatusListenerUserInfo {
+public class EnvStatusListenerUserInfo {
 	/** Time for the next check in milliseconds. */
     private long nextCheckTimeMillis;
     /** Name of user. */

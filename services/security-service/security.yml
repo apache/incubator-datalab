@@ -24,17 +24,31 @@ ldapConnectionConfig:
   name: cn=admin,dc=example,dc=com
   credentials: ldap
 ldapBindTemplate: uid=%s,ou=People,dc=example,dc=com
-ldapSearch: 
+ldapBindAttribute: uid
+ldapSearchAttribute: uid
+ldapSearch:
+  - name: userLookUp
+    cache: true
+    expirationTimeMsec: 600000
+    scope: SUBTREE
+    attributes:
+      - cn
+      - mail
+      - uid
+      - gidNumber
+    timeLimit: 0
+    base: dc=example,dc=com
+    filter: "(&(objectClass=inetOrgPerson)(uid=%uid%))"
   - name: userInfo
     cache: true
     expirationTimeMsec: 600000
     scope: SUBTREE
-    attributes: 
+    attributes:
       - cn
       - gidNumber
     timeLimit: 0
     base: dc=example,dc=com
-    filter: "(&(objectClass=inetOrgPerson)(uid=%username%))"
+    filter: "(&(objectClass=inetOrgPerson)(uid=%uid%))"
     searchResultProcessor:
       language: python
 #      path: c:\tmp\enrich.py
@@ -54,8 +68,9 @@ ldapSearch:
     cache: true
     expirationTimeMsec: 600000
     scope: SUBTREE
-    attributes: 
+    attributes:
       - cn
+      - mail
       - gidNumber
       - memberUid
     timeLimit: 0
@@ -69,27 +84,26 @@ ldapSearch:
           name = ui.getName();
           key = ('uid='+name+',ou=People,dc=example,dc=com').toLowerCase();
           userInfo=context['userInfo'];
-          if( userInfo[key] === undefined ) {
+          if( userInfo[key] == undefined ) {
             throw 'JavaScript LDAP UserInfo not found for '+key;
           }
           uid= userInfo[key];
           userGid = uid['gidnumber'];
           groupInfo=context['groupInfo'];
-
           for( dn in groupInfo ) {
             group = groupInfo[dn];
             if( userGid == group['gidnumber']) {
               ui.addRole(group['cn']);
             } else {
                 grMembers = group['memberuid'];
-                if (grMembers !== undefined) {
+                if (grMembers != undefined) {
                   index = grMembers.split(",");
                   members = new Array();
                   for(i in index) {
                     members[i] = grMembers.split(",")[i];
                   }
                   for (member in members) {
-                    if (members[member] !== undefined) {
+                    if (members[member] != undefined) {
                       if (members[member].toLowerCase() == name.toLowerCase()) {
                         ui.addRole(group['cn']);
                       }
@@ -105,7 +119,7 @@ ldapSearch:
     #keyStorePath: \work\keystore.jks
     #keyStorePassword: changeit
     #certAlias: dlabcert
-server: 
+server:
   requestLog:
     appenders:
       - type: file

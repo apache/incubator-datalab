@@ -46,7 +46,9 @@ CONTENTS
 &nbsp; &nbsp; &nbsp; &nbsp; [How to run locally](#run_locally)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Infrastructure provisioning](#Infrastructure_provisioning)
- 
+
+&nbsp; &nbsp; &nbsp; &nbsp; [Authentification](#Authentification)
+
 ---------------
 # What is DLAB? <a name="What_is_DLAB"></a>
 
@@ -178,7 +180,7 @@ To build SSN node, following steps should be executed:
 2.  Go to *dlab* directory.
 3.  Execute following script:
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --infrastructure_tag dlab_test --access_key_id XXXXXXX --secret_access_key XXXXXXXXXX --region us-west-2 --os_family debian --cloud_provider aws --os_user ubuntu --vpc_id vpc-xxxxx --subnet_id subnet-xxxxx --sg_ids sg-xxxxx,sg-xxxx --key_path /root/ --key_name Test --tag_resource_id dlab --action create
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --infrastructure_tag dlab_test --access_key_id XXXXXXX --secret_access_key XXXXXXXXXX --region us-west-2 --os_family debian --cloud_provider aws --os_user ubuntu --vpc_id vpc-xxxxx --subnet_id subnet-xxxxx --sg_ids sg-xxxxx,sg-xxxx --key_path /root/ --key_name Test --tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
 ```
 
 This bash script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
@@ -200,12 +202,20 @@ List of parameters for SSN node deployment:
 | key\_path           | Path to admin key (without key name)                                                    |
 | key\_name           | Name of the uploaded SSH key file (without “.pem” extension)                            |
 | tag\_resource\_id   | The name of tag for billing reports                                                     |
+| aws\_account\_id    | The The ID of Amazon account                                                            |
+| aws\_billing\_bucket| The name of S3 bucket where billing reports will be placed                              |
+| aws\_report\_path   | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
 | action              | In case of SSN node creation, this parameter should be set to “create”                  |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
 -   vpc\_id
 -   subnet\_id
 -   sg\_ids
+
+**Note:** If billing won't be using, the following parameters are not required:
+-   aws\_account\_id
+-   aws\_billing\_bucket
+-   aws\_report\_path
 
 After SSN node deployment following AWS resources will be created:
 
@@ -1021,3 +1031,103 @@ For example:
 
 ...
 ```
+
+## Authentification <a name="Authentification"></a>
+
+### Unified logging and group management
+
+There are a few popular LDAP distributions on the market like Active Directory, Open LDap. That’s why some differences in configuration appear.
+Also depending on customization, there might be differences in attributes configuration. For example the DN(distinguished name) may contain different attributes:
+
+- **DN=CN=Name Surname,OU=groups,OU=EPAM,DC=Company,DC=Cloud**
+- **DN=UID=UID#53,OU=groups,OU=Company,DC=Company,DC=Cloud**
+
+**CN** vs **UID**.
+
+The relation between users and groups also varies from vendor to vendor. 
+
+For example, in Open LDAP the group object may contain set (from 0 to many) attributes **"memberuid"** with values equal to user`s attribute **“uid”**.
+
+However, in Active Directory the mappings are done based on other attributes.
+On a group size there is attribute **"member"** (from 0 to many values) and its value is user`s **DN** (distinguished name).
+
+
+To fit the unified way of LDAP usage, we introduced configuration file with set of properties and customized scripts (python and JavaScript based).
+On backend side, all valuable attributes are further collected and passed to these scripts. 
+To apply some customization it is required to update a few properties in **security.yml** and customize the scripts. 
+
+
+### Properties overview
+
+There are just a few properties based in which the customization could be done:
+
+- **ldapBindTemplate: uid=%s,ou=People,dc=example,dc=com**
+- **ldapBindAttribute: uid**
+- **ldapSearchAttribute: uid**
+
+Where the:
+- **ldapBindTemplate** is a user`s DN template which should be filed with custom value. Here the template could be changed: uid=%s,ou=People,dc=example,dc=com -> cn=%s,ou=People,dc=example,dc=com.
+- **ldapBindAttribute** - this is a major attribute, on which the DN is based on. Usually it is any of: uid or cn, or email.
+- **ldapSearchAttribute** - another attribute, based on which users will be looked up in LDAP.
+ 
+### Scripts overview
+
+There are 3 scripts in security.yml:
+- **userLookUp** (python based)    - responsible for user lookup in LDap and returns additional user`s attributes; 
+- **userInfo** (python based)      - enriches user with additional data;
+- **groupInfo** (javascript based) – responsible for mapping between users and groups;
+ 
+### Script structure
+
+The scripts above were created to flexibly manage user`s security configuration. They all are part of **security.yml** configuration. All scripts have following structure:
+    - **name**
+    - **cache**
+    - **expirationTimeMsec**
+    - **scope**
+    - **attributes**
+    - **timeLimit**
+    - **base**
+    - **filter**
+    - **searchResultProcessor:**
+      - **language**
+      - **code**
+     
+Major properties are: 
+- **attributes**             - list of attributes that will be retrieved from LDAP (-name, -cn, -uid, -member, etc);
+- **filter**               - the filter, based on which the object will be retrieved from LDAP; 
+- **searchResultProcessor**    - optional. If only LDAP object attributes retrieving is required, this property should be empty. For example, “userLookup” script only retrieves list of "attributes". Otherwise, code customization (like user enrichment, user to groups matching, etc.) should be added into sub-properties below:
+  - **language**                - the script language - "python" or "JavaScript" 
+  - **code**                    - the script code.
+     
+
+### "userLookUp" script
+
+Configuration properties:
+
+- **ldapBindTemplate: 'cn=%s,ou=users,ou=alxn,dc=alexion,dc=cloud'**
+- **ldapBindAttribute: cn**
+- **ldapSearchAttribute: mail**
+
+Script code:
+
+    name: userLookUp
+    cache: true
+    expirationTimeMsec: 600000
+    scope: SUBTREE
+    attributes:
+      - cn 
+      - gidNumber
+      - mail
+      - memberOf
+    timeLimit: 0
+    base: ou=users,ou=alxn,dc=alexion,dc=cloud
+    filter: "(&(objectCategory=person)(objectClass=user)(mail=%mail%))"
+   
+In the example above, the user login passed from GUI is a mail (**ldapSearchAttribute: mail**) and based on the filer (**filter: "(&(objectCategory=person)(objectClass=user)(mail=%mail%))")** so, the service would search user by its **“mail”**.
+If corresponding users are found - the script will return additional user`s attributes:
+  - cn
+  - gidNumber
+  - mail
+  - memberOf
+   
+User`s authentication into LDAP would be done for DN with following template **ldapBindTemplate: 'cn=%s,ou=users,ou=alxn,dc=alexion,dc=cloud'**, where CN is attribute retrieved by  **“userLookUp”** script.

@@ -9,7 +9,7 @@
   [
     {
       "template_name": "TensorFlow 1.0.0",
-      "description": "Base image with TensorFlow node creation routines",
+      "description": "Base image with TensorFlow  and Jupyter node creation routines",
       "environment_type": "exploratory",
       "version": "tensorflow_gpu-1.0.0",
       "vendor": "AWS"

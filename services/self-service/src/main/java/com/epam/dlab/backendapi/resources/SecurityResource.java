@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.dao.MongoCollections;
 import com.epam.dlab.backendapi.dao.SecurityDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
+import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -46,8 +47,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import static com.epam.dlab.auth.SecurityRestAuthenticator.SECURITY_SERVICE;
-
 /** Provides the REST API for the user authorization.
  */
 @Path("/user")
@@ -59,7 +58,7 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
     @Inject
     private SecurityDAO dao;
     @Inject
-    @Named(SECURITY_SERVICE)
+    @Named(ServiceConsts.SECURITY_SERVICE_NAME)
     RESTService securityService;
     @Inject
     private SettingsDAO settingsDAO;

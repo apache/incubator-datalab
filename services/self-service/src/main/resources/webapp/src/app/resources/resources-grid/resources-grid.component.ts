@@ -47,6 +47,7 @@ export class ResourcesGridComponent implements OnInit {
   @ViewChild('computationalResourceModal') computationalResourceModal;
   @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('detailDialog') detailDialog;
+  @ViewChild('costDetailsDialog') costDetailsDialog;
 
 
   public filteringColumns: Array<any> = [
@@ -54,6 +55,7 @@ export class ResourcesGridComponent implements OnInit {
     { title: 'Status', name: 'statuses', className: 'th_status', filtering: {} },
     { title: 'Shape', name: 'shapes', className: 'th_shape', filtering: {} },
     { title: 'Computational resources', name: 'resources', className: 'th_resources', filtering: {} },
+    { title: 'Cost', name: 'cost', className: 'th_cost' },
     { title: 'Actions', className: 'th_actions' }
   ];
 
@@ -193,7 +195,10 @@ export class ResourcesGridComponent implements OnInit {
           value.exploratory_user,
           value.exploratory_pass,
           value.user_own_bicket_name,
-          value.error_message);
+          value.error_message,
+          value.cost,
+          value.currency_code,
+          value.billing);
       });
     }
   }
@@ -235,6 +240,10 @@ export class ResourcesGridComponent implements OnInit {
 
   printDetailEnvironmentModal(data): void {
     this.detailDialog.open({ isFooter: false }, data);
+  }
+  
+  printCostDetails(data): void {
+    this.costDetailsDialog.open({ isFooter: false }, data);
   }
 
   exploratoryAction(data, action: string) {
