@@ -376,7 +376,6 @@ List of parameters for Notebook node to **get list** of available libraries:
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
 | conf\_resource                | notebook                                                                          |
-| request\_id                   | Unique request id                                                              |
 | conf\_os\_user                | Name of the SSH user                                                              |
 | conf\_os\_family              | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
 | conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
@@ -395,7 +394,6 @@ List of parameters for Notebook node to **install** additional libraries:
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
 | conf\_resource                | notebook                                                                          |
-| request\_id                   | Unique request id                                                              |
 | conf\_os\_user                | Name of the SSH user                                                              |
 | conf\_os\_family              | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
 | conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
