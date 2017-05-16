@@ -266,6 +266,32 @@ html {
 .h100 {
   min-height: 100vh; }
 
+.abstract {
+  position: absolute;
+  background-repeat: no-repeat; }
+
+.abstract1 {
+  background-image: url(../images/background/abstract_1.svg);
+  width: 380px;
+  height: 120px;
+  top: 0;
+  left: 20%; }
+
+.abstract2 {
+  background-image: url(../images/background/abstract_2.svg);
+  background-size: cover;
+  width: 180px;
+  height: 500px;
+  top: 40px;
+  right: 0; }
+
+.abstract3 {
+  background-image: url(../images/background/abstract_3.svg);
+  top: 550px;
+  left: 0;
+  width: 200px;
+  height: 400px; }
+
 header {
   width: 100%;
   position: relative;
@@ -629,7 +655,7 @@ h2.heading {
     background: #1CBC79; }
 
 .technologies {
-  margin-bottom: 60px;
+  margin: 60px 0;
   background-color: #F9FAFC;
   padding: 10px 0; }
   .technologies .row {
@@ -795,8 +821,9 @@ ul.list-points li {
           padding-top: 5rem; }
 
 .features {
-  text-align: center;
-  position: relative; }
+  position: relative;
+  margin-top: 40px;
+  text-align: center; }
   .features .mac-screen-wrap {
     padding-top: 2rem; }
     .features .mac-screen-wrap .screen-slider-top {
@@ -951,7 +978,6 @@ footer {
     border-bottom: 1px solid;
     border-color: rgba(249, 250, 251, 0.06); }
     footer article h2 {
-      width: 40%;
       margin: 0 auto;
       font-size: 30px;
       font-weight: 300;

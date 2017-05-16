@@ -45,6 +45,35 @@ html {
     min-height: 100vh
 }
 
+.abstract {
+    position: absolute;
+    background-repeat: no-repeat;
+}
+
+.abstract1 {
+    background-image: url(../images/background/abstract_1.svg);
+    width: 380px;
+    height: 120px;
+    top: 0;
+    left: 20%;
+}
+.abstract2 {
+    background-image: url(../images/background/abstract_2.svg);
+    background-size: cover;
+    width: 180px;
+    height: 500px;
+    top: 40px;
+    right: 0;
+}
+
+.abstract3 {
+    background-image: url(../images/background/abstract_3.svg);
+    top: 550px;
+    left: 0;
+    width: 200px;
+    height: 400px;
+}
+
 header {
     width: 100%;
     position: relative;
@@ -376,7 +405,7 @@ h2.heading {
 }
 
 .technologies {
-    margin-bottom: 60px;
+    margin: 60px 0;
     background-color: #F9FAFC;
     padding: 10px 0;
     .row {
@@ -554,8 +583,9 @@ ul.list-points {
 }
 
 .features {
-    text-align: center;
     position: relative;
+    margin-top: 40px;
+    text-align: center;
     .mac-screen-wrap {
         padding-top: 2rem;
         .screen-slider-top {
@@ -684,14 +714,12 @@ ul.list-points {
 footer {
     background: $dark-grey;
     color: $light;
-
     article {
         padding: 3.5rem 0 3.2rem;
         text-align: center;
         border-bottom: 1px solid;
         border-color: rgba(249,250,251,0.06);
         h2 {
-            width: 40%;
             margin: 0 auto;
             font-size: 30px;
             font-weight: 300;
