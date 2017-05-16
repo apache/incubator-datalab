@@ -29,6 +29,8 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Starting/Stopping services](#Starting_Stopping_services)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Billing report](#Billing_Report)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Troubleshooting](#Troubleshooting)
 
 [Development](#Development)
@@ -66,6 +68,10 @@ The diagram shows main components of DLab, which is a self-service for the infra
 ## Self-Service
 
 Self-Service is a service, which provides RESTful user API with Web User Interface for data scientist. It tightly interacts with Provisioning Service and Database. Self-Service delegates all user\`s requests to Provisioning Service. After execution of certain request from Self-service, Provisioning Service returns response about corresponding action happened with particular resource. Self-service, then, saves this response into Database. So, each time Self-Service receives request about status of provisioned infrastructure resources – it loads it from Database and propagates to Web UI.
+
+## Billing
+
+Billing is a module, which provides a loading of the billing report for the environment to the database. It can be running as part of the Self-Service or a separate process.
 
 ## Provisioning Service
 
@@ -118,6 +124,7 @@ The next step is setting up a Notebook node (or a Notebook server). It is a serv
 -   R-studio
 -   Zeppelin
 -   Jupyter + TensorFlow
+-   Deep Learning + Jupyter
 
 Apache Spark is also installed for each of the analytical tools above.
 
@@ -446,6 +453,37 @@ sudo supervisorctl {start | stop | status} [all | provserv | secserv | ui]
 -   provserv – execute command for Provisioning Service;
 -   secserv – execute command for Security Service;
 -   ui – execute command for Self-Service.
+
+## Billing report <a name="Billing_Report"></a>
+
+Billing module is implemented as a separate jar file and can be running in the follow modes:
+
+-   part of the Self-Service;
+-   separate system process;
+-   manual loading or use external scheduler;
+
+The billing  module is running as part of the Self-Service (if billing was switched ON before SSN deployment). For details please refer to section [Self-Service Node](#Self_Service_Node). Otherwise, you should manually configure file billing.yml. See the descriptions how to do this in the configuration file. Please also note, that you should also add an entry in the Mongo database into collection:
+```
+{
+    "_id": "conf_tag_resource_id",
+    "Value": "<CONF_TAG_RESOURCE_ID>"
+}
+```
+After you have configured the billing, you can run it as a process of Self-Service. To do this, in the configuration file self-service.yml set the property **BillingSchedulerEnabled** to **true** and restart the Self-Service:
+```
+sudo supervisorctl stop ui
+sudo supervisorctl start ui
+```
+If you want to load report manually, or use external scheduler use following command:
+```
+java -jar /opt/dlab/webapp/lib/billing/billing-x.y.jar --conf /opt/dlab/conf/billing.yml
+or
+java -cp /opt/dlab/webapp/lib/billing/billing-x.y.jar com.epam.dlab.BillingTool --conf /opt/dlab/conf/billing.yml
+```
+If you want billing to work as a separate process from the Self-Service use following command:
+```
+java -cp /opt/dlab/webapp/lib/billing/billing-x.y.jar com.epam.dlab.BillingScheduler --conf /opt/dlab/conf/billing.yml
+```
 
 ## Troubleshooting <a name="Troubleshooting"></a>
 
