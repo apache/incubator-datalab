@@ -283,9 +283,9 @@ def installing_python(region, bucket, user_name, cluster_name):
         local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
         local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
         local(venv_command + ' && sudo -i ' + pip_command + ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
-        local('sudo rm -rf /usr/bin/python' + python_version[0:5])
+        local('sudo rm -rf /usr/bin/python' + python_version[0:3])
         local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
-              ' /usr/bin/python' + python_version[0:5])
+              ' /usr/bin/python' + python_version[0:3])
 
 
 def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region):
@@ -323,7 +323,7 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('PYTHON_SHORT_VERSION', python_version[0:3])
-        text = text.replace('PYTHON_FULL_VERSION', python_version[0:5])
+        text = text.replace('PYTHON_FULL_VERSION', python_version[0:3])
         text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' + python_version[:3])
         text = text.replace('EMR_VERSION', emr_version)
         with open(kernel_path, 'w') as f:
