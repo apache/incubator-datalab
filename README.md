@@ -367,6 +367,60 @@ List of parameters for Notebook node start/termination:
 
 **Note:** If terminate action is called, all connected EMR clusters will be removed.
 
+### List/Install additional libraries
+
+In order to list available libraries (OS/Python2/Python3/R) on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Install additional libs” action.
+
+List of parameters for Notebook node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| request\_id                   | Unique request id                                                              |
+| conf\_os\_user                | Name of the SSH user                                                              |
+| conf\_os\_family              | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                   |
+| aws\_region                   | AWS region where infrastructure was deployed                                      |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | list_libs                                                                           |
+
+**Note:** This operation will returns a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
+
+
+List of parameters for Notebook node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| request\_id                   | Unique request id                                                              |
+| conf\_os\_user                | Name of the SSH user                                                              |
+| conf\_os\_family              | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                   |
+| aws\_region                   | AWS region where infrastructure was deployed                                      |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| additional_libs               | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg)    |
+| action                        | install_libs                                                                       |
+
+**Example** of additional_libs parameter:
+
+```
+{'libraries': {
+    'os_pkg': ['nmap', 'htop'],
+    'pip2': ['requests', 'configparser'],
+    'pip3': ['configparser'],
+    'r_pkg': ['rmarkdown']
+    }
+}
+```
+
+**Note:** This JSON string must be with single quotes.
+
 ## EMR cluster <a name="EMR_cluster"></a>
 
 EMR cluster can be created if more computational resources are needed for executing analytical algorithms and models, triggered from analytical tools. Jobs execution will be scaled to a cluster mode increasing the performance and decreasing execution time.
