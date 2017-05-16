@@ -421,6 +421,8 @@ List of parameters for Notebook node to **install** additional libraries:
 
 **Note:** This JSON string must be with single quotes.
 
+**Note:** Response file contains received lists of all and failed libraries.
+
 ## EMR cluster <a name="EMR_cluster"></a>
 
 EMR cluster can be created if more computational resources are needed for executing analytical algorithms and models, triggered from analytical tools. Jobs execution will be scaled to a cluster mode increasing the performance and decreasing execution time.
