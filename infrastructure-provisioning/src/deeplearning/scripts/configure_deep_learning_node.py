@@ -56,11 +56,6 @@ toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snaps
 scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 
 
-def correct_python3(args):
-    if exists('/usr/bin/python3.4'):
-        sudo('mv /usr/bin/python3.4 /usr/bin/python3.4.5')
-
-
 def install_cntk(args):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(args.os_user)):
         sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc2-cp34-cp34m-linux_x86_64.whl')

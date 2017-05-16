@@ -1,6 +1,6 @@
 {
  "argv": [
-  "/usr/bin/python3.4.5",
+  "/usr/bin/python3.4",
   "-m",
   "ipykernel",
   "-f",

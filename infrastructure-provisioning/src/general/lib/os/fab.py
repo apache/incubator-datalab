@@ -128,7 +128,8 @@ def spark_defaults(args):
     local(""" sudo bash -c " sed -i '/#/d' """ + spark_def_path + """ " """)
     local(""" sudo bash -c " sed -i '/^\s*$/d' """ + spark_def_path + """ " """)
     local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/,/spark.driver.extraLibraryPath/s|/usr|/opt/EMRVERSION/jars/usr|g' """ + spark_def_path + """ " """)
-    local(""" sudo bash -c "sed -i '/spark.yarn.dist.files/s/\/etc\/spark\/conf/\/opt\/EMRVERSION\/CLUSTER\/conf/g' """ + spark_def_path + """ " """)
+    local(""" sudo bash -c "sed -i '/spark.yarn.dist.files/s/\/etc\/spark\/conf/\/opt\/EMRVERSION\/CLUSTER\/conf/g' """
+          + spark_def_path + """ " """)
     template_file = spark_def_path
     with open(template_file, 'r') as f:
         text = f.read()
@@ -270,10 +271,12 @@ def installing_python(region, bucket, user_name, cluster_name):
         python_version = f.read()
     python_version = python_version[0:5]
     if not os.path.exists('/opt/python/python' + python_version):
-        local('wget https://www.python.org/ftp/python/' + python_version + '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz' )
+        local('wget https://www.python.org/ftp/python/' + python_version +
+              '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz' )
         local('tar zxvf /tmp/Python-' + python_version + '.tgz -C /tmp/')
         with lcd('/tmp/Python-' + python_version):
-            local('./configure --prefix=/opt/python/python' + python_version + ' --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install')
+            local('./configure --prefix=/opt/python/python' + python_version +
+                  ' --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install')
             local('sudo make altinstall')
         with lcd('/tmp/'):
             local('sudo rm -rf Python-' + python_version + '/')
@@ -282,7 +285,8 @@ def installing_python(region, bucket, user_name, cluster_name):
         pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
         local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
         local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
-        local(venv_command + ' && sudo -i ' + pip_command + ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
+        local(venv_command + ' && sudo -i ' + pip_command +
+              ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
         local('sudo rm -rf /usr/bin/python' + python_version[0:3])
         local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
               ' /usr/bin/python' + python_version[0:3])
@@ -306,14 +310,18 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         f.write(text)
     local('touch /tmp/kernel_var.json')
     local(
-        "PYJ=`find /opt/" + emr_version + "/" + cluster_name + "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path + " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
+        "PYJ=`find /opt/" + emr_version + "/" + cluster_name +
+        "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
+        " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
     local('sudo mv /tmp/kernel_var.json ' + kernel_path)
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
     # python_version = python_version[0:3]
     if python_version != '\n':
-        installing_python(region, bucket, user_name, cluster_name)
+        if os.environ['application'] != 'deeplearning':
+            installing_python(region, bucket, user_name, cluster_name)
+
         local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
         kernel_path = kernels_dir + "py3spark_" + cluster_name + "/kernel.json"
         template_file = "/tmp/pyspark_emr_template.json"
@@ -324,17 +332,24 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('PYTHON_SHORT_VERSION', python_version[0:3])
         text = text.replace('PYTHON_FULL_VERSION', python_version[0:3])
-        text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' + python_version[:3])
+        if os.environ['application'] == 'deeplearning':
+            text = text.replace('PYTHON_PATH', '/usr/bin/python3.4')
+        else:
+            text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' +
+                                python_version[:3])
         text = text.replace('EMR_VERSION', emr_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
         local(
-            "PYJ=`find /opt/" + emr_version + "/" + cluster_name + "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path + " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
+            "PYJ=`find /opt/" + emr_version + "/" + cluster_name +
+            "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
+            " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
         local('sudo mv /tmp/kernel_var.json ' + kernel_path)
 
 
-def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_dir, os_user, yarn_dir, bucket, user_name, endpoint_url, multiple_emrs):
+def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_dir, os_user, yarn_dir, bucket,
+                                       user_name, endpoint_url, multiple_emrs):
     try:
         port_number_found = False
         zeppelin_restarted = False
@@ -375,7 +390,8 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         local('echo \"Configuring emr spark interpreter for Zeppelin\"')
         if multiple_emrs == 'true':
             while not port_number_found:
-                port_free = local('sudo bash -c "nmap -p ' + str(default_port) + ' localhost | grep closed > /dev/null" ; echo $?', capture=True)
+                port_free = local('sudo bash -c "nmap -p ' + str(default_port) +
+                                  ' localhost | grep closed > /dev/null" ; echo $?', capture=True)
                 port_free = port_free[:1]
                 if port_free == '0':
                     livy_port = default_port
@@ -387,7 +403,8 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             if os.path.exists(livy_path + 'conf/spark-blacklist.conf'):
                 local('sudo sed -i "s/^/#/g" ' + livy_path + 'conf/spark-blacklist.conf')
             local(''' sudo echo "export SPARK_HOME=''' + spark_dir + '''" >> ''' + livy_path + '''conf/livy-env.sh''')
-            local(''' sudo echo "export HADOOP_CONF_DIR=''' + yarn_dir + '''" >> ''' + livy_path + '''conf/livy-env.sh''')
+            local(''' sudo echo "export HADOOP_CONF_DIR=''' + yarn_dir + '''" >> ''' + livy_path +
+                  '''conf/livy-env.sh''')
             local(''' sudo echo "export PYSPARK3_PYTHON=python''' + python_version[0:3] + '''" >> ''' +
                   livy_path + '''conf/livy-env.sh''')
             template_file = "/tmp/emr_interpreter.json"
@@ -408,8 +425,10 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                 except:
                     local('sleep 5')
                     pass
-            local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-' + str(livy_port) + '.service')
-            local("sudo sed -i 's|OS_USER|" + os_user + "|' /etc/systemd/system/livy-server-" + str(livy_port) + '.service')
+            local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-' + str(livy_port) +
+                  '.service')
+            local("sudo sed -i 's|OS_USER|" + os_user + "|' /etc/systemd/system/livy-server-" + str(livy_port) +
+                  '.service')
             local("sudo sed -i 's|LIVY_PATH|" + livy_path + "|' /etc/systemd/system/livy-server-" + str(livy_port)
                   + '.service')
             local('sudo chmod 644 /etc/systemd/system/livy-server-' + str(livy_port) + '.service')
