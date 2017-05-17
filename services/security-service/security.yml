@@ -114,11 +114,7 @@ ldapSearch:
           }
           return ui;
         }
-    #trustStorePath: \Program Files\Java\jre1.8.0_101\lib\security\cacerts
-    #trustStorePassword: changeit
-    #keyStorePath: \work\keystore.jks
-    #keyStorePassword: changeit
-    #certAlias: dlabcert
+
 server:
   requestLog:
     appenders:
@@ -126,33 +122,21 @@ server:
         currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-security.log
         archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-security-%d.log
   applicationConnectors:
-  - type: http
-    port: 8090
-<#-- Un-comment to enable HTTPS
-#<if SSL_CONNECTION>  ### put'#' after '<'
-  - type: https
-    port: 8090
-    trustStorePath: \Program Files\Java\jre1.8.0_101\lib\security\cacerts
-    trustStorePassword: changeit
-    keyStorePath: \work\keystore.jks
-    keyStorePassword: changeit
-    certAlias: dlabcert
-#</if>   ### put'#' after '</'
--->
+    - type: https
+      port: 8090
+      certAlias: dlab
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-  - type: http
-    port: 8091
-<#-- Un-comment to enable HTTPS
-#<if SSL_CONNECTION>   ### put'#' after '<'
-  - type: https
-    port: 8091
-    trustStorePath: \Program Files\Java\jre1.8.0_101\lib\security\cacerts
-    trustStorePassword: changeit
-    keyStorePath: \work\keystore.jks
-    keyStorePassword: changeit
-    certAlias: dlabcert
-#</if>   ### put'#' after '</'
--->
+    - type: http
+      port: 8091
+      certAlias: dlab
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 userInfoPersistenceEnabled: true
 awsUserIdentificationEnabled: true

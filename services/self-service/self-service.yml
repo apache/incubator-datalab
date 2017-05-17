@@ -35,11 +35,24 @@ server:
         archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d.log
   rootPath: "/api"
   applicationConnectors:
-    - type: http
-      port: 8080
+#    - type: http
+#      port: 8080
+    - type: https
+      port: 8443
+      certAlias: dlab
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-    - type: http
+#    - type: http
+    - type: https
       port: 8081
+      certAlias: dlab
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 logging:
   level: INFO
