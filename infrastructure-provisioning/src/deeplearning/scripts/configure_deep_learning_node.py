@@ -106,6 +106,7 @@ if __name__ == "__main__":
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
             sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
+            sudo('touch /home/' + args.os_user + '/.ensure_dir/deep_learning')
     except:
         sys.exit(1)
 
