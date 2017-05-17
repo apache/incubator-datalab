@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     # Writing response file & json file with all pkgs
     with open("/root/result.json", 'w') as result:
-        res = {"Action": "Get all available libraries"}
+        res = {"Action": "Get list of all available libraries"}
         result.write(json.dumps(res))
 
     with open("/root/all_pkgs.json", 'w') as result:

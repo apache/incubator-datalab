@@ -1,0 +1,28 @@
+{
+  "status": "ok",
+  "response": {
+    "result": {
+      "Action": "Install additional libs",
+      "Libs": {
+        "os_pkg": [
+          "htop",
+          "test_fail_pkg"
+        ],
+        "pip3": [
+          "configparser"
+        ],
+        "pip2": [
+          "requests",
+          "configparser"
+        ]
+      },
+      "Fail": {
+        "os_pkg": [
+          "test_fail_pkg"
+        ]
+      }
+    },
+    "log": "/var/log/dlab/notebook/notebook_${EDGE_USER_NAME}_${REQUEST_ID}.log"
+  },
+  "request_id": "${REQUEST_ID}"
+}

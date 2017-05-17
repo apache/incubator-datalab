@@ -377,7 +377,6 @@ List of parameters for Notebook node to **get list** of available libraries:
 |-------------------------------|-----------------------------------------------------------------------------------|
 | conf\_resource                | notebook                                                                          |
 | conf\_os\_user                | Name of the SSH user                                                              |
-| conf\_os\_family              | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
 | conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
 | conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
 | edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
@@ -406,7 +405,6 @@ List of parameters for Notebook node to **install** additional libraries:
 |-------------------------------|-----------------------------------------------------------------------------------|
 | conf\_resource                | notebook                                                                          |
 | conf\_os\_user                | Name of the SSH user                                                              |
-| conf\_os\_family              | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
 | conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
 | conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
 | edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
