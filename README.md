@@ -394,8 +394,8 @@ List of parameters for Notebook node to **get list** of available libraries:
 {
   "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
   "pip2": {"requests": "N/A", "configparser": "N/A"},
-  "pip3": ["configparser": "N/A"],
-  "r_pkg": ["rmarkdown": "1.5"]
+  "pip3": {"configparser": "N/A"},
+  "r_pkg": {"rmarkdown": "1.5"}
 }
 ```
 
