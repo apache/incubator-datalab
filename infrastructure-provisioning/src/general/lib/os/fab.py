@@ -292,7 +292,7 @@ def installing_python(region, bucket, user_name, cluster_name):
               ' /usr/bin/python' + python_version[0:3])
 
 
-def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region):
+def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user=''):
     spark_path = '/opt/' + emr_version + '/' + cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
     kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
@@ -319,7 +319,7 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         python_version = f.read()
     # python_version = python_version[0:3]
     if python_version != '\n':
-        if os.environ['application'] != 'deeplearning':
+        if not os.path.exists('/home/' + os_user + '/.ensure_dir/deep_learning'):
             installing_python(region, bucket, user_name, cluster_name)
 
         local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
@@ -332,7 +332,7 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('PYTHON_SHORT_VERSION', python_version[0:3])
         text = text.replace('PYTHON_FULL_VERSION', python_version[0:3])
-        if os.environ['application'] == 'deeplearning':
+        if os.path.exists('/home/' + os_user + '/.ensure_dir/deep_learning'):
             text = text.replace('PYTHON_PATH', '/usr/bin/python3.4')
         else:
             text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' +
