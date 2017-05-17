@@ -388,6 +388,17 @@ List of parameters for Notebook node to **get list** of available libraries:
 
 **Note:** This operation will returns a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
 
+**Example** of available libraries in response (type->library->version):
+
+```
+{
+  "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
+  "pip2": {"requests": "N/A", "configparser": "N/A"},
+  "pip3": ["configparser": "N/A"],
+  "r_pkg": ["rmarkdown": "1.5"]
+}
+```
+
 
 List of parameters for Notebook node to **install** additional libraries:
 
