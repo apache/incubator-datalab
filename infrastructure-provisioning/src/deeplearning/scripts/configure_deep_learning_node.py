@@ -109,7 +109,7 @@ if __name__ == "__main__":
     install_caffe(args.os_user)
 
     print "Installing Caffe2"
-
+    install_caffe2(args.os_user)
 
     print "Install Jupyter"
     configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version)

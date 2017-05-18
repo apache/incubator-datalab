@@ -67,17 +67,7 @@ def ensure_r(os_user, r_libs):
         try:
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
             sudo('apt-get install -y cmake')
-            if os.environ['application'] == 'deeplearning':
-                try:
-                    sudo("""sh -c 'echo "deb http://cran.rstudio.com/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list'""")
-                    sudo('gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9')
-                    sudo('gpg -a --export E084DAB9 |  apt-key add -')
-                    sudo('apt-get update')
-                except:
-                    sudo('apt-get update')
-                sudo('apt-get -y --force-yes install r-base')
-            else:
-                sudo('apt-get install -y r-base r-base-dev')
+            sudo('apt-get install -y r-base r-base-dev')
             sudo('R CMD javareconf')
             sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
             for i in r_libs:

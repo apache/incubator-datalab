@@ -207,14 +207,9 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             if os.environ['application'] == 'jupyter':
                 sudo('jupyter-kernelspec remove -f python2')
                 sudo('jupyter-kernelspec remove -f python3')
-            if os.environ['application'] == 'deeplearning':
-                sudo('update-rc.d jupyter-notebook defaults')
-                sudo('update-rc.d jupyter-notebook enable')
-                sudo('service jupyter-notebook start')
-            else:
-                sudo("systemctl daemon-reload")
-                sudo("systemctl enable jupyter-notebook")
-                sudo("systemctl start jupyter-notebook")
+            sudo("systemctl daemon-reload")
+            sudo("systemctl enable jupyter-notebook")
+            sudo("systemctl start jupyter-notebook")
             sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -288,7 +283,7 @@ def installing_python(region, bucket, user_name, cluster_name):
               ' /usr/bin/python' + python_version[0:3])
 
 
-def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user=''):
+def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region):
     spark_path = '/opt/' + emr_version + '/' + cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
     kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
@@ -315,9 +310,7 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         python_version = f.read()
     # python_version = python_version[0:3]
     if python_version != '\n':
-        if not os.path.exists('/home/' + os_user + '/.ensure_dir/deep_learning'):
-            installing_python(region, bucket, user_name, cluster_name)
-
+        installing_python(region, bucket, user_name, cluster_name)
         local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
         kernel_path = kernels_dir + "py3spark_" + cluster_name + "/kernel.json"
         template_file = "/tmp/pyspark_emr_template.json"
@@ -328,11 +321,8 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('PYTHON_SHORT_VERSION', python_version[0:3])
         text = text.replace('PYTHON_FULL_VERSION', python_version[0:3])
-        if os.path.exists('/home/' + os_user + '/.ensure_dir/deep_learning'):
-            text = text.replace('PYTHON_PATH', '/usr/bin/python3.4')
-        else:
-            text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' +
-                                python_version[:3])
+        text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' +
+                            python_version[:3])
         text = text.replace('EMR_VERSION', emr_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
