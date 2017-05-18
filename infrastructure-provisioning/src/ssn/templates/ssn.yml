@@ -1,8 +1,8 @@
 <#assign LOG_ROOT_DIR="/var/opt/dlab/log">
 <#assign KEYS_DIR="/home/${sys['user.name']}/keys">
 <#assign KEY_STORE_PATH="${KEYS_DIR}/dlab.keystore.jks">
-<#assign KEY_STORE_PASSWORD="<KEY_STORE_PASSWORD>">
-<#assign TRUST_STORE_PATH="${JRE_HOME}/lib/security/cacerts">
+<#assign KEY_STORE_PASSWORD="PASSWORD">
+<#assign TRUST_STORE_PATH="/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts">
 <#assign TRUST_STORE_PASSWORD="changeit">
 
 #Switch on/off developer mode here
