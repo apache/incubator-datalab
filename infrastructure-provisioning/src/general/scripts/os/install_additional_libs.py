@@ -46,30 +46,28 @@ if __name__ == "__main__":
 
     print 'Installing libraries:' + args.libs
     failed = dict()
+    general_status = list()
 
     pkgs = json.loads(args.libs.replace("'", "\""))
 
     try:
         print 'Installing os packages:', pkgs['libraries']['os_pkg']
         status = install_os_pkg(pkgs['libraries']['os_pkg'])
-        if status:
-            failed['os_pkg'] = status
+        general_status = general_status + status
     except KeyError:
         pass
 
     try:
         print 'Installing pip2 packages:', pkgs['libraries']['pip2']
         status = install_pip2_pkg(pkgs['libraries']['pip2'])
-        if status:
-            failed['pip2'] = status
+        general_status = general_status + status
     except KeyError:
         pass
 
     try:
         print 'Installing pip3 packages:', pkgs['libraries']['pip3']
         status = install_pip3_pkg(pkgs['libraries']['pip3'])
-        if status:
-            failed['pip3'] = status
+        general_status = general_status + status
     except KeyError:
         pass
 
@@ -77,14 +75,12 @@ if __name__ == "__main__":
         try:
             print 'Installing R packages:', pkgs['libraries']['r_pkg']
             status = install_r_pkg(pkgs['libraries']['r_pkg'])
-            if status:
-                failed['r_pkg'] = status
+            general_status = general_status + status
         except KeyError:
             pass
 
 
     with open("/root/result.json", 'w') as result:
         res = {"Action": "Install additional libs",
-               "Libs": pkgs['libraries'],
-               "Fail": failed}
+               "Libs": general_status}
         result.write(json.dumps(res))

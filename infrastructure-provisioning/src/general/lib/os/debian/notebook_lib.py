@@ -315,7 +315,7 @@ def install_gitweb(os_user):
 
 
 def install_os_pkg(requisites):
-    failed = list()
+    status = list()
     try:
         print "Updating repositories and installing requested tools:", requisites
         sudo('apt-get update')
@@ -323,11 +323,12 @@ def install_os_pkg(requisites):
         for os_pkg in requisites:
             try:
                 sudo('apt-get -y install ' + os_pkg)
+                status.append({"group": "os_pkg", "name": os_pkg, "status": "ok", "error_message": ""})
             except:
-                failed.append(os_pkg)
+                status.append({"group": "os_pkg", "name": os_pkg, "status": "error", "error_message": ""})
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
-        return failed
+        return status
     except:
         return "Fail to install OS packages"
 

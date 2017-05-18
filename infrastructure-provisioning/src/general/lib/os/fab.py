@@ -42,7 +42,7 @@ def ensure_pip(requisites):
 
 
 def install_pip2_pkg(requisites):
-    failed = list()
+    status = list()
     try:
         sudo('pip2 install -U pip setuptools')
         sudo('pip2 install -U pip --no-cache-dir')
@@ -50,15 +50,16 @@ def install_pip2_pkg(requisites):
         for pip2_pkg in requisites:
             try:
                 sudo('pip2 install ' + pip2_pkg + ' --no-cache-dir')
+                status.append({"group": "pip2", "name": pip2_pkg, "status": "ok", "error_message": ""})
             except:
-                failed.append(pip2_pkg)
-        return failed
+                status.append({"group": "pip2", "name": pip2_pkg, "status": "error", "error_message": ""})
+        return status
     except:
         return "Fail to install pip2 packages"
 
 
 def install_pip3_pkg(requisites):
-    failed = list()
+    status = list()
     try:
         if not exists('/bin/pip3'):
             sudo('ln -s /bin/pip3.5 /bin/pip3')
@@ -68,9 +69,10 @@ def install_pip3_pkg(requisites):
         for pip3_pkg in requisites:
             try:
                 sudo('pip3 install ' + pip3_pkg + ' --no-cache-dir')
+                status.append({"group": "pip3", "name": pip3_pkg, "status": "ok", "error_message": ""})
             except:
-                failed.append(pip3_pkg)
-        return failed
+                status.append({"group": "pip3", "name": pip3_pkg, "status": "error", "error_message": ""})
+        return status
     except:
         return "Fail to install pip3 packages"
 
@@ -482,14 +484,15 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
 
 
 def install_r_pkg(requisites):
-    failed = list()
+    status = list()
     try:
         for r_pkg in requisites:
             try:
                 sudo('R -e \'install.packages("'+ r_pkg +'", repos="http://cran.us.r-project.org", dep=TRUE)\'')
+                status.append({"group": "r_pkg", "name": r_pkg, "status": "ok", "error_message": ""})
             except:
-                failed.append(r_pkg)
-        return failed
+                status.append({"group": "r_pkg", "name": r_pkg, "status": "error", "error_message": ""})
+        return status
     except:
         return "Fail to install R packages"
 
