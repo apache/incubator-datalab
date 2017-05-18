@@ -25,8 +25,8 @@ ARG CLOUD
 COPY deeplearning/ /root/
 COPY general/scripts/${CLOUD}/deeplearning_* /root/scripts/
 COPY general/scripts/os/notebook_configure_proxy.py /root/scripts/
-COPY general/lib/os/debian/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
-COPY general/lib/os/debian/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
+COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
+COPY general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/pyspark_local_template.json /root/templates/
 COPY general/templates/os/pyspark_emr_template.json /root/templates/
