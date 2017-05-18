@@ -42,6 +42,8 @@ if __name__ == "__main__":
                                                    " | grep spark.driver.extraLibraryPath | awk '{print $2}' | "
                                                    "sed 's/^:// ; s~jar:~jar ~g; s~/\*:~/\* ~g; s~:\|$~/\* ~g'",
                                                    shell=True)
+    spark_def_path_line1 = spark_def_path_line1.strip('\n')
+    spark_def_path_line2 = spark_def_path_line2.strip('\n')
     if args.region == 'us-east-1':
         endpoint = "https://s3.amazonaws.com"
     else:
