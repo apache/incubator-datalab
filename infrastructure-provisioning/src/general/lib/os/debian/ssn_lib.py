@@ -88,12 +88,13 @@ def configure_jenkins(dlab_path, os_user, config, tag_resource_id):
         return False
 
 
-def configure_nginx(config, dlab_path):
+def configure_nginx(config, dlab_path, hostname):
     try:
         random_file_part = id_generator(size=20)
         if not exists("/etc/nginx/conf.d/nginx_proxy.conf"):
             sudo('rm -f /etc/nginx/conf.d/*')
             put(config['nginx_template_dir'] + 'nginx_proxy.conf', '/tmp/nginx_proxy.conf')
+            sudo("sed -i 's|SSN_HOSTNAME|" + hostname + "|' /tmp/nginx_proxy.conf")
             sudo('mv /tmp/nginx_proxy.conf ' + dlab_path + 'tmp/')
             sudo('\cp ' + dlab_path + 'tmp/nginx_proxy.conf /etc/nginx/conf.d/')
             sudo('mkdir -p /etc/nginx/locations')
@@ -155,7 +156,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
-            local('sed -i "s|PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
+            local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
@@ -200,6 +201,16 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                 sudo('python /tmp/configure_billing.py --cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {}'.
                      format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
                             mongo_passwd, dlab_path))
+            try:
+                sudo('keytool -genkeypair -alias dlab -keyalg RSA -storepass PASSWORD -keypass PASSWORD \
+                     -keystore /home/{}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user))
+                sudo('keytool -exportcert -alias dlab -storepass PASSWORD -file /home/{0}/keys/dlab.crt \
+                     -keystore /home/{0}/keys/dlab. keystore.jks'.format(os_user))
+                sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{}/keys/dlab.crt -noprompt \
+                     -storepass changeit -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts')
+            except:
+                append_result("Unable to generate cert and copy to java keystore")
+                sys.exit(1)
             sudo('service supervisor start')
             sudo('service nginx restart')
             sudo('service supervisor restart')

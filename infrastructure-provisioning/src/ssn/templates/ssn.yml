@@ -13,7 +13,7 @@ mongo:
   host: localhost
   port: 27017
   username: admin
-  password: PASSWORD
+  password: MONGO_PASSWORD
   database: dlabdb
 
 selfService:

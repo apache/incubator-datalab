@@ -88,13 +88,14 @@ def configure_jenkins(dlab_path, os_user, config, tag_resource_id):
         return False
 
 
-def configure_nginx(config, dlab_path):
+def configure_nginx(config, dlab_path, hostname):
     try:
         random_file_part = id_generator(size=20)
         if not exists("/etc/nginx/conf.d/nginx_proxy.conf"):
             sudo('rm -f /etc/nginx/conf.d/*')
             put(config['nginx_template_dir'] + 'nginx_proxy.conf', '/tmp/nginx_proxy.conf')
             put(config['nginx_template_dir'] + 'ssn_nginx.conf', '/tmp/nginx.conf')
+            sudo("sed -i 's|SSN_HOSTNAME|" + hostname + "|' /tmp/nginx_proxy.conf")
             sudo('cat /tmp/nginx.conf > /etc/nginx/nginx.conf')
             sudo('mv /tmp/nginx_proxy.conf ' + dlab_path + 'tmp/')
             sudo('\cp ' + dlab_path + 'tmp/nginx_proxy.conf /etc/nginx/conf.d/')
@@ -158,7 +159,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
     try:
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_dlab_path'])):
             supervisor_conf = '/etc/supervisord.d/supervisor_svc.ini'
-            local('sed -i "s|PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
+            local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
