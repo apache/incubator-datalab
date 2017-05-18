@@ -33,6 +33,7 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--jupyter_version', type=str, default='')
+parser.add_argument('--tensorflow_version', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
@@ -56,6 +57,12 @@ toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snaps
 scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 
 
+def install_mxnet(args):
+    if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(args.os_user)):
+        sudo('pip2 install mxnet-cu80')
+        sudo('pip3 install mxnet-cu80')
+
+
 def install_cntk(args):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(args.os_user)):
         sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc2-cp34-cp34m-linux_x86_64.whl')
@@ -70,30 +77,6 @@ def install_itorch(args):
         sudo('cp -rf /home/{0}/.ipython/kernels/itorch/ /home/{0}/.local/share/jupyter/kernels/'.format(args.os_user))
         sudo('chown -R {0}:{0} /home/{0}/.local/share/jupyter/'.format(args.os_user))
         sudo('touch /home/{}/.ensure_dir/itorch_ensured'.format(args.os_user))
-
-
-def configure_tensor(args):
-    tensor_board_started = False
-    sudo('apt-add-repository -y ppa:pi-rho/security')
-    sudo('apt-get update')
-    sudo('apt-get install -y nmap')
-    sudo('mkdir /var/log/tensorboard; chown ' + args.os_user + ':' + args.os_user + ' -R /var/log/tensorboard')
-    put(templates_dir + 'tensorboard.conf', '/tmp/tensorboard.conf')
-    sudo("sed -i 's|OS_USR|" + args.os_user + "|' /tmp/tensorboard.conf")
-    sudo("chmod 644 /tmp/tensorboard.conf")
-    sudo('\cp /tmp/tensorboard.conf /etc/init/')
-    sudo('\cp /tmp/tensorboard.conf /etc/init.d/tensorboard')
-    sudo('update-rc.d tensorboard defaults')
-    sudo('update-rc.d tensorboard enable')
-    sudo('service tensorboard start')
-    while not tensor_board_started:
-        tensor_port = sudo('nmap -p 6006 localhost | grep "closed" > /dev/null; echo $?')
-        tensor_port = tensor_port[:1]
-        if tensor_port == '1':
-            tensor_board_started = True
-        else:
-            print "Tensor Board is still starting."
-            sudo('sleep 5')
 
 
 if __name__ == "__main__":
@@ -119,10 +102,16 @@ if __name__ == "__main__":
     print "Install python3 libraries"
     ensure_python3_libraries(args.os_user)
 
-    print "Configuring TensorFlow"
-    configure_tensor(args)
+    print "Install TensorFlow"
+    install_tensor(args.os_user, args.tensorflow_version, files_dir, templates_dir)
 
-    print "Configuring Jupyter"
+    print "Installing Caffe"
+    install_caffe(args.os_user)
+
+    print "Installing Caffe2"
+
+
+    print "Install Jupyter"
     configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version)
 
     print "Install local Spark"
@@ -154,4 +143,7 @@ if __name__ == "__main__":
 
     print "Install CNTK Python library"
     install_cntk(args)
+
+    print "Installing MXNET"
+    install_mxnet(args)
 

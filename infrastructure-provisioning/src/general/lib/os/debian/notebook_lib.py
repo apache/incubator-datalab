@@ -311,3 +311,51 @@ def install_gitweb(os_user):
         sudo('a2enmod cgi')
         sudo('service apache2 restart')
         sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')
+
+
+def install_caffe(os_user):
+    if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
+        sudo('apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev '
+             'protobuf-compiler')
+        sudo('apt-get install --no-install-recommends libboost-all-dev')
+        sudo('apt-get install libatlas-base-dev')
+        sudo('apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev')
+        with cd('/usr/lib/x86_64-linux-gnu/'):
+            sudo('ln -s libhdf5_serial_hl.so.10.0.2 libhdf5_hl.so')
+            sudo('ln -s libhdf5_serial.so.10.1.0 libhdf5.so')
+        sudo('git clone https://github.com/BVLC/caffe.git')
+        with cd('/home/{}/caffe/'.format(os_user)):
+            sudo('cp Makefile.config.example Makefile.config')
+            sudo('sed -i "/INCLUDE_DIRS :=/d" Makefile.config')
+            sudo('echo "INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/" >> '
+                 'Makefile.config')
+            sudo('sed -i "/LIBRARIES :=/d" Makefile.config')
+            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" '
+                 '>> Makefile.config')
+            sudo('make all')
+            sudo('make test')
+            sudo('make runtest')
+            sudo('make pycaffe')
+
+
+def install_caffe2(os_user):
+    if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
+        sudo('apt-get update')
+        sudo('apt-get install -y --no-install-recommends build-essential cmake git libgoogle-glog-dev libprotobuf-dev'
+             ' protobuf-compiler python-dev python-pip')
+        sudo('pip2 install numpy protobuf')
+        sudo('pip3 install numpy protobuf')
+        sudo('CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz"; '
+             'wget ${CUDNN_URL}')
+        sudo('tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local')
+        sudo('rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig')
+        sudo('apt-get install -y --no-install-recommends libgflags-dev')
+        sudo('apt-get install -y --no-install-recommends libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
+             'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
+        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
+             'scipy setuptools tornado')
+        sudo('pip3 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
+             'scipy setuptools tornado')
+        sudo('git clone --recursive https://github.com/caffe2/caffe2.git')
+        with cd('/home/{}/caffe2/'.format(os_user)):
+            sudo('make && cd build && make install')

@@ -190,21 +190,17 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo('echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
             sudo('''echo "c.NotebookApp.token = u''" >> ''' + jupyter_conf_file)
             sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> ' + jupyter_conf_file)
-            if os.environ['application'] == 'deeplearning':
-                put(templates_dir + 'jupyter-notebook.conf', '/tmp/jupyter-notebook.conf')
-                sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/jupyter-notebook.conf")
-                sudo("sed -i 's|CONF_PATH|" + jupyter_conf_file + "|' /tmp/jupyter-notebook.conf")
-                sudo("chmod 644 /tmp/jupyter-notebook.conf")
-                sudo('\cp /tmp/jupyter-notebook.conf /etc/init/')
-                sudo('\cp /tmp/jupyter-notebook.conf /etc/init.d/jupyter-notebook')
-            else:
-                put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
-                sudo("chmod 644 /tmp/jupyter-notebook.service")
-                if os.environ['application'] == 'tensor':
-                    sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
-                sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
-                sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
-                sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
+            put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
+            sudo("chmod 644 /tmp/jupyter-notebook.service")
+            if os.environ['application'] == 'tensor':
+                sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
+            elif os.environ['application'] == 'deeplearning':
+                sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:"
+                     "/usr/local/cuda/lib64 ; export PYTHONPATH=/home/" + os_user + "/caffe/python:/home/" + os_user +
+                     "/caffe2/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
+            sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
+            sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
+            sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
             sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             sudo('mkdir /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
