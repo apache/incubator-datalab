@@ -46,8 +46,9 @@ server:
       trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
 #    - type: http
+#      port: 8081
     - type: https
-      port: 8081
+      port: 8444
       certAlias: dlab
       keyStorePath: ${KEY_STORE_PATH}
       keyStorePassword: ${KEY_STORE_PASSWORD}
