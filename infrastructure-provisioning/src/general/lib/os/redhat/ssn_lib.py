@@ -206,6 +206,16 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                 sudo('python /tmp/configure_billing.py --cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {}'.
                      format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
                             mongo_passwd, dlab_path))
+            try:
+                sudo('keytool -genkeypair -alias dlab -keyalg RSA -storepass PASSWORD -keypass PASSWORD \
+                     -keystore /home/{}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user))
+                sudo('keytool -exportcert -alias dlab -storepass PASSWORD -file /home/{0}/keys/dlab.crt \
+                     -keystore /home/{0}/keys/dlab. keystore.jks'.format(os_user))
+                sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{}/keys/dlab.crt -noprompt \
+                     -storepass changeit -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts')
+            except:
+                append_result("Unable to generate cert and copy to java keystore")
+                sys.exit(1)
             sudo('systemctl restart supervisord')
             sudo('service nginx restart')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/ss_started')
