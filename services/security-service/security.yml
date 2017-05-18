@@ -130,7 +130,7 @@ server:
       trustStorePath: ${TRUST_STORE_PATH}
       trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-    - type: http
+    - type: https
       port: 8091
       certAlias: dlab
       keyStorePath: ${KEY_STORE_PATH}
