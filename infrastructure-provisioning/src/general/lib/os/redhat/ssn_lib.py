@@ -222,13 +222,3 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
         return True
     except:
         return False
-
-
-def generate_ssl(os_user, hostname):
-    try:
-        sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /home/{0}/keys/dlab-selfsigned.key \
-             -out /home/{0}/keys/dlab-selfsigned.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={1}"'.format(os_user, hostname))
-        sudo('openssl dhparam -out /home/{0}/keys/dhparam.pem 2048'.format(os_user))
-        return True
-    except:
-        return False
