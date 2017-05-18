@@ -207,7 +207,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                 sudo('keytool -exportcert -alias dlab -storepass PASSWORD -file /home/{0}/keys/dlab.crt \
                      -keystore /home/{0}/keys/dlab.keystore.jks'.format(os_user))
                 sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{}/keys/dlab.crt -noprompt \
-                     -storepass changeit -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts')
+                     -storepass changeit -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts'.format(os_user))
             except:
                 append_result("Unable to generate cert and copy to java keystore")
                 sys.exit(1)
