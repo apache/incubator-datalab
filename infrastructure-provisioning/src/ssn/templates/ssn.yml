@@ -1,7 +1,7 @@
 <#assign LOG_ROOT_DIR="/var/opt/dlab/log">
 <#assign KEYS_DIR="/home/${sys['user.name']}/keys">
 <#assign KEY_STORE_PATH="${KEYS_DIR}/dlab.keystore.jks">
-<#assign KEY_STORE_PASSWORD="PASSWORD">
+<#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
 <#assign TRUST_STORE_PATH="/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts">
 <#assign TRUST_STORE_PASSWORD="changeit">
 
