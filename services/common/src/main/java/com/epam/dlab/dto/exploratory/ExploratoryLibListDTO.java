@@ -18,14 +18,17 @@ limitations under the License.
 
 package com.epam.dlab.dto.exploratory;
 
-import com.epam.dlab.dto.StatusEnvBaseDTO;
+import com.epam.dlab.dto.StatusBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class ExploratoryLibsDTO extends StatusEnvBaseDTO<ExploratoryLibsDTO> {
+public class ExploratoryLibListDTO extends StatusBaseDTO<ExploratoryLibListDTO> {
 
-    @JsonProperty("libs")
+    @JsonProperty
     private String libs;
+
+    @JsonProperty
+    private String imageName;
 
     public String getLibs() {
         return libs;
@@ -35,16 +38,29 @@ public class ExploratoryLibsDTO extends StatusEnvBaseDTO<ExploratoryLibsDTO> {
         this.libs = libs;
     }
 
-    public ExploratoryLibsDTO withLibs(String libs) {
+    public ExploratoryLibListDTO withLibs(String libs) {
         setLibs(libs);
         return this;
     }
 
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public ExploratoryLibListDTO withImageName(String imageName) {
+        setImageName(imageName);
+        return this;
+    }
 
     @Override
     public ToStringHelper toStringHelper(Object self) {
     	return super.toStringHelper(self)
-    	        .add("libs", libs);
+    	        .add("libs", libs)
+                .add("imageName", imageName);
     }
     
     @Override

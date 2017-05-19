@@ -87,7 +87,7 @@ public class ExploratoryResource implements DockerCommands {
     @Path("/install")
     @POST
     public String install(@Auth UserInfo ui, ExploratoryBaseDTO dto) throws IOException, InterruptedException {
-        return action(ui.getName(), dto, DockerAction.INSTALL_LIBS);
+        return action(ui.getName(), dto, DockerAction.LIB_INSTALL);
     }
 
     private String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws IOException, InterruptedException {

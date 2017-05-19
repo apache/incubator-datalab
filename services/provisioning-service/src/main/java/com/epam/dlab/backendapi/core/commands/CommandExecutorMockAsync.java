@@ -105,7 +105,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			case START:
 			case STOP:
 			case TERMINATE:
-			case INSTALL_LIBS:
+			case LIB_INSTALL:
 				action(user, action);
 				break;
 			case CONFIGURE:
@@ -118,7 +118,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 				parser.getVariables().put("list_resources", getResponseStatus(true));
 				action(user, action);
 				break;
-			case LIST_LIBS:
+			case LIB_LIST:
 				action(user, action);
 				copyFile("mock_response/notebook_list_libs_pkgs.json", parser.getResponsePath());
 				break;

@@ -30,15 +30,15 @@ import org.slf4j.LoggerFactory;
 import static com.epam.dlab.rest.contracts.ApiCallbacks.EXPLORATORY;
 import static com.epam.dlab.rest.contracts.ApiCallbacks.STATUS_URI;
 
-public class LibsStatusCallbackHandler extends ResourceCallbackHandler<ExploratoryLibsInstallStatusDTO> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(LibsStatusCallbackHandler.class);
+public class LibInstallCallbackHandler extends ResourceCallbackHandler<ExploratoryLibsInstallStatusDTO> {
+	private static final Logger LOGGER = LoggerFactory.getLogger(LibInstallCallbackHandler.class);
 
     private static final String INSTANCE_ID_FIELD = "instance_id";
     private static final String LIBS = "Libs";
 
     private final String exploratoryName;
 
-    public LibsStatusCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String exploratoryName) {
+    public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String exploratoryName) {
         super(selfService, user, uuid, action);
         this.exploratoryName = exploratoryName;
     }
