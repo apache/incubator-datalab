@@ -305,16 +305,20 @@ def install_gitweb(os_user):
 
 def install_caffe(os_user):
     if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
-        sudo('apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev '
+        sudo('apt-get install -y python-dev')
+        sudo('apt-get install -y python3-dev')
+        sudo('apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev '
              'protobuf-compiler')
-        sudo('apt-get install --no-install-recommends libboost-all-dev')
-        sudo('apt-get install libatlas-base-dev')
-        sudo('apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev')
+        sudo('apt-get install -y --no-install-recommends libboost-all-dev')
+        sudo('apt-get install -y libatlas-base-dev')
+        sudo('apt-get install -y libgflags-dev libgoogle-glog-dev liblmdb-dev')
         with cd('/usr/lib/x86_64-linux-gnu/'):
             sudo('ln -s libhdf5_serial_hl.so.10.0.2 libhdf5_hl.so')
             sudo('ln -s libhdf5_serial.so.10.1.0 libhdf5.so')
         sudo('git clone https://github.com/BVLC/caffe.git')
         with cd('/home/{}/caffe/'.format(os_user)):
+            sudo('pip2 install -r python/requirements.txt')
+            sudo('pip3 install -r python/requirements.txt')
             sudo('cp Makefile.config.example Makefile.config')
             sudo('sed -i "/INCLUDE_DIRS :=/d" Makefile.config')
             sudo('echo "INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/" >> '

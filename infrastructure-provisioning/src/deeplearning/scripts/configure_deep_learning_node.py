@@ -93,6 +93,9 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
+    print "Install Java"
+    ensure_jre_jdk(args.os_user)
+
     print "Install Scala"
     ensure_scala(scala_link, args.scala_version, args.os_user)
 

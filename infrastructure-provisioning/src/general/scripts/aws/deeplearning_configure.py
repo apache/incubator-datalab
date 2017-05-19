@@ -100,6 +100,22 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
+    # updating repositories & installing python packages
+    try:
+        logging.info('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
+        print('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
+        params = "--hostname {} --keyfile {} --user {}".format(instance_hostname, keyfile_name,
+                                                               os.environ['conf_os_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed installing apps: apt & pip.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     try:
         logging.info('[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]')
         print '[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]'
