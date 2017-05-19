@@ -158,9 +158,11 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
              service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path=''):
     try:
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_dlab_path'])):
+            java_path = sudo("alternatives --list | grep jre_openjdk | awk '{print $3}'")
             supervisor_conf = '/etc/supervisord.d/supervisor_svc.ini'
             local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
+            local('sed -i "s|JAVA_PATH|{}|g" /root/templates/ssn.yml'.format(java_path))
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
@@ -208,7 +210,6 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                      format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
                             mongo_passwd, dlab_path))
             try:
-                java_path = sudo("alternatives --list | grep jre_openjdk | awk '{print $3}'")
                 sudo('keytool -genkeypair -alias dlab -keyalg RSA -storepass {1} -keypass {1} \
                      -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd))
                 sudo('keytool -exportcert -alias dlab -storepass {1} -file /home/{0}/keys/dlab.crt \
