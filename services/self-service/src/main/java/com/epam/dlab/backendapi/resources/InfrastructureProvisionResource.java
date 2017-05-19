@@ -21,6 +21,8 @@ package com.epam.dlab.backendapi.resources;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.resources.dto.ExploratoryGetLibsFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.constants.ServiceConsts;
@@ -137,6 +140,43 @@ public class InfrastructureProvisionResource implements DockerAPI {
         }
     }
     
+    /** Returns the list of libraries groups for exploratory.
+     * @param userInfo user info.
+     * @param imageName name of exploratory image.
+     */
+    @GET
+    @Path("/lib_groups")
+    public Iterable<String> getLibGroupList(@Auth UserInfo userInfo, @NotNull String imageName) {
+        LOGGER.trace("Loading list of lib groups for user {} and image {}", userInfo.getName(), imageName);
+        try {
+        	//TODO getLibGroupList
+        	List<String> list = null;
+        	return list;
+        } catch (Throwable t) {
+        	LOGGER.error("Cannot load list of lib groups for user {} and image {}", userInfo.getName(), imageName, t);
+            throw new DlabException("Cannot load list of libraries groups: " + t.getLocalizedMessage(), t);
+        }
+    }
+    
+    /** Returns the list of libraries for exploratory.
+     * @param userInfo user info.
+     * @param formDTO search condition for find libraries for the exploratory environment.
+     */
+    @GET
+    @Path("/lib_list")
+    public Iterable<String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryGetLibsFormDTO formDTO) {
+        LOGGER.trace("Loading list of libs for user {} with condition {}", userInfo.getName(), formDTO);
+        try {
+        	//TODO getLibList
+        	List<String> list = null;
+        	return list;
+        } catch (Throwable t) {
+        	LOGGER.error("Cannot load list of libs for user {} with condition {}",
+        			userInfo.getName(), formDTO, t);
+            throw new DlabException("Cannot load list of libraries: " + t.getLocalizedMessage(), t);
+        }
+    }
+
     /** Return the image name without suffix version.
      * @param imageName the name of image.
      */

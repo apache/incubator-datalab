@@ -28,6 +28,7 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.ExploratoryInstallLibsFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.util.ResourceUtils;
@@ -54,6 +55,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import static com.epam.dlab.UserInstanceStatus.*;
+
+import java.util.List;
 
 /** Provides the REST API for the exploratory.
  */
@@ -252,6 +255,57 @@ public class ExploratoryResource implements ExploratoryAPI {
            	throw new DlabException("Could not terminate exploratory environment " + name + " for user " + userInfo.getName() + ": " + e.getLocalizedMessage(), e);
         }
     }
+    
+    
+    
+    /** Install the libraries to the exploratory environment.
+     * @param userInfo user info.
+     * @param formDTO description of libraries which will be installed to the exploratory environment.
+     * @return Invocation response as JSON string.
+     * @throws DlabException
+     */
+    @POST
+    @Path("/lib_install")
+    public Response installLibs(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryInstallLibsFormDTO formDTO) throws DlabException {
+        LOGGER.debug("Installing libs to exploratory environment {} for user {}", formDTO.getNotebookInstanceName(), userInfo.getName());
+        try {
+        	// TODO Install libs. Update status in Mongo
+        	
+        	String uuid = null;//provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), dto, String.class);
+            RequestId.put(userInfo.getName(), uuid);
+            return Response.ok(uuid).build();
+        } catch (DlabException e) {
+        	LOGGER.error("Cannot install libs to exploratory environment {} for user {}",
+        			formDTO.getNotebookInstanceName(), userInfo.getName(), e);
+        	throw new DlabException("Cannot install libraries: " + e.getLocalizedMessage(), e);
+        }
+    }
+
+    /** Load the libraries for the exploratory environment.
+     * @param userInfo user info.
+     * @param exploratoryName name of exploratory environment.
+     * @return List of user libraries.
+     * @throws DlabException
+     */
+    @GET
+    @Path("/lib_status")
+    public Iterable<String> getLibStatus(@Auth UserInfo userInfo, @NotNull String exploratoryName) throws DlabException {
+        LOGGER.debug("Load status of user libs for exploratory environment {} for user {}", exploratoryName, userInfo.getName());
+        try {
+        	// TODO Load list of libs status from Mongo
+        	List<String> list = null;
+        	return list;
+        } catch (DlabException e) {
+        	LOGGER.error("Cannot load status of user libs for exploratory environment {} for user {}",
+        			exploratoryName, userInfo.getName(), e);
+        	throw new DlabException("Cannot load the list of libraries: " + e.getLocalizedMessage(), e);
+        }
+    }
+
+    
+    
+    
+    
 
     /** Sends the post request to the provisioning service and update the status of exploratory environment.
      * @param userInfo user info.
