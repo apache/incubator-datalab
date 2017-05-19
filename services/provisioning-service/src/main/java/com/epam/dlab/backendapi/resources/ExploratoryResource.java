@@ -84,6 +84,12 @@ public class ExploratoryResource implements DockerCommands {
         return action(ui.getName(), dto, DockerAction.STOP);
     }
 
+    @Path("/install")
+    @POST
+    public String install(@Auth UserInfo ui, ExploratoryBaseDTO dto) throws IOException, InterruptedException {
+        return action(ui.getName(), dto, DockerAction.INSTALL_LIBS);
+    }
+
     private String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws IOException, InterruptedException {
         LOGGER.debug("{} exploratory environment", action);
         String uuid = DockerCommands.generateUUID();
