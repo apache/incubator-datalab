@@ -158,6 +158,10 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
                     return UserInstanceStatus.STOPPED;
                 case TERMINATE:
                     return UserInstanceStatus.TERMINATED;
+                case LIB_LIST:
+                    return UserInstanceStatus.CREATED;
+                case LIB_INSTALL:
+                    return UserInstanceStatus.CREATED;
 			default:
 				break;
             }

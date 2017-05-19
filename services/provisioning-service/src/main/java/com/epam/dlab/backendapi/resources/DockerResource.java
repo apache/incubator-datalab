@@ -24,7 +24,7 @@ import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.MetadataHolder;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
+import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.imagemetadata.ImageMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ImageType;
@@ -88,23 +88,18 @@ public class DockerResource implements DockerCommands {
         return uuid;
     }
 
-    @Path("/libs")
+    @Path("/lib_list")
     @POST
-    public String libs(@Auth UserInfo ui, ExploratoryBaseDTO dto) throws IOException, InterruptedException {
-        return action(ui.getName(), dto, DockerAction.LIST_LIBS);
-    }
+    public String getLibList(@Auth UserInfo ui, ExploratoryBaseDTO dto) throws IOException, InterruptedException {
 
-//TODO: refactore
-    private String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws IOException, InterruptedException {
-        LOGGER.debug("{} exploratory environment", action);
+        LOGGER.trace("Listing of libs for user {} with condition {}", ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
-                getFileHandlerCallback(action, uuid, dto));
+                getFileHandlerCallback(DockerAction.LIB_LIST, uuid, dto));
 
         RunDockerCommand runDockerCommand = new RunDockerCommand()
                 .withInteractive()
-//                .withName(nameContainer(dto.getEdgeUserName(), action, dto.getExploratoryName()))
                 .withVolumeForRootKeys(configuration.getKeyDirectory())
                 .withVolumeForResponse(configuration.getImagesDirectory())
                 .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
@@ -112,13 +107,15 @@ public class DockerResource implements DockerCommands {
                 .withRequestId(uuid)
                 .withConfKeyName(configuration.getAdminKey())
                 .withImage(dto.getNotebookImage())
-                .withAction(action);
+                .withAction(DockerAction.LIB_LIST);
 
-        commandExecutor.executeAsync(username, uuid, commandBuilder.buildCommand(runDockerCommand, dto));
+        commandExecutor.executeAsync(ui.getName(), uuid, commandBuilder.buildCommand(runDockerCommand, dto));
         return uuid;
     }
+
+
     private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
-        return new ExploratoryCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName());
+        return new LibListCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getNotebookImage());
     }
 
     public String getResourceType() {

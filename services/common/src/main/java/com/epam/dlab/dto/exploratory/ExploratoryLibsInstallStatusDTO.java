@@ -24,7 +24,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 
 public class ExploratoryLibsInstallStatusDTO extends StatusEnvBaseDTO<ExploratoryLibsInstallStatusDTO> {
     @JsonProperty("libs")
-    String libs;
+    String libs;//list<String>
 
     public String getLibs() {
         return libs;

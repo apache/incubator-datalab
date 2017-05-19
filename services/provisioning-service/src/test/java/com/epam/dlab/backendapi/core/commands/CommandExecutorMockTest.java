@@ -19,8 +19,8 @@ limitations under the License.
 package com.epam.dlab.backendapi.core.commands;
 
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
-import com.epam.dlab.backendapi.core.response.handlers.LibsCallbackHandler;
-import com.epam.dlab.backendapi.core.response.handlers.LibsStatusCallbackHandler;
+import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
+import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler;
 import com.epam.dlab.rest.client.RESTServiceMock;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -86,7 +86,7 @@ public class CommandExecutorMockTest {
 		exec.getResultSync();
 
 		RESTServiceMock selfService = new RESTServiceMock();
-		LibsStatusCallbackHandler handler = new LibsStatusCallbackHandler(selfService, action,
+		LibInstallCallbackHandler handler = new LibInstallCallbackHandler(selfService, action,
 				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
 		handler.handle(exec.getResponseFileName(), Files.readAllBytes(Paths.get(exec.getResponseFileName())));
 
@@ -104,7 +104,7 @@ public class CommandExecutorMockTest {
 		exec.getResultSync();
 
 		RESTServiceMock selfService = new RESTServiceMock();
-		LibsCallbackHandler handler = new LibsCallbackHandler(selfService, action,
+		LibListCallbackHandler handler = new LibListCallbackHandler(selfService, action,
 				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
 		handler.handle(exec.getResponseFileName(), Files.readAllBytes(Paths.get(exec.getResponseFileName())));
 
@@ -345,7 +345,7 @@ public class CommandExecutorMockTest {
 						"-e \"application=jupyter\" " +
 						"docker.dlab-jupyter --action list_libs";
 		executeAsync(cmd);
-		handleExploratoryLibs(cmd, DockerAction.LIST_LIBS);
+		handleExploratoryLibs(cmd, DockerAction.LIB_LIST);
 	}
 
 	@Test
@@ -369,7 +369,7 @@ public class CommandExecutorMockTest {
 						"\t\t\t\t}\" " +
 						"docker.dlab-jupyter --action install_libs";
 		executeAsync(cmd);
-		handleExploratoryLibsInstall(cmd, DockerAction.INSTALL_LIBS);
+		handleExploratoryLibsInstall(cmd, DockerAction.LIB_INSTALL);
 	}
     
 }
