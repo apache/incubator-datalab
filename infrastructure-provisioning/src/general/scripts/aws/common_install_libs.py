@@ -19,6 +19,7 @@
 # ******************************************************************************
 import os
 import sys
+import ast
 import logging
 from dlab.fab import *
 from dlab.meta_lib import *
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     notebook_config['os_user'] = os.environ['conf_os_user']
     notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['notebook_name']).get('Private')
     notebook_config['keyfile'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
-    additional_libs = os.environ['additional_libs']
+    additional_libs = str(ast.literal_eval(os.environ['additional_libs']))
 
     try:
         logging.info('[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]')

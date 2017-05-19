@@ -50,9 +50,9 @@ if __name__ == "__main__":
                                                                           os.environ['edge_user_name'],
                                                                           os.environ['request_id'])
 
-    reply['response']['file'] = "/opt/dlab/tmp/result/{0}_{1}_{2}_all_pkgs.json".format(os.environ['edge_user_name'],
-                                                                                        os.environ['application'],
-                                                                                        os.environ['request_id'])
+    reply['response']['result']['file'] = "/opt/dlab/tmp/result/{0}_{1}_{2}_all_pkgs.json".format(os.environ['edge_user_name'],
+                                                                                                  os.environ['application'],
+                                                                                                  os.environ['request_id'])
 
     with open("/response/{}_{}_{}.json".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id']), 'w') as response_file:

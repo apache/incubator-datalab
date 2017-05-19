@@ -417,18 +417,16 @@ List of parameters for Notebook node to **install** additional libraries:
 **Example** of additional_libs parameter:
 
 ```
-{'libraries': {
-    'os_pkg': ['nmap', 'htop'],
-    'pip2': ['requests', 'configparser'],
-    'pip3': ['configparser'],
-    'r_pkg': ['rmarkdown']
-    }
+{
+  "libs": [
+    {"group": "os_pkg", "name": "nmap"},
+    {"group": "os_pkg", "name": "htop"},
+    {"group": "pip2", "name": "requests"},
+    {"group": "pip3", "name": "configparser"},
+    {"group": "r_pkg", "name": "rmarkdown"},
+  ]
 }
 ```
-
-**Note:** This JSON string must be with single quotes.
-
-**Note:** Response file contains received lists of all and failed libraries.
 
 ## EMR cluster <a name="EMR_cluster"></a>
 

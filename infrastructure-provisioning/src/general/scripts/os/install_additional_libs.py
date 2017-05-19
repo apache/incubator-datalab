@@ -45,10 +45,16 @@ if __name__ == "__main__":
     env.host_string = env.user + "@" + env.hosts
 
     print 'Installing libraries:' + args.libs
-    failed = dict()
     general_status = list()
+    data = json.loads(args.libs.replace("'", "\""))
+    pkgs = {'libraries': {"os_pkg": [], "pip2": [], "pip3": [], "r_pkg": []}}
 
-    pkgs = json.loads(args.libs.replace("'", "\""))
+    try:
+        for row in range(len(data['libs'])):
+            pkgs['libraries'][data['libs'][row]['group']].append(data['libs'][row]['name'])
+    except:
+        print "Failed to parse json with libraries."
+        raise Exception
 
     try:
         print 'Installing os packages:', pkgs['libraries']['os_pkg']
