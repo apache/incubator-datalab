@@ -30,3 +30,7 @@
 	"_id": "conf_key_dir",
 	"value": "/root/keys"
 }
+{
+    "_id" : "conf_tag_resource_id",
+    "value" : "user:tag"
+}

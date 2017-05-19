@@ -225,3 +225,6 @@ if __name__ == "__main__":
         install_r_packages(args)
         print "Configuring local kernels"
         configure_local_spark_kernels(args)
+
+    print "Install GitWeb"
+    install_gitweb(args.os_user)

@@ -128,7 +128,8 @@ def spark_defaults(args):
     local(""" sudo bash -c " sed -i '/#/d' """ + spark_def_path + """ " """)
     local(""" sudo bash -c " sed -i '/^\s*$/d' """ + spark_def_path + """ " """)
     local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/,/spark.driver.extraLibraryPath/s|/usr|/opt/EMRVERSION/jars/usr|g' """ + spark_def_path + """ " """)
-    local(""" sudo bash -c "sed -i '/spark.yarn.dist.files/s/\/etc\/spark\/conf/\/opt\/EMRVERSION\/CLUSTER\/conf/g' """ + spark_def_path + """ " """)
+    local(""" sudo bash -c "sed -i '/spark.yarn.dist.files/s/\/etc\/spark\/conf/\/opt\/EMRVERSION\/CLUSTER\/conf/g' """
+          + spark_def_path + """ " """)
     template_file = spark_def_path
     with open(template_file, 'r') as f:
         text = f.read()
@@ -177,9 +178,10 @@ def put_resource_status(resource, status, dlab_path, os_user):
     sudo('python ' + dlab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
 
 
-def configure_jupyter(os_user, jupyter_conf_file, templates_dir):
+def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version):
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
+            sudo('pip install notebook=={} --no-cache-dir'.format(jupyter_version))
             sudo('pip install jupyter --no-cache-dir')
             sudo('rm -rf ' + jupyter_conf_file)
             run('jupyter notebook --generate-config --config ' + jupyter_conf_file)
@@ -188,20 +190,36 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir):
             sudo('echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
             sudo('''echo "c.NotebookApp.token = u''" >> ''' + jupyter_conf_file)
             sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> ' + jupyter_conf_file)
-            put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
-            sudo("chmod 644 /tmp/jupyter-notebook.service")
-            if os.environ['application'] == 'tensor':
-                sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
-            sudo("sed -i 's|CONF_PATH|" + jupyter_conf_file + "|' /tmp/jupyter-notebook.service")
-            sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/jupyter-notebook.service")
-            sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
-            sudo('chown -R ' + os_user + ':' + os_user + ' /home/' + os_user + '/.local')
+            if os.environ['application'] == 'deeplearning':
+                put(templates_dir + 'jupyter-notebook.conf', '/tmp/jupyter-notebook.conf')
+                sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/jupyter-notebook.conf")
+                sudo("sed -i 's|CONF_PATH|" + jupyter_conf_file + "|' /tmp/jupyter-notebook.conf")
+                sudo("chmod 644 /tmp/jupyter-notebook.conf")
+                sudo('\cp /tmp/jupyter-notebook.conf /etc/init/')
+                sudo('\cp /tmp/jupyter-notebook.conf /etc/init.d/jupyter-notebook')
+            else:
+                put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
+                sudo("chmod 644 /tmp/jupyter-notebook.service")
+                if os.environ['application'] == 'tensor':
+                    sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
+                sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
+                sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
+                sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
+            sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             sudo('mkdir /mnt/var')
-            sudo('chown ' + os_user + ':' + os_user + ' /mnt/var')
-            sudo("systemctl daemon-reload")
-            sudo("systemctl enable jupyter-notebook")
-            sudo("systemctl start jupyter-notebook")
-            sudo('touch /home/' + os_user + '/.ensure_dir/jupyter_ensured')
+            sudo('chown {0}:{0} /mnt/var'.format(os_user))
+            if os.environ['application'] == 'jupyter':
+                sudo('jupyter-kernelspec remove -f python2')
+                sudo('jupyter-kernelspec remove -f python3')
+            if os.environ['application'] == 'deeplearning':
+                sudo('update-rc.d jupyter-notebook defaults')
+                sudo('update-rc.d jupyter-notebook enable')
+                sudo('service jupyter-notebook start')
+            else:
+                sudo("systemctl daemon-reload")
+                sudo("systemctl enable jupyter-notebook")
+                sudo("systemctl start jupyter-notebook")
+            sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
 
@@ -241,7 +259,10 @@ def ensure_ciphers():
     sudo('echo -e "Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/sshd_config')
     sudo('echo -e "\tKexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256" >> /etc/ssh/ssh_config')
     sudo('echo -e "\tCiphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,chacha20-poly1305@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr" >> /etc/ssh/ssh_config')
-    sudo('systemctl reload sshd')
+    try:
+        sudo('service ssh restart')
+    except:
+        sudo('service sshd restart')
 
 
 def installing_python(region, bucket, user_name, cluster_name):
@@ -250,10 +271,12 @@ def installing_python(region, bucket, user_name, cluster_name):
         python_version = f.read()
     python_version = python_version[0:5]
     if not os.path.exists('/opt/python/python' + python_version):
-        local('wget https://www.python.org/ftp/python/' + python_version + '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz' )
+        local('wget https://www.python.org/ftp/python/' + python_version +
+              '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz' )
         local('tar zxvf /tmp/Python-' + python_version + '.tgz -C /tmp/')
         with lcd('/tmp/Python-' + python_version):
-            local('./configure --prefix=/opt/python/python' + python_version + ' --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install')
+            local('./configure --prefix=/opt/python/python' + python_version +
+                  ' --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install')
             local('sudo make altinstall')
         with lcd('/tmp/'):
             local('sudo rm -rf Python-' + python_version + '/')
@@ -262,13 +285,14 @@ def installing_python(region, bucket, user_name, cluster_name):
         pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
         local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
         local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
-        local(venv_command + ' && sudo -i ' + pip_command + ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
+        local(venv_command + ' && sudo -i ' + pip_command +
+              ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
         local('sudo rm -rf /usr/bin/python' + python_version[0:3])
         local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
               ' /usr/bin/python' + python_version[0:3])
 
 
-def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region):
+def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user=''):
     spark_path = '/opt/' + emr_version + '/' + cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
     kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
@@ -286,14 +310,18 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         f.write(text)
     local('touch /tmp/kernel_var.json')
     local(
-        "PYJ=`find /opt/" + emr_version + "/" + cluster_name + "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path + " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
+        "PYJ=`find /opt/" + emr_version + "/" + cluster_name +
+        "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
+        " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
     local('sudo mv /tmp/kernel_var.json ' + kernel_path)
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
     # python_version = python_version[0:3]
     if python_version != '\n':
-        installing_python(region, bucket, user_name, cluster_name)
+        if not os.path.exists('/home/' + os_user + '/.ensure_dir/deep_learning'):
+            installing_python(region, bucket, user_name, cluster_name)
+
         local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
         kernel_path = kernels_dir + "py3spark_" + cluster_name + "/kernel.json"
         template_file = "/tmp/pyspark_emr_template.json"
@@ -303,18 +331,25 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('PYTHON_SHORT_VERSION', python_version[0:3])
-        text = text.replace('PYTHON_FULL_VERSION', python_version[0:5])
-        text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' + python_version[:3])
+        text = text.replace('PYTHON_FULL_VERSION', python_version[0:3])
+        if os.path.exists('/home/' + os_user + '/.ensure_dir/deep_learning'):
+            text = text.replace('PYTHON_PATH', '/usr/bin/python3.4')
+        else:
+            text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' +
+                                python_version[:3])
         text = text.replace('EMR_VERSION', emr_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
         local(
-            "PYJ=`find /opt/" + emr_version + "/" + cluster_name + "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path + " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
+            "PYJ=`find /opt/" + emr_version + "/" + cluster_name +
+            "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
+            " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
         local('sudo mv /tmp/kernel_var.json ' + kernel_path)
 
 
-def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_dir, os_user, yarn_dir, bucket, user_name, endpoint_url, multiple_emrs):
+def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_dir, os_user, yarn_dir, bucket,
+                                       user_name, endpoint_url, multiple_emrs):
     try:
         port_number_found = False
         zeppelin_restarted = False
@@ -355,7 +390,8 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         local('echo \"Configuring emr spark interpreter for Zeppelin\"')
         if multiple_emrs == 'true':
             while not port_number_found:
-                port_free = local('sudo bash -c "nmap -p ' + str(default_port) + ' localhost | grep closed > /dev/null" ; echo $?', capture=True)
+                port_free = local('sudo bash -c "nmap -p ' + str(default_port) +
+                                  ' localhost | grep closed > /dev/null" ; echo $?', capture=True)
                 port_free = port_free[:1]
                 if port_free == '0':
                     livy_port = default_port
@@ -367,7 +403,8 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             if os.path.exists(livy_path + 'conf/spark-blacklist.conf'):
                 local('sudo sed -i "s/^/#/g" ' + livy_path + 'conf/spark-blacklist.conf')
             local(''' sudo echo "export SPARK_HOME=''' + spark_dir + '''" >> ''' + livy_path + '''conf/livy-env.sh''')
-            local(''' sudo echo "export HADOOP_CONF_DIR=''' + yarn_dir + '''" >> ''' + livy_path + '''conf/livy-env.sh''')
+            local(''' sudo echo "export HADOOP_CONF_DIR=''' + yarn_dir + '''" >> ''' + livy_path +
+                  '''conf/livy-env.sh''')
             local(''' sudo echo "export PYSPARK3_PYTHON=python''' + python_version[0:3] + '''" >> ''' +
                   livy_path + '''conf/livy-env.sh''')
             template_file = "/tmp/emr_interpreter.json"
@@ -388,8 +425,10 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                 except:
                     local('sleep 5')
                     pass
-            local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-' + str(livy_port) + '.service')
-            local("sudo sed -i 's|OS_USER|" + os_user + "|' /etc/systemd/system/livy-server-" + str(livy_port) + '.service')
+            local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-' + str(livy_port) +
+                  '.service')
+            local("sudo sed -i 's|OS_USER|" + os_user + "|' /etc/systemd/system/livy-server-" + str(livy_port) +
+                  '.service')
             local("sudo sed -i 's|LIVY_PATH|" + livy_path + "|' /etc/systemd/system/livy-server-" + str(livy_port)
                   + '.service')
             local('sudo chmod 644 /etc/systemd/system/livy-server-' + str(livy_port) + '.service')
@@ -423,5 +462,22 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                         pass
         local('touch /home/' + os_user + '/.ensure_dir/emr_' + cluster_name + '_interpreter_ensured')
     except:
+            sys.exit(1)
+
+
+def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir, scala_version, spark_version):
+    if not exists('/home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured'):
+        try:
+            sudo('pip install ' + toree_link + ' --no-cache-dir')
+            sudo('ln -s /opt/spark/ /usr/local/spark')
+            sudo('jupyter toree install')
+            sudo('mv ' + scala_kernel_path + 'lib/* /tmp/')
+            put(files_dir + 'toree-assembly-0.2.0.jar', '/tmp/toree-assembly-0.2.0.jar')
+            sudo('mv /tmp/toree-assembly-0.2.0.jar ' + scala_kernel_path + 'lib/')
+            sudo(
+                'sed -i "s|Apache Toree - Scala|Local Apache Toree - Scala (Scala-' + scala_version +
+                ', Spark-' + spark_version + ')|g" ' + scala_kernel_path + 'kernel.json')
+            sudo('touch /home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured')
+        except:
             sys.exit(1)
 

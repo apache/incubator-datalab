@@ -53,7 +53,7 @@ def create_s3_bucket(bucket_name, tag, region):
         else:
             bucket = s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration={'LocationConstraint': region})
         tagging = bucket.Tagging()
-        tagging.put(Tagging={'TagSet': [tag]})
+        tagging.put(Tagging={'TagSet': [tag, {'Key': os.environ['conf_tag_resource_id'], 'Value': os.environ['conf_service_base_name'] + ':' + bucket_name}]})
         tagging.reload()
         return bucket.name
     except Exception as err:
@@ -66,7 +66,7 @@ def create_vpc(vpc_cidr, tag):
     try:
         ec2 = boto3.resource('ec2')
         vpc = ec2.create_vpc(CidrBlock=vpc_cidr)
-        vpc.create_tags(Tags=[tag])
+        create_tag(vpc.id, tag)
         return vpc.id
     except Exception as err:
         logging.info("Unable to create VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -99,10 +99,22 @@ def remove_vpc(vpc_id):
 def create_tag(resource, tag):
     try:
         ec2 = boto3.client('ec2')
+        if type(tag) == dict:
+            resource_name = tag.get('Value')
+            resource_tag = tag
+        else:
+            resource_name = json.loads(tag).get('Value')
+            resource_tag = json.loads(tag)
+        if type(resource) != list:
+            resource = [resource]
         ec2.create_tags(
-            Resources = resource,
-            Tags = [
-                json.loads(tag)
+            Resources=resource,
+            Tags=[
+                resource_tag,
+                {
+                    'Key': os.environ['conf_tag_resource_id'],
+                    'Value': os.environ['conf_service_base_name'] + ':' + resource_name
+                }
             ]
         )
     except Exception as err:
@@ -149,7 +161,7 @@ def create_subnet(vpc_id, subnet, tag):
     try:
         ec2 = boto3.resource('ec2')
         subnet = ec2.create_subnet(VpcId=vpc_id, CidrBlock=subnet)
-        subnet.create_tags(Tags=[tag])
+        create_tag(subnet.id, tag)
         subnet.reload()
         return subnet.id
     except Exception as err:
@@ -162,7 +174,7 @@ def create_security_group(security_group_name, vpc_id, security_group_rules, egr
     ec2 = boto3.resource('ec2')
     group = ec2.create_security_group(GroupName=security_group_name, Description='security_group_name', VpcId=vpc_id)
     time.sleep(10)
-    group.create_tags(Tags=[tag])
+    create_tag(group.id, tag)
     try:
         group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}])
     except:
@@ -185,7 +197,7 @@ def enable_auto_assign_ip(subnet_id):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_instance(definitions, instance_tag):
+def create_instance(definitions, instance_tag, primary_disk_size=12):
     try:
         ec2 = boto3.resource('ec2')
         security_groups_ids = []
@@ -207,7 +219,7 @@ def create_instance(definitions, instance_tag):
                                                      "DeviceName": "/dev/sda1",
                                                      "Ebs":
                                                          {
-                                                             "VolumeSize": 12
+                                                             "VolumeSize": int(primary_disk_size)
                                                          }
                                                  },
                                                  {
@@ -235,7 +247,9 @@ def create_instance(definitions, instance_tag):
         for instance in instances:
             print "Waiting for instance " + instance.id + " become running."
             instance.wait_until_running()
-            instance.create_tags(Tags=[{'Key': 'Name', 'Value': definitions.node_name}, instance_tag])
+            tag = {'Key': 'Name', 'Value': definitions.node_name}
+            create_tag(instance.id, tag)
+            create_tag(instance.id, instance_tag)
             return instance.id
         return ''
     except Exception as err:
@@ -345,6 +359,7 @@ def remove_ec2(tag_name, tag_value):
     try:
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
+        association_id = ''
         allocation_id = ''
         inst = ec2.instances.filter(
             Filters=[{'Name': 'instance-state-name', 'Values': ['running', 'stopped', 'pending', 'stopping']},
@@ -361,6 +376,8 @@ def remove_ec2(tag_name, tag_value):
                                 response = client.describe_addresses(PublicIps=[elastic_ip]).get('Addresses')
                                 for el_ip in response:
                                     allocation_id = el_ip.get('AllocationId')
+                                    association_id = el_ip.get('AssociationId')
+                                    disassociate_elastic_ip(association_id)
                                     release_elastic_ip(allocation_id)
                                     print "Releasing Elastic IP: " + elastic_ip
                             except:
@@ -867,7 +884,9 @@ def create_image_from_instance(instance_name='', image_name=''):
         while image.state != 'available':
             local("echo Waiting for image creation; sleep 20")
             image.load()
-        image.create_tags(Tags=[{'Key': 'Name', 'Value': os.environ['conf_service_base_name']}])
+        #image.create_tags(Tags=[{'Key': 'Name', 'Value': os.environ['conf_service_base_name']}])
+        tag = {'Key': 'Name', 'Value': os.environ['conf_service_base_name']}
+        create_tag(image.id, tag)
         return image.id
     return ''
 

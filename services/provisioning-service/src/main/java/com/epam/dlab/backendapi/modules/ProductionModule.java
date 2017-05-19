@@ -28,8 +28,6 @@ import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.name.Names;
 import io.dropwizard.setup.Environment;
 
-import static com.epam.dlab.auth.SecurityRestAuthenticator.SECURITY_SERVICE;
-
 import com.epam.dlab.ModuleBase;
 
 /** Production class for an application configuration of SelfService.
@@ -47,8 +45,8 @@ public class ProductionModule extends ModuleBase<ProvisioningServiceApplicationC
     @Override
     protected void configure() {
         bind(ProvisioningServiceApplicationConfiguration.class).toInstance(configuration);
-        bind(RESTService.class).annotatedWith(Names.named(SECURITY_SERVICE))
-                .toInstance(configuration.getSecurityFactory().build(environment, SECURITY_SERVICE));
+        bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
+                .toInstance(configuration.getSecurityFactory().build(environment, ServiceConsts.SECURITY_SERVICE_NAME));
         bind(RESTService.class).toInstance(configuration.getSelfFactory().build(environment, ServiceConsts.SELF_SERVICE_NAME));
         bind(MetadataHolder.class).to(DockerWarmuper.class);
         bind(ICommandExecutor.class).to(CommandExecutor.class).asEagerSingleton();

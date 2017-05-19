@@ -18,7 +18,8 @@ limitations under the License.
 
 package com.epam.dlab.dto.imagemetadata;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 /**
@@ -29,7 +30,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
  * which is not we really want.
  */
 public abstract class ImageMetadataDTO {
-    @JsonIgnore
+	@JsonProperty("image_type")
     protected ImageType imageType;
 
     public ImageType getImageType() {
@@ -38,6 +39,10 @@ public abstract class ImageMetadataDTO {
 
     public void setImageType(ImageType imageType) {
         this.imageType = imageType;
+    }
+
+    public void setImageType(String imageType) {
+        this.imageType = ImageType.of(imageType);
     }
 
     public abstract void setImage(String image);

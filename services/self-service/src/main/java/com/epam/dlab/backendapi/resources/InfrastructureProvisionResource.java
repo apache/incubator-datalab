@@ -18,10 +18,8 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -36,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.edge.EdgeInfoDTO;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
@@ -58,7 +58,7 @@ public class InfrastructureProvisionResource implements DockerAPI {
     private static final Logger LOGGER = LoggerFactory.getLogger(InfrastructureProvisionResource.class);
 
     @Inject
-    private ExploratoryDAO dao;
+    private ExploratoryDAO expDAO;
     @Inject
     private KeyDAO keyDAO;
     @Inject
@@ -73,25 +73,22 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Iterable<Document> getUserResources(@Auth UserInfo userInfo) throws DlabException {
         LOGGER.debug("Loading list of provisioned resources for user {}", userInfo.getName());
         try {
-        	Iterable<Document> documents = appendEdgeInfo(dao.findExploratory(userInfo.getName()), userInfo.getName());
-    		int i = 0;
+        	Iterable<Document> documents = expDAO.findExploratory(userInfo.getName());
+        	EdgeInfoDTO edgeInfo = keyDAO.getEdgeInfo(userInfo.getName());
+        	List<Document> notebooks = new ArrayList<Document>();
+        	
+        	int i = 0;
     		for (Document d : documents) {
-    			LOGGER.debug("Notebook[{}]: {}", ++i, d);
-			}
-    		return documents;
+        		d.append(EDGE_IP, edgeInfo.getPublicIp())
+    			 .append(EdgeInfoDTO.USER_OWN_BUCKET_NAME, edgeInfo.getUserOwnBucketName());
+        		notebooks.add(d);
+        		LOGGER.debug("Notebook[{}]: {}", ++i, d);
+        	}
+    		return notebooks;
         } catch (Throwable t) {
         	LOGGER.error("Could not load list of provisioned resources for user: {}", userInfo.getName(), t);
             throw new DlabException("Could not load list of provisioned resources for user " + userInfo.getName() + ": " + t.getLocalizedMessage(), t);
         }
-    }
-
-    private List<Document> appendEdgeInfo(Iterable<Document> documents, String username) {
-        EdgeInfoDTO cred = keyDAO.getEdgeInfo(username);
-        return StreamSupport.stream(documents.spliterator(), false)
-                .map(document -> document
-                		.append(EDGE_IP, cred.getPublicIp())
-                		.append(EdgeInfoDTO.USER_OWN_BUCKET_NAME, cred.getUserOwnBucketName()))
-                .collect(Collectors.toList());
     }
 
     /** Returns the list of the computational resources templates for user.
@@ -102,8 +99,15 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Iterable<ComputationalMetadataDTO> getComputationalTemplates(@Auth UserInfo userInfo) {
         LOGGER.debug("Loading list of computational templates for user {}", userInfo.getName());
         try {
-        	return Stream.of(provisioningService.get(DOCKER_COMPUTATIONAL, userInfo.getAccessToken(), ComputationalMetadataDTO[].class))
-                .collect(Collectors.toSet());
+        	ComputationalMetadataDTO [] array = provisioningService.get(DOCKER_COMPUTATIONAL, userInfo.getAccessToken(), ComputationalMetadataDTO[].class);
+        	List<ComputationalMetadataDTO> list = new ArrayList<>();
+        	for (int i = 0; i < array.length; i++) {
+        		array[i].setImage(getSimpleImageName(array[i].getImage()));
+	            if (UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, array[i].getImage())) {
+        			list.add(array[i]);
+        		}
+        	}
+	        return list;
         } catch (Throwable t) {
         	LOGGER.error("Could not load list of computational templates for user: {}", userInfo.getName(), t);
             throw new DlabException("Could not load list of computational templates for user " + userInfo.getName() + ": " + t.getLocalizedMessage(), t);
@@ -118,19 +122,27 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Iterable<ExploratoryMetadataDTO> getExploratoryTemplates(@Auth UserInfo userInfo) {
         LOGGER.debug("Loading list of exploratory templates for user {}", userInfo.getName());
         try {
-	        List<ExploratoryMetadataDTO> list = Stream.of(provisioningService.get(DOCKER_EXPLORATORY, userInfo.getAccessToken(), ExploratoryMetadataDTO[].class))
-	        		.collect(Collectors.toList());
-	        list.forEach(m -> {
-	            int separatorIndex = m.getImage().indexOf(":");
-	            if(separatorIndex > 0) {
-	                m.setImage(m.getImage().substring(0, separatorIndex));
-	            }
-	        });
+        	ExploratoryMetadataDTO [] array = provisioningService.get(DOCKER_EXPLORATORY, userInfo.getAccessToken(), ExploratoryMetadataDTO[].class);
+        	List<ExploratoryMetadataDTO> list = new ArrayList<>();
+        	for (int i = 0; i < array.length; i++) {
+    			array[i].setImage(getSimpleImageName(array[i].getImage()));
+	            if (UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, array[i].getImage())) {
+        			list.add(array[i]);
+        		}
+        	}
 	        return list;
         } catch (Throwable t) {
         	LOGGER.error("Could not load list of exploratory templates for user: {}", userInfo.getName(), t);
             throw new DlabException("Could not load list of exploratory templates for user " + userInfo.getName() + ": " + t.getLocalizedMessage(), t);
         }
+    }
+    
+    /** Return the image name without suffix version.
+     * @param imageName the name of image.
+     */
+    private String getSimpleImageName(String imageName) {
+    	int separatorIndex = imageName.indexOf(":");
+        return (separatorIndex > 0 ? imageName.substring(0, separatorIndex) : imageName);
     }
 }
 

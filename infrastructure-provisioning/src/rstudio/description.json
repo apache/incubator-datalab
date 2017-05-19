@@ -21,10 +21,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "R-Studio 3.3.2",
+      "template_name": "R-Studio 1.0.136",
       "description": "Base image with r-studio node creation routines",
       "environment_type": "exploratory",
-      "version": "R-studio-3.3.2",
+      "version": "R-studio-1.0.136",
       "vendor": "AWS"
     }
   ]

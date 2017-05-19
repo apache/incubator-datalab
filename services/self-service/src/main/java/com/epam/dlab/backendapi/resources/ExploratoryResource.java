@@ -28,6 +28,9 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
@@ -40,6 +43,7 @@ import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.dropwizard.auth.Auth;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +86,10 @@ public class ExploratoryResource implements ExploratoryAPI {
     public Response create(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryCreateFormDTO formDTO) throws DlabException {
         LOGGER.debug("Creating exploratory environment {} with name {} for user {}",
                 formDTO.getImage(), formDTO.getName(), userInfo.getName());
+		if (!UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, formDTO.getImage())) {
+			LOGGER.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
+			throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());
+		}
         boolean isAdded = false;
         try {
             infExpDAO.insertExploratory(new UserInstanceDTO()
@@ -93,18 +101,12 @@ public class ExploratoryResource implements ExploratoryAPI {
                     .withTemplateName(formDTO.getTemplateName())
                     .withShape(formDTO.getShape()));
 
-            ExploratoryCreateDTO dto = new ExploratoryCreateDTO()
-                    .withServiceBaseName(settingsDAO.getServiceBaseName())
+            ExploratoryCreateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryCreateDTO.class)
                     .withExploratoryName(formDTO.getName())
-                    .withEdgeUserName(userInfo.getSimpleName())
-                    .withAwsIamUser(userInfo.getName())
                     .withNotebookImage(formDTO.getImage())
                     .withApplicationName(getApplicationName(formDTO.getImage()))
                     .withNotebookInstanceType(formDTO.getShape())
-                    .withAwsRegion(settingsDAO.getAwsRegion())
-                    .withAwsSecurityGroupIds(settingsDAO.getAwsSecurityGroups())
-                    .withConfOsUser(settingsDAO.getConfOsUser())
-                    .withConfOsFamily(settingsDAO.getConfOsFamily());
+                    .withAwsSecurityGroupIds(settingsDAO.getAwsSecurityGroups());
             LOGGER.debug("Created exploratory environment {} for user {}", formDTO.getName(), userInfo.getName());
 
             String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), dto, String.class);
@@ -204,16 +206,11 @@ public class ExploratoryResource implements ExploratoryAPI {
         
         try {
             UserInstanceDTO userInstance = infExpDAO.fetchExploratoryFields(userInfo.getName(), name);
-            ExploratoryStopDTO dto = new ExploratoryStopDTO()
-                    .withServiceBaseName(settingsDAO.getServiceBaseName())
-                    .withNotebookImage(userInstance.getImageName())
+            ExploratoryStopDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryStopDTO.class)
+            		.withNotebookImage(userInstance.getImageName())
                     .withExploratoryName(name)
-                    .withEdgeUserName(userInfo.getSimpleName())
-                    .withAwsIamUser(userInfo.getName())
                     .withNotebookInstanceName(userInstance.getExploratoryId())
-                    .withConfKeyDir(settingsDAO.getConfKeyDir())
-                    .withConfOsUser(settingsDAO.getConfOsUser())
-                    .withAwsRegion(settingsDAO.getAwsRegion());
+                    .withConfKeyDir(settingsDAO.getConfKeyDir());
 
             String uuid = provisioningService.post(EXPLORATORY_STOP, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
@@ -269,16 +266,10 @@ public class ExploratoryResource implements ExploratoryAPI {
             updateExploratoryStatus(userInfo.getName(), exploratoryName, status);
 
             UserInstanceDTO userInstance = infExpDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
-            ExploratoryActionDTO<?> dto = new ExploratoryActionDTO<>()
-                    .withServiceBaseName(settingsDAO.getServiceBaseName())
-                    .withNotebookImage(userInstance.getImageName())
-                    .withExploratoryName(exploratoryName)
-                    .withEdgeUserName(userInfo.getSimpleName())
-                    .withAwsIamUser(userInfo.getName())
-                    .withNotebookInstanceName(userInstance.getExploratoryId())
-                    .withAwsRegion(settingsDAO.getAwsRegion())
-                    .withConfOsUser(settingsDAO.getConfOsUser())
-                    .withConfOsFamily(settingsDAO.getConfOsFamily());
+            ExploratoryActionDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class);
+            dto.withNotebookImage(userInstance.getImageName())
+            	.withNotebookInstanceName(userInstance.getExploratoryId())
+            	.withExploratoryName(exploratoryName);
 
             String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);

@@ -36,6 +36,7 @@ args = parser.parse_args()
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
+jupyter_version = os.environ['notebook_jupyter_version']
 scala_link = "http://www.scala-lang.org/files/archive/"
 spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
 pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/pyspark_local/'
@@ -49,23 +50,6 @@ files_dir = '/root/files/'
 local_spark_path = '/opt/spark/'
 toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snapshots/dev1/toree-pip/toree-0.2.0.dev1.tar.gz'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
-
-
-def ensure_toree_local_kernel():
-    if not exists('/home/' + args.os_user + '/.ensure_dir/toree_local_kernel_ensured'):
-        try:
-            sudo('pip install ' + toree_link + ' --no-cache-dir')
-            sudo('ln -s /opt/spark/ /usr/local/spark')
-            sudo('jupyter toree install')
-            sudo('mv ' + scala_kernel_path + 'lib/* /tmp/')
-            put(files_dir + 'toree-assembly-0.2.0.jar', '/tmp/toree-assembly-0.2.0.jar')
-            sudo('mv /tmp/toree-assembly-0.2.0.jar ' + scala_kernel_path + 'lib/')
-            sudo(
-                'sed -i "s|Apache Toree - Scala|Local Apache Toree - Scala (Scala-' + args.scala_version +
-                ', Spark-' + spark_version + ')|g" ' + scala_kernel_path + 'kernel.json')
-            sudo('touch /home/' + args.os_user + '/.ensure_dir/toree_local_kernel_ensured')
-        except:
-            sys.exit(1)
 
 
 ##############
@@ -100,7 +84,7 @@ if __name__ == "__main__":
     ensure_python3_libraries(args.os_user)
 
     print "Install Jupyter"
-    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir)
+    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version)
 
     print "Install local Spark"
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
@@ -115,10 +99,13 @@ if __name__ == "__main__":
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
 
     print "Install Toree-Scala kernel for Jupyter"
-    ensure_toree_local_kernel()
+    ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
 
     print "Installing R"
     ensure_r(args.os_user, r_libs)
 
     print "Install R kernel for Jupyter"
     ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
+
+    print "Install GitWeb"
+    install_gitweb(args.os_user)

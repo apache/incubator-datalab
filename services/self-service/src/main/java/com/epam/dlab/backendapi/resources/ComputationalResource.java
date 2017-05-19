@@ -29,6 +29,9 @@ import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.UIConfigurationDTO;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.computational.ComputationalCreateDTO;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
@@ -96,6 +99,10 @@ public class ComputationalResource implements ComputationalAPI {
     @PUT
     public Response create(@Auth UserInfo userInfo, @Valid @NotNull ComputationalCreateFormDTO formDTO) throws DlabException {
     	LOGGER.debug("Send request for creation the computational resource {} for user {}", formDTO.getName(), userInfo.getName());
+		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage())) {
+			LOGGER.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
+			throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());
+		}
 
         int slaveInstanceCount = Integer.parseInt(formDTO.getInstanceCount());
         if (slaveInstanceCount < configuration.getMinEmrInstanceCount() || slaveInstanceCount > configuration.getMaxEmrInstanceCount()) {
@@ -116,6 +123,8 @@ public class ComputationalResource implements ComputationalAPI {
         boolean isAdded = infCompDAO.addComputational(userInfo.getName(), formDTO.getNotebookName(),
                 new UserComputationalResourceDTO()
                         .withComputationalName(formDTO.getName())
+                        .withImageName(formDTO.getImage())
+                        .withTemplateName(formDTO.getTemplateName())
                         .withStatus(CREATING.toString())
                         .withMasterShape(formDTO.getMasterInstanceType())
                         .withSlaveShape(formDTO.getSlaveInstanceType())
@@ -126,8 +135,7 @@ public class ComputationalResource implements ComputationalAPI {
         if (isAdded) {
             try {
             	UserInstanceDTO instance = infExpDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
-                ComputationalCreateDTO dto = new ComputationalCreateDTO()
-                        .withServiceBaseName(settingsDAO.getServiceBaseName())
+                ComputationalCreateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ComputationalCreateDTO.class)
                         .withExploratoryName(formDTO.getNotebookName())
                         .withNotebookTemplateName(instance.getTemplateName())
                         .withApplicationName(getApplicationName(instance.getImageName()))
@@ -138,12 +146,7 @@ public class ComputationalResource implements ComputationalAPI {
                         .withSlaveInstanceType(formDTO.getSlaveInstanceType())
                         .withSlaveInstanceSpot(formDTO.getSlaveInstanceSpot())
                         .withSlaveInstanceSpotPctPrice(formDTO.getSlaveInstanceSpotPctPrice())
-                        .withVersion(formDTO.getVersion())
-                        .withEdgeUserName(userInfo.getSimpleName())
-                        .withAwsIamUser(userInfo.getName())
-                        .withAwsRegion(settingsDAO.getAwsRegion())
-                        .withConfOsUser(settingsDAO.getConfOsUser())
-                        .withConfOsFamily(settingsDAO.getConfOsFamily());
+                        .withVersion(formDTO.getVersion());
                 String uuid = provisioningService.post(EMR_CREATE, userInfo.getAccessToken(), dto, String.class);
                 RequestId.put(userInfo.getName(), uuid);
                 return Response.ok(uuid).build();
@@ -211,17 +214,12 @@ public class ComputationalResource implements ComputationalAPI {
         try {
             String exploratoryId = infExpDAO.fetchExploratoryId(userInfo.getName(), exploratoryName);
             String computationalId = infCompDAO.fetchComputationalId(userInfo.getName(), exploratoryName, computationalName);
-            ComputationalTerminateDTO dto = new ComputationalTerminateDTO()
-                    .withServiceBaseName(settingsDAO.getServiceBaseName())
+            ComputationalTerminateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class)
                     .withExploratoryName(exploratoryName)
                     .withComputationalName(computationalName)
                     .withNotebookInstanceName(exploratoryId)
                     .withClusterName(computationalId)
-                    .withConfKeyDir(settingsDAO.getConfKeyDir())
-                    .withConfOsUser(settingsDAO.getConfOsUser())
-                    .withEdgeUserName(userInfo.getSimpleName())
-                    .withAwsIamUser(userInfo.getName())
-                    .withAwsRegion(settingsDAO.getAwsRegion());
+                    .withConfKeyDir(settingsDAO.getConfKeyDir());
 
             String uuid = provisioningService.post(EMR_TERMINATE, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);

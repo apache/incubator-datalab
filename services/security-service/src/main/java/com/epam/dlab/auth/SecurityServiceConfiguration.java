@@ -1,10 +1,10 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
 
@@ -37,15 +37,15 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 	public SecurityServiceConfiguration() {
 		super();
 	}
-	
+
 	private boolean userInfoPersistenceEnabled = false;
 
 	@JsonProperty
 	private boolean awsUserIdentificationEnabled = false;
-	
+
 	@JsonProperty
 	private long inactiveUserTimeoutMillSec;
-	
+
 	public long getInactiveUserTimeoutMillSec() {
 		return inactiveUserTimeoutMillSec;
 	}
@@ -57,18 +57,24 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
 	@JsonProperty
 	private List<Request> ldapSearch;
-	
+
 	public List<Request> getLdapSearch() {
 		return ldapSearch;
 	}
 
 	@JsonProperty
 	private String ldapBindTemplate;
-	
+
+	@JsonProperty
+	private String ldapBindAttribute;
+
+	@JsonProperty
+	private String ldapSearchAttribute;
+
 	@JsonProperty
 	private Map<String,String> ldapConnectionConfig = new HashMap<String, String>();
 	private LdapConnectionConfig _ldapConnectionConfig;
-	
+
 	public LdapConnectionConfig getLdapConnectionConfig() {
 		if(_ldapConnectionConfig == null) {
 			_ldapConnectionConfig = new LdapConnectionConfig();
@@ -80,13 +86,21 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 			//      from the LdapConnectionConfig class
 		}
 		return _ldapConnectionConfig;
-		
+
 	}
 
 	public String getLdapBindTemplate() {
 		return ldapBindTemplate;
 	}
-	
+
+	public String getLdapBindAttribute() {
+		return ldapBindAttribute;
+	}
+
+	public String getLdapSearchAttribute() {
+		return ldapSearchAttribute;
+	}
+
 	public boolean isAwsUserIdentificationEnabled() {
 		return awsUserIdentificationEnabled;
 	}

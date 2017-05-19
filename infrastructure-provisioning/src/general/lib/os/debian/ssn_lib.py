@@ -68,7 +68,7 @@ def ensure_jenkins(dlab_path):
         return False
 
 
-def configure_jenkins(dlab_path, os_user, config):
+def configure_jenkins(dlab_path, os_user, config, tag_resource_id):
     try:
         if not exists(dlab_path + 'tmp/jenkins_configured'):
             sudo('echo \'JENKINS_ARGS="--prefix=/jenkins --httpPort=8070"\' >> /etc/default/jenkins')
@@ -76,7 +76,7 @@ def configure_jenkins(dlab_path, os_user, config):
             sudo('mkdir -p /var/lib/jenkins/jobs/')
             sudo('chown -R ' + os_user + ':' + os_user + ' /var/lib/jenkins/')
             put('/root/templates/jenkins_jobs/*', '/var/lib/jenkins/jobs/')
-            sudo("find /var/lib/jenkins/jobs/ -type f | xargs sed -i \'s/OS_USR/{}/g; s/SBN/{}/g; s/SGI/{}/g; s/VPC/{}/g; s/SNI/{}/g; s/AKEY/{}/g\'".format(os_user, config['service_base_name'], config['security_group_id'], config['vpc_id'], config['subnet_id'], config['admin_key']))
+            sudo("find /var/lib/jenkins/jobs/ -type f | xargs sed -i \'s/OS_USR/{}/g; s/SBN/{}/g; s/CTUN/{}/g; s/SGI/{}/g; s/VPC/{}/g; s/SNI/{}/g; s/AKEY/{}/g\'".format(os_user, config['service_base_name'], tag_resource_id, config['security_group_id'], config['vpc_id'], config['subnet_id'], config['admin_key']))
             sudo('chown -R jenkins:jenkins /var/lib/jenkins')
             sudo('/etc/init.d/jenkins stop; sleep 5')
             sudo('sysv-rc-conf jenkins on')
@@ -150,10 +150,12 @@ def ensure_mongo():
         return False
 
 
-def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user):
+def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, cloud_provider, service_base_name,
+             tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path=''):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
+            local('sed -i "s|PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
@@ -173,6 +175,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user):
             sudo('mkdir -p /var/log/application')
             sudo('mkdir -p ' + web_path)
             sudo('mkdir -p ' + web_path + 'provisioning-service/')
+            sudo('mkdir -p ' + web_path + 'billing/')
             sudo('mkdir -p ' + web_path + 'security-service/')
             sudo('mkdir -p ' + web_path + 'self-service/')
             sudo('chown -R {0}:{0} {1}'.format(os_user, web_path))
@@ -180,16 +183,23 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user):
                 local('scp -r -i {} /root/web_app/self-service/*.jar {}:'.format(keyfile, host_string) + web_path + 'self-service/')
                 local('scp -r -i {} /root/web_app/security-service/*.jar {}:'.format(keyfile, host_string) + web_path + 'security-service/')
                 local('scp -r -i {} /root/web_app/provisioning-service/*.jar {}:'.format(keyfile, host_string) + web_path + 'provisioning-service/')
+                local('scp -r -i {} /root/web_app/billing/*.jar {}:'.format(keyfile, host_string) + web_path + 'billing/')
                 run('mkdir -p /tmp/yml_tmp/')
                 local('scp -r -i {} /root/web_app/self-service/*.yml {}:'.format(keyfile, host_string) + '/tmp/yml_tmp/')
                 local('scp -r -i {} /root/web_app/security-service/*.yml {}:'.format(keyfile, host_string) + '/tmp/yml_tmp/')
                 local('scp -r -i {} /root/web_app/provisioning-service/*.yml {}:'.format(keyfile, host_string) + '/tmp/yml_tmp/')
+                local('scp -r -i {} /root/web_app/billing/*.yml {}:'.format(keyfile, host_string) + '/tmp/yml_tmp/')
                 sudo('mv /tmp/yml_tmp/* ' + os.environ['ssn_dlab_path'] + 'conf/')
                 sudo('rmdir /tmp/yml_tmp/')
             except:
                 append_result("Unable to upload webapp jars")
                 sys.exit(1)
-
+            if billing_enabled:
+                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
+                                                                                                         host_string))
+                sudo('python /tmp/configure_billing.py --cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {}'.
+                     format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
+                            mongo_passwd, dlab_path))
             sudo('service supervisor start')
             sudo('service nginx restart')
             sudo('service supervisor restart')

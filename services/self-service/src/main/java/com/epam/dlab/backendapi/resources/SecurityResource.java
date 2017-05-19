@@ -19,11 +19,15 @@ limitations under the License.
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.MongoCollections;
 import com.epam.dlab.backendapi.dao.SecurityDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
+import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.dto.UserCredentialDTO;
+import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.SecurityAPI;
 import com.google.inject.Inject;
@@ -43,8 +47,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import static com.epam.dlab.auth.SecurityRestAuthenticator.SECURITY_SERVICE;
-
 /** Provides the REST API for the user authorization.
  */
 @Path("/user")
@@ -56,10 +58,12 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
     @Inject
     private SecurityDAO dao;
     @Inject
-    @Named(SECURITY_SERVICE)
+    @Named(ServiceConsts.SECURITY_SERVICE_NAME)
     RESTService securityService;
     @Inject
     private SettingsDAO settingsDAO;
+    @Inject
+    private SelfServiceApplicationConfiguration configuration;
 
     /** Login method for the dlab user.
      * @param credential user credential.
@@ -86,15 +90,22 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
      */
     @POST
     @Path("/authorize")
-    public Response authorize(@Auth UserInfo userInfo, @Valid @NotBlank String username) {
+    public Response authorize(@Auth UserInfo userInfo, @Valid @NotBlank String username) throws DlabException {
         LOGGER.debug("Try authorize accessToken {} for user info {}", userInfo.getAccessToken(), userInfo);
-        Status status = userInfo.getName().equalsIgnoreCase(username) ?
-                Status.OK :
-                Status.FORBIDDEN;
-        if (status == Status.OK) {
-        	EnvStatusListener.listen(userInfo.getName(), userInfo.getAccessToken(), settingsDAO.getAwsRegion());
+        try {
+        	Status status = userInfo.getName().equalsIgnoreCase(username) ?
+        			Status.OK :
+        			Status.FORBIDDEN;
+        	if (status == Status.OK) {
+        		EnvStatusListener.listen(userInfo.getName(), userInfo.getAccessToken(), settingsDAO.getAwsRegion());
+        		if (configuration.isRolePolicyEnabled()) {
+        			UserRoles.initialize(dao, configuration.getRoleDefaultAccess());
+        		}
+        	}
+            return Response.status(status).build();
+        } catch (Exception e) {
+        	throw new DlabException("Cannot authorize user " + username + ". " + e.getLocalizedMessage(), e); 
         }
-        return Response.status(status).build();
     }
 
     /** Logout method for the DLab user.

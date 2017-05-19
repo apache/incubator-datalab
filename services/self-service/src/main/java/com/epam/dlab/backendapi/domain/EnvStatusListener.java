@@ -85,6 +85,15 @@ public class EnvStatusListener implements Managed, Runnable {
 		}
 	}
 	
+	/** Return the user info by user name.
+	 * @param username the name of user.
+	 * @return the user info.
+	 */
+	public static EnvStatusListenerUserInfo getUserInfo(String username) {
+		return (listener == null ? null : listener.userMap.get(username));
+	}
+	
+
 	/** Thread of the folder listener. */
 	private Thread thread;
 

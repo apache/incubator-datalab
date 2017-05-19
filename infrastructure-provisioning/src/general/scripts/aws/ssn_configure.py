@@ -52,6 +52,7 @@ if __name__ == "__main__":
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_sg = False
+        billing_enabled = True
         try:
             if os.environ['aws_vpc_id'] == '':
                 raise KeyError
@@ -72,6 +73,17 @@ if __name__ == "__main__":
         except KeyError:
             os.environ['aws_security_groups_ids'] = get_security_group_by_name(sg_name)
             pre_defined_sg = True
+        try:
+            if os.environ['aws_account_id'] == '':
+                raise KeyError
+            if os.environ['aws_billing_bucket'] == '':
+                raise KeyError
+        except KeyError:
+            billing_enabled = False
+        if not billing_enabled:
+            os.environ['aws_account_id'] = 'None'
+            os.environ['aws_billing_bucket'] = 'None'
+            os.environ['aws_report_path'] = 'None'
     except:
         sys.exit(1)
 
@@ -109,9 +121,10 @@ if __name__ == "__main__":
         print('[CONFIGURE SSN INSTANCE]')
         additional_config = {"nginx_template_dir": "/root/templates/", "service_base_name": service_base_name, "security_group_id": os.environ['aws_security_groups_ids'], "vpc_id": os.environ['aws_vpc_id'], "subnet_id": os.environ['aws_subnet_id'], "admin_key": os.environ['conf_key_name']}
         #additional_config = {"nginx_template_dir": "/root/templates/", "service_base_name": service_base_name}
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {}". \
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),
-                   json.dumps(additional_config), os.environ['conf_os_user'], os.environ['ssn_dlab_path'])
+                   json.dumps(additional_config), os.environ['conf_os_user'], os.environ['ssn_dlab_path'],
+                   os.environ['conf_tag_resource_id'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_ssn_node', params))
@@ -143,6 +156,7 @@ if __name__ == "__main__":
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
+                             {"name": "deeplearning", "tag": "latest"},
                              {"name": "emr", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),
@@ -173,11 +187,13 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {}". \
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']), os.environ['ssn_dlab_path'],
                    os.environ['conf_os_user'], os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'], os.environ['aws_region'],
                    os.environ['conf_service_base_name'], os.environ['aws_security_groups_ids'], os.environ['aws_vpc_id'],
-                   os.environ['aws_subnet_id'])
+                   os.environ['aws_subnet_id'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
+                   os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],
+                   billing_enabled)
 
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))

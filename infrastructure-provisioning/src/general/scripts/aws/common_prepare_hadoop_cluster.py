@@ -112,14 +112,14 @@ if __name__ == "__main__":
     try:
         logging.info('[Creating EMR Cluster]')
         print '[Creating EMR Cluster]'
-        params = "--name {} --applications '{}' --master_instance_type {} --slave_instance_type {} --instance_count {} --ssh_key {} --release_label {} --emr_timeout {} --subnet {} --service_role {} --ec2_role {} --nbs_ip {} --nbs_user {} --s3_bucket {} --region {} --tags '{}' --key_dir {} --edge_user_name {} --slave_instance_spot {} --bid_price {}"\
+        params = "--name {} --applications '{}' --master_instance_type {} --slave_instance_type {} --instance_count {} --ssh_key {} --release_label {} --emr_timeout {} --subnet {} --service_role {} --ec2_role {} --nbs_ip {} --nbs_user {} --s3_bucket {} --region {} --tags '{}' --key_dir {} --edge_user_name {} --slave_instance_spot {} --bid_price {} --service_base_name {}"\
             .format(emr_conf['cluster_name'], emr_conf['apps'], emr_conf['master_instance_type'],
                     emr_conf['slave_instance_type'], emr_conf['instance_count'], emr_conf['key_name'],
                     emr_conf['release_label'], emr_conf['emr_timeout'], emr_conf['subnet_cidr'],
                     emr_conf['role_service_name'], emr_conf['role_ec2_name'], emr_conf['notebook_ip'],
                     os.environ['conf_os_user'], emr_conf['bucket_name'], emr_conf['region'], emr_conf['tags'],
                     os.environ['conf_key_dir'], os.environ['edge_user_name'], os.environ['emr_slave_instance_spot'],
-                    str(emr_conf['slave_bid_price']))
+                    str(emr_conf['slave_bid_price']), emr_conf['service_base_name'])
         try:
             local("~/scripts/{}.py {}".format('emr_create', params))
         except:
