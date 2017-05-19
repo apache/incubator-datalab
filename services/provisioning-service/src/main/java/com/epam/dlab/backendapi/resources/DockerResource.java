@@ -20,12 +20,15 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.MetadataHolder;
-import com.epam.dlab.backendapi.core.commands.DockerCommands;
-import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
-import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
+import com.epam.dlab.backendapi.core.commands.*;
+import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
+import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
+import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.imagemetadata.ImageMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ImageType;
+import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import org.apache.commons.lang3.NotImplementedException;
@@ -49,6 +52,12 @@ public class DockerResource implements DockerCommands {
     private MetadataHolder metadataHolder;
     @Inject
     private ICommandExecutor commandExecutor;
+    @Inject
+    private FolderListenerExecutor folderListenerExecutor;
+    @Inject
+    private CommandBuilder commandBuilder;
+    @Inject
+    private RESTService selfService;
 
     @GET
     @Path("{type}")
@@ -77,6 +86,39 @@ public class DockerResource implements DockerCommands {
                         .toCMD()
         );
         return uuid;
+    }
+
+    @Path("/libs")
+    @POST
+    public String libs(@Auth UserInfo ui, ExploratoryBaseDTO dto) throws IOException, InterruptedException {
+        return action(ui.getName(), dto, DockerAction.LIST_LIBS);
+    }
+
+//TODO: refactore
+    private String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws IOException, InterruptedException {
+        LOGGER.debug("{} exploratory environment", action);
+        String uuid = DockerCommands.generateUUID();
+        folderListenerExecutor.start(configuration.getImagesDirectory(),
+                configuration.getResourceStatusPollTimeout(),
+                getFileHandlerCallback(action, uuid, dto));
+
+        RunDockerCommand runDockerCommand = new RunDockerCommand()
+                .withInteractive()
+//                .withName(nameContainer(dto.getEdgeUserName(), action, dto.getExploratoryName()))
+                .withVolumeForRootKeys(configuration.getKeyDirectory())
+                .withVolumeForResponse(configuration.getImagesDirectory())
+                .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
+                .withResource(getResourceType())
+                .withRequestId(uuid)
+                .withConfKeyName(configuration.getAdminKey())
+                .withImage(dto.getNotebookImage())
+                .withAction(action);
+
+        commandExecutor.executeAsync(username, uuid, commandBuilder.buildCommand(runDockerCommand, dto));
+        return uuid;
+    }
+    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
+        return new ExploratoryCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName());
     }
 
     public String getResourceType() {

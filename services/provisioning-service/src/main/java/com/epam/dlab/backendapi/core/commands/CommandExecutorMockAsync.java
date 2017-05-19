@@ -18,20 +18,6 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.commands;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.function.Supplier;
-
-import org.apache.commons.codec.Charsets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.dto.status.EnvResourceList;
@@ -44,6 +30,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
+import org.apache.commons.codec.Charsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutorMockAsync.class);
@@ -109,6 +105,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			case START:
 			case STOP:
 			case TERMINATE:
+			case INSTALL_LIBS:
 				action(user, action);
 				break;
 			case CONFIGURE:
@@ -121,6 +118,10 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 				parser.getVariables().put("list_resources", getResponseStatus(true));
 				action(user, action);
 				break;
+			case LIST_LIBS:
+				action(user, action);
+				copyFile("mock_response/notebook_list_libs_pkgs.json", parser.getResponsePath());
+				break;
 			default:
 				break;
 			}
@@ -131,7 +132,17 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     		throw new DlabException(msg, e);
     	}
     }
-    
+
+    private static void copyFile(String sourceFileName, String destination) throws URISyntaxException, IOException {
+        URL url = Resources.getResource(sourceFileName);
+        File from = new File(url.toURI());
+		File to = new File(getAbsolutePath(destination , from.getName()));
+		Files.copy(from, to);
+
+		LOGGER.debug("File {} copied to {}", from.getName(), to);
+
+	}
+
     /** Return absolute path to the file or folder.
      * @param first part of path.
      * @param more next path components.
