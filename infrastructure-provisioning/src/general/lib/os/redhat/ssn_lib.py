@@ -154,8 +154,8 @@ def ensure_mongo():
         return False
 
 
-def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, cloud_provider, service_base_name,
-             tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path=''):
+def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, keystore_passwd, cloud_provider,
+             service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path=''):
     try:
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_dlab_path'])):
             supervisor_conf = '/etc/supervisord.d/supervisor_svc.ini'
@@ -207,12 +207,13 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                      format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
                             mongo_passwd, dlab_path))
             try:
-                sudo('keytool -genkeypair -alias dlab -keyalg RSA -storepass PASSWORD -keypass PASSWORD \
-                     -keystore /home/{}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user))
-                sudo('keytool -exportcert -alias dlab -storepass PASSWORD -file /home/{0}/keys/dlab.crt \
-                     -keystore /home/{0}/keys/dlab. keystore.jks'.format(os_user))
-                sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{}/keys/dlab.crt -noprompt \
-                     -storepass changeit -keystore /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts')
+                java_path = sudo("alternatives --list | grep jre_openjdk | awk '{print $3}'")
+                sudo('keytool -genkeypair -alias dlab -keyalg RSA -storepass {1} -keypass PASSWORD \
+                     -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd))
+                sudo('keytool -exportcert -alias dlab -storepass {1} -file /home/{0}/keys/dlab.crt \
+                     -keystore /home/{0}/keys/dlab.keystore.jks'.format(os_user, keystore_passwd))
+                sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/dlab.crt -noprompt \
+                     -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
             except:
                 append_result("Unable to generate cert and copy to java keystore")
                 sys.exit(1)
