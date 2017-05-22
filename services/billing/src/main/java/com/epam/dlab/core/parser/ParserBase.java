@@ -50,11 +50,8 @@ public abstract class ParserBase extends ModuleBase {
 	
 	/** Name of key for date report data. */
 	public static final String DATA_KEY_START_DATE = "ParserBase.maxStartDate";
-	
-	/** Report column name of date report data. */
-	@JsonProperty
-	private String columnStartDate;
 
+	
 	/** Mapping columns from source format to target. */
 	@JsonProperty
 	private String columnMapping = null;
@@ -117,16 +114,6 @@ public abstract class ParserBase extends ModuleBase {
 	ParserStatistics currentStatistics = null; 
 	
 	
-	/** Return report column name of date report data. */
-	public String getColumnStartDate() {
-		return columnStartDate;
-	}
-
-	/** Set report column name of date report data. */
-	public void setColumnStartDate(String columnStartDate) {
-		this.columnStartDate = columnStartDate;
-	}
-
 	/** Return mapping columns from source format to target. */
 	public String getColumnMapping() {
 		return columnMapping;
@@ -241,16 +228,7 @@ public abstract class ParserBase extends ModuleBase {
 		return currentStatistics;
 	}
 
-	/** Index of column of date report data. */
-	private int startDateIndex;
 	
-	/** Value of date report data for last loading. */
-	private String maxStartDate;
-	
-	/** Value of date report data for current loading. */
-	private String newMaxStartDate;
-
-
 	/** Initialize the parser.
 	 * @throws InitializationException
 	 */
@@ -303,23 +281,8 @@ public abstract class ParserBase extends ModuleBase {
 		if (getAdapterOut().isWriteHeader()) {
 			getAdapterOut().writeHeader(columnMeta.getTargetColumnNames());
 		}
-		
-		startDateIndex = (getColumnStartDate() == null || getColumnStartDate().trim().isEmpty() ?
-				-1 : getSourceColumnIndexByName(getColumnStartDate()));
-		maxStartDate = (startDateIndex == -1 ? "" : getModuleData().getString(DATA_KEY_START_DATE));
-		newMaxStartDate = maxStartDate;
 	}
 	
-	
-	/** Store working data of modules.
-	 * @throws InitializationException
-	 */
-	protected void storeModuleDate() throws InitializationException {
-		if (startDateIndex != -1) {
-			getModuleData().set(DATA_KEY_START_DATE, newMaxStartDate);
-		}
-		getModuleData().store();
-	}
 	
 	/** Return the index of source column by column name. 
 	 * @param columnName the name of column.
@@ -329,26 +292,6 @@ public abstract class ParserBase extends ModuleBase {
 		return ColumnMeta.getColumnIndexByName(columnName, columnMeta.getSourceColumnNames());
 	}
 	
-	/** Check start date of report data and return <b>true</b> if date is equal or greater than previous
-	 * loaded data.
-	 * @param row the report line.
-	 */
-	public boolean checkStartDate(List<String> row) {
-		if (startDateIndex != -1) {
-			if (row.size() <= startDateIndex ) {
-				return false;
-			}
-			String startDate = row.get(startDateIndex);
-			if(StringUtils.compare(startDate, maxStartDate) < 0) {
-				return false;
-			}
-			if (StringUtils.compare(startDate, newMaxStartDate) > 0) {
-				newMaxStartDate = startDate;
-			}
-		}
-		return true;
-	}
-
 	
 	@Override
 	public ToStringHelper toStringHelper(Object self) {
@@ -356,7 +299,6 @@ public abstract class ParserBase extends ModuleBase {
     			.add("adapterIn", (adapterIn == null ? null : adapterIn.getType()))
     			.add("adapterOut", (adapterOut == null ? null : adapterOut.getType()))
     			.add("filter", (filter == null ? null : filter.getType()))
-				.add("columnStartDate", columnStartDate)
     			.add("columnMapping", columnMapping)
     			.add("whereCondition", whereCondition)
     			.add("aggregate", aggregate)

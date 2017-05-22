@@ -261,6 +261,9 @@ public class RunDockerCommand implements DockerCommand {
     @Override
     public String toCMD() {
         StringBuilder sb = new StringBuilder(command);
+        if (action != null && action == DockerAction.STATUS) {
+       		sb.append(" --rm");
+        }
         for (String option : options) {
             sb.append(" ").append(option);
         }

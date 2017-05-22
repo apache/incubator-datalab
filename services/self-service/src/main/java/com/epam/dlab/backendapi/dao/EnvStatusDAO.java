@@ -18,12 +18,15 @@
 
 package com.epam.dlab.backendapi.dao;
 
+import static com.epam.dlab.UserInstanceStatus.TERMINATED;
+import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.COMPUTATIONAL_RESOURCES;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
 import static com.epam.dlab.backendapi.dao.KeyDAO.EDGE_STATUS;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.not;
 import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Projections.fields;
@@ -32,15 +35,20 @@ import static com.mongodb.client.model.Projections.include;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
-import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
-import com.epam.dlab.backendapi.resources.dto.HealthStatusResource;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epam.dlab.UserInstanceStatus;
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.SelfServiceApplication;
+import com.epam.dlab.backendapi.domain.EnvStatusListener;
+import com.epam.dlab.backendapi.domain.EnvStatusListenerUserInfo;
+import com.epam.dlab.backendapi.resources.ComputationalResource;
+import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
+import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
+import com.epam.dlab.backendapi.resources.dto.HealthStatusResource;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.exceptions.DlabException;
@@ -54,12 +62,13 @@ public class EnvStatusDAO extends BaseDAO {
 	private static final String EDGE_PUBLIC_IP = "public_ip";
 	private static final String COMPUTATIONAL_STATUS = COMPUTATIONAL_RESOURCES + "." + STATUS;
 	private static final String COMPUTATIONAL_STATUS_FILTER = COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + STATUS;
+	private static final String COMPUTATIONAL_SPOT = "slave_node_spot";
 
     private static final Bson INCLUDE_EDGE_FIELDS = include(INSTANCE_ID, EDGE_STATUS, EDGE_PUBLIC_IP);
 	private static final Bson INCLUDE_EXP_FIELDS = include(INSTANCE_ID, STATUS,
 								COMPUTATIONAL_RESOURCES + "." + INSTANCE_ID, COMPUTATIONAL_STATUS);
 	private static final Bson INCLUDE_EXP_UPDATE_FIELDS = include(EXPLORATORY_NAME, INSTANCE_ID, STATUS,
-								COMPUTATIONAL_RESOURCES + "." + INSTANCE_ID, COMPUTATIONAL_STATUS);
+								COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, COMPUTATIONAL_RESOURCES + "." + INSTANCE_ID, COMPUTATIONAL_STATUS);
 
 	/** Add the resource to list if it have instance_id.
 	 * @param list the list to add.
@@ -277,36 +286,85 @@ public class EnvStatusDAO extends BaseDAO {
     }
     
     /** Update the status of exploratory if it needed.
-     * @param user the user name
-     * @param exploratoryName the name of exploratory
-     * @param clusterId the Id of cluster
-     * @param oldStatus old status
-     * @param newStatus new status
+     * @param user the user name.
+     * @param exploratoryName the name of exploratory.
+     * @param computationalName the name of computational.
+     * @param oldStatus old status.
+     * @param newStatus new status.
      */
-	private void updateComputationalStatus(String user, String exploratoryName, String clusterId,
+	private void updateComputationalStatus(String user, String exploratoryName, String computationalName,
 			String oldStatus, String newStatus) {
-    	LOGGER.trace("Update computational status for user {} with exploratory {} and instanceId {} from {} to {}",
-    			user, exploratoryName, clusterId, oldStatus, newStatus);
+    	LOGGER.trace("Update computational status for user {} with exploratory {} and computational {} from {} to {}",
+    			user, exploratoryName, computationalName, oldStatus, newStatus);
     	UserInstanceStatus oStatus = UserInstanceStatus.of(oldStatus);
     	UserInstanceStatus status = getComputationalNewStatus(oStatus, newStatus);
-    	LOGGER.trace("Translate computational status for user {} with exploratory {} and instanceId {} from {} to {}",
-    			user, exploratoryName, clusterId, newStatus, status);
+    	LOGGER.trace("Translate computational status for user {} with exploratory {} and computational {} from {} to {}",
+    			user, exploratoryName, computationalName, newStatus, status);
 
     	if (oStatus != status) {
-        	LOGGER.debug("Computational status for user {} with exploratory {} and instanceId {} will be updated from {} to {}",
-        			user, exploratoryName, clusterId, oldStatus, status);
+        	LOGGER.debug("Computational status for user {} with exploratory {} and computational {} will be updated from {} to {}",
+        			user, exploratoryName, computationalName, oldStatus, status);
+        	if (status == UserInstanceStatus.TERMINATED &&
+        		terminateComputationalSpot(user, exploratoryName, computationalName)) {
+        		return;
+        	}
         	Document values = new Document(COMPUTATIONAL_STATUS_FILTER, status.toString());
         	updateOne(USER_INSTANCES,
         			and(exploratoryCondition(user, exploratoryName),
                             elemMatch(COMPUTATIONAL_RESOURCES,
-                            		  and(eq(INSTANCE_ID, clusterId))
+                            		  and(eq(COMPUTATIONAL_NAME, computationalName))
                                      )
                        ),
         			new Document(SET, values));
     	}
 	}
 
-    /** Finds and returns the of computational resource.
+	/** Terminate EMR if it is spot.
+     * @param user the user name.
+     * @param exploratoryName the name of exploratory.
+     * @param computationalName the name of computational.
+	 * @return <b>true</b> if computational is spot and should be terminated by docker, otherwise <b>false</b>.
+	 */
+    private boolean terminateComputationalSpot(String user, String exploratoryName, String computationalName) {
+    	LOGGER.trace("Check computatation is spot for user {} with exploratory {} and computational {}", user, exploratoryName, computationalName);
+		Document doc = findOne(USER_INSTANCES,
+							exploratoryCondition(user, exploratoryName),
+							and(elemMatch(COMPUTATIONAL_RESOURCES,
+                            		and(eq(COMPUTATIONAL_NAME, computationalName),
+                            			eq(COMPUTATIONAL_SPOT, true),
+                            			not(eq(STATUS, TERMINATED.toString())))),
+								include(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_SPOT))
+							).orElse(null);
+		if (doc == null || doc.get(COMPUTATIONAL_RESOURCES) == null) {
+			return false;
+		}
+    	
+    	EnvStatusListenerUserInfo userInfo = EnvStatusListener.getUserInfo(user);
+    	if (userInfo == null) {
+    		// User logged off. Computational will be terminated when user logged in.
+    		return true;
+    	}
+    	
+    	String accessToken = (userInfo == null ? null : userInfo.getAccessToken());
+    	LOGGER.debug("Computational will be terminated for user {} with exploratory {} and computational {}",
+    			user, exploratoryName, computationalName);
+    	try {
+    		// Send post request to provisioning service to terminate spot EMR.
+    		ComputationalResource computational = new ComputationalResource();
+    		SelfServiceApplication.getInjector().injectMembers(computational);
+    		UserInfo ui = new UserInfo(user, accessToken);
+    		computational.terminate(ui, exploratoryName, computationalName);
+    	} catch (Exception e) {
+    		// Cannot terminate EMR, just update status to terminated
+        	LOGGER.warn("Can't terminate computational for user {} with exploratory {} and computational {}. {}",
+        			user, exploratoryName, computationalName, e.getLocalizedMessage(), e);
+        	return false;
+		}
+    	
+    	return true;
+	}
+
+	/** Finds and returns the of computational resource.
      * @param user the name of user.
      * @param fullReport return full report if <b>true</b> otherwise common status only.
      * @exception DlabException
@@ -382,7 +440,8 @@ public class EnvStatusDAO extends BaseDAO {
 	    		if (instanceId != null) {
 	    			r = getEnvResourceAndRemove(list.getClusterList(), instanceId);
 	    			if (r != null) {
-	    				updateComputationalStatus(user, exploratoryName, instanceId,
+	    				final String computationalName = comp.getString(COMPUTATIONAL_NAME);
+	    				updateComputationalStatus(user, exploratoryName, computationalName,
 	    						comp.getString(STATUS), r.getStatus());
 	    			}
 	    		}

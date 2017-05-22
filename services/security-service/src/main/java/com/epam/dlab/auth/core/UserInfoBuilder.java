@@ -157,9 +157,15 @@ public class UserInfoBuilder implements Supplier<UserInfo>, Testing {
                 b.userInfo.addKey(key, status);
             });
         }
+
         if( counter.intValue() == 0 ) {
             b.awsKeyError = new RuntimeException("Please contact AWS administrator to activate your Access Key");
         }
+        b.setMask( AWS_KEYS );
+    }
+
+    public static void awsKeysEmpty(UserInfoBuilder b, List<AccessKeyMetadata> keyMetadata) {
+        LOG.debug("AWS Keys {}",keyMetadata);
         b.setMask( AWS_KEYS );
     }
 

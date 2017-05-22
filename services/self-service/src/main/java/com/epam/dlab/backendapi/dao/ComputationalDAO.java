@@ -41,7 +41,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 /** DAO for user computational resources.
  */
 public class ComputationalDAO extends BaseDAO {
-    private static final String COMPUTATIONAL_NAME = "computational_name";
+    protected static final String COMPUTATIONAL_NAME = "computational_name";
     private static final String COMPUTATIONAL_ID = "computational_id";
 
     private static String computationalFieldFilter(String fieldName) {

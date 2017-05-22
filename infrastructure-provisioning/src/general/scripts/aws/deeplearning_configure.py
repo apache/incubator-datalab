@@ -58,6 +58,7 @@ if __name__ == "__main__":
     notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-SG"
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
+    notebook_config['os_user'] = 'ubuntu'
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['instance_name'])
@@ -71,7 +72,7 @@ if __name__ == "__main__":
         print '[CONFIGURE PROXY ON DEEP LEARNING  INSTANCE]'
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
-            .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config), 'ubuntu')
+            .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config), notebook_config['os_user'])
         try:
             local("~/scripts/{}.py {}".format('notebook_configure_proxy', params))
         except:
@@ -88,7 +89,7 @@ if __name__ == "__main__":
         additional_config = {"user_keyname": notebook_config['user_keyname'],
                              "user_keydir": "/root/keys/"}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            instance_hostname, keyfile_name, json.dumps(additional_config), 'ubuntu')
+            instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['os_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
@@ -103,7 +104,7 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]')
         print '[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]'
         params = "--hostname {} --keyfile {} --os_user {} --jupyter_version {} --scala_version {} --spark_version {} --hadoop_version {} --region {}" \
-                 .format(instance_hostname, keyfile_name, os.environ['conf_os_user'],
+                 .format(instance_hostname, keyfile_name, notebook_config['os_user'],
                          os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                          os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
                          os.environ['aws_region'])

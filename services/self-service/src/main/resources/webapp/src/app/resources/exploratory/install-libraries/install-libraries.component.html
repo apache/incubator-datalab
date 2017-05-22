@@ -1,0 +1,109 @@
+<!------------------------------------------------------------------------------------------------------------
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+----------------------------------------------------------------------------------------------------------- -->
+
+<modal-dialog #bindDialog  modalClass="install-libs modal-xl">
+  <modal-header>
+    <h4 class="modal-title" id="myModalLabel">Library installation</h4>
+  </modal-header>
+  <modal-content>
+   
+   <md-tab-group>
+    <md-tab label="LIBRARIES INSTALLATION">
+
+      <div class="upload-libs info" *ngIf="!libs_uploaded">
+        <p>To get started with the installation of libraries you need to wait .............. downloading or some another text</p>
+        <div>
+          <button md-raised-button type="button" class="butt">Upload libraries</button>          
+        </div>
+      </div>
+
+      <div class="tab-content">
+        <div class="search-box col">
+          <md-select placeholder="Select group" [disabled]="!libs_uploaded" [(ngModel)]="group" (change)="filter()">
+            <md-option *ngFor="let group of groups_map" [value]="group.value">
+              {{ group.label }}
+            </md-option>
+          </md-select>
+
+          <md-input-container>
+            <input mdInput [(ngModel)]=query (keyup)=filter() placeholder="Please enter lib name" [disabled]="!libs_uploaded">
+          </md-input-container>
+        
+          <div *ngIf="filteredList.length > 0">
+            <ul class="suggestions">
+              <li *ngFor="let item of filteredList">
+                <a (click)="select(item)">{{item}}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="list-selected col" *ngIf="selectedLibs.length && libs_uploaded">
+          <div class="info">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tenetur deserunt iste, dignissimos eum ducimus quod amet dicta facilis inventore dolorum 
+          </div>
+          
+          <h3>List of selected libs</h3>
+          <md-chip-list>
+            <md-chip *ngFor="let item of selectedLibs">
+              {{ item }}
+              <a (click)="remove(item)">x</a>
+            </md-chip>
+          </md-chip-list>
+        </div>
+
+        <div class="uploading col" *ngIf="!libs_uploaded && uploading">
+          <img src="assets/img/gif-spinner.gif" alt="loading">
+        </div>
+      </div>
+
+      <div class="text-center m-top-30 m-bott-10">
+        <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
+        <button md-raised-button type="submit" class="butt butt-success" [disabled]="!selectedLibs.length">Install</button>
+      </div>
+    </md-tab>
+    <md-tab label="INFO">
+      <div>
+        <md-list>
+          <md-list-item class="lib-list-header">
+            <div class="lib-name">Name</div>
+            <div class="lib-status">Status</div>
+            <div class="lib-actions">Action</div>
+          </md-list-item>
+          
+          <div class="scrollingList" *ngIf="installedLibs?.length">
+            <md-list-item *ngFor="let lib of installedLibs">
+              <div class="lib-name">{{lib.name}}  v.{{lib.version}}</div>
+              <div class="lib-status">{{lib.status}}</div>
+              <div class="lib-actions">
+                <button md-raised-button *ngIf="lib.status === 'installing'" type="button" class="butt">Cancel</button>
+                <button md-raised-button *ngIf="lib.status === 'failed'" type="button" class="butt">Reinstall</button>
+                <button md-raised-button *ngIf="lib.status === 'installed'" type="button" class="butt">Uninstall</button>
+              </div>
+            </md-list-item>
+          </div>
+        </md-list>
+      </div>
+      <div *ngIf="!installedLibs?.length" class="scrollingList info">
+        <p>You have no any libraries installed</p>
+      </div>
+    </md-tab>
+  </md-tab-group>
+
+  </modal-content>
+</modal-dialog>

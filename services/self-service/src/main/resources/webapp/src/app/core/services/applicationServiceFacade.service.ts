@@ -40,6 +40,8 @@ export class ApplicationServiceFacade {
   private static readonly EDGE_NODE_START = 'edge_node_start';
   private static readonly EDGE_NODE_STOP = 'edge_node_stop';
   private static readonly EDGE_NODE_RECREATE = 'edge_node_recreate';
+  private static readonly LIB_GROUPS = 'lib_groups';
+  private static readonly LIB_LIST = 'lib_list';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -228,6 +230,10 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_START, '/api/infrastructure/edge/start');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_STOP, '/api/infrastructure/edge/stop');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_RECREATE, '/api/user/access_key/recover');
+
+    // Libraries Installation
+    this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/lib_groups');
+    this.requestRegistry.Add(ApplicationServiceFacade.LIB_LIST, '/api/infrastructure_provision/lib_list');
   }
 
   private buildRequest(method: RequestMethod, url: string, body: any, opt: RequestOptions): Observable<Response> {
@@ -248,5 +254,15 @@ export class ApplicationServiceFacade {
       headers.append('Authorization', 'Bearer ' + localStorage.getItem(this.accessTokenKey));
     const reqOpt = new RequestOptions({ headers: headers });
     return reqOpt;
+  }
+
+  // mock data just for test
+  public buildGetAvailableLibrariesList() {
+    return [{
+          "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
+          "pip2": {"requests": "N/A", "configparser": "N/A"},
+          "pip3": {"configparser": "N/A"},
+          "r_pkg": {"rmarkdown": "1.5"}
+    }];
   }
 }

@@ -16,12 +16,19 @@ limitations under the License.
 
 ****************************************************************************/
 
-export { UserAccessKeyService } from './userAccessKey.service';
-export { UserResourceService } from './userResource.service';
-export { HealthStatusService } from './healthStatus.service';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-export { ApplicationSecurityService } from './applicationSecurity.service';
-export { ApplicationServiceFacade } from './applicationServiceFacade.service';
-export { AuthorizationGuard } from './authorization.guard';
-export { AppRoutingService } from './appRouting.service';
-export { LibrariesInstallationService } from './librariesInstallation.service';
+import { ModalModule } from '../../../shared';
+import { MaterialModule } from '@angular/material';
+import { InstallLibrariesComponent } from './install-libraries.component';
+
+export * from './install-libraries.component';
+
+@NgModule({
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalModule, MaterialModule.forRoot()],
+  declarations: [InstallLibrariesComponent],
+  exports: [InstallLibrariesComponent],
+})
+export class InstallLibrariesModule { }
