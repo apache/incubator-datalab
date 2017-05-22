@@ -25,26 +25,34 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryGetLibsFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.edge.EdgeInfoDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryLibListDTO;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
+import com.epam.dlab.dto.status.EnvStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.epam.dlab.rest.contracts.DockerAPI;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -149,9 +157,9 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Iterable<String> getLibGroupList(@Auth UserInfo userInfo, @NotNull String imageName) {
         LOGGER.trace("Loading list of lib groups for user {} and image {}", userInfo.getName(), imageName);
         try {
-        	//TODO getLibGroupList
-        	List<String> list = null;
-        	return list;
+        	return ExploratoryLibCache
+        			.getCache()
+        			.getLibGroupList(userInfo, imageName);
         } catch (Throwable t) {
         	LOGGER.error("Cannot load list of lib groups for user {} and image {}", userInfo.getName(), imageName, t);
             throw new DlabException("Cannot load list of libraries groups: " + t.getLocalizedMessage(), t);
@@ -167,15 +175,41 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Iterable<String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryGetLibsFormDTO formDTO) {
         LOGGER.trace("Loading list of libs for user {} with condition {}", userInfo.getName(), formDTO);
         try {
-        	//TODO getLibList
-        	List<String> list = null;
-        	return list;
+        	return ExploratoryLibCache
+        			.getCache()
+        			.getLibList(userInfo, formDTO.getImage(), formDTO.getGroup(), formDTO.getStartWith());
         } catch (Throwable t) {
         	LOGGER.error("Cannot load list of libs for user {} with condition {}",
         			userInfo.getName(), formDTO, t);
             throw new DlabException("Cannot load list of libraries: " + t.getLocalizedMessage(), t);
         }
     }
+    
+    /** Updates the list of libraries.
+     * @param dto DTO the list of libraries.
+     * @return Always return code 200 (OK).
+     */
+    @POST
+    @Path(ApiCallbacks.UPDATE_LIBS_URI)
+    public Response updateLibList(ExploratoryLibListDTO dto) {
+        LOGGER.trace("Updating the list of libraries: {}", dto);
+        RequestId.checkAndRemove(dto.getRequestId());
+        try {
+        	if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {
+        		LOGGER.warn("Request for the list of libraries fails: {}", dto.getErrorMessage());
+        		//TODO set error in cache
+        	} else {
+        		ExploratoryLibCache
+    				.getCache()
+    				.updateLibList(dto.getImageName(), dto.getLibs());
+        	}
+        } catch (Throwable e) {
+        	LOGGER.warn("Cannot update the list of libs: {}", e.getLocalizedMessage(), e);
+        }
+        // Always necessary send OK for status request
+        return Response.ok().build();
+    }
+
 
     /** Return the image name without suffix version.
      * @param imageName the name of image.

@@ -107,7 +107,7 @@ public class ExploratoryResource implements ExploratoryAPI {
             ExploratoryCreateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryCreateDTO.class)
                     .withExploratoryName(formDTO.getName())
                     .withNotebookImage(formDTO.getImage())
-                    .withApplicationName(getApplicationName(formDTO.getImage()))
+                    .withApplicationName(ResourceUtils.getApplicationNameFromImage(formDTO.getImage()))
                     .withNotebookInstanceType(formDTO.getShape())
                     .withAwsSecurityGroupIds(settingsDAO.getAwsSecurityGroups());
             LOGGER.debug("Created exploratory environment {} for user {}", formDTO.getName(), userInfo.getName());
@@ -382,14 +382,4 @@ public class ExploratoryResource implements ExploratoryAPI {
             		exploratoryName, user, status, e);
        	}
     }
-
-    /** Returns the name of application for notebook: jupiter, rstudio, etc. */
-    private String getApplicationName(String imageName) {
-    	if (imageName != null) {
-    		int pos = imageName.lastIndexOf('-');
-    		if (pos > 0) {
-    			return imageName.substring(pos + 1);
-    		}
-    	}
-    	return "";
-    }}
+}

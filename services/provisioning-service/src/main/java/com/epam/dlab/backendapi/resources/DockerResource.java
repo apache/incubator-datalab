@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.MetadataHolder;
 import com.epam.dlab.backendapi.core.commands.*;
@@ -90,8 +91,7 @@ public class DockerResource implements DockerCommands {
 
     @Path("/lib_list")
     @POST
-    public String getLibList(@Auth UserInfo ui, ExploratoryBaseDTO dto) throws IOException, InterruptedException {
-
+    public String getLibList(@Auth UserInfo ui, ExploratoryBaseDTO<?> dto) throws IOException, InterruptedException {
         LOGGER.trace("Listing of libs for user {} with condition {}", ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
@@ -103,7 +103,7 @@ public class DockerResource implements DockerCommands {
                 .withVolumeForRootKeys(configuration.getKeyDirectory())
                 .withVolumeForResponse(configuration.getImagesDirectory())
                 .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
-                .withResource(getResourceType())
+                .withResource(Directories.NOTEBOOK_LOG_DIRECTORY)
                 .withRequestId(uuid)
                 .withConfKeyName(configuration.getAdminKey())
                 .withImage(dto.getNotebookImage())

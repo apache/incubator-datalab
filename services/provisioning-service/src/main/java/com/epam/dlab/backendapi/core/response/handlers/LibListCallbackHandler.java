@@ -24,8 +24,6 @@ import com.epam.dlab.dto.exploratory.ExploratoryLibListDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,12 +31,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static com.epam.dlab.rest.contracts.ApiCallbacks.INFRASTRUCTURE;
-import static com.epam.dlab.rest.contracts.ApiCallbacks.STATUS_URI;
+import static com.epam.dlab.rest.contracts.ApiCallbacks.UPDATE_LIBS_URI;
 
 public class LibListCallbackHandler extends ResourceCallbackHandler<ExploratoryLibListDTO> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(LibListCallbackHandler.class);
 
     private static final String FILE = "file";
+    
     private final String imageName;
 
     public LibListCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String imageName) {
@@ -48,7 +46,7 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<ExploratoryL
 
 	@Override
     protected String getCallbackURI() {
-        return INFRASTRUCTURE + STATUS_URI;
+        return INFRASTRUCTURE + UPDATE_LIBS_URI;
     }
 
 	@Override

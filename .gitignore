@@ -15,3 +15,4 @@ target
 
 /services/self-service/src/main/resources/webapp/ts-node-*
 /web_app
+/automation/test-output
