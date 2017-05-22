@@ -27,40 +27,55 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import static com.epam.dlab.rest.contracts.ApiCallbacks.EXPLORATORY;
-import static com.epam.dlab.rest.contracts.ApiCallbacks.STATUS_URI;
 
 public class LibInstallCallbackHandler extends ResourceCallbackHandler<ExploratoryLibsInstallStatusDTO> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibInstallCallbackHandler.class);
 
-    private static final String INSTANCE_ID_FIELD = "instance_id";
     private static final String LIBS = "Libs";
 
-    private final String exploratoryName;
+    private final String imageName;
 
-    public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String exploratoryName) {
+    public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String imageName) {
         super(selfService, user, uuid, action);
-        this.exploratoryName = exploratoryName;
+        this.imageName = imageName;
     }
 
+    //TODO: usein: put proper url here
 	@Override
     protected String getCallbackURI() {
-        return EXPLORATORY + STATUS_URI;
+        return EXPLORATORY + "INSTALL_LIBBS_URL";
     }
 
 	@Override
     protected ExploratoryLibsInstallStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryLibsInstallStatusDTO status) throws DlabException {
-    	if (resultNode == null) {
-    		return status;
-    	}
+        if (resultNode == null) {
+            throw new DlabException("Can't handle response without property " + RESULT_NODE);
+        }
 
-    	return status
-    			.withInstanceId(getTextValue(resultNode.get(INSTANCE_ID_FIELD)))
-                .withLibs(resultNode.get(LIBS) == null ? "" :resultNode.get(LIBS).toString());
+        JsonNode resultFileNode = resultNode.get(LIBS);
+        if (resultFileNode == null) {
+            throw new DlabException("Can't handle response without property " + LIBS);
+        }
+        List<String> libs = new ArrayList();
+        Iterator<JsonNode> iterator = resultFileNode.iterator();
+        while(iterator.hasNext()) {
+            JsonNode next = iterator.next();
+            if(null != next) {
+                libs.add(next.toString());
+            }
+        }
+
+
+        return status.withLibs(libs);
     }
 
     @Override
     protected ExploratoryLibsInstallStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
-        return super.getBaseStatusDTO(status).withExploratoryName(exploratoryName);
+        return super.getBaseStatusDTO(status).withImageName(imageName);
     }
 }
