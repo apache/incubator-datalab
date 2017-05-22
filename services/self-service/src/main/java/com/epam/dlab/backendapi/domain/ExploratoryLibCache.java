@@ -59,13 +59,13 @@ public class ExploratoryLibCache implements Managed {
 	@Override
 	public void start() throws Exception {
 		if (libCache == null) {
-			libCache = new ExploratoryLibCache();
+			libCache = this;
 		}
 	}
 
 	@Override
 	public void stop() throws Exception {
-		libCache = null;
+		cache.clear();
 	}
 	
 	public List<String> getLibGroupList(UserInfo userInfo, String imageName) {
@@ -108,14 +108,19 @@ public class ExploratoryLibCache implements Managed {
 
 	private void requestLibList(UserInfo userInfo, String imageName) {
 		try {
-			LOGGER.debug("Ask docker for the list of libraries for user {} and image", userInfo.getName(), imageName);
+			LOGGER.debug("Ask docker for the list of libraries for user {} and image {}", userInfo.getName(), imageName);
 			ExploratoryBaseDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryBaseDTO.class);
 			dto.withNotebookImage(imageName)
 				.withApplicationName(ResourceUtils.getApplicationNameFromImage(imageName));
-			String uuid = provisioningService.post(DockerAPI.DOCKER_LIB_LIST, userInfo.getAccessToken(), dto, String.class);
+LOGGER.debug("dto {}", dto);
+			String uuid = provisioningService.post(
+					DockerAPI.DOCKER_LIB_LIST,
+					userInfo.getAccessToken(),
+					dto,
+					String.class);
             RequestId.put(userInfo.getName(), uuid);
 		} catch (Exception e) {
-			LOGGER.warn("Ask docker for the status of resources for user {} fails: {}", e.getLocalizedMessage(), e);
+			LOGGER.warn("Ask docker for the status of resources for user {} and image {} fails: {}", userInfo.getName(), imageName, e.getLocalizedMessage(), e);
 		}
 	}
 	

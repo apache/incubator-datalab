@@ -190,7 +190,7 @@ public class InfrastructureProvisionResource implements DockerAPI {
      * @return Always return code 200 (OK).
      */
     @POST
-    @Path(ApiCallbacks.UPDATE_LIBS_URI)
+    @Path("/update_lib_list")
     public Response updateLibList(ExploratoryLibListDTO dto) {
         LOGGER.trace("Updating the list of libraries: {}", dto);
         RequestId.checkAndRemove(dto.getRequestId());

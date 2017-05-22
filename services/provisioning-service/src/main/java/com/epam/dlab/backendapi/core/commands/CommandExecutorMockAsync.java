@@ -120,7 +120,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 				break;
 			case LIB_LIST:
 				action(user, action);
-				copyFile("mock_response/notebook_list_libs_pkgs.json", parser.getResponsePath());
+				copyFile("mock_response/notebook_lib_list_pkgs.json", parser.getResponsePath());
 				break;
 			default:
 				break;

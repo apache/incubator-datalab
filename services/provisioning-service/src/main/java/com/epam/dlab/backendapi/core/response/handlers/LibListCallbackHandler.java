@@ -30,7 +30,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static com.epam.dlab.rest.contracts.ApiCallbacks.INFRASTRUCTURE;
 import static com.epam.dlab.rest.contracts.ApiCallbacks.UPDATE_LIBS_URI;
 
 public class LibListCallbackHandler extends ResourceCallbackHandler<ExploratoryLibListDTO> {
@@ -46,7 +45,7 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<ExploratoryL
 
 	@Override
     protected String getCallbackURI() {
-        return INFRASTRUCTURE + UPDATE_LIBS_URI;
+        return UPDATE_LIBS_URI;
     }
 
 	@Override

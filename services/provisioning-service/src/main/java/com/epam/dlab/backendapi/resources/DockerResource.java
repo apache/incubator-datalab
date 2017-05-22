@@ -32,7 +32,6 @@ import com.epam.dlab.dto.imagemetadata.ImageType;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
-import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +102,7 @@ public class DockerResource implements DockerCommands {
                 .withVolumeForRootKeys(configuration.getKeyDirectory())
                 .withVolumeForResponse(configuration.getImagesDirectory())
                 .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
-                .withResource(Directories.NOTEBOOK_LOG_DIRECTORY)
+                .withResource(getResourceType())
                 .withRequestId(uuid)
                 .withConfKeyName(configuration.getAdminKey())
                 .withImage(dto.getNotebookImage())
@@ -119,6 +118,6 @@ public class DockerResource implements DockerCommands {
     }
 
     public String getResourceType() {
-        throw new NotImplementedException("General commands haven't a pre-defined log path");
+        return Directories.NOTEBOOK_LOG_DIRECTORY;
     }
 }
