@@ -16,12 +16,20 @@ limitations under the License.
 
 ****************************************************************************/
 
-export { UserAccessKeyService } from './userAccessKey.service';
-export { UserResourceService } from './userResource.service';
-export { HealthStatusService } from './healthStatus.service';
+import { Injectable } from '@angular/core';
+import { Response } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
 
-export { ApplicationSecurityService } from './applicationSecurity.service';
-export { ApplicationServiceFacade } from './applicationServiceFacade.service';
-export { AuthorizationGuard } from './authorization.guard';
-export { AppRoutingService } from './appRouting.service';
-export { LibrariesInstallationService } from './librariesInstallation.service';
+import { ApplicationServiceFacade } from './';
+
+@Injectable()
+export class LibrariesInstallationService {
+
+    constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
+    // : Observable<Response>
+    public getAvailableLibrariesList() {
+        return this.applicationServiceFacade
+        .buildGetAvailableLibrariesList()
+        // .map(response => response);
+    }
+}

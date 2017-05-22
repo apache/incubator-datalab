@@ -48,6 +48,7 @@ export class ResourcesGridComponent implements OnInit {
   @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('detailDialog') detailDialog;
   @ViewChild('costDetailsDialog') costDetailsDialog;
+  @ViewChild('installLibs') installLibraries;
 
 
   public filteringColumns: Array<any> = [
@@ -262,6 +263,10 @@ export class ResourcesGridComponent implements OnInit {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.StopExploratory);
     } else if (action === 'terminate') {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.TerminateExploratory);
+    } else if (action === 'install') {
+      console.log('install action');
+      
+      this.installLibraries.open({ isFooter: false }, data);
     }
   }
 

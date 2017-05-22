@@ -57,6 +57,20 @@ limitations under the License.
   border-radius: 0;
 }
 
+.cdk-overlay-container {
+    z-index: 9999;
+}
+
+.install-libs .mat-tab-label {
+    width: 50%;
+}
+.install-libs .mat-ink-bar {
+    background-color: #35afd5;
+}
+.install-libs .mat-tab-labels .mat-tab-label:focus {
+    background-color: rgba(53, 175, 213, 0.11);
+}
+
 [hidden] {
   display: none !important;
 }
@@ -266,3 +280,4 @@ input[type=number] {
 .text-center { text-align: center!important; }
 .m-top-10 { margin-top: 10px; }
 .m-top-30 { margin-top: 30px; }
+.m-bott-10 { margin-bottom: 10px; }
