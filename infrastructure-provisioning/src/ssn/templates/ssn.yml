@@ -1,4 +1,9 @@
 <#assign LOG_ROOT_DIR="/var/opt/dlab/log">
+<#assign KEYS_DIR="/home/${sys['user.name']}/keys">
+<#assign KEY_STORE_PATH="${KEYS_DIR}/dlab.keystore.jks">
+<#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
+<#assign TRUST_STORE_PATH="JAVA_PATH/lib/security/cacerts">
+<#assign TRUST_STORE_PASSWORD="changeit">
 
 #Switch on/off developer mode here
 <#assign DEV_MODE="false">
@@ -8,19 +13,19 @@ mongo:
   host: localhost
   port: 27017
   username: admin
-  password: PASSWORD
+  password: MONGO_PASSWORD
   database: dlabdb
 
 selfService:
-  protocol: http
+  protocol: https
   host: localhost
-  port: 8080
+  port: 8443
   jerseyClient:
     timeout: 3s
     connectionTimeout: 3s
 
 securityService:
-  protocol: http
+  protocol: https
   host: localhost
   port: 8090
   jerseyClient:
@@ -28,7 +33,7 @@ securityService:
     connectionTimeout: 10s
 
 provisioningService:
-  protocol: http
+  protocol: https
   host: localhost
   port: 8084
   jerseyClient:
