@@ -321,8 +321,8 @@ def install_caffe(os_user):
             sudo('pip3 install -r python/requirements.txt')
             sudo('cp Makefile.config.example Makefile.config')
             sudo('sed -i "/INCLUDE_DIRS :=/d" Makefile.config')
-            sudo('echo "INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/" >> '
-                 'Makefile.config')
+            sudo("echo 'INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ "
+                 "/usr/local/lib/python2.7/dist-packages/numpy/core/include/' >> Makefile.config")
             sudo('sed -i "/LIBRARIES :=/d" Makefile.config')
             sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" '
                  '>> Makefile.config')

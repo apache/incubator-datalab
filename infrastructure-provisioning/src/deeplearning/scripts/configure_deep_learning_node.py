@@ -108,45 +108,45 @@ if __name__ == "__main__":
     print "Install TensorFlow"
     install_tensor(args.os_user, args.tensorflow_version, files_dir, templates_dir)
 
-    # print "Installing Caffe"
-    # install_caffe(args.os_user)
-    #
-    # print "Installing Caffe2"
-    # install_caffe2(args.os_user)
-    #
-    # print "Install Jupyter"
-    # configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version)
-    #
-    # print "Install local Spark"
-    # ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
-    #
-    # print "Install local jars"
-    # ensure_local_jars(args.os_user, s3_jars_dir, files_dir, args.region, templates_dir)
-    #
-    # print "Install pyspark local kernel for Jupyter"
-    # ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
-    #
-    # print "Install py3spark local kernel for Jupyter"
-    # ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
-    #
-    # print "Install Toree-Scala kernel for Jupyter"
-    # ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
-    #
-    # print "Installing R"
-    # ensure_r(args.os_user, r_libs)
-    #
-    # print "Install R kernel for Jupyter"
-    # ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
-    #
-    # print "Install GitWeb"
-    # install_gitweb(args.os_user)
-    #
-    # print "Installing ITorch kernel"
-    # install_itorch(args)
-    #
-    # print "Install CNTK Python library"
-    # install_cntk(args)
-    #
-    # print "Installing MXNET"
-    # install_mxnet(args)
+    print "Installing Caffe"
+    install_caffe(args.os_user)
+
+    print "Installing Caffe2"
+    install_caffe2(args.os_user)
+
+    print "Install Jupyter"
+    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version)
+
+    print "Install local Spark"
+    ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
+
+    print "Install local jars"
+    ensure_local_jars(args.os_user, s3_jars_dir, files_dir, args.region, templates_dir)
+
+    print "Install pyspark local kernel for Jupyter"
+    ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
+
+    print "Install py3spark local kernel for Jupyter"
+    ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
+
+    print "Install Toree-Scala kernel for Jupyter"
+    ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
+
+    print "Installing R"
+    ensure_r(args.os_user, r_libs)
+
+    print "Install R kernel for Jupyter"
+    ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
+
+    print "Install GitWeb"
+    install_gitweb(args.os_user)
+
+    print "Installing ITorch kernel"
+    install_itorch(args)
+
+    print "Install CNTK Python library"
+    install_cntk(args)
+
+    print "Installing MXNET"
+    install_mxnet(args)
 
