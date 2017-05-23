@@ -22,6 +22,8 @@ import static com.epam.dlab.rest.contracts.ApiCallbacks.EXPLORATORY;
 import static com.epam.dlab.rest.contracts.ApiCallbacks.LIB_STATUS_URI;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -77,6 +79,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
     @Override
     protected ExploratoryLibInstallStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
         return super.getBaseStatusDTO(status)
-        		.withExploratoryName(exploratoryName);
+        		.withExploratoryName(exploratoryName)
+        		.withUptime(Date.from(Instant.now()));
     }
 }

@@ -143,7 +143,7 @@ public class ExploratoryLibDAO extends BaseDAO {
 	        		values.append(libraryFieldFilter(LIB_INSTALL_DATE), dto.getUptime());
 	        	}
 	        	if (dto.getErrorMessage() != null) {
-	        		values.append(libraryFieldFilter(LIB_ERROR_MESSAGE), dto.getErrorMessage());
+	        		values.append(libraryFieldFilter(LIB_ERROR_MESSAGE), lib.getErrorMessage());
 	        	}
 	            updateOne(USER_INSTANCES,
 	            		and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
