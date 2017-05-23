@@ -59,8 +59,8 @@ public class ExploratoryLibListDTO extends StatusBaseDTO<ExploratoryLibListDTO> 
     @Override
     public ToStringHelper toStringHelper(Object self) {
     	return super.toStringHelper(self)
-    	        .add("libs", libs)
-                .add("imageName", imageName);
+    			.add("imageName", imageName)
+    			.add("libs", (libs == null ? "null" : "..."));
     }
     
     @Override

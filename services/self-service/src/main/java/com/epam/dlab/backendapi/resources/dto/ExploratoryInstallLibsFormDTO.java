@@ -34,7 +34,7 @@ public class ExploratoryInstallLibsFormDTO {
 
     @NotBlank
     @JsonProperty
-    private List<String> libs;
+    private List<LibInstallFormDTO> libs;
 
     /** Returns the name of notebook instance. */
     public String getNotebookInstanceName() {
@@ -42,7 +42,7 @@ public class ExploratoryInstallLibsFormDTO {
     }
 
     /** Returns the name of libraries. */
-    public List<String> getLibs() {
+    public List<LibInstallFormDTO> getLibs() {
         return libs;
     }
 

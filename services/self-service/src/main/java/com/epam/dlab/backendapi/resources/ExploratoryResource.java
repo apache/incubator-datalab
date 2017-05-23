@@ -23,12 +23,15 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
+import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryInstallLibsFormDTO;
+import com.epam.dlab.backendapi.resources.dto.LibInstallFormDTO;
+import com.epam.dlab.backendapi.resources.dto.LibStatus;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.util.ResourceUtils;
@@ -69,9 +72,11 @@ public class ExploratoryResource implements ExploratoryAPI {
     @Inject
     private SettingsDAO settingsDAO;
     @Inject
-    private ExploratoryDAO infExpDAO;
+    private ExploratoryDAO exploratoryDAO;
     @Inject
-    private ComputationalDAO infCompDAO;
+    private ComputationalDAO computationalDAO;
+    @Inject
+    private ExploratoryLibDAO libraryDAO;
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
@@ -95,7 +100,7 @@ public class ExploratoryResource implements ExploratoryAPI {
 		}
         boolean isAdded = false;
         try {
-            infExpDAO.insertExploratory(new UserInstanceDTO()
+            exploratoryDAO.insertExploratory(new UserInstanceDTO()
                     .withUser(userInfo.getName())
                     .withExploratoryName(formDTO.getName())
                     .withStatus(CREATING.toString())
@@ -139,7 +144,7 @@ public class ExploratoryResource implements ExploratoryAPI {
         UserInstanceStatus currentStatus;
         
         try {
-        	currentStatus = infExpDAO.fetchExploratoryStatus(dto.getUser(), dto.getExploratoryName());
+        	currentStatus = exploratoryDAO.fetchExploratoryStatus(dto.getUser(), dto.getExploratoryName());
         } catch (DlabException e) {
         	LOGGER.error("Could not get current status for exploratory environment {} for user {}",
         			dto.getExploratoryName(), dto.getUser(), e);
@@ -150,7 +155,7 @@ public class ExploratoryResource implements ExploratoryAPI {
         		dto.getExploratoryName(), dto.getUser(), currentStatus);
 
         try {
-            infExpDAO.updateExploratoryFields(dto);
+            exploratoryDAO.updateExploratoryFields(dto);
             if (currentStatus == TERMINATING) {
             	updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), UserInstanceStatus.of(dto.getStatus()));
             } else if (currentStatus == STOPPING) {
@@ -208,7 +213,7 @@ public class ExploratoryResource implements ExploratoryAPI {
         }
         
         try {
-            UserInstanceDTO userInstance = infExpDAO.fetchExploratoryFields(userInfo.getName(), name);
+            UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), name);
             ExploratoryStopDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryStopDTO.class)
             		.withNotebookImage(userInstance.getImageName())
                     .withExploratoryName(name)
@@ -270,8 +275,12 @@ public class ExploratoryResource implements ExploratoryAPI {
         LOGGER.debug("Installing libs to exploratory environment {} for user {}", formDTO.getNotebookInstanceName(), userInfo.getName());
         try {
         	// TODO Install libs. Update status in Mongo
+        	for (LibInstallFormDTO lib : formDTO.getLibs()) {
+        		//LibStatus.INSTALLING
+        		//libraryDAO.addLibrary(userInfo.getName(), formDTO.getNotebookInstanceName(), library);
+        	}
         	
-        	String uuid = null;//provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), dto, String.class);
+        	String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return Response.ok(uuid).build();
         } catch (DlabException e) {
@@ -319,7 +328,7 @@ public class ExploratoryResource implements ExploratoryAPI {
         try {
             updateExploratoryStatus(userInfo.getName(), exploratoryName, status);
 
-            UserInstanceDTO userInstance = infExpDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
+            UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
             ExploratoryActionDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class);
             dto.withNotebookImage(userInstance.getImageName())
             	.withNotebookInstanceName(userInstance.getExploratoryId())
@@ -355,7 +364,7 @@ public class ExploratoryResource implements ExploratoryAPI {
     private void updateComputationalStatuses(String user, String exploratoryName, UserInstanceStatus status) throws DlabException {
         LOGGER.debug("updating status for all computational resources of {} for user {}: {}", exploratoryName, user, status);
         StatusEnvBaseDTO<?> exploratoryStatus = createStatusDTO(user, exploratoryName, status);
-        infCompDAO.updateComputationalStatusesForExploratory(exploratoryStatus);
+        computationalDAO.updateComputationalStatusesForExploratory(exploratoryStatus);
     }
 
     /** Updates the status of exploratory environment.
@@ -366,7 +375,7 @@ public class ExploratoryResource implements ExploratoryAPI {
      */
     private void updateExploratoryStatus(String user, String exploratoryName, UserInstanceStatus status) throws DlabException {
         StatusEnvBaseDTO<?> exploratoryStatus = createStatusDTO(user, exploratoryName, status);
-        infExpDAO.updateExploratoryStatus(exploratoryStatus);
+        exploratoryDAO.updateExploratoryStatus(exploratoryStatus);
     }
 
     /** Updates the status of exploratory environment without exceptions. If exception occurred then logging it.
