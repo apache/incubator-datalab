@@ -47,10 +47,12 @@ if __name__ == "__main__":
     print 'Installing libraries:' + args.libs
     general_status = list()
     data = json.loads(args.libs.replace("'", "\""))
-    pkgs = {'libraries': {"os_pkg": [], "pip2": [], "pip3": [], "r_pkg": []}}
+    pkgs = {"libraries": {}}
 
     try:
         for row in range(len(data['libs'])):
+            if not data['libs'][row]['group'] in pkgs['libraries'].keys():
+                pkgs["libraries"].update({data['libs'][row]['group']: []})
             pkgs['libraries'][data['libs'][row]['group']].append(data['libs'][row]['name'])
     except:
         print "Failed to parse json with libraries."
