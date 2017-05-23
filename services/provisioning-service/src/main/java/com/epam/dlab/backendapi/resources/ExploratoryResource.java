@@ -25,9 +25,11 @@ import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
+import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStopDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -84,9 +86,9 @@ public class ExploratoryResource implements DockerCommands {
         return action(ui.getName(), dto, DockerAction.STOP);
     }
 
-    @Path("/install")
+    @Path("/lib_install")
     @POST
-    public String install(@Auth UserInfo ui, ExploratoryBaseDTO dto) throws IOException, InterruptedException {
+    public String libInstall(@Auth UserInfo ui, ExploratoryLibInstallDTO dto) throws IOException, InterruptedException {
         return action(ui.getName(), dto, DockerAction.LIB_INSTALL);
     }
 
@@ -114,7 +116,9 @@ public class ExploratoryResource implements DockerCommands {
     }
 
     private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
-        return new ExploratoryCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName());
+        return (action == DockerAction.LIB_INSTALL ?
+        		new LibInstallCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName()) :
+        		new ExploratoryCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName()));
     }
 
     private String nameContainer(String user, DockerAction action, String name) {

@@ -62,7 +62,9 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<ExploratoryL
         Path path = Paths.get(resultFileNode.asText()).toAbsolutePath();
         if(path.toFile().exists()) {
             try {
-                return status.withLibs(new String(Files.readAllBytes(path)));
+            	status.withLibs(new String(Files.readAllBytes(path)));
+            	Files.delete(path);
+                return status;
             } catch (IOException e) {
                 throw new DlabException("Can't read file " + path + " : " + e.getLocalizedMessage(), e);
             }

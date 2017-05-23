@@ -91,7 +91,7 @@ public class DockerResource implements DockerCommands {
     @Path("/lib_list")
     @POST
     public String getLibList(@Auth UserInfo ui, ExploratoryBaseDTO<?> dto) throws IOException, InterruptedException {
-        LOGGER.trace("Listing of libs for user {} with condition {}", ui.getName(), dto);
+        LOGGER.debug("Listing of libs for user {} with condition {}", ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),

@@ -18,34 +18,32 @@ limitations under the License.
 
 package com.epam.dlab.dto.exploratory;
 
-import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class ExploratoryLibsInstallStatusDTO extends StatusEnvBaseDTO<ExploratoryLibsInstallStatusDTO> {
-    @JsonProperty("libs")
-    String libs;//list<String>
+import java.util.List;
 
-    public String getLibs() {
+public class ExploratoryLibInstallDTO extends ExploratoryActionDTO<ExploratoryLibInstallDTO> {
+    @JsonProperty("libs")
+    private List<LibInstallDTO> libs;
+
+    public List<LibInstallDTO> getLibs() {
         return libs;
     }
 
-    public void setLibs(String libs) {
+    public void setLibs(List<LibInstallDTO> libs) {
         this.libs = libs;
     }
 
-    public ExploratoryLibsInstallStatusDTO withLibs(String libs) {
+    public ExploratoryLibInstallDTO withLibs(List<LibInstallDTO> libs) {
         setLibs(libs);
         return this;
     }
+
 
     @Override
     public ToStringHelper toStringHelper(Object self) {
             return super.toStringHelper(self)
                     .add("libs", libs);
-    }
-    @Override
-    public String toString() {
-    	return toStringHelper(this).toString();
     }
 }

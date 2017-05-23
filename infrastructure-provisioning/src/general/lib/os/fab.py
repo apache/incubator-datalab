@@ -26,6 +26,7 @@ import string
 import json, uuid, time, datetime, csv
 from dlab.meta_lib import *
 from dlab.actions_lib import *
+import re
 
 
 def ensure_pip(requisites):
@@ -50,7 +51,11 @@ def install_pip2_pkg(requisites):
         for pip2_pkg in requisites:
             try:
                 sudo('pip2 install ' + pip2_pkg + ' --no-cache-dir')
-                status.append({"group": "pip2", "name": pip2_pkg, "status": "ok", "error_message": ""})
+                res = sudo('pip2 freeze | grep ' + pip2_pkg)
+                ansi_escape = re.compile(r'\x1b[^m]*m')
+                ver = ansi_escape.sub('', res).split("\r\n")
+                version = [i for i in ver if pip2_pkg in i][0].split('==')[1]
+                status.append({"group": "pip2", "name": pip2_pkg, "version": version, "status": "installed"})
             except:
                 status.append({"group": "pip2", "name": pip2_pkg, "status": "error", "error_message": ""})
         return status
@@ -69,7 +74,11 @@ def install_pip3_pkg(requisites):
         for pip3_pkg in requisites:
             try:
                 sudo('pip3 install ' + pip3_pkg + ' --no-cache-dir')
-                status.append({"group": "pip3", "name": pip3_pkg, "status": "ok", "error_message": ""})
+                res = sudo('pip3 freeze | grep ' + pip3_pkg)
+                ansi_escape = re.compile(r'\x1b[^m]*m')
+                ver = ansi_escape.sub('', res).split("\r\n")
+                version = [i for i in ver if pip3_pkg in i][0].split('==')[1]
+                status.append({"group": "pip2", "name": pip3_pkg, "version": version, "status": "installed"})
             except:
                 status.append({"group": "pip3", "name": pip3_pkg, "status": "error", "error_message": ""})
         return status
@@ -508,7 +517,10 @@ def install_r_pkg(requisites):
         for r_pkg in requisites:
             try:
                 sudo('R -e \'install.packages("'+ r_pkg +'", repos="http://cran.us.r-project.org", dep=TRUE)\'')
-                status.append({"group": "r_pkg", "name": r_pkg, "status": "ok", "error_message": ""})
+                res = sudo('R -e \'installed.packages()[,c(3:4)]\' | grep ' + r_pkg)
+                ansi_escape = re.compile(r'\x1b[^m]*m')
+                version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
+                status.append({"group": "r_pkg", "name": r_pkg, "version": version, "status": "installed"})
             except:
                 status.append({"group": "r_pkg", "name": r_pkg, "status": "error", "error_message": ""})
         return status

@@ -19,8 +19,9 @@ limitations under the License.
 package com.epam.dlab.backendapi.core.commands;
 
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
-import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler;
+import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
+import com.epam.dlab.backendapi.core.response.handlers.ResourceCallbackHandler;
 import com.epam.dlab.rest.client.RESTServiceMock;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -79,24 +80,6 @@ public class CommandExecutorMockTest {
 	}
 
 	//todo: refactor both methods
-	private void handleExploratoryLibsInstall(String cmd, DockerAction action) throws Exception {
-		String uuid = UUID.randomUUID().toString();
-		CommandExecutorMock exec = getCommandExecutor();
-		exec.executeAsync("user", uuid, cmd);
-		exec.getResultSync();
-
-		RESTServiceMock selfService = new RESTServiceMock();
-		LibInstallCallbackHandler handler = new LibInstallCallbackHandler(selfService, action,
-				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
-		handler.handle(exec.getResponseFileName(), Files.readAllBytes(Paths.get(exec.getResponseFileName())));
-
-		try {
-			Files.deleteIfExists(Paths.get(exec.getResponseFileName()));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	private void handleExploratoryLibs(String cmd, DockerAction action) throws Exception {
 		String uuid = UUID.randomUUID().toString();
 		CommandExecutorMock exec = getCommandExecutor();
@@ -104,8 +87,12 @@ public class CommandExecutorMockTest {
 		exec.getResultSync();
 
 		RESTServiceMock selfService = new RESTServiceMock();
-		LibListCallbackHandler handler = new LibListCallbackHandler(selfService, action,
+		ResourceCallbackHandler handler = action.equals(DockerAction.LIB_INSTALL) ?
+				new LibInstallCallbackHandler(selfService, action,
+				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec)):
+				new LibListCallbackHandler(selfService, action,
 				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
+
 		handler.handle(exec.getResponseFileName(), Files.readAllBytes(Paths.get(exec.getResponseFileName())));
 
 		try {
@@ -115,6 +102,24 @@ public class CommandExecutorMockTest {
 		}
 	}
 
+//	private void handleExploratoryLibs(String cmd, DockerAction action) throws Exception {
+//		String uuid = UUID.randomUUID().toString();
+//		CommandExecutorMock exec = getCommandExecutor();
+//		exec.executeAsync("user", uuid, cmd);
+//		exec.getResultSync();
+//
+//		RESTServiceMock selfService = new RESTServiceMock();
+//		ResourceCallbackHandler handler = new LibListCallbackHandler(selfService, action,
+//				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
+//		handler.handle(exec.getResponseFileName(), Files.readAllBytes(Paths.get(exec.getResponseFileName())));
+//
+//		try {
+//			Files.deleteIfExists(Paths.get(exec.getResponseFileName()));
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
+//
 
     @Test
     public void describe() throws IOException, InterruptedException, ExecutionException {
@@ -343,7 +348,7 @@ public class CommandExecutorMockTest {
 						"-e \"request_id=2d5c23b8-d312-4fad-8a3c-0b813550d841\" " +
 						"-e \"conf_key_name=BDCC-DSS-POC\" " +
 						"-e \"application=jupyter\" " +
-						"docker.dlab-jupyter --action list_libs";
+						"docker.dlab-jupyter --action lib_list";
 		executeAsync(cmd);
 		handleExploratoryLibs(cmd, DockerAction.LIB_LIST);
 	}
@@ -367,9 +372,9 @@ public class CommandExecutorMockTest {
 						"\t\t\t\t'r_pkg': ['rmarkdown']\n" +
 						"\t\t\t\t}\n" +
 						"\t\t\t\t}\" " +
-						"docker.dlab-jupyter --action install_libs";
+						"docker.dlab-jupyter --action lib_install";
 		executeAsync(cmd);
-		handleExploratoryLibsInstall(cmd, DockerAction.LIB_INSTALL);
+		handleExploratoryLibs(cmd, DockerAction.LIB_INSTALL);
 	}
     
 }

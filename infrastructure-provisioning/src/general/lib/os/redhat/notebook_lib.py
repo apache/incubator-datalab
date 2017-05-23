@@ -331,7 +331,8 @@ def install_os_pkg(requisites):
         for os_pkg in requisites:
             try:
                 sudo('yum -y install ' + os_pkg)
-                status.append({"group": "os_pkg", "name": os_pkg, "status": "ok", "error_message": ""})
+                version = "" # TBD...
+                status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
             except:
                 status.append({"group": "os_pkg", "name": os_pkg, "status": "error", "error_message": ""})
         return status
