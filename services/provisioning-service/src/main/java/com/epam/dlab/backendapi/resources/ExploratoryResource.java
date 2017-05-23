@@ -96,7 +96,7 @@ public class ExploratoryResource implements DockerCommands {
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
-                getFileHandlerCallback(action, uuid, dto));
+                action == DockerAction.LIB_INSTALL ? getLibInstallFileHandlerCallback(action, uuid, dto) : getFileHandlerCallback(action, uuid, dto));
 
         RunDockerCommand runDockerCommand = new RunDockerCommand()
                 .withInteractive()
@@ -118,6 +118,10 @@ public class ExploratoryResource implements DockerCommands {
         return (action == DockerAction.LIB_INSTALL ?
         		new LibInstallCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName()) :
         		new ExploratoryCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName()));
+    }
+
+    private FileHandlerCallback getLibInstallFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
+        return new ExploratoryCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getNotebookImage());
     }
 
     private String nameContainer(String user, DockerAction action, String name) {

@@ -22,27 +22,47 @@ import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+import java.util.List;
+
 public class ExploratoryLibsInstallStatusDTO extends StatusEnvBaseDTO<ExploratoryLibsInstallStatusDTO> {
     @JsonProperty("libs")
-    String libs;//list<String>
+    private List<String> libs;
 
-    public String getLibs() {
+    @JsonProperty
+    private String imageName;
+
+    public List<String> getLibs() {
         return libs;
     }
 
-    public void setLibs(String libs) {
+    public void setLibs(List<String> libs) {
         this.libs = libs;
     }
 
-    public ExploratoryLibsInstallStatusDTO withLibs(String libs) {
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public ExploratoryLibsInstallStatusDTO withLibs(List<String> libs) {
         setLibs(libs);
         return this;
     }
 
+    public ExploratoryLibsInstallStatusDTO withImageName(String imageName) {
+        setImageName(imageName);
+        return this;
+    }
+
+
     @Override
     public ToStringHelper toStringHelper(Object self) {
             return super.toStringHelper(self)
-                    .add("libs", libs);
+                    .add("libs", libs)
+                    .add("imageName", imageName);
     }
     @Override
     public String toString() {
