@@ -66,9 +66,46 @@ limitations under the License.
 }
 .install-libs .mat-ink-bar {
     background-color: #35afd5;
+    width: 50% !important;
 }
+
 .install-libs .mat-tab-labels .mat-tab-label:focus {
     background-color: rgba(53, 175, 213, 0.11);
+}
+
+md-chip.mat-chip {
+    outline: none;
+}
+md-chip.mat-chip a {
+    display: inline-block;
+    width: 12px;
+    cursor: pointer;
+    text-align: right;
+    text-decoration: none;
+}
+.mat-option.mat-selected {
+    color: #35afd5;
+}
+/*.mat-input-placeholder.mat-focused, */
+.mat-input-underline .mat-input-ripple,
+.mat-select-underline
+.mat-input-underline {
+    background-color: #35afd5;
+}
+.mat-input-placeholder.mat-focused,
+.mat-select:focus:not(.mat-select-disabled) .mat-select-trigger,
+.mat-select:focus:not(.mat-select-disabled) .mat-select-arrow,
+.mat-select:focus:not(.mat-select-disabled) .mat-select-underline {
+    color: #35afd5;
+}
+.mat-select:focus:not(.mat-select-disabled) .mat-select-underline {
+    background-color: #35afd5;
+}
+.mat-select-placeholder {
+    font-size: 14px;
+}
+.mat-input-placeholder {
+  font-weight: 400;
 }
 
 [hidden] {

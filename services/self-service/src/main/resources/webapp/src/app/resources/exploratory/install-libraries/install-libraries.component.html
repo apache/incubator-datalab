@@ -28,7 +28,7 @@ limitations under the License.
       <div class="upload-libs info" *ngIf="!libs_uploaded">
         <p>To get started with the installation of libraries you need to wait .............. downloading or some another text</p>
         <div>
-          <button md-raised-button type="button" class="butt">Upload libraries</button>          
+          <button md-raised-button type="button" class="butt" (click)="uploadLibraries()">Upload libraries</button>
         </div>
       </div>
 
@@ -54,11 +54,7 @@ limitations under the License.
         </div>
 
         <div class="list-selected col" *ngIf="selectedLibs.length && libs_uploaded">
-          <div class="info">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tenetur deserunt iste, dignissimos eum ducimus quod amet dicta facilis inventore dolorum 
-          </div>
-          
-          <h3>List of selected libs</h3>
+          <h4>List of selected libs</h4>
           <md-chip-list>
             <md-chip *ngFor="let item of selectedLibs">
               {{ item }}

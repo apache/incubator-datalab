@@ -22,6 +22,7 @@ import 'rxjs/add/operator/startWith';
 import 'rxjs/add/operator/map';
 
 import { LibrariesInstallationService} from '../../../core/services';
+import { HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   selector: 'install-libraries',
@@ -30,16 +31,19 @@ import { LibrariesInstallationService} from '../../../core/services';
 })
 export class InstallLibrariesComponent implements OnInit {
 
+  public notebook: any;
   public filteredList = [];
   public selectedLibs = [];
-  public installedLibs = [];
+  // public installedLibs = [];
   public query: string = '';
 
-  public libs_uploaded: boolean = true;
-  public uploading: boolean = true;
+  public libs_uploaded: boolean = false;
+  public uploading: boolean = false;
+
   public group: string;
 
   private data: any;
+  private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
 
   @ViewChild('bindDialog') bindDialog;
                       
@@ -56,17 +60,39 @@ export class InstallLibrariesComponent implements OnInit {
   constructor(private librariesInstallationService: LibrariesInstallationService) { }
 
   ngOnInit() {
-    this.data = this.librariesInstallationService.getAvailableLibrariesList()
-    // .subscribe(resp => console.log(resp))
-    console.log(this.data);
+    this.bindDialog.onClosing = () => this.resetDialog();
   }
 
-  public filter() {
-    console.log(this.query);
-    console.log(this.group);
+  getFilteredList() {
+    this.data = this.librariesInstallationService
+    .getAvailableLibrariesList(this.notebook.image, this.group, this.query)
+    .subscribe(resp => console.log(resp));
+  }
 
-    if (this.query.length > 0) {
-        this.filteredList = this.data.filter(el => el.toLowerCase().indexOf(this.query.toLowerCase()) > -1);
+  uploadLibraries() {
+    this.uploading = true;
+
+     this.librariesInstallationService.getGroupsList()
+      .subscribe(
+        response => this.libsUploadingStatus(response.status, response),
+        error => this.libsUploadingStatus(error.status, error));
+  }
+
+  private libsUploadingStatus(status: number, data) {
+
+    if (status === HTTP_STATUS_CODES.OK && data.groups) {
+      this.uploading = false;
+      this.libs_uploaded = true
+    } else {
+      console.log("CHECK_GROUPS_TIMEOUT");
+      setTimeout(() => this.uploadLibraries(), this.CHECK_GROUPS_TIMEOUT);
+    }
+  }
+
+  // this.filteredList = this.states.filter(el => el.toLowerCase().indexOf(this.query.toLowerCase()) > -1);
+  public filter() {
+    if (this.query.length >= 3 && this.group) {
+        this.getFilteredList();
     } else {
         this.filteredList = [];
     }
@@ -80,16 +106,24 @@ export class InstallLibrariesComponent implements OnInit {
     this.filteredList = [];
   }
 
-  public remove(item){
+  public remove(item) {
     this.selectedLibs.splice(this.selectedLibs.indexOf(item), 1);
   }
 
   public open(param, notebook): void {
+    this.notebook = notebook;
     this.bindDialog.open(param);
   }
 
   public close(): void {
     if (this.bindDialog.isOpened)
       this.bindDialog.close();
+    this.resetDialog();
+  }
+
+  private resetDialog(): void {
+    this.group = '';
+    this.query = '';
+    this.selectedLibs = [];
   }
 }

@@ -196,6 +196,20 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetGroupsList() {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.LIB_GROUPS),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetAvailableLibrariesList(data) {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.LIB_LIST),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -254,15 +268,5 @@ export class ApplicationServiceFacade {
       headers.append('Authorization', 'Bearer ' + localStorage.getItem(this.accessTokenKey));
     const reqOpt = new RequestOptions({ headers: headers });
     return reqOpt;
-  }
-
-  // mock data just for test
-  public buildGetAvailableLibrariesList() {
-    return [{
-          "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
-          "pip2": {"requests": "N/A", "configparser": "N/A"},
-          "pip3": {"configparser": "N/A"},
-          "r_pkg": {"rmarkdown": "1.5"}
-    }];
   }
 }

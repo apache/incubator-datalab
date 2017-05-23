@@ -26,10 +26,17 @@ import { ApplicationServiceFacade } from './';
 export class LibrariesInstallationService {
 
     constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
-    // : Observable<Response>
-    public getAvailableLibrariesList() {
+
+    public getGroupsList(): Observable<Response> {
         return this.applicationServiceFacade
-        .buildGetAvailableLibrariesList()
-        // .map(response => response);
+        .buildGetGroupsList()
+        .map(response => response);
+    }
+
+    public getAvailableLibrariesList(image, group, match): Observable<Response> {
+        const body = '?image=' + image + '&group=' + group + '&start_with=' + match;
+        return this.applicationServiceFacade
+        .buildGetAvailableLibrariesList(body)
+        .map(response => response);
     }
 }
