@@ -34,7 +34,7 @@ public class LibInstallDTO {
     private String version;
     
     @JsonProperty
-    private LibStatus status;
+    private String status;
 
     @JsonProperty("error_message")
     private String errorMessage;
@@ -82,28 +82,19 @@ public class LibInstallDTO {
         return this;
     }
 
-    public LibStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(LibStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    public void setStatus(String status) {
-    	this.status = LibStatus.of(status);
-    }
-
-    public LibInstallDTO withStatus(LibStatus status) {
-        setStatus(status);
-        return this;
-    }
-    
     public LibInstallDTO withStatus(String status) {
         setStatus(status);
         return this;
     }
-
+    
     /** Returns the error message. */
     public String getErrorMessage() {
     	return errorMessage;
@@ -127,6 +118,7 @@ public class LibInstallDTO {
     			.add("name", name)
     			.add("version", version)
     			.add("status", status)
+    			.add("errorMessage", errorMessage)
     			.toString();
     }
 }

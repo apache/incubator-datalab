@@ -26,15 +26,16 @@ import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.push;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.util.Optional;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
+import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.exceptions.DlabException;
 
 /** DAO for user libraries.
@@ -45,6 +46,7 @@ public class ExploratoryLibDAO extends BaseDAO {
     public static final String LIB_NAME = "name";
     private static final String LIB_VERSION = "version";
     private static final String LIB_INSTALL_DATE = "install_date";
+    private static final String LIB_ERROR_MESSAGE = "error_message";
 	private static final Bson LIB_FIELDS = fields(excludeId(), include(EXPLORATORY_LIBS + ".$"));
 
     private static Bson libraryCondition(String libraryGroup, String libraryName) {
@@ -76,16 +78,33 @@ public class ExploratoryLibDAO extends BaseDAO {
      * @param libraryName the name of library.
      * @exception DlabException
      */
-    public UserInstanceDTO fetchLibraryFields(String user, String exploratoryName, String libraryGroup, String libraryName) throws DlabException {
-        Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
-        		exploratoryCondition(user, exploratoryName),
-        		and(libraryCondition(libraryGroup, libraryName),
-        			LIB_FIELDS),
-                UserInstanceDTO.class);
+    public LibInstallDTO fetchLibraryFields(String user, String exploratoryName, String libraryGroup, String libraryName) throws DlabException {
+        Optional<LibInstallDTO> opt = findOne(USER_INSTANCES,
+        		and(exploratoryCondition(user, exploratoryName),
+        			libraryCondition(libraryGroup, libraryName)),
+        			LIB_FIELDS,
+        		LibInstallDTO.class);
         if( opt.isPresent() ) {
             return opt.get();
         }
         throw new DlabException("Library " + libraryGroup + "." + libraryName + " not found.");
+    }
+
+    /** Finds and returns the status of library.
+     * @param user user name.
+     * @param exploratoryName the name of exploratory.
+     * @param libraryGroup the group name of library.
+     * @param libraryName the name of library.
+     * @exception DlabException
+     */
+    public LibStatus fetchLibraryStatus(String user, String exploratoryName, String libraryGroup, String libraryName) throws DlabException {
+        return LibStatus.of(
+        		findOne(USER_INSTANCES,
+        				and(exploratoryCondition(user, exploratoryName),
+        					libraryCondition(libraryGroup, libraryName)),
+        				fields(include(STATUS), excludeId()))
+        			.orElse(new Document())
+        			.getOrDefault(STATUS, EMPTY).toString());
     }
 
     /** Add the user's library for exploratory into database.
@@ -97,9 +116,9 @@ public class ExploratoryLibDAO extends BaseDAO {
      */
     public boolean addLibrary(String user, String exploratoryName, LibInstallDTO library) throws DlabException {
     	Optional<Document> opt = findOne(USER_INSTANCES,
-        								exploratoryCondition(user, exploratoryName),
-        								libraryCondition(library.getGroup(), library.getName()));
-        if (!opt.isPresent()) {
+        								and(exploratoryCondition(user, exploratoryName),
+        									libraryCondition(library.getGroup(), library.getName())));
+	if (!opt.isPresent()) {
             updateOne(USER_INSTANCES,
             		exploratoryCondition(user, exploratoryName),
                     push(EXPLORATORY_LIBS, convertToBson(library)));
@@ -122,6 +141,9 @@ public class ExploratoryLibDAO extends BaseDAO {
 	        	}
 	        	if (dto.getUptime() != null) {
 	        		values.append(libraryFieldFilter(LIB_INSTALL_DATE), dto.getUptime());
+	        	}
+	        	if (dto.getErrorMessage() != null) {
+	        		values.append(libraryFieldFilter(LIB_ERROR_MESSAGE), dto.getErrorMessage());
 	        	}
 	            updateOne(USER_INSTANCES,
 	            		and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),

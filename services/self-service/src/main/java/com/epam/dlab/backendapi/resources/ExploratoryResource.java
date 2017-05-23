@@ -264,8 +264,6 @@ public class ExploratoryResource implements ExploratoryAPI {
         }
     }
     
-    
-    
     /** Install the libraries to the exploratory environment.
      * @param userInfo user info.
      * @param formDTO description of libraries which will be installed to the exploratory environment.
@@ -279,6 +277,9 @@ public class ExploratoryResource implements ExploratoryAPI {
         		formDTO.getNotebookName(), userInfo.getName(), formDTO);
         try {
         	UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
+        	if (UserInstanceStatus.RUNNING != UserInstanceStatus.of(userInstance.getStatus())) {
+        		throw new DlabException("Exploratory " + formDTO.getNotebookName() + " is not running");
+        	}
             List<LibInstallDTO> libs = new ArrayList<>();
         	ExploratoryLibInstallDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryLibInstallDTO.class)
         			.withNotebookImage(userInstance.getImageName())
@@ -287,10 +288,14 @@ public class ExploratoryResource implements ExploratoryAPI {
                 	.withLibs(libs);
             
         	for (LibInstallDTO lib : formDTO.getLibs()) {
+        		LibStatus status = libraryDAO.fetchLibraryStatus(userInfo.getName(), formDTO.getNotebookName(), lib.getGroup(), lib.getName());
+        		if (status == LibStatus.INSTALLING) {
+        			throw new DlabException("Library " + lib.getName() + " is already installing");
+        		}
         		libs.add(new LibInstallDTO()
         				.withGroup(lib.getGroup())
         				.withName(lib.getName()));
-        		lib.setStatus(LibStatus.INSTALLING);
+        		lib.setStatus(LibStatus.INSTALLING.toString());
         		libraryDAO.addLibrary(userInfo.getName(), formDTO.getNotebookName(), lib);
         	}
         	
@@ -298,8 +303,8 @@ public class ExploratoryResource implements ExploratoryAPI {
             RequestId.put(userInfo.getName(), uuid);
             return Response.ok(uuid).build();
         } catch (DlabException e) {
-        	LOGGER.error("Cannot install libs to exploratory environment {} for user {}",
-        			formDTO.getNotebookName(), userInfo.getName(), e);
+        	LOGGER.error("Cannot install libs to exploratory environment {} for user {}: {}",
+        			formDTO.getNotebookName(), userInfo.getName(), e.getLocalizedMessage(), e);
         	throw new DlabException("Cannot install libraries: " + e.getLocalizedMessage(), e);
         }
     }
@@ -326,7 +331,6 @@ public class ExploratoryResource implements ExploratoryAPI {
 
     	return Response.ok().build();
     }
-
 
     /** Load the libraries for the exploratory environment.
      * @param userInfo user info.
