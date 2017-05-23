@@ -61,6 +61,17 @@ def install_mxnet(args):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(args.os_user)):
         sudo('pip2 install mxnet-cu80')
         sudo('pip3 install mxnet-cu80')
+        sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(args.os_user))
+
+
+def install_torch(args):
+    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(args.os_user)):
+        sudo('git clone https://github.com/torch/distro.git ~/torch --recursive')
+        with cd('/home/{}/torch/'.format(args.os_user)):
+            sudo('bash install-deps;')
+            sudo('./install.sh -b')
+        sudo('source /home/{}/.bashrc'.format(args.os_user))
+        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(args.os_user))
 
 
 def install_cntk(args):
@@ -140,6 +151,9 @@ if __name__ == "__main__":
 
     print "Install GitWeb"
     install_gitweb(args.os_user)
+
+    print "Installing Torch"
+    install_torch(args)
 
     print "Installing ITorch kernel"
     install_itorch(args)
