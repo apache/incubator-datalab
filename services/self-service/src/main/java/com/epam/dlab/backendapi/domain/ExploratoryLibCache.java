@@ -112,7 +112,7 @@ public class ExploratoryLibCache implements Managed {
 			ExploratoryBaseDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryBaseDTO.class);
 			dto.withNotebookImage(imageName)
 				.withApplicationName(ResourceUtils.getApplicationNameFromImage(imageName));
-LOGGER.debug("dto {}", dto);
+
 			String uuid = provisioningService.post(
 					DockerAPI.DOCKER_LIB_LIST,
 					userInfo.getAccessToken(),

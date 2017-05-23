@@ -18,64 +18,65 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.dto.exploratory.ExploratoryLibsInstallStatusDTO;
-import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.rest.client.RESTService;
-import com.fasterxml.jackson.databind.JsonNode;
+import static com.epam.dlab.rest.contracts.ApiCallbacks.EXPLORATORY;
+import static com.epam.dlab.rest.contracts.ApiCallbacks.LIB_STATUS_URI;
+
+import java.io.IOException;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import com.epam.dlab.UserInstanceStatus;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
+import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.rest.client.RESTService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 
-import static com.epam.dlab.rest.contracts.ApiCallbacks.EXPLORATORY;
-
-public class LibInstallCallbackHandler extends ResourceCallbackHandler<ExploratoryLibsInstallStatusDTO> {
+public class LibInstallCallbackHandler extends ResourceCallbackHandler<ExploratoryLibInstallStatusDTO> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibInstallCallbackHandler.class);
-
+	
     private static final String LIBS = "Libs";
+    
+    private static final String LIBS_ABSOLUTE_PATH = RESPONSE_NODE + "." + RESULT_NODE + "." + LIBS;
 
-    private final String imageName;
+    private final String exploratoryName;
 
-    public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String imageName) {
+    public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String exploratoryName) {
         super(selfService, user, uuid, action);
-        this.imageName = imageName;
+        this.exploratoryName = exploratoryName;
     }
 
-    //TODO: usein: put proper url here
 	@Override
     protected String getCallbackURI() {
-        return EXPLORATORY + "INSTALL_LIBBS_URL";
+        return EXPLORATORY + LIB_STATUS_URI;
     }
 
 	@Override
-    protected ExploratoryLibsInstallStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryLibsInstallStatusDTO status) throws DlabException {
+    protected ExploratoryLibInstallStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryLibInstallStatusDTO status) throws DlabException {
         if (resultNode == null) {
-            throw new DlabException("Can't handle response without property " + RESULT_NODE);
+            throw new DlabException("Can't handle response without property " + RESPONSE_NODE + "." + RESULT_NODE);
         }
 
-        JsonNode resultFileNode = resultNode.get(LIBS);
-        if (resultFileNode == null) {
-            throw new DlabException("Can't handle response without property " + LIBS);
+        JsonNode nodeLibs = resultNode.get(LIBS);
+        if (nodeLibs == null) {
+            throw new DlabException("Can't handle response without property " + LIBS_ABSOLUTE_PATH);
         }
-        List<String> libs = new ArrayList();
-        Iterator<JsonNode> iterator = resultFileNode.iterator();
-        while(iterator.hasNext()) {
-            JsonNode next = iterator.next();
-            if(null != next) {
-                libs.add(next.toString());
-            }
-        }
+        try {
+    		status.withLibs(MAPPER.readValue(nodeLibs.toString(), new TypeReference<List<LibInstallDTO>>() {}));
+		} catch (IOException e) {
+			LOGGER.warn("Can't parse field {} for UUID {} in JSON", LIBS_ABSOLUTE_PATH, getUUID(), e);
+		}
 
-
-        return status.withLibs(libs);
+        return status;
     }
 
     @Override
-    protected ExploratoryLibsInstallStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
-        return super.getBaseStatusDTO(status).withImageName(imageName);
+    protected ExploratoryLibInstallStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
+        return super.getBaseStatusDTO(status)
+        		.withExploratoryName(exploratoryName);
     }
 }

@@ -49,10 +49,8 @@ import com.epam.dlab.dto.edge.EdgeInfoDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibListDTO;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
-import com.epam.dlab.dto.status.EnvStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.epam.dlab.rest.contracts.DockerAPI;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -152,7 +150,7 @@ public class InfrastructureProvisionResource implements DockerAPI {
      * @param userInfo user info.
      * @param imageName name of exploratory image.
      */
-    @GET
+    @POST
     @Path("/lib_groups")
     public Iterable<String> getLibGroupList(@Auth UserInfo userInfo, @NotNull String imageName) {
         LOGGER.trace("Loading list of lib groups for user {} and image {}", userInfo.getName(), imageName);
@@ -170,7 +168,7 @@ public class InfrastructureProvisionResource implements DockerAPI {
      * @param userInfo user info.
      * @param formDTO search condition for find libraries for the exploratory environment.
      */
-    @GET
+    @POST
     @Path("/lib_list")
     public Iterable<String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryGetLibsFormDTO formDTO) {
         LOGGER.trace("Loading list of libs for user {} with condition {}", userInfo.getName(), formDTO);
@@ -192,7 +190,7 @@ public class InfrastructureProvisionResource implements DockerAPI {
     @POST
     @Path("/update_lib_list")
     public Response updateLibList(ExploratoryLibListDTO dto) {
-        LOGGER.trace("Updating the list of libraries: {}", dto);
+        LOGGER.debug("Updating the list of libraries for image {}", dto.getImageName());
         RequestId.checkAndRemove(dto.getRequestId());
         try {
         	if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {

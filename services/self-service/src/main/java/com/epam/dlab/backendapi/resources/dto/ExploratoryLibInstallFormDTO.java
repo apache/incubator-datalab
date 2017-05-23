@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources.dto;
 
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
@@ -27,29 +28,28 @@ import org.hibernate.validator.constraints.NotBlank;
 
 /** Stores info about the installation of libraries. 
  * */
-public class ExploratoryInstallLibsFormDTO {
+public class ExploratoryLibInstallFormDTO {
     @NotBlank
-    @JsonProperty("notebook_instance_name")
-    private String notebookInstanceName;
+    @JsonProperty("notebook_name")
+    private String notebookName;
 
-    @NotBlank
     @JsonProperty
-    private List<LibInstallFormDTO> libs;
+    private List<LibInstallDTO> libs;
 
-    /** Returns the name of notebook instance. */
-    public String getNotebookInstanceName() {
-        return notebookInstanceName;
+    /** Returns the name of notebook. */
+    public String getNotebookName() {
+        return notebookName;
     }
 
     /** Returns the name of libraries. */
-    public List<LibInstallFormDTO> getLibs() {
+    public List<LibInstallDTO> getLibs() {
         return libs;
     }
 
     @Override
     public String toString() {
     	return MoreObjects.toStringHelper(this)
-    			.add("notebookInstanceName", notebookInstanceName)
+    			.add("notebookName", notebookName)
     			.add("libs", libs)
     			.toString();
     }

@@ -18,48 +18,32 @@ limitations under the License.
 
 package com.epam.dlab.dto.exploratory;
 
-import com.epam.dlab.dto.StatusBaseDTO;
+import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class ExploratoryLibListDTO extends StatusBaseDTO<ExploratoryLibListDTO> {
+import java.util.List;
 
+public class ExploratoryLibInstallStatusDTO extends StatusEnvBaseDTO<ExploratoryLibInstallStatusDTO> {
     @JsonProperty
-    private String libs;
+    private List<LibInstallDTO> libs;
 
-    @JsonProperty
-    private String imageName;
-
-    public String getLibs() {
+    public List<LibInstallDTO> getLibs() {
         return libs;
     }
 
-    public void setLibs(String libs) {
+    public void setLibs(List<LibInstallDTO> libs) {
         this.libs = libs;
     }
 
-    public ExploratoryLibListDTO withLibs(String libs) {
+    public ExploratoryLibInstallStatusDTO withLibs(List<LibInstallDTO> libs) {
         setLibs(libs);
-        return this;
-    }
-
-    public String getImageName() {
-        return imageName;
-    }
-
-    public void setImageName(String imageName) {
-        this.imageName = imageName;
-    }
-
-    public ExploratoryLibListDTO withImageName(String imageName) {
-        setImageName(imageName);
         return this;
     }
 
     @Override
     public ToStringHelper toStringHelper(Object self) {
-    	return super.toStringHelper(self)
-    			.add("imageName", imageName)
-    			.add("libs", (libs == null ? "null" : "..."));
+            return super.toStringHelper(self)
+                    .add("libs", libs);
     }
 }

@@ -15,7 +15,7 @@
  limitations under the License.
 
  ****************************************************************************/
-package com.epam.dlab.backendapi.resources.dto;
+package com.epam.dlab.dto.exploratory;
 
 /** Statuses for the libraries. */
 public enum LibStatus {

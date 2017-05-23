@@ -29,6 +29,7 @@ import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStopDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -85,9 +86,9 @@ public class ExploratoryResource implements DockerCommands {
         return action(ui.getName(), dto, DockerAction.STOP);
     }
 
-    @Path("/libs_install")
+    @Path("/lib_install")
     @POST
-    public String LibsInstall(@Auth UserInfo ui, ExploratoryBaseDTO dto) throws IOException, InterruptedException {
+    public String libInstall(@Auth UserInfo ui, ExploratoryLibInstallDTO dto) throws IOException, InterruptedException {
         return action(ui.getName(), dto, DockerAction.LIB_INSTALL);
     }
 
@@ -96,7 +97,7 @@ public class ExploratoryResource implements DockerCommands {
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
-                action == DockerAction.LIB_INSTALL ? getLibInstallFileHandlerCallback(action, uuid, dto) : getFileHandlerCallback(action, uuid, dto));
+                getFileHandlerCallback(action, uuid, dto));
 
         RunDockerCommand runDockerCommand = new RunDockerCommand()
                 .withInteractive()
@@ -118,10 +119,6 @@ public class ExploratoryResource implements DockerCommands {
         return (action == DockerAction.LIB_INSTALL ?
         		new LibInstallCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName()) :
         		new ExploratoryCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName()));
-    }
-
-    private FileHandlerCallback getLibInstallFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
-        return new ExploratoryCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getNotebookImage());
     }
 
     private String nameContainer(String user, DockerAction action, String name) {

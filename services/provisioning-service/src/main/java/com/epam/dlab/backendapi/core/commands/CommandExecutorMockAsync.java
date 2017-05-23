@@ -63,7 +63,12 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     
 	@Override
 	public Boolean get() {
-		run();
+		try {
+			run();
+		} catch (Exception e) {
+			LOGGER.error("Command with UUID {} fails: {}", uuid, e.getLocalizedMessage(), e);
+			return false;
+		}
 		return true;
 	}
 

@@ -18,36 +18,24 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.backendapi.core.UserComputationalResourceDTO;
-import com.epam.dlab.backendapi.core.UserInstanceDTO;
-import com.epam.dlab.backendapi.util.DateRemoverUtil;
-import com.epam.dlab.dto.StatusEnvBaseDTO;
-import com.epam.dlab.dto.computational.ComputationalStatusDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
-import com.epam.dlab.exceptions.DlabException;
-import com.mongodb.client.result.UpdateResult;
+import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.elemMatch;
+import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Updates.push;
+
+import java.util.Optional;
+
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.LinkedHashMap;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.not;
-import static com.mongodb.client.model.Projections.*;
-import static com.mongodb.client.model.Updates.push;
-import static com.mongodb.client.model.Updates.set;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-
-
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
-import static com.epam.dlab.UserInstanceStatus.TERMINATED;
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.COMPUTATIONAL_RESOURCES;
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.UPTIME;
+import com.epam.dlab.backendapi.core.UserInstanceDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
+import com.epam.dlab.exceptions.DlabException;
 
 /** DAO for user libraries.
  */
@@ -100,17 +88,17 @@ public class ExploratoryLibDAO extends BaseDAO {
         throw new DlabException("Library " + libraryGroup + "." + libraryName + " not found.");
     }
 
-    /** Add the user's library for notebook into database.
+    /** Add the user's library for exploratory into database.
      * @param user user name.
      * @param exploratoryName name of exploratory.
      * @param library library.
      * @return <b>true</b> if operation was successful, otherwise <b>false</b>.
      * @exception DlabException
      */
-    public boolean addLibrary(String user, String exploratoryName, UserInstanceDTO library) throws DlabException {
-        Optional<Document> opt = findOne(USER_INSTANCES,
+    public boolean addLibrary(String user, String exploratoryName, LibInstallDTO library) throws DlabException {
+    	Optional<Document> opt = findOne(USER_INSTANCES,
         								exploratoryCondition(user, exploratoryName),
-        								libraryCondition(libraryGroup, libraryName));
+        								libraryCondition(library.getGroup(), library.getName()));
         if (!opt.isPresent()) {
             updateOne(USER_INSTANCES,
             		exploratoryCondition(user, exploratoryName),
@@ -121,26 +109,28 @@ public class ExploratoryLibDAO extends BaseDAO {
         }
     }
 
-    /** Updates the info of computational resource in Mongo database.
+    /** Updates the info about libraries for exploratory in Mongo database.
      * @param dto object of computational resource status.
-     * @return The result of an update operation.
      * @exception DlabException
      */
-    public UpdateResult updateLibraryFields(ComputationalStatusDTO dto) throws DlabException {
-        try {
-            Document values = new Document(libraryFieldFilter(STATUS), dto.getStatus());
-        	if (dto.getUptime() != null) {
-        		values.append(libraryFieldFilter(LIB_VERSION), dto.getUptime());
-        	}
-        	if (dto.getInstanceId() != null) {
-        		values.append(libraryFieldFilter(LIB_INSTALL_DATE), dto.getInstanceId());
-        	}
-            return updateOne(USER_INSTANCES,
-            				and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
-            					libraryCondition(libraryGroup, libraryName)),
-                    new Document(SET, values));
-        } catch (Throwable t) {
-            throw new DlabException("Could not update librariy " + libraryGroup + "." + libraryName + " for exploratory " + exploratoryName, t);
-        }
+    public void updateLibraryFields(ExploratoryLibInstallStatusDTO dto) throws DlabException {
+    	for (LibInstallDTO lib : dto.getLibs()) {
+	        try {
+	            Document values = new Document(libraryFieldFilter(STATUS), lib.getStatus());
+	        	if (lib.getVersion() != null) {
+	        		values.append(libraryFieldFilter(LIB_VERSION), lib.getVersion());
+	        	}
+	        	if (dto.getUptime() != null) {
+	        		values.append(libraryFieldFilter(LIB_INSTALL_DATE), dto.getUptime());
+	        	}
+	            updateOne(USER_INSTANCES,
+	            		and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
+	            			libraryCondition(lib.getGroup(), lib.getName())),
+	                    new Document(SET, values));
+	        } catch (Throwable t) {
+	            throw new DlabException("Could not update librariy " + lib.getGroup() + "." + lib.getName() +
+	            		" for exploratory " + dto.getExploratoryName(), t);
+	        }
+    	}
     }
 }
