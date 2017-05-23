@@ -323,7 +323,11 @@ def install_os_pkg(requisites):
         for os_pkg in requisites:
             try:
                 sudo('apt-get -y install ' + os_pkg)
-                status.append({"group": "os_pkg", "name": os_pkg, "status": "ok", "error_message": ""})
+                res = sudo('apt list --installed | grep ' + os_pkg)
+                ansi_escape = re.compile(r'\x1b[^m]*m')
+                ver = ansi_escape.sub('', res).split("\r\n")
+                version = [i for i in ver if os_pkg in i][0].split(' ')[1]
+                status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
             except:
                 status.append({"group": "os_pkg", "name": os_pkg, "status": "error", "error_message": ""})
         sudo('unattended-upgrades -v')

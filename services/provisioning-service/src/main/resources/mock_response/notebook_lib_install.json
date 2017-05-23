@@ -4,11 +4,11 @@
     "result": {
       "Action": "Install additional libs",
       "Libs": [
-          {"group":"os_pkg", "name": "htop", "status": "ok", "error_message": ""},
+          {"group":"os_pkg", "name": "htop", "status": "installed", "version": "2.0.1-1ubuntu1"},
           {"group":"os_pkg", "name": "test_fail_pkg", "status": "error", "error_message": ""},
-          {"group":"pip3", "name": "configparser", "status": "ok", "error_message": ""},
-          {"group":"pip2", "name": "requests", "status": "ok", "error_message": ""},
-          {"group":"pip2", "name": "configparser", "status": "error", "error_message": ""}
+          {"group":"pip3", "name": "configparser", "status": "installed"},
+          {"group":"pip2", "name": "requests", "status": "installed"},
+          {"group":"pip2", "name": "configparser", "status": "installed"}
       ]
     },
     "log": "/var/log/dlab/notebook/notebook_${EDGE_USER_NAME}_${REQUEST_ID}.log"
