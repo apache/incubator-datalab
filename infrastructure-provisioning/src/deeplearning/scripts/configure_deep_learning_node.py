@@ -66,10 +66,10 @@ def install_mxnet(args):
 
 def install_torch(args):
     if not exists('/home/{}/.ensure_dir/torch_ensured'.format(args.os_user)):
-        sudo('git clone https://github.com/torch/distro.git ~/torch --recursive')
+        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
         with cd('/home/{}/torch/'.format(args.os_user)):
-            sudo('bash install-deps;')
-            sudo('./install.sh -b')
+            run('bash install-deps;')
+            run('./install.sh -b')
         run('source /home/{}/.bashrc'.format(args.os_user))
         sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(args.os_user))
 
@@ -82,7 +82,7 @@ def install_cntk(args):
 
 def install_itorch(args):
     if not exists('/home/{}/.ensure_dir/itorch_ensured'.format(args.os_user)):
-        sudo('git clone https://github.com/facebook/iTorch.git')
+        run('git clone https://github.com/facebook/iTorch.git')
         with cd('/home/{}/iTorch/'.format(args.os_user)):
             run('luarocks make')
         sudo('cp -rf /home/{0}/.ipython/kernels/itorch/ /home/{0}/.local/share/jupyter/kernels/'.format(args.os_user))
