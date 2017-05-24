@@ -167,7 +167,7 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 					loginConveyor.cancel(token,LoginStep.AWS_USER_ERROR,"Please contact AWS administrator to create corresponding IAM User");
 				}
 			} else {
-				loginConveyor.add(token,false,LoginStep.AWS_USER);
+				loginConveyor.add(token,false, LoginStep.AWS_USER);
 			}
 		});
 
@@ -184,7 +184,7 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 					loginConveyor.cancel(token,LoginStep.AWS_KEYS_ERROR,"Please contact AWS administrator to activate your Access Key");
 				}
 			} else {
-				loginConveyor.add(token,new ArrayList<AccessKeyMetadata>(),LoginStep.AWS_KEYS);
+				loginConveyor.add(token,new ArrayList<AccessKeyMetadata>(),LoginStep.AWS_KEYS_EMPTY);
 			}
 		});
 

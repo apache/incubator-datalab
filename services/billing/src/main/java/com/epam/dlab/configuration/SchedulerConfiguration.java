@@ -70,6 +70,7 @@ public class SchedulerConfiguration {
 			} catch (Exception e) {
 				throw new ParseException("Cannot parse date " + unitArray[i] + ". " + e.getLocalizedMessage(), e);
 			}
+			date.clear();
 			date.set(1, 1, 1, time[0], time[1], time[2]);
 			realSchedule.put(df.format(date.getTime()), date);
 		}

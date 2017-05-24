@@ -58,6 +58,7 @@ logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.INFO,
                     filename=local_log_filepath)
 mongo_passwd = id_generator()
+keystore_passwd = id_generator()
 
 
 def configure_mongo(mongo_passwd):
@@ -119,7 +120,7 @@ if __name__ == "__main__":
     sudo('echo export DLAB_CONF_DIR >> /etc/profile')
 
     print "Starting Self-Service(UI)"
-    if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path, args.os_user, mongo_passwd,
+    if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path, args.os_user, mongo_passwd, keystore_passwd,
                     args.cloud_provider, args.service_base_name, args.tag_resource_id, args.account_id,
                     args.billing_bucket, args.dlab_path, args.billing_enabled, args.report_path):
         logging.error('Failed to start UI')
