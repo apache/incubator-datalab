@@ -34,21 +34,22 @@ limitations under the License.
 
       <div class="tab-content">
         <div class="search-box col">
-          <md-select placeholder="Select group" [disabled]="!libs_uploaded" [(ngModel)]="group" (change)="filter()">
+          <md-select placeholder="Select group" [disabled]="!libs_uploaded" [(ngModel)]="group" (change)="filterList()">
             <md-option *ngFor="let group of groups_map" [value]="group.value">
               {{ group.label }}
             </md-option>
           </md-select>
 
           <md-input-container>
-            <input mdInput [(ngModel)]=query (keyup)=filter() placeholder="Please enter lib name" [disabled]="!libs_uploaded">
+            <input mdInput [(ngModel)]=query (keyup)=filterList() placeholder="Please enter lib name" [disabled]="!libs_uploaded">
           </md-input-container>
-        
-          <div *ngIf="filteredList.length > 0">
+
+          <div>
             <ul class="suggestions">
               <li *ngFor="let item of filteredList">
-                <a (click)="select(item)">{{item}}</a>
+                <a (click)="selectLibrary(item)">{{item}}</a>
               </li>
+              <!--<li *ngIf="!filteredList?.length">No matches found</li>-->
             </ul>
           </div>
         </div>
@@ -57,8 +58,8 @@ limitations under the License.
           <h4>List of selected libs</h4>
           <md-chip-list>
             <md-chip *ngFor="let item of selectedLibs">
-              {{ item }}
-              <a (click)="remove(item)">x</a>
+              {{ item.name }}
+              <a (click)="removeSelectedLibrary(item)">x</a>
             </md-chip>
           </md-chip-list>
         </div>
@@ -70,7 +71,7 @@ limitations under the License.
 
       <div class="text-center m-top-30 m-bott-10">
         <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
-        <button md-raised-button type="submit" class="butt butt-success" [disabled]="!selectedLibs.length">Install</button>
+        <button md-raised-button type="submit" class="butt butt-success" (click)="installLibs()" [disabled]="!selectedLibs.length">Install</button>
       </div>
     </md-tab>
     <md-tab label="INFO">

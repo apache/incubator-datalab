@@ -27,16 +27,21 @@ export class LibrariesInstallationService {
 
     constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-    public getGroupsList(): Observable<Response> {
+    public getGroupsList(data): Observable<Response> {
         return this.applicationServiceFacade
-        .buildGetGroupsList()
-        .map(response => response);
+        .buildGetGroupsList(data)
+        .map((response: Response) => response.json());
     }
 
-    public getAvailableLibrariesList(image, group, match): Observable<Response> {
-        const body = '?image=' + image + '&group=' + group + '&start_with=' + match;
+    public getAvailableLibrariesList(data): Observable<Response> {
         return this.applicationServiceFacade
-        .buildGetAvailableLibrariesList(body)
-        .map(response => response);
+        .buildGetAvailableLibrariesList(data)
+        .map((response: Response) => response.json());
+    }
+
+    public installLibraries(data): Observable<Response> {
+        return this.applicationServiceFacade
+        .buildInstallLibraries(data)
+        .map((response: Response) => response.json());
     }
 }

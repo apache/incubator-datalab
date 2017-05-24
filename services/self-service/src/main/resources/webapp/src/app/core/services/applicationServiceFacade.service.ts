@@ -42,6 +42,7 @@ export class ApplicationServiceFacade {
   private static readonly EDGE_NODE_RECREATE = 'edge_node_recreate';
   private static readonly LIB_GROUPS = 'lib_groups';
   private static readonly LIB_LIST = 'lib_list';
+  private static readonly LIB_INSTALL = 'lib_install';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -196,16 +197,23 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
-  public buildGetGroupsList() {
-    return this.buildRequest(RequestMethod.Get,
+  public buildGetGroupsList(data) {
+    return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_GROUPS),
-      null,
+      data,
       this.getRequestOptions(true, true));
   }
 
   public buildGetAvailableLibrariesList(data) {
-    return this.buildRequest(RequestMethod.Get,
+    return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_LIST),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildInstallLibraries(data) {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.LIB_INSTALL),
       data,
       this.getRequestOptions(true, true));
   }
@@ -248,6 +256,7 @@ export class ApplicationServiceFacade {
     // Libraries Installation
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/lib_groups');
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_LIST, '/api/infrastructure_provision/lib_list');
+    this.requestRegistry.Add(ApplicationServiceFacade.LIB_INSTALL, '/api/infrastructure_provision/exploratory_environment/lib_install');
   }
 
   private buildRequest(method: RequestMethod, url: string, body: any, opt: RequestOptions): Observable<Response> {

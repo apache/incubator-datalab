@@ -32,17 +32,12 @@ import { HTTP_STATUS_CODES } from '../../../core/util';
 export class InstallLibrariesComponent implements OnInit {
 
   public notebook: any;
-  public filteredList = [];
+  public filteredList: any;
   public selectedLibs = [];
-  // public installedLibs = [];
   public query: string = '';
-
-  public libs_uploaded: boolean = false;
-  public uploading: boolean = false;
-
   public group: string;
-
-  private data: any;
+  public uploading: boolean = false;
+  public libs_uploaded: boolean = false;
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
 
   @ViewChild('bindDialog') bindDialog;
@@ -55,6 +50,7 @@ export class InstallLibrariesComponent implements OnInit {
   ];
 
   // TODO: remove after testing
+  // public test_map = [{'r_pkg': 'R packages'}, {'pip2': 'Python 2'}, {'pip3': 'Python 3'}, {'os_pkg': 'Apt/Yum'}];
   // installedLibs = [{name: "htop", version: '2.0.1-1ubuntu1', status: "installed"}, {name: "htop2", version: '2.0.1-1ubuntu2', status: "failed"}, {name: "htop3", version: '2.0.1-1ubuntu3', status: "installing"}];
 
   constructor(private librariesInstallationService: LibrariesInstallationService) { }
@@ -63,50 +59,54 @@ export class InstallLibrariesComponent implements OnInit {
     this.bindDialog.onClosing = () => this.resetDialog();
   }
 
-  getFilteredList() {
-    this.data = this.librariesInstallationService
-    .getAvailableLibrariesList(this.notebook.image, this.group, this.query)
-    .subscribe(resp => console.log(resp));
-  }
-
   uploadLibraries() {
-    this.uploading = true;
-
-     this.librariesInstallationService.getGroupsList()
+     this.librariesInstallationService.getGroupsList(this.notebook.image)
       .subscribe(
         response => this.libsUploadingStatus(response.status, response),
         error => this.libsUploadingStatus(error.status, error));
   }
 
-  private libsUploadingStatus(status: number, data) {
+  getFilteredList() {
+    this.librariesInstallationService
+    .getAvailableLibrariesList({"image": this.notebook.image, "group": this.group, "start_with": this.query})
+    .subscribe(libs => {
+      this.filteredList = libs;
+    });
+  }
 
-    if (status === HTTP_STATUS_CODES.OK && data.groups) {
-      this.uploading = false;
+  installLibs() {
+    this.librariesInstallationService
+      .installLibraries({
+        notebook_name: this.notebook.name,
+        libs: this.selectedLibs
+      })
+      .subscribe(
+        response => console.log(response),
+        error => console.log(error));
+  }
+
+  private libsUploadingStatus(status: number, data) {
+    if (data.length) {
       this.libs_uploaded = true
+      this.uploading = false;
     } else {
-      console.log("CHECK_GROUPS_TIMEOUT");
+      this.uploading = true;
       setTimeout(() => this.uploadLibraries(), this.CHECK_GROUPS_TIMEOUT);
     }
   }
 
-  // this.filteredList = this.states.filter(el => el.toLowerCase().indexOf(this.query.toLowerCase()) > -1);
-  public filter() {
-    if (this.query.length >= 3 && this.group) {
-        this.getFilteredList();
-    } else {
-        this.filteredList = [];
-    }
+  public filterList() {
+    (this.query.length >= 3 && this.group) ? this.getFilteredList() : this.filteredList = null;
   }
 
-  public select(item){
-    this.selectedLibs.push(item);
-    console.log(this.selectedLibs);
+  public selectLibrary(item){
+    this.selectedLibs.push({group: this.group, name: item});
     
     this.query = '';
-    this.filteredList = [];
+    this.filteredList = null;
   }
 
-  public remove(item) {
+  public removeSelectedLibrary(item) {
     this.selectedLibs.splice(this.selectedLibs.indexOf(item), 1);
   }
 
