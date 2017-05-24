@@ -156,7 +156,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
-            sudo('echo /home/{0}/.bash_profile >> export JRE_HOME={1}'.format(os_user, java_path))
+            sudo('echo "export JRE_HOME={1}" >> /home/{0}/.bashrc'.format(os_user, java_path))
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
             local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
