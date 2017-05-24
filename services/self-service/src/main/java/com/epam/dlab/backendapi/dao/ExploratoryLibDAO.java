@@ -43,18 +43,26 @@ import com.epam.dlab.exceptions.DlabException;
 public class ExploratoryLibDAO extends BaseDAO {
     private static final String EXPLORATORY_LIBS = "libs";
     private static final String LIB_GROUP = "group";
-    public static final String LIB_NAME = "name";
+    private static final String LIB_NAME = "name";
     private static final String LIB_VERSION = "version";
     private static final String LIB_INSTALL_DATE = "install_date";
     private static final String LIB_ERROR_MESSAGE = "error_message";
 	private static final Bson LIB_FIELDS = fields(excludeId(), include(EXPLORATORY_LIBS + ".$"));
 
+	/** Return condition for search library into exploratory data.
+	 * @param libraryGroup the name of group.
+	 * @param libraryName the name of library.
+	 */
     private static Bson libraryCondition(String libraryGroup, String libraryName) {
         return elemMatch(EXPLORATORY_LIBS,
         				and(eq(LIB_GROUP, libraryGroup),
         					eq(LIB_NAME, libraryName)));
     }
     
+    /** Return field filter for libraries properties in exploratory data.
+     * @param fieldName
+     * @return
+     */
     private static String libraryFieldFilter(String fieldName) {
         return EXPLORATORY_LIBS + FIELD_SET_DELIMETER + fieldName;
     }
@@ -63,7 +71,6 @@ public class ExploratoryLibDAO extends BaseDAO {
     /** Finds and returns the list of user libraries. 
      * @param user user name.
      * @param exploratoryName the name of exploratory.
-     * @return
      */
     public Iterable<Document> findLibraries(String user, String exploratoryName) {
     	return find(USER_INSTANCES,

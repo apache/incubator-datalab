@@ -24,18 +24,26 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 
 import java.util.List;
 
+/** Store the info about installed libraries to the exploratory.
+ */
 public class ExploratoryLibInstallStatusDTO extends StatusEnvBaseDTO<ExploratoryLibInstallStatusDTO> {
     @JsonProperty
     private List<LibInstallDTO> libs;
 
+    /** Return the list of libraries.
+     */
     public List<LibInstallDTO> getLibs() {
         return libs;
     }
 
+    /** Set the list of libraries.
+     */
     public void setLibs(List<LibInstallDTO> libs) {
         this.libs = libs;
     }
 
+    /** Set the list of libraries and return this object.
+     */
     public ExploratoryLibInstallStatusDTO withLibs(List<LibInstallDTO> libs) {
         setLibs(libs);
         return this;

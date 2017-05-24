@@ -38,15 +38,29 @@ import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
+/** Handler of docker response for the request for libraries installation.
+ */
 public class LibInstallCallbackHandler extends ResourceCallbackHandler<ExploratoryLibInstallStatusDTO> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibInstallCallbackHandler.class);
 	
+	/** Name of node in response "Libs".
+	 */
     private static final String LIBS = "Libs";
     
+	/** Full name of node in response "Libs".
+	 */
     private static final String LIBS_ABSOLUTE_PATH = RESPONSE_NODE + "." + RESULT_NODE + "." + LIBS;
 
+    /** Name of exploratory.
+     */
     private final String exploratoryName;
 
+    /** Instantiate handler for process of docker response for libraries installation.
+     * @param selfService REST pointer for Self Service.
+     * @param action docker action.
+     * @param uuid request UID.
+     * @param exploratoryName the name of exploratory.
+     */
     public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String exploratoryName) {
         super(selfService, user, uuid, action);
         this.exploratoryName = exploratoryName;

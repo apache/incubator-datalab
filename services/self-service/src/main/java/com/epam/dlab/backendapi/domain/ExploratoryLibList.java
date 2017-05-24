@@ -30,15 +30,20 @@ import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.MoreObjects;
 
+import io.dropwizard.util.Duration;
+
 /** Class to store the info about libraries.
  */
 public class ExploratoryLibList {
 	
 	/**	Timeout in milliseconds when the info is out of date. */
-	private static final long EXPIRED_TIMEOUT_MILLIS = 60000;
+	private static final long EXPIRED_TIMEOUT_MILLIS = Duration.hours(2).toMilliseconds();
 
 	/**	Timeout in milliseconds until the is out of date. */
-	private static final long UPDATE_TIMEOUT_MILLIS = 10000;
+	private static final long UPDATE_TIMEOUT_MILLIS = Duration.minutes(5).toMilliseconds();
+	
+	/**	Timeout in milliseconds for request to update lib. */
+	private static final long UPDATE_REQUEST_TIMEOUT_MILLIS = Duration.minutes(10).toMilliseconds();
 	
 	/** Image name. */
 	private String imageName;
@@ -52,16 +57,22 @@ public class ExploratoryLibList {
 	/**	Last access time in milliseconds to the info. */
 	private long accessTimeMillis = 0;
 	
+	/**	Update start time in milliseconds. */
+	private long updateStartTimeMillis = 0;
+	
 	/** Update in progress. */
 	private boolean updating = false;
 	
 	
-	
 	/** Instantiate the list of libraries.
 	 * @param imageName the name of docker's image.
+	 * @param content JSON string.
 	 */
-	public ExploratoryLibList(String imageName) {
+	public ExploratoryLibList(String imageName, String content) {
 		this.imageName = imageName;
+		if (content != null) {
+			setLibs(content);
+		}
 	}
 	
 	/** Return the list of all groups. */
@@ -91,7 +102,7 @@ public class ExploratoryLibList {
 	 * @param content JSON string.
 	 * @exception DlabException
 	 */
-	public void setLibs(String content) throws DlabException {
+	private void setLibs(String content) throws DlabException {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			synchronized (this) {
@@ -112,13 +123,13 @@ public class ExploratoryLibList {
 				updating = false;
 			}
 		} catch (IOException e) {
-			throw new DlabException("Cannot deserialize lib list. " + e.getLocalizedMessage(), e);
+			throw new DlabException("Cannot deserialize the list of libraries. " + e.getLocalizedMessage(), e);
 		}
 	}
 	
 	/** Search and return the list of libraries for name's prefix <b>startWith</b>.
 	 * @param group the name of group.
-	 * @param startWith the prefix for librarie's name.
+	 * @param startWith the prefix for library name.
 	 */
 	public List<String> getLibs(String group, String startWith) {
 		List<String> libList = getLibs(group);
@@ -126,6 +137,7 @@ public class ExploratoryLibList {
 		if (libList == null) {
 			return list;
 		}
+		
 		int fromIndex = Collections.binarySearch(libList, startWith);
 		if (fromIndex < 0) {
 			fromIndex = -fromIndex;
@@ -170,12 +182,17 @@ public class ExploratoryLibList {
 	/** Set updating in progress.
 	 */
 	public void setUpdating() {
+		updateStartTimeMillis = System.currentTimeMillis();
 		updating = true;
 	}
 	
 	/** Return <b>true</b> if the update in progress.
 	 */
 	public boolean isUpdating() {
+		if (updating &&
+			updateStartTimeMillis + UPDATE_REQUEST_TIMEOUT_MILLIS < System.currentTimeMillis()) {
+			updating = false;
+		}
 		return updating;
 	}
 	
@@ -184,10 +201,11 @@ public class ExploratoryLibList {
 	public String toString() {
 		return MoreObjects.toStringHelper(this)
 				.add("imageName", imageName)
-				.add("isUpdating", updating)
 				.add("expiredTimeMillis", expiredTimeMillis)
 				.add("accessTimeMillis", accessTimeMillis)
-				.add("libs", libs)
+				.add("updateStartTimeMillis", updateStartTimeMillis)
+				.add("isUpdating", updating)
+				.add("libs", (libs == null ? "null" : "..."))
 				.toString();
 	}
 }

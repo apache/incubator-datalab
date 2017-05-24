@@ -79,7 +79,6 @@ public class CommandExecutorMockTest {
 		}
 	}
 
-	//todo: refactor both methods
 	private void handleExploratoryLibs(String cmd, DockerAction action) throws Exception {
 		String uuid = UUID.randomUUID().toString();
 		CommandExecutorMock exec = getCommandExecutor();
@@ -87,7 +86,7 @@ public class CommandExecutorMockTest {
 		exec.getResultSync();
 
 		RESTServiceMock selfService = new RESTServiceMock();
-		ResourceCallbackHandler handler = action.equals(DockerAction.LIB_INSTALL) ?
+		ResourceCallbackHandler<?> handler = action.equals(DockerAction.LIB_INSTALL) ?
 				new LibInstallCallbackHandler(selfService, action,
 				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec)):
 				new LibListCallbackHandler(selfService, action,
@@ -101,25 +100,6 @@ public class CommandExecutorMockTest {
 			e.printStackTrace();
 		}
 	}
-
-//	private void handleExploratoryLibs(String cmd, DockerAction action) throws Exception {
-//		String uuid = UUID.randomUUID().toString();
-//		CommandExecutorMock exec = getCommandExecutor();
-//		exec.executeAsync("user", uuid, cmd);
-//		exec.getResultSync();
-//
-//		RESTServiceMock selfService = new RESTServiceMock();
-//		ResourceCallbackHandler handler = new LibListCallbackHandler(selfService, action,
-//				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
-//		handler.handle(exec.getResponseFileName(), Files.readAllBytes(Paths.get(exec.getResponseFileName())));
-//
-//		try {
-//			Files.deleteIfExists(Paths.get(exec.getResponseFileName()));
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//	}
-//
 
     @Test
     public void describe() throws IOException, InterruptedException, ExecutionException {

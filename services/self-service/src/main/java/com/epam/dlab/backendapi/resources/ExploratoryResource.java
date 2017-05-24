@@ -321,7 +321,7 @@ public class ExploratoryResource implements ExploratoryAPI {
         }
     }
     
-    /** Changes the status of exploratory environment.
+    /** Changes the status of installed libraries for exploratory environment.
      * @param dto description of status.
      * @return 200 OK - if request success.
      * @exception DlabException

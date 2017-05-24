@@ -23,18 +23,26 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 
 import java.util.List;
 
+/** Store info about libraries which user should be installed.
+ */
 public class ExploratoryLibInstallDTO extends ExploratoryActionDTO<ExploratoryLibInstallDTO> {
     @JsonProperty("libs")
     private List<LibInstallDTO> libs;
 
+    /** Return the list of libraries.
+     */
     public List<LibInstallDTO> getLibs() {
         return libs;
     }
 
+    /** Set the list of libraries.
+     */
     public void setLibs(List<LibInstallDTO> libs) {
         this.libs = libs;
     }
 
+    /** Set the list of libraries and return this object.
+     */
     public ExploratoryLibInstallDTO withLibs(List<LibInstallDTO> libs) {
         setLibs(libs);
         return this;
