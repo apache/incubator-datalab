@@ -90,7 +90,7 @@ public class ExploratoryLibCache implements Managed {
 	 * @param group the name of group.
 	 * @param startWith the prefix for library name.
 	 */
-	public List<String> getLibList(UserInfo userInfo, String imageName, String group, String startWith) {
+	public Map<String, String> getLibList(UserInfo userInfo, String imageName, String group, String startWith) {
 		ExploratoryLibList libs = getLibs(userInfo, imageName);
 		return libs.getLibs(group, startWith);
 	}

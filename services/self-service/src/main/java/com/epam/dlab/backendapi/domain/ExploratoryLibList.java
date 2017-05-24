@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,8 +49,8 @@ public class ExploratoryLibList {
 	/** Image name. */
 	private String imageName;
 
-	/**	List of libraries group:libraries. */
-	private Map<String, List<String>> libs = new HashMap<>();
+	/**	List of libraries group:libraries:version. */
+	private Map<String, Map<String, String>> libs = new HashMap<>();
 	
 	/**	Time in milliseconds when the info is out of date. */
 	private long expiredTimeMillis = 0;
@@ -94,7 +95,7 @@ public class ExploratoryLibList {
 	/** Return the full list of libraries for group.
 	 * @param group the name of group.
 	 */
-	public List<String> getLibs(String group) {
+	public Map<String, String> getLibs(String group) {
 		return libs.get(group);
 	}
 	
@@ -111,12 +112,7 @@ public class ExploratoryLibList {
 				Map<String, Map<String, String>> map = mapper.readValue(content, Map.class);
 				for (String groupName : map.keySet()) {
 					Map<String, String> group = map.get(groupName);
-					List<String> libList = new ArrayList<>();
-					for (String libName : group.keySet()) {
-						libList.add(libName);
-					}
-					Collections.sort(libList);
-					libs.put(groupName, libList);
+					libs.put(groupName, new TreeMap<>(group));
 				}
 				expiredTimeMillis = System.currentTimeMillis() + EXPIRED_TIMEOUT_MILLIS;
 				accessTimeMillis = System.currentTimeMillis();
@@ -131,32 +127,25 @@ public class ExploratoryLibList {
 	 * @param group the name of group.
 	 * @param startWith the prefix for library name.
 	 */
-	public List<String> getLibs(String group, String startWith) {
-		List<String> libList = getLibs(group);
-		List<String> list = new ArrayList<>();
-		if (libList == null) {
-			return list;
+	public Map<String, String> getLibs(String group, String startWith) {
+		Map<String, String> libMap = getLibs(group);
+		Map<String, String> map = new TreeMap<>();
+		
+		if (libMap == null) {
+			return map;
 		}
 		
-		int fromIndex = Collections.binarySearch(libList, startWith);
-		if (fromIndex < 0) {
-			fromIndex = -fromIndex;
-			if (fromIndex > libList.size()) {
-				return list;
-			}
-			fromIndex--;
-		}
-		
-		int toIndex = (libList.get(fromIndex).startsWith(startWith) ? libList.size() : fromIndex);
-		for (int i = fromIndex; i < libList.size(); i++) {
-			if (!libList.get(i).startsWith(startWith)) {
-				toIndex = i;
+		boolean found = false;
+		for (String key : libMap.keySet()) {
+			if (key.startsWith(startWith)) {
+				map.put(key, libMap.get(key));
+				found = true;
+			} else if (found) {
 				break;
 			}
 		}
 		
-		list = libList.subList(fromIndex, toIndex);
-		return list;
+		return map;
 	}
 	
 	/** Set last access time.
@@ -169,7 +158,7 @@ public class ExploratoryLibList {
 	 */
 	public boolean isExpired() {
 		touch();
-		return (expiredTimeMillis > System.currentTimeMillis());
+		return (expiredTimeMillis < System.currentTimeMillis());
 	}
 	
 	/** Return <b>true</b> if the info needs to update.
