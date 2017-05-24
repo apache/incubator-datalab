@@ -1,6 +1,6 @@
 <#assign LOG_ROOT_DIR="/var/opt/dlab/log">
 <#assign KEYS_DIR="/home/${sys['user.name']}/keys">
-#<#assign JRE_HOME="JAVA_HOME"
+#<#assign JRE_HOME="JAVA_PATH"
 <#assign KEY_STORE_PATH="${KEYS_DIR}/dlab.keystore.jks">
 <#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
 <#assign TRUST_STORE_PATH="${JRE_HOME}/lib/security/cacerts">
