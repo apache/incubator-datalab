@@ -95,6 +95,7 @@ if __name__ == "__main__":
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
+    env.shell = "/bin/bash -l -i -c"
 
     print "Configuring Deep Learning node."
     try:
