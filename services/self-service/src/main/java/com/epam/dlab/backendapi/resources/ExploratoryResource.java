@@ -18,6 +18,31 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources;
 
+import static com.epam.dlab.UserInstanceStatus.CREATING;
+import static com.epam.dlab.UserInstanceStatus.FAILED;
+import static com.epam.dlab.UserInstanceStatus.STARTING;
+import static com.epam.dlab.UserInstanceStatus.STOPPING;
+import static com.epam.dlab.UserInstanceStatus.TERMINATED;
+import static com.epam.dlab.UserInstanceStatus.TERMINATING;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.UserInstanceDTO;
@@ -26,13 +51,13 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryLibInstallFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.util.ResourceUtils;
+import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
@@ -48,21 +73,8 @@ import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+
 import io.dropwizard.auth.Auth;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import static com.epam.dlab.UserInstanceStatus.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Provides the REST API for the exploratory.
  */
@@ -264,8 +276,6 @@ public class ExploratoryResource implements ExploratoryAPI {
         }
     }
     
-    
-    
     /** Install the libraries to the exploratory environment.
      * @param userInfo user info.
      * @param formDTO description of libraries which will be installed to the exploratory environment.
@@ -279,6 +289,9 @@ public class ExploratoryResource implements ExploratoryAPI {
         		formDTO.getNotebookName(), userInfo.getName(), formDTO);
         try {
         	UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
+        	if (UserInstanceStatus.RUNNING != UserInstanceStatus.of(userInstance.getStatus())) {
+        		throw new DlabException("Exploratory " + formDTO.getNotebookName() + " is not running");
+        	}
             List<LibInstallDTO> libs = new ArrayList<>();
         	ExploratoryLibInstallDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryLibInstallDTO.class)
         			.withNotebookImage(userInstance.getImageName())
@@ -287,10 +300,14 @@ public class ExploratoryResource implements ExploratoryAPI {
                 	.withLibs(libs);
             
         	for (LibInstallDTO lib : formDTO.getLibs()) {
+        		LibStatus status = libraryDAO.fetchLibraryStatus(userInfo.getName(), formDTO.getNotebookName(), lib.getGroup(), lib.getName());
+        		if (status == LibStatus.INSTALLING) {
+        			throw new DlabException("Library " + lib.getName() + " is already installing");
+        		}
         		libs.add(new LibInstallDTO()
         				.withGroup(lib.getGroup())
         				.withName(lib.getName()));
-        		lib.setStatus(LibStatus.INSTALLING);
+        		lib.setStatus(LibStatus.INSTALLING.toString());
         		libraryDAO.addLibrary(userInfo.getName(), formDTO.getNotebookName(), lib);
         	}
         	
@@ -298,13 +315,13 @@ public class ExploratoryResource implements ExploratoryAPI {
             RequestId.put(userInfo.getName(), uuid);
             return Response.ok(uuid).build();
         } catch (DlabException e) {
-        	LOGGER.error("Cannot install libs to exploratory environment {} for user {}",
-        			formDTO.getNotebookName(), userInfo.getName(), e);
+        	LOGGER.error("Cannot install libs to exploratory environment {} for user {}: {}",
+        			formDTO.getNotebookName(), userInfo.getName(), e.getLocalizedMessage(), e);
         	throw new DlabException("Cannot install libraries: " + e.getLocalizedMessage(), e);
         }
     }
     
-    /** Changes the status of exploratory environment.
+    /** Changes the status of installed libraries for exploratory environment.
      * @param dto description of status.
      * @return 200 OK - if request success.
      * @exception DlabException
@@ -326,33 +343,6 @@ public class ExploratoryResource implements ExploratoryAPI {
 
     	return Response.ok().build();
     }
-
-
-    /** Load the libraries for the exploratory environment.
-     * @param userInfo user info.
-     * @param exploratoryName name of exploratory environment.
-     * @return List of user libraries.
-     * @throws DlabException
-     */
-    @GET
-    @Path("/lib_list")
-    public Iterable<String> getLibList(@Auth UserInfo userInfo, @NotNull String exploratoryName) throws DlabException {
-        LOGGER.debug("Load status of user libs for exploratory environment {} for user {}", exploratoryName, userInfo.getName());
-        try {
-        	// TODO Load list of libs status from Mongo
-        	List<String> list = null;
-        	return list;
-        } catch (DlabException e) {
-        	LOGGER.error("Cannot load status of user libs for exploratory environment {} for user {}",
-        			exploratoryName, userInfo.getName(), e);
-        	throw new DlabException("Cannot load the list of libraries: " + e.getLocalizedMessage(), e);
-        }
-    }
-
-    
-    
-    
-    
 
     /** Sends the post request to the provisioning service and update the status of exploratory environment.
      * @param userInfo user info.

@@ -22,6 +22,8 @@ import static com.epam.dlab.rest.contracts.ApiCallbacks.EXPLORATORY;
 import static com.epam.dlab.rest.contracts.ApiCallbacks.LIB_STATUS_URI;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -36,15 +38,29 @@ import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
+/** Handler of docker response for the request for libraries installation.
+ */
 public class LibInstallCallbackHandler extends ResourceCallbackHandler<ExploratoryLibInstallStatusDTO> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LibInstallCallbackHandler.class);
 	
+	/** Name of node in response "Libs".
+	 */
     private static final String LIBS = "Libs";
     
+	/** Full name of node in response "Libs".
+	 */
     private static final String LIBS_ABSOLUTE_PATH = RESPONSE_NODE + "." + RESULT_NODE + "." + LIBS;
 
+    /** Name of exploratory.
+     */
     private final String exploratoryName;
 
+    /** Instantiate handler for process of docker response for libraries installation.
+     * @param selfService REST pointer for Self Service.
+     * @param action docker action.
+     * @param uuid request UID.
+     * @param exploratoryName the name of exploratory.
+     */
     public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String exploratoryName) {
         super(selfService, user, uuid, action);
         this.exploratoryName = exploratoryName;
@@ -77,6 +93,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
     @Override
     protected ExploratoryLibInstallStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
         return super.getBaseStatusDTO(status)
-        		.withExploratoryName(exploratoryName);
+        		.withExploratoryName(exploratoryName)
+        		.withUptime(Date.from(Instant.now()));
     }
 }

@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi.resources;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -46,7 +47,7 @@ import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.edge.EdgeInfoDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryLibListDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryLibListStatusDTO;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -170,9 +171,10 @@ public class InfrastructureProvisionResource implements DockerAPI {
      */
     @POST
     @Path("/lib_list")
-    public Iterable<String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryGetLibsFormDTO formDTO) {
+    public Map<String, String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryGetLibsFormDTO formDTO) {
         LOGGER.trace("Loading list of libs for user {} with condition {}", userInfo.getName(), formDTO);
         try {
+        	//TODO add version of library?
         	return ExploratoryLibCache
         			.getCache()
         			.getLibList(userInfo, formDTO.getImage(), formDTO.getGroup(), formDTO.getStartWith());
@@ -189,13 +191,15 @@ public class InfrastructureProvisionResource implements DockerAPI {
      */
     @POST
     @Path("/update_lib_list")
-    public Response updateLibList(ExploratoryLibListDTO dto) {
+    public Response updateLibList(ExploratoryLibListStatusDTO dto) {
         LOGGER.debug("Updating the list of libraries for image {}", dto.getImageName());
         RequestId.checkAndRemove(dto.getRequestId());
         try {
         	if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {
         		LOGGER.warn("Request for the list of libraries fails: {}", dto.getErrorMessage());
-        		//TODO set error in cache
+        		ExploratoryLibCache
+					.getCache()
+					.removeLibList(dto.getImageName());
         	} else {
         		ExploratoryLibCache
     				.getCache()

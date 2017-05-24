@@ -22,7 +22,9 @@ import com.epam.dlab.dto.StatusBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class ExploratoryLibListDTO extends StatusBaseDTO<ExploratoryLibListDTO> {
+/** Stores the info about image libraries.
+ */
+public class ExploratoryLibListStatusDTO extends StatusBaseDTO<ExploratoryLibListStatusDTO> {
 
     @JsonProperty
     private String libs;
@@ -30,31 +32,45 @@ public class ExploratoryLibListDTO extends StatusBaseDTO<ExploratoryLibListDTO> 
     @JsonProperty
     private String imageName;
 
+    
+    /** Return the list of libraries.
+     */
     public String getLibs() {
         return libs;
     }
 
+    /** Set the list of libraries.
+     */
     public void setLibs(String libs) {
         this.libs = libs;
     }
 
-    public ExploratoryLibListDTO withLibs(String libs) {
+    /** Set the list of libraries and return this object.
+     */
+    public ExploratoryLibListStatusDTO withLibs(String libs) {
         setLibs(libs);
         return this;
     }
 
+    /** Return the name of image.
+     */
     public String getImageName() {
         return imageName;
     }
 
+    /** Set the name of image.
+     */
     public void setImageName(String imageName) {
         this.imageName = imageName;
     }
 
-    public ExploratoryLibListDTO withImageName(String imageName) {
+    /** Set the name of image and return this object.
+     */
+    public ExploratoryLibListStatusDTO withImageName(String imageName) {
         setImageName(imageName);
         return this;
     }
+    
 
     @Override
     public ToStringHelper toStringHelper(Object self) {

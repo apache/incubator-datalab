@@ -48,10 +48,16 @@ public class ExploratoryLibCache implements Managed {
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
 	
+    /** Instance of cache.
+     */
 	private static ExploratoryLibCache libCache;
 	
+	/** List of libraries.
+	 */
 	private Map<String, ExploratoryLibList> cache = new HashMap<>();
 
+	/** Return the list of libraries.
+	 */
 	public static ExploratoryLibCache getCache() {
 		return libCache;
 	}
@@ -68,22 +74,37 @@ public class ExploratoryLibCache implements Managed {
 		cache.clear();
 	}
 	
+	/** Return the list of libraries groups from cache.
+	 * @param userInfo the user info.
+	 * @param imageName the name of docker image.
+	 * @return
+	 */
 	public List<String> getLibGroupList(UserInfo userInfo, String imageName) {
 		ExploratoryLibList libs = getLibs(userInfo, imageName);
 		return libs.getGroupList();
 	}
 
-	public List<String> getLibList(UserInfo userInfo, String imageName, String group, String startWith) {
+	/** Return the list of libraries for docker image and group start with prefix from cache.
+	 * @param userInfo the user info.
+	 * @param imageName the name of image.
+	 * @param group the name of group.
+	 * @param startWith the prefix for library name.
+	 */
+	public Map<String, String> getLibList(UserInfo userInfo, String imageName, String group, String startWith) {
 		ExploratoryLibList libs = getLibs(userInfo, imageName);
 		return libs.getLibs(group, startWith);
 	}
 	
+	/** Return the list of libraries for docker image from cache.
+	 * @param userInfo the user info.
+	 * @param imageName the name of image.
+	 */
 	public ExploratoryLibList getLibs(UserInfo userInfo, String imageName) {
 		ExploratoryLibList libs;
 		synchronized (cache) {
 			libs = cache.get(imageName);
 			if (libs == null) {
-				libs = new ExploratoryLibList(imageName);
+				libs = new ExploratoryLibList(imageName, null);
 				cache.put(imageName, libs);
 			}
 			if (libs.isUpdateNeeded() && !libs.isUpdating()) {
@@ -95,17 +116,31 @@ public class ExploratoryLibCache implements Managed {
 		return libs;
 	}
 
+	/** Update the list of libraries for docker image in cache.
+	 * @param imageName the name of image.
+	 * @param content the content of libraries list.
+	 */
 	public void updateLibList(String imageName, String content) {
 		synchronized (cache) {
-			ExploratoryLibList libs = cache.get(imageName);
-			if (libs == null) {
-				libs = new ExploratoryLibList(imageName);
-				cache.put(imageName, libs);
-			}
-			libs.setLibs(content);
+			cache.remove(imageName);
+			cache.put(imageName,
+					new ExploratoryLibList(imageName, content));
 		}
 	}
 
+	/** Remove the list of libraries for docker image from cache.
+	 * @param imageName
+	 */
+	public void removeLibList(String imageName) {
+		synchronized (cache) {
+			cache.remove(imageName);
+		}
+	}
+
+	/** Send request to provisioning service for the list of libraries.
+	 * @param userInfo the user info.
+	 * @param imageName the name of image.
+	 */
 	private void requestLibList(UserInfo userInfo, String imageName) {
 		try {
 			LOGGER.debug("Ask docker for the list of libraries for user {} and image {}", userInfo.getName(), imageName);
