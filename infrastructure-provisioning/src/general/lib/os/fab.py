@@ -86,6 +86,8 @@ def ensure_local_jars(os_user, s3_jars_dir, files_dir, region, templates_dir):
         try:
             if region == 'us-east-1':
                 endpoint_url = 'https://s3.amazonaws.com'
+            elif region == 'cn-north-1':
+                endpoint_url = "https://s3-{}.amazonaws.com.cn".format(region)
             else:
                 endpoint_url = 'https://s3-' + region + '.amazonaws.com'
             sudo('mkdir -p ' + s3_jars_dir)
@@ -139,6 +141,8 @@ def spark_defaults(args):
         f.write(text)
     if args.region == 'us-east-1':
         endpoint_url = 'https://s3.amazonaws.com'
+    elif args.region == 'cn-north-1':
+        endpoint_url = "https://s3-{}.amazonaws.com.cn".format(args.region)
     else:
         endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
     local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> """ + spark_def_path + """'""")

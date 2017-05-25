@@ -57,6 +57,8 @@ spark_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/'
 yarn_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/conf/'
 if args.region == 'us-east-1':
     endpoint_url = 'https://s3.amazonaws.com'
+elif args.region == 'cn-north-1':
+    endpoint_url = "https://s3-{}.amazonaws.com.cn".format(args.region)
 else:
     endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
 

@@ -29,6 +29,7 @@ parser.add_argument('--role_profile_name', type=str, default='')
 parser.add_argument('--policy_name', type=str, default='')
 parser.add_argument('--policy_arn', type=str, default='')
 parser.add_argument('--policy_file_name', type=str, default='')
+parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 
@@ -39,7 +40,7 @@ if __name__ == "__main__":
             role_name = get_role_by_name(args.role_name)
             if role_name == '':
                 print "Creating role %s, profile name %s" % (args.role_name, args.role_profile_name)
-                create_iam_role(args.role_name, args.role_profile_name)
+                create_iam_role(args.role_name, args.role_profile_name, args.region)
             else:
                 print "ROLE AND ROLE PROFILE ARE ALREADY CREATED"
             print "ROLE %s created. IAM group %s created" % (args.role_name, args.role_profile_name)
