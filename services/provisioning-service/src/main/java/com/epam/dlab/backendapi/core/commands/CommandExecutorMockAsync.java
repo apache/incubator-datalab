@@ -300,7 +300,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			if (isSucces) {
 				lib.setStatus(LibStatus.INSTALLED.toString());
 			} else {
-				lib.setStatus(LibStatus.ERROR.toString());
+				lib.setStatus(LibStatus.FAILED.toString());
 				lib.setErrorMessage("Mock error message");
 			}
 		}

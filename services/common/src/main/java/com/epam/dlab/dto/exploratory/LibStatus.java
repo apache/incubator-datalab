@@ -21,7 +21,7 @@ package com.epam.dlab.dto.exploratory;
 public enum LibStatus {
     INSTALLING,
     INSTALLED,
-    ERROR;
+    FAILED;
 
     @Override
     public String toString() {
