@@ -53,15 +53,7 @@ def ask(question):
             continue
 
 
-if __name__ == "__main__":
-    backup_file = os.path.join(os.path.dirname(__file__), args.file)
-    conf_folder = "conf/"
-    keys_folder = "/home/{}/keys/".format(os.environ['USER'])
-    certs_folder = "/etc/ssl/certs/"
-    jars_folder = "webapp/lib/"
-    temp_folder = ""
-
-    # Backup file section
+def restore_prepare():
     try:
         if os.path.isfile(backup_file):
             head, tail = os.path.split(args.file)
@@ -100,7 +92,8 @@ if __name__ == "__main__":
         print "Failed to stop all services. Can not continue."
         sys.exit(1)
 
-    # Configs section
+
+def restore_configs():
     try:
         if not os.path.isdir("{0}{1}".format(temp_folder, conf_folder)):
             print "Config files are not available in this backup."
@@ -137,7 +130,8 @@ if __name__ == "__main__":
         print "Restore configs failed."
         pass
 
-    # Keys section
+
+def restore_keys():
     try:
         if not os.path.isdir("{}keys".format(temp_folder)):
             print "Key files are not available in this backup."
@@ -173,7 +167,8 @@ if __name__ == "__main__":
         print "Restore keys failed."
         pass
 
-    # Certs section
+
+def restore_certs():
     try:
         if not os.path.isdir("{}certs".format(temp_folder)):
             print "Cert files are not available in this backup."
@@ -211,7 +206,8 @@ if __name__ == "__main__":
         print "Restore certs failed."
         pass
 
-    # Jars section
+
+def restore_jars():
     try:
         if not os.path.isdir("{0}jars".format(temp_folder)):
             print "Jar files are not available in this backup."
@@ -249,7 +245,8 @@ if __name__ == "__main__":
         print "Restore jars failed."
         pass
 
-    # DB section
+
+def restore_database():
     try:
         print "Restore database: ", args.db
         if args.db:
@@ -275,6 +272,8 @@ if __name__ == "__main__":
         print "Restore database failed."
         pass
 
+
+def restore_finalize():
     try:
         if ask("Start all services after restoring?"):
             local("sudo supervisorctl start all")
@@ -286,5 +285,27 @@ if __name__ == "__main__":
             local("rm -rf {}".format(temp_folder))
     except Exception as err:
         print "Clear temp folder failed.", str(err)
+
+
+if __name__ == "__main__":
+    backup_file = os.path.join(os.path.dirname(__file__), args.file)
+    conf_folder = "conf/"
+    keys_folder = "/home/{}/keys/".format(os.environ['USER'])
+    certs_folder = "/etc/ssl/certs/"
+    jars_folder = "webapp/lib/"
+    temp_folder = ""
+
+    # Backup file section
+    restore_prepare()
+
+    # Restore section
+    restore_configs()
+    restore_keys()
+    restore_certs()
+    restore_jars()
+    restore_database()
+
+    # Starting services & cleaning tmp folder
+    restore_finalize()
 
     print "Restore is finished. Good luck."

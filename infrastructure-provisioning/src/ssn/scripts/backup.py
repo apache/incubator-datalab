@@ -35,19 +35,8 @@ parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. 
 parser.add_argument('--logs', action='store_true', default=False, help='All logs (include docker). true - Enable, false - Disable. Default: false')
 args = parser.parse_args()
 
-if __name__ == "__main__":
-    backup_time = strftime("%d_%b_%Y_%H-%M-%S", gmtime())
-    os_user = os.environ['USER']
-    temp_folder = "/tmp/dlab_backup-{}/".format(backup_time)
-    conf_folder = "conf/"
-    keys_folder = "/home/{}/keys/".format(os_user)
-    certs_folder = "/etc/ssl/certs/"
-    all_certs = ["dhparam.pem", "dlab-selfsigned.crt", "dlab-selfsigned.key"]
-    jars_folder = "webapp/lib/"
-    dlab_logs_folder = "/var/log/dlab/"
-    docker_logs_folder = "/var/lib/docker/containers/"
-    dest_file = "{0}tmp/dlab_backup-{1}.tar.gz".format(args.dlab_path, backup_time)
 
+def backup_prepare():
     try:
         local("mkdir {}".format(temp_folder))
         local("mkdir {0}{1}".format(temp_folder, conf_folder))
@@ -63,6 +52,8 @@ if __name__ == "__main__":
         print "Failed to create temp folder.", str(err)
         sys.exit(1)
 
+
+def backup_configs():
     try:
         print "Backup configs: ", args.configs
         if args.configs == "all":
@@ -74,6 +65,8 @@ if __name__ == "__main__":
         print "Backup configs failed."
         pass
 
+
+def backup_keys():
     try:
         print "Backup keys: ", args.keys
         if args.keys == "all":
@@ -85,6 +78,8 @@ if __name__ == "__main__":
         print "Backup keys failed."
         pass
 
+
+def backup_certs():
     try:
         print "Backup certs: ", args.certs
         if args.certs == "skip":
@@ -101,6 +96,8 @@ if __name__ == "__main__":
         print "Backup certs failed."
         pass
 
+
+def backup_jars():
     try:
         print "Backup jars: ", args.jars
         if args.jars == "skip":
@@ -116,6 +113,8 @@ if __name__ == "__main__":
         print "Backup jars failed."
         pass
 
+
+def backup_database():
     try:
         print "Backup db: ", args.db
         if args.db:
@@ -129,6 +128,8 @@ if __name__ == "__main__":
         print "Backup db failed."
         pass
 
+
+def backup_logs():
     try:
         print "Backup logs: ", args.logs
         if args.logs:
@@ -141,6 +142,8 @@ if __name__ == "__main__":
         print "Backup logs failed."
         pass
 
+
+def backup_finalize():
     try:
         print "Compressing all files to archive..."
         local("cd {0} && tar -zcf {1} .".format(temp_folder, dest_file))
@@ -152,5 +155,33 @@ if __name__ == "__main__":
         local("rm -rf {}".format(temp_folder))
     except Exception as err:
         print "Clear temp folder failed.", str(err)
+
+
+if __name__ == "__main__":
+    backup_time = strftime("%d_%b_%Y_%H-%M-%S", gmtime())
+    os_user = os.environ['USER']
+    temp_folder = "/tmp/dlab_backup-{}/".format(backup_time)
+    conf_folder = "conf/"
+    keys_folder = "/home/{}/keys/".format(os_user)
+    certs_folder = "/etc/ssl/certs/"
+    all_certs = ["dhparam.pem", "dlab-selfsigned.crt", "dlab-selfsigned.key"]
+    jars_folder = "webapp/lib/"
+    dlab_logs_folder = "/var/log/dlab/"
+    docker_logs_folder = "/var/lib/docker/containers/"
+    dest_file = "{0}tmp/dlab_backup-{1}.tar.gz".format(args.dlab_path, backup_time)
+
+    # Backup file section
+    backup_prepare()
+
+    # Backup section
+    backup_configs()
+    backup_keys()
+    backup_certs()
+    backup_jars()
+    backup_database()
+    backup_logs()
+
+    # Compressing & cleaning tmp folder
+    backup_finalize()
 
     print "Successfully created backup file: {}".format(dest_file)
