@@ -32,7 +32,9 @@ server:
     appenders:
       - type: file
         currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
-        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d.log
+        archive: true
+        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
+        archivedFileCount: 10
   rootPath: "/api"
   applicationConnectors:
 #    - type: http
