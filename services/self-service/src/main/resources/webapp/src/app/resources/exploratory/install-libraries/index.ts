@@ -19,15 +19,23 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MaterialModule } from '@angular/material';
 
 import { ModalModule } from '../../../shared';
-import { MaterialModule } from '@angular/material';
+import { KeysPipeModule, UnderscorelessPipeModule } from '../../../core/pipes';
 import { InstallLibrariesComponent } from './install-libraries.component';
 
 export * from './install-libraries.component';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalModule, MaterialModule.forRoot()],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ModalModule,
+    KeysPipeModule,
+    MaterialModule.forRoot()
+  ],
   declarations: [InstallLibrariesComponent],
   exports: [InstallLibrariesComponent],
 })

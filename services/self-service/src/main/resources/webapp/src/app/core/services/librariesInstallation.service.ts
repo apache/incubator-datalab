@@ -42,6 +42,6 @@ export class LibrariesInstallationService {
     public installLibraries(data): Observable<Response> {
         return this.applicationServiceFacade
         .buildInstallLibraries(data)
-        .map((response: Response) => response.json());
+        .map((response: Response) => response);
     }
 }

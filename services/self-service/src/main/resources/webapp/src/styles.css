@@ -173,7 +173,8 @@ body {
 }
 
 .running,
-.starting {
+.starting,
+.installed {
   color: #49af38;
 }
 
@@ -183,13 +184,15 @@ body {
 }
 
 .creating,
-.configuring {
+.configuring,
+.installing {
   color: #35afd5;
 }
 
 .terminated,
 .terminating,
-.failed {
+.failed,
+.error {
   color: #f1696e;
 }
 

@@ -40,8 +40,7 @@ limitations under the License.
     padding-top: 30px;
 }
 
-.uploading img {
-    display: block;
+.uploading {
     margin: 0 auto;
 }
 
@@ -110,10 +109,13 @@ limitations under the License.
 .lib-name {
     width: 45%;
 }
-.lib-status {
+.lib-name strong {
+    font-weight: 400;
+}
+.lib-group {
     width: 25%;
 }
-.lib-actions {
+.lib-status {
     width: 30%;
     text-align: center;
 }

@@ -199,7 +199,8 @@ export class ResourcesGridComponent implements OnInit {
           value.error_message,
           value.cost,
           value.currency_code,
-          value.billing);
+          value.billing,
+          value.libs);
       });
     }
   }
@@ -264,8 +265,6 @@ export class ResourcesGridComponent implements OnInit {
     } else if (action === 'terminate') {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.TerminateExploratory);
     } else if (action === 'install') {
-      console.log('install action');
-      
       this.installLibraries.open({ isFooter: false }, data);
     }
   }

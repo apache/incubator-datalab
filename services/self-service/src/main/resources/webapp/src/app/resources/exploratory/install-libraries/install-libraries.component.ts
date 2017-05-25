@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 
 import 'rxjs/add/operator/startWith';
 import 'rxjs/add/operator/map';
@@ -34,24 +34,18 @@ export class InstallLibrariesComponent implements OnInit {
   public notebook: any;
   public filteredList: any;
   public selectedLibs = [];
+  public groupsList: Array<string>;
+
   public query: string = '';
   public group: string;
   public uploading: boolean = false;
   public libs_uploaded: boolean = false;
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
+  public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3','os_pkg': 'Apt/Yum'};
 
   @ViewChild('bindDialog') bindDialog;
-                      
-  public groups_map = [
-    {value: 'r_pkg', label: 'R packages'},
-    {value: 'pip2', label: 'Python 2'},
-    {value: 'pip3', label: 'Python 3'},
-    {value: 'os_pkg', label: 'Apt/Yum'}
-  ];
+  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
-  // TODO: remove after testing
-  // public test_map = [{'r_pkg': 'R packages'}, {'pip2': 'Python 2'}, {'pip3': 'Python 3'}, {'os_pkg': 'Apt/Yum'}];
-  // installedLibs = [{name: "htop", version: '2.0.1-1ubuntu1', status: "installed"}, {name: "htop2", version: '2.0.1-1ubuntu2', status: "failed"}, {name: "htop3", version: '2.0.1-1ubuntu3', status: "installing"}];
 
   constructor(private librariesInstallationService: LibrariesInstallationService) { }
 
@@ -80,13 +74,14 @@ export class InstallLibrariesComponent implements OnInit {
         notebook_name: this.notebook.name,
         libs: this.selectedLibs
       })
-      .subscribe(
-        response => console.log(response),
-        error => console.log(error));
+      .subscribe(response => {
+        this.close();
+      });
   }
 
   private libsUploadingStatus(status: number, data) {
     if (data.length) {
+      this.groupsList = data;
       this.libs_uploaded = true
       this.uploading = false;
     } else {
@@ -100,8 +95,8 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public selectLibrary(item){
-    this.selectedLibs.push({group: this.group, name: item});
-    
+    this.selectedLibs.push({group: this.group, name: item.key, version: item.value});
+
     this.query = '';
     this.filteredList = null;
   }
@@ -110,14 +105,21 @@ export class InstallLibrariesComponent implements OnInit {
     this.selectedLibs.splice(this.selectedLibs.indexOf(item), 1);
   }
 
+  public isEmpty(obj) {
+    if(obj) return Object.keys(obj).length === 0;
+  }
+
   public open(param, notebook): void {
     this.notebook = notebook;
+
+    this.uploadLibraries();
     this.bindDialog.open(param);
   }
 
   public close(): void {
     if (this.bindDialog.isOpened)
       this.bindDialog.close();
+    this.buildGrid.emit();
     this.resetDialog();
   }
 
