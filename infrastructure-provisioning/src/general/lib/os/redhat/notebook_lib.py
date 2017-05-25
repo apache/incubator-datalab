@@ -331,7 +331,8 @@ def install_os_pkg(requisites):
         for os_pkg in requisites:
             try:
                 sudo('yum -y install ' + os_pkg)
-                version = "" # TBD...
+                yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'' + os_pkg + '\'][0]"')
+                version = yum_raw.split('\r\n')[1].replace("'", "\"")
                 status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
             except:
                 status.append({"group": "os_pkg", "name": os_pkg, "status": "error", "error_message": ""})
