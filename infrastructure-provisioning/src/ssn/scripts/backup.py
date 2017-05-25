@@ -21,19 +21,18 @@
 from time import gmtime, strftime
 from fabric.api import *
 import argparse
-# import json
-# import time
 import yaml
 import sys
 import os
 
 parser = argparse.ArgumentParser(description="Backup script for DLab configs, keys, jars, database & logs")
 parser.add_argument('--dlab_path', type=str, default='/opt/dlab/', help='Path to DLab. Default: /opt/dlab/')
-parser.add_argument('--config', type=str, default='all', help='Comma separated names of config files, like "security.yml", etc. Default: all')
-parser.add_argument('--keys', type=str, default='all', help='Users public keys. True - Enable, False - Disable. Default: True')
-parser.add_argument('--jar', type=str, default='all', help='Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip')
-parser.add_argument('--db', type=str, default=True, help='Mongo DB. True - Enable, False - Disable. Default: Enabled')
-parser.add_argument('--logs', type=str, default=False, help='All logs. True - Enable, False - Disable. Default: False')
+parser.add_argument('--configs', type=str, default='all', help='Comma separated names of config files, like "security.yml", etc. Default: all')
+parser.add_argument('--keys', type=str, default='all', help='Comma separated names of keys, like "user_name.pub". Default: all')
+parser.add_argument('--certs', type=str, default='all', help='Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all')
+parser.add_argument('--jars', type=str, default='skip', help='Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip')
+parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. true - Enable, false - Disable. Default: false')
+parser.add_argument('--logs', action='store_true', default=False, help='All logs (include docker). true - Enable, false - Disable. Default: false')
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -42,17 +41,20 @@ if __name__ == "__main__":
     temp_folder = "/tmp/dlab_backup-{}/".format(backup_time)
     conf_folder = "conf/"
     keys_folder = "/home/{}/keys/".format(os_user)
-    jar_folder = "webapp/lib/"
+    certs_folder = "/etc/ssl/certs/"
+    all_certs = ["dhparam.pem", "dlab-selfsigned.crt", "dlab-selfsigned.key"]
+    jars_folder = "webapp/lib/"
     dlab_logs_folder = "/var/log/dlab/"
     docker_logs_folder = "/var/lib/docker/containers/"
-    dest_file = "/home/{0}/dlab_backup-{1}.tar.gz".format(os_user, backup_time)
+    dest_file = "{0}tmp/dlab_backup-{1}.tar.gz".format(args.dlab_path, backup_time)
 
     try:
         local("mkdir {}".format(temp_folder))
         local("mkdir {0}{1}".format(temp_folder, conf_folder))
-        if args.keys:
-            local("mkdir {}keys".format(temp_folder))
-        if args.jar != "skip":
+        local("mkdir {}keys".format(temp_folder))
+        if args.certs != "skip":
+            local("mkdir {}certs".format(temp_folder))
+        if args.jars != "skip":
             local("mkdir {}jars".format(temp_folder))
         if args.logs:
             local("mkdir {}logs".format(temp_folder))
@@ -62,35 +64,54 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print "Backup configs: ", args.config
-        if args.config == "all":
+        print "Backup configs: ", args.configs
+        if args.configs == "all":
             local("find {0}{2} -name '*yml' -exec cp {3} {1}{2} \;".format(args.dlab_path, temp_folder, conf_folder, "{}"))
         else:
-            for conf_file in args.config.split(","):
+            for conf_file in args.configs.split(","):
                 local("cp {0}{2}{3} {1}{2}".format(args.dlab_path, temp_folder, conf_folder, conf_file))
     except:
         print "Backup configs failed."
         pass
 
     try:
-        print "Backup users public keys: ", args.keys
-        if args.keys:
+        print "Backup keys: ", args.keys
+        if args.keys == "all":
             local("cp {0}* {1}keys".format(keys_folder, temp_folder))
+        else:
+            for key_file in args.keys:
+                local("cp {0}{1} {2}keys".format(keys_folder, key_file, temp_folder))
     except:
-        print "Backup users public keys failed."
+        print "Backup keys failed."
         pass
 
     try:
-        print "Backup jars: ", args.jar
-        if args.jar == "skip":
+        print "Backup certs: ", args.certs
+        if args.certs == "skip":
             pass
-        elif args.jar == "all":
-            for root, dirs, files in os.walk("{0}{1}".format(args.dlab_path, jar_folder)):
-                for service in dirs:
-                    local("cp -R {0}{1}{2}* {3}jars".format(args.dlab_path, jar_folder, service, temp_folder))
+        elif args.certs == "all":
+            for cert in all_certs:
+                local("sudo cp {0}{1} {2}certs".format(certs_folder, cert, temp_folder))
+                local("sudo chown {0}:{0} {1}certs/{2} ".format(os_user, temp_folder, cert))
         else:
-            for service in args.jar.split(","):
-                local("cp -R {0}{1}{2}* {3}jars".format(args.dlab_path, jar_folder, service, temp_folder))
+            for cert in args.certs:
+                local("cp {0}{1} {2}certs".format(certs_folder, cert, temp_folder))
+                local("sudo chown {0}:{0} {1}certs/{2} ".format(os_user, temp_folder, cert))
+    except:
+        print "Backup certs failed."
+        pass
+
+    try:
+        print "Backup jars: ", args.jars
+        if args.jars == "skip":
+            pass
+        elif args.jars == "all":
+            for root, dirs, files in os.walk("{0}{1}".format(args.dlab_path, jars_folder)):
+                for service in dirs:
+                    local("cp -R {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
+        else:
+            for service in args.jars.split(","):
+                local("cp -R {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
     except:
         print "Backup jars failed."
         pass
@@ -115,7 +136,7 @@ if __name__ == "__main__":
             local("cp -R {0}* {1}logs".format(dlab_logs_folder, temp_folder))
             print "Backup docker logs"
             local("sudo find {0} -name '*log' -exec cp {2} {1}logs/docker \;".format(docker_logs_folder, temp_folder, "{}"))
-            local("sudo chown -R {0} {1}/logs/docker".format(os_user, temp_folder))
+            local("sudo chown -R {0}:{0} {1}logs/docker".format(os_user, temp_folder))
     except:
         print "Backup logs failed."
         pass
