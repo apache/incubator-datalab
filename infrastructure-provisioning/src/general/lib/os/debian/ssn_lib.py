@@ -159,6 +159,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
             local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
+            local('sed -i "/JAVA_PATH/s/^#//g" /root/templates/ssn.yml'.format(java_path))
             local('sed -i "s|JAVA_PATH|{}|g" /root/templates/ssn.yml'.format(java_path))
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
