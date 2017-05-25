@@ -18,7 +18,25 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.commands;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
+
+import org.apache.commons.codec.Charsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.epam.dlab.UserInstanceStatus;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
+import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.exceptions.DlabException;
@@ -26,20 +44,11 @@ import com.epam.dlab.utils.ServiceUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-import org.apache.commons.codec.Charsets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.Map;
-import java.util.function.Supplier;
 
 public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutorMockAsync.class);
@@ -110,7 +119,6 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			case START:
 			case STOP:
 			case TERMINATE:
-			case LIB_INSTALL:
 				action(user, action);
 				break;
 			case CONFIGURE:
@@ -127,6 +135,9 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 				action(user, action);
 				copyFile("mock_response/notebook_lib_list_pkgs.json", parser.getResponsePath());
 				break;
+			case LIB_INSTALL:
+				parser.getVariables().put("lib_install", getResponseLibInstall(true));
+				action(user, action);
 			default:
 				break;
 			}
@@ -268,6 +279,34 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	
     	try {
 			return MAPPER.writeValueAsString(resourceList);
+		} catch (JsonProcessingException e) {
+			throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
+		}
+    }
+
+    /** Return the section of resource statuses for docker action status.
+     */
+    private String getResponseLibInstall(boolean isSucces) {
+    	List<LibInstallDTO> list;
+    	try {
+        	JsonNode json = MAPPER.readTree(parser.getJson());
+			json = json.get("libs");
+			list = MAPPER.readValue(json.toString(), new TypeReference<List<LibInstallDTO>>() {});
+		} catch (IOException e) {
+			throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
+		}
+    	
+    	for (LibInstallDTO lib : list) {
+			if (isSucces) {
+				lib.setStatus(LibStatus.INSTALLED.toString());
+			} else {
+				lib.setStatus(LibStatus.ERROR.toString());
+				lib.setErrorMessage("Mock error message");
+			}
+		}
+    	
+    	try {
+			return MAPPER.writeValueAsString(list);
 		} catch (JsonProcessingException e) {
 			throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
 		}
