@@ -57,7 +57,7 @@ def install_pip2_pkg(requisites):
                 version = [i for i in ver if pip2_pkg in i][0].split('==')[1]
                 status.append({"group": "pip2", "name": pip2_pkg, "version": version, "status": "installed"})
             except:
-                status.append({"group": "pip2", "name": pip2_pkg, "status": "error", "error_message": ""})
+                status.append({"group": "pip2", "name": pip2_pkg, "status": "failed", "error_message": ""})
         return status
     except:
         return "Fail to install pip2 packages"
@@ -80,7 +80,7 @@ def install_pip3_pkg(requisites):
                 version = [i for i in ver if pip3_pkg in i][0].split('==')[1]
                 status.append({"group": "pip2", "name": pip3_pkg, "version": version, "status": "installed"})
             except:
-                status.append({"group": "pip3", "name": pip3_pkg, "status": "error", "error_message": ""})
+                status.append({"group": "pip3", "name": pip3_pkg, "status": "failed", "error_message": ""})
         return status
     except:
         return "Fail to install pip3 packages"
@@ -522,7 +522,7 @@ def install_r_pkg(requisites):
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
                 status.append({"group": "r_pkg", "name": r_pkg, "version": version, "status": "installed"})
             except:
-                status.append({"group": "r_pkg", "name": r_pkg, "status": "error", "error_message": ""})
+                status.append({"group": "r_pkg", "name": r_pkg, "status": "failed", "error_message": ""})
         return status
     except:
         return "Fail to install R packages"
