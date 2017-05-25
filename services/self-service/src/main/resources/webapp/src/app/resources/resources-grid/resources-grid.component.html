@@ -95,7 +95,7 @@ limitations under the License.
                                                         env.status == 'stopping'">Run</li>
             <li (click)="exploratoryAction(env, 'terminate')" *ngIf="env.status.toLowerCase() == 'running' || env.status.toLowerCase() == 'stopped'">Terminate</li>
             <li (click)="exploratoryAction(env, 'deploy')" *ngIf="env.status != 'stopping' && env.status != 'stopped' && env.status != 'starting'">Deploy EMR</li>
-            <li (click)="exploratoryAction(env, 'install')">Install library</li>
+            <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
           </ul>
         </div>
       </div>

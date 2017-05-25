@@ -24,16 +24,20 @@ limitations under the License.
    
    <md-tab-group>
       <md-tab label="LIBRARIES INSTALLATION">
-        <div class="upload-libs info" *ngIf="!libs_uploaded">
+        <div class="info message" *ngIf="!libs_uploaded && uploading">
           <p>To get started with the installation of libraries you need to wait .....
             downloading or some another text Lorem ipsum dolor sit amet, consectetur
             Lorem ipsum dolor sit amet, consectetur adipisicing elit.
           </p>
+          <div class="uploading">
+            <img src="assets/img/gif-spinner.gif" alt="loading">
+          </div>
         </div>
+        <p class="info message" *ngIf="notebook?.status !== 'running'">Cannot install libraries: Exploratory {{ notebook?.name }} is not running</p>
 
         <div class="tab-content">
           <div class="search-box col" *ngIf="libs_uploaded && !uploading">
-            <md-select placeholder="Select group" [disabled]="!libs_uploaded" [(ngModel)]="group" (change)="filterList()">
+            <md-select placeholder="Select group" [disabled]="!libs_uploaded || notebook.status !== 'running'" [(ngModel)]="group" (change)="filterList()">
               <md-option *ngFor="let group of groupsList" [value]="group">
                 {{ groupsListMap[group] }}
               </md-option>
@@ -60,10 +64,6 @@ limitations under the License.
                 <a (click)="removeSelectedLibrary(item)">x</a>
               </md-chip>
             </md-chip-list>
-          </div>
-
-          <div class="uploading" *ngIf="!libs_uploaded && uploading">
-            <img src="assets/img/gif-spinner.gif" alt="loading">
           </div>
         </div>
 

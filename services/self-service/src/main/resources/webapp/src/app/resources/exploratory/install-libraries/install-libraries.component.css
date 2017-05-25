@@ -31,8 +31,9 @@ limitations under the License.
 }
 
 /* Tab Installation */
-.upload-libs {
+.message {
     padding: 40px 20px;
+    text-align: center;
 }
 .upload-libs div {
     width: 25%;
