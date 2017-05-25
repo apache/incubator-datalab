@@ -85,12 +85,16 @@ limitations under the License.
               <md-list-item *ngFor="let lib of notebook.libs">
                 <div class="lib-name"><strong>{{ lib.name }}</strong> v.{{ lib.version }}</div>
                 <div class="lib-group">{{ groupsListMap[lib.group] }}</div>
-                <div class="lib-status status" ngClass="{{lib.status.toLowerCase() || ''}}">{{ lib.status }}</div>
-                <!--<div class="lib-actions">
-                  <button md-raised-button *ngIf="lib.status === 'installing'" type="button" class="butt">Cancel</button>
-                  <button md-raised-button *ngIf="lib.status === 'error'" type="button" class="butt">Reinstall</button>
-                  <button md-raised-button *ngIf="lib.status === 'installed'" type="button" class="butt">Uninstall</button>
-                </div>-->
+                <div class="lib-status status" ngClass="{{lib.status.toLowerCase() || ''}}">
+                  {{ lib.status }}
+                  <span class="reinstall">
+                    <i class="material-icons"
+                       mdTooltip="Retry installation"
+                       mdTooltipPosition="above"
+                       *ngIf="lib.status === 'error'"
+                       (click)="reInstallSpecificLib(lib)">replay</i>
+                  </span>
+                </div>
               </md-list-item>
             </div>
           </md-list>

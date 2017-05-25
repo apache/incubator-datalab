@@ -118,8 +118,13 @@ limitations under the License.
 .lib-status {
     width: 30%;
     text-align: center;
+    position: relative;
 }
-
+.lib-status .reinstall {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
 .scrollingList {
     max-height: 290px;
     overflow-y: auto;

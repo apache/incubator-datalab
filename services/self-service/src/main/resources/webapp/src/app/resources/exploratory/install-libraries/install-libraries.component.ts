@@ -79,6 +79,17 @@ export class InstallLibrariesComponent implements OnInit {
       });
   }
 
+   reInstallSpecificLib(lib) {
+     this.librariesInstallationService
+      .installLibraries({
+        notebook_name: this.notebook.name,
+        libs: [{group: lib.group, name: lib.name, version: lib.version}]
+      })
+      .subscribe(response => {
+        this.close();
+      });
+   }
+
   private libsUploadingStatus(status: number, data) {
     if (data.length) {
       this.groupsList = data;
