@@ -1,0 +1,131 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+.modal-dialog .install-libs .modal-body {
+    padding: 0 20px;
+}
+
+.info {
+    font-size: 16px;
+    font-weight: 300;
+    color: #35afd5;
+}
+.scrollingList.info p {
+    text-align: center;
+    padding: 40px;
+}
+
+/* Tab Installation */
+.upload-libs {
+    padding: 40px 20px;
+}
+.upload-libs div {
+    width: 25%;
+    margin: 0 auto;
+    padding-top: 30px;
+}
+
+.uploading {
+    margin: 0 auto;
+}
+
+.tab-content {
+    display: flex;
+}
+.tab-content .col {
+    width: 50%;
+}
+.search-box {
+    padding: 40px 25px 0;
+}
+.search-box .mat-select,
+.search-box .mat-input-container {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 25px;
+}
+
+.suggestions {
+    max-height: 150px;
+    overflow-y: auto;
+    text-decoration: none;
+    list-style: none;
+    padding: 0 10px;
+    font-size: 16px;
+    font-weight: 300;
+}
+.suggestions a {
+    padding: 2px;
+    display: block;
+    cursor: pointer;
+    text-decoration: none;
+    color: #718ba6;
+}
+.suggestions a:hover {
+    color: #35afd5;
+}
+.lib-list-header {
+    border-bottom: 1px solid #e0e0e0;
+    color: #577289;
+    position: fixed;
+    width: 100%;
+}
+.list-selected {
+    padding: 15px;
+}
+.list-selected h4 {
+    margin-bottom: 20px;
+    font-size: 14px;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: 400;
+    color: #718ba6;
+}
+.mat-list-item {
+    color: #718ba6 !important;
+    font-size: 14px;
+    font-weight: 300;
+}
+.mat-chip {
+    margin: 3px;
+}
+
+ /* Tab info */
+.lib-name {
+    width: 45%;
+}
+.lib-name strong {
+    font-weight: 400;
+}
+.lib-group {
+    width: 25%;
+}
+.lib-status {
+    width: 30%;
+    text-align: center;
+}
+
+.scrollingList {
+    max-height: 290px;
+    overflow-y: auto;
+    margin-top: 55px;
+}
+
+.mat-tab-labels .mat-ink-bar {
+    background-color: #35afd5;
+}
