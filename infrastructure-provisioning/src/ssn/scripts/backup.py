@@ -25,7 +25,7 @@ import yaml
 import sys
 import os
 
-parser = argparse.ArgumentParser(description="Backup script for DLab configs, keys, jars, database & logs")
+parser = argparse.ArgumentParser(description="Backup script for DLab configs, keys, certs, jars, database & logs")
 parser.add_argument('--dlab_path', type=str, default='/opt/dlab/', help='Path to DLab. Default: /opt/dlab/')
 parser.add_argument('--configs', type=str, default='all', help='Comma separated names of config files, like "security.yml", etc. Default: all')
 parser.add_argument('--keys', type=str, default='all', help='Comma separated names of keys, like "user_name.pub". Default: all')
@@ -153,4 +153,4 @@ if __name__ == "__main__":
     except Exception as err:
         print "Clear temp folder failed.", str(err)
 
-    print "Backup file: {}".format(dest_file)
+    print "Successfully created backup file: {}".format(dest_file)

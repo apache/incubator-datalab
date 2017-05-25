@@ -25,7 +25,7 @@ import yaml
 import sys
 import os
 
-parser = argparse.ArgumentParser(description="Restore script for DLab configs, keys, jars & database")
+parser = argparse.ArgumentParser(description="Restore script for DLab configs, keys, certs, jars & database")
 parser.add_argument('--dlab_path', type=str, default='/opt/dlab/', help='Path to DLab. Default: /opt/dlab/')
 parser.add_argument('--configs', type=str, default='all', help='Comma separated names of config files, like "security.yml", etc. Also available: skip. Default: all')
 parser.add_argument('--keys', type=str, default='all', help='Comma separated names of keys, like "user_name.pub". Also available: skip. Default: all')
@@ -61,6 +61,7 @@ if __name__ == "__main__":
     jars_folder = "webapp/lib/"
     temp_folder = ""
 
+    # Backup file section
     try:
         if os.path.isfile(backup_file):
             head, tail = os.path.split(args.file)
@@ -78,7 +79,7 @@ if __name__ == "__main__":
         print "Backup acrhive: {} contains following files (exclude logs):".format(backup_file)
         local("find {} -not -name '*log'".format(temp_folder))
     except Exception as err:
-        print "Failed to unpack backup archive.", str(err)
+        print "Failed to open backup.", str(err)
         sys.exit(1)
 
     try:
@@ -261,13 +262,13 @@ if __name__ == "__main__":
                         local("mongo --host {0} --port {1} --username {2} --password '{3}' {4} --eval 'db.dropDatabase();'" \
                             .format(data['mongo']['host'], data['mongo']['port'], data['mongo']['username'],
                                     data['mongo']['password'], data['mongo']['database']))
-                        print "Restoring database from backup"
-                        local("mongorestore --host {0} --port {1} --archive={2}mongo.db" \
-                              .format(data['mongo']['host'], data['mongo']['port'], temp_folder))
                 except:
                     print "Failed to drop existing database. Restoring is not possible."
                     print "See: https://docs.mongodb.com/manual/reference/program/mongorestore/"
                     raise Exception
+                print "Restoring database from backup"
+                local("mongorestore --host {0} --port {1} --archive={2}mongo.db" \
+                      .format(data['mongo']['host'], data['mongo']['port'], temp_folder))
             else:
                 print "Restore database was skipped."
     except:
