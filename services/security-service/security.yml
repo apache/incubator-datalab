@@ -120,7 +120,9 @@ server:
     appenders:
       - type: file
         currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-security.log
-        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-security-%d.log
+        archive: true
+        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-security-%d{yyyy-MM-dd}.log.gz
+        archivedFileCount: 10
   applicationConnectors:
     - type: https
       port: 8090

@@ -69,7 +69,6 @@ public class LoginConveyorTest {
         System.out.println("Future now: "+ui);
     }
 
-    @SuppressWarnings("serial")
     @Test
     public void startUserInfoBuildWithoutAws() throws Exception {
         CompletableFuture<UserInfo> uf = lc.startUserInfoBuild("1","test");
