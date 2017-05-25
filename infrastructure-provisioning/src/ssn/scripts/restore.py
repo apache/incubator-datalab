@@ -106,9 +106,7 @@ def restore_configs():
             configs = args.config.split(",")
         print "Restore configs: ", configs
 
-        if args.configs == "skip":
-            pass
-        else:
+        if args.configs != "skip":
             for filename in configs:
                 if not os.path.isfile("{0}{1}{2}".format(temp_folder, conf_folder, filename)):
                     print "Config {} are not available in this backup.".format(filename)
@@ -144,9 +142,7 @@ def restore_keys():
             keys = args.keys.split(",")
         print "Restore keys: ", keys
 
-        if args.keys == "skip":
-            pass
-        else:
+        if args.keys != "skip":
             for filename in keys:
                 if not os.path.isfile("{0}keys/{1}".format(temp_folder, filename)):
                     print "Key {} are not available in this backup.".format(filename)
@@ -181,9 +177,7 @@ def restore_certs():
             certs = args.certs.split(",")
         print "Restore certs: ", certs
 
-        if args.certs == "skip":
-            pass
-        else:
+        if args.certs != "skip":
             for filename in certs:
                 if not os.path.isfile("{0}certs/{1}".format(temp_folder, filename)):
                     print "Cert {} are not available in this backup.".format(filename)
@@ -220,9 +214,7 @@ def restore_jars():
             jars = args.jars.split(",")
         print "Restore configs: ", jars
 
-        if args.jars == "skip":
-            pass
-        else:
+        if args.jars != "skip":
             for service in jars:
                 if not os.path.isdir("{0}jars/{1}".format(temp_folder, service)):
                     print "Jar {} are not available in this backup.".format(service)
