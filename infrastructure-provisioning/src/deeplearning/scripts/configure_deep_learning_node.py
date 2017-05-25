@@ -120,11 +120,11 @@ if __name__ == "__main__":
     print "Install TensorFlow"
     install_tensor(args.os_user, args.tensorflow_version, files_dir, templates_dir)
 
-    #print "Installing Caffe"
-    #install_caffe(args.os_user)
+    print "Installing Caffe"
+    install_caffe(args.os_user)
 
-    #print "Installing Caffe2"
-    #install_caffe2(args.os_user)
+    print "Installing Caffe2"
+    install_caffe2(args.os_user)
 
     print "Install Jupyter"
     configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version)
