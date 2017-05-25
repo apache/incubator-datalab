@@ -335,7 +335,7 @@ def install_os_pkg(requisites):
                 version = yum_raw.split('\r\n')[1].replace("'", "\"")
                 status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
             except:
-                status.append({"group": "os_pkg", "name": os_pkg, "status": "error", "error_message": ""})
+                status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": ""})
         return status
     except:
         return "Fail to install OS packages"

@@ -329,7 +329,7 @@ def install_os_pkg(requisites):
                 version = [i for i in ver if os_pkg in i][0].split(' ')[1]
                 status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
             except:
-                status.append({"group": "os_pkg", "name": os_pkg, "status": "error", "error_message": ""})
+                status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": ""})
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
         return status
