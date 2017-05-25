@@ -224,6 +224,7 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
             sudo(
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/pyspark_local_template.json")
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/pyspark_local_template.json')
+            sudo('sed \'s|\(.*\)"|\1/home/{0}/caffe/python:/home/{0}/caffe2/build:"|\''.format(os_user))
             sudo('\cp /tmp/pyspark_local_template.json ' + pyspark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured')
         except:
@@ -239,6 +240,7 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
             sudo(
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json")
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/py3spark_local_template.json')
+            sudo('sed \'s|\(.*\)"|\1/home/{0}/caffe/python:/home/{0}/caffe2/build:"|\''.format(os_user))
             sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured')
         except:
@@ -283,7 +285,7 @@ def installing_python(region, bucket, user_name, cluster_name):
               ' /usr/bin/python' + python_version[0:3])
 
 
-def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region):
+def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user):
     spark_path = '/opt/' + emr_version + '/' + cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
     kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
@@ -300,10 +302,8 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
     with open(kernel_path, 'w') as f:
         f.write(text)
     local('touch /tmp/kernel_var.json')
-    local(
-        "PYJ=`find /opt/" + emr_version + "/" + cluster_name +
-        "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
-        " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
+    local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'s|\(.*\)\"|\1/home/{3}/caffe/python:/home/{3}/caffe2/build:\"|\' > /tmp/kernel_var.json".
+          format(emr_version, cluster_name, kernel_path, os_user))
     local('sudo mv /tmp/kernel_var.json ' + kernel_path)
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
@@ -327,10 +327,8 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
-        local(
-            "PYJ=`find /opt/" + emr_version + "/" + cluster_name +
-            "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
-            " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
+        local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'s|\(.*\)\"|\1/home/{3}/caffe/python:/home/{3}/caffe2/build:\"|\' > /tmp/kernel_var.json".
+              format(emr_version, cluster_name, kernel_path, os_user))
         local('sudo mv /tmp/kernel_var.json ' + kernel_path)
 
 

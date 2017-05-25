@@ -76,7 +76,8 @@ def install_torch(args):
 
 def install_cntk(args):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(args.os_user)):
-        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc2-cp34-cp34m-linux_x86_64.whl')
+        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl')
+        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl')
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(args.os_user))
 
 
@@ -95,7 +96,6 @@ if __name__ == "__main__":
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
-    env.shell = "/bin/bash -l -i -c"
 
     print "Configuring Deep Learning node."
     try:

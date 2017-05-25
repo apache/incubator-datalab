@@ -305,6 +305,7 @@ def install_gitweb(os_user):
 
 def install_caffe(os_user):
     if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
+        env.shell = "/bin/bash -l -c -i"
         sudo('apt-get install -y python-dev')
         sudo('apt-get install -y python3-dev')
         sudo('apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev '
@@ -334,6 +335,7 @@ def install_caffe(os_user):
 
 def install_caffe2(os_user):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
+        env.shell = "/bin/bash -l -c -i"
         sudo('apt-get update')
         sudo('apt-get install -y --no-install-recommends build-essential cmake git libgoogle-glog-dev libprotobuf-dev'
              ' protobuf-compiler python-dev python-pip')
