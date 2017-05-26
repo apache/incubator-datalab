@@ -101,30 +101,31 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 
 		log.debug("validating username:{} password:****** token:{} ip:{}", username, accessToken,remoteIp);
 		String token = getRandomToken();
-		if (LoginCache.getInstance().getUserInfo(accessToken) != null) {
+		UserInfo ui = getUserInfo(accessToken, remoteIp);
+		if (ui != null) {
 			return Response.ok(accessToken).build();
-		} else {
-			CompletableFuture<UserInfo> uiFuture = loginConveyor.startUserInfoBuild(token,username);
-			loginConveyor.add(token,remoteIp, LoginStep.REMOTE_IP);
-
-			submitLdapLogin(username,password,token);
-			submitLdapInfo(username,token);
-			submitAwsCheck(username,token);
-			submitAwsKeys(username,token);
-
-			try {
-				UserInfo userInfo = uiFuture.get(10,TimeUnit.SECONDS);
-				log.debug("user info collected by conveyor '{}' ", userInfo);
-			} catch (Exception e) {
-				Throwable cause = e.getCause();
-				if(cause == null) {
-					cause = e;
-				}
-				log.error("Conveyor error {}", cause.getMessage());
-				return Response.status(Response.Status.UNAUTHORIZED).entity(cause.getMessage()).build();
-			}
-			return Response.ok(token).build();
 		}
+
+		CompletableFuture<UserInfo> uiFuture = loginConveyor.startUserInfoBuild(token,username);
+		loginConveyor.add(token,remoteIp, LoginStep.REMOTE_IP);
+
+		submitLdapLogin(username,password,token);
+		submitLdapInfo(username,token);
+		submitAwsCheck(username,token);
+		submitAwsKeys(username,token);
+
+		try {
+			UserInfo userInfo = uiFuture.get(10,TimeUnit.SECONDS);
+			log.debug("user info collected by conveyor '{}' ", userInfo);
+		} catch (Exception e) {
+			Throwable cause = e.getCause();
+			if(cause == null) {
+				cause = e;
+			}
+			log.error("Conveyor error {}", cause.getMessage());
+			return Response.status(Response.Status.UNAUTHORIZED).entity(cause.getMessage()).build();
+		}
+		return Response.ok(token).build();
 	}
 
 	private void submitLdapLogin(String username, String password, String token) {
@@ -193,32 +194,51 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 	@Override
 	@POST
 	@Path("/getuserinfo")
-	public UserInfo getUserInfo(String access_token, @Context HttpServletRequest request) {
+	public UserInfo getUserInfo(String accessToken, @Context HttpServletRequest request) {
 		String remoteIp = request.getRemoteAddr();
-		UserInfo ui     = LoginCache.getInstance().getUserInfo(access_token);
+		UserInfo ui     = getUserInfo(accessToken, remoteIp);
 		if(ui == null) {
-			ui = userInfoDao.getUserInfoByAccessToken(access_token);
+			ui = userInfoDao.getUserInfoByAccessToken(accessToken);
 			if( ui != null ) {
-				ui = ui.withToken(access_token);
+				ui = ui.withToken(accessToken);
 				LoginCache.getInstance().save(ui);
-				userInfoDao.updateUserInfoTTL(access_token, ui);
+				userInfoDao.updateUserInfoTTL(accessToken, ui);
 				log.debug("restored UserInfo from DB {}",ui);
 			}
 		} else {
 			log.debug("updating TTL {}",ui);
-			userInfoDao.updateUserInfoTTL(access_token, ui);
+			userInfoDao.updateUserInfoTTL(accessToken, ui);
 		}
-		log.debug("Authorized {} {} {}", access_token, ui, remoteIp);
+		log.debug("Authorized {} {} {}", accessToken, ui, remoteIp);
 		return ui;
 	}
 
 	@Override
 	@POST
 	@Path("/logout")
-	public Response logout(String access_token) {
-		LoginCache.getInstance().removeUserInfo(access_token);
-		userInfoDao.deleteUserInfo(access_token);
-		log.debug("Logged out {}", access_token);
+	public Response logout(String accessToken) {
+		removeUserInfo(accessToken);
+		log.debug("Logged out {}", accessToken);
 		return Response.ok().build();
+	}
+	
+	private UserInfo getUserInfo(String accessToken, String remoteIp) {
+		UserInfo ui = LoginCache.getInstance().getUserInfo(accessToken);
+		if (ui != null &&
+			(remoteIp == null ||
+			 !remoteIp.equals(ui.getRemoteIp()))) {
+			log.debug("Remove user info for token {}. IP address is changed from {} to {}", accessToken, ui.getRemoteIp(), remoteIp);
+			removeUserInfo(accessToken);
+			return null;
+		}
+		return ui;
+	}
+	
+	private void removeUserInfo(String accessToken) {
+		UserInfo ui = LoginCache.getInstance().getUserInfo(accessToken);
+		if (ui != null) {
+			LoginCache.getInstance().removeUserInfo(accessToken);
+			userInfoDao.deleteUserInfo(accessToken);
+		}
 	}
 }
