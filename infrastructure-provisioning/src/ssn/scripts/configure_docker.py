@@ -33,12 +33,21 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--dlab_path', type=str, default='')
 parser.add_argument('--cloud_provider', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
+parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
+
+
+def add_pip_china_repository(dlab_path):
+    with cd('{}sources/base/'.format(dlab_path)):
+        sudo('sed -i "/pip install/s/\([a-zA-Z]\)\s*$/\1\  -i http:\/\/mirrors.aliyun.com\/pypi\/simple --trusted-host mirrors.aliyun.com/g" Dockerfile')
+        sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
 
 
 def build_docker_images(image_list):
     try:
         local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, env.host_string, args.dlab_path))
+        if args.region == 'cn-north-1':
+            add_pip_china_repository(args.dlab_path)
         for image in image_list:
             name = image['name']
             tag = image['tag']
