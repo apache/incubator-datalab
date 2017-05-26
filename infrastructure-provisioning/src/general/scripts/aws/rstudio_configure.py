@@ -89,8 +89,8 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO R_STUDIO NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO R_STUDIO NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {}".format(instance_hostname, keyfile_name,
-                                                               os.environ['conf_os_user'])
+        params = "--hostname {} --keyfile {} --user {} --region {}".\
+            format(instance_hostname, keyfile_name, os.environ['conf_os_user'], os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:

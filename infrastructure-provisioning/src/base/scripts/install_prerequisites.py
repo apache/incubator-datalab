@@ -32,7 +32,15 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--pip_packages', type=str, default='boto3 argparse fabric awscli')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 parser.add_argument('--user', type=str, default='')
+parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
+
+
+def create_china_pip_conf_file():
+    sudo('touch /etc/pip.conf')
+    sudo('echo "[global]" >> /etc/pip.conf')
+    sudo('echo "timeout = 600" >> /etc/pip.conf')
+    sudo('echo "index-url = http://mirrors.aliyun.com/pypi/simple" >> /etc/pip.conf')
 
 
 if __name__ == "__main__":
@@ -41,6 +49,9 @@ if __name__ == "__main__":
     env.key_filename = [args.keyfile]
     env.host_string = '{}@{}'.format(args.user, args.hostname)
     deeper_config = json.loads(args.additional_config)
+
+    if args.region == 'cn-north-1':
+        create_china_pip_conf_file()
 
     print "Updating repositories and installing requested tools."
     if not ensure_pkg(args.user):
