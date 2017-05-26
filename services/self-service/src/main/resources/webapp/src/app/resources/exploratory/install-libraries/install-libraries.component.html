@@ -25,10 +25,7 @@ limitations under the License.
    <md-tab-group>
       <md-tab label="LIBRARIES INSTALLATION">
         <div class="info message" *ngIf="!libs_uploaded && uploading">
-          <p>To get started with the installation of libraries you need to wait .....
-            downloading or some another text Lorem ipsum dolor sit amet, consectetur
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-          </p>
+          <p>Please wait until DLab loads full list of available libraries for you...</p>
           <div class="uploading">
             <img src="assets/img/gif-spinner.gif" alt="loading">
           </div>
@@ -91,7 +88,7 @@ limitations under the License.
                     <i class="material-icons"
                        mdTooltip="Retry installation"
                        mdTooltipPosition="above"
-                       *ngIf="lib.status === 'error'"
+                       *ngIf="lib.status === 'failed'"
                        (click)="reInstallSpecificLib(lib)">replay</i>
                   </span>
                 </div>
