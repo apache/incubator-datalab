@@ -24,6 +24,7 @@ import json
 from dlab.fab import *
 from dlab.common_lib import ensure_pkg
 import sys
+import os
 
 
 parser = argparse.ArgumentParser()
@@ -40,8 +41,8 @@ def create_china_pip_conf_file():
     sudo('touch /etc/pip.conf')
     sudo('echo "[global]" >> /etc/pip.conf')
     sudo('echo "timeout = 600" >> /etc/pip.conf')
-    sudo('echo "index-url = https://pypi.doubanio.com/simple/" >> /etc/pip.conf')
-    sudo('echo "trusted-host = pypi.doubanio.com" >> /etc/pip.conf')
+    sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
+    sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
 
 
 if __name__ == "__main__":
