@@ -18,6 +18,8 @@ limitations under the License.
 
 package com.epam.dlab.dto.exploratory;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
@@ -108,6 +110,19 @@ public class LibInstallDTO {
     public LibInstallDTO withErrorMessage(String errorMessage) {
     	setErrorMessage(errorMessage);
         return this;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+    	if (obj == null && !(obj instanceof LibInstallDTO)) {
+    		return false;
+    	}
+    	LibInstallDTO lib = (LibInstallDTO)obj;
+    	return (StringUtils.equals(group, lib.group) &&
+    			StringUtils.equals(name, lib.name) &&
+    			StringUtils.equals(version, lib.version) &&
+    			StringUtils.equals(status, lib.status) &&
+    			StringUtils.equals(errorMessage, lib.errorMessage));
     }
 
     

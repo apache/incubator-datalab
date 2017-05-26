@@ -304,9 +304,13 @@ public class ExploratoryResource implements ExploratoryAPI {
         		if (status == LibStatus.INSTALLING) {
         			throw new DlabException("Library " + lib.getName() + " is already installing");
         		}
-        		libs.add(new LibInstallDTO()
-        				.withGroup(lib.getGroup())
-        				.withName(lib.getName()));
+        		LibInstallDTO newLib = new LibInstallDTO()
+        								.withGroup(lib.getGroup())
+        								.withName(lib.getName());
+				if (libs.contains(newLib)) {
+					continue;
+				}
+        		libs.add(newLib);
         		lib.setStatus(LibStatus.INSTALLING.toString());
         		libraryDAO.addLibrary(userInfo.getName(), formDTO.getNotebookName(), lib);
         	}
