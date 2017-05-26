@@ -42,7 +42,7 @@ export class InstallLibrariesComponent implements OnInit {
   public uploading: boolean = false;
   public libs_uploaded: boolean = false;
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
-  public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3','os_pkg': 'Apt/Yum'};
+  public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum'};
 
   @ViewChild('bindDialog') bindDialog;
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();

@@ -243,7 +243,7 @@ export class ResourcesGridComponent implements OnInit {
   printDetailEnvironmentModal(data): void {
     this.detailDialog.open({ isFooter: false }, data);
   }
-  
+
   printCostDetails(data): void {
     this.costDetailsDialog.open({ isFooter: false }, data);
   }

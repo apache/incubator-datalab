@@ -35,6 +35,10 @@ export class InstallLibrariesModel {
     private continueWith: Function;
     private librariesInstallationService: LibrariesInstallationService;
 
+    static getDefault(librariesInstallationService): InstallLibrariesModel {
+        return new InstallLibrariesModel('', () => { }, () => { }, null, librariesInstallationService);
+    }
+
     constructor(
         notebook: any,
         fnProcessResults: any,
@@ -44,14 +48,10 @@ export class InstallLibrariesModel {
     ) {
         this.notebook = notebook;
         this.continueWith = continueWith;
-        this.librariesInstallationService = librariesInstallationService
+        this.librariesInstallationService = librariesInstallationService;
         this.prepareModel(fnProcessResults, fnProcessErrors);
 
         if (this.continueWith) this.continueWith();
-    }
-
-    static getDefault(librariesInstallationService): InstallLibrariesModel {
-        return new InstallLibrariesModel('', () => { }, () => { }, null, librariesInstallationService);
     }
 
     public getLibrariesList(group: string, query: string): Observable<Response> {
@@ -63,7 +63,7 @@ export class InstallLibrariesModel {
             });
     }
 
-    private installLibraries(retry?: Library): Observable<Response> {        
+    private installLibraries(retry?: Library): Observable<Response> {
         return this.librariesInstallationService.installLibraries({
             notebook_name: this.notebook.name,
             libs: (retry ? [{group: retry.group, name: retry.name, version: retry.version}] : this.selectedLibs)
@@ -71,7 +71,7 @@ export class InstallLibrariesModel {
     }
 
     public isEmpty(obj) {
-        if(obj) return Object.keys(obj).length === 0;
+        if (obj) return Object.keys(obj).length === 0;
     }
 
     private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
