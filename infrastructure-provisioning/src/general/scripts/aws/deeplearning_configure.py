@@ -68,8 +68,8 @@ if __name__ == "__main__":
 
     # updating repositories & installing python packages
     try:
-        logging.info('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
-        print('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
+        logging.info('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
+        print('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {}".format(instance_hostname, keyfile_name,
                                                                os.environ['conf_os_user'])
         try:
