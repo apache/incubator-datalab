@@ -66,6 +66,22 @@ if __name__ == "__main__":
     edge_instance_hostname = get_instance_hostname(edge_instance_name)
     keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
 
+    # updating repositories & installing python packages
+    try:
+        logging.info('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
+        print('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
+        params = "--hostname {} --keyfile {} --user {}".format(instance_hostname, keyfile_name,
+                                                               os.environ['conf_os_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed installing apps: apt & pip.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     # configuring proxy on Notebook instance
     try:
         logging.info('[CONFIGURE PROXY ON DEEP LEARNING INSTANCE]')
