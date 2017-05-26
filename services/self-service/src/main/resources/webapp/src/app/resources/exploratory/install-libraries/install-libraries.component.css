@@ -121,11 +121,17 @@ limitations under the License.
     text-align: center;
     position: relative;
 }
-.lib-status .reinstall {
+.lib-status .reinstall,
+.lib-status .lib-error {
     position: absolute;
     top: 0;
-    right: 0;
+    right: 15px;
     cursor: pointer;
+}
+.lib-status .lib-error {
+    right: -10px;
+    color: #35afd5;
+    cursor: help;
 }
 .scrollingList {
     max-height: 290px;
