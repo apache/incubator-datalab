@@ -40,8 +40,8 @@ def create_china_pip_conf_file():
     sudo('touch /etc/pip.conf')
     sudo('echo "[global]" >> /etc/pip.conf')
     sudo('echo "timeout = 600" >> /etc/pip.conf')
-    sudo('echo "index-url = http://mirrors.aliyun.com/pypi/simple" >> /etc/pip.conf')
-    sudo('echo "trusted-host = mirrors.aliyun.com" >> /etc/pip.conf')
+    sudo('echo "index-url = https://pypi.doubanio.com/simple/" >> /etc/pip.conf')
+    sudo('echo "trusted-host = pypi.doubanio.com" >> /etc/pip.conf')
 
 
 if __name__ == "__main__":
