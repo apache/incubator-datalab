@@ -280,6 +280,13 @@ def installing_python(region, bucket, user_name, cluster_name):
         local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
         local(venv_command + ' && sudo -i ' + pip_command +
               ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
+        if os.environ['application'] == 'deeplearning':
+            local(venv_command + ' && sudo -i ' + pip_command +
+                  ' install mxnet-cu80 opencv-python keras Theano --no-cache-dir')
+            python_without_dots = python_version.replace('.', '')
+            local(venv_command + ' && sudo -i ' + pip_command +
+                  ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
+                  format(python_without_dots[:2]))
         local('sudo rm -rf /usr/bin/python' + python_version[0:3])
         local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
               ' /usr/bin/python' + python_version[0:3])
