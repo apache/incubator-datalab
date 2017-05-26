@@ -24,7 +24,7 @@ import 'rxjs/add/operator/map';
 
 import { InstallLibrariesModel } from './';
 import { LibrariesInstallationService} from '../../../core/services';
-import { HTTP_STATUS_CODES } from '../../../core/util';
+import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   selector: 'install-libraries',
@@ -41,8 +41,11 @@ export class InstallLibrariesComponent implements OnInit {
   public group: string;
   public uploading: boolean = false;
   public libs_uploaded: boolean = false;
-  private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
+  public processError: boolean = false;
+  public errorMessage: string = '';
   public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum'};
+
+  private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
 
   @ViewChild('bindDialog') bindDialog;
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
@@ -95,7 +98,10 @@ export class InstallLibrariesComponent implements OnInit {
           this.buildGrid.emit();
         }
       },
-      (response: Response) => { },
+      (response: Response) => {
+        this.processError = true;
+        this.errorMessage = ErrorMapUtils.setErrorMessage(response);
+      },
       () => {
         this.bindDialog.open(param);
         this.uploadLibraries();
@@ -129,6 +135,9 @@ export class InstallLibrariesComponent implements OnInit {
   private resetDialog(): void {
     this.group = '';
     this.query = '';
+
+    this.processError = false;
+    this.errorMessage = '';
     this.model.selectedLibs = [];
   }
 }

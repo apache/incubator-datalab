@@ -46,7 +46,7 @@ limitations under the License.
             <div>
               <ul class="suggestions">
                 <li *ngFor="let item of (filteredList | keys)">
-                  <a (click)="selectLibrary(item)">{{item.key}} {{item.value}}</a>
+                  <a (click)="selectLibrary(item)">{{ item.key }} {{ item.value }}</a>
                 </li>
                 <li *ngIf="model.isEmpty(filteredList)">No matches found</li>
               </ul>
@@ -57,13 +57,15 @@ limitations under the License.
             <h4>List of selected libs</h4>
             <md-chip-list>
               <md-chip *ngFor="let item of model.selectedLibs">
-                {{ item.name }} {{item.version}}
+                {{ item.name }} {{ item.version }}
                 <a (click)="removeSelectedLibrary(item)">x</a>
               </md-chip>
             </md-chip-list>
           </div>
         </div>
-
+        <div class="text-right" *ngIf="processError">
+          <small class="danger_color">{{ errorMessage }}</small>
+        </div>
         <div class="text-center m-top-30 m-bott-10">
           <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
           <button md-raised-button type="submit" class="butt butt-success" (click)="installLibs()" [disabled]="!model.selectedLibs.length">Install</button>
@@ -90,6 +92,12 @@ limitations under the License.
                        mdTooltipPosition="above"
                        *ngIf="lib.status === 'failed'"
                        (click)="reInstallSpecificLib(lib)">replay</i>
+                  </span>
+                  <span class="lib-error">
+                    <i class="material-icons"
+                       mdTooltip="{{ lib.error_message }}"
+                       mdTooltipPosition="above"
+                       *ngIf="lib.status === 'failed' && lib.error_message">error_outline</i>
                   </span>
                 </div>
               </md-list-item>
