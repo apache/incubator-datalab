@@ -58,6 +58,7 @@ limitations under the License.
             <md-chip-list>
               <md-chip *ngFor="let item of model.selectedLibs">
                 {{ item.name }} {{ item.version }}
+                <strong>({{ groupsListMap[item.group] }})</strong>
                 <a (click)="removeSelectedLibrary(item)">x</a>
               </md-chip>
             </md-chip-list>

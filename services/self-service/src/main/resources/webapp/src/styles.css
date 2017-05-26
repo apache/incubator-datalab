@@ -73,15 +73,21 @@ limitations under the License.
     background-color: rgba(53, 175, 213, 0.11);
 }
 
-md-chip.mat-chip {
+.install-libs md-chip.mat-chip {
     outline: none;
+    color: #758ea8;
 }
-md-chip.mat-chip a {
+.install-libs md-chip.mat-chip a {
     display: inline-block;
     width: 12px;
     cursor: pointer;
     text-align: right;
     text-decoration: none;
+}
+
+.install-libs md-chip.mat-chip strong {
+    font-size: 10px;
+    font-weight: 300;
 }
 .mat-option.mat-selected {
     color: #35afd5;
