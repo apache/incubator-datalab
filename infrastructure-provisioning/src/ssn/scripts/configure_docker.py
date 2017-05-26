@@ -70,7 +70,7 @@ if __name__ == "__main__":
         sys.exit(2)
 
     print "Installing docker daemon"
-    if not ensure_docker_daemon(args.dlab_path, args.os_user):
+    if not ensure_docker_daemon(args.dlab_path, args.os_user, args.region):
         sys.exit(1)
 
     print "Building dlab images"
