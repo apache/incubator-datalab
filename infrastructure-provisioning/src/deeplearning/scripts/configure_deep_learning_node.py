@@ -66,8 +66,8 @@ def install_keras(args):
 
 def install_mxnet(args):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(args.os_user)):
-        sudo('pip2 install mxnet-cu80')
-        sudo('pip3 install mxnet-cu80')
+        sudo('pip2 install mxnet-cu80 opencv-python')
+        sudo('pip3 install mxnet-cu80 opencv-python')
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(args.os_user))
 
 
