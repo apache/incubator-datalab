@@ -57,6 +57,13 @@ toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snaps
 scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 
 
+def install_keras(args):
+    if not exists('/home/{}/.ensure_dir/keras_ensured'.format(args.os_user)):
+        sudo('pip2 install keras')
+        sudo('pip3 install keras')
+        sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(args.os_user))
+
+
 def install_mxnet(args):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(args.os_user)):
         sudo('pip2 install mxnet-cu80')
@@ -164,4 +171,7 @@ if __name__ == "__main__":
 
     print "Installing MXNET"
     install_mxnet(args)
+
+    print "Installing Keras"
+    install_keras(args)
 
