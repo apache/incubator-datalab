@@ -26,7 +26,9 @@ server:
     appenders:
       - type: file
         currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-provisioning.log
-        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-provisioning-%d.log
+        archive: true
+        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-provisioning-%d{yyyy-MM-dd}.log.gz
+        archivedFileCount: 10
   applicationConnectors:
 #    - type: http
     - type: https
