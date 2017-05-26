@@ -39,8 +39,8 @@ args = parser.parse_args()
 
 def add_pip_china_repository(dlab_path):
     with cd('{}sources/base/'.format(dlab_path)):
-        sudo('sed -i "/pip install/s/\([a-zA-Z]\)\s*$/\1\  -i http:\/\/mirrors.aliyun.com\/pypi\/simple --trusted-host mirrors.aliyun.com --timeout 600/g" Dockerfile')
-        sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
+        sudo('sed -i "/pip install/s/\([a-zA-Z]\)\s*$/\1\  -i https\:\/\/pypi.doubanio.com\/simpl --trusted-host pypi.doubanio.com --timeout 600/g" Dockerfile')
+        # sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
 
 
 def build_docker_images(image_list):
