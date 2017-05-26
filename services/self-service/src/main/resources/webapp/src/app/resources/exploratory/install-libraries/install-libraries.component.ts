@@ -17,10 +17,12 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Response } from '@angular/http';
 
 import 'rxjs/add/operator/startWith';
 import 'rxjs/add/operator/map';
 
+import { InstallLibrariesModel } from './';
 import { LibrariesInstallationService} from '../../../core/services';
 import { HTTP_STATUS_CODES } from '../../../core/util';
 
@@ -31,11 +33,10 @@ import { HTTP_STATUS_CODES } from '../../../core/util';
 })
 export class InstallLibrariesComponent implements OnInit {
 
+  public model: InstallLibrariesModel;
   public notebook: any;
   public filteredList: any;
-  public selectedLibs = [];
   public groupsList: Array<string>;
-
   public query: string = '';
   public group: string;
   public uploading: boolean = false;
@@ -46,97 +47,88 @@ export class InstallLibrariesComponent implements OnInit {
   @ViewChild('bindDialog') bindDialog;
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
-
-  constructor(private librariesInstallationService: LibrariesInstallationService) { }
+  constructor(private librariesInstallationService: LibrariesInstallationService) {
+    this.model = InstallLibrariesModel.getDefault(librariesInstallationService);
+  }
 
   ngOnInit() {
     this.bindDialog.onClosing = () => this.resetDialog();
   }
 
-  uploadLibraries() {
+  uploadLibraries(): void {
      this.librariesInstallationService.getGroupsList(this.notebook.image)
       .subscribe(
         response => this.libsUploadingStatus(response.status, response),
         error => this.libsUploadingStatus(error.status, error));
   }
 
-  getFilteredList() {
-    this.librariesInstallationService
-    .getAvailableLibrariesList({"image": this.notebook.image, "group": this.group, "start_with": this.query})
-    .subscribe(libs => {
-      this.filteredList = libs;
-    });
+  public installLibs(): void {
+    this.model.confirmAction();
   }
 
-  installLibs() {
-    this.librariesInstallationService
-      .installLibraries({
-        notebook_name: this.notebook.name,
-        libs: this.selectedLibs
-      })
-      .subscribe(response => {
-        this.close();
-      });
+  public reInstallSpecificLib(retry: any): void {
+    this.model.confirmAction(retry);
   }
 
-   reInstallSpecificLib(lib) {
-     this.librariesInstallationService
-      .installLibraries({
-        notebook_name: this.notebook.name,
-        libs: [{group: lib.group, name: lib.name, version: lib.version}]
-      })
-      .subscribe(response => {
-        this.close();
-      });
-   }
-
-  private libsUploadingStatus(status: number, data) {
-    if (data.length) {
-      this.groupsList = data;
-      this.libs_uploaded = true
-      this.uploading = false;
-    } else {
-      this.uploading = true;
-      setTimeout(() => this.uploadLibraries(), this.CHECK_GROUPS_TIMEOUT);
-    }
-  }
-
-  public filterList() {
+  public filterList(): void {
     (this.query.length >= 3 && this.group) ? this.getFilteredList() : this.filteredList = null;
   }
 
-  public selectLibrary(item){
-    this.selectedLibs.push({group: this.group, name: item.key, version: item.value});
+  public selectLibrary(item): void {
+    this.model.selectedLibs.push({group: this.group, name: item.key, version: item.value});
 
     this.query = '';
     this.filteredList = null;
   }
 
-  public removeSelectedLibrary(item) {
-    this.selectedLibs.splice(this.selectedLibs.indexOf(item), 1);
-  }
-
-  public isEmpty(obj) {
-    if(obj) return Object.keys(obj).length === 0;
+  public removeSelectedLibrary(item): void {
+    this.model.selectedLibs.splice(this.model.selectedLibs.indexOf(item), 1);
   }
 
   public open(param, notebook): void {
-    this.notebook = notebook;
+    if (!this.bindDialog.isOpened)
+      this.notebook = notebook;
 
-    this.uploadLibraries();
-    this.bindDialog.open(param);
+      this.model = new InstallLibrariesModel(notebook, (response: Response) => {
+        if (response.status === HTTP_STATUS_CODES.OK) {
+          this.close();
+          this.buildGrid.emit();
+        }
+      },
+      (response: Response) => { },
+      () => {
+        this.bindDialog.open(param);
+        this.uploadLibraries();
+      },
+      this.librariesInstallationService);
   }
 
   public close(): void {
     if (this.bindDialog.isOpened)
       this.bindDialog.close();
-    this.buildGrid.emit();
+
     this.resetDialog();
+  }
+
+  private libsUploadingStatus(status: number, groupsList): void {
+    if (groupsList.length) {
+      this.groupsList = groupsList;
+      this.libs_uploaded = true;
+      this.uploading = false;
+    } else {
+      this.libs_uploaded = false;
+      this.uploading = true;
+      setTimeout(() => this.uploadLibraries(), this.CHECK_GROUPS_TIMEOUT);
+    }
+  }
+
+  private getFilteredList(): void {
+    this.model.getLibrariesList(this.group, this.query).subscribe(libs => this.filteredList = libs);
   }
 
   private resetDialog(): void {
     this.group = '';
     this.query = '';
-    this.selectedLibs = [];
+    this.model.selectedLibs = [];
   }
 }

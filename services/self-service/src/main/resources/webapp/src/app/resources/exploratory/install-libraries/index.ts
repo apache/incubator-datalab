@@ -26,6 +26,7 @@ import { KeysPipeModule, UnderscorelessPipeModule } from '../../../core/pipes';
 import { InstallLibrariesComponent } from './install-libraries.component';
 
 export * from './install-libraries.component';
+export * from './install-libraries.model';
 
 @NgModule({
   imports: [

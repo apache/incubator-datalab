@@ -125,6 +125,7 @@ limitations under the License.
     position: absolute;
     top: 0;
     right: 0;
+    cursor: pointer;
 }
 .scrollingList {
     max-height: 290px;

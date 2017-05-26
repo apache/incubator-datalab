@@ -35,15 +35,15 @@ limitations under the License.
         </div>
         <p class="info message" *ngIf="notebook?.status !== 'running'">Cannot install libraries: Exploratory {{ notebook?.name }} is not running</p>
 
-        <div class="tab-content">
+        <div *ngIf="notebook?.status === 'running'" class="tab-content">
           <div class="search-box col" *ngIf="libs_uploaded && !uploading">
-            <md-select placeholder="Select group" [disabled]="!libs_uploaded || notebook.status !== 'running'" [(ngModel)]="group" (change)="filterList()">
+            <md-select [(ngModel)]="group" (change)="filterList()" placeholder="Select group">
               <md-option *ngFor="let group of groupsList" [value]="group">
                 {{ groupsListMap[group] }}
               </md-option>
             </md-select>
             <md-input-container>
-              <input mdInput [(ngModel)]=query (keyup)=filterList() placeholder="Please enter lib name" [disabled]="!libs_uploaded">
+              <input mdInput [(ngModel)]="query" (keyup)="filterList()" placeholder="Enter library name">
             </md-input-container>
 
             <div>
@@ -51,15 +51,15 @@ limitations under the License.
                 <li *ngFor="let item of (filteredList | keys)">
                   <a (click)="selectLibrary(item)">{{item.key}} {{item.value}}</a>
                 </li>
-                <li *ngIf="isEmpty(filteredList)">No matches found</li>
+                <li *ngIf="model.isEmpty(filteredList)">No matches found</li>
               </ul>
             </div>
           </div>
 
-          <div class="list-selected col" *ngIf="selectedLibs.length && libs_uploaded">
+          <div class="list-selected col" *ngIf="model.selectedLibs.length && libs_uploaded">
             <h4>List of selected libs</h4>
             <md-chip-list>
-              <md-chip *ngFor="let item of selectedLibs">
+              <md-chip *ngFor="let item of model.selectedLibs">
                 {{ item.name }} {{item.version}}
                 <a (click)="removeSelectedLibrary(item)">x</a>
               </md-chip>
@@ -69,7 +69,7 @@ limitations under the License.
 
         <div class="text-center m-top-30 m-bott-10">
           <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
-          <button md-raised-button type="submit" class="butt butt-success" (click)="installLibs()" [disabled]="!selectedLibs.length">Install</button>
+          <button md-raised-button type="submit" class="butt butt-success" (click)="installLibs()" [disabled]="!model.selectedLibs.length">Install</button>
         </div>
       </md-tab>
       <md-tab label="INFO">
