@@ -2,7 +2,7 @@
 
 mocked: false
 
-keyDirectory: /home/${sys['user.name']}/keys
+keyDirectory: ${KEYS_DIR}
 responseDirectory: /opt/dlab/tmp
 dockerLogDirectory: ${LOG_ROOT_DIR}
 warmupPollTimeout: 10s
@@ -26,13 +26,27 @@ server:
     appenders:
       - type: file
         currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-provisioning.log
-        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-provisioning-%d.log
+        archive: true
+        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-provisioning-%d{yyyy-MM-dd}.log.gz
+        archivedFileCount: 10
   applicationConnectors:
-    - type: http
+#    - type: http
+    - type: https
       port: 8084
+      certAlias: dlab
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-    - type: http
+#    - type: http
+    - type: https
       port: 8085
+      certAlias: dlab
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 logging:
   level: INFO

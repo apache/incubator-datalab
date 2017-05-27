@@ -234,7 +234,9 @@ if __name__ == "__main__":
         print "SSN bucket name: " + user_bucket_name
         print "Region: " + region
         jenkins_url = "http://{}/jenkins".format(get_instance_hostname(instance_name))
+        jenkins_url_https = "https://{}/jenkins".format(get_instance_hostname(instance_name))
         print "Jenkins URL: " + jenkins_url
+        print "Jenkins URL HTTPS: " + jenkins_url_https
         try:
             with open('jenkins_crids.txt') as f:
                 print f.read()

@@ -32,14 +32,30 @@ server:
     appenders:
       - type: file
         currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
-        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d.log
+        archive: true
+        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
+        archivedFileCount: 10
   rootPath: "/api"
   applicationConnectors:
-    - type: http
-      port: 8080
+#    - type: http
+#      port: 8080
+    - type: https
+      port: 8443
+      certAlias: dlab
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-    - type: http
-      port: 8081
+#    - type: http
+#      port: 8081
+    - type: https
+      port: 8444
+      certAlias: dlab
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 logging:
   level: INFO

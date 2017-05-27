@@ -88,12 +88,13 @@ def configure_jenkins(dlab_path, os_user, config, tag_resource_id):
         return False
 
 
-def configure_nginx(config, dlab_path):
+def configure_nginx(config, dlab_path, hostname):
     try:
         random_file_part = id_generator(size=20)
         if not exists("/etc/nginx/conf.d/nginx_proxy.conf"):
             sudo('rm -f /etc/nginx/conf.d/*')
             put(config['nginx_template_dir'] + 'nginx_proxy.conf', '/tmp/nginx_proxy.conf')
+            sudo("sed -i 's|SSN_HOSTNAME|" + hostname + "|' /tmp/nginx_proxy.conf")
             sudo('mv /tmp/nginx_proxy.conf ' + dlab_path + 'tmp/')
             sudo('\cp ' + dlab_path + 'tmp/nginx_proxy.conf /etc/nginx/conf.d/')
             sudo('mkdir -p /etc/nginx/locations')
@@ -150,12 +151,15 @@ def ensure_mongo():
         return False
 
 
-def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, cloud_provider, service_base_name,
-             tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path=''):
+def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, keystore_passwd, cloud_provider,
+             service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path=''):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
+            java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
             supervisor_conf = '/etc/supervisor/conf.d/supervisor_svc.conf'
-            local('sed -i "s|PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
+            local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
+            local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
+            local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
@@ -200,6 +204,16 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                 sudo('python /tmp/configure_billing.py --cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {}'.
                      format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
                             mongo_passwd, dlab_path))
+            try:
+                sudo('keytool -genkeypair -alias dlab -keyalg RSA -storepass {1} -keypass {1} \
+                     -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd))
+                sudo('keytool -exportcert -alias dlab -storepass {1} -file /home/{0}/keys/dlab.crt \
+                     -keystore /home/{0}/keys/dlab.keystore.jks'.format(os_user, keystore_passwd))
+                sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/dlab.crt -noprompt \
+                     -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
+            except:
+                append_result("Unable to generate cert and copy to java keystore")
+                sys.exit(1)
             sudo('service supervisor start')
             sudo('service nginx restart')
             sudo('service supervisor restart')
@@ -207,5 +221,4 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
         return True
     except:
         return False
-
 

@@ -183,7 +183,7 @@ public class ReportLine {
 				if (pInstancceId.matcher(resourceTypeId).find()) {
 					resourceType = ResourceType.COMPUTER;
 				} else if(pVolumeId.matcher(resourceTypeId).find()) {
-					resourceType = ResourceType.STORAGE;
+					resourceType = ResourceType.STORAGE_ESB;
 				} else if (pIpAddress.matcher(resourceTypeId).find()) {
 					resourceType = ResourceType.IP_ADDRESS;
 				} else {

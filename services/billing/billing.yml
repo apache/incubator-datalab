@@ -43,7 +43,6 @@ filter:
 # Parser of source data to common format.
 parser:
   - type: csv
-    columnStartDate: UsageStartDate
     headerLineNo: 1
     skipLines: 1
     columnMapping: >-
