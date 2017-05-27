@@ -666,6 +666,45 @@ npm install
 npm run build.prod
 ```
 
+### Prepare HTTPS prerequisites 
+
+To enable a SSL connection the web server should have a Digital Certificate.
+To create a server certificate, follow these steps:
+
+  * Create the keystore.
+
+  * Export the certificate from the keystore.
+
+  * Sign the certificate.
+
+  * Import the certificate into a truststore: a repository of certificates used for verifying the certificates. A truststore typically contains more than one certificate.
+
+Please find below set of commands to create certificate, depending on OS.
+
+#### Create Unix/Ubuntu server certificate 
+
+Pay attention that the last command has to be executed with administrative permissions.
+```
+keytool -genkeypair -alias dlab -keyalg RSA -storepass KEYSTORE_PASSWORD -keypass KEYSTORE_PASSWORD -keystore ~/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"
+keytool -exportcert -alias dlab -storepass KEYSTORE_PASSWORD -file ~/keys/dlab.crt -keystore ~/keys/dlab. keystore.jks
+sudo keytool -importcert -trustcacerts -alias dlab -file ~/keys/dlab.crt -noprompt -storepass changeit -keystore %JRE_HOME%/lib/security/cacerts
+```
+#### Create Windows server certificate
+
+Pay attention that the last command has to be executed with administrative permissions.
+To achieve this the command line (cmd) should be ran with administrative permissions.  
+```
+"%JRE_HOME%\bin\keytool" -genkeypair -alias dlab -keyalg RSA -storepass KEYSTORE_PASSWORD -keypass KEYSTORE_PASSWORD -keystore <DRIVE_LETTER>:\home\%USERNAME%\keys\dlab.keystore.jks -keysize 2048 -dname "CN=localhost"
+"%JRE_HOME%\bin\keytool" -exportcert -alias dlab -storepass KEYSTORE_PASSWORD -file <DRIVE_LETTER>:\home\%USERNAME%\keys\dlab.crt -keystore <DRIVE_LETTER>:\home\%USERNAME%\keys\dlab.keystore.jks
+"%JRE_HOME%\bin\keytool" -importcert -trustcacerts -alias dlab -file <DRIVE_LETTER>:\home\%USERNAME%\keys\dlab.crt -noprompt -storepass changeit -keystore "%JRE_HOME%\lib\security\cacerts"
+
+Useful command
+"%JRE_HOME%\bin\keytool" -list -alias dlab -storepass changeit -keystore "%JRE_HOME%\lib\security\cacerts"
+"%JRE_HOME%\bin\keytool" -delete -alias dlab -storepass changeit -keystore "%JRE_HOME%\lib\security\cacerts"
+```
+Where the ```<DRIVE_LETTER>``` must be the drive letter where you run the DLab.
+
+
 ## How to run locally <a name="run_locally"></a>
 
 There is a possibility to run Self-Service and Provisioning Service locally. All requests from Provisioning Service to Docker are mocked and instance creation status will be persisted to Mongo (only without real impact on Docker and AWS). Security Service can\`t be running on local machine because of local LDAP mocking complexity.
