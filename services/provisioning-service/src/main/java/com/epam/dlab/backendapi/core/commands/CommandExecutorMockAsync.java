@@ -109,6 +109,11 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	if (action == null) {
     		throw new DlabException("Docker action not defined");
     	}
+    	
+    	try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+		}
 
     	try {
 	    	switch (action) {

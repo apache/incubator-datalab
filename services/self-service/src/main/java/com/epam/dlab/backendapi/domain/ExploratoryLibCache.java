@@ -41,7 +41,7 @@ import io.dropwizard.lifecycle.Managed;
 /** Cache of libraries for exploratory.
  */
 @Singleton
-public class ExploratoryLibCache implements Managed {
+public class ExploratoryLibCache implements Managed, Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExploratoryLibCache.class);
 	
     @Inject
@@ -52,6 +52,9 @@ public class ExploratoryLibCache implements Managed {
      */
 	private static ExploratoryLibCache libCache;
 	
+	/** Thread of the cache. */
+	private Thread thread;
+	
 	/** List of libraries.
 	 */
 	private Map<String, ExploratoryLibList> cache = new HashMap<>();
@@ -59,6 +62,13 @@ public class ExploratoryLibCache implements Managed {
 	/** Return the list of libraries.
 	 */
 	public static ExploratoryLibCache getCache() {
+		synchronized (libCache) {
+			if (libCache.thread == null) {
+				LOGGER.debug("Library cache thread not running and will be started ...");
+				libCache.thread = new Thread(libCache, libCache.getClass().getSimpleName());
+				libCache.thread.start();
+			}
+		}
 		return libCache;
 	}
 
@@ -71,7 +81,17 @@ public class ExploratoryLibCache implements Managed {
 
 	@Override
 	public void stop() throws Exception {
-		cache.clear();
+		if (libCache != null) {
+			synchronized (libCache) {
+				if (libCache.thread != null) {
+					LOGGER.debug("Library cache thread will be stopped ...");
+					libCache.thread.interrupt();
+					libCache.thread = null;
+					LOGGER.debug("Library cache thread has been stopped");
+				}
+				libCache.cache.clear();
+			}
+		}
 	}
 	
 	/** Return the list of libraries groups from cache.
@@ -159,4 +179,31 @@ public class ExploratoryLibCache implements Managed {
 		}
 	}
 	
+	
+	@Override
+	public void run() {
+		while (true) {
+			try {
+				Thread.sleep(ExploratoryLibList.UPDATE_REQUEST_TIMEOUT_MILLIS);
+				for (String key : cache.keySet()) {
+					ExploratoryLibList lib = cache.get(key);
+					if (lib.isExpired()) {
+						cache.remove(key);
+					}
+				}
+				if (cache.size() == 0) {
+					synchronized (libCache) {
+						thread = null;
+						LOGGER.debug("Library cache thread have no data and will be finished");
+						return;
+					}
+				}
+			} catch (InterruptedException e) {
+				LOGGER.trace("Library cache thread has been interrupted");
+				break;
+			} catch (Exception e) {
+				LOGGER.warn("Library cache thread unhandled error: {}", e.getLocalizedMessage(), e);
+			}
+		}
+	}
 }
