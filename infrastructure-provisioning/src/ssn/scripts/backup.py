@@ -31,8 +31,8 @@ parser.add_argument('--configs', type=str, default='all', help='Comma separated 
 parser.add_argument('--keys', type=str, default='all', help='Comma separated names of keys, like "user_name.pub". Default: all')
 parser.add_argument('--certs', type=str, default='all', help='Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all')
 parser.add_argument('--jars', type=str, default='skip', help='Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip')
-parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. true - Enable, false - Disable. Default: false')
-parser.add_argument('--logs', action='store_true', default=False, help='All logs (include docker). true - Enable, false - Disable. Default: false')
+parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. Key without arguments. Default: disable')
+parser.add_argument('--logs', action='store_true', default=False, help='All logs (include docker). Key without arguments. Default: disable')
 args = parser.parse_args()
 
 
@@ -152,7 +152,8 @@ def backup_finalize():
 
     try:
         print "Clear temp folder..."
-        local("rm -rf {}".format(temp_folder))
+        if temp_folder != "/":
+            local("rm -rf {}".format(temp_folder))
     except Exception as err:
         print "Clear temp folder failed.", str(err)
 

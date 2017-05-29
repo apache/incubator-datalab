@@ -31,9 +31,9 @@ parser.add_argument('--configs', type=str, default='all', help='Comma separated 
 parser.add_argument('--keys', type=str, default='all', help='Comma separated names of keys, like "user_name.pub". Also available: skip. Default: all')
 parser.add_argument('--certs', type=str, default='all', help='Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all')
 parser.add_argument('--jars', type=str, default='skip', help='Comma separated names of jar application, like "self-service", etc. Default: skip')
-parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. true - Enable, false - Disable. Default: false')
-parser.add_argument('--file', type=str, default='', required=True, help='Full or relative path to backup file. Required field.')
-parser.add_argument('--force', action='store_true', default=False, help='Force mode. Without any questions. Default: false')
+parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. Key without arguments. Default: disable')
+parser.add_argument('--file', type=str, default='', required=True, help='Full or relative path to backup file or folder. Required field')
+parser.add_argument('--force', action='store_true', default=False, help='Force mode. Without any questions. Key without arguments. Default: disable')
 args = parser.parse_args()
 
 
@@ -274,7 +274,8 @@ def restore_finalize():
 
     try:
         if ask("Clean temporary folder {}?".format(temp_folder)):
-            local("rm -rf {}".format(temp_folder))
+            if temp_folder != "/":
+                local("rm -rf {}".format(temp_folder))
     except Exception as err:
         print "Clear temp folder failed.", str(err)
 
