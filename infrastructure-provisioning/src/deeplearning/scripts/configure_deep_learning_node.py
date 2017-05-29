@@ -44,7 +44,11 @@ templates_dir = '/root/templates/'
 scala_link = "http://www.scala-lang.org/files/archive/"
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
+if args.region == 'cn-north-1':
+    spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
+                 "-bin-hadoop" + hadoop_version + ".tgz"
+else:
+    spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
 local_spark_path = '/opt/spark/'
 s3_jars_dir = '/opt/jars/'
 files_dir = '/root/files/'
