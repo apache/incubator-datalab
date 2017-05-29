@@ -271,21 +271,22 @@ The following AWS resources will be created:
 
 List of parameters for Edge node creation:
 
-| Parameter                  | Description/Value                                                                 |
-|----------------------------|-----------------------------------------------------------------------------------|
-| conf\_resource             | edge                                                                              |
-| conf\_os\_user             | Name of the SSH user                                                              |
-| conf\_os\_family           | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
-| conf\_service\_base\_name  | Unique infrastructure value, specified during SSN deployment                      |
-| conf\_key\_name            | Name of the uploaded SSH key file (without ".pem")                                |
-| edge\_user\_name           | Name of the user                                                                  |
-| aws\_vpc\_id               | ID of AWS VPC where infrastructure is being deployed                              |
-| aws\_region                | AWS region where infrastructure was deployed                                      |
-| aws\_security\_groups\_ids | One or more id’s of the SSN instance security group                               |
-| aws\_subnet\_id            | ID of the AWS public subnet where Edge will be deployed                           |
-| aws\_iam\_user             | Name of AWS IAM user                                                              |
-| conf\_tag\_resource\_id          | The name of tag for billing reports                                                      |
-| action                     | create                                                                            |
+| Parameter                  | Description/Value                                                                     |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | edge                                                                              |
+| conf\_os\_user                 | Name of the SSH user                                                              |
+| conf\_os\_family               | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name               | Name of the user                                                                  |
+| aws\_vpc\_id                   | ID of AWS VPC where infrastructure is being deployed                              |
+| aws\_region                    | AWS region where infrastructure was deployed                                      |
+| aws\_security\_groups\_ids     | One or more id’s of the SSN instance security group                               |
+| aws\_subnet\_id                | ID of the AWS public subnet where Edge will be deployed                           |
+| aws\_iam\_user                 | Name of AWS IAM user                                                              |
+| aws\_private\_subnet\_prefix   | Prefix of the private subnet                                                      |
+| conf\_tag\_resource\_id        | The name of tag for billing reports                                               |
+| action                         | create                                                                            |
 
 ### Start/Stop <a name=""></a>
 
@@ -323,7 +324,7 @@ List of parameters for Edge node recreation:
 | aws\_subnet\_id            | ID of the AWS public subnet where Edge was deployed                               |
 | aws\_iam\_user             | Name of AWS IAM user                                                              |
 | edge\_elastic\_ip          | AWS Elastic IP address which was associated to Edge node                          |
-| conf\_tag\_resource\_id          | The name of tag for billing reports                                                      |
+| conf\_tag\_resource\_id    | The name of tag for billing reports                                               |
 | action                     | Create                                                                            |
 
 ## Notebook node <a name="Notebook_node"></a>
@@ -348,7 +349,7 @@ List of parameters for Notebook node creation:
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | aws\_security\_groups\_ids    | ID of the SSN instance's security group                                           |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor)                   |
-| conf\_tag\_resource\_id             | The name of tag for billing reports                                                         |
+| conf\_tag\_resource\_id       | The name of tag for billing reports                                               |
 | action                        | Create                                                                            |
 
 ### Stop
@@ -410,7 +411,7 @@ List of parameters for EMR cluster creation:
 | notebook\_instance\_name    | Name of the Notebook EMR will be linked to                   |
 | edge\_user\_name            | Value that previously was used when Edge being provisioned   |
 | aws\_region                 | AWS region where infrastructure was deployed                 |
-| conf\_tag\_resource\_id           | The name of tag for billing reports                          |
+| conf\_tag\_resource\_id     | The name of tag for billing reports                          |
 | action                      | create                                                       |
 
 **Note:** If “Spot instances” is enabled, EMR Slave nodes will be created as EC2 Spot instances.
