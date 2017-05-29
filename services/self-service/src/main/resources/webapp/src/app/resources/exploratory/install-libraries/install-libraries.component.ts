@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { Response } from '@angular/http';
 
 import 'rxjs/add/operator/startWith';
@@ -29,7 +29,8 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
 @Component({
   selector: 'install-libraries',
   templateUrl: './install-libraries.component.html',
-  styleUrls: ['./install-libraries.component.css']
+  styleUrls: ['./install-libraries.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class InstallLibrariesComponent implements OnInit {
 
@@ -41,9 +42,15 @@ export class InstallLibrariesComponent implements OnInit {
   public group: string;
   public uploading: boolean = false;
   public libs_uploaded: boolean = false;
+
   public processError: boolean = false;
   public errorMessage: string = '';
+
+  public isInstalled: boolean = false;
+  public isFilteringProc: boolean = false;
+  public isInSelectedList: boolean = false;
   public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum'};
+
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
 
@@ -75,6 +82,18 @@ export class InstallLibrariesComponent implements OnInit {
 
   public filterList(): void {
     (this.query.length >= 3 && this.group) ? this.getFilteredList() : this.filteredList = null;
+  }
+
+  public isDuplicated(item) {
+    const select = {group: this.group, name: item.key, version: item.value};
+
+    this.isInSelectedList = this.model.selectedLibs.filter(el => JSON.stringify(el) === JSON.stringify(select)).length > 0;
+
+    this.isInstalled = this.notebook.libs.findIndex(libr =>
+      select.name === libr.name && select.group === libr.group && select.version === libr.version
+    ) >= 0;
+
+    return this.isInSelectedList || this.isInstalled;
   }
 
   public selectLibrary(item): void {
@@ -129,7 +148,13 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   private getFilteredList(): void {
-    this.model.getLibrariesList(this.group, this.query).subscribe(libs => this.filteredList = libs);
+    this.isFilteringProc = true;
+
+    this.model.getLibrariesList(this.group, this.query)
+      .subscribe(libs => {
+        this.filteredList = libs;
+        this.isFilteringProc = false;
+      });
   }
 
   private resetDialog(): void {
@@ -137,7 +162,9 @@ export class InstallLibrariesComponent implements OnInit {
     this.query = '';
 
     this.processError = false;
+    this.isFilteringProc = false;
     this.errorMessage = '';
     this.model.selectedLibs = [];
+    this.filteredList = null ;
   }
 }

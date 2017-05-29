@@ -47,6 +47,7 @@ limitations under the License.
 
 .tab-content {
     display: flex;
+    /*height: 340px;*/
 }
 .tab-content .col {
     width: 50%;
@@ -64,22 +65,47 @@ limitations under the License.
 .suggestions {
     max-height: 150px;
     overflow-y: auto;
+    overflow-x: hidden;
     text-decoration: none;
     list-style: none;
     padding: 0 10px;
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 300;
 }
+.suggestions li {
+    position: relative;
+    padding-top: 4px;
+}
 .suggestions a {
-    padding: 2px;
     display: block;
     cursor: pointer;
     text-decoration: none;
     color: #718ba6;
 }
-.suggestions a:hover {
+.suggestions a:hover,
+.suggestions a span:hover {
     color: #35afd5;
 }
+.suggestions strong {
+    position: absolute;
+    right: 5px;
+    width: 48px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 300;
+    background: rgba(255, 255, 255, 0.8);
+}
+.suggestions strong i {
+    position: absolute;
+    top: -7px;
+    right: -22px;
+    color: #35afd5;
+}
+
+.suggestions span {
+    color: rgba(122, 146, 172, 0.6);
+}
+
 .lib-list-header {
     border-bottom: 1px solid #e0e0e0;
     color: #577289;
@@ -92,11 +118,15 @@ limitations under the License.
 .list-selected h4 {
     margin-bottom: 20px;
     font-size: 14px;
-    text-transform: uppercase;
     text-align: center;
     font-weight: 400;
     color: #718ba6;
 }
+.list-selected md-chip-list .md-chip-list-wrapper{
+    max-height: 275px;;
+    overflow-y: auto;
+}
+
 .mat-list-item {
     color: #718ba6 !important;
     font-size: 14px;
@@ -108,7 +138,7 @@ limitations under the License.
 
  /* Tab info */
 .lib-name {
-    width: 45%;
+    width: 85%;
 }
 .lib-name strong {
     font-weight: 400;
@@ -141,4 +171,67 @@ limitations under the License.
 
 .mat-tab-labels .mat-ink-bar {
     background-color: #35afd5;
+}
+
+.loader-wrap {
+    height: 30px;
+}
+.loader-lib,
+.loader-lib:before,
+.loader-lib:after {
+    background: #35afd5;
+    -webkit-animation: load1 1s infinite ease-in-out;
+    animation: load1 1s infinite ease-in-out;
+    width: 0.4em;
+    height: 3em;
+}
+.loader-lib {
+    color: #35afd5;
+    text-indent: -9999em;
+    margin: 0 auto;
+    position: relative;
+    font-size: 4px;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation-delay: -0.16s;
+    animation-delay: -0.16s;
+}
+.loader-lib:before,
+.loader-lib:after {
+    position: absolute;
+    top: 0;
+    content: '';
+}
+.loader-lib:before {
+    left: -1.5em;
+    -webkit-animation-delay: -0.32s;
+    animation-delay: -0.32s;
+}
+.loader-lib:after {
+    left: 1.5em;
+}
+@-webkit-keyframes load1 {
+  0%,
+  80%,
+  100% {
+    box-shadow: 0 0;
+    height: 4em;
+  }
+  40% {
+    box-shadow: 0 -2em;
+    height: 5em;
+  }
+}
+@keyframes load1 {
+  0%,
+  80%,
+  100% {
+    box-shadow: 0 0;
+    height: 4em;
+  }
+  40% {
+    box-shadow: 0 -2em;
+    height: 5em;
+  }
 }

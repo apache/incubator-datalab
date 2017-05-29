@@ -204,6 +204,7 @@ body {
 
 .not-allowed {
   cursor: not-allowed !important;
+  user-select: none;
   opacity: 0.6;
 }
 
