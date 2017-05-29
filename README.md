@@ -31,6 +31,8 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Billing report](#Billing_Report)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Backup and Restore](#Backup_and_Restore)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Troubleshooting](#Troubleshooting)
 
 [Development](#Development)
@@ -484,6 +486,41 @@ If you want billing to work as a separate process from the Self-Service use foll
 ```
 java -cp /opt/dlab/webapp/lib/billing/billing-x.y.jar com.epam.dlab.BillingScheduler --conf /opt/dlab/conf/billing.yml
 ```
+
+## Backup and Restore <a name="Backup_and_Restore"></a>
+
+All DLab configuration files, keys, certificates, jars, database and logs can be saved to backup file.
+
+Scripts for backup and restore is located in ```dlab_path/tmp/```. Default: ```/opt/dlab/tmp/```
+
+List of parameters for run backup:
+
+| Parameter      | Description/Value                                                                                                       |
+|----------------|-------------------------------------------------------------------------------------------------------------------------|
+| --dlab\_path   | Path to DLab. Default: /opt/dlab/                                                                                       |
+| --configs      | Comma separated names of config files, like "security.yml", etc. Default: all                                           |
+| --keys         | Comma separated names of keys, like "user_name.pub". Default: all                                                       |
+| --certs        | Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all |
+| --jars         | Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip   |
+| --db           | Mongo DB. Key without arguments. Default: disable                                                                       |
+| --logs         | All logs (include docker). Key without arguments. Default: disable                                                      |
+
+List of parameters for run restore:
+
+| Parameter      | Description/Value                                                                                                       |
+|----------------|-------------------------------------------------------------------------------------------------------------------------|
+| --dlab\_path   | Path to DLab. Default: /opt/dlab/                                                                                       |
+| --configs      | Comma separated names of config files, like "security.yml", etc. Default: all                                           |
+| --keys         | Comma separated names of keys, like "user_name.pub". Default: all                                                       |
+| --certs        | Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all |
+| --jars         | Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip   |
+| --db           | Mongo DB. Key without arguments. Default: disable                                                                       |
+| --file         | Full or relative path to backup file or folder. Required field                                                          |
+| --force        | Force mode. Without any questions. Key without arguments. Default: disable                                              |
+
+**Note:** You can type ```-h``` or ```--help``` for usage details.
+
+**Note:** Restore process required stopping services.
 
 ## Troubleshooting <a name="Troubleshooting"></a>
 
