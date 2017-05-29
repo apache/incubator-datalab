@@ -192,7 +192,10 @@ def ensure_python2_libraries(os_user):
             sudo('yum install -y https://forensics.cert.org/centos/cert/7/x86_64/pyparsing-2.0.3-1.el7.noarch.rpm')
             sudo('yum install -y python-setuptools python-wheel')
             sudo('yum install -y python-virtualenv openssl-devel python-devel openssl-libs libxml2-devel libxslt-devel --nogpgcheck')
-            sudo('python2 -m pip install backports.shutil_get_terminal_size ipython ipykernel')
+            try:
+                sudo('python2 -m pip install backports.shutil_get_terminal_size ipython ipykernel')
+            except:
+                sudo('python2 -m pip install backports.shutil_get_terminal_size ipython==5.0.0 ipykernel')
             sudo('echo y | python2 -m pip uninstall backports.shutil_get_terminal_size')
             sudo('python2 -m pip install backports.shutil_get_terminal_size')
             sudo('pip2 install -U pip setuptools --no-cache-dir')
@@ -211,7 +214,10 @@ def ensure_python3_libraries(os_user):
             sudo('python3.5 -m pip install -U pip setuptools --no-cache-dir')
             sudo('python3.5 -m pip install boto3 --no-cache-dir')
             sudo('python3.5 -m pip install fabvenv fabric-virtualenv --no-cache-dir')
-            sudo('python3.5 -m pip install ipython ipykernel --no-cache-dir')
+            try:
+                sudo('python3.5 -m pip install ipython ipykernel --no-cache-dir')
+            except:
+                sudo('python3.5 -m pip install ipython==5.0.0 ipykernel --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/python3_libraries_ensured')
         except:
             sys.exit(1)

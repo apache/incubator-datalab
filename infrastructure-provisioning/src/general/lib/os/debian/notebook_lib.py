@@ -203,7 +203,10 @@ def ensure_python2_libraries(os_user):
             except:
                 sudo('pip2 install virtualenv')
                 sudo('apt-get install -y libssl-dev')
-            sudo('pip2 install ipython ipykernel --no-cache-dir')
+            try:
+                sudo('pip2 install ipython ipykernel --no-cache-dir')
+            except:
+                sudo('pip2 install ipython==5.0.0 ipykernel --no-cache-dir')
             sudo('pip2 install -U pip --no-cache-dir')
             sudo('pip2 install boto3 --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv --no-cache-dir')
@@ -217,7 +220,10 @@ def ensure_python3_libraries(os_user):
         try:
             sudo('apt-get install python3-setuptools')
             sudo('apt install -y python3-pip')
-            sudo('pip3 install ipython ipykernel --no-cache-dir')
+            try:
+                sudo('pip3 install ipython ipykernel --no-cache-dir')
+            except:
+                sudo('pip3 install ipython==5.0.0 ipykernel --no-cache-dir')
             sudo('pip3 install -U pip --no-cache-dir')
             sudo('pip3 install boto3 --no-cache-dir')
             sudo('pip3 install fabvenv fabric-virtualenv --no-cache-dir')
