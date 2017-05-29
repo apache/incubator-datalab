@@ -44,6 +44,7 @@ parser.add_argument('--region', type=str, default='')
 parser.add_argument('--excluded_lines', type=str, default='')
 parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--application', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -163,7 +164,8 @@ if __name__ == "__main__":
             jars(args, emr_dir)
         yarn(args, yarn_dir)
         install_emr_spark(args)
-        pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket, args.user_name, args.region, args.os_user)
+        pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket,
+                       args.user_name, args.region, args.os_user, args.application)
         toree_kernel(args)
         spark_defaults(args)
         r_kernel(args)

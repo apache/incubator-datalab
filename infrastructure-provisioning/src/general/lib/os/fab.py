@@ -258,7 +258,7 @@ def ensure_ciphers():
         sudo('service sshd restart')
 
 
-def installing_python(region, bucket, user_name, cluster_name):
+def installing_python(region, bucket, user_name, cluster_name, application=''):
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
@@ -280,7 +280,7 @@ def installing_python(region, bucket, user_name, cluster_name):
         local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
         local(venv_command + ' && sudo -i ' + pip_command +
               ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
-        if os.environ['application'] == 'deeplearning':
+        if application == 'deeplearning':
             local(venv_command + ' && sudo -i ' + pip_command +
                   ' install mxnet-cu80 opencv-python keras Theano --no-cache-dir')
             python_without_dots = python_version.replace('.', '')
@@ -292,7 +292,8 @@ def installing_python(region, bucket, user_name, cluster_name):
               ' /usr/bin/python' + python_version[0:3])
 
 
-def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user):
+def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user,
+                   application=''):
     spark_path = '/opt/' + emr_version + '/' + cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
     kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
@@ -317,7 +318,7 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         python_version = f.read()
     # python_version = python_version[0:3]
     if python_version != '\n':
-        installing_python(region, bucket, user_name, cluster_name)
+        installing_python(region, bucket, user_name, cluster_name, application)
         local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
         kernel_path = kernels_dir + "py3spark_" + cluster_name + "/kernel.json"
         template_file = "/tmp/pyspark_emr_template.json"
