@@ -57,20 +57,6 @@ toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snaps
 scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 
 
-def install_keras(args):
-    if not exists('/home/{}/.ensure_dir/keras_ensured'.format(args.os_user)):
-        sudo('pip2 install keras')
-        sudo('pip3 install keras')
-        sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(args.os_user))
-
-
-def install_mxnet(args):
-    if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(args.os_user)):
-        sudo('pip2 install mxnet-cu80 opencv-python')
-        sudo('pip3 install mxnet-cu80 opencv-python')
-        sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(args.os_user))
-
-
 def install_torch(args):
     if not exists('/home/{}/.ensure_dir/torch_ensured'.format(args.os_user)):
         run('git clone https://github.com/torch/distro.git ~/torch --recursive')
@@ -79,13 +65,6 @@ def install_torch(args):
             run('./install.sh -b')
         run('source /home/{}/.bashrc'.format(args.os_user))
         sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(args.os_user))
-
-
-def install_cntk(args):
-    if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(args.os_user)):
-        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl')
-        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl')
-        sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(args.os_user))
 
 
 def install_itorch(args):
@@ -167,11 +146,11 @@ if __name__ == "__main__":
     install_itorch(args)
 
     print "Install CNTK Python library"
-    install_cntk(args)
+    install_cntk(args.os_user)
 
     print "Installing MXNET"
-    install_mxnet(args)
+    install_mxnet(args.os_user)
 
     print "Installing Keras"
-    install_keras(args)
+    install_keras(args.os_user)
 

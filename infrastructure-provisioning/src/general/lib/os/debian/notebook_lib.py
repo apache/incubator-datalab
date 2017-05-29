@@ -331,6 +331,7 @@ def install_caffe(os_user):
             sudo('make test')
             sudo('make runtest')
             sudo('make pycaffe')
+        sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
 
 
 def install_caffe2(os_user):
@@ -355,3 +356,25 @@ def install_caffe2(os_user):
         sudo('git clone --recursive https://github.com/caffe2/caffe2.git')
         with cd('/home/{}/caffe2/'.format(os_user)):
             sudo('make && cd build && make install')
+        sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
+
+
+def install_cntk(os_user):
+    if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
+        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl')
+        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl')
+        sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
+
+
+def install_keras(os_user):
+    if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
+        sudo('pip2 install keras')
+        sudo('pip3 install keras')
+        sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
+
+
+def install_mxnet(os_user):
+    if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
+        sudo('pip2 install mxnet-cu80 opencv-python')
+        sudo('pip3 install mxnet-cu80 opencv-python')
+        sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))

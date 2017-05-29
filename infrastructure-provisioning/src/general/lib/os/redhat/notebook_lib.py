@@ -320,3 +320,89 @@ def install_gitweb(os_user):
         sudo('systemctl enable httpd.service')
         sudo('systemctl start httpd.service')
         sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')
+
+
+def install_opencv(os_user):
+    if not exists('/home/{}/.ensure_dir/opencv_ensured'.format(os_user)):
+        sudo('yum install cmake python3 python3-devel python3-numpy gcc gcc-c++')
+        sudo('pip2 install numpy')
+        sudo('pip3.5 install numpy')
+        run('git clone https://github.com/opencv/opencv.git')
+        with cd('/home/{}/opencv/'.format(os_user)):
+            run('git checkout 3.2.0')
+            run('cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python2 -c "import sys; print(sys.prefix)") -D PYTHON_EXECUTABLE=$(which python2) ..')
+            run('make -j4')
+            sudo('make install')
+        sudo('touch /home/' + os_user + '/.ensure_dir/opencv_ensured')
+
+
+def install_caffe(os_user):
+    if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
+        env.shell = "/bin/bash -l -c -i"
+        install_opencv(os_user)
+        sudo('yum install -y protobuf-devel leveldb-devel snappy-devel opencv-devel boost-devel hdf5-devel gcc gcc-c++')
+        sudo('yum install -y gflags-devel glog-devel lmdb-devel')
+        sudo('yum install -y openblas-devel gflags-devel glog-devel lmdb-devel')
+        sudo('git clone https://github.com/BVLC/caffe.git')
+        with cd('/home/{}/caffe/'.format(os_user)):
+            sudo('pip2 install -r python/requirements.txt')
+            sudo('pip3.5 install -r python/requirements.txt')
+            sudo('cp Makefile.config.example Makefile.config')
+            sudo('sed -i \'/^PYTHON_INCLUDE \:=/s/\\/\/usr\/lib64\/python2.7\/site-packages\/numpy\/core\/include /g\' Makefile.config')
+            sudo('sed -i \'/\/usr\/lib\/python2.7\/dist-packages\/numpy\/core\/include/d\' Makefile.config')
+            sudo('sed -i \'/BLAS \:=/d\' Makefile.config')
+            sudo('echo "BLAS := open" >> Makefile.config')
+            sudo('echo "BLAS_INCLUDE := /usr/include/openblas" >> Makefile.config')
+            sudo('echo "OPENCV_VERSION := 3" >> Makefile.config')
+            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" '
+                 '>> Makefile.config')
+            sudo('sed -i \'/INCLUDE_DIRS \:=/s/$/ \/usr \/usr\/lib64/g\' Makefile.config')
+            sudo('sed -i \'/LIBRARY_DIRS \:=/s/$/ \/usr \/usr\/lib64/g\' Makefile.config')
+            sudo('make all')
+            sudo('make test')
+            sudo('make runtest')
+            sudo('make pycaffe')
+        sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
+
+
+def install_caffe2(os_user):
+    if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
+        env.shell = "/bin/bash -l -c -i"
+        sudo('yum update')
+        sudo('yum install -y automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel '
+             'python-devel snappy-devel')
+        sudo('yum install -y http://mirror.centos.org/centos/7/os/x86_64/Packages/snappy-devel-1.1.0-3.el7.x86_64.rpm')
+        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
+             'requests scikit-image scipy setuptools tornado future')
+        sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
+             'requests scikit-image scipy setuptools tornado future')
+        sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
+        sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
+        sudo('git clone --recursive https://github.com/caffe2/caffe2')
+        with cd('/home/{}/caffe2/'.format(os_user)):
+            sudo('mkdir build')
+        with cd('/home/{}/caffe2/build/'.format(os_user)):
+            sudo('cmake3 ..')
+            sudo('make -j8 install')
+        sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
+
+
+def install_cntk(os_user):
+    if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
+        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl')
+        sudo('pip3.5 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl')
+        sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
+
+
+def install_keras(os_user):
+    if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
+        sudo('pip2 install keras')
+        sudo('pip3.5 install keras')
+        sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
+
+
+def install_mxnet(os_user):
+    if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
+        sudo('pip2 install mxnet-cu80 opencv-python')
+        sudo('pip3.5 install mxnet-cu80 opencv-python')
+        sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
