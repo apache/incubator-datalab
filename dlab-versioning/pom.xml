@@ -1,0 +1,118 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.epam.dlab</groupId>
+    <artifactId>dlab</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+	<scm>
+    	<connection>scm:git:file://./../..</connection>
+    	<url>scm:git:file://../../..</url>
+    	<tag>HEAD</tag>
+	</scm>
+
+    <properties>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+        <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
+        <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+    </properties>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            
+<!-- 			<plugin> -->
+<!--     			<groupId>org.codehaus.mojo</groupId> -->
+<!--     			<artifactId>properties-maven-plugin</artifactId> -->
+<!--     			<version>1.0.0</version> -->
+<!-- 		        <executions> -->
+<!-- 		          <execution> -->
+<!-- 		            <phase>initialize</phase> -->
+<!-- 		            <goals> -->
+<!-- 		              <goal>read-project-properties</goal> -->
+<!-- 		            </goals> -->
+<!-- 		            <configuration> -->
+<!-- 		              <files> -->
+<!-- 		                <file>../../build.properties</file> -->
+<!-- 		              </files> -->
+<!-- 		            </configuration> -->
+<!-- 		          </execution> -->
+<!-- 		        </executions> -->
+<!-- 			</plugin> -->
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<doCheck>false</doCheck>
+					<doUpdate>false</doUpdate>
+					
+<!-- 					<providerImplementations> -->
+						
+<!-- 					</providerImplementations> -->
+					<getRevisionOnlyOnce>true</getRevisionOnlyOnce>
+					<revisionOnScmFailure>nogit</revisionOnScmFailure>
+					
+					      <format>{0,number}</format>
+      <items>
+        <item>buildNumber</item>
+      </items>
+				</configuration>
+      		</plugin>
+      
+			<plugin>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>${maven-shade-plugin.version}</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>	
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>com.epam.dlab.Test</mainClass>
+									<manifestEntries>
+										<Created-By>EPAM Systems</Created-By>
+										<Name>com/epam/dlab</Name>
+										<Implementation-Title>DLab Security Service</Implementation-Title>
+										<Implementation-Version>${project.version} (${buildNumber}) ${scmBranch}</Implementation-Version>
+										<Implementation-Vendor>EPAM Systems</Implementation-Vendor>
+										<Build-Time>${maven.build.timestamp} - ${timestamp}</Build-Time>
+										<Build-OS>${os.name}</Build-OS>
+									</manifestEntries>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+            
+        </plugins>
+    </build>
+</project>
