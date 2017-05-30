@@ -47,7 +47,7 @@ if __name__ == "__main__":
     if args.region == 'us-east-1':
         endpoint = "https://s3.amazonaws.com"
     elif args.region == 'cn-north-1':
-        endpoint = "https://s3-{}.amazonaws.com.cn".format(args.region)
+        endpoint = "https://s3.{}.amazonaws.com.cn".format(args.region)
     else:
         endpoint = "https://s3-{}.amazonaws.com".format(args.region)
     os.system('touch /tmp/python_version')
