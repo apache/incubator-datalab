@@ -360,7 +360,7 @@ def install_caffe(os_user):
             sudo('echo "OPENCV_VERSION := 3" >> Makefile.config')
             sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" '
                  '>> Makefile.config')
-            sudo('sed -i \'/INCLUDE_DIRS \:=/s/$/ \/usr \/usr\/lib64/g\' Makefile.config')
+            sudo('sed -i \'/INCLUDE_DIRS \:=/s/$/ \/usr \/usr\/lib64 \/usr\/include\/python2.7 /g\' Makefile.config')
             sudo('sed -i \'/LIBRARY_DIRS \:=/s/$/ \/usr \/usr\/lib64/g\' Makefile.config')
             sudo('make all')
             sudo('make test')
