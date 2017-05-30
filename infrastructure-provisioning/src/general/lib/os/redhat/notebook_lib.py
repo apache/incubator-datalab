@@ -324,7 +324,7 @@ def install_gitweb(os_user):
 
 def install_opencv(os_user):
     if not exists('/home/{}/.ensure_dir/opencv_ensured'.format(os_user)):
-        sudo('yum install cmake python3 python3-devel python3-numpy gcc gcc-c++')
+        sudo('yum install -y cmake python3 python3-devel python3-numpy gcc gcc-c++')
         sudo('pip2 install numpy')
         sudo('pip3.5 install numpy')
         run('git clone https://github.com/opencv/opencv.git')
