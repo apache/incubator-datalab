@@ -330,6 +330,8 @@ def install_opencv(os_user):
         run('git clone https://github.com/opencv/opencv.git')
         with cd('/home/{}/opencv/'.format(os_user)):
             run('git checkout 3.2.0')
+            run('mkdir release')
+        with cd('/home/{}/opencv/release/'.format(os_user)):
             run('cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python2 -c "import sys; print(sys.prefix)") -D PYTHON_EXECUTABLE=$(which python2) ..')
             run('make -j4')
             sudo('make install')
