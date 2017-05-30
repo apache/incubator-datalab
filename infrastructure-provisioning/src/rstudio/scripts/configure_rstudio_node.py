@@ -36,6 +36,7 @@ parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--rstudio_pass', type=str, default='')
 parser.add_argument('--rstudio_version', type=str, default='')
+parser.add_argument('--r_mirror', type=str, default='')
 args = parser.parse_args()
 
 spark_version = os.environ['notebook_spark_version']
@@ -81,7 +82,7 @@ if __name__ == "__main__":
     ensure_python3_libraries(args.os_user)
 
     print "Installing R"
-    ensure_r(args.os_user, r_libs)
+    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
     print "Install RStudio"
     install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version)

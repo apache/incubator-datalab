@@ -44,6 +44,7 @@ parser.add_argument('--proxy_port', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_emrs', type=str, default='')
+parser.add_argument('--r_mirror', type=str, default='')
 args = parser.parse_args()
 
 spark_version = args.spark_version
@@ -209,7 +210,7 @@ if __name__ == "__main__":
     ensure_scala(scala_link, args.scala_version, args.os_user)
 
     print "Installing R"
-    ensure_r(args.os_user, r_libs)
+    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
     print "Install Zeppelin"
     configure_zeppelin(args.os_user)

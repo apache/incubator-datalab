@@ -102,10 +102,10 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         print '[CONFIGURE JUPYTER NOTEBOOK INSTANCE]'
-        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {}".\
+        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {}".\
             format(instance_hostname, keyfile_name, os.environ['aws_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], os.environ['conf_os_user'],
-                   os.environ['notebook_scala_version'])
+                   os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'])
         try:
             local("~/scripts/{}.py {}".format('configure_jupyter_node', params))
         except:
