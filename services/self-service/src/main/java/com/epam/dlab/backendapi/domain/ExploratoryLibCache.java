@@ -27,9 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
 import com.google.inject.Inject;
@@ -96,40 +97,40 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	
 	/** Return the list of libraries groups from cache.
 	 * @param userInfo the user info.
-	 * @param imageName the name of docker image.
+	 * @param userInstance the notebook info.
 	 * @return
 	 */
-	public List<String> getLibGroupList(UserInfo userInfo, String imageName) {
-		ExploratoryLibList libs = getLibs(userInfo, imageName);
+	public List<String> getLibGroupList(UserInfo userInfo, UserInstanceDTO userInstance) {
+		ExploratoryLibList libs = getLibs(userInfo, userInstance);
 		return libs.getGroupList();
 	}
 
 	/** Return the list of libraries for docker image and group start with prefix from cache.
 	 * @param userInfo the user info.
-	 * @param imageName the name of image.
+	 * @param userInstance the notebook info.
 	 * @param group the name of group.
 	 * @param startWith the prefix for library name.
 	 */
-	public Map<String, String> getLibList(UserInfo userInfo, String imageName, String group, String startWith) {
-		ExploratoryLibList libs = getLibs(userInfo, imageName);
+	public Map<String, String> getLibList(UserInfo userInfo, UserInstanceDTO userInstance, String group, String startWith) {
+		ExploratoryLibList libs = getLibs(userInfo, userInstance);
 		return libs.getLibs(group, startWith);
 	}
 	
 	/** Return the list of libraries for docker image from cache.
 	 * @param userInfo the user info.
-	 * @param imageName the name of image.
+	 * @param userInstance the notebook info.
 	 */
-	public ExploratoryLibList getLibs(UserInfo userInfo, String imageName) {
+	public ExploratoryLibList getLibs(UserInfo userInfo, UserInstanceDTO userInstance) {
 		ExploratoryLibList libs;
 		synchronized (cache) {
-			libs = cache.get(imageName);
+			libs = cache.get(userInstance.getImageName());
 			if (libs == null) {
-				libs = new ExploratoryLibList(imageName, null);
-				cache.put(imageName, libs);
+				libs = new ExploratoryLibList(userInstance.getImageName(), null);
+				cache.put(userInstance.getImageName(), libs);
 			}
 			if (libs.isUpdateNeeded() && !libs.isUpdating()) {
 				libs.setUpdating();
-				requestLibList(userInfo, imageName);
+				requestLibList(userInfo, userInstance);
 			}
 		}
 		
@@ -159,14 +160,15 @@ public class ExploratoryLibCache implements Managed, Runnable {
 
 	/** Send request to provisioning service for the list of libraries.
 	 * @param userInfo the user info.
-	 * @param imageName the name of image.
+	 * @param userInstance the notebook info.
 	 */
-	private void requestLibList(UserInfo userInfo, String imageName) {
+	private void requestLibList(UserInfo userInfo, UserInstanceDTO userInstance) {
 		try {
-			LOGGER.debug("Ask docker for the list of libraries for user {} and image {}", userInfo.getName(), imageName);
-			ExploratoryBaseDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryBaseDTO.class);
-			dto.withNotebookImage(imageName)
-				.withApplicationName(ResourceUtils.getApplicationNameFromImage(imageName));
+			LOGGER.debug("Ask docker for the list of libraries for user {} and exploratory {}", userInfo.getName(), userInstance.getExploratoryId());
+			ExploratoryActionDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class);
+            dto.withNotebookImage(userInstance.getImageName())
+            	.withNotebookInstanceName(userInstance.getExploratoryId())
+            	.withExploratoryName(userInstance.getExploratoryName());
 
 			String uuid = provisioningService.post(
 					DockerAPI.DOCKER_LIB_LIST,
@@ -175,7 +177,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 					String.class);
             RequestId.put(userInfo.getName(), uuid);
 		} catch (Exception e) {
-			LOGGER.warn("Ask docker for the status of resources for user {} and image {} fails: {}", userInfo.getName(), imageName, e.getLocalizedMessage(), e);
+			LOGGER.warn("Ask docker for the status of resources for user {} and exploratory {} fails: {}", userInfo.getName(), userInstance.getExploratoryName(), e.getLocalizedMessage(), e);
 		}
 	}
 	

@@ -43,7 +43,7 @@ import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
-import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.imagemetadata.ImageMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ImageType;
 import com.epam.dlab.rest.client.RESTService;
@@ -101,7 +101,7 @@ public class DockerResource implements DockerCommands {
 
     @Path("/lib_list")
     @POST
-    public String getLibList(@Auth UserInfo ui, ExploratoryBaseDTO<?> dto) throws IOException, InterruptedException {
+    public String getLibList(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws IOException, InterruptedException {
         LOGGER.debug("Listing of libs for user {} with condition {}", ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
@@ -110,6 +110,7 @@ public class DockerResource implements DockerCommands {
 
         RunDockerCommand runDockerCommand = new RunDockerCommand()
                 .withInteractive()
+                .withName(nameContainer(dto.getEdgeUserName(), DockerAction.LIB_LIST.toString(), dto.getExploratoryName()))
                 .withVolumeForRootKeys(configuration.getKeyDirectory())
                 .withVolumeForResponse(configuration.getImagesDirectory())
                 .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
