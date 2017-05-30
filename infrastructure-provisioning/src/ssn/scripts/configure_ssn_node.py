@@ -47,6 +47,17 @@ def cp_key(keyfile, host_string, os_user):
         return False
 
 
+def cp_backup_scripts(dlab_path):
+    try:
+        with cd(dlab_path + "tmp/"):
+            put('/root/scripts/backup.py', "backup.py")
+            put('/root/scripts/restore.py', "restore.py")
+            run('chmod +x backup.py restore.py')
+        return True
+    except:
+        return False
+
+
 def creating_service_directories(dlab_path, os_user):
     try:
         if not exists(dlab_path):
@@ -121,6 +132,10 @@ if __name__ == "__main__":
 
     print "Copying key"
     if not cp_key(args.keyfile, env.host_string, args.os_user):
+        sys.exit(1)
+
+    print "Copying backup scripts"
+    if not cp_backup_scripts(args.dlab_path):
         sys.exit(1)
 
     print "Ensuring safest ssh ciphers"

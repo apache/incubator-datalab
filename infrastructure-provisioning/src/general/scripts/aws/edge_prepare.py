@@ -58,6 +58,7 @@ if __name__ == "__main__":
     edge_conf['notebook_policy_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Policy'
     edge_conf['notebook_role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Profile'
     edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb-SG'
+    edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
 
     # FUSE in case of absence of user's key
     fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
@@ -72,8 +73,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SUBNET]')
         print '[CREATE SUBNET]'
-        params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {}" \
-                 .format(edge_conf['vpc_id'], edge_conf['tag_name'], edge_conf['service_base_name'], os.environ['edge_user_name'])
+        params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {}" \
+                 .format(edge_conf['vpc_id'], edge_conf['tag_name'], edge_conf['service_base_name'],
+                         os.environ['edge_user_name'], edge_conf['private_subnet_prefix'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:

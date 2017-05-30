@@ -31,6 +31,8 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Billing report](#Billing_Report)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Backup and Restore](#Backup_and_Restore)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Troubleshooting](#Troubleshooting)
 
 [Development](#Development)
@@ -269,21 +271,22 @@ The following AWS resources will be created:
 
 List of parameters for Edge node creation:
 
-| Parameter                  | Description/Value                                                                 |
-|----------------------------|-----------------------------------------------------------------------------------|
-| conf\_resource             | edge                                                                              |
-| conf\_os\_user             | Name of the SSH user                                                              |
-| conf\_os\_family           | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
-| conf\_service\_base\_name  | Unique infrastructure value, specified during SSN deployment                      |
-| conf\_key\_name            | Name of the uploaded SSH key file (without ".pem")                                |
-| edge\_user\_name           | Name of the user                                                                  |
-| aws\_vpc\_id               | ID of AWS VPC where infrastructure is being deployed                              |
-| aws\_region                | AWS region where infrastructure was deployed                                      |
-| aws\_security\_groups\_ids | One or more id’s of the SSN instance security group                               |
-| aws\_subnet\_id            | ID of the AWS public subnet where Edge will be deployed                           |
-| aws\_iam\_user             | Name of AWS IAM user                                                              |
-| conf\_tag\_resource\_id          | The name of tag for billing reports                                                      |
-| action                     | create                                                                            |
+| Parameter                  | Description/Value                                                                     |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | edge                                                                              |
+| conf\_os\_user                 | Name of the SSH user                                                              |
+| conf\_os\_family               | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name               | Name of the user                                                                  |
+| aws\_vpc\_id                   | ID of AWS VPC where infrastructure is being deployed                              |
+| aws\_region                    | AWS region where infrastructure was deployed                                      |
+| aws\_security\_groups\_ids     | One or more id’s of the SSN instance security group                               |
+| aws\_subnet\_id                | ID of the AWS public subnet where Edge will be deployed                           |
+| aws\_iam\_user                 | Name of AWS IAM user                                                              |
+| aws\_private\_subnet\_prefix   | Prefix of the private subnet                                                      |
+| conf\_tag\_resource\_id        | The name of tag for billing reports                                               |
+| action                         | create                                                                            |
 
 ### Start/Stop <a name=""></a>
 
@@ -321,7 +324,7 @@ List of parameters for Edge node recreation:
 | aws\_subnet\_id            | ID of the AWS public subnet where Edge was deployed                               |
 | aws\_iam\_user             | Name of AWS IAM user                                                              |
 | edge\_elastic\_ip          | AWS Elastic IP address which was associated to Edge node                          |
-| conf\_tag\_resource\_id          | The name of tag for billing reports                                                      |
+| conf\_tag\_resource\_id    | The name of tag for billing reports                                               |
 | action                     | Create                                                                            |
 
 ## Notebook node <a name="Notebook_node"></a>
@@ -346,7 +349,7 @@ List of parameters for Notebook node creation:
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | aws\_security\_groups\_ids    | ID of the SSN instance's security group                                           |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor)                   |
-| conf\_tag\_resource\_id             | The name of tag for billing reports                                                         |
+| conf\_tag\_resource\_id       | The name of tag for billing reports                                               |
 | action                        | Create                                                                            |
 
 ### Stop
@@ -469,7 +472,7 @@ List of parameters for EMR cluster creation:
 | notebook\_instance\_name    | Name of the Notebook EMR will be linked to                   |
 | edge\_user\_name            | Value that previously was used when Edge being provisioned   |
 | aws\_region                 | AWS region where infrastructure was deployed                 |
-| conf\_tag\_resource\_id           | The name of tag for billing reports                          |
+| conf\_tag\_resource\_id     | The name of tag for billing reports                          |
 | action                      | create                                                       |
 
 **Note:** If “Spot instances” is enabled, EMR Slave nodes will be created as EC2 Spot instances.
@@ -545,6 +548,41 @@ If you want billing to work as a separate process from the Self-Service use foll
 ```
 java -cp /opt/dlab/webapp/lib/billing/billing-x.y.jar com.epam.dlab.BillingScheduler --conf /opt/dlab/conf/billing.yml
 ```
+
+## Backup and Restore <a name="Backup_and_Restore"></a>
+
+All DLab configuration files, keys, certificates, jars, database and logs can be saved to backup file.
+
+Scripts for backup and restore is located in ```dlab_path/tmp/```. Default: ```/opt/dlab/tmp/```
+
+List of parameters for run backup:
+
+| Parameter      | Description/Value                                                                                                       |
+|----------------|-------------------------------------------------------------------------------------------------------------------------|
+| --dlab\_path   | Path to DLab. Default: /opt/dlab/                                                                                       |
+| --configs      | Comma separated names of config files, like "security.yml", etc. Default: all                                           |
+| --keys         | Comma separated names of keys, like "user_name.pub". Default: all                                                       |
+| --certs        | Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all |
+| --jars         | Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip   |
+| --db           | Mongo DB. Key without arguments. Default: disable                                                                       |
+| --logs         | All logs (include docker). Key without arguments. Default: disable                                                      |
+
+List of parameters for run restore:
+
+| Parameter      | Description/Value                                                                                                       |
+|----------------|-------------------------------------------------------------------------------------------------------------------------|
+| --dlab\_path   | Path to DLab. Default: /opt/dlab/                                                                                       |
+| --configs      | Comma separated names of config files, like "security.yml", etc. Default: all                                           |
+| --keys         | Comma separated names of keys, like "user_name.pub". Default: all                                                       |
+| --certs        | Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all |
+| --jars         | Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip   |
+| --db           | Mongo DB. Key without arguments. Default: disable                                                                       |
+| --file         | Full or relative path to backup file or folder. Required field                                                          |
+| --force        | Force mode. Without any questions. Key without arguments. Default: disable                                              |
+
+**Note:** You can type ```-h``` or ```--help``` for usage details.
+
+**Note:** Restore process required stopping services.
 
 ## Troubleshooting <a name="Troubleshooting"></a>
 
@@ -774,6 +812,45 @@ npm install
 ```
 npm run build.prod
 ```
+
+### Prepare HTTPS prerequisites 
+
+To enable a SSL connection the web server should have a Digital Certificate.
+To create a server certificate, follow these steps:
+
+  * Create the keystore.
+
+  * Export the certificate from the keystore.
+
+  * Sign the certificate.
+
+  * Import the certificate into a truststore: a repository of certificates used for verifying the certificates. A truststore typically contains more than one certificate.
+
+Please find below set of commands to create certificate, depending on OS.
+
+#### Create Unix/Ubuntu server certificate 
+
+Pay attention that the last command has to be executed with administrative permissions.
+```
+keytool -genkeypair -alias dlab -keyalg RSA -storepass KEYSTORE_PASSWORD -keypass KEYSTORE_PASSWORD -keystore ~/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"
+keytool -exportcert -alias dlab -storepass KEYSTORE_PASSWORD -file ~/keys/dlab.crt -keystore ~/keys/dlab. keystore.jks
+sudo keytool -importcert -trustcacerts -alias dlab -file ~/keys/dlab.crt -noprompt -storepass changeit -keystore %JRE_HOME%/lib/security/cacerts
+```
+#### Create Windows server certificate
+
+Pay attention that the last command has to be executed with administrative permissions.
+To achieve this the command line (cmd) should be ran with administrative permissions.  
+```
+"%JRE_HOME%\bin\keytool" -genkeypair -alias dlab -keyalg RSA -storepass KEYSTORE_PASSWORD -keypass KEYSTORE_PASSWORD -keystore <DRIVE_LETTER>:\home\%USERNAME%\keys\dlab.keystore.jks -keysize 2048 -dname "CN=localhost"
+"%JRE_HOME%\bin\keytool" -exportcert -alias dlab -storepass KEYSTORE_PASSWORD -file <DRIVE_LETTER>:\home\%USERNAME%\keys\dlab.crt -keystore <DRIVE_LETTER>:\home\%USERNAME%\keys\dlab.keystore.jks
+"%JRE_HOME%\bin\keytool" -importcert -trustcacerts -alias dlab -file <DRIVE_LETTER>:\home\%USERNAME%\keys\dlab.crt -noprompt -storepass changeit -keystore "%JRE_HOME%\lib\security\cacerts"
+
+Useful command
+"%JRE_HOME%\bin\keytool" -list -alias dlab -storepass changeit -keystore "%JRE_HOME%\lib\security\cacerts"
+"%JRE_HOME%\bin\keytool" -delete -alias dlab -storepass changeit -keystore "%JRE_HOME%\lib\security\cacerts"
+```
+Where the ```<DRIVE_LETTER>``` must be the drive letter where you run the DLab.
+
 
 ## How to run locally <a name="run_locally"></a>
 
