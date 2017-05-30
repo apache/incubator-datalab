@@ -57,7 +57,7 @@ export class InstallLibrariesModel {
     public getLibrariesList(group: string, query: string): Observable<Response> {
         return this.librariesInstallationService
             .getAvailableLibrariesList({
-                image: this.notebook.image,
+                notebook_name: this.notebook.name,
                 group: group,
                 start_with: query
             });

@@ -66,7 +66,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   uploadLibraries(): void {
-     this.librariesInstallationService.getGroupsList(this.notebook.image)
+     this.librariesInstallationService.getGroupsList(this.notebook.name)
       .subscribe(
         response => this.libsUploadingStatus(response.status, response),
         error => this.libsUploadingStatus(error.status, error));
