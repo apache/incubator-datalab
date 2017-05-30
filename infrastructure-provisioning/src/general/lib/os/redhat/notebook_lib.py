@@ -350,7 +350,7 @@ def install_caffe(os_user):
             sudo('pip2 install -r python/requirements.txt')
             sudo('pip3.5 install -r python/requirements.txt')
             sudo('cp Makefile.config.example Makefile.config')
-            sudo('sed -i \'/^PYTHON_INCLUDE \:=/s/\\\/\/usr\/lib64\/python2.7\/site-packages\/numpy\/core\/include /g\' Makefile.config')
+            sudo('sed -i \'/^PYTHON_INCLUDE \:=/s/\\\\/\/usr\/lib64\/python2.7\/site-packages\/numpy\/core\/include /g\' Makefile.config')
             sudo('sed -i \'/\/usr\/lib\/python2.7\/dist-packages\/numpy\/core\/include/d\' Makefile.config')
             sudo('sed -i \'/BLAS \:=/d\' Makefile.config')
             sudo('echo "BLAS := open" >> Makefile.config')
