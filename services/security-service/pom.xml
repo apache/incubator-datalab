@@ -7,6 +7,13 @@
 		<version>1.0</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
+	
+	<scm>
+    	<connection>scm:git:file://./../..</connection>
+    	<url>scm:git:file://../../..</url>
+    	<tag>HEAD</tag>
+	</scm>
+	
 	<artifactId>security-service</artifactId>
 	<dependencies>
 		<dependency>
@@ -42,6 +49,56 @@
     </dependencies>
 	<build>
 		<plugins>
+<!-- 			<plugin> -->
+<!--     			<groupId>org.codehaus.mojo</groupId> -->
+<!--     			<artifactId>properties-maven-plugin</artifactId> -->
+<!--     			<version>1.0.0</version> -->
+<!-- 		        <executions> -->
+<!-- 		          <execution> -->
+<!-- 		            <phase>initialize</phase> -->
+<!-- 		            <goals> -->
+<!-- 		              <goal>read-project-properties</goal> -->
+<!-- 		            </goals> -->
+<!-- 		            <configuration> -->
+<!-- 		              <files> -->
+<!-- 		                <file>../../build.properties</file> -->
+<!-- 		              </files> -->
+<!-- 		            </configuration> -->
+<!-- 		          </execution> -->
+<!-- 		        </executions> -->
+<!-- 			</plugin> -->
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<doCheck>false</doCheck>
+					<doUpdate>false</doUpdate>
+					
+<!-- 					<providerImplementations> -->
+						
+<!-- 					</providerImplementations> -->
+					<getRevisionOnlyOnce>true</getRevisionOnlyOnce>
+					<revisionOnScmFailure>nogit</revisionOnScmFailure>
+					
+					      <format>{0,number}.{1,number}.{2,number}</format>
+      <items>
+        <item>buildNumber0</item>
+        <item>buildNumber1</item>
+        <item>buildNumber2</item>
+      </items>
+				</configuration>
+      		</plugin>
+      
 			<plugin>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>${maven-shade-plugin.version}</version>
@@ -52,11 +109,10 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<finalName>${project.artifactId}-${project.parent.version}</finalName>
 							<createDependencyReducedPom>false</createDependencyReducedPom>
 							<transformers>
 								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>	
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<mainClass>com.epam.dlab.auth.SecurityServiceApplication</mainClass>
@@ -64,9 +120,9 @@
 										<Created-By>EPAM Systems</Created-By>
 										<Name>com/epam/dlab/auth</Name>
 										<Implementation-Title>DLab Security Service</Implementation-Title>
-										<Implementation-Version>${project.parent.version}</Implementation-Version>
+										<Implementation-Version>${project.parent.version} (${buildNumber}) ${scmBranch}</Implementation-Version>
 										<Implementation-Vendor>EPAM Systems</Implementation-Vendor>
-										<Build-Time>${maven.build.timestamp}</Build-Time>
+										<Build-Time>${maven.build.timestamp} - ${timestamp}</Build-Time>
 										<Build-OS>${os.name}</Build-OS>
 									</manifestEntries>
 								</transformer>

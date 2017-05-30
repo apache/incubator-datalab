@@ -3,13 +3,13 @@
   <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.epam.dlab</groupId>
-    <artifactId>dlab</artifactId>
-    <version>1.0</version>
+    <artifactId>dlab-versionig</artifactId>
+    <version>${dlab.version}</version>
     <packaging>jar</packaging>
 
 	<scm>
-    	<connection>scm:git:file://./../..</connection>
-    	<url>scm:git:file://../../..</url>
+    	<connection>scm:git:file://.</connection>
+    	<url>scm:git:file://.</url>
     	<tag>HEAD</tag>
 	</scm>
 
@@ -31,26 +31,26 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-            
-<!-- 			<plugin> -->
-<!--     			<groupId>org.codehaus.mojo</groupId> -->
-<!--     			<artifactId>properties-maven-plugin</artifactId> -->
-<!--     			<version>1.0.0</version> -->
-<!-- 		        <executions> -->
-<!-- 		          <execution> -->
-<!-- 		            <phase>initialize</phase> -->
-<!-- 		            <goals> -->
-<!-- 		              <goal>read-project-properties</goal> -->
-<!-- 		            </goals> -->
-<!-- 		            <configuration> -->
-<!-- 		              <files> -->
-<!-- 		                <file>../../build.properties</file> -->
-<!-- 		              </files> -->
-<!-- 		            </configuration> -->
-<!-- 		          </execution> -->
-<!-- 		        </executions> -->
-<!-- 			</plugin> -->
-			
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>read-project-properties</goal>
+						</goals>
+						<configuration>
+							<files>
+								<file>mvn.properties</file>
+							</files>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>buildnumber-maven-plugin</artifactId>
@@ -66,17 +66,8 @@
 				<configuration>
 					<doCheck>false</doCheck>
 					<doUpdate>false</doUpdate>
-					
-<!-- 					<providerImplementations> -->
-						
-<!-- 					</providerImplementations> -->
 					<getRevisionOnlyOnce>true</getRevisionOnlyOnce>
-					<revisionOnScmFailure>nogit</revisionOnScmFailure>
-					
-					      <format>{0,number}</format>
-      <items>
-        <item>buildNumber</item>
-      </items>
+					<revisionOnScmFailure>none</revisionOnScmFailure>
 				</configuration>
       		</plugin>
       
@@ -98,13 +89,15 @@
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<mainClass>com.epam.dlab.Test</mainClass>
 									<manifestEntries>
-										<Created-By>EPAM Systems</Created-By>
+										<Created-By>&lt;EPAM&gt; Systems</Created-By>
 										<Name>com/epam/dlab</Name>
 										<Implementation-Title>DLab Security Service</Implementation-Title>
-										<Implementation-Version>${project.version} (${buildNumber}) ${scmBranch}</Implementation-Version>
-										<Implementation-Vendor>EPAM Systems</Implementation-Vendor>
-										<Build-Time>${maven.build.timestamp} - ${timestamp}</Build-Time>
+										<Implementation-Version>${dlab.version}</Implementation-Version>
+										<Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
+										<Build-Time>${maven.build.timestamp}</Build-Time>
 										<Build-OS>${os.name}</Build-OS>
+										<GIT-Branch>${scmBranch}</GIT-Branch>
+										<GIT-Commit>${buildNumber}</GIT-Commit>
 									</manifestEntries>
 								</transformer>
 							</transformers>
@@ -112,7 +105,6 @@
 					</execution>
 				</executions>
 			</plugin>
-            
         </plugins>
     </build>
 </project>

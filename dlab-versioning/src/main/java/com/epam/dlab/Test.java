@@ -6,7 +6,7 @@ public class Test {
 		Package pkg = Test.class.getPackage();
 		System.out.println("Name    " + pkg.getName());
 		System.out.println("Title   " + pkg.getImplementationTitle());
-		System.out.println("Version " + pkg.getImplementationVersion());
+		System.out.println("Version " + pkg.getImplementationVersion()); //java.util.jar.Attributes.Name.IMPLEMENTATION_VERSION
 		System.out.println("Vendor  " + pkg.getImplementationVendor());
 
 		System.out.println("Build  ");
