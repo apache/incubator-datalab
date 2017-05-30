@@ -403,7 +403,7 @@ List of parameters for Notebook node to **get list** of available libraries:
 | notebook\_instance\_name      | Name of the Notebook instance to terminate                   |
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
-| action                        | list_libs                                                                           |
+| action                        | lib_list                                                                           |
 
 **Note:** This operation will returns a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
 
@@ -432,7 +432,7 @@ List of parameters for Notebook node to **install** additional libraries:
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | additional_libs               | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg)    |
-| action                        | install_libs                                                                       |
+| action                        | lib_install                                                                       |
 
 **Example** of additional_libs parameter:
 

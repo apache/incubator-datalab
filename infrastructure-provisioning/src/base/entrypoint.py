@@ -146,10 +146,10 @@ if __name__ == "__main__":
         with hide('running'):
             local("/bin/recreate.py")
 
-    elif args.action == 'install_libs':
+    elif args.action == 'lib_install':
         with hide('running'):
             local("/bin/install_libs.py")
 
-    elif args.action == 'list_libs':
+    elif args.action == 'lib_list':
         with hide('running'):
             local("/bin/list_libs.py")
