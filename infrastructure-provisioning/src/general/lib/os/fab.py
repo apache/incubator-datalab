@@ -185,6 +185,9 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo('pip install jupyter --no-cache-dir')
             sudo('rm -rf ' + jupyter_conf_file)
             run('jupyter notebook --generate-config --config ' + jupyter_conf_file)
+            with cd('/home/{}'.format(os_user)):
+                run('mkdir -p ~/.jupyter/custom/')
+                run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
             sudo('echo "c.NotebookApp.ip = \'*\'" >> ' + jupyter_conf_file)
             sudo('echo c.NotebookApp.open_browser = False >> ' + jupyter_conf_file)
             sudo('echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
@@ -219,8 +222,6 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                 sudo("systemctl daemon-reload")
                 sudo("systemctl enable jupyter-notebook")
                 sudo("systemctl start jupyter-notebook")
-            sudo('mkdir -p /home/{}/.jupyter/custom'.format(os_user))
-            sudo('echo "#notebook-container { width: auto; }" > /home/{}/.jupyter/custom/custom.css'.format(os_user))
             sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
