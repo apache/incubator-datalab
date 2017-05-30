@@ -345,6 +345,7 @@ def install_caffe(os_user):
         sudo('yum install -y protobuf-devel leveldb-devel snappy-devel opencv-devel boost-devel hdf5-devel gcc gcc-c++')
         sudo('yum install -y gflags-devel glog-devel lmdb-devel')
         sudo('yum install -y openblas-devel gflags-devel glog-devel lmdb-devel')
+        sudo('yum install -y http://mirror.centos.org/centos/7/os/x86_64/Packages/snappy-devel-1.1.0-3.el7.x86_64.rpm')
         sudo('git clone https://github.com/BVLC/caffe.git')
         with cd('/home/{}/caffe/'.format(os_user)):
             sudo('pip2 install -r python/requirements.txt')
