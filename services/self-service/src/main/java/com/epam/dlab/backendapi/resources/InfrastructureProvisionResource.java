@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
@@ -153,14 +154,15 @@ public class InfrastructureProvisionResource implements DockerAPI {
      */
     @POST
     @Path("/lib_groups")
-    public Iterable<String> getLibGroupList(@Auth UserInfo userInfo, @NotNull String imageName) {
-        LOGGER.trace("Loading list of lib groups for user {} and image {}", userInfo.getName(), imageName);
+    public Iterable<String> getLibGroupList(@Auth UserInfo userInfo, @NotNull String exploratoryName) {
+        LOGGER.trace("Loading list of lib groups for user {} and exploratory {}", userInfo.getName(), exploratoryName);
         try {
+        	UserInstanceDTO userInstance = expDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
         	return ExploratoryLibCache
         			.getCache()
-        			.getLibGroupList(userInfo, imageName);
+        			.getLibGroupList(userInfo, userInstance);
         } catch (Throwable t) {
-        	LOGGER.error("Cannot load list of lib groups for user {} and image {}", userInfo.getName(), imageName, t);
+        	LOGGER.error("Cannot load list of lib groups for user {} and exploratory {}", userInfo.getName(), exploratoryName, t);
             throw new DlabException("Cannot load list of libraries groups: " + t.getLocalizedMessage(), t);
         }
     }
@@ -174,10 +176,10 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Map<String, String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryGetLibsFormDTO formDTO) {
         LOGGER.trace("Loading list of libs for user {} with condition {}", userInfo.getName(), formDTO);
         try {
-        	//TODO add version of library?
+        	UserInstanceDTO userInstance = expDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
         	return ExploratoryLibCache
         			.getCache()
-        			.getLibList(userInfo, formDTO.getImage(), formDTO.getGroup(), formDTO.getStartWith());
+        			.getLibList(userInfo, userInstance, formDTO.getGroup(), formDTO.getStartWith());
         } catch (Throwable t) {
         	LOGGER.error("Cannot load list of libs for user {} with condition {}",
         			userInfo.getName(), formDTO, t);

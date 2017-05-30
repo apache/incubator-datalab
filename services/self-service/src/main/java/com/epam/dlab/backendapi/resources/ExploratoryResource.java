@@ -64,7 +64,6 @@ import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryStopDTO;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.exceptions.DlabException;
@@ -229,11 +228,10 @@ public class ExploratoryResource implements ExploratoryAPI {
         
         try {
             UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), name);
-            ExploratoryStopDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryStopDTO.class)
-            		.withNotebookImage(userInstance.getImageName())
-                    .withExploratoryName(name)
-                    .withNotebookInstanceName(userInstance.getExploratoryId())
-                    .withConfKeyDir(settingsDAO.getConfKeyDir());
+            ExploratoryActionDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class);
+            dto.withNotebookImage(userInstance.getImageName())
+            	.withNotebookInstanceName(userInstance.getExploratoryId())
+            	.withExploratoryName(name);
 
             String uuid = provisioningService.post(EXPLORATORY_STOP, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);

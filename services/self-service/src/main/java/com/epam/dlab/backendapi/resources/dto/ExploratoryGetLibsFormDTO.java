@@ -27,9 +27,9 @@ import com.google.common.base.MoreObjects;
  * */
 public class ExploratoryGetLibsFormDTO {
     @NotBlank
-    @JsonProperty
-    private String image;
-
+    @JsonProperty("notebook_name")
+    private String notebookName;
+    
     @NotBlank
     @JsonProperty
     private String group;
@@ -39,9 +39,9 @@ public class ExploratoryGetLibsFormDTO {
     private String startWith;
 
 
-    /** Returns the name of image. */
-    public String getImage() {
-        return image;
+    /** Returns the name of notebook. */
+    public String getNotebookName() {
+        return notebookName;
     }
 
     /** Returns the name of group. */
@@ -58,7 +58,7 @@ public class ExploratoryGetLibsFormDTO {
     @Override
     public String toString() {
     	return MoreObjects.toStringHelper(this)
-    			.add("image", image)
+    			.add("notebookName", notebookName)
     			.add("group", group)
     			.add("startWith", startWith)
     			.toString();

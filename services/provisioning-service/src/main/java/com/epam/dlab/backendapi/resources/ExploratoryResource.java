@@ -30,7 +30,6 @@ import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryStopDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -82,7 +81,7 @@ public class ExploratoryResource implements DockerCommands {
 
     @Path("/stop")
     @POST
-    public String stop(@Auth UserInfo ui, ExploratoryStopDTO dto) throws IOException, InterruptedException {
+    public String stop(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws IOException, InterruptedException {
         return action(ui.getName(), dto, DockerAction.STOP);
     }
 
