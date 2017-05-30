@@ -182,6 +182,54 @@ These directories contain the log files for each template and for DLab back-end 
 
 ### Create
 
+For deploying DLAB at AWS cloud the IAM user with following permissions is required:
+```
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Action": [
+				"iam:ListRoles",
+				"iam:CreateRole",
+				"iam:CreateInstanceProfile",
+				"iam:PutRolePolicy",
+				"iam:AddRoleToInstanceProfile",
+				"iam:PassRole",
+				"iam:GetInstanceProfile"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
+		},
+		{
+			"Action": [
+				"ec2:DescribeImages",
+				"ec2:CreateTags",
+				"ec2:DescribeRouteTables",
+				"ec2:CreateRouteTable",
+				"ec2:AssociateRouteTable",
+				"ec2:DescribeVpcEndpoints",
+				"ec2:CreateVpcEndpoint",
+				"ec2:ModifyVpcEndpoint",
+				"ec2:DescribeInstances",
+				"ec2:RunInstances"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
+		},
+		{
+			"Action": [
+				"s3:ListAllMyBuckets",
+				"s3:CreateBucket",
+				"s3:PutBucketTagging",
+				"s3:GetBucketTagging"
+			],
+			"Effect": "Allow",
+			"Resource": "*"
+		}
+	]
+}
+```
+
 To build SSN node, following steps should be executed:
 
 1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed.
