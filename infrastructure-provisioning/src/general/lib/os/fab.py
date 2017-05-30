@@ -219,8 +219,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                 sudo("systemctl daemon-reload")
                 sudo("systemctl enable jupyter-notebook")
                 sudo("systemctl start jupyter-notebook")
-            sudo('mkdir -p /home/{}/.ipython/profile_default/static/custom'.format(os_user))
-            sudo('echo ".container { width: auto; }" > /home/{}/.ipython/profile_default/static/custom/custom.css'.format(os_user))
+            sudo('mkdir -p /home/{}/.jupyter/custom'.format(os_user))
+            sudo('echo "#notebook-container { width: auto; }" > /home/{}/.jupyter/custom/custom.css'.format(os_user))
             sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
