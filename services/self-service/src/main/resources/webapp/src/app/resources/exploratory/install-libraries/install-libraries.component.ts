@@ -89,9 +89,10 @@ export class InstallLibrariesComponent implements OnInit {
 
     this.isInSelectedList = this.model.selectedLibs.filter(el => JSON.stringify(el) === JSON.stringify(select)).length > 0;
 
-    this.isInstalled = this.notebook.libs.findIndex(libr =>
-      select.name === libr.name && select.group === libr.group && select.version === libr.version
-    ) >= 0;
+    if (this.notebook.libs && this.notebook.libs.length)
+      this.isInstalled = this.notebook.libs.findIndex(libr =>
+        select.name === libr.name && select.group === libr.group && select.version === libr.version
+      ) >= 0;
 
     return this.isInSelectedList || this.isInstalled;
   }
