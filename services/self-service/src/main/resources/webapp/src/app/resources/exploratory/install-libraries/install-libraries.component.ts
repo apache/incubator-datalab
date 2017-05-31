@@ -53,6 +53,7 @@ export class InstallLibrariesComponent implements OnInit {
 
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
+  private clear: number;
 
   @ViewChild('bindDialog') bindDialog;
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
@@ -144,7 +145,7 @@ export class InstallLibrariesComponent implements OnInit {
     } else {
       this.libs_uploaded = false;
       this.uploading = true;
-      setTimeout(() => this.uploadLibraries(), this.CHECK_GROUPS_TIMEOUT);
+      this.clear = window.setTimeout(() => this.uploadLibraries(), this.CHECK_GROUPS_TIMEOUT);
     }
   }
 
@@ -167,5 +168,7 @@ export class InstallLibrariesComponent implements OnInit {
     this.errorMessage = '';
     this.model.selectedLibs = [];
     this.filteredList = null ;
+
+    clearTimeout(this.clear);
   }
 }
