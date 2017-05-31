@@ -44,9 +44,11 @@ def add_pip_china_repository(dlab_path):
         # sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
 
 
-def build_docker_images(image_list):
+def build_docker_images(image_list, region, dlab_path):
     try:
         local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, env.host_string, args.dlab_path))
+        if region == 'cn-north-1':
+            add_pip_china_repository(dlab_path)
         for image in image_list:
             name = image['name']
             tag = image['tag']
@@ -75,7 +77,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print "Building dlab images"
-    if not build_docker_images(deeper_config):
+    if not build_docker_images(deeper_config, args.region, args.dlab_path):
         sys.exit(1)
 
     sys.exit(0)
