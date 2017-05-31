@@ -41,7 +41,7 @@ if __name__ == "__main__":
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['os_user'] = os.environ['conf_os_user']
     notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['notebook_name']).get('Private')
-    notebook_config['keyfile'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
+    notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     additional_libs = str(ast.literal_eval(os.environ['additional_libs']))
 
     try:
