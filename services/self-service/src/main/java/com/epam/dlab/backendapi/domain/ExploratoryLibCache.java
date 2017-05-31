@@ -168,6 +168,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 			ExploratoryActionDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class);
             dto.withNotebookImage(userInstance.getImageName())
             	.withNotebookInstanceName(userInstance.getExploratoryId())
+            	.withApplicationName(ResourceUtils.getApplicationNameFromImage(userInstance.getImageName()))
             	.withExploratoryName(userInstance.getExploratoryName());
 
 			String uuid = provisioningService.post(

@@ -106,7 +106,7 @@ public class ExploratoryDAO extends BaseDAO {
         if( opt.isPresent() ) {
             return opt.get();
         }
-        throw new DlabException(String.format("Exploratory instance for user {} with name {} not found.", user, exploratoryName));
+        throw new DlabException("Exploratory instance for user " + user + " with name " + exploratoryName +" not found.");
     }
 
     /** Inserts the info about notebook into Mongo database.
