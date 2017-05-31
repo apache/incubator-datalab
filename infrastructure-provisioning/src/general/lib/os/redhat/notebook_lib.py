@@ -372,7 +372,7 @@ def install_caffe(os_user):
 def install_caffe2(os_user):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
-        sudo('yum update')
+        sudo('yum update -y')
         sudo('yum install -y automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel '
              'python-devel snappy-devel')
         sudo('yum install -y http://mirror.centos.org/centos/7/os/x86_64/Packages/snappy-devel-1.1.0-3.el7.x86_64.rpm')
