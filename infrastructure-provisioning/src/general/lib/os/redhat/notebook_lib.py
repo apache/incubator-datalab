@@ -375,7 +375,7 @@ def install_caffe2(os_user):
         sudo('yum update -y')
         sudo('yum install -y automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel '
              'python-devel snappy-devel')
-        sudo('yum install -y http://mirror.centos.org/centos/7/os/x86_64/Packages/snappy-devel-1.1.0-3.el7.x86_64.rpm')
+        sudo('rpm -Uvh http://mirror.centos.org/centos/7/os/x86_64/Packages/snappy-devel-1.1.0-3.el7.x86_64.rpm')
         sudo('pip2 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future')
         sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
