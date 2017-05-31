@@ -69,8 +69,13 @@ export class InstallLibrariesComponent implements OnInit {
   uploadLibraries(): void {
      this.librariesInstallationService.getGroupsList(this.notebook.name)
       .subscribe(
-        response => this.libsUploadingStatus(response.status, response),
-        error => this.libsUploadingStatus(error.status, error));
+        response => this.libsUploadingStatus(response),
+        error => {
+          // this.libsUploadingStatus(error.status, error);
+
+          this.processError = true;
+          this.errorMessage = JSON.parse(error.message).message;
+        });
   }
 
   public installLibs(): void {
@@ -137,7 +142,7 @@ export class InstallLibrariesComponent implements OnInit {
     this.resetDialog();
   }
 
-  private libsUploadingStatus(status: number, groupsList): void {
+  private libsUploadingStatus(groupsList): void {
     if (groupsList.length) {
       this.groupsList = groupsList;
       this.libs_uploaded = true;

@@ -22,6 +22,9 @@ import { Observable } from 'rxjs/Observable';
 
 import { ApplicationServiceFacade } from './';
 
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/catch';
+
 @Injectable()
 export class LibrariesInstallationService {
 
@@ -30,18 +33,29 @@ export class LibrariesInstallationService {
     public getGroupsList(data): Observable<Response> {
         return this.applicationServiceFacade
         .buildGetGroupsList(data)
-        .map((response: Response) => response.json());
+        .map(response => response.json())
+        .catch((error: any) => {
+            return Observable.throw(
+                new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`)
+            )
+        });
     }
 
     public getAvailableLibrariesList(data): Observable<Response> {
         return this.applicationServiceFacade
         .buildGetAvailableLibrariesList(data)
-        .map((response: Response) => response.json());
+        .map((response: Response) => response.json())
+        .catch((error: any) => {
+            return Observable.throw(new Error(`${ error.status } ${ error.statusText } ${ error._body }`));
+        });
     }
 
     public installLibraries(data): Observable<Response> {
         return this.applicationServiceFacade
         .buildInstallLibraries(data)
-        .map((response: Response) => response);
+        .map((response: Response) => response)
+       .catch((error: any) => {
+            return Observable.throw(new Error(`${ error.status } ${ error.statusText }. ${ error._body }`));
+        });
     }
 }

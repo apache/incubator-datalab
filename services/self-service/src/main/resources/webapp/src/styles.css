@@ -199,7 +199,7 @@ body {
 .terminating,
 .failed,
 .error {
-  color: #f1696e;
+  color: #f1696e !important;
 }
 
 .not-allowed {

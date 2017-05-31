@@ -197,21 +197,21 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
-  public buildGetGroupsList(data) {
+  public buildGetGroupsList(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_GROUPS),
       data,
       this.getRequestOptions(true, true));
   }
 
-  public buildGetAvailableLibrariesList(data) {
+  public buildGetAvailableLibrariesList(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_LIST),
       data,
       this.getRequestOptions(true, true));
   }
 
-  public buildInstallLibraries(data) {
+  public buildInstallLibraries(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_INSTALL),
       data,
