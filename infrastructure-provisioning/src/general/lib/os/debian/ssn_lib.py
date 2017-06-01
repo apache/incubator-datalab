@@ -181,7 +181,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                     sudo('mkdir -p {0}{1}/'.format(web_path, service))
                     sudo('chown -R {0}:{0} {1}{2}'.format(os_user, web_path, service))
                     local('scp -r -i {0} /root/web_app/{3}/*.jar {1}:{2}{3}/'.format(keyfile, host_string, web_path, service))
-                    jar = sudo('ls {0}{1}/'.format(web_path, service))
+                    jar = sudo('cd {0}{1}; find {1}*.jar-type f'.format(web_path, service))
                     sudo('ln -s {0}{2}/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
                     local('scp -r -i {0} /root/web_app/{2}/*.yml {1}:/tmp/yml_tmp/'.format(keyfile, host_string, service))
                 sudo('mv /tmp/yml_tmp/* ' + os.environ['ssn_dlab_path'] + 'conf/')
