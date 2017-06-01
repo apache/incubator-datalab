@@ -101,8 +101,8 @@ public class LdapUserDAO {
     }
 
     private Map<String, Object> searchUsersAttributes(final String username, LdapConnection userCon) throws IOException, LdapException {
-        Map<String, Object> contextMap = new HashMap();
-        Map<String, Object> userAttributes = new HashMap();
+        Map<String, Object> contextMap = new HashMap<>();
+        Map<String, Object> userAttributes = new HashMap<>();
         for(Request request: requests) {
             if (request.getName().equalsIgnoreCase(USER_LOOK_UP)) {
                 LOG.info("Request: {}", request.getName());
@@ -123,7 +123,9 @@ public class LdapUserDAO {
                     contextMap = mapper.transformSearchResult(cursor);
                     Iterator<Object> iterator = contextMap.values().iterator();
                     if(iterator.hasNext()) {
-                        userAttributes = (Map)iterator.next();
+                    	@SuppressWarnings("unchecked")
+						Map<String, Object> ua = (Map<String, Object>)iterator.next(); 
+                        userAttributes = ua;
                     }
                 }
             }
