@@ -24,8 +24,7 @@ import logging
 import traceback
 from dlab.fab import *
 from dlab.meta_lib import *
-from dlab.actions_lib import *
-from fabric.operations import *
+from fabric.api import *
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -36,31 +35,26 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    # generating variables dictionary
-    create_aws_config_files()
-
     try:
-        logging.info('[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]')
-        print '[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]'
+        logging.info('[GETTING ALL AVAILABLE PACKAGES]')
+        print '[GETTING ALL AVAILABLE PACKAGES]'
         notebook_config = dict()
         try:
             notebook_config['notebook_name'] = os.environ['notebook_instance_name']
             notebook_config['os_user'] = os.environ['conf_os_user']
             notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['notebook_name']).get('Private')
             notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-            notebook_config['libs'] = os.environ['libs']
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
-        params = '--os_user {} --notebook_ip {} --keyfile "{}" --libs "{}"' \
-            .format(notebook_config['os_user'], notebook_config['notebook_ip'],
-                    notebook_config['keyfile'], notebook_config['libs'])
+        params = "--os_user {} --notebook_ip {} --keyfile '{}'" \
+            .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
-            # Run script to install additional libs
-            local("~/scripts/{}.py {}".format('install_additional_libs', params))
+            # Run script to get available libs
+            local("~/scripts/{}.py {}".format('get_list_available_pkgs', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to install additional libraries.", str(err))
+        append_result("Failed to get available libraries.", str(err))
         sys.exit(1)

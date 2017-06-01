@@ -149,7 +149,6 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-
     try:
         print '[INSTALLING USERs KEY]'
         logging.info('[INSTALLING USERs KEY]')

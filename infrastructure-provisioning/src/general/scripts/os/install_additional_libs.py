@@ -20,9 +20,6 @@
 
 import argparse
 import sys
-import os
-from dlab.actions_lib import *
-from dlab.common_lib import *
 from dlab.notebook_lib import *
 from dlab.fab import *
 from fabric.api import *
