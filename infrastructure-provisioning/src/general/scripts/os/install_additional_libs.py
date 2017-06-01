@@ -27,6 +27,7 @@ from dlab.notebook_lib import *
 from dlab.fab import *
 from fabric.api import *
 import json
+import ast
 
 
 parser = argparse.ArgumentParser()
@@ -46,17 +47,17 @@ if __name__ == "__main__":
 
     print 'Installing libraries:' + args.libs
     general_status = list()
-    data = json.loads(args.libs.replace("'", "\""))
+    data = ast.literal_eval(args.libs)
     pkgs = {"libraries": {}}
 
     try:
-        for row in range(len(data['libs'])):
-            if not data['libs'][row]['group'] in pkgs['libraries'].keys():
-                pkgs["libraries"].update({data['libs'][row]['group']: []})
-            pkgs['libraries'][data['libs'][row]['group']].append(data['libs'][row]['name'])
-    except:
-        print "Failed to parse json with libraries."
-        raise Exception
+        for row in range(len(data)):
+            if not data[row]['group'] in pkgs['libraries'].keys():
+                pkgs["libraries"].update({data[row]['group']: []})
+            pkgs['libraries'][data[row]['group']].append(data[row]['name'])
+    except Exception as err:
+        append_result("Failed to parse libs list.", str(err))
+        sys.exit(1)
 
     try:
         print 'Installing os packages:', pkgs['libraries']['os_pkg']

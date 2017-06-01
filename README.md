@@ -431,13 +431,14 @@ List of parameters for Notebook node to **install** additional libraries:
 | notebook\_instance\_name      | Name of the Notebook instance to terminate                   |
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
-| additional_libs               | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg)    |
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg)    |
 | action                        | lib_install                                                                       |
 
 **Example** of additional_libs parameter:
 
 ```
 {
+  ...
   "libs": [
     {"group": "os_pkg", "name": "nmap"},
     {"group": "os_pkg", "name": "htop"},
@@ -445,6 +446,7 @@ List of parameters for Notebook node to **install** additional libraries:
     {"group": "pip3", "name": "configparser"},
     {"group": "r_pkg", "name": "rmarkdown"},
   ]
+  ...
 }
 ```
 

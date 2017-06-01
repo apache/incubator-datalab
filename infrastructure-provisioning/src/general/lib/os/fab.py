@@ -78,7 +78,7 @@ def install_pip3_pkg(requisites):
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
                 version = [i for i in ver if pip3_pkg in i][0].split('==')[1]
-                status.append({"group": "pip2", "name": pip3_pkg, "version": version, "status": "installed"})
+                status.append({"group": "pip3", "name": pip3_pkg, "version": version, "status": "installed"})
             except:
                 status.append({"group": "pip3", "name": pip3_pkg, "status": "failed", "error_message": ""})
         return status
