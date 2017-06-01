@@ -924,8 +924,14 @@ def jars(args, emr_dir):
 
 def yarn(args, yarn_dir):
     print "Downloading yarn configuration..."
-    s3client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
-    s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'))
+    if args.region == 'cn-north-1':
+        s3client = boto3.client('s3', config=Config(signature_version='s3v4'),
+                                endpoint_url='https://s3.cn-north-1.amazonaws.com.cn', region_name=args.region)
+        s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'),
+                                    endpoint_url='https://s3.cn-north-1.amazonaws.com.cn', region_name=args.region)
+    else:
+        s3client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
+        s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'))
     get_files(s3client, s3resource, args.user_name + '/' + args.cluster_name + '/config/', args.bucket, yarn_dir)
     local('sudo mv ' + yarn_dir + args.user_name + '/' + args.cluster_name + '/config/* ' + yarn_dir)
     local('sudo rm -rf ' + yarn_dir + args.user_name + '/')
