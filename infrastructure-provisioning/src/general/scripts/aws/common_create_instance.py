@@ -47,7 +47,7 @@ if __name__ == "__main__":
     instance_tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
     if args.node_name != '':
         try:
-            instance_id = get_instance_by_name(args.node_name)
+            instance_id = get_instance_by_name(args.infra_tag_name, args.node_name)
             if instance_id == '':
                 print "Creating instance %s of type %s in subnet %s with tag %s." % \
                       (args.node_name, args.instance_type, args.subnet_id, json.dumps(instance_tag))

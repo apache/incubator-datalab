@@ -28,13 +28,13 @@ import string
 from dlab.fab import *
 
 
-def get_instance_hostname(instance_name):
+def get_instance_hostname(tag_name, instance_name):
     try:
         public = ''
         private = ''
         ec2 = boto3.resource('ec2')
         instances = ec2.instances.filter(
-            Filters=[{'Name': 'tag:Name', 'Values': [instance_name]},
+            Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [instance_name]},
                      {'Name': 'instance-state-name', 'Values': ['running']}])
         for instance in instances:
             public = getattr(instance, 'public_dns_name')
@@ -103,11 +103,11 @@ def get_bucket_by_name(bucket_name):
         traceback.print_exc(file=sys.stdout)
 
 
-def get_instance_ip_address(instance_name):
+def get_instance_ip_address(tag_name, instance_name):
     try:
         ec2 = boto3.resource('ec2')
         instances = ec2.instances.filter(
-            Filters=[{'Name': 'tag:Name', 'Values': [instance_name]},
+            Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [instance_name]},
                      {'Name': 'instance-state-name', 'Values': ['running']}])
         ips = {}
         for instance in instances:
@@ -169,11 +169,11 @@ def get_instance_attr(instance_id, attribute_name):
         traceback.print_exc(file=sys.stdout)
 
 
-def get_instance_by_name(instance_name):
+def get_instance_by_name(tag_name, instance_name):
     try:
         ec2 = boto3.resource('ec2')
         instances = ec2.instances.filter(
-            Filters=[{'Name': 'tag:Name', 'Values': [instance_name]},
+            Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [instance_name]},
                      {'Name': 'instance-state-name', 'Values': ['running','pending','stopping','stopped']}])
         for instance in instances:
             return instance.id
@@ -610,10 +610,10 @@ def get_hadoop_version(cluster_name):
     return hadoop_version[0:3]
 
 
-def get_instance_status(instance_name):
+def get_instance_status(tag_name, instance_name):
     client = boto3.client('ec2')
     response = client.describe_instances(Filters=[
-        {'Name': 'tag:Name', 'Values': [instance_name]}]).get('Reservations')
+        {'Name': 'tag:{}'.format(tag_name), 'Values': [instance_name]}]).get('Reservations')
     for i in response:
         if len(response) > 1:
             inst = i.get('Instances')

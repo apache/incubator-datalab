@@ -16,7 +16,6 @@ limitations under the License.
 
 ****************************************************************************/
 
-
 import { Input, Output, Component, EventEmitter, ViewEncapsulation } from '@angular/core';
 
 @Component({

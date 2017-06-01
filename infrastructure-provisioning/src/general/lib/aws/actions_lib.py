@@ -871,10 +871,10 @@ def remove_vpc_endpoints(vpc_id):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_image_from_instance(instance_name='', image_name=''):
+def create_image_from_instance(tag_name='', instance_name='', image_name=''):
     ec2 = boto3.resource('ec2')
     instances = ec2.instances.filter(
-        Filters=[{'Name': 'tag:Name', 'Values': [instance_name]},
+        Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [instance_name]},
                  {'Name': 'instance-state-name', 'Values': ['running']}])
     for instance in instances:
         image = instance.create_image(Name=image_name,

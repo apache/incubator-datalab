@@ -217,7 +217,7 @@ def append_result(error, exception=''):
 def put_resource_status(resource, status, dlab_path, os_user):
     env['connection_attempts'] = 100
     keyfile = "/root/keys/" + os.environ['conf_key_name'] + ".pem"
-    hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-ssn')
+    hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag', os.environ['conf_service_base_name'] + '-ssn')
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
     sudo('python ' + dlab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))

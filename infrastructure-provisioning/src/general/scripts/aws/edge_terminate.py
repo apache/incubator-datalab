@@ -99,7 +99,8 @@ if __name__ == "__main__":
     edge_conf['edge_sg'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_conf['nb_sg'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
     edge_conf['edge_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['edge_instance_name']).get('Public')
+    edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'],
+                                                          edge_conf['edge_instance_name']).get('Public')
     edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
 
     try:
