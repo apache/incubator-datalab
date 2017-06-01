@@ -140,6 +140,9 @@ public class ExploratoryLibDAO extends BaseDAO {
      * @exception DlabException
      */
     public void updateLibraryFields(ExploratoryLibInstallStatusDTO dto) throws DlabException {
+    	if (dto.getLibs() == null) {
+    		return;
+    	}
     	for (LibInstallDTO lib : dto.getLibs()) {
 	        try {
 	            Document values = new Document(libraryFieldFilter(STATUS), lib.getStatus());
