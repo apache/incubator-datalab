@@ -33,6 +33,7 @@ import java.util.Optional;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibStatus;
@@ -140,6 +141,9 @@ public class ExploratoryLibDAO extends BaseDAO {
      * @exception DlabException
      */
     public void updateLibraryFields(ExploratoryLibInstallStatusDTO dto) throws DlabException {
+    	if (dto.getLibs() == null) {
+    		return;
+    	}
     	for (LibInstallDTO lib : dto.getLibs()) {
 	        try {
 	            Document values = new Document(libraryFieldFilter(STATUS), lib.getStatus());
@@ -150,7 +154,7 @@ public class ExploratoryLibDAO extends BaseDAO {
 	        		values.append(libraryFieldFilter(LIB_INSTALL_DATE), dto.getUptime());
 	        	}
 	        	if (lib.getErrorMessage() != null) {
-	        		values.append(libraryFieldFilter(LIB_ERROR_MESSAGE), lib.getErrorMessage());
+	        		values.append(libraryFieldFilter(LIB_ERROR_MESSAGE), DateRemoverUtil.removeDateFormErrorMessage(lib.getErrorMessage()));
 	        	}
 	            updateOne(USER_INSTANCES,
 	            		and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),

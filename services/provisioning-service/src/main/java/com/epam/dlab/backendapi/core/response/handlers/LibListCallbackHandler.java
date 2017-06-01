@@ -63,8 +63,11 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<ExploratoryL
 
 	@Override
     protected ExploratoryLibListStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryLibListStatusDTO status) throws DlabException {
+		if (UserInstanceStatus.FAILED == UserInstanceStatus.of(status.getStatus())) {
+        	return status;
+        }
     	if (resultNode == null) {
-            throw new DlabException("Can't handle response without property " + RESULT_NODE);
+    		throw new DlabException("Can't handle response result node is null");
     	}
 
         JsonNode resultFileNode = resultNode.get(FILE);
