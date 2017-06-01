@@ -73,9 +73,9 @@ if __name__ == "__main__":
     notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)
 
     # generating variables regarding EDGE proxy on Notebook instance
-    instance_hostname = get_instance_hostname(notebook_config['instance_name'])
+    instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_instance_hostname = get_instance_hostname(edge_instance_name)
+    edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
     keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
 
     # configuring proxy on Notebook instance
@@ -165,7 +165,8 @@ if __name__ == "__main__":
         ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
         if ami_id == '':
             print "Looks like it's first time we configure notebook server. Creating image."
-            image_id = create_image_from_instance(instance_name=notebook_config['instance_name'],
+            image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
+                                                  instance_name=notebook_config['instance_name'],
                                                   image_name=notebook_config['expected_ami_name'])
             if image_id != '':
                 print "Image was successfully created. It's ID is " + image_id
@@ -175,8 +176,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # generating output information
-    ip_address = get_instance_ip_address(notebook_config['instance_name']).get('Private')
-    dns_name = get_instance_hostname(notebook_config['instance_name'])
+    ip_address = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
+    dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     tensorboard_url = "http://" + ip_address + ":6006/"
     jupyter_ip_url = "http://" + ip_address + ":8888/"
     gitweb_ip_url = "http://" + ip_address + ":8085/"
@@ -185,7 +186,7 @@ if __name__ == "__main__":
     print "Instance name: " + notebook_config['instance_name']
     print "Private DNS: " + dns_name
     print "Private IP: " + ip_address
-    print "Instance ID: " + get_instance_by_name(notebook_config['instance_name'])
+    print "Instance ID: " + get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name'])
     print "Instance type: " + notebook_config['instance_type']
     print "Key name: " + notebook_config['key_name']
     print "User key name: " + notebook_config['user_keyname']
@@ -204,7 +205,7 @@ if __name__ == "__main__":
     with open("/root/result.json", 'w') as result:
         res = {"hostname": dns_name,
                "ip": ip_address,
-               "instance_id": get_instance_by_name(notebook_config['instance_name']),
+               "instance_id": get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name']),
                "master_keyname": os.environ['conf_key_name'],
                "tensorboard_log_dir": "/var/log/tensorboard",
                "notebook_name": notebook_config['instance_name'],
