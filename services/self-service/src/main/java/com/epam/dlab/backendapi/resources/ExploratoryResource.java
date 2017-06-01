@@ -293,6 +293,7 @@ public class ExploratoryResource implements ExploratoryAPI {
             List<LibInstallDTO> libs = new ArrayList<>();
         	ExploratoryLibInstallDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryLibInstallDTO.class)
         			.withNotebookImage(userInstance.getImageName())
+        			.withApplicationName(ResourceUtils.getApplicationNameFromImage(userInstance.getImageName()))
                 	.withNotebookInstanceName(userInstance.getExploratoryId())
                 	.withExploratoryName(formDTO.getNotebookName())
                 	.withLibs(libs);

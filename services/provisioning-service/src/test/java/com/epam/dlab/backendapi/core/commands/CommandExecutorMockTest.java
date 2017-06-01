@@ -19,7 +19,6 @@ limitations under the License.
 package com.epam.dlab.backendapi.core.commands;
 
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
-import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ResourceCallbackHandler;
 import com.epam.dlab.rest.client.RESTServiceMock;
@@ -86,11 +85,17 @@ public class CommandExecutorMockTest {
 		exec.getResultSync();
 
 		RESTServiceMock selfService = new RESTServiceMock();
+		if (action == DockerAction.LIB_INSTALL) {
+			throw new Exception("Unimplemented action " + action);
+		}
+		/*
 		ResourceCallbackHandler<?> handler = action.equals(DockerAction.LIB_INSTALL) ?
 				new LibInstallCallbackHandler(selfService, action,
 				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec)):
 				new LibListCallbackHandler(selfService, action,
 				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
+		*/
+		ResourceCallbackHandler<?> handler = new LibListCallbackHandler(selfService, action, getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
 
 		handler.handle(exec.getResponseFileName(), Files.readAllBytes(Paths.get(exec.getResponseFileName())));
 

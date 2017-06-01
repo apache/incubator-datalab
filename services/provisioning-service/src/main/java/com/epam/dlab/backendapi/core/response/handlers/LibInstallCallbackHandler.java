@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -51,9 +52,9 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
 	 */
     private static final String LIBS_ABSOLUTE_PATH = RESPONSE_NODE + "." + RESULT_NODE + "." + LIBS;
 
-    /** Name of exploratory.
+    /** Exploratory DTO.
      */
-    private final String exploratoryName;
+    private final ExploratoryLibInstallDTO dto;
 
     /** Instantiate handler for process of docker response for libraries installation.
      * @param selfService REST pointer for Self Service.
@@ -61,9 +62,9 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
      * @param uuid request UID.
      * @param exploratoryName the name of exploratory.
      */
-    public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String exploratoryName) {
+    public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, ExploratoryLibInstallDTO dto) {
         super(selfService, user, uuid, action);
-        this.exploratoryName = exploratoryName;
+        this.dto = dto;
     }
 
 	@Override
@@ -73,9 +74,18 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
 
 	@Override
     protected ExploratoryLibInstallStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryLibInstallStatusDTO status) throws DlabException {
-        if (resultNode == null) {
-            throw new DlabException("Can't handle response without property " + RESPONSE_NODE + "." + RESULT_NODE);
+        if (UserInstanceStatus.FAILED == UserInstanceStatus.of(status.getStatus())) {
+        	for (LibInstallDTO lib : dto.getLibs()) {
+        		lib
+        			.withStatus(status.getStatus())
+        			.withErrorMessage(status.getErrorMessage());
+        	}
+        	return status
+        			.withLibs(dto.getLibs());
         }
+    	if (resultNode == null) {
+    		throw new DlabException("Can't handle response result node is null");
+    	}
 
         JsonNode nodeLibs = resultNode.get(LIBS);
         if (nodeLibs == null) {
@@ -93,7 +103,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
     @Override
     protected ExploratoryLibInstallStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
         return super.getBaseStatusDTO(status)
-        		.withExploratoryName(exploratoryName)
+        		.withExploratoryName(dto.getExploratoryName())
         		.withUptime(Date.from(Instant.now()));
     }
 }
