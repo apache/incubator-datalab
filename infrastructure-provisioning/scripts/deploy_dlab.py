@@ -78,17 +78,17 @@ def deploy_dlab(args):
     local('mkdir -p {}/web_app/self-service/'.format(args.workspace_path))
     local('mkdir -p {}/web_app/billing/'.format(args.workspace_path))
     local('cp {0}/services/self-service/self-service.yml {0}/web_app/self-service/'.format(args.workspace_path))
-    local('cp {0}/services/self-service/target/self-service-1.0.jar {0}/web_app/self-service/'.
+    local('cp {0}/services/self-service/target/self-service-*.jar {0}/web_app/self-service/'.
           format(args.workspace_path))
     local('cp {0}/services/provisioning-service/provisioning.yml {0}/web_app/provisioning-service/'.
           format(args.workspace_path))
-    local('cp {0}/services/provisioning-service/target/provisioning-service-1.0.jar {0}/web_app/provisioning-service/'.
+    local('cp {0}/services/provisioning-service/target/provisioning-service-*.jar {0}/web_app/provisioning-service/'.
           format(args.workspace_path))
     local('cp {0}/services/security-service/security.yml {0}/web_app/security-service/'.format(args.workspace_path))
-    local('cp {0}/services/security-service/target/security-service-1.0.jar {0}/web_app/security-service/'.
+    local('cp {0}/services/security-service/target/security-service-*.jar {0}/web_app/security-service/'.
           format(args.workspace_path))
     local('cp {0}/services/billing/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
-    local('cp {0}/services/billing/target/billing-1.0.jar {0}/web_app/billing/'.
+    local('cp {0}/services/billing/target/billing-*.jar {0}/web_app/billing/'.
           format(args.workspace_path))
     # Creating SSN node
     local('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -v {2}/web_app:/root/web_app -e "conf_os_family={3}" '
