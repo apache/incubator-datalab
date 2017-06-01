@@ -49,6 +49,9 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 	}
 	
     public static void main(String... args) throws Exception {
+		if (ServiceUtils.printAppVersion(SelfServiceApplication.class, args)) {
+			return;
+		}
         new SelfServiceApplication().run(args);
     }
 

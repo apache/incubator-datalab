@@ -41,6 +41,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${org.apache.commons.version}</version>

@@ -34,45 +34,12 @@ public class SecurityServiceApplication extends Application<SecurityServiceConfi
 
 	private final static Logger LOG = LoggerFactory.getLogger(SecurityServiceApplication.class);
 	
-	private static boolean isArgVersion(String[] args) {
-		for (String arg : args) {
-            if (arg.equals("-v") ||
-            	arg.equals("--version")) {
-                return true;
-            }
-        }
-        return false;
-		
-	}
-	
-	private static void printVersion() {
-		Package pkg = SecurityServiceApplication.class.getPackage();
-		System.out.println("Name    " + pkg.getName());
-		System.out.println("Title   " + pkg.getImplementationTitle());
-		System.out.println("Version " + pkg.getImplementationVersion());
-		System.out.println("Vendor  " + pkg.getImplementationVendor());
-
-		System.out.println("Build  ");
-		System.out.println("Date   ");
-		System.out.println("Commit ");
-		System.out.println("Tag ");
-	}
-
 	public static void main(String[] args) throws Exception {
-		
-		String[] params = null;
-		
-		if(args.length != 0) {
-			if (isArgVersion(args)) {
-				printVersion();
-				return;
-			}
-			params = args;
-		} else {
-			params = new String[] { "server", "security.yml" };
+		if (ServiceUtils.printAppVersion(SecurityServiceApplication.class, args)) {
+			return;
 		}
-		LOG.debug("Starting Security Service Application with params: {}",String.join(",", params));
-		new SecurityServiceApplication().run(params);
+		LOG.debug("Starting Security Service Application with params: {}", String.join(",", args));
+		new SecurityServiceApplication().run(args);
 	}
 
 	@Override
