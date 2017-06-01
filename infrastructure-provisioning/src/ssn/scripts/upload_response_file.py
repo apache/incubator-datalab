@@ -32,7 +32,7 @@ args = parser.parse_args()
 
 
 def upload_response_file(instance_name, local_log_filepath, os_user):
-    instance_hostname = get_instance_hostname(instance_name)
+    instance_hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag', instance_name)
     print 'Connect to SSN instance with hostname: ' + instance_hostname + 'and name: ' + instance_name
     env['connection_attempts'] = 100
     env.key_filename = "/root/keys/%s.pem" % os.environ['conf_key_name']

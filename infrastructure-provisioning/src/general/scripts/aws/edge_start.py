@@ -51,8 +51,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        instance_hostname = get_instance_hostname(edge_conf['instance_name'])
-        addresses = get_instance_ip_address(edge_conf['instance_name'])
+        instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
+        addresses = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name'])
         ip_address = addresses.get('Private')
         public_ip_address = addresses.get('Public')
         print '[SUMMARY]'

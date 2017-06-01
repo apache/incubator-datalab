@@ -44,7 +44,7 @@ if __name__ == "__main__":
     if os.path.exists('/response/.emr_creating_' + os.environ['exploratory_name']):
         time.sleep(30)
     create_aws_config_files()
-    edge_status = get_instance_status(
+    edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
         os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-edge')
     if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
     emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
     emr_conf['instance_count'] = os.environ['emr_instance_count']
-    emr_conf['notebook_ip'] = get_instance_ip_address(os.environ['notebook_instance_name']).get('Private')
+    emr_conf['notebook_ip'] = get_instance_ip_address(emr_conf['tag_name'], os.environ['notebook_instance_name']).get('Private')
     emr_conf['role_service_name'] = os.environ['emr_service_role']
     emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
     emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + emr_conf['uuid'] + ', ' \
