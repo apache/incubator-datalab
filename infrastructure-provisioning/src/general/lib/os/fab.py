@@ -295,12 +295,24 @@ def installing_python(region, bucket, user_name, cluster_name):
         venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
         pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
         if region == 'cn-north-1':
+            pip_mirror = local("cat  /etc/pip.conf | grep index-url | awk '{print $3}'", capture=True)
+            pip_trusted_host = pip_mirror.replace('https://', '').replace('/simple/', '')
+            local(venv_command + ' && sudo -i ' + pip_command +
+                  ' -i {} --trusted-host {} --timeout 600 install -U pip --no-cache-dir'.format(pip_mirror,
+                                                                                                pip_trusted_host))
+            local(venv_command + ' && sudo -i ' + pip_command +
+                  ' -i {} --trusted-host {} --timeout 600 install ipython ipykernel --no-cache-dir'.format(pip_mirror,
+                                                                                                           pip_trusted_host))
+            local(venv_command + ' && sudo -i ' + pip_command +
+                  ' -i {} --trusted-host {} --timeout 600 install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
+                  format(pip_mirror, pip_trusted_host))
             local('sudo rm /etc/pip.conf')
             local('sudo mv /etc/back_pip.conf /etc/pip.conf')
-        local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
-        local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
-        local(venv_command + ' && sudo -i ' + pip_command +
-              ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
+        else:
+            local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
+            local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
+            local(venv_command + ' && sudo -i ' + pip_command +
+                  ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
         local('sudo rm -rf /usr/bin/python' + python_version[0:3])
         local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
               ' /usr/bin/python' + python_version[0:3])
