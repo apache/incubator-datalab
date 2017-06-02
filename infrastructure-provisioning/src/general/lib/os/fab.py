@@ -294,6 +294,9 @@ def installing_python(region, bucket, user_name, cluster_name):
         local('sudo -i virtualenv /opt/python/python' + python_version)
         venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
         pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
+        if region == 'cn-north-1':
+            local('sudo rm /etc/pip.conf')
+            local('sudo mv /etc/back_pip.conf /etc/pip.conf')
         local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
         local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
         local(venv_command + ' && sudo -i ' + pip_command +
@@ -301,9 +304,6 @@ def installing_python(region, bucket, user_name, cluster_name):
         local('sudo rm -rf /usr/bin/python' + python_version[0:3])
         local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
               ' /usr/bin/python' + python_version[0:3])
-        if region == 'cn-north-1':
-            local('sudo rm /etc/pip.conf')
-            local('sudo mv /etc/back_pip.conf /etc/pip.conf')
 
 
 def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user=''):
