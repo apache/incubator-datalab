@@ -39,13 +39,13 @@ args = parser.parse_args()
 
 
 def create_china_pip_conf_file():
-    if not exists('/home/{}/.ensure_dir/pip_china_ensured'.format(args.user)):
+    if not exists('/tmp/pip_china_ensured'):
         sudo('touch /etc/pip.conf')
         sudo('echo "[global]" >> /etc/pip.conf')
         sudo('echo "timeout = 600" >> /etc/pip.conf')
         sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
         sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
-        sudo('touch /home/{}/.ensure_dir/pip_china_ensured'.format(args.user))
+        sudo('touch /tmp/pip_china_ensured')
 
 
 if __name__ == "__main__":
