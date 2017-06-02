@@ -183,8 +183,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
         try:
             sudo('pip2 install notebook=={} --no-cache-dir'.format(jupyter_version))
             sudo('pip2 install jupyter --no-cache-dir')
-            sudo('pip3 install notebook=={} --no-cache-dir'.format(jupyter_version))
-            sudo('pip3 install jupyter --no-cache-dir')
+            sudo('pip3.5 install notebook=={} --no-cache-dir'.format(jupyter_version))
+            sudo('pip3.5 install jupyter --no-cache-dir')
             sudo('rm -rf ' + jupyter_conf_file)
             run('jupyter notebook --generate-config --config ' + jupyter_conf_file)
             sudo('echo "c.NotebookApp.ip = \'*\'" >> ' + jupyter_conf_file)
