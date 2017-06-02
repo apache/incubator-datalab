@@ -269,7 +269,7 @@ def ensure_ciphers():
         sudo('service sshd restart')
 
 
-def installing_python(region, bucket, user_name, cluster_name):
+def installing_python(region, bucket, user_name, cluster_name, pip_mirror=''):
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
@@ -295,17 +295,14 @@ def installing_python(region, bucket, user_name, cluster_name):
         venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
         pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
         if region == 'cn-north-1':
-            pip_mirror = local("cat  /etc/pip.conf | grep index-url | awk '{print $3}'", capture=True)
-            pip_trusted_host = pip_mirror.replace('https://', '').replace('/simple/', '')
             local(venv_command + ' && sudo -i ' + pip_command +
-                  ' -i {} --trusted-host {} --timeout 600 install -U pip --no-cache-dir'.format(pip_mirror,
-                                                                                                pip_trusted_host))
+                  ' install -i https://{0}/simple --trusted-host {0} --timeout 600 -U pip --no-cache-dir'.format(pip_mirror))
             local(venv_command + ' && sudo -i ' + pip_command +
-                  ' -i {} --trusted-host {} --timeout 600 install ipython ipykernel --no-cache-dir'.format(pip_mirror,
-                                                                                                           pip_trusted_host))
+                  ' install -i https://{0}/simple --trusted-host {0} --timeout 600 ipython ipykernel --no-cache-dir'.
+                  format(pip_mirror))
             local(venv_command + ' && sudo -i ' + pip_command +
-                  ' -i {} --trusted-host {} --timeout 600 install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
-                  format(pip_mirror, pip_trusted_host))
+                  ' install -i https://{0}/simple --trusted-host {0} --timeout 600 boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
+                  format(pip_mirror))
             local('sudo rm /etc/pip.conf')
             local('sudo mv /etc/back_pip.conf /etc/pip.conf')
         else:
@@ -318,7 +315,8 @@ def installing_python(region, bucket, user_name, cluster_name):
               ' /usr/bin/python' + python_version[0:3])
 
 
-def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user=''):
+def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user='',
+                   pip_mirror=''):
     spark_path = '/opt/' + emr_version + '/' + cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
     kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
@@ -346,7 +344,7 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
     # python_version = python_version[0:3]
     if python_version != '\n':
         if not os.path.exists('/home/' + os_user + '/.ensure_dir/deep_learning'):
-            installing_python(region, bucket, user_name, cluster_name)
+            installing_python(region, bucket, user_name, cluster_name, pip_mirror)
 
         local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
         kernel_path = kernels_dir + "py3spark_" + cluster_name + "/kernel.json"
