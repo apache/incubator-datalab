@@ -35,9 +35,16 @@ public class PropertiesResolver {
 
     }
 
-    
+	private static String getProperty(String propertyName, boolean isOptional) {
+		String s = System.getProperty(propertyName, "");
+		if (s.isEmpty() && !isOptional) {
+        	throw new IllegalArgumentException("Missed required JVM argument -D" + propertyName);
+        }
+        return s;
+	}
+
     public static String getConfRootPath() {
-    	return System.getProperty("conf.root.path", "/var/lib/jenkins/AutoTestData");
+    	return getProperty("conf.root.path", false);
     }
 
     private static void loadApplicationProperties() {
@@ -56,7 +63,6 @@ public class PropertiesResolver {
             	path = Paths.get(path).toAbsolutePath().toString();
             	properties.setProperty(key, path);
             }
-
 
             // get the property value and print it out
             LOGGER.info(properties.getProperty(CONF_FILE_LOCATION_PROPERTY));
@@ -80,11 +86,7 @@ public class PropertiesResolver {
                     LOGGER.error("Application configuration file could not be found by the path: {}", CONFIG_FILE_NAME);
                 }
             }
-
-
-
         }
-
     }
 
 

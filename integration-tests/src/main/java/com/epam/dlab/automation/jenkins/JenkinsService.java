@@ -32,14 +32,8 @@ public class JenkinsService {
     
     public JenkinsService(){
     	if (!ConfigPropertyValue.isUseJenkins()) {
-    		ssnURL = System.getProperty("ssn.url", "");
-    		if (ssnURL.isEmpty()) {
-    			throw new IllegalArgumentException("Missed required argument ssn.url");
-    		}
-    		serviceBaseName = System.getProperty("service.base.name", "");
-    		if (serviceBaseName.isEmpty()) {
-    			throw new IllegalArgumentException("Missed required argument service.base.name");
-    		}
+    		ssnURL = ConfigPropertyValue.getSsnUrl();
+    		serviceBaseName = ConfigPropertyValue.getServiceBaseName();
     	}
         awsAccessKeyId = convertToParam(ConfigPropertyValue.getAwsAccessKeyId());
         awsSecretAccessKey = convertToParam(ConfigPropertyValue.getAwsSecretAccessKey());

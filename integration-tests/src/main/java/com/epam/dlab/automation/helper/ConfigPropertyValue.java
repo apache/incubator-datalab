@@ -48,11 +48,15 @@ public class ConfigPropertyValue {
     private static final String CLUSTER_OS_USERNAME = "CLUSTER_OS_USERNAME";
     private static final String CLUSTER_OS_FAMILY = "CLUSTER_OS_FAMILY";
     private static final String CONF_TAG_RESOURCE_ID = "CONF_TAG_RESOURCE_ID";
-    private static final String NOTEBOOKS = "notebooks";
 
     public static final String JUPYTER_SCENARIO_FILES ="JUPYTER_SCENARIO_FILES";
     public static final String NOTEBOOKS_TO_TEST="NOTEBOOKS_TO_TEST";
     public static final String EXECUTION_TREADS="execution.threads";
+
+    private static final String USE_JENKINS = "USE_JENKINS";
+    private static final String SSN_URL = "SSN_URL";
+    private static final String SERVICE_BASE_NAME = "SERVICE_BASE_NAME";
+    private static final String RUN_MODE_LOCAL = "RUN_MODE_LOCAL";
 
     private static String jenkinsBuildNumber;
 
@@ -68,12 +72,6 @@ public class ConfigPropertyValue {
         }
         
     	loadProperties();
-
-        final String notebooks = System.getProperty("notebooks", "");
-        if(StringUtils.isNoneEmpty(notebooks)) {
-            props.put(NOTEBOOKS_TO_TEST, notebooks);
-            LOGGER.info("{} reset to {} as a system parameter.", NOTEBOOKS, notebooks);
-        }
     }
     
     private ConfigPropertyValue() { }
@@ -107,12 +105,13 @@ public class ConfigPropertyValue {
 	}
 	
 	private static void overlapProperty(String propertyName, boolean isOptional) {
-		String s = System.getProperty(StringUtils.replaceChars(propertyName, '_', '.').toLowerCase(), "");
+		String argName = StringUtils.replaceChars(propertyName, '_', '.').toLowerCase();
+		String s = System.getProperty(argName, "");
 		if (!s.isEmpty()) {
             props.setProperty(propertyName, s);
         }
 		if(!isOptional && props.getProperty(propertyName, "").isEmpty()) {
-        	throw new IllegalArgumentException("Missed required argument or property " + propertyName);
+        	throw new IllegalArgumentException("Missed required argument -D" + argName + " or property " + propertyName);
         }
 	}
 	
@@ -134,6 +133,10 @@ public class ConfigPropertyValue {
             overlapProperty(CLUSTER_OS_FAMILY, true);
             overlapProperty(AWS_REGION, true);
             overlapProperty(NOTEBOOKS_TO_TEST, false);
+            overlapProperty(USE_JENKINS, true);
+            overlapProperty(SSN_URL, isUseJenkins());
+            overlapProperty(SERVICE_BASE_NAME, isUseJenkins());
+            overlapProperty(RUN_MODE_LOCAL, true);
             
             setKeyProperty(ACCESS_KEY_PRIV_FILE_NAME);
             setKeyProperty(ACCESS_KEY_PUB_FILE_NAME);
@@ -170,7 +173,10 @@ public class ConfigPropertyValue {
         printProperty(CLUSTER_OS_USERNAME);
         printProperty(CLUSTER_OS_FAMILY);
         printProperty(CONF_TAG_RESOURCE_ID);
-    }
+
+        printProperty(USE_JENKINS);
+        printProperty(RUN_MODE_LOCAL);
+	}
     
     
     public static String getJenkinsBuildNumber() {
@@ -311,12 +317,20 @@ public class ConfigPropertyValue {
     }
 
     public static boolean isUseJenkins() {
-    	String s = System.getProperty("use.jenkins", "true");
+        String s = get(USE_JENKINS, "true");
     	return Boolean.valueOf(s);
     }
     
+    public static String getSsnUrl() {
+        return get(SSN_URL);
+    }
+    
+    public static String getServiceBaseName() {
+        return get(SERVICE_BASE_NAME);
+    }
+    
     public static boolean isRunModeLocal() {
-    	String s = System.getProperty("run.mode.local", "false");
+    	String s = get(RUN_MODE_LOCAL, "false");
     	return Boolean.valueOf(s);
     }
 }
