@@ -1,0 +1,12 @@
+{
+    "conf_resource": "notebook",
+    "request_id": "RID",
+    "conf_os_user": "GOS",
+    "conf_service_base_name": "SBN",
+    "edge_user_name": "NUN",
+    "aws_region": "CREG",
+    "notebook_instance_name": "NIN",
+    "conf_key_name": "CKN",
+    "additional_libs": "ADL",
+    "application": "APP"
+}

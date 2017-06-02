@@ -26,6 +26,8 @@ public enum DockerAction {
     RUN,
     STOP,
     TERMINATE,
+    LIB_LIST,
+    LIB_INSTALL,
     STATUS;
 
     @Override

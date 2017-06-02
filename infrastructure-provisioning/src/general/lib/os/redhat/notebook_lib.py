@@ -320,3 +320,33 @@ def install_gitweb(os_user):
         sudo('systemctl enable httpd.service')
         sudo('systemctl start httpd.service')
         sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')
+
+
+def install_os_pkg(requisites):
+    status = list()
+    try:
+        print "Updating repositories and installing requested tools: ", requisites
+        sudo('yum update-minimal --security -y')
+        sudo('export LC_ALL=C')
+        for os_pkg in requisites:
+            try:
+                sudo('yum -y install ' + os_pkg)
+                yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'' + os_pkg + '\'][0]"')
+                version = yum_raw.split('\r\n')[1].replace("'", "\"")
+                status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
+            except:
+                status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": ""})
+        return status
+    except:
+        return "Fail to install OS packages"
+
+
+def get_available_os_pkgs():
+    try:
+        sudo('yum update-minimal --security -y')
+        yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
+        yum_list = yum_raw.split('\r\n')[1].replace("'","\"")
+        os_pkgs = json.loads(yum_list)
+        return os_pkgs
+    except:
+        sys.exit(1)

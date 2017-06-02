@@ -27,6 +27,7 @@ import { ComputationalResourceCreateDialogModule } from './../computational/comp
 import { DetailDialogModule } from './../exploratory/detail-dialog';
 import { FormControlsModule } from '../../shared/form-controls';
 import { CostDetailsDialogModule } from './../billing/cost-details-dialog';
+import { InstallLibrariesModule } from './../exploratory/install-libraries';
 
 export * from './resources-grid.component';
 export * from './resources-grid.model';
@@ -43,6 +44,7 @@ export * from './filter-configuration.model';
     ComputationalResourceCreateDialogModule,
     FormControlsModule,
     CostDetailsDialogModule,
+    InstallLibrariesModule,
     MaterialModule.forRoot()
   ],
   declarations: [ResourcesGridComponent],

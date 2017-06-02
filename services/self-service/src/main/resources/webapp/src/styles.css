@@ -57,6 +57,63 @@ limitations under the License.
   border-radius: 0;
 }
 
+.cdk-overlay-container {
+    z-index: 9999;
+}
+
+.install-libs .mat-tab-label {
+    width: 50%;
+}
+.install-libs .mat-ink-bar {
+    background-color: #35afd5;
+    width: 50% !important;
+}
+
+.install-libs .mat-tab-labels .mat-tab-label:focus {
+    background-color: rgba(53, 175, 213, 0.11);
+}
+
+.install-libs md-chip.mat-chip {
+    outline: none;
+    color: #758ea8;
+}
+.install-libs md-chip.mat-chip a {
+    display: inline-block;
+    width: 12px;
+    cursor: pointer;
+    text-align: right;
+    text-decoration: none;
+}
+
+.install-libs md-chip.mat-chip strong {
+    font-size: 10px;
+    font-weight: 300;
+}
+.mat-option.mat-selected {
+    color: #35afd5;
+}
+/*.mat-input-placeholder.mat-focused, */
+.mat-input-underline .mat-input-ripple,
+.mat-select-underline
+.mat-input-underline {
+    background-color: #35afd5;
+}
+.mat-input-placeholder.mat-focused,
+.mat-select:focus:not(.mat-select-disabled) .mat-select-trigger,
+.mat-select:focus:not(.mat-select-disabled) .mat-select-arrow,
+.mat-select:focus:not(.mat-select-disabled) .mat-select-underline {
+    color: #35afd5;
+}
+.mat-select:focus:not(.mat-select-disabled) .mat-select-underline {
+    background-color: #35afd5;
+}
+.mat-select-placeholder {
+    font-size: 14px;
+}
+.mat-input-placeholder {
+  font-weight: 400;
+}
+
 [hidden] {
   display: none !important;
 }
@@ -122,7 +179,8 @@ body {
 }
 
 .running,
-.starting {
+.starting,
+.installed {
   color: #49af38;
 }
 
@@ -132,18 +190,21 @@ body {
 }
 
 .creating,
-.configuring {
+.configuring,
+.installing {
   color: #35afd5;
 }
 
 .terminated,
 .terminating,
-.failed {
-  color: #f1696e;
+.failed,
+.error {
+  color: #f1696e !important;
 }
 
 .not-allowed {
   cursor: not-allowed !important;
+  user-select: none;
   opacity: 0.6;
 }
 
@@ -266,3 +327,4 @@ input[type=number] {
 .text-center { text-align: center!important; }
 .m-top-10 { margin-top: 10px; }
 .m-top-30 { margin-top: 30px; }
+.m-bott-10 { margin-bottom: 10px; }

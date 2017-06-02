@@ -1,0 +1,133 @@
+<!------------------------------------------------------------------------------------------------------------
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+----------------------------------------------------------------------------------------------------------- -->
+
+<modal-dialog #bindDialog  modalClass="install-libs modal-xl">
+  <modal-header>
+    <h4 class="modal-title" id="myModalLabel">Library installation</h4>
+  </modal-header>
+  <modal-content>
+   
+   <md-tab-group>
+      <md-tab label="LIBRARIES INSTALLATION">
+        <div class="info message" *ngIf="!libs_uploaded && uploading && notebook?.status === 'running'">
+          <p>Please wait until DLab loads full list of available libraries for you...</p>
+          <div class="uploading">
+            <img src="assets/img/gif-spinner.gif" alt="loading">
+          </div>
+        </div>
+        <p class="info message" *ngIf="notebook?.status !== 'running'">Cannot install libraries: Exploratory {{ notebook?.name }} is not running</p>
+
+        <div *ngIf="notebook?.status === 'running'" class="tab-content">
+          <div class="search-box col" *ngIf="libs_uploaded && !uploading">
+            <md-select [(ngModel)]="group" (change)="filterList()" placeholder="Select group">
+              <md-option *ngFor="let group of groupsList" [value]="group">
+                {{ groupsListMap[group] }}
+              </md-option>
+            </md-select>
+            <md-input-container>
+              <input mdInput [(ngModel)]="query" (keyup)="filterList()" placeholder="Enter library name">
+            </md-input-container>
+
+            <div>
+              <!--<div class="loader-wrap" *ngIf="isFilteringProc && !model.isEmpty(filteredList)">
+                <div class="loader-lib">Loading...</div>
+              </div>-->
+              <ul class="suggestions">
+                <li *ngFor="let item of (filteredList | keys)">
+                  <a *ngIf="!isDuplicated(item)" (click)="selectLibrary(item)">{{ item.key }}
+                    <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
+                  </a>
+                  <span *ngIf="isInSelectedList || isInstalled" class="not-allowed">{{ item.key }}
+                    <span *ngIf="item.value && item.value !== 'N/A'">{{ item.value }}</span>
+                  </span>
+
+                  <strong *ngIf="isInSelectedList">selected
+                    <i class="material-icons">done</i>
+                  </strong>
+                  <strong *ngIf="isInstalled">installed
+                    <i class="material-icons">done</i>
+                  </strong>
+                </li>
+                <li *ngIf="model.isEmpty(filteredList)">No matches found</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="list-selected col" *ngIf="model.selectedLibs.length && libs_uploaded">
+            <h4>List of Selected Libs</h4>
+            <md-chip-list>
+              <md-chip *ngFor="let item of model.selectedLibs">
+                {{ item.name }} {{ item.version }}
+                <strong>({{ groupsListMap[item.group] }})</strong>
+                <a (click)="removeSelectedLibrary(item)">x</a>
+              </md-chip>
+            </md-chip-list>
+          </div>
+        </div>
+        <div class="info message error" *ngIf="processError">
+          <small>{{ errorMessage }}</small>
+        </div>
+        <div class="text-center m-top-30 m-bott-10">
+          <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
+          <button md-raised-button type="submit" class="butt butt-success" (click)="installLibs()" [disabled]="!model.selectedLibs">Install</button>
+        </div>
+      </md-tab>
+      <md-tab label="INFO">
+        <div>
+          <md-list>
+            <md-list-item class="lib-list-header">
+              <div class="lib-name">Name</div>
+              <div class="lib-group">Group</div>
+              <div class="lib-status">Status</div>
+            </md-list-item>
+
+            <div class="scrollingList" *ngIf="notebook?.libs">
+              <md-list-item *ngFor="let lib of notebook.libs">
+                <div class="lib-name">
+                  <strong>{{ lib.name }}</strong>
+                  <span *ngIf="lib.version  && lib.version !== 'N/A'">v.{{ lib.version }}</span>
+                </div>
+                <div class="lib-group">{{ groupsListMap[lib.group] }}</div>
+                <div class="lib-status status" ngClass="{{lib.status.toLowerCase() || ''}}">
+                  {{ lib.status }}
+                  <span class="reinstall">
+                    <i class="material-icons"
+                       mdTooltip="Retry installation"
+                       mdTooltipPosition="above"
+                       *ngIf="lib.status === 'failed'"
+                       (click)="reInstallSpecificLib(lib)">replay</i>
+                  </span>
+                  <span class="lib-error">
+                    <i class="material-icons"
+                       mdTooltip="{{ lib.error_message }}"
+                       mdTooltipPosition="above"
+                       *ngIf="lib.status === 'failed' && lib.error_message">error_outline</i>
+                  </span>
+                </div>
+              </md-list-item>
+            </div>
+            <div *ngIf="!notebook?.libs" class="scrollingList info">
+              <p>You have no any libraries installed</p>
+            </div>
+          </md-list>
+        </div>
+      </md-tab>
+    </md-tab-group>
+
+  </modal-content>
+</modal-dialog>

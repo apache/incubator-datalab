@@ -171,7 +171,7 @@ public class ComputationalDAO extends BaseDAO {
         	}
             if (null !=  dto.getErrorMessage()) {
                 values.append(computationalFieldFilter(ERROR_MESSAGE),
-                        DateRemoverUtil.removeDateFormErrorMessage(dto.getErrorMessage(), DateRemoverUtil.ERROR_DATE_FORMAT, DateRemoverUtil.ERROR_WITHOUT_DATE_FORMAT));
+                        DateRemoverUtil.removeDateFormErrorMessage(dto.getErrorMessage()));
             }
         	if (dto.getComputationalId() != null) {
                 values.append(computationalFieldFilter(COMPUTATIONAL_ID), dto.getComputationalId());

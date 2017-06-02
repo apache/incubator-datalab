@@ -18,24 +18,38 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources;
 
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.core.MetadataHolder;
-import com.epam.dlab.backendapi.core.commands.DockerCommands;
-import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
-import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
-import com.epam.dlab.dto.imagemetadata.ImageMetadataDTO;
-import com.epam.dlab.dto.imagemetadata.ImageType;
-import com.google.inject.Inject;
-import io.dropwizard.auth.Auth;
-import org.apache.commons.lang3.NotImplementedException;
+import java.io.IOException;
+import java.util.Set;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.util.Set;
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.core.Directories;
+import com.epam.dlab.backendapi.core.MetadataHolder;
+import com.epam.dlab.backendapi.core.commands.CommandBuilder;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.backendapi.core.commands.DockerCommands;
+import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
+import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
+import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
+import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
+import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
+import com.epam.dlab.dto.imagemetadata.ImageMetadataDTO;
+import com.epam.dlab.dto.imagemetadata.ImageType;
+import com.epam.dlab.rest.client.RESTService;
+import com.google.inject.Inject;
+
+import io.dropwizard.auth.Auth;
 
 @Path("/docker")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -49,6 +63,12 @@ public class DockerResource implements DockerCommands {
     private MetadataHolder metadataHolder;
     @Inject
     private ICommandExecutor commandExecutor;
+    @Inject
+    private FolderListenerExecutor folderListenerExecutor;
+    @Inject
+    private CommandBuilder commandBuilder;
+    @Inject
+    private RESTService selfService;
 
     @GET
     @Path("{type}")
@@ -79,7 +99,32 @@ public class DockerResource implements DockerCommands {
         return uuid;
     }
 
+    @Path("/lib_list")
+    @POST
+    public String getLibList(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws IOException, InterruptedException {
+        LOGGER.debug("Listing of libs for user {} with condition {}", ui.getName(), dto);
+        String uuid = DockerCommands.generateUUID();
+        folderListenerExecutor.start(configuration.getImagesDirectory(),
+                configuration.getResourceStatusPollTimeout(),
+        		new LibListCallbackHandler(selfService, DockerAction.LIB_LIST, uuid, dto.getAwsIamUser(), dto.getNotebookImage()));
+
+        RunDockerCommand runDockerCommand = new RunDockerCommand()
+                .withInteractive()
+                .withName(nameContainer(dto.getEdgeUserName(), DockerAction.LIB_LIST.toString(), dto.getExploratoryName()))
+                .withVolumeForRootKeys(configuration.getKeyDirectory())
+                .withVolumeForResponse(configuration.getImagesDirectory())
+                .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
+                .withResource(getResourceType())
+                .withRequestId(uuid)
+                .withConfKeyName(configuration.getAdminKey())
+                .withImage(dto.getNotebookImage())
+                .withAction(DockerAction.LIB_LIST);
+
+        commandExecutor.executeAsync(ui.getName(), uuid, commandBuilder.buildCommand(runDockerCommand, dto));
+        return uuid;
+    }
+
     public String getResourceType() {
-        throw new NotImplementedException("General commands haven't a pre-defined log path");
+        return Directories.NOTEBOOK_LOG_DIRECTORY;
     }
 }
