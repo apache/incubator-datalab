@@ -1,13 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-<!--     <parent> -->
-<!--         <groupId>com.epam.dlab</groupId> -->
-<!--         <artifactId>dlab</artifactId> -->
-<!--         <version>1.0</version> -->
-<!--         <relativePath>../pom.xml</relativePath> -->
-<!--     </parent> -->
-
     <groupId>com.epam.dlab</groupId>
     <artifactId>integration-tests</artifactId>
     <version>1.0</version>
@@ -31,43 +24,42 @@
     </properties>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.testng/testng -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>6.10</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.jayway.restassured/rest-assured -->
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>2.9.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+        
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <version>LATEST</version>
         </dependency>
+        
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>LATEST</version>
         </dependency>
+        
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>LATEST</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-ec2 -->
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-ec2</artifactId>
             <version>1.9.13</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
+        
 		<dependency>
     		<groupId>com.amazonaws</groupId>
     		<artifactId>aws-java-sdk-s3</artifactId>
@@ -80,13 +72,7 @@
             <scope>runtime</scope>
             <version>2.1</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.1</version>
-        </dependency>
-
+        
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -107,24 +93,24 @@
             </exclusions>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.github.docker-java/docker-java -->
         <dependency>
             <groupId>com.github.docker-java</groupId>
             <artifactId>docker-java</artifactId>
             <version>3.0.6</version>
         </dependency>
+        
         <dependency>
             <groupId>org.scijava</groupId>
             <artifactId>native-lib-loader</artifactId>
             <version>2.0.2</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.jcraft/jsch -->
+        
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
             <version>0.1.54</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -200,10 +186,10 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-<!--                                     <mainClass>com.epam.dlab.backendapi.SelfServiceApplication</mainClass> -->
+<!--                                     <mainClass>com.epam.dlab.automation</mainClass> -->
 									<manifestEntries>
 										<Created-By>&lt;EPAM&gt; Systems</Created-By>
-										<Name>com/epam/dlab</Name>
+										<Name>com/epam/dlab/automation</Name>
 										<Implementation-Title>DLab Integration Tests</Implementation-Title>
 										<Implementation-Version>${dlab.version}</Implementation-Version>
 										<Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
@@ -214,6 +200,16 @@
 									</manifestEntries>
                                 </transformer>
                             </transformers>
+                            <filters>
+                            	<filter>
+                            		<artifact>*:*</artifact>
+                            		<excludes>
+										<exclude>META-INF/*.SF</exclude>
+				                		<exclude>META-INF/*.DSA</exclude>
+				                		<exclude>META-INF/*.RSA</exclude>
+			                		</excludes>
+                            	</filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -236,13 +232,6 @@
                         <exclude>**/*.lst</exclude>
                         <exclude>**/*template</exclude>
                     </excludes>
-<!--                     <excludes> -->
-<!--                         <exclude>**/*SSHConnect.java</exclude> -->
-<!--                         <exclude>**/generated/*.java</exclude> -->
-<!--                     </excludes> -->
-<!--                     <excludeRoots> -->
-<!--                         <excludeRoot>target/generated-sources/stubs</excludeRoot> -->
-<!--                     </excludeRoots> -->
                 </configuration>
                 <executions>
                     <execution>
@@ -255,52 +244,4 @@
             </plugin>
         </plugins>
     </build>
-
-<!--     <build> -->
-<!--         <plugins> -->
-<!--             <plugin> -->
-<!--                 <artifactId>maven-compiler-plugin</artifactId> -->
-<!--                 <version>${maven-compiler-plugin.version}</version> -->
-<!--                 <configuration> -->
-<!--                     <source>${java.version}</source> -->
-<!--                     <target>${java.version}</target> -->
-<!--                 </configuration> -->
-<!--             </plugin> -->
-<!--             <plugin> -->
-<!--                 <groupId>org.apache.maven.plugins</groupId> -->
-<!--                 <artifactId>maven-pmd-plugin</artifactId> -->
-<!--                 <version>3.7</version> -->
-<!--                 <configuration> -->
-<!--                     <linkXref>true</linkXref> -->
-<!--                     <sourceEncoding>utf-8</sourceEncoding> -->
-<!--                     <minimumTokens>100</minimumTokens> -->
-<!--                     <targetJdk>1.8</targetJdk> -->
-<!--                     <excludes> -->
-<!--                         <exclude>**/*SSHConnect.java</exclude> -->
-<!--                         <exclude>**/generated/*.java</exclude> -->
-<!--                     </excludes> -->
-<!--                     <excludeRoots> -->
-<!--                         <excludeRoot>target/generated-sources/stubs</excludeRoot> -->
-<!--                     </excludeRoots> -->
-
-<!--                 </configuration> -->
-<!--                 <executions> -->
-<!--                     <execution> -->
-<!--                         <goals> -->
-<!--                             <goal>check</goal> -->
-<!--                             <goal>cpd-check</goal> -->
-<!--                         </goals> -->
-<!--                     </execution> -->
-<!--                 </executions> -->
-<!--             </plugin> -->
-<!--             <plugin> -->
-<!--                 <groupId>org.apache.maven.plugins</groupId> -->
-<!--                 <artifactId>maven-surefire-plugin</artifactId> -->
-<!--                 <version>2.19.1</version> -->
-<!--                 <configuration> -->
-<!--                     <argLine>-Xmx1024m</argLine> -->
-<!--                 </configuration> -->
-<!--             </plugin> -->
-<!--         </plugins> -->
-<!--     </build> -->
 </project>
