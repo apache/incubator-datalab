@@ -23,6 +23,7 @@ import argparse
 import json
 from dlab.fab import *
 from dlab.common_lib import ensure_pkg
+from fabric.contrib.files import exists
 import sys
 import os
 
@@ -38,11 +39,13 @@ args = parser.parse_args()
 
 
 def create_china_pip_conf_file():
-    sudo('touch /etc/pip.conf')
-    sudo('echo "[global]" >> /etc/pip.conf')
-    sudo('echo "timeout = 600" >> /etc/pip.conf')
-    sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
-    sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
+    if not exists('/home/{}/.ensure_dir/pip_china_ensured'.format(args.os_user)):
+        sudo('touch /etc/pip.conf')
+        sudo('echo "[global]" >> /etc/pip.conf')
+        sudo('echo "timeout = 600" >> /etc/pip.conf')
+        sudo('echo "index-url = https://{}/simple/" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
+        sudo('echo "trusted-host = {}" >> /etc/pip.conf'.format(os.environ['conf_pypi_mirror']))
+        sudo('touch /home/{}/.ensure_dir/pip_china_ensured'.format(args.os_user))
 
 
 if __name__ == "__main__":

@@ -284,6 +284,9 @@ def installing_python(region, bucket, user_name, cluster_name):
             local('sudo make altinstall')
         with lcd('/tmp/'):
             local('sudo rm -rf Python-' + python_version + '/')
+        if region == 'cn-north-1':
+            local('sudo -i /opt/python/python{}/bin/python{} -m pip install -U pip'.format(python_version,
+                                                                                           python_version[0:3]))
         local('sudo -i virtualenv /opt/python/python' + python_version)
         venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
         pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
