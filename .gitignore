@@ -16,3 +16,4 @@ target
 /services/self-service/src/main/resources/webapp/ts-node-*
 /web_app
 /integration-tests/test-output
+/integration-tests/output.log

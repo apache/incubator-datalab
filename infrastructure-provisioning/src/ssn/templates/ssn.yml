@@ -24,7 +24,7 @@
 <#assign TRUST_STORE_PASSWORD="changeit">
 
 #Switch on/off developer mode here
-<#assign DEV_MODE="false">
+<#assign DEV_MODE="true">
 devMode: ${DEV_MODE}
 
 mongo:

@@ -1,6 +1,5 @@
 package com.epam.dlab.automation.helper;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -104,22 +103,11 @@ public class ConfigPropertyValue {
         LOGGER.info("{} is {}", propertyName , props.getProperty(propertyName));
 	}
 	
-	private static void overlapProperty(String propertyName, boolean isOptional) {
-		String argName = StringUtils.replaceChars(propertyName, '_', '.').toLowerCase();
-		String s = System.getProperty(argName, "");
-		if (!s.isEmpty()) {
-            props.setProperty(propertyName, s);
-        }
-		if(!isOptional && props.getProperty(propertyName, "").isEmpty()) {
-        	throw new IllegalArgumentException("Missed required argument -D" + argName + " or property " + propertyName);
-        }
-	}
-	
 	private static void setKeyProperty(String propertyName) {
-		String filename = props.getProperty(propertyName, "");
-		if (!filename.isEmpty()) {
-            filename = Paths.get(PropertiesResolver.getKeysLocation(), filename).toAbsolutePath().toString();
-            props.setProperty(propertyName, filename);
+		String s = props.getProperty(propertyName, "");
+		if (!s.isEmpty()) {
+            s = Paths.get(PropertiesResolver.getKeysLocation(), s).toAbsolutePath().toString();
+            props.setProperty(propertyName, s);
         }
 	}
 	
@@ -129,14 +117,14 @@ public class ConfigPropertyValue {
             FileReader fin = new FileReader(f1);
             props.load(fin);
 
-            overlapProperty(CLUSTER_OS_USERNAME, true);
-            overlapProperty(CLUSTER_OS_FAMILY, true);
-            overlapProperty(AWS_REGION, true);
-            overlapProperty(NOTEBOOKS_TO_TEST, false);
-            overlapProperty(USE_JENKINS, true);
-            overlapProperty(SSN_URL, isUseJenkins());
-            overlapProperty(SERVICE_BASE_NAME, isUseJenkins());
-            overlapProperty(RUN_MODE_LOCAL, true);
+            PropertiesResolver.overlapProperty(props, CLUSTER_OS_USERNAME, true);
+            PropertiesResolver.overlapProperty(props, CLUSTER_OS_FAMILY, true);
+            PropertiesResolver.overlapProperty(props, AWS_REGION, true);
+            PropertiesResolver.overlapProperty(props, NOTEBOOKS_TO_TEST, false);
+            PropertiesResolver.overlapProperty(props, USE_JENKINS, true);
+            PropertiesResolver.overlapProperty(props, SSN_URL, isUseJenkins());
+            PropertiesResolver.overlapProperty(props, SERVICE_BASE_NAME, isUseJenkins());
+            PropertiesResolver.overlapProperty(props, RUN_MODE_LOCAL, true);
             
             setKeyProperty(ACCESS_KEY_PRIV_FILE_NAME);
             setKeyProperty(ACCESS_KEY_PUB_FILE_NAME);

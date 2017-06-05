@@ -42,6 +42,18 @@ public class PropertiesResolver {
         }
         return s;
 	}
+	
+	public static void overlapProperty(Properties props, String propertyName, boolean isOptional) {
+		String argName = StringUtils.replaceChars(propertyName, '_', '.').toLowerCase();
+		String s = System.getProperty(argName, "");
+		if (!s.isEmpty()) {
+            props.setProperty(propertyName, s);
+        }
+		if(!isOptional && props.getProperty(propertyName, "").isEmpty()) {
+        	throw new IllegalArgumentException("Missed required argument -D" + argName + " or property " + propertyName);
+        }
+	}
+
 
     public static String getConfRootPath() {
     	return getProperty("conf.root.path", false);
@@ -58,6 +70,7 @@ public class PropertiesResolver {
             // load a properties file
             properties.load(input);
             String rootPath = getConfRootPath();
+            overlapProperty(properties, CONF_FILE_LOCATION_PROPERTY, false);
             for (String key : properties.keySet().toArray(new String[0])) {
             	String path = StringUtils.replace(properties.getProperty(key), "${CONF_ROOT_PATH}", rootPath);
             	path = Paths.get(path).toAbsolutePath().toString();
