@@ -7,25 +7,25 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.epam.dlab.automation.http.ContentType;
 import com.epam.dlab.automation.http.HttpRequest;
 import com.epam.dlab.automation.http.HttpStatusCode;
-import com.epam.dlab.automation.repository.ContentType;
 import com.jayway.restassured.path.json.JsonPath;
 
 public class WaitForStatus {
     private final static Logger LOGGER = LogManager.getLogger(WaitForStatus.class);
     
     private static long getSsnRequestTimeout() {
-    	return ConfigPropertyValue.isRunModeLocal() ? 500 : 10000;
+    	return ConfigPropertyValue.isRunModeLocal() ? 1000 : 10000;
     }
     
-    public static boolean selfService(String ssnURL, Duration duration) throws InterruptedException {
+    public static boolean selfService(Duration duration) throws InterruptedException {
         HttpRequest request = new HttpRequest();
         int actualStatus;
         long timeout = duration.toMillis();
         long expiredTime = System.currentTimeMillis() + timeout;
 
-		while ((actualStatus = request.webApiGet(ssnURL, ContentType.TEXT).statusCode()) != HttpStatusCode.OK) {
+		while ((actualStatus = request.webApiGet(NamingHelper.getSsnURL(), ContentType.TEXT).statusCode()) != HttpStatusCode.OK) {
             if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
                 break;
             }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
+//TODO Remove unused properties
 public class DockerContainer {
     
     @JsonProperty("Id")

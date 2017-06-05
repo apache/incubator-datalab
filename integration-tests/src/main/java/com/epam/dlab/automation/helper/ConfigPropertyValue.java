@@ -300,7 +300,7 @@ public class ConfigPropertyValue {
     	return get(CLUSTER_OS_FAMILY);
     }
 
-    public static String getNotebooks() {
+    public static String getNotebookTemplates() {
     	return get(NOTEBOOKS_TO_TEST);
     }
 

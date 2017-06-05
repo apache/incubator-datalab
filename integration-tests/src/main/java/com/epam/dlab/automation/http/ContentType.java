@@ -1,4 +1,4 @@
-package com.epam.dlab.automation.repository;
+package com.epam.dlab.automation.http;
 
 public class ContentType{
     

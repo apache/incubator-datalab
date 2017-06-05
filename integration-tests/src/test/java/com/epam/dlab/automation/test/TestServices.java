@@ -23,16 +23,17 @@ import com.epam.dlab.automation.aws.AmazonInstanceState;
 import com.epam.dlab.automation.docker.Docker;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.epam.dlab.automation.helper.PropertiesResolver;
-import com.epam.dlab.automation.helper.TestNamingHelper;
+import com.epam.dlab.automation.helper.NamingHelper;
 import com.epam.dlab.automation.helper.WaitForStatus;
+import com.epam.dlab.automation.http.ApiPath;
+import com.epam.dlab.automation.http.ContentType;
 import com.epam.dlab.automation.http.HttpRequest;
 import com.epam.dlab.automation.http.HttpStatusCode;
 import com.epam.dlab.automation.jenkins.JenkinsService;
 import com.epam.dlab.automation.model.LoginDto;
-import com.epam.dlab.automation.repository.ApiPath;
-import com.epam.dlab.automation.repository.ContentType;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
+import com.jayway.restassured.response.ResponseBody;
 
 @Test(singleThreaded=true)
 public class TestServices {
@@ -43,43 +44,31 @@ public class TestServices {
     // looks like running test in 1 thread mostly succeeds, running in 2 and more threads - usually fails.
     public static final int N_THREADS = 10;
 
-    private String serviceBaseName;
-    private String ssnURL;
-    private String ssnIpForTest;
+    private long testTimeMillis;
 
     @BeforeClass
     public void Setup() throws InterruptedException {
-
+    	testTimeMillis = System.currentTimeMillis();
         // Load properties
         ConfigPropertyValue.getJenkinsJobURL();
     }
     
     @AfterClass
     public void Cleanup() throws InterruptedException {
+    	testTimeMillis = System.currentTimeMillis() - testTimeMillis;
+    	LOGGER.info("Test time {} ms", testTimeMillis);
     }
 
     @Test(priority = 0)
-    public void runJenkins() throws Exception {
-        LOGGER.info("Test Started");
+    public void runTest() throws Exception {
     	testJenkinsJob();
-        LOGGER.info("Test Finished");
-    }
-
-
-    @Test(priority = 1, dependsOnMethods = "runJenkins")
-    public void runSsnLogin() throws Exception {
-        LOGGER.info("Test Started");
         testLoginSsnService();
-        LOGGER.info("Test Finished");
+
+        RestAssured.baseURI = NamingHelper.getSsnURL();
+        NamingHelper.setSsnToken(ssnLoginAndKeyUpload());
+        runTestsInNotebooks();
     }
 
-
-    @Test(priority = 2, dependsOnMethods = "runSsnLogin")
-    public void runDLabScenario() throws Exception {
-        LOGGER.info("Test Started");
-        testDLabScenario();
-        LOGGER.info("Test Finished");
-    }
 
     private void testJenkinsJob() throws Exception {
 
@@ -95,65 +84,69 @@ public class TestServices {
         LOGGER.info("   Jenkins Job found:");
         LOGGER.info("Build number is: {}", buildNumber);
         
-        ssnURL = jenkins.getSsnURL().replaceAll(" ", "");
-        serviceBaseName = jenkins.getServiceBaseName().replaceAll(" ", "");
-        Assert.assertNotNull(ssnURL, "Jenkins URL was not generated");
-        Assert.assertNotNull(serviceBaseName, "Service BaseName was not generated");
-        LOGGER.info("JenkinsURL is: " + ssnURL);
-        LOGGER.info("ServiceBaseName is: " + serviceBaseName);
+        NamingHelper.setSsnURL(jenkins.getSsnURL().replaceAll(" ", ""));
+        NamingHelper.setServiceBaseName(jenkins.getServiceBaseName().replaceAll(" ", ""));
+        Assert.assertNotNull(NamingHelper.getSsnURL(), "Jenkins URL was not generated");
+        Assert.assertNotNull(NamingHelper.getServiceBaseName(), "Service BaseName was not generated");
+        LOGGER.info("JenkinsURL is: " + NamingHelper.getSsnURL());
+        LOGGER.info("ServiceBaseName is: " + NamingHelper.getServiceBaseName());
 
     }
     
+    private ResponseBody<?> login(String username, String password, int expectedStatusCode, String errorMessage) {
+    	final String ssnLoginURL = NamingHelper.getSelfServiceURL(ApiPath.LOGIN);
+    	LoginDto requestBody = new LoginDto(username, password);
+    	Response response = new HttpRequest().webApiPost(ssnLoginURL, ContentType.JSON, requestBody);
+    	Assert.assertEquals(response.statusCode(), expectedStatusCode, errorMessage);
+    	return response.getBody();
+    }
+
     private void testLoginSsnService() throws Exception {
     	
     	//ssnURL = "http://ec2-35-162-89-115.us-west-2.compute.amazonaws.com";
 
-        LOGGER.info("Check status of SSN node on Amazon: {}", serviceBaseName);
-        Instance ssnInstance = AmazonHelper.getInstance(serviceBaseName + "-ssn");
+        LOGGER.info("Check status of SSN node on Amazon: {}", NamingHelper.getSsnName());
+        Instance ssnInstance = AmazonHelper.getInstance(NamingHelper.getSsnName());
         String publicSsnIp = ssnInstance.getPublicIpAddress();
         LOGGER.info("Public IP is: {}", publicSsnIp);
         String privateSsnIp = ssnInstance.getPrivateIpAddress();
         LOGGER.info("Private IP is: {}", privateSsnIp);
-        ssnIpForTest = PropertiesResolver.DEV_MODE ? publicSsnIp : privateSsnIp;
-        AmazonHelper.checkAmazonStatus(serviceBaseName + "-ssn", AmazonInstanceState.RUNNING.value());
+        NamingHelper.setSsnIp(PropertiesResolver.DEV_MODE ? publicSsnIp : privateSsnIp);
+        AmazonHelper.checkAmazonStatus(NamingHelper.getSsnName(), AmazonInstanceState.RUNNING.value());
         LOGGER.info("Amazon instance state is running");
         
         LOGGER.info("2. Waiting for SSN service ...");
-        Assert.assertEquals(WaitForStatus.selfService(ssnURL, ConfigPropertyValue.getTimeoutNotebookCreate()), true, "SSN service was not started");
+        Assert.assertEquals(WaitForStatus.selfService(ConfigPropertyValue.getTimeoutNotebookCreate()), true, "SSN service was not started");
         LOGGER.info("   SSN service is available");
         
         
         LOGGER.info("3. Check login");
-        final String ssnLoginURL = TestNamingHelper.getSelfServiceURL(ssnURL, ApiPath.LOGIN);
+        final String ssnLoginURL = NamingHelper.getSelfServiceURL(ApiPath.LOGIN);
         LOGGER.info("   SSN login URL is {}", ssnLoginURL);
         
+        ResponseBody<?> responseBody;
         if (!ConfigPropertyValue.isRunModeLocal()) {
-        	LoginDto notIAMUserRequestBody = new LoginDto(ConfigPropertyValue.getNotIAMUsername(), ConfigPropertyValue.getNotIAMPassword(), "");
-        	Response responseNotIAMUser = new HttpRequest().webApiPost(ssnLoginURL, ContentType.JSON, notIAMUserRequestBody);
-        	Assert.assertEquals(responseNotIAMUser.statusCode(), HttpStatusCode.Unauthorized, "Unauthorized user");
-        	Assert.assertEquals(responseNotIAMUser.getBody().asString(), "Please contact AWS administrator to create corresponding IAM User");
+        	responseBody = login(ConfigPropertyValue.getNotIAMUsername(), ConfigPropertyValue.getNotIAMPassword(),
+        			HttpStatusCode.Unauthorized, "Unauthorized user " + ConfigPropertyValue.getNotIAMUsername());
+        	Assert.assertEquals(responseBody.asString(), "Please contact AWS administrator to create corresponding IAM User");
         }
  		
-        LoginDto notDLABUserRequestBody = new LoginDto(ConfigPropertyValue.getNotDLabUsername(), ConfigPropertyValue.getNotDLabPassword(), "");
-        Response responseNotDLABUser = new HttpRequest().webApiPost(ssnLoginURL, ContentType.JSON, notDLABUserRequestBody);
-        Assert.assertEquals(responseNotDLABUser.statusCode(), HttpStatusCode.Unauthorized, "Unauthorized user");
-        Assert.assertEquals(responseNotDLABUser.getBody().asString(), "Username or password are not valid");
+        responseBody = login(ConfigPropertyValue.getNotDLabUsername(), ConfigPropertyValue.getNotDLabPassword(),
+        		HttpStatusCode.Unauthorized, "Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
+        Assert.assertEquals(responseBody.asString(), "Username or password are not valid");
         
         if (!ConfigPropertyValue.isRunModeLocal()) {
-        	LoginDto forActivateAccessKey = new LoginDto(ConfigPropertyValue.getUsername(), ".", "");
-        	Response responseForActivateAccessKey = new HttpRequest().webApiPost(ssnLoginURL, ContentType.JSON, forActivateAccessKey);
-        	Assert.assertEquals(responseForActivateAccessKey.statusCode(), HttpStatusCode.Unauthorized, "Unauthorized user");
-        	Assert.assertEquals(responseForActivateAccessKey.getBody().asString(), "Username or password are not valid");
+        	responseBody = login(ConfigPropertyValue.getUsername(), ".",
+        			HttpStatusCode.Unauthorized, "Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
+        	Assert.assertEquals(responseBody.asString(), "Username or password are not valid");
         }
         
-        LoginDto testUserLogin = new LoginDto(ConfigPropertyValue.getUsername(), ConfigPropertyValue.getPassword(), "");
         LOGGER.info("Logging in with credentials {}:{}", ConfigPropertyValue.getUsername(), ConfigPropertyValue.getPassword());
-        Response responseTestUser = new HttpRequest().webApiPost(ssnLoginURL, ContentType.JSON, testUserLogin);
-        Assert.assertEquals(responseTestUser.statusCode(), HttpStatusCode.OK, "User login + " + ConfigPropertyValue.getUsername() +" was not successful");
- 		
+        responseBody = login(ConfigPropertyValue.getUsername(), ConfigPropertyValue.getPassword(),
+        		HttpStatusCode.OK, "User login + " + ConfigPropertyValue.getUsername() +" was not successful");
         
         LOGGER.info("4. Check logout");
-        final String ssnlogoutURL = TestNamingHelper.getSelfServiceURL(ssnURL, ApiPath.LOGOUT);
+        final String ssnlogoutURL = NamingHelper.getSelfServiceURL(ApiPath.LOGOUT);
         LOGGER.info("   SSN logout URL is {}", ssnlogoutURL);
         
         Response responseLogout = new HttpRequest().webApiPost(ssnlogoutURL, ContentType.ANY);
@@ -161,35 +154,17 @@ public class TestServices {
         Assert.assertEquals(responseLogout.statusCode(), HttpStatusCode.Unauthorized, "User log out was not successful"/*Replace to HttpStatusCode.OK when EPMCBDCCSS-938 will be fixed and merged*/);
     }
 
-    private void testDLabScenario() throws Exception {
-
-    	//ssnURL = "http://ec2-35-164-76-52.us-west-2.compute.amazonaws.com";
-        //serviceBaseName = "autotest_jan11";
-        //publicSsnIp = "35.164.76.52";
-
-        final String nodePrefix = ConfigPropertyValue.getUsernameSimple();
-        RestAssured.baseURI = ssnURL;
-        String token = ssnLoginAndKeyUpload(nodePrefix, TestNamingHelper.getAmazonNodePrefix(serviceBaseName, nodePrefix));
-
-        runTestsInNotebooks(nodePrefix, token);
-    }
-
-    private String ssnLoginAndKeyUpload(String nodePrefix, String amazonNodePrefix) throws Exception {
-        LoginDto testUserRequestBody = new LoginDto(ConfigPropertyValue.getUsername(), ConfigPropertyValue.getPassword(), "");
-
+    private String ssnLoginAndKeyUpload() throws Exception {
         LOGGER.info("5. Login as {} ...", ConfigPropertyValue.getUsername());
-
-        final String ssnLoginURL = TestNamingHelper.getSelfServiceURL(ssnURL, ApiPath.LOGIN);
+        final String ssnLoginURL = NamingHelper.getSelfServiceURL(ApiPath.LOGIN);
+        final String ssnUploadKeyURL = NamingHelper.getSelfServiceURL(ApiPath.UPLOAD_KEY);
         LOGGER.info("   SSN login URL is {}", ssnLoginURL);
-
-        final String ssnUploadKeyURL = TestNamingHelper.getSelfServiceURL(ssnURL, ApiPath.UPLOAD_KEY);
         LOGGER.info("   SSN upload key URL is {}", ssnUploadKeyURL);
 
-        Response responseTestUser = new HttpRequest().webApiPost(ssnLoginURL, ContentType.JSON, testUserRequestBody);
-        Assert.assertEquals(HttpStatusCode.OK, responseTestUser.getStatusCode(), "Failed to login");
-        String token = responseTestUser.getBody().asString();
+        ResponseBody<?> responseBody = login(ConfigPropertyValue.getUsername(), ConfigPropertyValue.getPassword(),
+        		HttpStatusCode.OK, "Failed to login");
+        String token = responseBody.asString();
         LOGGER.info("   Logged in. Obtained token: {}", token);
-
 
         LOGGER.info("5.a Checking for user Key...");
         Response respCheckKey = new HttpRequest().webApiGet(ssnUploadKeyURL, token);
@@ -211,27 +186,28 @@ public class TestServices {
             Assert.assertEquals(200, respCheckKey.getStatusCode(), "Failed to check User Key.");
         }
 
-        Docker.checkDockerStatus(nodePrefix + "_create_edge_", ssnIpForTest);
-        AmazonHelper.checkAmazonStatus(amazonNodePrefix + "-edge", AmazonInstanceState.RUNNING.value());
+        final String nodePrefix = ConfigPropertyValue.getUsernameSimple();
+        Docker.checkDockerStatus(nodePrefix + "_create_edge_", NamingHelper.getSsnIp());
+        AmazonHelper.checkAmazonStatus(NamingHelper.getEdgeName(), AmazonInstanceState.RUNNING.value());
 
 
-        final String ssnExpEnvURL = TestNamingHelper.getSelfServiceURL(ssnURL, ApiPath.EXP_ENVIRONMENT);
+        final String ssnExpEnvURL = NamingHelper.getSelfServiceURL(ApiPath.EXP_ENVIRONMENT);
         LOGGER.info("   SSN exploratory environment URL is {}", ssnExpEnvURL);
-        final String ssnProUserResURL = TestNamingHelper.getSelfServiceURL(ssnURL, ApiPath.PROVISIONED_RES);
+        final String ssnProUserResURL = NamingHelper.getSelfServiceURL(ApiPath.PROVISIONED_RES);
         LOGGER.info("   SSN provisioned user resources URL is {}", ssnProUserResURL);
 
         return token;
     }
 
-    private void runTestsInNotebooks(String nodePrefix, String token) throws Exception {
-        List<String> notebooks = Arrays.asList(ConfigPropertyValue.getNotebooks().split(","));
-        LOGGER.info("Testing the following notebooks: {}", ConfigPropertyValue.getNotebooks());
+    private void runTestsInNotebooks() throws Exception {
+        List<String> notebookTemplates = Arrays.asList(ConfigPropertyValue.getNotebookTemplates().split(","));
+        LOGGER.info("Testing the following notebook templates: {}", ConfigPropertyValue.getNotebookTemplates());
         ExecutorService executor =  Executors.newFixedThreadPool(ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads(): N_THREADS);
         List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
 
         boolean testRestartStopped = true;
-        for (String notebook: notebooks) {
-            FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(serviceBaseName, ssnURL, ssnIpForTest, notebook, nodePrefix, token, testRestartStopped));
+        for (String notebookTemplate: notebookTemplates) {
+            FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookTemplate, testRestartStopped));
             testRestartStopped = false;
             futureTasks.add(runScenarioTask);
             executor.execute(runScenarioTask);

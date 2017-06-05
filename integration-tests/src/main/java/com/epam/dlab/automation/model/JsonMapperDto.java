@@ -1,19 +1,20 @@
-package com.epam.dlab.automation.aws;
+package com.epam.dlab.automation.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class NodeReader {
+public class JsonMapperDto {
 
     @SuppressWarnings("unchecked")
 	public static <T> T readNode(String pathToJson, Class<T> clasz) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
         try (FileInputStream in = new FileInputStream(pathToJson);){
-          return (T) mapper.readerFor(clasz).readValue(in);
-//                  readTree(in);
+          return (T) mapper
+        		  .readerFor(clasz)
+        		  .readValue(in);
         }
     }
 }

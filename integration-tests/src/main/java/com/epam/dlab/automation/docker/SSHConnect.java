@@ -1,20 +1,18 @@
 package com.epam.dlab.automation.docker;
 
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jcraft.jsch.*;
+import java.io.IOException;
+import java.util.Properties;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import com.epam.dlab.automation.helper.ConfigPropertyValue;
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 
 public class SSHConnect {
     private final static Logger LOGGER = LogManager.getLogger(SSHConnect.class);
@@ -87,45 +85,6 @@ public class SSHConnect {
         channelExec.connect();
 
         return channelExec;
-    }
-
-    public static List<DockerContainer> getDockerContainerList(InputStream in) throws IOException {
-        
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));         
-        String line;
-        List<DockerContainer> dockerContainerList = null;
-
-        TypeReference<List<DockerContainer>> typeRef = new TypeReference<List<DockerContainer>>() { };
-        ObjectMapper mapper = new ObjectMapper();
-        
-        List<String> result = new ArrayList<String>();
-        while ((line = reader.readLine()) != null)       
-        {      
-             result.add(line); 
-             if (line.contains("Id"))
-             {
-                 dockerContainerList = mapper.readValue(line, typeRef);
-             }       
-             
-        }
-        
-        return dockerContainerList;
-    }
-    
-    public static DockerContainer getDockerContainer(List<DockerContainer> dockerContainerList, String name) {
-        DockerContainer dockerContainer = null;
-        String containerName;
-   
-        for(Iterator<DockerContainer> i = dockerContainerList.iterator(); i.hasNext(); )
-        {
-            dockerContainer = i.next();
-            containerName = dockerContainer.getNames().get(0);
-            if(containerName.contains(name)){
-                break;
-            }
-         
-        }
-        return dockerContainer;
     }
 
     public static AckStatus checkAck(ChannelExec channel) throws IOException, InterruptedException {

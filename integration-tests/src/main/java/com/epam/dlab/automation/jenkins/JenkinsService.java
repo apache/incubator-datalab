@@ -1,7 +1,7 @@
 package com.epam.dlab.automation.jenkins;
 
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
-import com.epam.dlab.automation.helper.TestNamingHelper;
+import com.epam.dlab.automation.helper.NamingHelper;
 import com.epam.dlab.automation.http.HttpStatusCode;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.authentication.FormAuthConfig;
@@ -86,7 +86,7 @@ public class JenkinsService {
     	}
     	
         RestAssured.baseURI = jenkinsJobURL;
-        String dateAsString = TestNamingHelper.generateRandomValue();
+        String dateAsString = NamingHelper.generateRandomValue();
         Response responsePostJob = getWhen(ContentType.URLENC)
                 .body(String.format(JenkinsConfigProperties.JENKINS_JOB_START_BODY,
                         awsAccessKeyId, awsSecretAccessKey, dateAsString,

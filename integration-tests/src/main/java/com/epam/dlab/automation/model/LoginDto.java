@@ -23,14 +23,11 @@ public class LoginDto {
     public String getAccess_token() {
         return access_token;
     }
-    public void setAccess_token(String access_token) {
-        this.access_token = access_token;
-    }
     
-    public LoginDto(String username, String password, String access_token){
+    public LoginDto(String username, String password) {
         this.username = username;
         this.password = password;
-        this.access_token = access_token;
+        this.access_token = "";
     }
    
     public LoginDto(){
