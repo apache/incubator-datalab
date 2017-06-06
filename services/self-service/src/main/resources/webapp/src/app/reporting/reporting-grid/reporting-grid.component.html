@@ -16,10 +16,18 @@ limitations under the License.
 
 -->
 
-<dlab-navbar></dlab-navbar>
-
-<dlab-reporting-grid></dlab-reporting-grid>
-
-<footer>
-  Total price *** $
-</footer>
+<p>
+  reporting-grid works!
+</p>
+<table class="dashboard_table">
+  <tr>
+    <th *ngFor="let column of filteringColumns" ngClass="{{column.className || ''}}">{{column.title}}
+      <button md-icon-button *ngIf="column.filtering" aria-label="More" class="pull-right">
+        <i class="material-icons">
+          <span>filter_list</span>
+          <!--<span>more_vert</span>-->
+        </i>
+      </button>
+    </th>
+  </tr>
+</table>

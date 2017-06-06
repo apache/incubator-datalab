@@ -22,6 +22,7 @@ import { MaterialModule } from '@angular/material';
 
 import { ReportingComponent } from './reporting.component';
 import { NavbarModule, ModalModule } from './../shared';
+import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 
 @NgModule({
   imports: [
@@ -30,7 +31,7 @@ import { NavbarModule, ModalModule } from './../shared';
     NavbarModule,
     MaterialModule.forRoot()
   ],
-  declarations: [ReportingComponent],
+  declarations: [ReportingComponent, ReportingGridComponent],
   exports: [ReportingComponent]
 })
 export class ReportingModule { }
