@@ -69,4 +69,5 @@ if __name__ == "__main__":
     sudo("/usr/bin/python /usr/local/bin/create_configs.py --bucket " + args.bucket + " --cluster_name "
          + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " + spark_version
          + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
-         + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user)
+         + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user
+         + " --pip_mirror " + args.pip_mirror)
