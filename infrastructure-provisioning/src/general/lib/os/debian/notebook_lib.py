@@ -378,3 +378,13 @@ def install_mxnet(os_user):
         sudo('pip2 install mxnet-cu80 opencv-python')
         sudo('pip3 install mxnet-cu80 opencv-python')
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
+
+
+def install_torch(os_user):
+    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
+        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
+        with cd('/home/{}/torch/'.format(os_user)):
+            run('bash install-deps;')
+            run('./install.sh -b')
+        run('source /home/{}/.bashrc'.format(os_user))
+        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))

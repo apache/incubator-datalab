@@ -57,16 +57,6 @@ toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snaps
 scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 
 
-def install_torch(args):
-    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(args.os_user)):
-        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
-        with cd('/home/{}/torch/'.format(args.os_user)):
-            run('bash install-deps;')
-            run('./install.sh -b')
-        run('source /home/{}/.bashrc'.format(args.os_user))
-        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(args.os_user))
-
-
 def install_itorch(args):
     if not exists('/home/{}/.ensure_dir/itorch_ensured'.format(args.os_user)):
         run('git clone https://github.com/facebook/iTorch.git')
@@ -139,18 +129,18 @@ if __name__ == "__main__":
     print "Install GitWeb"
     install_gitweb(args.os_user)
 
-    #print "Installing Torch"
-    #install_torch(args)
+    print "Installing Torch"
+    install_torch(args.os_user)
 
-    #print "Installing ITorch kernel"
-    #install_itorch(args)
+    print "Installing ITorch kernel"
+    install_itorch(args)
 
-    #print "Install CNTK Python library"
-    #install_cntk(args.os_user)
+    print "Install CNTK Python library"
+    install_cntk(args.os_user)
 
-    #print "Installing MXNET"
-    #install_mxnet(args.os_user)
+    print "Installing MXNET"
+    install_mxnet(args.os_user)
 
-    #print "Installing Keras"
-    #install_keras(args.os_user)
+    print "Installing Keras"
+    install_keras(args.os_user)
 
