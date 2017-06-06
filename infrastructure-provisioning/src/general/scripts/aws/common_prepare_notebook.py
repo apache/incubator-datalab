@@ -62,7 +62,7 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
     if os.environ['application'] == 'deeplearning':
-        notebook_config['primary_disk_size'] = '20'
+        notebook_config['primary_disk_size'] = '30'
     else:
         notebook_config['primary_disk_size'] = '12'
     if os.environ['application'] == 'zeppelin':
