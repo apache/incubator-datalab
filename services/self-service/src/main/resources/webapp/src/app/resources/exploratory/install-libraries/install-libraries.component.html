@@ -72,7 +72,7 @@ limitations under the License.
             <h4>List of Selected Libs</h4>
             <md-chip-list>
               <md-chip *ngFor="let item of model.selectedLibs">
-                {{ item.name }} {{ item.version }}
+                {{ item.name }} <span *ngIf="item.version && item.version !== 'N/A'">{{ item.version }}</span>
                 <strong>({{ groupsListMap[item.group] }})</strong>
                 <a (click)="removeSelectedLibrary(item)">x</a>
               </md-chip>
