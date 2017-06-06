@@ -23,9 +23,10 @@ import os
 import random
 import sys
 import string
-import json, uuid, time, datetime
+import json, uuid, time, datetime, csv
 from dlab.meta_lib import *
 from dlab.actions_lib import *
+import re
 
 
 def ensure_pip(requisites):
@@ -39,6 +40,50 @@ def ensure_pip(requisites):
         return True
     except:
         return False
+
+
+def install_pip2_pkg(requisites):
+    status = list()
+    try:
+        sudo('pip2 install -U pip setuptools')
+        sudo('pip2 install -U pip --no-cache-dir')
+        sudo('pip2 install --upgrade pip')
+        for pip2_pkg in requisites:
+            try:
+                sudo('pip2 install ' + pip2_pkg + ' --no-cache-dir')
+                res = sudo('pip2 freeze | grep ' + pip2_pkg)
+                ansi_escape = re.compile(r'\x1b[^m]*m')
+                ver = ansi_escape.sub('', res).split("\r\n")
+                version = [i for i in ver if pip2_pkg in i][0].split('==')[1]
+                status.append({"group": "pip2", "name": pip2_pkg, "version": version, "status": "installed"})
+            except:
+                status.append({"group": "pip2", "name": pip2_pkg, "status": "failed", "error_message": ""})
+        return status
+    except:
+        return "Fail to install pip2 packages"
+
+
+def install_pip3_pkg(requisites):
+    status = list()
+    try:
+        if not exists('/bin/pip3'):
+            sudo('ln -s /bin/pip3.5 /bin/pip3')
+        sudo('pip3 install -U pip setuptools')
+        sudo('pip3 install -U pip --no-cache-dir')
+        sudo('pip3 install --upgrade pip')
+        for pip3_pkg in requisites:
+            try:
+                sudo('pip3 install ' + pip3_pkg + ' --no-cache-dir')
+                res = sudo('pip3 freeze | grep ' + pip3_pkg)
+                ansi_escape = re.compile(r'\x1b[^m]*m')
+                ver = ansi_escape.sub('', res).split("\r\n")
+                version = [i for i in ver if pip3_pkg in i][0].split('==')[1]
+                status.append({"group": "pip3", "name": pip3_pkg, "version": version, "status": "installed"})
+            except:
+                status.append({"group": "pip3", "name": pip3_pkg, "status": "failed", "error_message": ""})
+        return status
+    except:
+        return "Fail to install pip3 packages"
 
 
 def create_aws_config_files(generate_full_config=False):
@@ -172,7 +217,7 @@ def append_result(error, exception=''):
 def put_resource_status(resource, status, dlab_path, os_user):
     env['connection_attempts'] = 100
     keyfile = "/root/keys/" + os.environ['conf_key_name'] + ".pem"
-    hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-ssn')
+    hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag', os.environ['conf_service_base_name'] + '-ssn')
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
     sudo('python ' + dlab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
@@ -185,6 +230,9 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo('pip install jupyter --no-cache-dir')
             sudo('rm -rf ' + jupyter_conf_file)
             run('jupyter notebook --generate-config --config ' + jupyter_conf_file)
+            with cd('/home/{}'.format(os_user)):
+                run('mkdir -p ~/.jupyter/custom/')
+                run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
             sudo('echo "c.NotebookApp.ip = \'*\'" >> ' + jupyter_conf_file)
             sudo('echo c.NotebookApp.open_browser = False >> ' + jupyter_conf_file)
             sudo('echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
@@ -465,6 +513,38 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             sys.exit(1)
 
 
+
+def install_r_pkg(requisites):
+    status = list()
+    try:
+        for r_pkg in requisites:
+            try:
+                sudo('R -e \'install.packages("'+ r_pkg +'", repos="http://cran.us.r-project.org", dep=TRUE)\'')
+                res = sudo('R -e \'installed.packages()[,c(3:4)]\' | grep ' + r_pkg)
+                ansi_escape = re.compile(r'\x1b[^m]*m')
+                version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
+                status.append({"group": "r_pkg", "name": r_pkg, "version": version, "status": "installed"})
+            except:
+                status.append({"group": "r_pkg", "name": r_pkg, "status": "failed", "error_message": ""})
+        return status
+    except:
+        return "Fail to install R packages"
+
+
+def get_available_r_pkgs():
+    try:
+        r_pkgs = dict()
+        sudo('R -e \'write.table(available.packages(contriburl="http://cran.us.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
+        get("/tmp/r.csv", "r.csv")
+        with open('r.csv', 'rb') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                r_pkgs[row[0]] = row[1]
+        return r_pkgs
+    except:
+        sys.exit(1)
+
+
 def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir, scala_version, spark_version):
     if not exists('/home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured'):
         try:
@@ -480,4 +560,3 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             sudo('touch /home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured')
         except:
             sys.exit(1)
-

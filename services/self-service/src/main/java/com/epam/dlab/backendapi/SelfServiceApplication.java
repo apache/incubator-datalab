@@ -22,6 +22,7 @@ import com.epam.dlab.auth.SecurityFactory;
 import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.BillingSchedulerManager;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
+import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.utils.ServiceUtils;
@@ -49,6 +50,9 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 	}
 	
     public static void main(String... args) throws Exception {
+		if (ServiceUtils.printAppVersion(SelfServiceApplication.class, args)) {
+			return;
+		}
         new SelfServiceApplication().run(args);
     }
 
@@ -68,6 +72,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment));
         environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
         environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
+        environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
         environment.lifecycle().manage(injector.getInstance(BillingSchedulerManager.class));
         injector.getInstance(SecurityFactory.class).configure(injector, environment);
         

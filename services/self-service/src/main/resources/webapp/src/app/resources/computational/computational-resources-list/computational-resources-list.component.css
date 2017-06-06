@@ -27,7 +27,6 @@ limitations under the License.
   display: block;
   white-space: nowrap;
   overflow: hidden;
-  vertical-align: middle;
   text-overflow: ellipsis;
   margin-left: 20px;
 }

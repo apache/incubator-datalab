@@ -29,6 +29,7 @@ import com.epam.dlab.core.parser.ParserBase;
 import com.epam.dlab.exception.AdapterException;
 import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.exception.ParseException;
+import com.epam.dlab.utils.ServiceUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -101,11 +102,16 @@ public class BillingTool {
 		}
 	}
 	
+	
 	/** Runs parser for given configuration.
 	 * @param args the arguments of command line. 
 	 * @throws InitializationException
 	 */
 	public static void main(String[] args) throws InitializationException {
+		if (ServiceUtils.printAppVersion(BillingScheduler.class, args)) {
+			return;
+		}
+
 		String confName = null;
 		String json = null;
 		
