@@ -139,18 +139,18 @@ if __name__ == "__main__":
     print "Install GitWeb"
     install_gitweb(args.os_user)
 
-    print "Installing Torch"
-    install_torch(args)
+    #print "Installing Torch"
+    #install_torch(args)
 
-    print "Installing ITorch kernel"
-    install_itorch(args)
+    #print "Installing ITorch kernel"
+    #install_itorch(args)
 
-    print "Install CNTK Python library"
-    install_cntk(args.os_user)
+    #print "Install CNTK Python library"
+    #install_cntk(args.os_user)
 
-    print "Installing MXNET"
-    install_mxnet(args.os_user)
+    #print "Installing MXNET"
+    #install_mxnet(args.os_user)
 
-    print "Installing Keras"
-    install_keras(args.os_user)
+    #print "Installing Keras"
+    #install_keras(args.os_user)
 
