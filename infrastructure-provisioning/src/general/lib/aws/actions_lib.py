@@ -261,7 +261,7 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
 def create_iam_role(role_name, role_profile, service='ec2'):
     conn = boto3.client('iam')
     try:
-        conn.create_role(RoleName=role_name, AssumeRolePolicyDocument='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["{0}.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}'.format(service))
+        conn.create_role(RoleName=role_name, AssumeRolePolicyDocument='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service + '.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
             print "IAM role already exists. Reusing..."
