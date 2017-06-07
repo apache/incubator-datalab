@@ -23,6 +23,7 @@ import argparse
 import json
 from dlab.fab import *
 from dlab.common_lib import ensure_pkg
+from dlab.common_lib import change_pkg_repos
 from fabric.contrib.files import exists
 import sys
 import os
@@ -56,6 +57,7 @@ if __name__ == "__main__":
     deeper_config = json.loads(args.additional_config)
 
     if args.region == 'cn-north-1':
+        change_pkg_repos()
         create_china_pip_conf_file()
 
     print "Updating repositories and installing requested tools."

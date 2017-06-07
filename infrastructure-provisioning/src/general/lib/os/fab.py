@@ -295,16 +295,21 @@ def installing_python(region, bucket, user_name, cluster_name, pip_mirror=''):
         venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
         pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
         if region == 'cn-north-1':
-            local(venv_command + ' && sudo -i ' + pip_command +
-                  ' install -i https://{0}/simple --trusted-host {0} --timeout 600 -U pip --no-cache-dir'.format(pip_mirror))
-            local(venv_command + ' && sudo -i ' + pip_command +
-                  ' install -i https://{0}/simple --trusted-host {0} --timeout 600 ipython ipykernel --no-cache-dir'.
-                  format(pip_mirror))
-            local(venv_command + ' && sudo -i ' + pip_command +
-                  ' install -i https://{0}/simple --trusted-host {0} --timeout 600 boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
-                  format(pip_mirror))
-            local('sudo rm /etc/pip.conf')
-            local('sudo mv /etc/back_pip.conf /etc/pip.conf')
+            try:
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 600 -U pip --no-cache-dir'.format(pip_mirror))
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 600 ipython ipykernel --no-cache-dir'.
+                      format(pip_mirror))
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 600 boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
+                      format(pip_mirror))
+                local('sudo rm /etc/pip.conf')
+                local('sudo mv /etc/back_pip.conf /etc/pip.conf')
+            except:
+                local('sudo rm /etc/pip.conf')
+                local('sudo mv /etc/back_pip.conf /etc/pip.conf')
+                sys.exit(1)
         else:
             local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
