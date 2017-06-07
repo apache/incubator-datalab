@@ -48,7 +48,7 @@ def renew_gpg_key():
 
 def change_pkg_repos():
     if not exists('/tmp/pkg_china_ensured'):
-        put('/root/files/source.list', '/tmp/source.list')
-        sudo('mv /tmp/source.list /etc/apt/sources.list')
+        put('/root/files/sources.list', '/tmp/sources.list')
+        sudo('mv /tmp/sources.list /etc/apt/sources.list')
         sudo('apt-get update')
         sudo('touch /tmp/pkg_china_ensured')
