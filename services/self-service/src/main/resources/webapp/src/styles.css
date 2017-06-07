@@ -63,6 +63,7 @@ limitations under the License.
 
 .install-libs .mat-tab-label {
     width: 50%;
+    font-family: 'Open Sans',sans-serif !important;
 }
 .install-libs .mat-ink-bar {
     background-color: #35afd5;
@@ -89,6 +90,11 @@ limitations under the License.
     font-size: 10px;
     font-weight: 300;
 }
+
+.mat-option {
+    font-family: 'Open Sans', sans-serif;
+}
+
 .mat-option.mat-selected {
     color: #35afd5;
 }
@@ -113,6 +119,8 @@ limitations under the License.
 .mat-input-placeholder {
   font-weight: 400;
 }
+
+
 
 [hidden] {
   display: none !important;
