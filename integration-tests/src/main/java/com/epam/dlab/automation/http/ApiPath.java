@@ -13,23 +13,19 @@ public class ApiPath {
     public static final String TERMINATE_EMR = COMPUTATIONAL_RES + "/%s/%s/terminate";
     public static final String TERMINATE_NOTEBOOK = EXP_ENVIRONMENT + "/%s/terminate";
           
-    public static String ConfigureURL(String url, Object... args)
-    {        
+    public static String ConfigureURL(String url, Object... args) {        
         return String.format(url, args);        
     }
     
-    public static String getStopNotebookUrl(String serviceBaseName)
-    {
+    public static String getStopNotebookUrl(String serviceBaseName) {
         return ConfigureURL(STOP_NOTEBOOK, serviceBaseName);
     }
     
-    public static String getTerminateEMRUrl(String notebookName, String emrName)
-    {
+    public static String getTerminateEMRUrl(String notebookName, String emrName) {
         return ConfigureURL(TERMINATE_EMR, notebookName, emrName);
     }
     
-    public static String getTerminateNotebookUrl(String serviceBaseName)
-    {
+    public static String getTerminateNotebookUrl(String serviceBaseName) {
         return ConfigureURL(TERMINATE_NOTEBOOK, serviceBaseName);
     }
 }

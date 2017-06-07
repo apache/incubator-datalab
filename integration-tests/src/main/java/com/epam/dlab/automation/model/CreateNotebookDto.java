@@ -55,6 +55,4 @@ public class CreateNotebookDto {
     public CreateNotebookDto(){
         
     }
-
 }
-       

@@ -1,5 +1,7 @@
 package com.epam.dlab.automation.model;
 
+import com.google.common.base.MoreObjects;
+
 public class DeployEMRDto {
     private String image;
     private String template_name;
@@ -94,18 +96,17 @@ public class DeployEMRDto {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("DeployEMRDto{");
-        sb.append("image='").append(image).append('\'');
-        sb.append(", template_name='").append(template_name).append('\'');
-        sb.append(", name='").append(name).append('\'');
-        sb.append(", emr_instance_count='").append(emr_instance_count).append('\'');
-        sb.append(", emr_master_instance_type='").append(emr_master_instance_type).append('\'');
-        sb.append(", emr_slave_instance_type='").append(emr_slave_instance_type).append('\'');
-        sb.append(", emr_slave_instance_spot=").append(emr_slave_instance_spot);
-        sb.append(", emr_slave_instance_spot_pct_price=").append(emr_slave_instance_spot_pct_price);
-        sb.append(", emr_version='").append(emr_version).append('\'');
-        sb.append(", notebook_name='").append(notebook_name).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return MoreObjects.toStringHelper(this)
+        		.add("image", image)
+        		.add("template_name", template_name)
+        		.add("name", name)
+        		.add("emr_instance_count", emr_instance_count)
+        		.add("emr_master_instance_type", emr_master_instance_type)
+        		.add("emr_slave_instance_type", emr_slave_instance_type)
+        		.add("emr_slave_instance_spot", emr_slave_instance_spot)
+        		.add("emr_slave_instance_spot_pct_price", emr_slave_instance_spot_pct_price)
+        		.add("emr_version", emr_version)
+        		.add("notebook_name", notebook_name)
+        		.toString();
     }
 }

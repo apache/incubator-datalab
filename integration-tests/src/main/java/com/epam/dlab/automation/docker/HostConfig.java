@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class HostConfig {
     
-    @JsonProperty("NetworkMode")
+    @JsonProperty
     private String NetworkMode;
 
     public String getNetworkMode() {

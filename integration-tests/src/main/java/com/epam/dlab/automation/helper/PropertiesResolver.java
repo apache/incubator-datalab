@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-
 public class PropertiesResolver {
 
     private static final Logger LOGGER = LogManager.getLogger(PropertiesResolver.class);
@@ -32,7 +31,6 @@ public class PropertiesResolver {
     static {
         DEV_MODE = System.getProperty("run.mode", "remote").equalsIgnoreCase("dev");
         loadApplicationProperties();
-
     }
 
 	private static String getProperty(String propertyName, boolean isOptional) {
@@ -60,11 +58,9 @@ public class PropertiesResolver {
     }
 
     private static void loadApplicationProperties() {
-
         InputStream input = null;
 
         try {
-
             input = PropertiesResolver.class.getClassLoader().getResourceAsStream(CONFIG_FILE_NAME);
 
             // load a properties file
@@ -134,5 +130,4 @@ public class PropertiesResolver {
     public static String getPropertyByName(String propertyName) {
         return properties.getProperty(propertyName);
     }
-
 }

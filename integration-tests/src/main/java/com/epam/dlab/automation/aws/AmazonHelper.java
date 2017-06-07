@@ -34,32 +34,32 @@ public class AmazonHelper {
 		return Region.getRegion(Regions.fromName(ConfigPropertyValue.getAwsRegion()));
 	}
 	
-    private static List<Instance> getInstances(String instanceName) throws Exception {
-            AWSCredentials credentials = getCredentials();
-            AmazonEC2 ec2 = new AmazonEC2Client(credentials);
-            ec2.setRegion(getRegion());
-     
-            List<String> valuesT1 = new ArrayList<>();
-            valuesT1.add(instanceName + "*");
-            Filter filter = new Filter("tag:Name", valuesT1);
-            
-            DescribeInstancesRequest describeInstanceRequest = new DescribeInstancesRequest().withFilters(filter);
-            DescribeInstancesResult describeInstanceResult = ec2.describeInstances(describeInstanceRequest);
-            
-            List<Reservation> reservations = describeInstanceResult.getReservations();
-            
-            if (reservations.size() == 0) {
-            	throw new Exception("Instance "+ instanceName + " in Amazon not found");
-            }
-            
-            List<Instance> instances = reservations.get(0).getInstances();
-            if (instances.size() == 0) {
-            	throw new Exception("Instance "+ instanceName + " in Amazon not found");
-            }
-            
-            return instances;
-    }
-    
+	private static List<Instance> getInstances(String instanceName) throws Exception {
+		AWSCredentials credentials = getCredentials();
+		AmazonEC2 ec2 = new AmazonEC2Client(credentials);
+		ec2.setRegion(getRegion());
+
+		List<String> valuesT1 = new ArrayList<>();
+		valuesT1.add(instanceName + "*");
+		Filter filter = new Filter("tag:Name", valuesT1);
+
+		DescribeInstancesRequest describeInstanceRequest = new DescribeInstancesRequest().withFilters(filter);
+		DescribeInstancesResult describeInstanceResult = ec2.describeInstances(describeInstanceRequest);
+
+		List<Reservation> reservations = describeInstanceResult.getReservations();
+
+		if (reservations.size() == 0) {
+			throw new Exception("Instance " + instanceName + " in Amazon not found");
+		}
+
+		List<Instance> instances = reservations.get(0).getInstances();
+		if (instances.size() == 0) {
+			throw new Exception("Instance " + instanceName + " in Amazon not found");
+		}
+
+		return instances;
+	}
+
     public static Instance getInstance(String instanceName) throws Exception {
     	return (ConfigPropertyValue.isRunModeLocal() ?
     			new Instance()
@@ -73,7 +73,7 @@ public class AmazonHelper {
             	getInstances(instanceName).get(0));
     }
 
-    public static void checkAmazonStatus(String instanceName, String expAmazonState) throws Exception {
+    public static void checkAmazonStatus(String instanceName, AmazonInstanceState expAmazonState) throws Exception {
         LOGGER.info("Check status of instance {} on Amazon: ", instanceName);
         if (ConfigPropertyValue.isRunModeLocal()) {
         	LOGGER.info("Amazon instance {} fake state is {}", instanceName, expAmazonState);
@@ -104,7 +104,7 @@ public class AmazonHelper {
     public static void printBucketGrants(String bucketName) throws Exception {
         LOGGER.info("Print grants for bucket {} on Amazon: " , bucketName);
         if (ConfigPropertyValue.isRunModeLocal()) {
-        	LOGGER.info("  check is skipped");
+        	LOGGER.info("  action skipped for run in local mode");
         	return;
         }
         AWSCredentials credentials = getCredentials();

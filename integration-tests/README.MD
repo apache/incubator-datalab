@@ -37,10 +37,10 @@ Amazon instances configuration json files examples can be found in module root "
  
 ### Server mode 
 Server does not require any specific parameters. The configuration files locations is following for server mode:
-* conf.file.location=/var/lib/jenkins/AutoTestData/config.properties
-* keys.directory.location=/var/lib/jenkins/AutoTestData/
-* python.files.location=/var/lib/jenkins/AutoTestData/scenario_jupyter/
-* cluster.config.file.location=/var/lib/jenkins/AutoTestData/ec2_templates/
+* conf.file.location=${conf.root.path}/config.properties
+* keys.directory.location=${conf.root.path}/keys
+* python.files.location=${conf.root.path}/scenario_jupyter/
+* cluster.config.file.location=${conf.root.path}/ec2_templates/
 
 ### Dev mode.
 Dev mode has 2 choices run against service deployed in Amazon or against local mocked services. 
@@ -49,23 +49,22 @@ Dev mode has 2 choices run against service deployed in Amazon or against local m
 To be able to run tests against locally deployed service, it is required to pass following parameters:
 
  * -Dconf.root.path=examples
+
+Also you should describe following parameters into config.properties file or to pass it to JVM:
  * -Drun.mode.local=true
  * -Duse.jenkins=false
- * -Dssn.url=http://localhost:8080
- * -Dservice.base.name=sbn1206v9
+ * -Dssn.url=https://localhost:8443
+ * -Dservice.base.name=dev
  * -Dnotebooks.to.test=rstudio,jupyter,zeppelin
- * -Dexecution.threads=3
 
 #### Dev mode against services deployed in Amazon
 To be able to run tests against services deployed in Amazon, it is required to pass following parameters: 
  
  * -Drun.mode=dev
- * -Dconf.root.path=examples 
- * -Drun.mode.local=false
- * -Duse.jenkins=true
+ * -Dconf.root.path=examples
  * -Djenkins.buildNumber=163
- * -Dnotebooks=rstudio
- * -Dexecution.threads=3
+ * -Dnotebooks.to.test=rstudio
+ * -Dexecution.threads=1
 
 
 The "execution.threads" property with value 1  limits threads for notebooks testing to 1. So all tests would be executed synchronously.
@@ -75,13 +74,7 @@ To run automation tests in dev mode it is required to pass a few more Java param
 * 
 
 
-
 Example:
 * -Drun.mode=dev.
 
 In this case the application configuration is following:
-
-* conf.file.location=d://dlab/config.properties
-* keys.directory.location=d://dlab
-* python.files.location=d://dlab/scenario_jupyter
-* cluster.config.file.location=d://dlab/ec2_templates/

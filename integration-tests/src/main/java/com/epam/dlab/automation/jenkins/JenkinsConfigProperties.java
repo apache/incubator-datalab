@@ -1,13 +1,11 @@
 package com.epam.dlab.automation.jenkins;
 
-
 public class JenkinsConfigProperties {
 
     static final long JENKINS_REQUEST_TIMEOUT = 5000;
 
     static String AUTHORIZATION = "Authorization";
     static String AUTHORIZATION_KEY ="Basic %s";//the replacement is decoded to base64 user:password
-
 
     static String SUCCESS_STATUS = "true";
     static String JENKINS_JOB_NAME_SEARCH = "/";

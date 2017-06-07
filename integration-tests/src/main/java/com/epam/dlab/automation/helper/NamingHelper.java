@@ -15,7 +15,6 @@ public class NamingHelper {
     private static String ssnURL;
     private static String ssnIp;
     private static String ssnToken;
-
     
     public static String getServiceBaseName() {
     	return serviceBaseName;
@@ -88,12 +87,12 @@ public class NamingHelper {
     
     public static String generateRandomValue() {
         SimpleDateFormat df = new SimpleDateFormat("YYYYMMddhmmss");
-        return String.join("_",  "AutoTest", df.format(new Date()), String.valueOf(idCounter.incrementAndGet()));
+        return String.join("_",  "ITest", df.format(new Date()), String.valueOf(idCounter.incrementAndGet()));
     }
 
     public static String generateRandomValue(String notebokTemplateName) {
         SimpleDateFormat df = new SimpleDateFormat("YYYYMMddhmmss");
-        return String.join("_",  "AutoTest", notebokTemplateName, df.format(new Date()), String.valueOf(idCounter.incrementAndGet()));
+        return String.join("_",  "ITest", notebokTemplateName, df.format(new Date()), String.valueOf(idCounter.incrementAndGet()));
     }
     
     public static String getSelfServiceURL(String path) {

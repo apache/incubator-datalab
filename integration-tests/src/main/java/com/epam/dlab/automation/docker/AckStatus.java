@@ -20,6 +20,7 @@ package com.epam.dlab.automation.docker;
 
 public class AckStatus {
     private int status;
+    
     private String message;
 
     public AckStatus() {

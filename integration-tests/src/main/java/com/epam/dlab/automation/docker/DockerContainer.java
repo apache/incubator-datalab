@@ -7,43 +7,43 @@ import java.util.List;
 //TODO Remove unused properties
 public class DockerContainer {
     
-    @JsonProperty("Id")
+    @JsonProperty
     private String Id;
     
-    @JsonProperty("Names")
+    @JsonProperty
     private List<String> Names;
     
-    @JsonProperty("Image")
+    @JsonProperty
     private String Image;
     
-    @JsonProperty("ImageID")
+    @JsonProperty
     private String ImageID;
     
-    @JsonProperty("Command")
+    @JsonProperty
     private String Command;
     
-    @JsonProperty("Created")
+    @JsonProperty
     private int Created;
     
-    @JsonProperty("Ports")
+    @JsonProperty
     private List<Object> Ports;
     
-    @JsonProperty("Labels")
+    @JsonProperty
     private Labels Labels;
     
-    @JsonProperty("State")
+    @JsonProperty
     private String State;
     
-    @JsonProperty("Status") 
+    @JsonProperty 
     private String Status;
     
-    @JsonProperty("HostConfig")
+    @JsonProperty
     private HostConfig HostConfig;
     
-    @JsonProperty("NetworkSettings")
+    @JsonProperty
     private NetworkSettings NetworkSettings;
     
-    @JsonProperty("Mounts")
+    @JsonProperty
     private List<Object> Mounts;
     
     public String getId() {

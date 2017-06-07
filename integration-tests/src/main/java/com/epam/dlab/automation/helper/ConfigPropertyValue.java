@@ -14,7 +14,6 @@ public class ConfigPropertyValue {
     private final static Logger LOGGER = LogManager.getLogger(ConfigPropertyValue.class);
     public static final String CONFIG_FILE_NAME;
 
-
     public static final String JENKINS_USERNAME="JENKINS_USERNAME";
     public static final String JENKINS_PASSWORD="JENKINS_PASSWORD";
 	private static final String USERNAME="USERNAME";

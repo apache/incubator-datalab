@@ -71,7 +71,6 @@ public class TestServices {
 
 
     private void testJenkinsJob() throws Exception {
-
         /* LOGGER.info("1. Jenkins Job will be started ...");
        
         JenkinsService jenkins = new JenkinsService(ConfigPropertyValue.getJenkinsUsername(), ConfigPropertyValue.getJenkinsPassword());
@@ -90,7 +89,6 @@ public class TestServices {
         Assert.assertNotNull(NamingHelper.getServiceBaseName(), "Service BaseName was not generated");
         LOGGER.info("JenkinsURL is: " + NamingHelper.getSsnURL());
         LOGGER.info("ServiceBaseName is: " + NamingHelper.getServiceBaseName());
-
     }
     
     private ResponseBody<?> login(String username, String password, int expectedStatusCode, String errorMessage) {
@@ -102,7 +100,6 @@ public class TestServices {
     }
 
     private void testLoginSsnService() throws Exception {
-    	
     	//ssnURL = "http://ec2-35-162-89-115.us-west-2.compute.amazonaws.com";
 
         LOGGER.info("Check status of SSN node on Amazon: {}", NamingHelper.getSsnName());
@@ -112,13 +109,12 @@ public class TestServices {
         String privateSsnIp = ssnInstance.getPrivateIpAddress();
         LOGGER.info("Private IP is: {}", privateSsnIp);
         NamingHelper.setSsnIp(PropertiesResolver.DEV_MODE ? publicSsnIp : privateSsnIp);
-        AmazonHelper.checkAmazonStatus(NamingHelper.getSsnName(), AmazonInstanceState.RUNNING.value());
+        AmazonHelper.checkAmazonStatus(NamingHelper.getSsnName(), AmazonInstanceState.RUNNING);
         LOGGER.info("Amazon instance state is running");
         
         LOGGER.info("2. Waiting for SSN service ...");
         Assert.assertEquals(WaitForStatus.selfService(ConfigPropertyValue.getTimeoutNotebookCreate()), true, "SSN service was not started");
         LOGGER.info("   SSN service is available");
-        
         
         LOGGER.info("3. Check login");
         final String ssnLoginURL = NamingHelper.getSelfServiceURL(ApiPath.LOGIN);
@@ -127,23 +123,23 @@ public class TestServices {
         ResponseBody<?> responseBody;
         if (!ConfigPropertyValue.isRunModeLocal()) {
         	responseBody = login(ConfigPropertyValue.getNotIAMUsername(), ConfigPropertyValue.getNotIAMPassword(),
-        			HttpStatusCode.Unauthorized, "Unauthorized user " + ConfigPropertyValue.getNotIAMUsername());
+        			HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotIAMUsername());
         	Assert.assertEquals(responseBody.asString(), "Please contact AWS administrator to create corresponding IAM User");
         }
  		
         responseBody = login(ConfigPropertyValue.getNotDLabUsername(), ConfigPropertyValue.getNotDLabPassword(),
-        		HttpStatusCode.Unauthorized, "Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
+        		HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
         Assert.assertEquals(responseBody.asString(), "Username or password are not valid");
         
         if (!ConfigPropertyValue.isRunModeLocal()) {
         	responseBody = login(ConfigPropertyValue.getUsername(), ".",
-        			HttpStatusCode.Unauthorized, "Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
+        			HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
         	Assert.assertEquals(responseBody.asString(), "Username or password are not valid");
         }
         
         LOGGER.info("Logging in with credentials {}:{}", ConfigPropertyValue.getUsername(), ConfigPropertyValue.getPassword());
         responseBody = login(ConfigPropertyValue.getUsername(), ConfigPropertyValue.getPassword(),
-        		HttpStatusCode.OK, "User login + " + ConfigPropertyValue.getUsername() +" was not successful");
+        		HttpStatusCode.OK, "User login " + ConfigPropertyValue.getUsername() + " was not successful");
         
         LOGGER.info("4. Check logout");
         final String ssnlogoutURL = NamingHelper.getSelfServiceURL(ApiPath.LOGOUT);
@@ -151,7 +147,7 @@ public class TestServices {
         
         Response responseLogout = new HttpRequest().webApiPost(ssnlogoutURL, ContentType.ANY);
         LOGGER.info("responseLogout.statusCode() is {}", responseLogout.statusCode());
-        Assert.assertEquals(responseLogout.statusCode(), HttpStatusCode.Unauthorized, "User log out was not successful"/*Replace to HttpStatusCode.OK when EPMCBDCCSS-938 will be fixed and merged*/);
+        Assert.assertEquals(responseLogout.statusCode(), HttpStatusCode.UNAUTHORIZED, "User log out was not successful"/*Replace to HttpStatusCode.OK when EPMCBDCCSS-938 will be fixed and merged*/);
     }
 
     private String ssnLoginAndKeyUpload() throws Exception {
@@ -169,14 +165,14 @@ public class TestServices {
         LOGGER.info("5.a Checking for user Key...");
         Response respCheckKey = new HttpRequest().webApiGet(ssnUploadKeyURL, token);
 
-        if(respCheckKey.getStatusCode() == HttpStatusCode.NotFound) {
+        if(respCheckKey.getStatusCode() == HttpStatusCode.NOT_FOUND) {
             LOGGER.info("5.b Upload Key will be started ...");
 
             Response respUploadKey = new HttpRequest().webApiPost(ssnUploadKeyURL, ContentType.FORMDATA, token);
             LOGGER.info("   respUploadKey.getBody() is {}", respUploadKey.getBody().asString());
 
             Assert.assertEquals(respUploadKey.statusCode(), HttpStatusCode.OK, "The key uploading was not successful");
-            int responseCodeAccessKey = WaitForStatus.uploadKey(ssnUploadKeyURL, token, HttpStatusCode.Accepted, ConfigPropertyValue.getTimeoutUploadKey());
+            int responseCodeAccessKey = WaitForStatus.uploadKey(ssnUploadKeyURL, token, HttpStatusCode.ACCEPTED, ConfigPropertyValue.getTimeoutUploadKey());
             LOGGER.info("   Upload Key has been completed");
             LOGGER.info("responseAccessKey.statusCode() is {}", responseCodeAccessKey);
             Assert.assertEquals(responseCodeAccessKey, HttpStatusCode.OK, "The key uploading was not successful");
@@ -188,8 +184,7 @@ public class TestServices {
 
         final String nodePrefix = ConfigPropertyValue.getUsernameSimple();
         Docker.checkDockerStatus(nodePrefix + "_create_edge_", NamingHelper.getSsnIp());
-        AmazonHelper.checkAmazonStatus(NamingHelper.getEdgeName(), AmazonInstanceState.RUNNING.value());
-
+        AmazonHelper.checkAmazonStatus(NamingHelper.getEdgeName(), AmazonInstanceState.RUNNING);
 
         final String ssnExpEnvURL = NamingHelper.getSelfServiceURL(ApiPath.EXP_ENVIRONMENT);
         LOGGER.info("   SSN exploratory environment URL is {}", ssnExpEnvURL);

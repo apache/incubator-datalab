@@ -4,40 +4,40 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Bridge {
     
-    @JsonProperty("IPAMConfig")
+    @JsonProperty
     private Object IPAMConfig;
     
-    @JsonProperty("Links")
+    @JsonProperty
     private Object Links;
     
-    @JsonProperty("Aliases")
+    @JsonProperty
     private Object Aliases;
     
-    @JsonProperty("NetworkID")
+    @JsonProperty
     private String NetworkID;
     
-    @JsonProperty("EndpointID")
+    @JsonProperty
     private String EndpointID;
     
-    @JsonProperty("Gateway")
+    @JsonProperty
     private String Gateway;
     
-    @JsonProperty("IPAddress")
+    @JsonProperty
     private String IPAddress;
     
-    @JsonProperty("IPPrefixLen")
+    @JsonProperty
     private int IPPrefixLen;
     
-    @JsonProperty("IPv6Gateway")
+    @JsonProperty
     private String IPv6Gateway;
     
-    @JsonProperty("GlobalIPv6Address")
+    @JsonProperty
     private String GlobalIPv6Address;
     
-    @JsonProperty("GlobalIPv6PrefixLen")
+    @JsonProperty
     private int GlobalIPv6PrefixLen;
     
-    @JsonProperty("MacAddress")
+    @JsonProperty
     private String MacAddress;
     
     public Object getIPAMConfig() {
@@ -112,5 +112,4 @@ public class Bridge {
     public void setMacAddress(String macAddress) {
         MacAddress = macAddress;
     }
-
 }

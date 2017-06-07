@@ -1,3 +1,4 @@
+//TODO Add EPAM license to all files
 package com.epam.dlab.automation.test;
 
 import java.io.File;
@@ -43,7 +44,7 @@ public class TestCallable implements Callable<Boolean> {
         this.bucketName = NamingHelper.getBucketName();
 
         final String suffixName = NamingHelper.generateRandomValue(notebookTemplate);
-        notebookName = "Notebook" + suffixName;
+        notebookName = "nb" + suffixName;
         emrName = "eimr" + suffixName;
 
         LOGGER.info("   SSN exploratory environment URL is {}", ssnExpEnvURL);
@@ -76,12 +77,8 @@ public class TestCallable implements Callable<Boolean> {
         return true;
     }
 
-    /**
-    * @param notebookName
-    * @throws Exception
-    */
    private String  createNotebook() throws Exception {
-       LOGGER.info("6. Notebook " +  notebookName + " will be created ...");
+       LOGGER.info("6. Notebook {} will be created ...", notebookName);
        String notebookConfigurationFile = String.format(PropertiesResolver.NOTEBOOK_CONFIGURATION_FILE_TEMPLATE, notebookTemplate);
        LOGGER.info("{} notebook configuration file: {}", notebookName, notebookConfigurationFile);
 
@@ -104,7 +101,7 @@ public class TestCallable implements Callable<Boolean> {
        }
        LOGGER.info("   Notebook {} has been created", notebookName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getNotebookInstanceName(notebookName), AmazonInstanceState.RUNNING.value());
+       AmazonHelper.checkAmazonStatus(NamingHelper.getNotebookInstanceName(notebookName), AmazonInstanceState.RUNNING);
        // TODO get helper method for container name and use notebookName
        /* Name for exploratory user String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "exploratory", notebookName, timestamp)*/
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "create"), NamingHelper.getSsnIp());
@@ -120,7 +117,7 @@ public class TestCallable implements Callable<Boolean> {
    
    private DeployEMRDto createEMR() throws Exception {
        String gettingStatus;
-       LOGGER.info("7. EMR will be deployed {} ...", notebookName);
+       LOGGER.info("7. EMR {} will be deployed for {} ...", emrName, notebookName);
        final String ssnCompResURL = NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
        LOGGER.info("  {} : SSN computational resources URL is {}", notebookName, ssnCompResURL);
 
@@ -149,7 +146,7 @@ public class TestCallable implements Callable<Boolean> {
                throw new Exception(notebookName + ": EMR " + emrName + " has not been deployed. EMR status is " + gettingStatus);
            LOGGER.info("{}: EMR {} has been deployed", notebookName, emrName);
 
-           AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.RUNNING.value());
+           AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.RUNNING);
            Docker.checkDockerStatus(NamingHelper.getEmrContainerName(emrName, "create"), NamingHelper.getSsnIp());
        }
        LOGGER.info("{}:   Waiting until EMR has been configured ...", notebookName);
@@ -160,7 +157,7 @@ public class TestCallable implements Callable<Boolean> {
        LOGGER.info(" {}:  EMR {} has been configured", notebookName, emrName);
 
        if(!ConfigPropertyValue.isRunModeLocal()) {
-           AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.RUNNING.value());
+           AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.RUNNING);
            Docker.checkDockerStatus(NamingHelper.getEmrContainerName(emrName, "create"), NamingHelper.getSsnIp());
        }
 
@@ -177,26 +174,25 @@ public class TestCallable implements Callable<Boolean> {
    }
 
    private void restartNotebook() throws Exception {
-       LOGGER.info("9. Notebook will be re-started ...");
-       String myJs = "{\"notebook_instance_name\":\"" + notebookName + "\"}";
-       Response respStartNotebook = new HttpRequest().webApiPost(ssnExpEnvURL, ContentType.JSON,
-                                                                 myJs, token);
+       LOGGER.info("9. Notebook {} will be re-started ...", notebookName);
+       String requestBody = "{\"notebook_instance_name\":\"" + notebookName + "\"}";
+       Response respStartNotebook = new HttpRequest().webApiPost(ssnExpEnvURL, ContentType.JSON, requestBody, token);
        LOGGER.info("    respStartNotebook.getBody() is {}", respStartNotebook.getBody().asString());
        Assert.assertEquals(respStartNotebook.statusCode(), HttpStatusCode.OK);
 
        String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "starting", ConfigPropertyValue.getTimeoutNotebookStartup());
-       if (!gettingStatus.contains(AmazonInstanceState.RUNNING.value())){
+       if (!gettingStatus.contains(AmazonInstanceState.RUNNING.toString())){
            throw new Exception("Notebook " + notebookName + " has not been started. Notebook status is " + gettingStatus);
        }
        LOGGER.info("    Notebook {} has been started", notebookName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getNotebookInstanceName(notebookName), AmazonInstanceState.RUNNING.value());
+       AmazonHelper.checkAmazonStatus(NamingHelper.getNotebookInstanceName(notebookName), AmazonInstanceState.RUNNING);
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "start"), NamingHelper.getSsnIp());
    }
 
    private void terminateNotebook(DeployEMRDto deployEmr) throws Exception {
        String gettingStatus;
-       LOGGER.info("12. Notebook will be terminated ...");
+       LOGGER.info("12. Notebook {} will be terminated ...", notebookName);
        final String ssnTerminateNotebookURL = NamingHelper.getSelfServiceURL(ApiPath.getTerminateNotebookUrl(notebookName));
        Response respTerminateNotebook = new HttpRequest().webApiDelete(ssnTerminateNotebookURL, ContentType.JSON, token);
        LOGGER.info("    respTerminateNotebook.getBody() is {}", respTerminateNotebook.getBody().asString());
@@ -214,40 +210,39 @@ public class TestCallable implements Callable<Boolean> {
 				notebookName, deployEmr.getName());
        if (!gettingStatus.contains("terminated"))
            throw new Exception("EMR has not been terminated for Notebook " + notebookName + ". EMR status is " + gettingStatus);
-       LOGGER.info("    EMR has been terminated for Notebook {}", notebookName);
+       LOGGER.info("    EMR {} has been terminated for Notebook {}", emrName, notebookName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getNotebookInstanceName(notebookName), AmazonInstanceState.TERMINATED.value());
-       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.TERMINATED.value());
+       AmazonHelper.checkAmazonStatus(NamingHelper.getNotebookInstanceName(notebookName), AmazonInstanceState.TERMINATED);
+       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.TERMINATED);
 
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "terminate"), NamingHelper.getSsnIp());
    }
 
    private void terminateEMR(String emrNewName) throws Exception {
        String gettingStatus;
-       LOGGER.info("    New EMR will be terminated ...");
+       LOGGER.info("    New EMR {} will be terminated for notebook {} ...", emrNewName, notebookName);
        final String ssnTerminateEMRURL = NamingHelper.getSelfServiceURL(ApiPath.getTerminateEMRUrl(notebookName, emrNewName));
        LOGGER.info("    SSN terminate EMR URL is {}", ssnTerminateEMRURL);
 
-       Response respTerminateEMR = new HttpRequest().webApiDelete(ssnTerminateEMRURL,
-                                                                  ContentType.JSON, token);
+       Response respTerminateEMR = new HttpRequest().webApiDelete(ssnTerminateEMRURL, ContentType.JSON, token);
        LOGGER.info("    respTerminateEMR.getBody() is {}", respTerminateEMR.getBody().asString());
        Assert.assertEquals(respTerminateEMR.statusCode(), HttpStatusCode.OK);
 
        gettingStatus = WaitForStatus.emr(ssnProUserResURL, token, notebookName, emrNewName, "terminating", ConfigPropertyValue.getTimeoutEMRTerminate());
        if (!gettingStatus.contains("terminated"))
            throw new Exception("New EMR " + emrNewName + " has not been terminated. EMR status is " + gettingStatus);
-       LOGGER.info("    New EMR {} has been terminated", emrNewName);
+       LOGGER.info("    New EMR {} has been terminated for notebook {}", emrNewName, notebookName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.TERMINATED.value());
+       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.TERMINATED);
        Docker.checkDockerStatus(NamingHelper.getEmrContainerName(emrName, "terminate"), NamingHelper.getSsnIp());
    }
 
    private String redeployEMR(DeployEMRDto deployEMR) throws Exception {
+       final String emrNewName = "New" + emrName;
        String gettingStatus;
 
-       LOGGER.info("10. New EMR will be deployed for termination ...");
+       LOGGER.info("10. New EMR {} will be deployed for termination for notebook {} ...", emrNewName, notebookName);
 
-       final String emrNewName = "New" + emrName;
        deployEMR.setName(emrNewName);
        deployEMR.setNotebook_name(notebookName);
        Response responseDeployingEMRNew = new HttpRequest().webApiPut(NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES),
@@ -260,20 +255,20 @@ public class TestCallable implements Callable<Boolean> {
            throw new Exception("New EMR " + emrNewName + " has not been deployed. EMR status is " + gettingStatus);
        LOGGER.info("    New EMR {} has been deployed", emrNewName);
 
-       LOGGER.info("   Waiting until EMR has been configured ...");
+       LOGGER.info("   Waiting until EMR {} has been configured ...", emrNewName);
        gettingStatus = WaitForStatus.emr(ssnProUserResURL, token, notebookName, emrNewName, "configuring", ConfigPropertyValue.getTimeoutEMRCreate());
-       if (!gettingStatus.contains(AmazonInstanceState.RUNNING.value()))
+       if (!gettingStatus.contains(AmazonInstanceState.RUNNING.toString()))
            throw new Exception("EMR " + emrNewName + " has not been configured. EMR status is " + gettingStatus);
        LOGGER.info("   EMR {} has been configured", emrNewName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.RUNNING.value());
+       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.RUNNING);
        Docker.checkDockerStatus(NamingHelper.getEmrContainerName(emrName, "create"), NamingHelper.getSsnIp());
        return emrNewName;
    }
    
    private void stopEnvironment() throws Exception {
        String gettingStatus;
-       LOGGER.info("8. Notebook " + notebookName + " will be stopped ...");
+       LOGGER.info("8. Notebook {} will be stopped ...", notebookName);
        final String ssnStopNotebookURL = NamingHelper.getSelfServiceURL(ApiPath.getStopNotebookUrl(notebookName));
        LOGGER.info("   SSN stop notebook URL is {}", ssnStopNotebookURL);
 
@@ -294,9 +289,9 @@ public class TestCallable implements Callable<Boolean> {
 
        if (!gettingStatus.contains("terminated"))
            throw new Exception("Computational resources has not been terminated for Notebook " + notebookName + ". EMR status is " + gettingStatus);
-       LOGGER.info("   Computational resources has been terminated for Notebook {}", notebookName);
+       LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.TERMINATED.value());
+       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.TERMINATED);
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "stop"), NamingHelper.getSsnIp());
    }
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NetworkSettings {
 
-    @JsonProperty("Networks")
+    @JsonProperty
     private Networks Networks;
 
     public Networks getNetworks() {
@@ -14,5 +14,4 @@ public class NetworkSettings {
     public void setNetworks(Networks networks) {
         this.Networks = networks;
     }
-    
 }
