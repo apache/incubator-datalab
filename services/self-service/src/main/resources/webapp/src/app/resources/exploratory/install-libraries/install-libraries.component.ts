@@ -56,6 +56,8 @@ export class InstallLibrariesComponent implements OnInit {
   private clear: number;
 
   @ViewChild('bindDialog') bindDialog;
+  @ViewChild('tabGroup') tabGroup;
+
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(private librariesInstallationService: LibrariesInstallationService) {
@@ -65,7 +67,7 @@ export class InstallLibrariesComponent implements OnInit {
   ngOnInit() {
     this.bindDialog.onClosing = () => this.resetDialog();
   }
-
+  
   uploadLibraries(): void {
      this.librariesInstallationService.getGroupsList(this.notebook.name)
       .subscribe(
@@ -130,6 +132,9 @@ export class InstallLibrariesComponent implements OnInit {
       },
       () => {
         this.bindDialog.open(param);
+        if (!this.notebook.libs || !this.notebook.libs.length)
+          this.tabGroup.selectedIndex = 1;
+
         this.uploadLibraries();
       },
       this.librariesInstallationService);
@@ -173,6 +178,7 @@ export class InstallLibrariesComponent implements OnInit {
     this.errorMessage = '';
     this.model.selectedLibs = [];
     this.filteredList = null ;
+    this.tabGroup.selectedIndex = 0;
 
     clearTimeout(this.clear);
   }
