@@ -63,7 +63,7 @@ scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 
 def install_cntk(args):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(args.os_user)):
-        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc2-cp34-cp34m-linux_x86_64.whl')
+        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc2-cp34-cp34m-linux_x86_64.whl --no-cache-dir')
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(args.os_user))
 
 

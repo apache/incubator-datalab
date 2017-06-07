@@ -205,7 +205,7 @@ def ensure_python2_libraries(os_user):
             try:
                 sudo('apt-get install -y libssl-dev python-virtualenv')
             except:
-                sudo('pip2 install virtualenv')
+                sudo('pip2 install virtualenv --no-cache-dir')
                 sudo('apt-get install -y libssl-dev')
             try:
                 sudo('pip2 install ipython ipykernel --no-cache-dir')
@@ -265,8 +265,8 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
             run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bash_profile')
             # install TensorFlow and run TensorBoard
-            sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl')
-            sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl')
+            sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl --no-cache-dir')
+            sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
             sudo('mkdir /var/log/tensorboard; chown ' + os_user + ':' + os_user + ' -R /var/log/tensorboard')
             put(templates_dir + 'tensorboard.service', '/tmp/tensorboard.service')
             sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/tensorboard.service")
@@ -276,8 +276,8 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo("systemctl enable tensorboard")
             sudo("systemctl start tensorboard")
             # install Theano
-            sudo('python2.7 -m pip install Theano')
-            sudo('python3 -m pip install Theano')
+            sudo('python2.7 -m pip install Theano --no-cache-dir')
+            sudo('python3 -m pip install Theano --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/tensor_ensured')
         except:
             sys.exit(1)
@@ -292,8 +292,8 @@ def install_maven(os_user):
 def install_livy_dependencies(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
         sudo('apt-get -y install libkrb5-dev')
-        sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest')
-        sudo('pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
+        sudo('pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         sudo('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
 
@@ -306,8 +306,8 @@ def install_maven_emr(os_user):
 def install_livy_dependencies_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
         local('sudo apt-get -y install libkrb5-dev')
-        local('sudo pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest')
-        local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        local('sudo pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
+        local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
 

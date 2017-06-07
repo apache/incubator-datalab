@@ -285,8 +285,8 @@ def installing_python(region, bucket, user_name, cluster_name, pip_mirror=''):
         with lcd('/tmp/'):
             local('sudo rm -rf Python-' + python_version + '/')
         if region == 'cn-north-1':
-            local('sudo -i /opt/python/python{}/bin/python{} -m pip install -U pip'.format(python_version,
-                                                                                           python_version[0:3]))
+            local('sudo -i /opt/python/python{}/bin/python{} -m pip install -U pip --no-cache-dir'.format(
+                python_version, python_version[0:3]))
             local('sudo mv /etc/pip.conf /etc/back_pip.conf')
             local('sudo touch /etc/pip.conf')
             local('sudo echo "[global]" >> /etc/pip.conf')

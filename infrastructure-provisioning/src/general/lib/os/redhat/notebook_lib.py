@@ -118,7 +118,7 @@ def ensure_matplot(os_user):
             sudo('python3.5 -m pip install matplotlib --no-cache-dir')
             if os.environ['application'] == 'tensor':
                 sudo('rm -rf  /usr/lib64/python2.7/site-packages/numpy*')
-                sudo('python2.7 -m pip install -U numpy')
+                sudo('python2.7 -m pip install -U numpy --no-cache-dir')
             sudo('touch /home/{}/.ensure_dir/matplot_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -197,11 +197,11 @@ def ensure_python2_libraries(os_user):
             sudo('yum install -y python-setuptools python-wheel')
             sudo('yum install -y python-virtualenv openssl-devel python-devel openssl-libs libxml2-devel libxslt-devel --nogpgcheck')
             try:
-                sudo('python2 -m pip install backports.shutil_get_terminal_size ipython ipykernel')
+                sudo('python2 -m pip install backports.shutil_get_terminal_size ipython ipykernel --no-cache-dir')
             except:
-                sudo('python2 -m pip install backports.shutil_get_terminal_size ipython==5.0.0 ipykernel')
+                sudo('python2 -m pip install backports.shutil_get_terminal_size ipython==5.0.0 ipykernel --no-cache-dir')
             sudo('echo y | python2 -m pip uninstall backports.shutil_get_terminal_size')
-            sudo('python2 -m pip install backports.shutil_get_terminal_size')
+            sudo('python2 -m pip install backports.shutil_get_terminal_size --no-cache-dir')
             sudo('pip2 install -U pip setuptools --no-cache-dir')
             sudo('pip2 install boto3 --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv --no-cache-dir')
@@ -245,7 +245,7 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('mv cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64-rpm cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64.rpm; rpm -i cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64.rpm')
             sudo('yum clean all')
             sudo('yum -y install cuda')
-            sudo('python3.5 -m pip install --upgrade pip wheel numpy')
+            sudo('python3.5 -m pip install --upgrade pip wheel numpy --no-cache-dir')
             sudo('mv /usr/local/cuda-8.0 /opt/')
             sudo('ln -s /opt/cuda-8.0 /usr/local/cuda-8.0')
             sudo('rm -rf /home/' + os_user + '/cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64.rpm')
@@ -261,8 +261,8 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             # install TensorFlow and run TensorBoard
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl')
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl')
-            sudo('python2.7 -m pip install --upgrade tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl')
-            sudo('python3.5 -m pip install --upgrade tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl')
+            sudo('python2.7 -m pip install --upgrade tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl --no-cache-dir')
+            sudo('python3.5 -m pip install --upgrade tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
             sudo('rm -rf /home/' + os_user + '/tensorflow_gpu-*')
             sudo('mkdir /var/log/tensorboard; chown ' + os_user + ':' + os_user + ' -R /var/log/tensorboard')
             put(templates_dir + 'tensorboard.service', '/tmp/tensorboard.service')
@@ -273,8 +273,8 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo("systemctl enable tensorboard")
             sudo("systemctl start tensorboard")
             # install Theano
-            sudo('python2.7 -m pip install Theano')
-            sudo('python3.5 -m pip install Theano')
+            sudo('python2.7 -m pip install Theano --no-cache-dir')
+            sudo('python3.5 -m pip install Theano --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/tensor_ensured')
         except:
             sys.exit(1)
@@ -290,8 +290,8 @@ def install_maven(os_user):
 
 def install_livy_dependencies(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
-        sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest')
-        sudo('pip3.5 install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
+        sudo('pip3.5 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         sudo('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
 
@@ -305,8 +305,8 @@ def install_maven_emr(os_user):
 
 def install_livy_dependencies_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
-        local('sudo -i pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest')
-        local('sudo -i pip3.5 install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        local('sudo -i pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
+        local('sudo -i pip3.5 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
 
