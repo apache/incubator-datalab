@@ -1,3 +1,21 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
 package com.epam.dlab.automation.test;
 
 import static org.testng.Assert.assertTrue;
@@ -27,7 +45,7 @@ public class TestEmr {
     
     private final static String COMMAND_COPY_TO_NOTEBOOK = "scp -i %s -o 'StrictHostKeyChecking no' ~/%s %s@%s:/tmp/";
     private final static String COMMAND_RUN_PYTHON = "/usr/bin/python %s --bucket %s --cluster_name %s --os_user %s";
-    private final static String COMMAND_RUN_PYTHON2 = "/usr/bin/python %s --bucket %s --templates_bucket %s";
+    private final static String COMMAND_RUN_PYTHON2 = "/usr/bin/python /home/%s/%s --bucket %s --templates_bucket %s";
     
     
     public void run(String notebookName, String clusterName) throws Exception {
@@ -50,8 +68,7 @@ public class TestEmr {
         String command;
         AckStatus status;
 
-        command = String.format(COMMAND_RUN_PYTHON2,
-                    String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), notebookTestFile),
+        command = String.format(COMMAND_RUN_PYTHON2, ConfigPropertyValue.getClusterOsUser(), notebookTestFile,
                     NamingHelper.getBucketName(), ConfigPropertyValue.getS3TestsTemplateBucketName());
         LOGGER.info("{}: Executing command {}...", notebookName, command);
 

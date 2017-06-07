@@ -1,3 +1,21 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
 package com.epam.dlab.automation.test;
 
 import static org.testng.Assert.assertTrue;
@@ -95,6 +113,7 @@ public class TestServices {
     	final String ssnLoginURL = NamingHelper.getSelfServiceURL(ApiPath.LOGIN);
     	LoginDto requestBody = new LoginDto(username, password);
     	Response response = new HttpRequest().webApiPost(ssnLoginURL, ContentType.JSON, requestBody);
+    	LOGGER.info("   login response body for user {} is {}", username, response.getBody().asString());
     	Assert.assertEquals(response.statusCode(), expectedStatusCode, errorMessage);
     	return response.getBody();
     }
@@ -121,11 +140,12 @@ public class TestServices {
         LOGGER.info("   SSN login URL is {}", ssnLoginURL);
         
         ResponseBody<?> responseBody;
-        if (!ConfigPropertyValue.isRunModeLocal()) {
-        	responseBody = login(ConfigPropertyValue.getNotIAMUsername(), ConfigPropertyValue.getNotIAMPassword(),
-        			HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotIAMUsername());
-        	Assert.assertEquals(responseBody.asString(), "Please contact AWS administrator to create corresponding IAM User");
-        }
+        // TODO Choose username and password for this check
+//        if (!ConfigPropertyValue.isRunModeLocal()) {
+//        	responseBody = login(ConfigPropertyValue.getNotIAMUsername(), ConfigPropertyValue.getNotIAMPassword(),
+//        			HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotIAMUsername());
+//        	Assert.assertEquals(responseBody.asString(), "Please contact AWS administrator to create corresponding IAM User");
+//        }
  		
         responseBody = login(ConfigPropertyValue.getNotDLabUsername(), ConfigPropertyValue.getNotDLabPassword(),
         		HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
@@ -137,7 +157,7 @@ public class TestServices {
         	Assert.assertEquals(responseBody.asString(), "Username or password are not valid");
         }
         
-        LOGGER.info("Logging in with credentials {}:{}", ConfigPropertyValue.getUsername(), ConfigPropertyValue.getPassword());
+        LOGGER.info("Logging in with credentials {}/***", ConfigPropertyValue.getUsername());
         responseBody = login(ConfigPropertyValue.getUsername(), ConfigPropertyValue.getPassword(),
         		HttpStatusCode.OK, "User login " + ConfigPropertyValue.getUsername() + " was not successful");
         

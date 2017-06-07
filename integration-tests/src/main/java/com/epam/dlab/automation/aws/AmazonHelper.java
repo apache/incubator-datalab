@@ -1,6 +1,25 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
 package com.epam.dlab.automation.aws;
 
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
+import com.epam.dlab.automation.helper.NamingHelper;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Region;
@@ -41,7 +60,7 @@ public class AmazonHelper {
 
 		List<String> valuesT1 = new ArrayList<>();
 		valuesT1.add(instanceName + "*");
-		Filter filter = new Filter("tag:Name", valuesT1);
+		Filter filter = new Filter("tag:" + NamingHelper.getServiceBaseName() + "-Tag", valuesT1);
 
 		DescribeInstancesRequest describeInstanceRequest = new DescribeInstancesRequest().withFilters(filter);
 		DescribeInstancesResult describeInstanceResult = ec2.describeInstances(describeInstanceRequest);
@@ -98,7 +117,7 @@ public class AmazonHelper {
         for (Instance instance : AmazonHelper.getInstances(instanceName)) {
             LOGGER.info("Amazon instance {} with private IP {} state is {}", instanceName, instance.getPrivateIpAddress(), instanceState);
 		}
-        Assert.assertEquals(instanceState, expAmazonState, "Amazon instance " + instanceName + " state is not correct");
+        Assert.assertEquals(instanceState, expAmazonState.toString(), "Amazon instance " + instanceName + " state is not correct");
     }
 
     public static void printBucketGrants(String bucketName) throws Exception {
