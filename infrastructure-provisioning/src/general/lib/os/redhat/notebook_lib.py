@@ -392,6 +392,10 @@ def install_caffe2(os_user):
 
 def install_cntk(os_user):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
+        sudo('yum install -y openmpi openmpi-devel')
+        sudo('sed -i "s/LD_LIBRARY_PATH:/LD_LIBRARY_PATH:\/usr\/lib64\/openmpi\/lib:/g" /etc/systemd/system/jupyter-notebook.service')
+        sudo('systemctl daemon-reload')
+        sudo('systemctl restart jupyter-notebook')
         sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl')
         sudo('pip3.5 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl')
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
@@ -406,6 +410,7 @@ def install_keras(os_user):
 
 def install_mxnet(os_user):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
+        sudo('yum install -y graphviz')
         sudo('pip2 install mxnet-cu80 opencv-python')
         sudo('pip3.5 install mxnet-cu80 opencv-python')
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
