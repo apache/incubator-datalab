@@ -191,7 +191,7 @@ def ensure_python2_libraries(os_user):
             try:
                 sudo('apt-get install -y libssl-dev python-virtualenv')
             except:
-                sudo('pip2 install virtualenv')
+                sudo('pip2 install virtualenv --no-cache-dir')
                 sudo('apt-get install -y libssl-dev')
             sudo('pip2 install ipython ipykernel --no-cache-dir')
             sudo('pip2 install -U pip --no-cache-dir')
@@ -245,8 +245,8 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
             run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
-            sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl')
-            sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl')
+            sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl --no-cache-dir')
+            sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
             sudo('mkdir /var/log/tensorboard; chown ' + os_user + ':' + os_user + ' -R /var/log/tensorboard')
             put(templates_dir + 'tensorboard.service', '/tmp/tensorboard.service')
             sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/tensorboard.service")
@@ -256,8 +256,8 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo("systemctl enable tensorboard")
             sudo("systemctl start tensorboard")
             # install Theano
-            sudo('python2.7 -m pip install Theano')
-            sudo('python3 -m pip install Theano')
+            sudo('python2.7 -m pip install Theano --no-cache-dir')
+            sudo('python3 -m pip install Theano --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/tensor_ensured')
         except:
             sys.exit(1)
@@ -272,8 +272,8 @@ def install_maven(os_user):
 def install_livy_dependencies(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
         sudo('apt-get -y install libkrb5-dev')
-        sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest')
-        sudo('pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
+        sudo('pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         sudo('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
 
@@ -286,8 +286,8 @@ def install_maven_emr(os_user):
 def install_livy_dependencies_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
         local('sudo apt-get -y install libkrb5-dev')
-        local('sudo pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest')
-        local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        local('sudo pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
+        local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
 
@@ -318,8 +318,8 @@ def install_caffe(os_user):
             sudo('ln -s libhdf5_serial.so.10.1.0 libhdf5.so')
         sudo('git clone https://github.com/BVLC/caffe.git')
         with cd('/home/{}/caffe/'.format(os_user)):
-            sudo('pip2 install -r python/requirements.txt')
-            sudo('pip3 install -r python/requirements.txt')
+            sudo('pip2 install -r python/requirements.txt --no-cache-dir')
+            sudo('pip3 install -r python/requirements.txt --no-cache-dir')
             sudo('cp Makefile.config.example Makefile.config')
             sudo('sed -i "/INCLUDE_DIRS :=/d" Makefile.config')
             sudo("echo 'INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ "
@@ -340,8 +340,8 @@ def install_caffe2(os_user):
         sudo('apt-get update')
         sudo('apt-get install -y --no-install-recommends build-essential cmake git libgoogle-glog-dev libprotobuf-dev'
              ' protobuf-compiler python-dev python-pip')
-        sudo('pip2 install numpy protobuf')
-        sudo('pip3 install numpy protobuf')
+        sudo('pip2 install numpy protobuf --no-cache-dir')
+        sudo('pip3 install numpy protobuf --no-cache-dir')
         sudo('CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz"; '
              'wget ${CUDNN_URL}')
         sudo('tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local')
@@ -350,9 +350,9 @@ def install_caffe2(os_user):
         sudo('apt-get install -y --no-install-recommends libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
              'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
         sudo('pip2 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
-             'scipy setuptools tornado')
+             'scipy setuptools tornado --no-cache-dir')
         sudo('pip3 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
-             'scipy setuptools tornado')
+             'scipy setuptools tornado --no-cache-dir')
         sudo('git clone --recursive https://github.com/caffe2/caffe2.git')
         with cd('/home/{}/caffe2/'.format(os_user)):
             sudo('make && cd build && make install')
@@ -361,22 +361,22 @@ def install_caffe2(os_user):
 
 def install_cntk(os_user):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
-        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl')
-        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl')
+        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl --no-cache-dir')
+        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
 
 
 def install_keras(os_user):
     if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
-        sudo('pip2 install keras')
-        sudo('pip3 install keras')
+        sudo('pip2 install keras --no-cache-dir')
+        sudo('pip3 install keras --no-cache-dir')
         sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
 
 
 def install_mxnet(os_user):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        sudo('pip2 install mxnet-cu80 opencv-python')
-        sudo('pip3 install mxnet-cu80 opencv-python')
+        sudo('pip2 install mxnet-cu80 opencv-python --no-cache-dir')
+        sudo('pip3 install mxnet-cu80 opencv-python --no-cache-dir')
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 
 
