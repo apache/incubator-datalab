@@ -18,7 +18,7 @@ limitations under the License.
 
 <modal-dialog #bindDialog  modalClass="install-libs modal-xl">
   <modal-header>
-    <h4 class="modal-title" id="myModalLabel">Library installation</h4>
+    <h4 class="modal-title" id="myModalLabel">Manage Libraries</h4>
   </modal-header>
   <modal-content>
    
@@ -97,7 +97,7 @@ limitations under the License.
             </md-list-item>
 
             <div class="scrollingList" *ngIf="notebook?.libs">
-              <md-list-item *ngFor="let lib of notebook.libs">
+              <md-list-item *ngFor="let lib of notebook.libs  | libStatusSort">
                 <div class="lib-name">
                   <strong>{{ lib.name }}</strong>
                   <span *ngIf="lib.version  && lib.version !== 'N/A'">v.{{ lib.version }}</span>
