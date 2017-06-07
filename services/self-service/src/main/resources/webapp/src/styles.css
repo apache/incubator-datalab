@@ -328,3 +328,22 @@ input[type=number] {
 .m-top-10 { margin-top: 10px; }
 .m-top-30 { margin-top: 30px; }
 .m-bott-10 { margin-bottom: 10px; }
+
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  border-radius: 5px;
+  background-color: rgb(243, 243, 243);
+}
+
+::-webkit-scrollbar-thumb {
+  box-shadow: inset 1px 1px 6px #9a9393;
+  -webkit-box-shadow: inset 1px 1px 6px #9a9393;
+  background-color: #f6fafe;
+  border-radius: 5px;
+}
