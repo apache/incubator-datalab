@@ -38,17 +38,18 @@ parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 
-def add_pip_china_repository(dlab_path):
+def add_china_repository(dlab_path):
     with cd('{}sources/base/'.format(dlab_path)):
         sudo('sed -i "/pip install/s/$/ -i https\:\/\/{0}\/simple --trusted-host {0} --timeout 600/g" Dockerfile'.format(os.environ['conf_pypi_mirror']))
         sudo('sed -i "/pip install/s/jupyter/ipython==5.0.0 jupyter==1.0.0/g" Dockerfile')
+        sudo('sed -i "22i COPY general/files/os/debian/sources.list /etc/apt/sources.list" Dockerfile')
 
 
 def build_docker_images(image_list, region, dlab_path):
     try:
         local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, env.host_string, args.dlab_path))
         if region == 'cn-north-1':
-            add_pip_china_repository(dlab_path)
+            add_china_repository(dlab_path)
         for image in image_list:
             name = image['name']
             tag = image['tag']
