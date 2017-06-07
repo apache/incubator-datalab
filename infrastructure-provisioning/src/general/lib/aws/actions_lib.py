@@ -258,28 +258,38 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_iam_role(role_name, role_profile):
+def create_iam_role(role_name, role_profile, service='ec2'):
     conn = boto3.client('iam')
     try:
-        conn.create_role(RoleName=role_name, AssumeRolePolicyDocument='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["ec2.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
-        conn.create_instance_profile(InstanceProfileName=role_profile)
-        waiter = conn.get_waiter('instance_profile_exists')
-        waiter.wait(InstanceProfileName=role_profile)
+        conn.create_role(RoleName=role_name, AssumeRolePolicyDocument='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["{0}.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}'.format(service))
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
-            print "Instance profile already exists. Reusing..."
+            print "IAM role already exists. Reusing..."
         else:
-            logging.info("Unable to create Instance Profile: " + str(e_role.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to create Instance Profile", "error_message": str(e_role.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            logging.info("Unable to create IAM role: " + str(e_role.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create IAM role", "error_message": str(e_role.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return
-    try:
-        conn.add_role_to_instance_profile(InstanceProfileName=role_profile, RoleName=role_name)
-        time.sleep(30)
-    except botocore.exceptions.ClientError as err:
-        logging.info("Unable to create IAM role: " + str(err.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Unable to create IAM role", "error_message": str(err.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
-        traceback.print_exc(file=sys.stdout)
+    if service == 'ec2':
+        try:
+            conn.create_instance_profile(InstanceProfileName=role_profile)
+            waiter = conn.get_waiter('instance_profile_exists')
+            waiter.wait(InstanceProfileName=role_profile)
+        except botocore.exceptions.ClientError as e_profile:
+            if e_profile.response['Error']['Code'] == 'EntityAlreadyExists':
+                print "Instance profile already exists. Reusing..."
+            else:
+                logging.info("Unable to create Instance Profile: " + str(e_profile.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to create Instance Profile", "error_message": str(e_profile.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+                return
+        try:
+            conn.add_role_to_instance_profile(InstanceProfileName=role_profile, RoleName=role_name)
+            time.sleep(30)
+        except botocore.exceptions.ClientError as err:
+            logging.info("Unable to add IAM role to instance profile: " + str(err.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to add IAM role to instance profile", "error_message": str(err.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
 
 def attach_policy(policy_arn, role_name):

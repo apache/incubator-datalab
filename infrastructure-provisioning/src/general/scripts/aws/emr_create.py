@@ -242,6 +242,12 @@ def build_emr_cluster(args):
     if not args.dry_run:
         socket = boto3.client('emr')
         if args.slave_instance_spot == 'True':
+            if not get_role_by_name(args.service_role):
+                create_iam_role(args.service_role, args.service_role, service='elasticmapreduce')
+                attach_policy(args.service_role, policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole')
+            if not get_role_by_name(args.ec2_role):
+                create_iam_role(args.ec2_role, args.ec2_role)
+                attach_policy(args.ec2_role, policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role')
             result = socket.run_job_flow(
                 Name=args.name,
                 ReleaseLabel=args.release_label,
