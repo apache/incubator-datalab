@@ -84,12 +84,12 @@ public class PropertiesResolver {
             // load a properties file
             properties.load(input);
             String rootPath = getConfRootPath();
-            overlapProperty(properties, CONF_FILE_LOCATION_PROPERTY, false);
             for (String key : properties.keySet().toArray(new String[0])) {
             	String path = StringUtils.replace(properties.getProperty(key), "${CONF_ROOT_PATH}", rootPath);
             	path = Paths.get(path).toAbsolutePath().toString();
             	properties.setProperty(key, path);
             }
+            overlapProperty(properties, CONF_FILE_LOCATION_PROPERTY, false);
 
             // get the property value and print it out
             LOGGER.info(properties.getProperty(CONF_FILE_LOCATION_PROPERTY));

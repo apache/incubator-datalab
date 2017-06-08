@@ -147,7 +147,7 @@ public class ConfigPropertyValue {
             setKeyProperty(ACCESS_KEY_PRIV_FILE_NAME);
             setKeyProperty(ACCESS_KEY_PUB_FILE_NAME);
         } catch (Exception e) {
-        	LOGGER.fatal("Load properties from file {} fails. {}", CONFIG_FILE_NAME, e.getLocalizedMessage(), e);
+        	LOGGER.fatal("Load properties from file {} fails.", CONFIG_FILE_NAME, e);
             throw new RuntimeException("Load properties from \"" + CONFIG_FILE_NAME + "\" fails. " + e.getLocalizedMessage(), e);
         }
         
