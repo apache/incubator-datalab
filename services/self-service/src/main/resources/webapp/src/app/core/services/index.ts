@@ -24,4 +24,4 @@ export { ApplicationSecurityService } from './applicationSecurity.service';
 export { ApplicationServiceFacade } from './applicationServiceFacade.service';
 export { AuthorizationGuard } from './authorization.guard';
 export { AppRoutingService } from './appRouting.service';
-
+export { LibrariesInstallationService } from './librariesInstallation.service';

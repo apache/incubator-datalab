@@ -435,6 +435,69 @@ List of parameters for Notebook node start/termination:
 
 **Note:** If terminate action is called, all connected EMR clusters will be removed.
 
+### List/Install additional libraries
+
+In order to list available libraries (OS/Python2/Python3/R) on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Install additional libs” action.
+
+List of parameters for Notebook node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_os\_user                | Name of the SSH user                                                              |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                   |
+| aws\_region                   | AWS region where infrastructure was deployed                                      |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_list                                                                           |
+
+**Note:** This operation will returns a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
+
+**Example** of available libraries in response (type->library->version):
+
+```
+{
+  "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
+  "pip2": {"requests": "N/A", "configparser": "N/A"},
+  "pip3": {"configparser": "N/A"},
+  "r_pkg": {"rmarkdown": "1.5"}
+}
+```
+
+
+List of parameters for Notebook node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_os\_user                | Name of the SSH user                                                              |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                   |
+| aws\_region                   | AWS region where infrastructure was deployed                                      |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg)    |
+| action                        | lib_install                                                                       |
+
+**Example** of additional_libs parameter:
+
+```
+{
+  ...
+  "libs": [
+    {"group": "os_pkg", "name": "nmap"},
+    {"group": "os_pkg", "name": "htop"},
+    {"group": "pip2", "name": "requests"},
+    {"group": "pip3", "name": "configparser"},
+    {"group": "r_pkg", "name": "rmarkdown"},
+  ]
+  ...
+}
+```
+
 ## EMR cluster <a name="EMR_cluster"></a>
 
 EMR cluster can be created if more computational resources are needed for executing analytical algorithms and models, triggered from analytical tools. Jobs execution will be scaled to a cluster mode increasing the performance and decreasing execution time.
@@ -504,6 +567,24 @@ sudo supervisorctl {start | stop | status} [all | provserv | secserv | ui]
 -   provserv – execute command for Provisioning Service;
 -   secserv – execute command for Security Service;
 -   ui – execute command for Self-Service.
+
+## DLab Web UI <a name="DLab Web UI"></a>
+
+DLab self service is listening to the secure 8443 port. This port is used for secure local communication with provisioning service.
+
+There is also Nginx proxy server running on Self-Service node, which proxies remote connection to local 8443 port.
+Nginx server is listening to both 80 and 443 ports by default. It means that you could access self-service Web UI using non-secure connections (80 port) or secure (443 port).
+
+Establishing connection using 443 port you should take into account that DLab uses self-signed certificate from the box, however you are free to switch Nginx to use your own domain-verified certificate.
+
+To disable non-secure connection please do the following:
+-   uncomment at /etc/nginx/conf.d/nginx_proxy.conf file rule that rewrites all requests from 80 to 443 port;
+-   reload/restart Nginx web server.
+
+To use your own certificate please do the following:
+-   upload your certificate and key to Self-Service node;
+-   specify at /etc/nginx/conf.d/nginx_proxy.conf file the correct path to your new ssl_certificate and ssl_certificate_key;
+-   reload/restart Nginx web server.
 
 ## Billing report <a name="Billing_Report"></a>
 

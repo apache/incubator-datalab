@@ -24,7 +24,7 @@ ARG CLOUD
 
 COPY zeppelin/ /root/
 COPY general/scripts/${CLOUD}/zeppelin_* /root/scripts/
-COPY general/scripts/os/notebook_configure_proxy.py /root/scripts/
+COPY general/scripts/os/* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
 COPY general/templates/${CLOUD}/emr_interpreter_livy.json /root/templates/
 COPY general/templates/${CLOUD}/emr_interpreter_spark.json /root/templates/

@@ -29,4 +29,8 @@ public class DateRemoverUtil {
     public static String removeDateFormErrorMessage(String errorMessage, String errorDateFormat, String replaceWith) {
         return errorMessage.replaceAll(errorDateFormat, replaceWith);
     }
+
+    public static String removeDateFormErrorMessage(String errorMessage) {
+        return errorMessage.replaceAll(ERROR_DATE_FORMAT, ERROR_WITHOUT_DATE_FORMAT);
+    }
 }
