@@ -19,20 +19,12 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.response.folderlistener;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static com.epam.dlab.backendapi.core.Constants.JSON_EXTENSION;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,8 +126,6 @@ public class FolderListener implements Runnable {
 	private Thread thread;
 	/** List of the file handles. */
 	private WatchItemList itemList;
-	/** Watch service for the directory. */
-	private WatchService watcher;
 	/** Flag of listening status. */
 	private boolean isListen = false;
 	/** Time when expired of idle for folder listener in milliseconds. */
@@ -228,23 +218,6 @@ public class FolderListener implements Runnable {
 			return false;
 		}
 		
-		watcher = null;
-		try {
-			watcher = FileSystems.getDefault().newWatchService();
-			Path path = Paths.get(getDirectoryName());
-			path.register(watcher, ENTRY_CREATE);
-		} catch (IOException e) {
-			if (watcher != null) {
-				try {
-					watcher.close();
-				} catch (IOException e1) {
-					LOGGER.debug("Folder listener for \"{}\" closed with error.", getDirectoryName(), e1);
-				}
-				watcher = null;
-			}
-			throw new DlabException("Can't create folder listener for \"" + getDirectoryName() + "\".", e);
-		}
-
 		LOGGER.trace("Folder listener has been initialized for \"{}\" ...", getDirectoryName());
 		return true;
 	}
@@ -329,37 +302,42 @@ public class FolderListener implements Runnable {
 		return false;
 	}
 	
+	/** Find and return the list of files to process.
+	 */
+	private String [] getNewFiles() {
+		File dir = new File(getDirectoryName());
+		String[] list = dir.list(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				if (name.toLowerCase().endsWith(JSON_EXTENSION)) {
+					WatchItem item = itemList.getItem(name);
+					return (item != null && item.getStatus() == ItemStatus.WAIT_FOR_FILE);
+				}
+				return false;
+			}
+		});
+		return list;
+	}
+	
 	/** Waiting for files and process it. */
 	private void pollFile() {
 		try {
 			isListen = true;
 			while (true) {
-				WatchKey key;
-				key = watcher.poll(LISTENER_TIMEOUT_MILLLIS, TimeUnit.MILLISECONDS);
-	
-				if (key != null) {
-					for ( WatchEvent<?> event : key.pollEvents() ) {
-						WatchEvent.Kind<?> kind = event.kind();
-						if (kind == ENTRY_CREATE) {
-							String fileName = event.context().toString();
-							LOGGER.trace("Folder listener \"{}\" checks the file {}", getDirectoryName(), fileName);
-							try {
-								if (fileName.endsWith(JSON_EXTENSION)) {
-									WatchItem item = itemList.getItem(fileName);
-									if (item != null && item.getFileName() == null) {
-										LOGGER.trace("Folder listener \"{}\" handles the file {}", getDirectoryName(), fileName);
-										item.setFileName(fileName);
-										if (itemList.processItem(item)) {
-											LOGGER.debug("Folder listener \"{}\" processes the file {}", getDirectoryName(), fileName);
-										}
-									}
-								}
-							} catch (Exception e) {
-								LOGGER.warn("Folder listener \"{}\" has got exception for check or process the file {}", getDirectoryName(), fileName, e);
+				String [] fileList = getNewFiles();
+				if (fileList != null) {
+					for (String fileName : fileList) {
+						LOGGER.trace("Folder listener \"{}\" handes the file {}", getDirectoryName(), fileName);
+						try {
+							WatchItem item = itemList.getItem(fileName);
+							item.setFileName(fileName);
+							if (itemList.processItem(item)) {
+								LOGGER.debug("Folder listener \"{}\" processes the file {}", getDirectoryName(), fileName);
 							}
+						} catch (Exception e) {
+							LOGGER.warn("Folder listener \"{}\" has got exception for check or process the file {}", getDirectoryName(), fileName, e);
 						}
 					}
-					key.reset();
 				}
 				
 				processStatusItems();
@@ -367,6 +345,7 @@ public class FolderListener implements Runnable {
 					LOGGER.debug("Folder listener \"{}\" have no files and will be finished", getDirectoryName());
 					break;
 				}
+				Thread.sleep(LISTENER_TIMEOUT_MILLLIS);
 			}
 		} catch (InterruptedException e) {
 			removeListener(true);
@@ -375,12 +354,6 @@ public class FolderListener implements Runnable {
 			removeListener(true);
 			LOGGER.error("Folder listener for \"{}\" closed with error.", getDirectoryName(), e);
 			throw new DlabException("Folder listener for \"" + getDirectoryName() + "\" closed with error. " + e.getLocalizedMessage(), e);
-		} finally {
-			try {
-				watcher.close();
-			} catch (IOException e) {
-				LOGGER.debug("Folder listener for \"{}\" closed with error. {} ", getDirectoryName(), e.getLocalizedMessage());
-			}
 		}
 	}
 
@@ -393,5 +366,4 @@ public class FolderListener implements Runnable {
 			removeListener(true);
 		}
 	}
-	
 }

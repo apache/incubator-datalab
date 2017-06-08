@@ -29,14 +29,12 @@ import org.junit.Test;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListener;
 import com.epam.dlab.backendapi.core.response.folderlistener.WatchItem;
+import com.epam.dlab.utils.ServiceUtils;
 
 public class FolderListenerTest {
+	private final long maxWaitTimeoutMillis = 30000;
 	
-	private static final String UUID = "123";
-
-	private final FileHandlerCallback fHandler = new FileHandler(UUID);
-	
-	private final long timeoutMillis = 1000;
+	private final long timeoutMillis = 2000;
 
 	private final long fileLengthCheckDelay = 1000;
 	
@@ -73,19 +71,24 @@ public class FolderListenerTest {
 		}
 	}
 
-	private String getFileName() {
-		return UUID + ".json";
+	private String getFileName(String uuid) {
+		return "FolderListenerTest_" + uuid + ".json";
 	}
 
 	private String getDirectory() {
-		return "./";
+		return ServiceUtils.getUserDir();
 	}
 	
-	private void createFile() throws IOException {
-		File file = new File(getDirectory(), getFileName());
+	private void removeFile(String uuid) throws IOException {
+		File file = new File(getDirectory(), getFileName(uuid));
 		if ( file.exists() ) {
 			file.delete();
 		}
+	}
+
+	private void createFile(String uuid) throws IOException {
+		File file = new File(getDirectory(), getFileName(uuid));
+		removeFile(uuid);
 		FileWriter f = new FileWriter(file);
 		
 		f.write("test");
@@ -95,52 +98,88 @@ public class FolderListenerTest {
 	
 	
 	private void processFile(WatchItem item) throws InterruptedException, IOException {
-		while (!FolderListener.getListeners().isEmpty() && !FolderListener.getListeners().get(0).isListen()) {
+		long expiredTime = System.currentTimeMillis() + maxWaitTimeoutMillis;
+		while (!FolderListener.getListeners().isEmpty() &&
+				!FolderListener.getListeners().get(0).isListen()) {
+			if (expiredTime < System.currentTimeMillis()) {
+				throw new InterruptedException("Timeout has been expired");
+			}
 			Thread.sleep(100);
 		}
-		createFile();
+
+		expiredTime = System.currentTimeMillis() + maxWaitTimeoutMillis;
 		while (item.getFuture() == null) {
+			if (expiredTime < System.currentTimeMillis()) {
+				throw new InterruptedException("Timeout has been expired");
+			}
 			Thread.sleep(100);
 		}
 	}
 	
 	@Test
 	public void listen() throws InterruptedException, ExecutionException, IOException {
+		Integer uuid = 1;
+		FileHandlerCallback fHandler;
 		WatchItem item;
 		
 		handleResult = false;
+		fHandler = new FileHandler(uuid.toString());
 		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay);
 		FolderListener listener = FolderListener.getListeners().get(0);
 		assertEquals(false, listener.isListen());
 		assertEquals(true, listener.isAlive());
-		
 		System.out.println("TEST process FALSE");
+		
+		uuid = 2;
+		createFile(uuid.toString());
+		fHandler = new FileHandler(uuid.toString());
+		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay);
 		processFile(item);
 		assertEquals(true, listener.isListen());
 		assertEquals(false, item.getFutureResultSync());
 		assertEquals(false, item.getFutureResult());
 
 		System.out.println("TEST process TRUE");
+		uuid = 3;
 		handleResult = true;
+		createFile(uuid.toString());
+		fHandler = new FileHandler(uuid.toString());
 		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay);
 		processFile(item);
 		assertEquals(true, item.getFutureResultSync());
 		assertEquals(true, item.getFutureResult());
 		
 		System.out.println("TEST process with out listen");
-		createFile();
-		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay, getFileName());
+		uuid = 4;
+		createFile(uuid.toString());
+		fHandler = new FileHandler(uuid.toString());
+		item = FolderListener.listen(getDirectory(), fHandler, timeoutMillis, fileLengthCheckDelay, getFileName(uuid.toString()));
+		
+		long expiredTime = System.currentTimeMillis() + maxWaitTimeoutMillis;
 		while (item.getFuture() == null) {
+			if (expiredTime < System.currentTimeMillis()) {
+				throw new InterruptedException("Timeout has been expired");
+			}
 			Thread.sleep(100);
 		}
 		assertEquals(true, item.getFutureResultSync());
 		assertEquals(true, item.getFutureResult());
 
 		FolderListener.terminateAll();
+		expiredTime = System.currentTimeMillis() + maxWaitTimeoutMillis;
 		while (FolderListener.getListeners().size() > 0) {
+			if (expiredTime < System.currentTimeMillis()) {
+				throw new InterruptedException("Timeout has been expired");
+			}
 			Thread.sleep(100);
 		}
+
 		System.out.println("All listen tests passed");
+
+	
+		for (int i = 1; i <= uuid; i++) {
+			removeFile(String.valueOf(i));
+		}
 	}
 
 }

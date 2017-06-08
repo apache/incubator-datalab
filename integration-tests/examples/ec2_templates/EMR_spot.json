@@ -1,0 +1,12 @@
+{
+  "image" : "docker.dlab-emr",
+  "name" : "set the name",
+  "emr_instance_count" : "2",
+  "emr_master_instance_type" : "m4.large",
+  "emr_slave_instance_type" : "m4.large",
+  "emr_slave_instance_spot":true,
+  "emr_slave_instance_spot_pct_price":40,
+  "emr_version" : "emr-5.2.0",
+  "notebook_name" : "set noteboork name",
+  "template_name" : "DLab AWS EMR"
+}
