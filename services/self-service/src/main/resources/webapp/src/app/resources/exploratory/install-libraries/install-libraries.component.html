@@ -80,9 +80,10 @@ limitations under the License.
               </md-option>
             </md-select>
             <md-input-container>
-              <input mdInput [(ngModel)]="query" (keyup)="filterList()" placeholder="Enter library name">
+              <input mdInput
+                     [formControl]="libSearch" [value]="query"
+                     placeholder="Enter library name">
             </md-input-container>
-
             <div>
               <!--<div class="loader-wrap" *ngIf="isFilteringProc && !model.isEmpty(filteredList)">
                 <div class="loader-lib">Loading...</div>

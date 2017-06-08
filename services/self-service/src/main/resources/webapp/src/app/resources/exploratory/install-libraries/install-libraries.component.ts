@@ -17,10 +17,12 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
 
-import 'rxjs/add/operator/startWith';
-import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/distinctUntilChanged';
 
 import { InstallLibrariesModel } from './';
 import { LibrariesInstallationService} from '../../../core/services';
@@ -49,6 +51,7 @@ export class InstallLibrariesComponent implements OnInit {
   public isInstalled: boolean = false;
   public isFilteringProc: boolean = false;
   public isInSelectedList: boolean = false;
+  public libSearch: FormControl = new FormControl();
   public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum'};
 
 
@@ -65,6 +68,13 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.libSearch.valueChanges
+      .debounceTime(1000)
+      .distinctUntilChanged()
+      .subscribe(newValue => {
+        this.query = newValue;
+        this.filterList();
+      });
     this.bindDialog.onClosing = () => this.resetDialog();
   }
   
@@ -89,7 +99,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public filterList(): void {
-    (this.query.length >= 3 && this.group) ? this.getFilteredList() : this.filteredList = null;
+    (this.query.length >= 2 && this.group) ? this.getFilteredList() : this.filteredList = null;
   }
 
   public isDuplicated(item) {
