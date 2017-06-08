@@ -139,6 +139,7 @@ public class ConfigPropertyValue {
             PropertiesResolver.overlapProperty(props, AWS_REGION, true);
             PropertiesResolver.overlapProperty(props, NOTEBOOKS_TO_TEST, false);
             PropertiesResolver.overlapProperty(props, USE_JENKINS, true);
+            PropertiesResolver.overlapProperty(props, JENKINS_JOB_URL, !isUseJenkins());
             PropertiesResolver.overlapProperty(props, SSN_URL, isUseJenkins());
             PropertiesResolver.overlapProperty(props, SERVICE_BASE_NAME, isUseJenkins());
             PropertiesResolver.overlapProperty(props, RUN_MODE_LOCAL, true);
