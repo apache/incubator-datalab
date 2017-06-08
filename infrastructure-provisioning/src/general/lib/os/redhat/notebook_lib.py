@@ -405,6 +405,15 @@ def install_keras(os_user):
     if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
         sudo('pip2 install keras --no-cache-dir')
         sudo('pip3.5 install keras --no-cache-dir')
+        sudo('pip2 uninstall ipython')
+        sudo('pip2 uninstall ipython')
+        sudo('pip2 install ipython --no-cache-dir')
+        sudo('pip2 uninstall matplotlib')
+        sudo('pip2 uninstall matplotlib')
+        sudo('pip2 install matplotlib --no-cache-dir')
+        sudo('pip2 uninstall numpy')
+        sudo('pip2 uninstall numpy ')
+        sudo('pip2 install numpy --no-cache-dir')
         sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
 
 

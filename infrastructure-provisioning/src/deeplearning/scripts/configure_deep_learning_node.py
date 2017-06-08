@@ -143,4 +143,3 @@ if __name__ == "__main__":
 
     print "Installing Keras"
     install_keras(args.os_user)
-
