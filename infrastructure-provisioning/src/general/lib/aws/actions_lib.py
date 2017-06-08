@@ -292,7 +292,7 @@ def create_iam_role(role_name, role_profile, service='ec2'):
             traceback.print_exc(file=sys.stdout)
 
 
-def attach_policy(policy_arn, role_name):
+def attach_policy(role_name, policy_arn):
     try:
         conn = boto3.client('iam')
         conn.attach_role_policy(PolicyArn=policy_arn, RoleName=role_name)
