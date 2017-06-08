@@ -29,6 +29,7 @@ def ensure_docker_daemon(dlab_path, os_user, region):
     try:
         if not exists(dlab_path + 'tmp/docker_daemon_ensured'):
             if region == 'cn-north-1':
+                sudo('apt-get update')
                 sudo('curl -sSL https://get.daocloud.io/docker | sh')
             else:
                 sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D')
