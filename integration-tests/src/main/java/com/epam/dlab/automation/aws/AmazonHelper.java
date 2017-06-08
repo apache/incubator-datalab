@@ -103,10 +103,13 @@ public class AmazonHelper {
         long requestTimeout = ConfigPropertyValue.getAwsRequestTimeout().toMillis();
     	long timeout = CHECK_TIMEOUT.toMillis();
         long expiredTime = System.currentTimeMillis() + timeout;
-
-        while ((instanceState = AmazonHelper.getInstance(instanceName)
-            	.getState()
-            	.getName()).equals("shutting-down")) {
+        Instance instance = AmazonHelper.getInstance(instanceName);
+        while (true) {
+        	instance = AmazonHelper.getInstance(instanceName);
+        	instanceState = instance.getState().getName();
+        	if (!instance.getState().getName().equals("shutting-down")) {
+        		break;
+        	}
         	if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
                 LOGGER.info("Amazon instance {} state is {}", instanceName, instanceState);
         		throw new Exception("Timeout has been expired for check amazon instance " + instanceState);
@@ -114,10 +117,12 @@ public class AmazonHelper {
             Thread.sleep(requestTimeout);
         }
         
-        for (Instance instance : AmazonHelper.getInstances(instanceName)) {
-            LOGGER.info("Amazon instance {} with private IP {} state is {}", instanceName, instance.getPrivateIpAddress(), instanceState);
+        for (Instance i : AmazonHelper.getInstances(instanceName)) {
+            LOGGER.info("Amazon instance {} state is {}. Instance id {}, private IP {}, public IP {}",
+            		instanceName, instanceState, i.getInstanceId(), i.getPrivateIpAddress(), i.getPublicIpAddress());
 		}
-        Assert.assertEquals(instanceState, expAmazonState.toString(), "Amazon instance " + instanceName + " state is not correct");
+        Assert.assertEquals(instanceState, expAmazonState.toString(), "Amazon instance " + instanceName + " state is not correct. Instance id " +
+        		instance.getInstanceId() + ", private IP " + instance.getPrivateIpAddress() + ", public IP " + instance.getPublicIpAddress());
     }
 
     public static void printBucketGrants(String bucketName) throws Exception {
