@@ -105,7 +105,7 @@ public class TestServices {
         NamingHelper.setServiceBaseName(jenkins.getServiceBaseName().replaceAll(" ", ""));
         Assert.assertNotNull(NamingHelper.getSsnURL(), "Jenkins URL was not generated");
         Assert.assertNotNull(NamingHelper.getServiceBaseName(), "Service BaseName was not generated");
-        LOGGER.info("JenkinsURL is: " + NamingHelper.getSsnURL());
+        LOGGER.info("Self-Service URL is: " + NamingHelper.getSsnURL());
         LOGGER.info("ServiceBaseName is: " + NamingHelper.getServiceBaseName());
     }
     
