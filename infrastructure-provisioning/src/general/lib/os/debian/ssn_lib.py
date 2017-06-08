@@ -28,15 +28,15 @@ import os
 def ensure_docker_daemon(dlab_path, os_user, region):
     try:
         if not exists(dlab_path + 'tmp/docker_daemon_ensured'):
-            if region == 'cn-north-1':
-                sudo('apt-get update')
-                sudo('curl -sSL https://get.daocloud.io/docker | sh')
-            else:
-                sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D')
-                sudo('echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | sudo tee /etc/apt/sources.list.d/docker.list')
-                sudo('apt-get update')
-                sudo('apt-cache policy docker-engine')
-                sudo('apt-get install -y docker-engine')
+            #if region == 'cn-north-1':
+            #    sudo('apt-get update')
+            #    sudo('curl -sSL https://get.daocloud.io/docker | sh')
+            #else:
+            sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D')
+            sudo('echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | sudo tee /etc/apt/sources.list.d/docker.list')
+            sudo('apt-get update')
+            sudo('apt-cache policy docker-engine')
+            sudo('apt-get install -y docker-engine')
             sudo('usermod -a -G docker ' + os_user)
             sudo('update-rc.d docker defaults')
             sudo('update-rc.d docker enable')
