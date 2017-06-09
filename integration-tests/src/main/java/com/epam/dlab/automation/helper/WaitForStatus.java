@@ -142,7 +142,7 @@ public class WaitForStatus {
             LOGGER.info("  status is {}", status);
             LOGGER.info("  timeout is {}", duration);
         } else {
-        	LOGGER.info("{}: Current state for EMR {} on notebook {} is ", notebookName, computationalName, notebookName, actualStatus);
+        	LOGGER.info("{}: Current state for EMR {} on notebook is {}", notebookName, computationalName, actualStatus);
         }
         
         return actualStatus;

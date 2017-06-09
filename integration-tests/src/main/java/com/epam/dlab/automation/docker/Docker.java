@@ -79,7 +79,7 @@ public class Docker {
         while ((line = reader.readLine()) != null) {      
              result.add(line);
              if (line.contains("Id")) {
-            	 LOGGER.debug("Add docker container: {}", line);
+            	 LOGGER.trace("Add docker container: {}", line);
                  dockerContainerList = mapper.readValue(line, typeRef);
              }       
         }
