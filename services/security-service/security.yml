@@ -21,11 +21,11 @@
 inactiveUserTimeoutMillSec: 7200000
 ldapConnectionConfig:
 #  ldapHost: localhost
-  ldapHost: ldap_host_here
+  ldapHost: LDAP_HOST
 #  ldapPort: 3890
   ldapPort: 389
-  name: ldap_user_here
-  credentials: ldap_pass_here
+  name: LDAP_USER
+  credentials: LDAP_PASS
 ldapBindTemplate: uid=%s,ou=People,dc=example,dc=com
 ldapBindAttribute: uid
 ldapSearchAttribute: uid
