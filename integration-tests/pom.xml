@@ -16,15 +16,13 @@ limitations under the License.
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                   http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.epam.dlab</groupId>
-    <artifactId>dlab</artifactId>
+    <artifactId>integration-tests</artifactId>
     <version>1.0</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
 	<scm>
     	<connection>scm:git:file://.</connection>
@@ -32,82 +30,92 @@ limitations under the License.
     	<tag>HEAD</tag>
 	</scm>
 
-    <modules>
-        <module>services/common</module>
-        <module>services/billing</module>
-        <module>services/security-service</module>
-        <module>services/provisioning-service</module>
-        <module>services/self-service</module>
-    </modules>
-
     <properties>
-    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <io.dropwizard.version>1.0.2</io.dropwizard.version>
-        <com.google.inject.version>4.1.0</com.google.inject.version>
-        <dropwizard-template-config.version>1.4.0</dropwizard-template-config.version>
-        <com.aegisql.conveyor.version>1.1.7</com.aegisql.conveyor.version>
-        <org.mongodb.version>3.3.0</org.mongodb.version>
-        <junit.version>4.12</junit.version>
-        <org.mockito.version>1.10.19</org.mockito.version>
-        <com.fasterxml.jackson.core.version>2.8.8</com.fasterxml.jackson.core.version>
-        <com.fasterxml.jackson.annotations.version>2.8.0</com.fasterxml.jackson.annotations.version>
-
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
+        
+        <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
         <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
     </properties>
-    
+
     <dependencies>
         <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>${com.google.inject.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.thomaskrille</groupId>
-            <artifactId>dropwizard-template-config</artifactId>
-            <version>${dropwizard-template-config.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aegisql</groupId>
-            <artifactId>conveyor</artifactId>
-            <version>${com.aegisql.conveyor.version}</version>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>6.10</version>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
+            <groupId>com.jayway.restassured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>2.9.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-guava</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>${com.fasterxml.jackson.core.version}</version>
-        </dependency>
+        
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${com.fasterxml.jackson.annotations.version}</version>
+            <version>LATEST</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>LATEST</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>LATEST</version>
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-ec2</artifactId>
+            <version>1.9.13</version>
+        </dependency>
+        
+		<dependency>
+    		<groupId>com.amazonaws</groupId>
+    		<artifactId>aws-java-sdk-s3</artifactId>
+    		<version>1.9.13</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.8.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.8.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.25</version>
+		</dependency>
+
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
+            <version>3.0.6</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.scijava</groupId>
+            <artifactId>native-lib-loader</artifactId>
+            <version>2.0.2</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.54</version>
         </dependency>
     </dependencies>
 
@@ -120,6 +128,7 @@ limitations under the License.
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    
                 </configuration>
             </plugin>
             
@@ -134,10 +143,8 @@ limitations under the License.
 							<goal>read-project-properties</goal>
 						</goals>
 						<configuration>
-							<quiet>true</quiet>
 							<files>
-								<file>../../build.properties</file>
-								<file>build.properties</file>
+								<file>../build.properties</file>
 							</files>
 						</configuration>
 					</execution>
@@ -164,6 +171,51 @@ limitations under the License.
 				</configuration>
       		</plugin>
 			
+            <plugin>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven-shade-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+<!--                                     <mainClass>com.epam.dlab.automation</mainClass> -->
+									<manifestEntries>
+										<Created-By>&lt;EPAM&gt; Systems</Created-By>
+										<Name>com/epam/dlab/automation</Name>
+										<Implementation-Title>DLab Integration Tests</Implementation-Title>
+										<Implementation-Version>${dlab.version}</Implementation-Version>
+										<Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
+										<Build-Time>${maven.build.timestamp}</Build-Time>
+										<Build-OS>${os.name}</Build-OS>
+										<GIT-Branch>${scmBranch}</GIT-Branch>
+										<GIT-Commit>${buildNumber}</GIT-Commit>
+									</manifestEntries>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                            	<filter>
+                            		<artifact>*:*</artifact>
+                            		<excludes>
+										<exclude>META-INF/*.SF</exclude>
+				                		<exclude>META-INF/*.DSA</exclude>
+				                		<exclude>META-INF/*.RSA</exclude>
+			                		</excludes>
+                            	</filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>

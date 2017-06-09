@@ -25,10 +25,14 @@ import static org.mockito.Mockito.when;
 
 import javax.ws.rs.core.Response;
 
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
 import com.epam.dlab.ModuleBase;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
@@ -40,6 +44,8 @@ import io.dropwizard.setup.Environment;
 /** Mock class for an application configuration of SelfService for developer mode.
  */
 public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> implements SecurityAPI, DockerAPI {
+	
+	private static final String LOGIN_NAME = "test";
 	
 	/** Instantiates an application configuration of SelfService for developer mode.
      * @param configuration application configuration of SelfService.
@@ -62,16 +68,31 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
     /** Create and return UserInfo object.
      */
     private UserInfo getUserInfo() {
-    	UserInfo userInfo = new UserInfo("test", "token123");
+    	UserInfo userInfo = new UserInfo(LOGIN_NAME, "token123");
     	userInfo.addRole("test");
     	userInfo.addRole("dev");
+    	System.out.println("Create UserInfo " + userInfo);
     	return userInfo;
 	}
+    
     /** Creates and returns the mock object for authentication service.
      */
     private RESTService createAuthenticationService() {
         RESTService result = mock(RESTService.class);
-        when(result.post(eq(LOGIN), any(), any())).then(invocationOnMock -> Response.ok("token123").build());
+        when(result.post(eq(LOGIN), any(), any())).then(
+        	new Answer<Response>() {
+        		public Response answer(InvocationOnMock invocation) throws Throwable {
+        			for (Object o : invocation.getArguments()) {
+        				if (o instanceof UserCredentialDTO) {
+        					UserCredentialDTO credential = (UserCredentialDTO) o;
+        					if (LOGIN_NAME.equals(credential.getUsername())) {
+        						return Response.ok("token123").build();
+        					}
+        				}
+        			}
+        			return Response.status(Response.Status.UNAUTHORIZED).entity("Username or password are not valid").build();
+        		}
+        	});
         when(result.post(eq(GET_USER_INFO), eq("token123"), eq(UserInfo.class)))
                 .thenReturn(getUserInfo());
         return result;
