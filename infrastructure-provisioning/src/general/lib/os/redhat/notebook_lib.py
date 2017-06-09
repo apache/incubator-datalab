@@ -300,26 +300,10 @@ def install_livy_dependencies_emr(os_user):
         local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
 
-def install_gitweb(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/gitweb_ensured'):
-        sudo('yum install -y policycoreutils-python httpd perl-CGI --nogpgcheck')
-        with cd('/tmp'):
-            sudo('git clone https://github.com/git/git.git')
-            with cd('git'):
-                sudo('make GITWEB_PROJECTROOT="/home/' + os_user + '" prefix=/usr gitweb')
-                sudo('cp -Rf gitweb /var/www/')
-        sudo('sed -i -e "s/Listen 80/Listen 8085/g" /etc/httpd/conf/httpd.conf')
-        sudo('sed -i -e "s/User apache/User ' + os_user + '/g" /etc/httpd/conf/httpd.conf')
-        sudo('sed -i -e "s/Group apache/Group ' + os_user + '/g" /etc/httpd/conf/httpd.conf')
-        sudo('sed -i -e "/IncludeOptional/ s/^#*/#/" /etc/httpd/conf/httpd.conf')
-        put('/root/templates/gitweb-virtualhost.conf', '/tmp/gitweb-virtualhost.conf')
-        sudo('echo "#Virualhost for GitWeb" | sudo tee -a /etc/httpd/conf/httpd.conf')
-        sudo('cat /tmp/gitweb-virtualhost.conf | sudo tee -a /etc/httpd/conf/httpd.conf')
-        sudo('chcon -R -t httpd_unconfined_script_exec_t /var/www/gitweb')
-        sudo('semanage port -a -t http_port_t -p tcp 8085')
-        sudo('systemctl enable httpd.service')
-        sudo('systemctl start httpd.service')
-        sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')
+def install_nodejs(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/nodejs_ensured'):
+        sudo('yum install -y npm nodejs')
+        sudo('touch /home/' + os_user + '/.ensure_dir/nodejs_ensured')
 
 
 def install_os_pkg(requisites):

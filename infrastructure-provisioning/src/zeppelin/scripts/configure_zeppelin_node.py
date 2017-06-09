@@ -226,5 +226,6 @@ if __name__ == "__main__":
         print "Configuring local kernels"
         configure_local_spark_kernels(args)
 
-    print "Install GitWeb"
-    install_gitweb(args.os_user)
+    print "Install Ungit"
+    install_nodejs(args.os_user)
+    install_ungit(args.os_user)

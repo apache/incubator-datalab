@@ -302,16 +302,10 @@ def install_livy_dependencies_emr(os_user):
         local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
 
-def install_gitweb(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/gitweb_ensured'):
-        sudo('apt-get install -y fcgiwrap gitweb libapache2-mod-perl2 libcgi-pm-perl apache2')
-        sudo('sed -i -e "s/80/8085/g" /etc/apache2/ports.conf')
-        sudo('sed -i -e "s/\/var\/lib\/git/\/home\/' + os_user + '/g" /etc/gitweb.conf')
-        put('/root/templates/gitweb-virtualhost.conf', '/tmp/gitweb-virtualhost.conf')
-        sudo('mv -f /tmp/gitweb-virtualhost.conf /etc/apache2/sites-available/000-default.conf')
-        sudo('a2enmod cgi')
-        sudo('service apache2 restart')
-        sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')
+def install_nodejs(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/nodejs_ensured'):
+        sudo('apt-get -y install npm nodejs nodejs-legacy')
+        sudo('touch /home/' + os_user + '/.ensure_dir/nodejs_ensured')
 
 
 def install_os_pkg(requisites):
