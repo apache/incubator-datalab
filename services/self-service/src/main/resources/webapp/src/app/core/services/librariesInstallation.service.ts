@@ -54,7 +54,16 @@ export class LibrariesInstallationService {
         return this.applicationServiceFacade
         .buildInstallLibraries(data)
         .map((response: Response) => response)
-       .catch((error: any) => {
+        .catch((error: any) => {
+            return Observable.throw(new Error(`${ error.status } ${ error.statusText }. ${ error._body }`));
+        });
+    }
+
+    public getInstalledLibrariesList(data): Observable<Response> {
+        return this.applicationServiceFacade
+        .buildGetInstalledLibrariesList(data)
+        .map((response: Response) => response)
+        .catch((error: any) => {
             return Observable.throw(new Error(`${ error.status } ${ error.statusText }. ${ error._body }`));
         });
     }

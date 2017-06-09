@@ -40,6 +40,7 @@ export class InstallLibrariesComponent implements OnInit {
   public notebook: any;
   public filteredList: any;
   public groupsList: Array<string>;
+  public notebookLibs: Array<any>;
   public query: string = '';
   public group: string;
   public uploading: boolean = false;
@@ -51,12 +52,14 @@ export class InstallLibrariesComponent implements OnInit {
   public isInstalled: boolean = false;
   public isFilteringProc: boolean = false;
   public isInSelectedList: boolean = false;
+  public installingInPrigress: boolean = false;
   public libSearch: FormControl = new FormControl();
   public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum'};
 
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
   private clear: number;
+  private clearCheckInstalling: number;
 
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('tabGroup') tabGroup;
@@ -95,7 +98,8 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public reInstallSpecificLib(retry: any): void {
-    this.model.confirmAction(retry);
+    if (!this.installingInPrigress)
+      this.model.confirmAction(retry);
   }
 
   public filterList(): void {
@@ -132,7 +136,9 @@ export class InstallLibrariesComponent implements OnInit {
 
       this.model = new InstallLibrariesModel(notebook, (response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
-          this.close();
+
+          // this.tabGroup.selectedIndex = 1;
+          this.isInstallingInProgress();
           this.buildGrid.emit();
         }
       },
@@ -142,6 +148,10 @@ export class InstallLibrariesComponent implements OnInit {
       },
       () => {
         this.bindDialog.open(param);
+        // this.isInstallingInProgress();
+        this.clearCheckInstalling = window.setInterval(() => this.isInstallingInProgress(), 1000);
+
+
         if (!this.notebook.libs || !this.notebook.libs.length)
           this.tabGroup.selectedIndex = 1;
 
@@ -155,6 +165,23 @@ export class InstallLibrariesComponent implements OnInit {
       this.bindDialog.close();
 
     this.resetDialog();
+  }
+
+  public isInstallingInProgress(): boolean {
+    console.log('check if in progress');
+
+    this.installingInPrigress = false;
+    // this.model.getInstalledLibrariesList().subscribe( => then iteration throw new data) this.notebookLibs = list;
+    for (let index = 0; index < this.notebook.libs.length; index++)
+      if (this.notebook.libs[index].status === 'installing') {
+        this.installingInPrigress = true;
+        return true;
+      } else {
+        this.installingInPrigress = false;
+        clearInterval(this.clearCheckInstalling);
+      }
+
+    return false;
   }
 
   private libsUploadingStatus(groupsList): void {

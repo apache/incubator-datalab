@@ -155,6 +155,10 @@ limitations under the License.
     text-align: center;
     position: relative;
 }
+.lib-status .reinstall {
+    border: none;
+    background: none;
+}
 .lib-status .reinstall,
 .lib-status .lib-error {
     position: absolute;
