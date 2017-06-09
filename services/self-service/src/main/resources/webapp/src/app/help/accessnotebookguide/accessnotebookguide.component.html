@@ -60,14 +60,14 @@ limitations under the License.
 
     <h3>How to setup tunnel to EDGE instance via SSH on MacOS / Linux</h3>
     <li>Open terminal.</li>
-    <li>Enter following command":</li>
+    <li>Enter following command:</li>
     <div class="code-block">ssh -D 3127 USER@EDGE_IP -i PATH_TO_PRIVATE_KEY</div>
     <li>Please use "ubuntu" user if DLab is deployed on Ubuntu instances, otherwise please use "ec2-user" for logging in if DLab was deployed on RedHat.<br>Also change "EDGE_IP" and "PATH_TO_KEY" to your value.</li>
     <li>Tunnel to the Edge has been established. Do not close this terminal till you finished working with notebooks</li>
 
     <h3>How to access Notebook Server over SSH on MacOS / Linux</h3>
     <li>Tunnel to the Edge should be established. Open new terminal.</li>
-    <li>Enter following command":</li>
+    <li>Enter following command:</li>
     <div class="code-block">ssh -o ProxyCommand='nc -x localhost:3127 %h %p' USER@NOTEBOOK_IP -i PATH_TO_PRIVATE_KEY</div>
     <li>Please use "ubuntu" user if DLab is deployed on Ubuntu instances, otherwise please use "ec2-user" for logging in if DLab was deployed on RedHat.<br>Also change "NOTEBOOK_IP" and "PATH_TO_PRIVATE_KEY" to your value</li>
     <li>Now you are connected to notebook server via SSH.</li>
