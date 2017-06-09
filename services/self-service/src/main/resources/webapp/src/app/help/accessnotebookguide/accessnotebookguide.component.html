@@ -26,7 +26,7 @@ limitations under the License.
     <h3>How to setup tunnel to EDGE instance via SSH</h3>
     <li>Please download PuTTY program by using <a href="https://the.earth.li/~sgtatham/putty/latest/w32/putty.exe">this link</a>.</li>
     <li>Open the PuTTY program.</li>
-    <li>In the "HostName" field enter user and IP address of your Edge Node. Please use "ubuntu" user.</li>
+    <li>In the "HostName" field enter user and IP address of your Edge Node. Please use "ubuntu" user for Ubuntu-base environment and "ec2-user" for RedHat.</li>
     <img src="./../assets/accessnotebookguide/1_1.png" alt="">
     <li>Open Connection &#8594; SSH &#8594; Auth tab and select your private key</li>
     <img src="./../assets/accessnotebookguide/1_2.png" alt="">
@@ -39,7 +39,7 @@ limitations under the License.
 
     <h3>How to access Notebook Server over SSH</h3>
     <li>Tunnel to the Edge should be established. Run a second PuTTY session.</li>
-    <li>In the "HostName" field enter user and IP address of your Notebook instance. Please use "ubuntu" user.</li>
+    <li>In the "HostName" field enter user and IP address of your Notebook instance. lease use "ubuntu" user for Ubuntu-base environment and "ec2-user" for RedHat.</li>
     <img src="./../assets/accessnotebookguide/2_1.png" alt="">
     <li>Open Connection &#8594; SSH &#8594; Auth tab and select your private key</li>
     <img src="./../assets/accessnotebookguide/2_2.png" alt="">
@@ -63,15 +63,15 @@ limitations under the License.
     <h3>How to setup tunnel to EDGE instance via SSH</h3>
     <li>Open terminal.</li>
     <li>Enter following command":</li>
-    <div class="code-block">ssh -D 3128 ubuntu@EDGE_IP -i PATH_TO_PRIVATE_KEY</div>
-    <li>Please change "EDGE_IP" and "PATH_TO_KEY" to your value</li>
+    <div class="code-block">ssh -D 3128 USER@EDGE_IP -i PATH_TO_PRIVATE_KEY</div>
+    <li>Please change USER to "ubuntu" for Ubuntu-base environment and to "ec2-user" for RedHat. Also change "EDGE_IP" and "PATH_TO_KEY" to your value.</li>
     <li>Tunnel to the Edge has been established. Do not close this terminal till you finished working with notebooks</li>
 
     <h3>How to access Notebook Server over SSH</h3>
     <li>Tunnel to the Edge should be established. Open new terminal.</li>
     <li>Enter following command":</li>
-    <div class="code-block">ssh -o ProxyCommand='nc -x localhost:3128 %h %p' ubuntu@NOTEBOOK_IP -i PATH_TO_PRIVATE_KEY</div>
-    <li>Please change "NOTEBOOK_IP" and "PATH_TO_PRIVATE_KEY" to your value</li>
+    <div class="code-block">ssh -o ProxyCommand='nc -x localhost:3128 %h %p' USER@NOTEBOOK_IP -i PATH_TO_PRIVATE_KEY</div>
+    <li>Please change USER to "ubuntu" for Ubuntu-base environment and to "ec2-user" for RedHat. Also change "NOTEBOOK_IP" and "PATH_TO_PRIVATE_KEY" to your value</li>
     <li>Now you are connected to notebook server via SSH.</li>
   </ul>
 </section>
