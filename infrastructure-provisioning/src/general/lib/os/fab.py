@@ -568,6 +568,8 @@ def install_ungit(os_user):
         put('/root/templates/ungit.service', '/tmp/ungit.service')
         sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
         sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')
+        run('git config --global http.proxy $http_proxy')
+        run('git config --global https.proxy $https_proxy')
         sudo('systemctl daemon-reload')
         sudo('systemctl enable ungit.service')
         sudo('systemctl start ungit.service')
