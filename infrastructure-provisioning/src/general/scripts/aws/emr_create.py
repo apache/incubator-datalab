@@ -301,6 +301,16 @@ if __name__ == "__main__":
         upload_user_key(args)
         build_emr_cluster(args)
     else:
+        if not get_role_by_name(args.service_role):
+            print "There is no default EMR service role. Creating..."
+            create_iam_role(args.service_role, args.service_role, service='elasticmapreduce')
+            attach_policy(args.service_role,
+                          policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole')
+        if not get_role_by_name(args.ec2_role):
+            print "There is no default EMR EC2 role. Creating..."
+            create_iam_role(args.ec2_role, args.ec2_role)
+            attach_policy(args.ec2_role,
+                          policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role')
         upload_jars_parser(args)
         upload_user_key(args)
         out = open(logpath, 'a')
