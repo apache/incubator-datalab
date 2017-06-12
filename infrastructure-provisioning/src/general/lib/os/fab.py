@@ -309,6 +309,7 @@ def installing_python(region, bucket, user_name, cluster_name, pip_mirror=''):
             except:
                 local('sudo rm /etc/pip.conf')
                 local('sudo mv /etc/back_pip.conf /etc/pip.conf')
+                local('sudo rm -rf /opt/python/python{}/'.format(python_version))
                 sys.exit(1)
         else:
             local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
