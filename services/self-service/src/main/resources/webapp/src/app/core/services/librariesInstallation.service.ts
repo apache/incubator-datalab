@@ -62,7 +62,7 @@ export class LibrariesInstallationService {
     public getInstalledLibrariesList(data): Observable<Response> {
         return this.applicationServiceFacade
         .buildGetInstalledLibrariesList(data)
-        .map((response: Response) => response)
+        .map((response: Response) => response.json())
         .catch((error: any) => {
             return Observable.throw(new Error(`${ error.status } ${ error.statusText }. ${ error._body }`));
         });

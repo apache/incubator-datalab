@@ -182,7 +182,10 @@ body {
   margin-right: 15px;
   float: right;
 }
-
+.rotate {
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
 .status {
   text-transform: capitalize;
 }

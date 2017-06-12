@@ -158,6 +158,7 @@ limitations under the License.
 .lib-status .reinstall {
     border: none;
     background: none;
+    outline: none;
 }
 .lib-status .reinstall,
 .lib-status .lib-error {
@@ -165,6 +166,10 @@ limitations under the License.
     top: 0;
     right: 15px;
     cursor: pointer;
+}
+.reinstall-all {
+    text-align: right;
+    margin: 10px 30px;
 }
 .lib-status .lib-error {
     right: -10px;

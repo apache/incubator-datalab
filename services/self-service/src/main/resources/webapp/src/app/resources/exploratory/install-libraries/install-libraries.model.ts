@@ -70,7 +70,7 @@ export class InstallLibrariesModel {
     private installLibraries(retry?: Library): Observable<Response> {
         return this.librariesInstallationService.installLibraries({
             notebook_name: this.notebook.name,
-            libs: (retry ? [{group: retry.group, name: retry.name, version: retry.version}] : this.selectedLibs)
+            libs: (retry ? retry : this.selectedLibs)
         });
     }
 

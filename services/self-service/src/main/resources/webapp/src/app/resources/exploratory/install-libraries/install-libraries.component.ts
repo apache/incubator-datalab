@@ -40,7 +40,9 @@ export class InstallLibrariesComponent implements OnInit {
   public notebook: any;
   public filteredList: any;
   public groupsList: Array<string>;
-  public notebookLibs: Array<any>;
+  public notebookLibs: Array<any> = [];
+  public notebookFailedLibs: Array<any> = [];
+
   public query: string = '';
   public group: string;
   public uploading: boolean = false;
@@ -52,14 +54,14 @@ export class InstallLibrariesComponent implements OnInit {
   public isInstalled: boolean = false;
   public isFilteringProc: boolean = false;
   public isInSelectedList: boolean = false;
-  public installingInPrigress: boolean = false;
+  public installingInProgress: boolean = false;
   public libSearch: FormControl = new FormControl();
   public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum'};
 
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
   private clear: number;
-  private clearCheckInstalling: number;
+  private clearCheckInstalling = undefined;
 
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('tabGroup') tabGroup;
@@ -86,20 +88,9 @@ export class InstallLibrariesComponent implements OnInit {
       .subscribe(
         response => this.libsUploadingStatus(response),
         error => {
-          // this.libsUploadingStatus(error.status, error);
-
           this.processError = true;
           this.errorMessage = JSON.parse(error.message).message;
         });
-  }
-
-  public installLibs(): void {
-    this.model.confirmAction();
-  }
-
-  public reInstallSpecificLib(retry: any): void {
-    if (!this.installingInPrigress)
-      this.model.confirmAction(retry);
   }
 
   public filterList(): void {
@@ -133,13 +124,11 @@ export class InstallLibrariesComponent implements OnInit {
   public open(param, notebook): void {
     if (!this.bindDialog.isOpened)
       this.notebook = notebook;
-
+      this.notebookLibs = notebook.libs || [];
       this.model = new InstallLibrariesModel(notebook, (response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
-
-          // this.tabGroup.selectedIndex = 1;
-          this.isInstallingInProgress();
-          this.buildGrid.emit();
+          this.getInstalledLibrariesList();
+          this.resetDialog();
         }
       },
       (response: Response) => {
@@ -148,9 +137,7 @@ export class InstallLibrariesComponent implements OnInit {
       },
       () => {
         this.bindDialog.open(param);
-        // this.isInstallingInProgress();
-        this.clearCheckInstalling = window.setInterval(() => this.isInstallingInProgress(), 1000);
-
+        this.isInstallingInProgress(this.notebookLibs);
 
         if (!this.notebook.libs || !this.notebook.libs.length)
           this.tabGroup.selectedIndex = 1;
@@ -165,23 +152,29 @@ export class InstallLibrariesComponent implements OnInit {
       this.bindDialog.close();
 
     this.resetDialog();
+    this.buildGrid.emit();
   }
 
-  public isInstallingInProgress(): boolean {
-    console.log('check if in progress');
+  public isInstallingInProgress(data): void {
+    this.notebookFailedLibs = data
+      .filter(el => el.status === 'failed')
+      .map(el => { return {group: el.group, name: el.name, version: el.version}});
+    this.installingInProgress = data.findIndex(libr => libr.status === 'installing') >= 0;
 
-    this.installingInPrigress = false;
-    // this.model.getInstalledLibrariesList().subscribe( => then iteration throw new data) this.notebookLibs = list;
-    for (let index = 0; index < this.notebook.libs.length; index++)
-      if (this.notebook.libs[index].status === 'installing') {
-        this.installingInPrigress = true;
-        return true;
-      } else {
-        this.installingInPrigress = false;
-        clearInterval(this.clearCheckInstalling);
-      }
-
-    return false;
+    if (this.installingInProgress || this.notebookFailedLibs.length) {
+      if (this.clearCheckInstalling === undefined)
+        this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 4000);
+    } else {
+      clearInterval(this.clearCheckInstalling);
+      this.clearCheckInstalling = undefined;
+    }
+  }
+  private getInstalledLibrariesList() {
+    this.model.getInstalledLibrariesList()
+      .subscribe((data: any) => {
+        this.notebookLibs = data ? data : [];
+        this.isInstallingInProgress(this.notebookLibs);
+      });
   }
 
   private libsUploadingStatus(groupsList): void {
@@ -198,7 +191,6 @@ export class InstallLibrariesComponent implements OnInit {
 
   private getFilteredList(): void {
     this.isFilteringProc = true;
-
     this.model.getLibrariesList(this.group, this.query)
       .subscribe(libs => {
         this.filteredList = libs;
@@ -216,7 +208,8 @@ export class InstallLibrariesComponent implements OnInit {
     this.model.selectedLibs = [];
     this.filteredList = null ;
     this.tabGroup.selectedIndex = 0;
-
     clearTimeout(this.clear);
+    clearInterval(this.clearCheckInstalling);
+    this.clearCheckInstalling = undefined;
   }
 }
