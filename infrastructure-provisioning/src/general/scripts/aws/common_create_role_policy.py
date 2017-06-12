@@ -55,7 +55,7 @@ if __name__ == "__main__":
                 else:
                     policy_arn_bits = eval(args.policy_arn)
                     for bit in policy_arn_bits:
-                        attach_policy(bit, args.role_name)
+                        attach_policy(args.role_name, bit)
             print "POLICY %s created " % args.policy_name
             success = True
         except:

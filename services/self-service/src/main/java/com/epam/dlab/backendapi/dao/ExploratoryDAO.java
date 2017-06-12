@@ -106,7 +106,7 @@ public class ExploratoryDAO extends BaseDAO {
         if( opt.isPresent() ) {
             return opt.get();
         }
-        throw new DlabException(String.format("Exploratory instance for user {} with name {} not found.", user, exploratoryName));
+        throw new DlabException("Exploratory instance for user " + user + " with name " + exploratoryName +" not found.");
     }
 
     /** Inserts the info about notebook into Mongo database.
@@ -140,8 +140,7 @@ public class ExploratoryDAO extends BaseDAO {
     		values.append(INSTANCE_ID, dto.getInstanceId());
     	}
         if (dto.getErrorMessage() != null) {
-            values.append(ERROR_MESSAGE,
-                    DateRemoverUtil.removeDateFormErrorMessage(dto.getErrorMessage(), DateRemoverUtil.ERROR_DATE_FORMAT, DateRemoverUtil.ERROR_WITHOUT_DATE_FORMAT));
+            values.append(ERROR_MESSAGE, DateRemoverUtil.removeDateFormErrorMessage(dto.getErrorMessage()));
         }
         if (dto.getExploratoryId() != null) {
             values.append(EXPLORATORY_ID, dto.getExploratoryId());

@@ -29,6 +29,7 @@ from dlab.notebook_lib import *
 from dlab.fab import *
 from dlab.common_lib import *
 import os
+import re
 
 
 def enable_proxy(proxy_host, proxy_port):
@@ -321,3 +322,41 @@ def install_gitweb(os_user):
         sudo('a2enmod cgi')
         sudo('service apache2 restart')
         sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')
+
+
+def install_os_pkg(requisites):
+    status = list()
+    try:
+        print "Updating repositories and installing requested tools:", requisites
+        sudo('apt-get update')
+        sudo('apt-get -y install python-pip python3-pip')
+        for os_pkg in requisites:
+            try:
+                sudo('apt-get -y install ' + os_pkg)
+                res = sudo('apt list --installed | grep ' + os_pkg)
+                ansi_escape = re.compile(r'\x1b[^m]*m')
+                ver = ansi_escape.sub('', res).split("\r\n")
+                version = [i for i in ver if os_pkg in i][0].split(' ')[1]
+                status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
+            except:
+                status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": ""})
+        sudo('unattended-upgrades -v')
+        sudo('export LC_ALL=C')
+        return status
+    except:
+        return "Fail to install OS packages"
+
+
+def get_available_os_pkgs():
+    try:
+        os_pkgs = dict()
+        ansi_escape = re.compile(r'\x1b[^m]*m')
+        sudo('apt-get update')
+        apt_raw = sudo("apt list")
+        apt_list = ansi_escape.sub('', apt_raw).split("\r\n")
+        for pkg in apt_list:
+            if "/" in pkg:
+                os_pkgs[pkg.split('/')[0]] = pkg.split(' ')[1]
+        return os_pkgs
+    except:
+        sys.exit(1)

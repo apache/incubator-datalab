@@ -48,11 +48,11 @@ if __name__ == "__main__":
         'edge_user_name'] + '-nb-SG'
     tag = {"Key": edge_conf['tag_name'], "Value": "{}-{}-subnet".format(edge_conf['service_base_name'], os.environ['edge_user_name'])}
     edge_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
-    edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['instance_name']).get('Public')
-    edge_conf['edge_private_ip'] = get_instance_ip_address(edge_conf['instance_name']).get('Private')
+    edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
+    edge_conf['edge_private_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Private')
     edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
 
-    instance_hostname = get_instance_hostname(edge_conf['instance_name'])
+    instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
     keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
 
     try:
@@ -127,7 +127,7 @@ if __name__ == "__main__":
         print "Hostname: " + instance_hostname
         print "Public IP: " + edge_conf['edge_public_ip']
         print "Private IP: " + edge_conf['edge_private_ip']
-        print "Instance ID: " + get_instance_by_name(edge_conf['instance_name'])
+        print "Instance ID: " + get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name'])
         print "Key name: " + edge_conf['key_name']
         print "Bucket name: " + edge_conf['bucket_name']
         print "Notebook SG: " + edge_conf['notebook_security_group_name']
@@ -138,7 +138,7 @@ if __name__ == "__main__":
             res = {"hostname": instance_hostname,
                    "public_ip": edge_conf['edge_public_ip'],
                    "ip": edge_conf['edge_private_ip'],
-                   "instance_id": get_instance_by_name(edge_conf['instance_name']),
+                   "instance_id": get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name']),
                    "key_name": edge_conf['key_name'],
                    "user_own_bicket_name": edge_conf['bucket_name'],
                    "tunnel_port": "22",

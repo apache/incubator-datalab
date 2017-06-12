@@ -23,8 +23,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -33,6 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epam.dlab.UserInstanceStatus;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
+import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.exceptions.DlabException;
@@ -40,6 +44,7 @@ import com.epam.dlab.utils.ServiceUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
@@ -67,7 +72,12 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     
 	@Override
 	public Boolean get() {
-		run();
+		try {
+			run();
+		} catch (Exception e) {
+			LOGGER.error("Command with UUID {} fails: {}", uuid, e.getLocalizedMessage(), e);
+			return false;
+		}
 		return true;
 	}
 
@@ -99,6 +109,11 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	if (action == null) {
     		throw new DlabException("Docker action not defined");
     	}
+    	
+    	try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+		}
 
     	try {
 	    	switch (action) {
@@ -121,6 +136,13 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 				parser.getVariables().put("list_resources", getResponseStatus(true));
 				action(user, action);
 				break;
+			case LIB_LIST:
+				action(user, action);
+				copyFile("mock_response/notebook_lib_list_pkgs.json", parser.getResponsePath());
+				break;
+			case LIB_INSTALL:
+				parser.getVariables().put("lib_install", getResponseLibInstall(true));
+				action(user, action);
 			default:
 				break;
 			}
@@ -131,7 +153,17 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     		throw new DlabException(msg, e);
     	}
     }
-    
+
+    private static void copyFile(String sourceFileName, String destination) throws URISyntaxException, IOException {
+        URL url = Resources.getResource(sourceFileName);
+        File from = new File(url.toURI());
+		File to = new File(getAbsolutePath(destination , from.getName()));
+		Files.copy(from, to);
+
+		LOGGER.debug("File {} copied to {}", from.getName(), to);
+
+	}
+
     /** Return absolute path to the file or folder.
      * @param first part of path.
      * @param more next path components.
@@ -252,6 +284,34 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	
     	try {
 			return MAPPER.writeValueAsString(resourceList);
+		} catch (JsonProcessingException e) {
+			throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
+		}
+    }
+
+    /** Return the section of resource statuses for docker action status.
+     */
+    private String getResponseLibInstall(boolean isSucces) {
+    	List<LibInstallDTO> list;
+    	try {
+        	JsonNode json = MAPPER.readTree(parser.getJson());
+			json = json.get("libs");
+			list = MAPPER.readValue(json.toString(), new TypeReference<List<LibInstallDTO>>() {});
+		} catch (IOException e) {
+			throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
+		}
+    	
+    	for (LibInstallDTO lib : list) {
+			if (isSucces) {
+				lib.setStatus(LibStatus.INSTALLED.toString());
+			} else {
+				lib.setStatus(LibStatus.FAILED.toString());
+				lib.setErrorMessage("Mock error message");
+			}
+		}
+    	
+    	try {
+			return MAPPER.writeValueAsString(list);
 		} catch (JsonProcessingException e) {
 			throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
 		}

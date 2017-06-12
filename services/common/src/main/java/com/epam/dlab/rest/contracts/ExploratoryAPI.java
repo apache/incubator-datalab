@@ -24,4 +24,5 @@ public interface ExploratoryAPI {
     String EXPLORATORY_START = EXPLORATORY + "/start";
     String EXPLORATORY_TERMINATE = EXPLORATORY + "/terminate";
     String EXPLORATORY_STOP = EXPLORATORY + "/stop";
+    String EXPLORATORY_LIB_INSTALL = EXPLORATORY + "/lib_install";
 }

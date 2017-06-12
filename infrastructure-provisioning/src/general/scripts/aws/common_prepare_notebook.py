@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     create_aws_config_files()
-    edge_status = get_instance_status(
+    edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
         os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-edge')
     if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')

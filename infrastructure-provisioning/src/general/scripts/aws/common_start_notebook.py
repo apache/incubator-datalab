@@ -62,8 +62,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        ip_address = get_instance_ip_address(notebook_config['notebook_name']).get('Private')
-        dns_name = get_instance_hostname(notebook_config['notebook_name'])
+        ip_address = get_instance_ip_address(notebook_config['tag_name'], notebook_config['notebook_name']).get('Private')
+        dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['notebook_name'])
         print '[SUMMARY]'
         logging.info('[SUMMARY]')
         print "Instance name: " + notebook_config['notebook_name']
