@@ -24,7 +24,8 @@ ARG CLOUD
 
 COPY tensor/ /root/
 COPY general/scripts/${CLOUD}/tensor_* /root/scripts/
-COPY general/scripts/os/notebook_configure_proxy.py /root/scripts/
+COPY general/scripts/os/* /root/scripts/
+COPY tensor/scripts/create_configs.py /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/${OS}/jupyter-notebook.service /root/templates/

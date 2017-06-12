@@ -117,12 +117,14 @@ limitations under the License.
 }
 
 .dropdown-multiselect .dropdown-menu::-webkit-scrollbar-track {
+  box-shadow: none;
   -webkit-box-shadow: none;
   border-radius: 5px;
   background-color: #f1ecec;
 }
 
 .dropdown-multiselect .dropdown-menu::-webkit-scrollbar-thumb {
+  box-shadow: inset 1px 1px 6px #9a9393;
   -webkit-box-shadow: inset 1px 1px 6px #9a9393;
   background-color: #f6fafe;
   border-radius: 5px;

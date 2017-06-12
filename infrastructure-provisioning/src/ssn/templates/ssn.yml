@@ -1,4 +1,27 @@
+# ******************************************************************************
+#
+# Copyright (c) 2016, EPAM SYSTEMS INC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ******************************************************************************
+
 <#assign LOG_ROOT_DIR="/var/opt/dlab/log">
+<#assign KEYS_DIR="/home/${sys['user.name']}/keys">
+<#assign KEY_STORE_PATH="${KEYS_DIR}/dlab.keystore.jks">
+<#assign KEY_STORE_PASSWORD="KEYSTORE_PASSWORD">
+<#assign TRUST_STORE_PATH="${JRE_HOME}/lib/security/cacerts">
+<#assign TRUST_STORE_PASSWORD="changeit">
 
 #Switch on/off developer mode here
 <#assign DEV_MODE="false">
@@ -8,19 +31,19 @@ mongo:
   host: localhost
   port: 27017
   username: admin
-  password: PASSWORD
+  password: MONGO_PASSWORD
   database: dlabdb
 
 selfService:
-  protocol: http
+  protocol: https
   host: localhost
-  port: 8080
+  port: 8443
   jerseyClient:
     timeout: 3s
     connectionTimeout: 3s
 
 securityService:
-  protocol: http
+  protocol: https
   host: localhost
   port: 8090
   jerseyClient:
@@ -28,7 +51,7 @@ securityService:
     connectionTimeout: 10s
 
 provisioningService:
-  protocol: http
+  protocol: https
   host: localhost
   port: 8084
   jerseyClient:

@@ -58,6 +58,7 @@ if __name__ == "__main__":
     edge_conf['notebook_policy_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Policy'
     edge_conf['notebook_role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Profile'
     edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb-SG'
+    edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
 
     # FUSE in case of absence of user's key
     fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
@@ -72,8 +73,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SUBNET]')
         print '[CREATE SUBNET]'
-        params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {}" \
-                 .format(edge_conf['vpc_id'], edge_conf['tag_name'], edge_conf['service_base_name'], os.environ['edge_user_name'])
+        params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {}" \
+                 .format(edge_conf['vpc_id'], edge_conf['tag_name'], edge_conf['service_base_name'],
+                         os.environ['edge_user_name'], edge_conf['private_subnet_prefix'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:
@@ -245,7 +247,7 @@ if __name__ == "__main__":
             {"IpProtocol": "-1", "IpRanges": [], "UserIdGroupPairs": [{"GroupId": edge_group_id}], "PrefixListIds": []},
             #{"IpProtocol": "-1", "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['instance_name']).get('Private') + "/32"}], "UserIdGroupPairs": [], "PrefixListIds": []},
             {"IpProtocol": "-1", "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}], "UserIdGroupPairs": [], "PrefixListIds": []},
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": get_instance_ip_address('{}-ssn'.format(edge_conf['service_base_name'])).get('Private') + "/32"}], "UserIdGroupPairs": [], "PrefixListIds": []}
+            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(edge_conf['service_base_name'])).get('Private') + "/32"}], "UserIdGroupPairs": [], "PrefixListIds": []}
         ]
         egress_sg_rules_template = [
             {"IpProtocol": "-1", "IpRanges": [], "UserIdGroupPairs": [{"GroupId": edge_group_id}], "PrefixListIds": []},
@@ -335,7 +337,7 @@ if __name__ == "__main__":
     try:
         logging.info('[ASSOCIATING ELASTIC IP]')
         print '[ASSOCIATING ELASTIC IP]'
-        edge_conf['edge_id'] = get_instance_by_name(edge_conf['instance_name'])
+        edge_conf['edge_id'] = get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name'])
         try:
             edge_conf['elastic_ip'] = os.environ['edge_elastic_ip']
         except:
@@ -349,7 +351,7 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Failed to associate elastic ip.", str(err))
         try:
-            edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['instance_name']).get('Public')
+            edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
             edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
         except:
             print "No Elastic IPs to release!"

@@ -35,6 +35,10 @@ limitations under the License.
   list-style: none;
 }
 
+.guide-wrapper ul h3 {
+  margin-left: -40px;
+}
+
 .guide-wrapper ul li {
   position: relative;
   line-height: 30px;

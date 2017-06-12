@@ -18,17 +18,18 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.commands;
 
+import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
+import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
+import com.epam.dlab.backendapi.core.response.handlers.ResourceCallbackHandler;
+import com.epam.dlab.rest.client.RESTServiceMock;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-
-import org.junit.Ignore;
-import org.junit.Test;
-
-import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
-import com.epam.dlab.rest.client.RESTServiceMock;
 
 @Ignore
 public class CommandExecutorMockTest {
@@ -41,7 +42,7 @@ public class CommandExecutorMockTest {
     	CommandExecutorMock exec = new CommandExecutorMock();
     	exec.executeAsync("user", uuid, cmd);
     	exec.getResultSync();
-    	
+
     	Files.deleteIfExists(Paths.get(exec.getResponseFileName()));
 
     	return exec;
@@ -69,14 +70,42 @@ public class CommandExecutorMockTest {
     	ExploratoryCallbackHandler handler = new ExploratoryCallbackHandler(selfService, action,
     			getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
     	handler.handle(exec.getResponseFileName(), Files.readAllBytes(Paths.get(exec.getResponseFileName())));
-    	
+
     	try {
 			Files.deleteIfExists(Paths.get(exec.getResponseFileName()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-    }
-    
+	}
+
+	private void handleExploratoryLibs(String cmd, DockerAction action) throws Exception {
+		String uuid = UUID.randomUUID().toString();
+		CommandExecutorMock exec = getCommandExecutor();
+		exec.executeAsync("user", uuid, cmd);
+		exec.getResultSync();
+
+		RESTServiceMock selfService = new RESTServiceMock();
+		if (action == DockerAction.LIB_INSTALL) {
+			throw new Exception("Unimplemented action " + action);
+		}
+		/*
+		ResourceCallbackHandler<?> handler = action.equals(DockerAction.LIB_INSTALL) ?
+				new LibInstallCallbackHandler(selfService, action,
+				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec)):
+				new LibListCallbackHandler(selfService, action,
+				getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
+		*/
+		ResourceCallbackHandler<?> handler = new LibListCallbackHandler(selfService, action, getRequestId(exec), getEdgeUserName(exec), getExploratoryName(exec));
+
+		handler.handle(exec.getResponseFileName(), Files.readAllBytes(Paths.get(exec.getResponseFileName())));
+
+		try {
+			Files.deleteIfExists(Paths.get(exec.getResponseFileName()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
     @Test
     public void describe() throws IOException, InterruptedException, ExecutionException {
     	String cmd =
@@ -287,5 +316,50 @@ public class CommandExecutorMockTest {
     	    "docker.dlab-emr --action terminate";
     	executeAsync(cmd);
     }
+
+
+	@Test
+	public void listLibs() throws Exception {
+		String cmd =
+				"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"" +
+						",\"conf_service_base_name\":\"usein1122v3\",\"conf_os_user\":\"ubuntu\",\"exploratory_name\":\"useinj1\"," +
+						"\"computational_name\":\"useine1\",\"emr_cluster_name\":\"usein1122v3-user-emr-useinj1-useine1-d2db9\"," +
+						"\"notebook_instance_name\":\"usein1122v3-user-nb-useinj1-1b198\",\"conf_key_dir\":\"/root/keys\"}' | " +
+						"docker run -i --name user_terminate_computational_useine1_1487657251858 " +
+						"-v /home/ubuntu/keys:/root/keys " +
+						"-v /opt/dlab/tmp/result:/response " +
+						"-v /var/opt/dlab/log/emr:/logs/emr " +
+						"-e \"conf_resource=notebook\" " +
+						"-e \"request_id=2d5c23b8-d312-4fad-8a3c-0b813550d841\" " +
+						"-e \"conf_key_name=BDCC-DSS-POC\" " +
+						"-e \"application=jupyter\" " +
+						"docker.dlab-jupyter --action lib_list";
+		executeAsync(cmd);
+		handleExploratoryLibs(cmd, DockerAction.LIB_LIST);
+	}
+
+	@Test
+	public void installLibs() throws Exception {
+		String cmd =
+				"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"" +
+						",\"conf_service_base_name\":\"usein1122v3\",\"conf_os_user\":\"ubuntu\",\"exploratory_name\":\"useinj1\"," +
+						"\"computational_name\":\"useine1\",\"emr_cluster_name\":\"usein1122v3-user-emr-useinj1-useine1-d2db9\"," +
+						"\"notebook_instance_name\":\"usein1122v3-user-nb-useinj1-1b198\",\"conf_key_dir\":\"/root/keys\"}' | " +
+						"docker run -i --name user_terminate_computational_useine1_1487657251858 " +
+						"-v /home/ubuntu/keys:/root/keys " +
+						"-v /opt/dlab/tmp/result:/response " +
+						"-v /var/opt/dlab/log/emr:/logs/emr " +
+						"-e \"conf_resource=notebook\" " +
+						"-e \"additional_libs={'libraries': {\n" +
+						"\t\t\t\t'os_pkg': ['nmap', 'htop'],\n" +
+						"\t\t\t\t'pip2': ['requests', 'configparser'],\n" +
+						"\t\t\t\t'pip3': ['configparser'],\n" +
+						"\t\t\t\t'r_pkg': ['rmarkdown']\n" +
+						"\t\t\t\t}\n" +
+						"\t\t\t\t}\" " +
+						"docker.dlab-jupyter --action lib_install";
+		executeAsync(cmd);
+		handleExploratoryLibs(cmd, DockerAction.LIB_INSTALL);
+	}
     
 }

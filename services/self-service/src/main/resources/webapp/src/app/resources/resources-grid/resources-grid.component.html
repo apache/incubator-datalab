@@ -1,4 +1,4 @@
-<!------------------------------------------------------------------------------------------------------------
+<!--
 
 Copyright (c) 2016, EPAM SYSTEMS INC
 
@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
------------------------------------------------------------------------------------------------------------ -->
+-->
 
 <table class="dashboard_table">
   <tr>
@@ -95,6 +95,7 @@ limitations under the License.
                                                         env.status == 'stopping'">Run</li>
             <li (click)="exploratoryAction(env, 'terminate')" *ngIf="env.status.toLowerCase() == 'running' || env.status.toLowerCase() == 'stopped'">Terminate</li>
             <li (click)="exploratoryAction(env, 'deploy')" *ngIf="env.status != 'stopping' && env.status != 'stopped' && env.status != 'starting'">Deploy EMR</li>
+            <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
           </ul>
         </div>
       </div>
@@ -106,3 +107,4 @@ limitations under the License.
 <confirmation-dialog #confirmationDialog (buildGrid)="buildGrid($event)"></confirmation-dialog>
 <detail-dialog #detailDialog></detail-dialog>
 <cost-details-dialog #costDetailsDialog></cost-details-dialog>
+<install-libraries #installLibs (buildGrid)="buildGrid($event)"></install-libraries>

@@ -88,13 +88,14 @@ def configure_jenkins(dlab_path, os_user, config, tag_resource_id):
         return False
 
 
-def configure_nginx(config, dlab_path):
+def configure_nginx(config, dlab_path, hostname):
     try:
         random_file_part = id_generator(size=20)
         if not exists("/etc/nginx/conf.d/nginx_proxy.conf"):
             sudo('rm -f /etc/nginx/conf.d/*')
             put(config['nginx_template_dir'] + 'nginx_proxy.conf', '/tmp/nginx_proxy.conf')
             put(config['nginx_template_dir'] + 'ssn_nginx.conf', '/tmp/nginx.conf')
+            sudo("sed -i 's|SSN_HOSTNAME|" + hostname + "|' /tmp/nginx_proxy.conf")
             sudo('cat /tmp/nginx.conf > /etc/nginx/nginx.conf')
             sudo('mv /tmp/nginx_proxy.conf ' + dlab_path + 'tmp/')
             sudo('\cp ' + dlab_path + 'tmp/nginx_proxy.conf /etc/nginx/conf.d/')
@@ -153,12 +154,15 @@ def ensure_mongo():
         return False
 
 
-def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, cloud_provider, service_base_name,
-             tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path=''):
+def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, keystore_passwd, cloud_provider,
+             service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path=''):
     try:
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_dlab_path'])):
+            java_path = sudo("alternatives --list | grep jre_openjdk | awk '{print $3}'")
             supervisor_conf = '/etc/supervisord.d/supervisor_svc.ini'
-            local('sed -i "s|PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
+            local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
+            local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
+            local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
@@ -172,26 +176,17 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
             sudo('mv /tmp/supervisor_svc.ini ' + os.environ['ssn_dlab_path'] + 'tmp/')
             sudo('cp ' + os.environ['ssn_dlab_path'] + 'tmp/proxy_location_webapp_template.conf /etc/nginx/locations/proxy_location_webapp.conf')
             sudo('cp ' + os.environ['ssn_dlab_path'] + 'tmp/supervisor_svc.ini {}'.format(supervisor_conf))
-
             sudo('sed -i \'s=WEB_APP_DIR={}=\' {}'.format(web_path, supervisor_conf))
-
-            sudo('mkdir -p /var/log/application')
-            sudo('mkdir -p ' + web_path)
-            sudo('mkdir -p ' + web_path + 'provisioning-service/')
-            sudo('mkdir -p ' + web_path + 'billing/')
-            sudo('mkdir -p ' + web_path + 'security-service/')
-            sudo('mkdir -p ' + web_path + 'self-service/')
-            sudo('chown -R {0}:{0} {1}'.format(os_user, web_path))
             try:
-                local('scp -r -i {} /root/web_app/self-service/*.jar {}:'.format(keyfile, host_string) + web_path + 'self-service/')
-                local('scp -r -i {} /root/web_app/security-service/*.jar {}:'.format(keyfile, host_string) + web_path + 'security-service/')
-                local('scp -r -i {} /root/web_app/provisioning-service/*.jar {}:'.format(keyfile, host_string) + web_path + 'provisioning-service/')
-                local('scp -r -i {} /root/web_app/billing/*.jar {}:'.format(keyfile, host_string) + web_path + 'billing/')
+                sudo('mkdir -p /var/log/application')
                 run('mkdir -p /tmp/yml_tmp/')
-                local('scp -r -i {} /root/web_app/self-service/*.yml {}:'.format(keyfile, host_string) + '/tmp/yml_tmp/')
-                local('scp -r -i {} /root/web_app/security-service/*.yml {}:'.format(keyfile, host_string) + '/tmp/yml_tmp/')
-                local('scp -r -i {} /root/web_app/provisioning-service/*.yml {}:'.format(keyfile, host_string) + '/tmp/yml_tmp/')
-                local('scp -r -i {} /root/web_app/billing/*.yml {}:'.format(keyfile, host_string) + '/tmp/yml_tmp/')
+                for service in ['self-service', 'security-service', 'provisioning-service', 'billing']:
+                    sudo('mkdir -p {0}{1}/'.format(web_path, service))
+                    sudo('chown -R {0}:{0} {1}{2}'.format(os_user, web_path, service))
+                    local('scp -r -i {0} /root/web_app/{3}/*.jar {1}:{2}{3}/'.format(keyfile, host_string, web_path, service))
+                    jar = sudo('cd {0}{1}; find {1}*.jar -type f'.format(web_path, service))
+                    sudo('ln -s {0}{2}/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
+                    local('scp -r -i {0} /root/web_app/{2}/*.yml {1}:/tmp/yml_tmp/'.format(keyfile, host_string, service))
                 sudo('mv /tmp/yml_tmp/* ' + os.environ['ssn_dlab_path'] + 'conf/')
                 sudo('rmdir /tmp/yml_tmp/')
             except Exception as err:
@@ -205,11 +200,19 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                 sudo('python /tmp/configure_billing.py --cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {}'.
                      format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
                             mongo_passwd, dlab_path))
+            try:
+                sudo('keytool -genkeypair -alias dlab -keyalg RSA -storepass {1} -keypass {1} \
+                     -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd))
+                sudo('keytool -exportcert -alias dlab -storepass {1} -file /home/{0}/keys/dlab.crt \
+                     -keystore /home/{0}/keys/dlab.keystore.jks'.format(os_user, keystore_passwd))
+                sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/dlab.crt -noprompt \
+                     -storepass changeit -keystore {1}/lib/security/cacerts'.format(os_user, java_path))
+            except:
+                append_result("Unable to generate cert and copy to java keystore")
+                sys.exit(1)
             sudo('systemctl restart supervisord')
             sudo('service nginx restart')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/ss_started')
         return True
     except:
         return False
-
-

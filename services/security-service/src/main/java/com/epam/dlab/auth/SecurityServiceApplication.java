@@ -18,6 +18,9 @@ limitations under the License.
 
 package com.epam.dlab.auth;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.epam.dlab.auth.resources.LdapAuthenticationService;
 import com.epam.dlab.utils.ServiceUtils;
 
@@ -26,25 +29,17 @@ import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfigurat
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class SecurityServiceApplication extends Application<SecurityServiceConfiguration> {
 
 	private final static Logger LOG = LoggerFactory.getLogger(SecurityServiceApplication.class);
 	
 	public static void main(String[] args) throws Exception {
-		
-		String[] params = null;
-		
-		if(args.length != 0 ) {
-			params = args;
-		} else {
-			params = new String[] { "server", "security.yml" };
+		if (ServiceUtils.printAppVersion(SecurityServiceApplication.class, args)) {
+			return;
 		}
-		LOG.debug("Starting Security Service Application with params: {}",String.join(",", params));
-		new SecurityServiceApplication().run(params);
+		LOG.debug("Starting Security Service Application with params: {}", String.join(",", args));
+		new SecurityServiceApplication().run(args);
 	}
 
 	@Override

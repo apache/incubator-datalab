@@ -88,7 +88,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        instance_hostname = get_instance_hostname(instance_name)
+        instance_hostname = get_instance_hostname(tag_name, instance_name)
 
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
@@ -233,8 +233,10 @@ if __name__ == "__main__":
         print "SSN AMI name: " + ssn_ami_name
         print "SSN bucket name: " + user_bucket_name
         print "Region: " + region
-        jenkins_url = "http://{}/jenkins".format(get_instance_hostname(instance_name))
+        jenkins_url = "http://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
+        jenkins_url_https = "https://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
         print "Jenkins URL: " + jenkins_url
+        print "Jenkins URL HTTPS: " + jenkins_url_https
         try:
             with open('jenkins_crids.txt') as f:
                 print f.read()
@@ -244,7 +246,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as f:
             res = {"service_base_name": service_base_name,
                    "instance_name": instance_name,
-                   "instance_hostname": get_instance_hostname(instance_name),
+                   "instance_hostname": get_instance_hostname(tag_name, instance_name),
                    "role_name": role_name,
                    "role_profile_name": role_profile_name,
                    "policy_name": policy_name,
