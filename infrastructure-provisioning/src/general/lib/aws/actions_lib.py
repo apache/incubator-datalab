@@ -951,7 +951,11 @@ def get_files(s3client, s3resource, dist, bucket, local):
 
 
 def get_cluster_python_version(region, bucket, user_name, cluster_name):
-    s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=region)
+    if region == 'cn-north-1':
+        s3_client = boto3.client('s3', config=Config(signature_version='s3v4'),
+                                 endpoint_url='https://s3.cn-north-1.amazonaws.com.cn', region_name=region)
+    else:
+        s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=region)
     s3_client.download_file(bucket, user_name + '/' + cluster_name + '/python_version', '/tmp/python_version')
 
 
