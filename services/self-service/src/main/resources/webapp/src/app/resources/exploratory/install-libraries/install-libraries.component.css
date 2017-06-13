@@ -60,6 +60,7 @@ limitations under the License.
     width: 100%;
     margin-top: 10px;
     margin-bottom: 25px;
+    font-family: 'Open Sans', sans-serif;
 }
 
 .suggestions {
@@ -71,6 +72,7 @@ limitations under the License.
     padding: 0 10px;
     font-size: 13px;
     font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
 }
 .suggestions li {
     position: relative;
@@ -88,6 +90,7 @@ limitations under the License.
 }
 .suggestions strong {
     position: absolute;
+    top: 5px;
     right: 5px;
     width: 48px;
     text-align: center;
@@ -114,6 +117,7 @@ limitations under the License.
 }
 .list-selected {
     padding: 15px;
+    font-family: 'Open Sans', sans-serif;
 }
 .list-selected h4 {
     margin-bottom: 20px;
@@ -151,12 +155,21 @@ limitations under the License.
     text-align: center;
     position: relative;
 }
+.lib-status .reinstall {
+    border: none;
+    background: none;
+    outline: none;
+}
 .lib-status .reinstall,
 .lib-status .lib-error {
     position: absolute;
     top: 0;
     right: 15px;
     cursor: pointer;
+}
+.reinstall-all {
+    text-align: right;
+    margin: 10px 30px;
 }
 .lib-status .lib-error {
     right: -10px;

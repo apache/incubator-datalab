@@ -28,6 +28,7 @@ import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.push;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.bson.Document;
@@ -73,10 +74,12 @@ public class ExploratoryLibDAO extends BaseDAO {
      * @param user user name.
      * @param exploratoryName the name of exploratory.
      */
-    public Iterable<Document> findLibraries(String user, String exploratoryName) {
-    	return find(USER_INSTANCES,
-    			exploratoryCondition(user, exploratoryName),
-    			LIB_FIELDS);
+    @SuppressWarnings("unchecked")
+	public Iterable<Document> findLibraries(String user, String exploratoryName) {
+    	Optional<Document> opt = findOne(USER_INSTANCES,
+        								exploratoryCondition(user, exploratoryName));
+    	Object libs = (opt.isPresent() ? opt.get().get(EXPLORATORY_LIBS) : null);
+    	return (libs == null ? null : (List<Document>)libs);
     }
 
     /** Finds and returns the info about library.

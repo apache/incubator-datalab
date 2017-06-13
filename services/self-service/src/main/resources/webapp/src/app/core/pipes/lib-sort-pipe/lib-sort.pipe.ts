@@ -16,6 +16,19 @@ limitations under the License.
 
 ****************************************************************************/
 
-export * from './keys-pipe';
-export * from './underscoreless-pipe';
-export * from './lib-sort-pipe';
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({name: 'libStatusSort', pure: false})
+
+export class LibSortPipe {
+  transform(array: Array<Object>): Array<Object> {
+    const order = ['installing', 'installed', 'failed'];
+    array.sort((arg1:any, arg2:any) => {
+      if (arg1.status !== arg2.status) 
+        return order.indexOf(arg1.status) - order.indexOf(arg2.status);
+      else 
+        return arg1.name !== arg2.name ? arg1.name < arg2.name ? -1 : 1 : 0;
+    });
+    return array;
+  }
+}

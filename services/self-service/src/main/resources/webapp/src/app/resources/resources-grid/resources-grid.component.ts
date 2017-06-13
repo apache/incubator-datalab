@@ -271,6 +271,6 @@ export class ResourcesGridComponent implements OnInit {
 
   dropdownPosition($event): void {
     const contentHeight = document.body.offsetHeight > window.outerHeight ? document.body.offsetHeight : window.outerHeight;
-    this.isOutscreenDropdown = $event.pageY + 215 > contentHeight ? true : false;
+    this.isOutscreenDropdown = $event.pageY + 285 > contentHeight ? true : false;
   }
 }

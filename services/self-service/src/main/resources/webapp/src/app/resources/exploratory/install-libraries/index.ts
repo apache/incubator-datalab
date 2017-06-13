@@ -22,7 +22,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '@angular/material';
 
 import { ModalModule } from '../../../shared';
-import { KeysPipeModule, UnderscorelessPipeModule } from '../../../core/pipes';
+import { KeysPipeModule, UnderscorelessPipeModule, LibSortPipeModule } from '../../../core/pipes';
 import { InstallLibrariesComponent } from './install-libraries.component';
 
 export * from './install-libraries.component';
@@ -35,6 +35,7 @@ export * from './install-libraries.model';
     ReactiveFormsModule,
     ModalModule,
     KeysPipeModule,
+    LibSortPipeModule,
     MaterialModule.forRoot()
   ],
   declarations: [InstallLibrariesComponent],
