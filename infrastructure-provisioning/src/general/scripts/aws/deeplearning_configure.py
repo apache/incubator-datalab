@@ -58,7 +58,7 @@ if __name__ == "__main__":
     notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-SG"
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-    notebook_config['os_user'] = 'ubuntu'
+    notebook_config['os_user'] = os.environ['conf_os_user']
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
@@ -100,14 +100,30 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
+    # updating repositories & installing python packages
+    try:
+        logging.info('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
+        print('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
+        params = "--hostname {} --keyfile {} --user {}".format(instance_hostname, keyfile_name,
+                                                               os.environ['conf_os_user'])
+        try:
+            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed installing apps: apt & pip.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     try:
         logging.info('[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]')
         print '[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]'
-        params = "--hostname {} --keyfile {} --os_user {} --jupyter_version {} --scala_version {} --spark_version {} --hadoop_version {} --region {}" \
+        params = "--hostname {} --keyfile {} --os_user {} --jupyter_version {} --scala_version {} --spark_version {} --hadoop_version {} --region {} --tensorflow_version {}" \
                  .format(instance_hostname, keyfile_name, notebook_config['os_user'],
                          os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                          os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
-                         os.environ['aws_region'])
+                         os.environ['aws_region'], os.environ['notebook_tensorflow_version'])
         try:
             local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))
         except:
@@ -118,22 +134,20 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-
-    # try:
-    #     print '[CREATING AMI]'
-    #     logging.info('[CREATING AMI]')
-    #     ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
-    #     if ami_id == '':
-    #         print "Looks like it's first time we configure notebook server. Creating image."
-    # image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
-    #                                      instance_name=notebook_config['instance_name'],
-    #                                      image_name=notebook_config['expected_ami_name'])
-    #         if image_id != '':
-    #             print "Image was successfully created. It's ID is " + image_id
-    # except Exception as err:
-    #     append_result("Failed installing users key.", str(err))
-    #     remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
-    #     sys.exit(1)
+    try:
+        print '[CREATING AMI]'
+        logging.info('[CREATING AMI]')
+        ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
+        if ami_id == '':
+            print "Looks like it's first time we configure notebook server. Creating image."
+            image_id = create_image_from_instance(instance_name=notebook_config['instance_name'],
+                                                  image_name=notebook_config['expected_ami_name'])
+            if image_id != '':
+                print "Image was successfully created. It's ID is " + image_id
+    except Exception as err:
+        append_result("Failed installing users key.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
 
     # generating output information
     ip_address = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')

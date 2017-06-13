@@ -61,6 +61,6 @@ if __name__ == "__main__":
             jars(args, emr_dir)
         yarn(args, yarn_dir)
         install_emr_spark(args)
-        pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket, args.user_name, args.region)
+        pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket, args.user_name, args.region, args.os_user)
         spark_defaults(args)
         configuring_notebook(args.emr_version)
