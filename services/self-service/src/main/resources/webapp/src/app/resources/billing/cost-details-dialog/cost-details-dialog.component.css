@@ -40,3 +40,36 @@ limitations under the License.
   font-size: 20px;
   font-weight: 600;
 }
+
+.list-header {
+  border-top: 1px solid #edf1f5;
+  border-bottom: 1px solid #edf1f5;
+  color: #577289;
+  width: 100%;
+}
+.list-header div {
+  font-weight: 600;
+}
+.scrolling-content {
+  max-height: 275px;
+  overflow-y: auto;
+}
+.billing-detail .service {
+  width: 30%;
+}
+.billing-detail .resource-type,
+.billing-detail .cost-currency {
+  width: 12%;
+}
+.billing-detail .resource-name,
+.billing-detail .usage-date-start,
+.billing-detail .usage-date-end {
+  width: 15%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.mat-list-item-content {
+    font-size: 15px !important;
+}
