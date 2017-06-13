@@ -258,10 +258,14 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_iam_role(role_name, role_profile, service='ec2'):
+def create_iam_role(role_name, role_profile, region, service='ec2'):
     conn = boto3.client('iam')
     try:
-        conn.create_role(RoleName=role_name, AssumeRolePolicyDocument='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service + '.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
+        if region == 'cn-north-1':
+            conn.create_role(RoleName=role_name,
+                             AssumeRolePolicyDocument='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service + '.amazonaws.com.cn"]},"Action":["sts:AssumeRole"]}]}')
+        else:
+            conn.create_role(RoleName=role_name, AssumeRolePolicyDocument='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service + '.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
             print "IAM role already exists. Reusing..."
@@ -930,8 +934,14 @@ def jars(args, emr_dir):
 
 def yarn(args, yarn_dir):
     print "Downloading yarn configuration..."
-    s3client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
-    s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'))
+    if args.region == 'cn-north-1':
+        s3client = boto3.client('s3', config=Config(signature_version='s3v4'),
+                                endpoint_url='https://s3.cn-north-1.amazonaws.com.cn', region_name=args.region)
+        s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'),
+                                    endpoint_url='https://s3.cn-north-1.amazonaws.com.cn', region_name=args.region)
+    else:
+        s3client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
+        s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'))
     get_files(s3client, s3resource, args.user_name + '/' + args.cluster_name + '/config/', args.bucket, yarn_dir)
     local('sudo mv ' + yarn_dir + args.user_name + '/' + args.cluster_name + '/config/* ' + yarn_dir)
     local('sudo rm -rf ' + yarn_dir + args.user_name + '/')

@@ -63,22 +63,26 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             sys.exit(1)
 
 
-def ensure_r(os_user, r_libs):
+def ensure_r(os_user, r_libs, region, r_mirror):
     if not exists('/home/' + os_user + '/.ensure_dir/r_ensured'):
         try:
+            if region == 'cn-north-1':
+                r_repository = r_mirror
+            else:
+                r_repository = 'http://cran.us.r-project.org'
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
             sudo('apt-get install -y cmake')
             sudo('apt-get install -y r-base r-base-dev')
             sudo('R CMD javareconf')
             sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
             for i in r_libs:
-                sudo('R -e "install.packages(\'{}\',repos=\'http://cran.us.r-project.org\')"'.format(i))
-            sudo('R -e "library(\'devtools\');install.packages(repos=\'http://cran.us.r-project.org\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"')
+                sudo('R -e "install.packages(\'{}\',repos=\'{}\')"'.format(i, r_repository))
+            sudo('R -e "library(\'devtools\');install.packages(repos=\'{}\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"'.format(r_repository))
             try:
                 sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
             except:
                 sudo('R -e "options(download.file.method = "wget");library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
-            sudo('R -e "install.packages(\'RJDBC\',repos=\'http://cran.us.r-project.org\',dep=TRUE)"')
+            sudo('R -e "install.packages(\'RJDBC\',repos=\'{}\',dep=TRUE)"'.format(r_repository))
             sudo('touch /home/' + os_user + '/.ensure_dir/r_ensured')
         except:
             sys.exit(1)
@@ -194,7 +198,10 @@ def ensure_python2_libraries(os_user):
             except:
                 sudo('pip2 install virtualenv --no-cache-dir')
                 sudo('apt-get install -y libssl-dev')
-            sudo('pip2 install ipython ipykernel --no-cache-dir')
+            try:
+                sudo('pip2 install ipython ipykernel --no-cache-dir')
+            except:
+                sudo('pip2 install ipython==5.0.0 ipykernel --no-cache-dir')
             sudo('pip2 install -U pip --no-cache-dir')
             sudo('pip2 install boto3 --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv --no-cache-dir')
@@ -208,7 +215,10 @@ def ensure_python3_libraries(os_user):
         try:
             sudo('apt-get install python3-setuptools')
             sudo('apt install -y python3-pip')
-            sudo('pip3 install ipython ipykernel --no-cache-dir')
+            try:
+                sudo('pip3 install ipython ipykernel --no-cache-dir')
+            except:
+                sudo('pip3 install ipython==5.0.0 ipykernel --no-cache-dir')
             sudo('pip3 install -U pip --no-cache-dir')
             sudo('pip3 install boto3 --no-cache-dir')
             sudo('pip3 install fabvenv fabric-virtualenv --no-cache-dir')

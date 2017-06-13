@@ -69,6 +69,8 @@ args = parser.parse_args()
 
 if args.region == 'us-east-1':
     endpoint_url = 'https://s3.amazonaws.com'
+elif args.region == 'cn-north-1':
+    endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
 else:
     endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
 
@@ -303,12 +305,12 @@ if __name__ == "__main__":
     else:
         if not get_role_by_name(args.service_role):
             print "There is no default EMR service role. Creating..."
-            create_iam_role(args.service_role, args.service_role, service='elasticmapreduce')
+            create_iam_role(args.service_role, args.service_role, args.region, service='elasticmapreduce')
             attach_policy(args.service_role,
                           policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole')
         if not get_role_by_name(args.ec2_role):
             print "There is no default EMR EC2 role. Creating..."
-            create_iam_role(args.ec2_role, args.ec2_role)
+            create_iam_role(args.ec2_role, args.ec2_role, args.region)
             attach_policy(args.ec2_role,
                           policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role')
         upload_jars_parser(args)

@@ -37,6 +37,7 @@ parser.add_argument('--tensorflow_version', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
+parser.add_argument('--r_mirror', type=str, default='')
 args = parser.parse_args()
 
 
@@ -45,7 +46,11 @@ templates_dir = '/root/templates/'
 scala_link = "http://www.scala-lang.org/files/archive/"
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
+if args.region == 'cn-north-1':
+    spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
+                 "-bin-hadoop" + hadoop_version + ".tgz"
+else:
+    spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
 local_spark_path = '/opt/spark/'
 s3_jars_dir = '/opt/jars/'
 files_dir = '/root/files/'
@@ -121,7 +126,7 @@ if __name__ == "__main__":
     ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
 
     print "Installing R"
-    ensure_r(args.os_user, r_libs)
+    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
     print "Install R kernel for Jupyter"
     ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)

@@ -25,11 +25,14 @@ from dlab.meta_lib import *
 import os
 
 
-def ensure_docker_daemon(dlab_path, os_user):
+def ensure_docker_daemon(dlab_path, os_user, region):
     try:
         if not exists('{}tmp/docker_daemon_ensured'.format(dlab_path)):
             sudo('yum update-minimal --security -y')
-            sudo('curl -fsSL https://get.docker.com/ | sh')
+            if region == 'cn-north-1':
+                sudo('curl -sSL https://get.daocloud.io/docker | sh')
+            else:
+                sudo('curl -fsSL https://get.docker.com/ | sh')
             sudo('usermod -aG docker {}'.format(os_user))
             sudo('systemctl enable docker.service')
             sudo('systemctl start docker')

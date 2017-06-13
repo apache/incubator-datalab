@@ -131,6 +131,8 @@ def ensure_local_jars(os_user, s3_jars_dir, files_dir, region, templates_dir):
         try:
             if region == 'us-east-1':
                 endpoint_url = 'https://s3.amazonaws.com'
+            elif region == 'cn-north-1':
+                endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
             else:
                 endpoint_url = 'https://s3-' + region + '.amazonaws.com'
             sudo('mkdir -p ' + s3_jars_dir)
@@ -184,6 +186,8 @@ def spark_defaults(args):
         f.write(text)
     if args.region == 'us-east-1':
         endpoint_url = 'https://s3.amazonaws.com'
+    elif args.region == 'cn-north-1':
+        endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
     else:
         endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
     local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> """ + spark_def_path + """'""")
@@ -308,7 +312,7 @@ def ensure_ciphers():
         sudo('service sshd restart')
 
 
-def installing_python(region, bucket, user_name, cluster_name, application=''):
+def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror=''):
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
@@ -323,27 +327,59 @@ def installing_python(region, bucket, user_name, cluster_name, application=''):
             local('sudo make altinstall')
         with lcd('/tmp/'):
             local('sudo rm -rf Python-' + python_version + '/')
+        if region == 'cn-north-1':
+            local('sudo -i /opt/python/python{}/bin/python{} -m pip install -U pip --no-cache-dir'.format(
+                python_version, python_version[0:3]))
+            local('sudo mv /etc/pip.conf /etc/back_pip.conf')
+            local('sudo touch /etc/pip.conf')
+            local('sudo echo "[global]" >> /etc/pip.conf')
+            local('sudo echo "timeout = 600" >> /etc/pip.conf')
         local('sudo -i virtualenv /opt/python/python' + python_version)
         venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
         pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
-        local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
-        local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
-        local(venv_command + ' && sudo -i ' + pip_command +
-              ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
-        if application == 'deeplearning':
+        if region == 'cn-north-1':
+            try:
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 600 -U pip --no-cache-dir'.format(pip_mirror))
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 600 ipython ipykernel --no-cache-dir'.
+                      format(pip_mirror))
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 600 boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
+                      format(pip_mirror))
+                if application == 'deeplearning':
+                    local(venv_command + ' && sudo -i ' + pip_command +
+                          ' install -i https://{0}/simple --trusted-host {0} --timeout 600 mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(pip_mirror))
+                    python_without_dots = python_version.replace('.', '')
+                    local(venv_command + ' && sudo -i ' + pip_command +
+                          ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
+                          format(python_without_dots[:2]))
+                local('sudo rm /etc/pip.conf')
+                local('sudo mv /etc/back_pip.conf /etc/pip.conf')
+            except:
+                local('sudo rm /etc/pip.conf')
+                local('sudo mv /etc/back_pip.conf /etc/pip.conf')
+                local('sudo rm -rf /opt/python/python{}/'.format(python_version))
+                sys.exit(1)
+        else:
+            local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
+            local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command +
-                  ' install mxnet-cu80 opencv-python keras Theano --no-cache-dir')
-            python_without_dots = python_version.replace('.', '')
-            local(venv_command + ' && sudo -i ' + pip_command +
-                  ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
-                  format(python_without_dots[:2]))
+                  ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
+            if application == 'deeplearning':
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install mxnet-cu80 opencv-python keras Theano --no-cache-dir')
+                python_without_dots = python_version.replace('.', '')
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
+                      format(python_without_dots[:2]))
         local('sudo rm -rf /usr/bin/python' + python_version[0:3])
         local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
               ' /usr/bin/python' + python_version[0:3])
 
 
-def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user,
-                   application=''):
+def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user='',
+                   application='', pip_mirror=''):
     spark_path = '/opt/' + emr_version + '/' + cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
     kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
@@ -368,7 +404,7 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         python_version = f.read()
     # python_version = python_version[0:3]
     if python_version != '\n':
-        installing_python(region, bucket, user_name, cluster_name, application)
+        installing_python(region, bucket, user_name, cluster_name, application, pip_mirror)
         local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
         kernel_path = kernels_dir + "py3spark_" + cluster_name + "/kernel.json"
         template_file = "/tmp/pyspark_emr_template.json"
