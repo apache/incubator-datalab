@@ -257,7 +257,7 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64\"" >> ~/.bash_profile')
+            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl')
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl')
@@ -360,3 +360,118 @@ def get_available_os_pkgs():
         return os_pkgs
     except:
         sys.exit(1)
+
+
+def install_opencv(os_user):
+    if not exists('/home/{}/.ensure_dir/opencv_ensured'.format(os_user)):
+        sudo('yum install -y cmake python3 python3-devel python3-numpy gcc gcc-c++')
+        sudo('pip2 install numpy --no-cache-dir')
+        sudo('pip3.5 install numpy --no-cache-dir')
+        run('git clone https://github.com/opencv/opencv.git')
+        with cd('/home/{}/opencv/'.format(os_user)):
+            run('git checkout 3.2.0')
+            run('mkdir release')
+        with cd('/home/{}/opencv/release/'.format(os_user)):
+            run('cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python2 -c "import sys; print(sys.prefix)") -D PYTHON_EXECUTABLE=$(which python2) ..')
+            run('make -j4')
+            sudo('make install')
+        sudo('touch /home/' + os_user + '/.ensure_dir/opencv_ensured')
+
+
+def install_caffe(os_user):
+    if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
+        env.shell = "/bin/bash -l -c -i"
+        install_opencv(os_user)
+        sudo('yum install -y protobuf-devel leveldb-devel snappy-devel opencv-devel boost-devel hdf5-devel gcc gcc-c++')
+        sudo('yum install -y gflags-devel glog-devel lmdb-devel')
+        sudo('yum install -y openblas-devel gflags-devel glog-devel lmdb-devel')
+        sudo('yum install -y http://mirror.centos.org/centos/7/os/x86_64/Packages/snappy-devel-1.1.0-3.el7.x86_64.rpm')
+        sudo('git clone https://github.com/BVLC/caffe.git')
+        with cd('/home/{}/caffe/'.format(os_user)):
+            sudo('pip2 install -r python/requirements.txt --no-cache-dir')
+            sudo('pip3.5 install -r python/requirements.txt --no-cache-dir')
+            sudo('cp Makefile.config.example Makefile.config')
+            sudo('sed -i \'/^PYTHON_INCLUDE \:=/d\' Makefile.config')
+            sudo('sed -i \'/\/usr\/lib\/python2.7\/dist-packages\/numpy\/core\/include/d\' Makefile.config')
+            sudo('echo "PYTHON_INCLUDE := /usr/include/python2.7 /usr/lib64/python2.7/site-packages/numpy/core/include" >> Makefile.config')
+            sudo('sed -i \'/BLAS \:=/d\' Makefile.config')
+            sudo('echo "BLAS := open" >> Makefile.config')
+            sudo('echo "BLAS_INCLUDE := /usr/include/openblas" >> Makefile.config')
+            sudo('echo "OPENCV_VERSION := 3" >> Makefile.config')
+            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" '
+                 '>> Makefile.config')
+            sudo('sed -i \'/INCLUDE_DIRS \:=/s/$/ \/usr \/usr\/lib64 \/usr\/include\/python2.7 \/usr\/lib64\/python2.7\/site-packages\/numpy\/core\/include /g\' Makefile.config')
+            sudo('sed -i \'/LIBRARY_DIRS \:=/s/$/ \/usr \/usr\/lib64/g\' Makefile.config')
+            sudo('make all')
+            sudo('make test')
+            sudo('make runtest')
+            sudo('make pycaffe')
+        sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
+
+
+def install_caffe2(os_user):
+    if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
+        env.shell = "/bin/bash -l -c -i"
+        sudo('yum update -y')
+        sudo('yum install -y automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel '
+             'python-devel snappy-devel')
+        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
+             'requests scikit-image scipy setuptools tornado future --no-cache-dir')
+        sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
+             'requests scikit-image scipy setuptools tornado future --no-cache-dir')
+        sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
+        sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
+        sudo('git clone --recursive https://github.com/caffe2/caffe2')
+        with cd('/home/{}/caffe2/'.format(os_user)):
+            sudo('mkdir build')
+        with cd('/home/{}/caffe2/build/'.format(os_user)):
+            sudo('cmake3 ..')
+            sudo('make -j8 install')
+        sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
+
+
+def install_cntk(os_user):
+    if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
+        sudo('yum install -y openmpi openmpi-devel')
+        sudo('sed -i "s/LD_LIBRARY_PATH:/LD_LIBRARY_PATH:\/usr\/lib64\/openmpi\/lib:/g" /etc/systemd/system/jupyter-notebook.service')
+        sudo('systemctl daemon-reload')
+        sudo('systemctl restart jupyter-notebook')
+        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl --no-cache-dir')
+        sudo('pip3.5 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
+        sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
+
+
+def install_keras(os_user):
+    if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
+        sudo('pip2 install keras --no-cache-dir')
+        sudo('pip3.5 install keras --no-cache-dir')
+        sudo('pip2 uninstall -y ipython')
+        sudo('pip2 uninstall -y ipython')
+        sudo('pip2 install ipython --no-cache-dir')
+        sudo('pip2 uninstall -y matplotlib')
+        sudo('pip2 uninstall -y matplotlib')
+        sudo('pip2 install matplotlib --no-cache-dir')
+        sudo('pip2 uninstall -y numpy')
+        sudo('pip2 uninstall -y numpy ')
+        sudo('pip2 install numpy --no-cache-dir')
+        sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
+
+
+def install_mxnet(os_user):
+    if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
+        sudo('yum install -y graphviz')
+        sudo('pip2 install mxnet-cu80 opencv-python --no-cache-dir')
+        sudo('pip3.5 install mxnet-cu80 opencv-python --no-cache-dir')
+        sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
+
+
+def install_torch(os_user):
+    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
+        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
+        with cd('/home/{}/torch/'.format(os_user)):
+            sudo('yum install -y --nogpgcheck cmake curl readline-devel ncurses-devel gcc-c++ gcc-gfortran git '
+                 'gnuplot unzip libjpeg-turbo-devel libpng-devel ImageMagick GraphicsMagick-devel fftw-devel '
+                 'sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld ipython qt-devel')
+            run('./install.sh -b')
+        run('source /home/{}/.bashrc'.format(os_user))
+        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))

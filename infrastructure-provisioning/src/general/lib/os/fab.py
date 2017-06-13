@@ -230,8 +230,10 @@ def put_resource_status(resource, status, dlab_path, os_user):
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version):
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
-            sudo('pip install notebook=={} --no-cache-dir'.format(jupyter_version))
-            sudo('pip install jupyter --no-cache-dir')
+            sudo('pip2 install notebook=={} --no-cache-dir'.format(jupyter_version))
+            sudo('pip2 install jupyter --no-cache-dir')
+            sudo('pip3.5 install notebook=={} --no-cache-dir'.format(jupyter_version))
+            sudo('pip3.5 install jupyter --no-cache-dir')
             sudo('rm -rf ' + jupyter_conf_file)
             run('jupyter notebook --generate-config --config ' + jupyter_conf_file)
             with cd('/home/{}'.format(os_user)):
@@ -242,35 +244,26 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo('echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
             sudo('''echo "c.NotebookApp.token = u''" >> ''' + jupyter_conf_file)
             sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> ' + jupyter_conf_file)
-            if os.environ['application'] == 'deeplearning':
-                put(templates_dir + 'jupyter-notebook.conf', '/tmp/jupyter-notebook.conf')
-                sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/jupyter-notebook.conf")
-                sudo("sed -i 's|CONF_PATH|" + jupyter_conf_file + "|' /tmp/jupyter-notebook.conf")
-                sudo("chmod 644 /tmp/jupyter-notebook.conf")
-                sudo('\cp /tmp/jupyter-notebook.conf /etc/init/')
-                sudo('\cp /tmp/jupyter-notebook.conf /etc/init.d/jupyter-notebook')
-            else:
-                put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
-                sudo("chmod 644 /tmp/jupyter-notebook.service")
-                if os.environ['application'] == 'tensor':
-                    sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
-                sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
-                sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
-                sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
+            put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
+            sudo("chmod 644 /tmp/jupyter-notebook.service")
+            if os.environ['application'] == 'tensor':
+                sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
+            elif os.environ['application'] == 'deeplearning':
+                sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:"
+                     "/usr/local/cuda/lib64 ; export PYTHONPATH=/home/" + os_user + "/caffe/python:/home/" + os_user +
+                     "/caffe2/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
+            sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
+            sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
+            sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
             sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             sudo('mkdir /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             if os.environ['application'] == 'jupyter':
                 sudo('jupyter-kernelspec remove -f python2')
                 sudo('jupyter-kernelspec remove -f python3')
-            if os.environ['application'] == 'deeplearning':
-                sudo('update-rc.d jupyter-notebook defaults')
-                sudo('update-rc.d jupyter-notebook enable')
-                sudo('service jupyter-notebook start')
-            else:
-                sudo("systemctl daemon-reload")
-                sudo("systemctl enable jupyter-notebook")
-                sudo("systemctl start jupyter-notebook")
+            sudo("systemctl daemon-reload")
+            sudo("systemctl enable jupyter-notebook")
+            sudo("systemctl start jupyter-notebook")
             sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -285,6 +278,7 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
             sudo(
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/pyspark_local_template.json")
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/pyspark_local_template.json')
+            sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/caffe2/build:"|\' /tmp/pyspark_local_template.json'.format(os_user))
             sudo('\cp /tmp/pyspark_local_template.json ' + pyspark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured')
         except:
@@ -300,6 +294,7 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
             sudo(
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json")
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/py3spark_local_template.json')
+            sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/caffe2/build:"|\' /tmp/py3spark_local_template.json'.format(os_user))
             sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured')
         except:
@@ -317,7 +312,7 @@ def ensure_ciphers():
         sudo('service sshd restart')
 
 
-def installing_python(region, bucket, user_name, cluster_name, pip_mirror=''):
+def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror=''):
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
@@ -352,6 +347,13 @@ def installing_python(region, bucket, user_name, cluster_name, pip_mirror=''):
                 local(venv_command + ' && sudo -i ' + pip_command +
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 600 boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
                       format(pip_mirror))
+                if application == 'deeplearning':
+                    local(venv_command + ' && sudo -i ' + pip_command +
+                          ' install -i https://{0}/simple --trusted-host {0} --timeout 600 mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(pip_mirror))
+                    python_without_dots = python_version.replace('.', '')
+                    local(venv_command + ' && sudo -i ' + pip_command +
+                          ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
+                          format(python_without_dots[:2]))
                 local('sudo rm /etc/pip.conf')
                 local('sudo mv /etc/back_pip.conf /etc/pip.conf')
             except:
@@ -364,13 +366,20 @@ def installing_python(region, bucket, user_name, cluster_name, pip_mirror=''):
             local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command +
                   ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
+            if application == 'deeplearning':
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install mxnet-cu80 opencv-python keras Theano --no-cache-dir')
+                python_without_dots = python_version.replace('.', '')
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
+                      format(python_without_dots[:2]))
         local('sudo rm -rf /usr/bin/python' + python_version[0:3])
         local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
               ' /usr/bin/python' + python_version[0:3])
 
 
 def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user='',
-                   pip_mirror=''):
+                   application='', pip_mirror=''):
     spark_path = '/opt/' + emr_version + '/' + cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
     kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
@@ -387,19 +396,15 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
     with open(kernel_path, 'w') as f:
         f.write(text)
     local('touch /tmp/kernel_var.json')
-    local(
-        "PYJ=`find /opt/" + emr_version + "/" + cluster_name +
-        "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
-        " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
+    local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/caffe2/build:\"|\' > /tmp/kernel_var.json".
+          format(emr_version, cluster_name, kernel_path, os_user))
     local('sudo mv /tmp/kernel_var.json ' + kernel_path)
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
     # python_version = python_version[0:3]
     if python_version != '\n':
-        if not os.path.exists('/home/' + os_user + '/.ensure_dir/deep_learning'):
-            installing_python(region, bucket, user_name, cluster_name, pip_mirror)
-
+        installing_python(region, bucket, user_name, cluster_name, application, pip_mirror)
         local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
         kernel_path = kernels_dir + "py3spark_" + cluster_name + "/kernel.json"
         template_file = "/tmp/pyspark_emr_template.json"
@@ -410,19 +415,14 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('PYTHON_SHORT_VERSION', python_version[0:3])
         text = text.replace('PYTHON_FULL_VERSION', python_version[0:3])
-        if os.path.exists('/home/' + os_user + '/.ensure_dir/deep_learning'):
-            text = text.replace('PYTHON_PATH', '/usr/bin/python3.4')
-        else:
-            text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' +
-                                python_version[:3])
+        text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' +
+                            python_version[:3])
         text = text.replace('EMR_VERSION', emr_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
-        local(
-            "PYJ=`find /opt/" + emr_version + "/" + cluster_name +
-            "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
-            " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
+        local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/caffe2/build:\"|\' > /tmp/kernel_var.json".
+              format(emr_version, cluster_name, kernel_path, os_user))
         local('sudo mv /tmp/kernel_var.json ' + kernel_path)
 
 

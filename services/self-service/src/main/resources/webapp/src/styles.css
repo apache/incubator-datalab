@@ -63,6 +63,7 @@ limitations under the License.
 
 .install-libs .mat-tab-label {
     width: 50%;
+    font-family: 'Open Sans',sans-serif !important;
 }
 .install-libs .mat-ink-bar {
     background-color: #35afd5;
@@ -89,6 +90,11 @@ limitations under the License.
     font-size: 10px;
     font-weight: 300;
 }
+
+.mat-option {
+    font-family: 'Open Sans', sans-serif;
+}
+
 .mat-option.mat-selected {
     color: #35afd5;
 }
@@ -114,6 +120,8 @@ limitations under the License.
   font-weight: 400;
 }
 
+
+
 [hidden] {
   display: none !important;
 }
@@ -125,6 +133,7 @@ button {
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
+  overflow-x: hidden;
 }
 
 .primary_color {
@@ -173,7 +182,10 @@ body {
   margin-right: 15px;
   float: right;
 }
-
+.rotate {
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
 .status {
   text-transform: capitalize;
 }
@@ -328,3 +340,22 @@ input[type=number] {
 .m-top-10 { margin-top: 10px; }
 .m-top-30 { margin-top: 30px; }
 .m-bott-10 { margin-bottom: 10px; }
+
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  border-radius: 5px;
+  background-color: rgb(243, 243, 243);
+}
+
+::-webkit-scrollbar-thumb {
+  box-shadow: inset 1px 1px 6px #9a9393;
+  -webkit-box-shadow: inset 1px 1px 6px #9a9393;
+  background-color: #f6fafe;
+  border-radius: 5px;
+}

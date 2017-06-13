@@ -72,17 +72,7 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                 r_repository = 'http://cran.us.r-project.org'
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
             sudo('apt-get install -y cmake')
-            if os.environ['application'] == 'deeplearning':
-                try:
-                    sudo("""sh -c 'echo "deb http://cran.rstudio.com/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list'""")
-                    sudo('gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9')
-                    sudo('gpg -a --export E084DAB9 |  apt-key add -')
-                    sudo('apt-get update')
-                except:
-                    sudo('apt-get update')
-                sudo('apt-get -y --force-yes install r-base')
-            else:
-                sudo('apt-get install -y r-base r-base-dev')
+            sudo('apt-get install -y r-base r-base-dev')
             sudo('R CMD javareconf')
             sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
             for i in r_libs:
@@ -264,7 +254,7 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bash_profile')
+            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
             sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl --no-cache-dir')
             sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
@@ -360,3 +350,90 @@ def get_available_os_pkgs():
         return os_pkgs
     except:
         sys.exit(1)
+
+
+def install_caffe(os_user):
+    if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
+        env.shell = "/bin/bash -l -c -i"
+        sudo('apt-get install -y python-dev')
+        sudo('apt-get install -y python3-dev')
+        sudo('apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev '
+             'protobuf-compiler')
+        sudo('apt-get install -y --no-install-recommends libboost-all-dev')
+        sudo('apt-get install -y libatlas-base-dev')
+        sudo('apt-get install -y libgflags-dev libgoogle-glog-dev liblmdb-dev')
+        with cd('/usr/lib/x86_64-linux-gnu/'):
+            sudo('ln -s libhdf5_serial_hl.so.10.0.2 libhdf5_hl.so')
+            sudo('ln -s libhdf5_serial.so.10.1.0 libhdf5.so')
+        sudo('git clone https://github.com/BVLC/caffe.git')
+        with cd('/home/{}/caffe/'.format(os_user)):
+            sudo('pip2 install -r python/requirements.txt --no-cache-dir')
+            sudo('pip3 install -r python/requirements.txt --no-cache-dir')
+            sudo('cp Makefile.config.example Makefile.config')
+            sudo('sed -i "/INCLUDE_DIRS :=/d" Makefile.config')
+            sudo("echo 'INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ "
+                 "/usr/local/lib/python2.7/dist-packages/numpy/core/include/' >> Makefile.config")
+            sudo('sed -i "/LIBRARIES :=/d" Makefile.config')
+            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" '
+                 '>> Makefile.config')
+            sudo('make all')
+            sudo('make test')
+            sudo('make runtest')
+            sudo('make pycaffe')
+        sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
+
+
+def install_caffe2(os_user):
+    if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
+        env.shell = "/bin/bash -l -c -i"
+        sudo('apt-get update')
+        sudo('apt-get install -y --no-install-recommends build-essential cmake git libgoogle-glog-dev libprotobuf-dev'
+             ' protobuf-compiler python-dev python-pip')
+        sudo('pip2 install numpy protobuf --no-cache-dir')
+        sudo('pip3 install numpy protobuf --no-cache-dir')
+        sudo('CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz"; '
+             'wget ${CUDNN_URL}')
+        sudo('tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local')
+        sudo('rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig')
+        sudo('apt-get install -y --no-install-recommends libgflags-dev')
+        sudo('apt-get install -y --no-install-recommends libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
+             'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
+        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
+             'scipy setuptools tornado --no-cache-dir')
+        sudo('pip3 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
+             'scipy setuptools tornado --no-cache-dir')
+        sudo('git clone --recursive https://github.com/caffe2/caffe2.git')
+        with cd('/home/{}/caffe2/'.format(os_user)):
+            sudo('make && cd build && make install')
+        sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
+
+
+def install_cntk(os_user):
+    if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
+        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl --no-cache-dir')
+        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
+        sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
+
+
+def install_keras(os_user):
+    if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
+        sudo('pip2 install keras --no-cache-dir')
+        sudo('pip3 install keras --no-cache-dir')
+        sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
+
+
+def install_mxnet(os_user):
+    if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
+        sudo('pip2 install mxnet-cu80 opencv-python --no-cache-dir')
+        sudo('pip3 install mxnet-cu80 opencv-python --no-cache-dir')
+        sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
+
+
+def install_torch(os_user):
+    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
+        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
+        with cd('/home/{}/torch/'.format(os_user)):
+            run('bash install-deps;')
+            run('./install.sh -b')
+        run('source /home/{}/.bashrc'.format(os_user))
+        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))

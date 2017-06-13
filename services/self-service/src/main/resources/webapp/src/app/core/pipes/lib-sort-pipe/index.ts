@@ -16,6 +16,14 @@ limitations under the License.
 
 ****************************************************************************/
 
-export * from './keys-pipe';
-export * from './underscoreless-pipe';
-export * from './lib-sort-pipe';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { LibSortPipe } from './lib-sort.pipe';
+
+@NgModule({
+  imports: [CommonModule],
+  declarations: [LibSortPipe],
+  exports: [LibSortPipe]
+})
+
+export class LibSortPipeModule { }
