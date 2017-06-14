@@ -22,16 +22,19 @@ import { MaterialModule } from '@angular/material';
 
 import { ReportingComponent } from './reporting.component';
 import { NavbarModule, ModalModule } from './../shared';
+import { FormControlsModule } from './../shared/form-controls';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
+import { ToolbarComponent } from './toolbar/toolbar.component';
 
 @NgModule({
   imports: [
     CommonModule,
     ModalModule,
     NavbarModule,
+    FormControlsModule,
     MaterialModule.forRoot()
   ],
-  declarations: [ReportingComponent, ReportingGridComponent],
+  declarations: [ReportingComponent, ReportingGridComponent, ToolbarComponent],
   exports: [ReportingComponent]
 })
 export class ReportingModule { }

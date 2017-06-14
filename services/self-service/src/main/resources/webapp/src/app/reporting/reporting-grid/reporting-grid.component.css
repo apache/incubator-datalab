@@ -15,3 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ****************************************************************************/
+
+.dashboard_table.reporting tr td{
+    font-size: 11px;
+}
+.reporting .filter-row .filter-field,
+.reporting .dropdown-multiselect  button.dropdown-toggle.btn {
+    font-size: 13px;
+}
+.th_user {
+    width: 15%;
+}
+.th_env_name, .th_service {
+    width: 18%;
+}
+.th_type {
+    width: 12%;
+}

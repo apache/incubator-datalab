@@ -16,15 +16,23 @@ limitations under the License.
 
 ****************************************************************************/
 
-footer {
-    position: fixed;
-    left: 0px;
-    bottom: 0px;
-    height: 30px;
-    width: 100%;
-    background: #f9fafb;
-    color: #36b1d8;
-    text-align: right;
-    padding: 30px 40px;
-    font-size: 20px;
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Subject } from 'rxjs/Subject';
+ 
+@Injectable()
+export class BillingReportService {
+    private subject = new Subject<any>();
+ 
+    sendMessage(message: string) {
+        this.subject.next({ text: message });
+    }
+ 
+    clearMessage() {
+        this.subject.next();
+    }
+ 
+    getMessage(): Observable<any> {
+        return this.subject.asObservable();
+    }
 }

@@ -20,14 +20,33 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'dlab-reporting',
-  templateUrl: './reporting.component.html',
-  styleUrls: ['./reporting.component.css']
+  template: `
+  <dlab-navbar></dlab-navbar>
+  <dlab-toolbar></dlab-toolbar>
+  <dlab-reporting-grid></dlab-reporting-grid>
+  <footer>
+    Total price *** $
+  </footer>
+  `,
+  styles: [`
+    footer {
+      position: fixed;
+      left: 0px;
+      bottom: 0px;
+      height: 30px;
+      width: 100%;
+      background: #f9fafb;
+      color: #36b1d8;
+      text-align: right;
+      padding: 30px 40px;
+      font-size: 20px;
+    }
+  `]
 })
 export class ReportingComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
 }
