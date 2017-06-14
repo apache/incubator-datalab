@@ -153,3 +153,7 @@ if __name__ == "__main__":
     elif args.action == 'lib_list':
         with hide('running'):
             local("/bin/list_libs.py")
+
+    elif args.action == 'git_creds':
+        with hide('running'):
+            local("/bin/git_creds.py")
