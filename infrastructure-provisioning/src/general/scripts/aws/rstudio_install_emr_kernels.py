@@ -38,6 +38,7 @@ parser.add_argument('--edge_user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--edge_hostname', type=str, default='')
 parser.add_argument('--proxy_port', type=str, default='')
+parser.add_argument('--pip_mirror', type=str, default='')
 args = parser.parse_args()
 
 

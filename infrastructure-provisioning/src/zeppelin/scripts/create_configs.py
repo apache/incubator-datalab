@@ -49,6 +49,7 @@ parser.add_argument('--edge_hostname', type=str, default='')
 parser.add_argument('--proxy_port', type=str, default='')
 parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_emrs', type=str, default='')
+parser.add_argument('--pip_mirror', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
@@ -57,6 +58,8 @@ spark_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/'
 yarn_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/conf/'
 if args.region == 'us-east-1':
     endpoint_url = 'https://s3.amazonaws.com'
+elif args.region == 'cn-north-1':
+    endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
 else:
     endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
 
@@ -91,6 +94,6 @@ if __name__ == "__main__":
         configuring_notebook(args.emr_version)
         if args.multiple_emrs == 'true':
             install_remote_livy(args)
-        installing_python(args.region, args.bucket, args.user_name, args.cluster_name)
+        installing_python(args.region, args.bucket, args.user_name, args.cluster_name, args.pip_mirror)
         configure_zeppelin_emr_interpreter(args.emr_version, args.cluster_name, args.region, spark_dir, args.os_user,
                                            yarn_dir, args.bucket, args.user_name, endpoint_url, args.multiple_emrs)

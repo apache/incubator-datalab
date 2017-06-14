@@ -19,21 +19,24 @@ limitations under the License.
 <dlab-navbar></dlab-navbar>
 
 <section class="guide-wrapper">
-  <h3>Generating SSH key pair on Microsoft Windows</h3>
-  <p>You can use <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html" target="_blank">PuTTY</a> to generate your SSH key. PuTTY is a free open-source terminal emulator that functions much like the Terminal application in Mac OS X in a Windows environment.</p>
+  <h2>Generating SSH key pair on different operation systems</h2>
 
   <ul>
+    <h3>Generating SSH key pair on Microsoft Windows</h3>
+    <p>You can use <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html" target="_blank">PuTTY</a> to generate your SSH key. PuTTY is a free open-source terminal emulator that functions much like the Terminal application in Mac OS X in a Windows environment.</p>
     <li>Please download PuTTYgen program by using <a href="https://the.earth.li/~sgtatham/putty/latest/x86/puttygen.exe">this link</a>.</li>
     <li>Open the PuTTYgen program.</li>
     <li>For Type of key to generate, select SSH-2 RSA.</li>
     <li>Click the Generate button.</li>
     <li>Move your mouse in the area below the progress bar. When the progress bar is full, PuTTYgen generates your key pair.</li>
-    <li>Type a passphrase in the Key passphrase field. Type the same passphrase in the Confirm passphrase field. You can use a key without a passphrase, but this is not recommended.</li>
-    <li>Click the Save private key button to save the private key. Warning! You must save the private key. You will need it to connect to your machine.</li>
-    <li>Click the Save public key to save your public key (this key shall be uploaded using Web UI of Dlab).</li>
-
-    <div>You can use Cygwin if you want for SSH key generation. In order to generate key using Cygwin please follow these steps:</div>
-
+    <li>OPTIONAL: Type a passphrase in the Key passphrase field. Type the same passphrase in the Confirm passphrase field. You can use a key without a passphrase, but this is not recommended.</li>
+    <li>You will need PRIVATE KEY to connect to your machine. Warning! You must save the private key.</li>
+    <li>Click the "Save private key button" to save the private key.</li>
+    <li>PUBLIC KEY shall be uploaded using Web UI of Dlab.</li>
+    <li>To save public key in a proper format you have to copy all text from "Public key for pasting into OpenSSH authorized_keys" field, create new file and paste this text in it, then save the file.</li>
+    <br>
+    <br>
+    <p>You can use Cygwin if you want for SSH key generation. In order to generate key using Cygwin please follow these steps:</p>
     <li>Open Cygwin shell.</li>
     <li>Enter ls -al ~/.ssh to see if existing SSH keys are present</li>
     <li>Enter following command and write appropriate email address:</li>
@@ -44,8 +47,8 @@ limitations under the License.
     <li>At the prompt, type a secure passphrase.</li>
 
     <h3>Generating SSH key pair on MAC OS / Linux</h3>
-    <li>Open Terminal</li>
-    <li>Enter following command and write appropriate email address</li>
+    <li>Open Terminal.</li>
+    <li>Enter following command and write appropriate email address.</li>
 
     <div class="code-block">ssh-keygen -t rsa -b 4096 -C "<span class="txt-color-yellow">your_email@example.com</span>"</div>
 
