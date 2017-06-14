@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.UserInstanceDTO;
+import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
@@ -71,6 +72,8 @@ public class InfrastructureProvisionResource implements DockerAPI {
 
     @Inject
     private ExploratoryDAO expDAO;
+    @Inject
+    private BillingDAO billingDAO;
     @Inject
     private KeyDAO keyDAO;
     @Inject
@@ -225,7 +228,7 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Iterable<Document> getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilterFormDTO formDTO) {
         LOGGER.debug("Loading billing report for user {} with filter {}", userInfo.getName(), formDTO);
         try {
-        	return null;
+        	return billingDAO.getReport(userInfo.getSimpleName(), formDTO);
         } catch (Throwable t) {
         	LOGGER.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), formDTO, t);
             throw new DlabException("Cannot load billing report: " + t.getLocalizedMessage(), t);

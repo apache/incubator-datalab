@@ -42,7 +42,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
  */
 public class ExploratoryDAO extends BaseDAO {
     public static final String EXPLORATORY_NAME = "exploratory_name";
-    private static final String EXPLORATORY_ID = "exploratory_id";
+    protected static final String EXPLORATORY_ID = "exploratory_id";
     private static final String EXPLORATORY_URL = "exploratory_url";
     private static final String EXPLORATORY_URL_DESC = "description";
     private static final String EXPLORATORY_URL_URL = "url";

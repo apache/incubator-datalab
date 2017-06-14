@@ -110,6 +110,13 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	return resourceList;
     }
     
+    /** Return the name of bucket.
+     * @param name the name of bucket.
+     */
+    private String getBucketName(String name) {
+    	return name.replace('_', '-').toLowerCase();
+    }
+    
     /** Load and return DLab resources from Mongo DB.
      * @throws InitializationException
      */
@@ -119,7 +126,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	// Add SSN
     	String sbName = getServiceBaseName();
     	resourceList.append(sbName + "-ssn", "SSN", DlabResourceType.SSN, null, null);
-    	resourceList.append(sbName.replace('_', '-') + "-ssn-bucket", "SSN bucket", DlabResourceType.SSN_BUCKET, null, null);
+    	resourceList.append(getBucketName(sbName) + "-ssn-bucket", "SSN bucket", DlabResourceType.SSN_BUCKET, null, null);
     	
     	// Add EDGE
     	Bson projection = fields(include(FIELD_ID, FIELD_EDGE_BUCKET));
@@ -127,7 +134,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	for (Document d : docs) {
     		String username = d.getString(FIELD_ID);
     		resourceList.append(sbName + "-" + username + "-edge", "EDGE Node", DlabResourceType.EDGE, username, null);
-    		resourceList.append(d.getString(FIELD_EDGE_BUCKET), "EDGE bucket", DlabResourceType.EDGE_BUCKET, username, null);
+    		resourceList.append(getBucketName(d.getString(FIELD_EDGE_BUCKET)), "EDGE bucket", DlabResourceType.EDGE_BUCKET, username, null);
     	}
     	
     	// Add exploratory
