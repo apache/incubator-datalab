@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { BillingReportService }  from '../../core/services';
 
 @Component({
   selector: 'dlab-reporting-grid',
@@ -10,7 +11,7 @@ export class ReportingGridComponent implements OnInit {
 
   collapseFilterRow: boolean = false;
 
-  constructor() { }
+  constructor(private billingReportService: BillingReportService) { }
 
   public filteringColumns: Array<any> = [
     { title: 'User', name: 'user', className: 'th_user', filtering: {}, role: 'admin'},
@@ -24,7 +25,9 @@ export class ReportingGridComponent implements OnInit {
 
   ];
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.getGeneralBillingData();
+  }
 
   onUpdate($event) {
     console.log($event);
@@ -32,5 +35,11 @@ export class ReportingGridComponent implements OnInit {
 
   toggleFilterRow(): void {
     this.collapseFilterRow = !this.collapseFilterRow;
+  }
+
+  getGeneralBillingData() {
+    this.billingReportService.getGeneralBillingData()
+      .subscribe(data => console.log(data)
+    );
   }
 }

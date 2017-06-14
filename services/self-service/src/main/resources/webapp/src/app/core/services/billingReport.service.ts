@@ -17,22 +17,21 @@ limitations under the License.
 ****************************************************************************/
 
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Subject } from 'rxjs/Subject';
- 
+import { Response } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
+
+import { ApplicationServiceFacade, AppRoutingService } from './';
+import { HTTP_STATUS_CODES } from '../util';
+
 @Injectable()
 export class BillingReportService {
-    private subject = new Subject<any>();
- 
-    sendMessage(message: string) {
-        this.subject.next({ text: message });
-    }
- 
-    clearMessage() {
-        this.subject.next();
-    }
- 
-    getMessage(): Observable<any> {
-        return this.subject.asObservable();
+
+    constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
+
+    public getGeneralBillingData(): Observable<Response> {
+        return this.applicationServiceFacade
+        .buildGetGeneralBillingData()
+        .map((response: Response) => response.json())
+        .catch((error: any) => error);
     }
 }

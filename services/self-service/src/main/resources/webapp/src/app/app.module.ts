@@ -42,7 +42,8 @@ import {
   AuthorizationGuard,
   ApplicationServiceFacade,
   ApplicationSecurityService,
-  LibrariesInstallationService
+  LibrariesInstallationService,
+  BillingReportService
 } from './core/services';
 
 @NgModule({
@@ -76,6 +77,7 @@ import {
     UserResourceService,
     HealthStatusService,
     LibrariesInstallationService,
+    BillingReportService,
     ApplicationServiceFacade
   ],
   bootstrap: [AppComponent]
