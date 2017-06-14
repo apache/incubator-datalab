@@ -20,11 +20,13 @@
 
 import argparse
 import sys
+from fabric.contrib.files import exists
 from dlab.notebook_lib import *
 from dlab.fab import *
 from fabric.api import *
 import json
 import ast
+import netrc
 
 
 parser = argparse.ArgumentParser()
@@ -50,12 +52,41 @@ if __name__ == "__main__":
         append_result("Failed to parse git credentials.", str(err))
         sys.exit(1)
 
-    # TBD...
     try:
-        run('')
-    except:
-        pass
+        run('git config --global user.name \"{}\"'.format(data['username']))
+        run('git config --global user.email \"{}\"'.format(data['email']))
+    except Exception as err:
+        append_result("Failed to add username and email to git config.", str(err))
+        sys.exit(1)
 
+    try:
+        new_config = list()
+        if exists('/home/{}/.netrc'.format(args.os_user)):
+            get('.netrc', '.netrc')
+            run('rm .netrc')
+            config = netrc.netrc(".netrc")
+            if data['hostname'] == "":
+                new_config.append('default login {0} password {1}'.format(data['login'], data['password']))
+            else:
+                new_config.append('machine {0} login {1} password {2}'.format(data['hostname'], data['login'], data['password']))
+
+            for host in config.hosts:
+                if host not in ["default", data['hostname']]:
+                    new_config.append('machine {0} login {1} password {2}'.format(
+                        host, config.authenticators(host)[0], config.authenticators(host)[2]))
+        else:
+            if data['hostname'] == "":
+                new_config.append('default login {0} password {1}'.format(data['login'], data['password']))
+            else:
+                new_config.append('machine {0} login {1} password {2}'.format(data['hostname'], data['login'], data['password']))
+
+        with open("new_netrc", "w+") as f:
+            for conf in sorted(new_config, reverse=True):
+                f.writelines(conf)
+        put('new_netrc', '/home/{}/.netrc'.format(args.os_user))
+    except Exception as err:
+        append_result("Failed to add host/login/(password/token/key) to config.", str(err))
+        sys.exit(1)
 
 
     with open("/root/result.json", 'w') as result:
