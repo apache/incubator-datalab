@@ -568,6 +568,24 @@ sudo supervisorctl {start | stop | status} [all | provserv | secserv | ui]
 -   secserv – execute command for Security Service;
 -   ui – execute command for Self-Service.
 
+## DLab Web UI <a name="DLab Web UI"></a>
+
+DLab self service is listening to the secure 8443 port. This port is used for secure local communication with provisioning service.
+
+There is also Nginx proxy server running on Self-Service node, which proxies remote connection to local 8443 port.
+Nginx server is listening to both 80 and 443 ports by default. It means that you could access self-service Web UI using non-secure connections (80 port) or secure (443 port).
+
+Establishing connection using 443 port you should take into account that DLab uses self-signed certificate from the box, however you are free to switch Nginx to use your own domain-verified certificate.
+
+To disable non-secure connection please do the following:
+-   uncomment at /etc/nginx/conf.d/nginx_proxy.conf file rule that rewrites all requests from 80 to 443 port;
+-   reload/restart Nginx web server.
+
+To use your own certificate please do the following:
+-   upload your certificate and key to Self-Service node;
+-   specify at /etc/nginx/conf.d/nginx_proxy.conf file the correct path to your new ssl_certificate and ssl_certificate_key;
+-   reload/restart Nginx web server.
+
 ## Billing report <a name="Billing_Report"></a>
 
 Billing module is implemented as a separate jar file and can be running in the follow modes:

@@ -129,4 +129,5 @@ if __name__ == "__main__":
         build_docker_images(args)
         deploy_dlab(args)
     elif args.action == 'terminate':
+        build_docker_images(args)
         terminate_dlab(args)

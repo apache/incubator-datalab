@@ -1,0 +1,60 @@
+<!--
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+
+<table class="dashboard_table reporting">
+  <tr>
+    <th *ngFor="let column of filteringColumns" ngClass="{{column.className || ''}}">{{column.title}}
+      <button md-icon-button *ngIf="column.filtering" aria-label="More" class="pull-right" (click)="toggleFilterRow()">
+        <i class="material-icons">
+          <span>filter_list</span>
+          <!--<span>more_vert</span>-->
+        </i>
+      </button>
+    </th>
+  </tr>
+
+  <tr *ngIf="collapseFilterRow" class="filter-row">
+    <td>
+      <input placeholder="Filter by user name" class="form-control filter-field" />
+    </td>
+    <td>
+      <input placeholder="Filter by environment name" class="form-control filter-field" />
+    </td>
+    <td>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'type'" [items]="[1,2,3]" [model]="[]"></multi-select-dropdown>
+    </td>
+    <td>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'shapes'" [items]="[4,5,6]" [model]="[]"></multi-select-dropdown>
+    </td>
+    <td>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'service'" [items]="[7,8,9]" [model]="[]"></multi-select-dropdown>
+    </td>
+    <td></td>
+    <td>
+      <div class="actions">
+        <button md-icon-button class="btn reset">
+          <i class="material-icons">close</i>
+        </button>
+
+        <button md-icon-button class="btn apply">
+          <i class="material-icons">done</i>
+        </button>
+      </div>
+    </td>
+  </tr>
+</table>

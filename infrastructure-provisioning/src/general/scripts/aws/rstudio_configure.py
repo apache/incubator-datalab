@@ -89,8 +89,8 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO R_STUDIO NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO R_STUDIO NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {}".format(instance_hostname, keyfile_name,
-                                                               os.environ['conf_os_user'])
+        params = "--hostname {} --keyfile {} --user {} --region {}".\
+            format(instance_hostname, keyfile_name, os.environ['conf_os_user'], os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -105,9 +105,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
         print '[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]'
-        params = "--hostname {}  --keyfile {} --region {} --rstudio_pass {} --rstudio_version {} --os_user {}" \
+        params = "--hostname {}  --keyfile {} --region {} --rstudio_pass {} --rstudio_version {} --os_user {} --r_mirror {}" \
             .format(instance_hostname, keyfile_name, os.environ['aws_region'], notebook_config['rstudio_pass'],
-                    os.environ['notebook_rstudio_version'], os.environ['conf_os_user'])
+                    os.environ['notebook_rstudio_version'], os.environ['conf_os_user'], os.environ['notebook_r_mirror'])
         try:
             local("~/scripts/{}.py {}".format('configure_rstudio_node', params))
         except:

@@ -40,6 +40,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,6 +275,22 @@ public class ExploratoryResource implements ExploratoryAPI {
         }
     }
     
+    /** Returns the list of libraries groups for exploratory.
+     * @param userInfo user info.
+     * @param imageName name of exploratory image.
+     */
+    @POST
+    @Path("/lib_list")
+    public Iterable<Document> getLibList(@Auth UserInfo userInfo, @NotNull String exploratoryName) {
+        LOGGER.debug("Loading list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName);
+        try {
+        	return libraryDAO.findLibraries(userInfo.getName(), exploratoryName);
+        } catch (Throwable t) {
+        	LOGGER.error("Cannot load list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName, t);
+            throw new DlabException("Cannot load list of libraries: " + t.getLocalizedMessage(), t);
+        }
+    }
+
     /** Install the libraries to the exploratory environment.
      * @param userInfo user info.
      * @param formDTO description of libraries which will be installed to the exploratory environment.

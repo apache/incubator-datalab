@@ -28,7 +28,9 @@ public class ServiceUtils {
 	}
 	
 	
-	/** Print to standard output the manifest info about application.
+	/** Print to standard output the manifest info about application. If parameter <b>args</b> is not
+	 * <b>null</b> and one or more arguments have value -v or --version then print version and return <b>true<b/>
+	 * otherwise <b>false</b>.
 	 * @param mainClazz the main class of application.
 	 * @param args the arguments of main class function or null.
 	 * @return if parameter <b>args</b> is not null and one or more arguments have value -v or --version
@@ -43,6 +45,9 @@ public class ServiceUtils {
 	            	result = true;
 	            }
 	        }
+			if (!result) {
+				return result;
+			}
 		}
         
 		

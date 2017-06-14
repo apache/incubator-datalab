@@ -63,6 +63,7 @@ COPY general/scripts/${CLOUD}/common_* /root/scripts/
 COPY general/lib/${CLOUD}/* /usr/lib/python2.7/dlab/
 COPY general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
 COPY general/lib/os/fab.py /usr/lib/python2.7/dlab/fab.py
+COPY general/files/os/${OS}/sources.list /root/files/
 
 RUN chmod a+x /root/*.py
 RUN chmod a+x /root/scripts/*

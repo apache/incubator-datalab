@@ -179,8 +179,8 @@ if __name__ == "__main__":
                 sys.exit(1)
         logging.info('[CREATE ROLES]')
         print('[CREATE ROLES]')
-        params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {}". \
-                format(role_name, role_profile_name, policy_name, policy_path)
+        params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {}".\
+            format(role_name, role_profile_name, policy_name, policy_path, os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
