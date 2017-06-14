@@ -121,4 +121,25 @@ public class BillingUtils {
 		}
 		return null;
 	}
+	
+	/** Returns the closest value to the argument.
+	 * @param value the value.
+	 * @param scale the scale.
+	 */
+	public static double round(double value, int scale) {
+		int d = (int) Math.pow(10, scale);
+		return (double) (Math.round(value * d)) / d;
+	}
+
+	/** Returns the closest value to the argument.
+	 * @param value the value.
+	 * @param scale the scale.
+	 */
+	public static Double round(Double value, int scale) {
+		if (value == null) {
+			return null;
+		}
+		int d = (int) Math.pow(10, scale);
+		return (double) (Math.round(value * d)) / d;
+	}
 }

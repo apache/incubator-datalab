@@ -225,7 +225,7 @@ public class InfrastructureProvisionResource implements DockerAPI {
      */
     @POST
     @Path("/billing")
-    public Iterable<Document> getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilterFormDTO formDTO) {
+    public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilterFormDTO formDTO) {
         LOGGER.debug("Loading billing report for user {} with filter {}", userInfo.getName(), formDTO);
         try {
         	return billingDAO.getReport(userInfo.getSimpleName(), formDTO);

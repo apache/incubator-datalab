@@ -46,6 +46,7 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.core.parser.ReportLine;
 import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.exception.ParseException;
@@ -215,10 +216,6 @@ public class DlabResourceTypeDAO implements MongoConstants {
 		return d;
     }
     
-    private double round(double d) {
-    	return Math.round(d * 100.0) / 100.0;
-    }
-    
     private String formatDouble(Double d) {
     	return (d == null ? null : String.format("%,.2f", d));
     }
@@ -310,7 +307,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	String currencyCode = null;
     	for(Document d : docs) {
     		Document id = (Document) d.get(FIELD_ID);
-    		double cost = round(d.getDouble(ReportLine.FIELD_COST));
+    		double cost = BillingUtils.round(d.getDouble(ReportLine.FIELD_COST), 2);
     		costTotal = (costTotal == null ? cost : costTotal + cost);
     		if (currencyCode == null) {
     			currencyCode = id.getString(ReportLine.FIELD_CURRENCY_CODE);
@@ -359,7 +356,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	for(Document d : docs) {
     		Document id = (Document) d.get(FIELD_ID);
     		Bson values = Updates.combine(
-					Updates.set(ReportLine.FIELD_COST, round(d.getDouble(ReportLine.FIELD_COST))),
+					Updates.set(ReportLine.FIELD_COST, BillingUtils.round(d.getDouble(ReportLine.FIELD_COST), 2)),
 					Updates.set(FIELD_CURRENCY_CODE, id.get(ReportLine.FIELD_CURRENCY_CODE)));
     		cEdge.updateOne(
             	eq(FIELD_ID, user),
