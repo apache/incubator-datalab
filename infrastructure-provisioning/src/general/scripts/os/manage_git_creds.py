@@ -24,7 +24,6 @@ from fabric.contrib.files import exists
 from dlab.notebook_lib import *
 from dlab.fab import *
 from fabric.api import *
-import json
 import ast
 import netrc
 
@@ -44,8 +43,6 @@ if __name__ == "__main__":
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
 
-    # print 'Installing libraries:' + args.git_creds
-    general_status = list()
     try:
         data = ast.literal_eval(args.git_creds)
     except Exception as err:
@@ -53,6 +50,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+
         run('git config --global user.name \"{}\"'.format(data['username']))
         run('git config --global user.email \"{}\"'.format(data['email']))
     except Exception as err:
@@ -85,11 +83,11 @@ if __name__ == "__main__":
                 f.writelines(conf)
         put('new_netrc', '/home/{}/.netrc'.format(args.os_user))
     except Exception as err:
-        append_result("Failed to add host/login/(password/token/key) to config.", str(err))
+        append_result("Failed to add host/login/(password/token) to config.", str(err))
         sys.exit(1)
 
 
     with open("/root/result.json", 'w') as result:
         res = {"Action": "Setup git credentials",
-               "Git_creds": general_status}
+               "Git_creds": data}
         result.write(json.dumps(res))

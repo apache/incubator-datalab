@@ -152,7 +152,7 @@ def list_libs():
         sys.exit(1)
 
 
-# Main function for get available libraries for notebook
+# Main function for manage git credentials on notebook
 def git_creds():
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])

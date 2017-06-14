@@ -55,7 +55,7 @@ if __name__ == "__main__":
             .format(notebook_config['os_user'], notebook_config['notebook_ip'],
                     notebook_config['keyfile'], notebook_config['git_creds'])
         try:
-            # Run script to get available libs
+            # Run script to manage git credentials
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
         except:
             traceback.print_exc()
