@@ -92,9 +92,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE EDGE ROLES]')
         print '[CREATE EDGE ROLES]'
-        params = "--role_name {} --role_profile_name {} --policy_name {}" \
+        params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
                  .format(edge_conf['role_name'], edge_conf['role_profile_name'],
-                  edge_conf['policy_name'])
+                         edge_conf['policy_name'], os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -107,9 +107,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
         print '[CREATE BACKEND (NOTEBOOK) ROLES]'
-        params = "--role_name {} --role_profile_name {} --policy_name {}" \
+        params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
                  .format(edge_conf['notebook_role_name'], edge_conf['notebook_role_profile_name'],
-                  edge_conf['notebook_policy_name'])
+                         edge_conf['notebook_policy_name'], os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -295,8 +295,10 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
         print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-        params = '--bucket_name {} --ssn_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {}'.format(
-            edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], os.environ['edge_user_name'], edge_conf['role_name'], edge_conf['notebook_role_name'],  edge_conf['service_base_name'])
+        params = '--bucket_name {} --ssn_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {}'.format(
+            edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], os.environ['edge_user_name'],
+            edge_conf['role_name'], edge_conf['notebook_role_name'],  edge_conf['service_base_name'],
+            edge_conf['region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_policy', params))
         except:

@@ -92,8 +92,9 @@ if __name__ == "__main__":
 
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric awscli pymongo pyyaml' --user {}". \
-            format(instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", os.environ['conf_os_user'])
+        params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric awscli pymongo pyyaml' --user {} --region {}". \
+            format(instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", os.environ['conf_os_user'],
+                   os.environ['aws_region'])
 
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
@@ -158,10 +159,10 @@ if __name__ == "__main__":
                              {"name": "tensor", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "emr", "tag": "latest"}]
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {}". \
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),
                    json.dumps(additional_config), os.environ['conf_os_family'], os.environ['conf_os_user'],
-                   os.environ['ssn_dlab_path'], os.environ['conf_cloud_provider'])
+                   os.environ['ssn_dlab_path'], os.environ['conf_cloud_provider'], os.environ['aws_region'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_docker', params))

@@ -17,10 +17,12 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
 
-import 'rxjs/add/operator/startWith';
-import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/distinctUntilChanged';
 
 import { InstallLibrariesModel } from './';
 import { LibrariesInstallationService} from '../../../core/services';
@@ -38,6 +40,9 @@ export class InstallLibrariesComponent implements OnInit {
   public notebook: any;
   public filteredList: any;
   public groupsList: Array<string>;
+  public notebookLibs: Array<any> = [];
+  public notebookFailedLibs: Array<any> = [];
+
   public query: string = '';
   public group: string;
   public uploading: boolean = false;
@@ -49,13 +54,18 @@ export class InstallLibrariesComponent implements OnInit {
   public isInstalled: boolean = false;
   public isFilteringProc: boolean = false;
   public isInSelectedList: boolean = false;
+  public installingInProgress: boolean = false;
+  public libSearch: FormControl = new FormControl();
   public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum'};
 
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
   private clear: number;
+  private clearCheckInstalling = undefined;
 
   @ViewChild('bindDialog') bindDialog;
+  @ViewChild('tabGroup') tabGroup;
+
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(private librariesInstallationService: LibrariesInstallationService) {
@@ -63,31 +73,28 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.libSearch.valueChanges
+      .debounceTime(1000)
+      .distinctUntilChanged()
+      .subscribe(newValue => {
+        this.query = newValue;
+        this.filterList();
+      });
     this.bindDialog.onClosing = () => this.resetDialog();
   }
-
+  
   uploadLibraries(): void {
      this.librariesInstallationService.getGroupsList(this.notebook.name)
       .subscribe(
         response => this.libsUploadingStatus(response),
         error => {
-          // this.libsUploadingStatus(error.status, error);
-
           this.processError = true;
           this.errorMessage = JSON.parse(error.message).message;
         });
   }
 
-  public installLibs(): void {
-    this.model.confirmAction();
-  }
-
-  public reInstallSpecificLib(retry: any): void {
-    this.model.confirmAction(retry);
-  }
-
   public filterList(): void {
-    (this.query.length >= 3 && this.group) ? this.getFilteredList() : this.filteredList = null;
+    (this.query.length >= 2 && this.group) ? this.getFilteredList() : this.filteredList = null;
   }
 
   public isDuplicated(item) {
@@ -117,11 +124,11 @@ export class InstallLibrariesComponent implements OnInit {
   public open(param, notebook): void {
     if (!this.bindDialog.isOpened)
       this.notebook = notebook;
-
+      this.notebookLibs = notebook.libs || [];
       this.model = new InstallLibrariesModel(notebook, (response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
-          this.close();
-          this.buildGrid.emit();
+          this.getInstalledLibrariesList();
+          this.resetDialog();
         }
       },
       (response: Response) => {
@@ -130,6 +137,11 @@ export class InstallLibrariesComponent implements OnInit {
       },
       () => {
         this.bindDialog.open(param);
+        this.isInstallingInProgress(this.notebookLibs);
+
+        if (!this.notebook.libs || !this.notebook.libs.length)
+          this.tabGroup.selectedIndex = 1;
+
         this.uploadLibraries();
       },
       this.librariesInstallationService);
@@ -140,6 +152,29 @@ export class InstallLibrariesComponent implements OnInit {
       this.bindDialog.close();
 
     this.resetDialog();
+    this.buildGrid.emit();
+  }
+
+  public isInstallingInProgress(data): void {
+    this.notebookFailedLibs = data
+      .filter(el => el.status === 'failed')
+      .map(el => { return {group: el.group, name: el.name, version: el.version}});
+    this.installingInProgress = data.findIndex(libr => libr.status === 'installing') >= 0;
+
+    if (this.installingInProgress || this.notebookFailedLibs.length) {
+      if (this.clearCheckInstalling === undefined)
+        this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 4000);
+    } else {
+      clearInterval(this.clearCheckInstalling);
+      this.clearCheckInstalling = undefined;
+    }
+  }
+  private getInstalledLibrariesList() {
+    this.model.getInstalledLibrariesList()
+      .subscribe((data: any) => {
+        this.notebookLibs = data ? data : [];
+        this.isInstallingInProgress(this.notebookLibs);
+      });
   }
 
   private libsUploadingStatus(groupsList): void {
@@ -156,7 +191,6 @@ export class InstallLibrariesComponent implements OnInit {
 
   private getFilteredList(): void {
     this.isFilteringProc = true;
-
     this.model.getLibrariesList(this.group, this.query)
       .subscribe(libs => {
         this.filteredList = libs;
@@ -173,7 +207,9 @@ export class InstallLibrariesComponent implements OnInit {
     this.errorMessage = '';
     this.model.selectedLibs = [];
     this.filteredList = null ;
-
+    this.tabGroup.selectedIndex = 0;
     clearTimeout(this.clear);
+    clearInterval(this.clearCheckInstalling);
+    this.clearCheckInstalling = undefined;
   }
 }

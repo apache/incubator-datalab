@@ -169,6 +169,7 @@ limitations under the License.
   display: inline-block;
   text-align: center;
   zoom: 1.2;
+  cursor: pointer;
 }
 
 .dashboard_table .dropdown-menu li {

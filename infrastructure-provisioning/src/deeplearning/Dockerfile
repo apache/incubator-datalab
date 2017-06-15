@@ -25,10 +25,11 @@ ARG CLOUD
 COPY deeplearning/ /root/
 COPY general/scripts/${CLOUD}/deeplearning_* /root/scripts/
 COPY general/scripts/os/* /root/scripts/
-COPY general/lib/os/debian/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
-COPY general/lib/os/debian/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
+COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
+COPY general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/pyspark_local_template.json /root/templates/
+COPY general/templates/os/py3spark_local_template.json /root/templates/
 COPY general/templates/os/pyspark_emr_template.json /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/files/os/notebook_local_jars.tar.gz /root/files/
@@ -41,6 +42,9 @@ COPY general/scripts/os/create_configs.py /root/scripts/
 COPY general/scripts/${CLOUD}/jupyter_install_emr_kernels.py /root/scripts/
 COPY general/files/os/toree-assembly-0.2.0.jar /root/files/
 COPY general/files/os/toree_kernel.tar.gz /root/files/
+COPY general/files/os/cudnn-8.0-linux-x64-v5.1.tgz /root/files/
+COPY general/templates/os/tensorboard.service /root/templates/
+COPY general/templates/os/${OS}/jupyter-notebook.service /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

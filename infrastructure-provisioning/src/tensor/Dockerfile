@@ -25,6 +25,7 @@ ARG CLOUD
 COPY tensor/ /root/
 COPY general/scripts/${CLOUD}/tensor_* /root/scripts/
 COPY general/scripts/os/* /root/scripts/
+COPY tensor/scripts/create_configs.py /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/${OS}/jupyter-notebook.service /root/templates/
@@ -33,6 +34,8 @@ COPY general/templates/os/py3spark_local_template.json /root/templates/
 COPY general/templates/os/pyspark_emr_template.json /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/files/os/notebook_local_jars.tar.gz /root/files/
+COPY general/files/os/cudnn-8.0-linux-x64-v5.1.tgz /root/files/
+COPY general/templates/os/tensorboard.service /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

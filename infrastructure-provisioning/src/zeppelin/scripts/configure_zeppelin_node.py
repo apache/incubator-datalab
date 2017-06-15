@@ -44,6 +44,7 @@ parser.add_argument('--proxy_port', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_emrs', type=str, default='')
+parser.add_argument('--r_mirror', type=str, default='')
 args = parser.parse_args()
 
 spark_version = args.spark_version
@@ -52,7 +53,11 @@ scala_link = "http://www.scala-lang.org/files/archive/"
 zeppelin_version = args.zeppelin_version
 zeppelin_link = "http://archive.apache.org/dist/zeppelin/zeppelin-" + zeppelin_version + "/zeppelin-" + \
                 zeppelin_version + "-bin-netinst.tgz"
-spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
+if args.region == 'cn-north-1':
+    spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
+                 "-bin-hadoop" + hadoop_version + ".tgz"
+else:
+    spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
 zeppelin_interpreters = "md,python,livy"
 python3_version = "3.4"
 local_spark_path = '/opt/spark/'
@@ -61,6 +66,8 @@ files_dir = '/root/files/'
 s3_jars_dir = '/opt/jars/'
 if args.region == 'us-east-1':
     endpoint_url = 'https://s3.amazonaws.com'
+elif args.region == 'cn-north-1':
+    endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
 else:
     endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
@@ -203,7 +210,7 @@ if __name__ == "__main__":
     ensure_scala(scala_link, args.scala_version, args.os_user)
 
     print "Installing R"
-    ensure_r(args.os_user, r_libs)
+    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
     print "Install Zeppelin"
     configure_zeppelin(args.os_user)

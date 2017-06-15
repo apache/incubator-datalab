@@ -93,7 +93,7 @@ public class AmazonHelper {
     }
 
     public static void checkAmazonStatus(String instanceName, AmazonInstanceState expAmazonState) throws Exception {
-        LOGGER.info("Check status of instance {} on Amazon: ", instanceName);
+        LOGGER.info("Check status of instance {} on Amazon: {}", instanceName);
         if (ConfigPropertyValue.isRunModeLocal()) {
         	LOGGER.info("Amazon instance {} fake state is {}", instanceName, expAmazonState);
         	return;

@@ -44,3 +44,11 @@ def renew_gpg_key():
         sudo('apt-key update')
     except:
         sys.exit(1)
+
+
+def change_pkg_repos():
+    if not exists('/tmp/pkg_china_ensured'):
+        put('/root/files/sources.list', '/tmp/sources.list')
+        sudo('mv /tmp/sources.list /etc/apt/sources.list')
+        sudo('apt-get update')
+        sudo('touch /tmp/pkg_china_ensured')
