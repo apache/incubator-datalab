@@ -526,12 +526,14 @@ List of parameters for Notebook node to **manage git credentials**:
   "hostname": "github.com",
   "login": "testlogin",
   "password": "testpassword"
-}          
+}
 ```
 
 **Note:** Fields "username" and "email" used for commits (displays Author in git log).
 
 **Note:** Leave "hostname" field empty to apply login/password by default for all services.
+
+**Note:** Also your can use "Personal access tokens" against passwords.
 
 ## EMR cluster <a name="EMR_cluster"></a>
 
