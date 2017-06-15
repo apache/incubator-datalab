@@ -50,7 +50,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-
         run('git config --global user.name \"{}\"'.format(data['username']))
         run('git config --global user.email \"{}\"'.format(data['email']))
     except Exception as err:
@@ -85,7 +84,6 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Failed to add host/login/(password/token) to config.", str(err))
         sys.exit(1)
-
 
     with open("/root/result.json", 'w') as result:
         res = {"Action": "Setup git credentials",
