@@ -34,13 +34,14 @@ import static com.mongodb.client.model.Aggregates.group;
 import static com.mongodb.client.model.Aggregates.match;
 import static com.mongodb.client.model.Aggregates.sort;
 import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.gte;
+import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.lte;
 import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,7 @@ import com.epam.dlab.backendapi.resources.dto.BillingFilterFormDTO;
 import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.mongo.DlabResourceType;
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
@@ -103,7 +105,7 @@ public class BillingDAO extends BaseDAO {
     /** Find and return the map of shape info for exploratory and computational.
      * @param shapeName the name of shape for filter of <b>null</b>.
      */
-    private Map<String, ShapeInfo> getShapes(String shapeName) {
+    private Map<String, ShapeInfo> getShapes(List<String> shapeNames) {
     	FindIterable<Document> docs = getCollection(USER_INSTANCES)
     									.find()
     									.projection(
@@ -117,7 +119,7 @@ public class BillingDAO extends BaseDAO {
     	Map<String, ShapeInfo> shapes = new HashMap<>();
     	for (Document d : docs) {
 			String name = d.getString(SHAPE);
-			if (shapeName == null || shapeName.isEmpty() || shapeName.equals(name)) { 
+			if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(name)) { 
 				shapes.put(d.getString(EXPLORATORY_ID), new ShapeInfo(d.getString(SHAPE)));
 			}
 			
@@ -126,27 +128,38 @@ public class BillingDAO extends BaseDAO {
 			for (Document c : comp) {
 				name = c.getString(MASTER_NODE_SHAPE);
 				String slaveName = c.getString(SLAVE_NODE_SHAPE);
-				if (shapeName == null || shapeName.isEmpty() ||
-					shapeName.equals(name) || shapeName.equals(slaveName)) {
+				if (shapeNames == null || shapeNames.isEmpty() ||
+					shapeNames.contains(name) || shapeNames.contains(slaveName)) {
 					shapes.put(c.getString(COMPUTATIONAL_ID),
 							new ShapeInfo(name, slaveName, c.getString(TOTAL_INSTANCE_NUMBER)));
 				}
 			}
 		}
+    	
+    	// Add SSN and EDGE nodes
+    	String serviceBaseName = settings.getServiceBaseName();
+    	shapes.put(serviceBaseName + "-ssn", new ShapeInfo("t2.medium"));
+    	docs = getCollection(USER_EDGE)
+    			.find()
+    			.projection(fields(include(ID)));
+    	for (Document d : docs) {
+    		shapes.put(String.join("-", serviceBaseName, d.getString(ID), "edge"), new ShapeInfo("t2.medium"));
+        }
+    	
     	return shapes;
     }
     
-    /** Add the condition to the list.
+    /** Add the conditions to the list.
      * @param conditions the list of conditions.
      * @param fieldName the name of field.
-     * @param value the value.
+     * @param values the values.
      */
-    private <TItem> void addCondition(List<Bson> conditions, String fieldName, String value) {
-    	if (value != null && !value .isEmpty()) {
-    		conditions.add(eq(fieldName, value));
+    private <TItem> void addCondition(List<Bson> conditions, String fieldName, List<String> values) {
+    	if (values != null && !values.isEmpty()) {
+    		conditions.add(in(fieldName, values));
     	}
     }
-    
+
     /** Return field condition for grouping.
      * @param fieldNames the list of field names.
      */
@@ -161,21 +174,52 @@ public class BillingDAO extends BaseDAO {
     private String getResourceTypeName(String id) {
     	DlabResourceType resourceTypeId = DlabResourceType.of(id);
     	if (resourceTypeId != null) {
-		switch (resourceTypeId) {
-			case COMPUTATIONAL:
-				return "Cluster";
-			case EXPLORATORY:
-				return "Notebook";
-			case EDGE:
-				return "Edge Node";
-			case EDGE_BUCKET:
-			case SSN_BUCKET:
-				return "Bucket";
-			case SSN:
-				return "SSN";
+			switch (resourceTypeId) {
+				case COMPUTATIONAL:
+					return "Cluster";
+				case EXPLORATORY:
+					return "Notebook";
+				case EDGE:
+					return "Edge Node";
+				case EDGE_BUCKET:
+				case SSN_BUCKET:
+					return "Bucket";
+				case SSN:
+					return "SSN";
 			}
     	}
 		return id;
+    }
+    
+    private List<String> getResourceTypeIds(List<String> names) {
+    	if (names == null || names.isEmpty()) {
+    		return null;
+    	}
+    	List<String> list = new ArrayList<>(names.size());
+    	for (String name : names) {
+			switch (name) {
+				case "Cluster":
+					list.add(DlabResourceType.COMPUTATIONAL.toString());
+					break;
+				case "Notebook":
+					list.add(DlabResourceType.EXPLORATORY.toString());
+					break;
+				case "Edge Node":
+					list.add(DlabResourceType.EDGE.toString());
+					break;
+				case "Bucket":
+					list.add(DlabResourceType.EDGE_BUCKET.toString());
+					list.add(DlabResourceType.SSN_BUCKET.toString());
+					break;
+				case "SSN":
+					list.add(DlabResourceType.SSN.toString());
+					break;
+				default:
+					list.add(name);	
+			}
+    	}
+System.out.println("getResourceTypeIds " + list);
+		return list;
     }
     
     /** Build and returns the billing report. 
@@ -186,30 +230,37 @@ public class BillingDAO extends BaseDAO {
     public Document getReport(String user, BillingFilterFormDTO filter) {
     	// Create filter
     	List<Bson> conditions = new ArrayList<>();
-    	if (true /*TODO check for admin*/) {
-    		user = filter.getUser();
+    	if (false /*TODO check for admin*/) {
+    		filter.setUser(Lists.newArrayList(user));
     	}
-    	addCondition(conditions, USER, user);
+    	addCondition(conditions, USER, filter.getUser());
     	addCondition(conditions, FIELD_RESOURCE_TYPE, filter.getProduct());
-    	addCondition(conditions, DLAB_RESOURCE_TYPE, filter.getResourceType());
-    	addCondition(conditions, FIELD_USAGE_DATE, filter.getDateStart());
-    	addCondition(conditions, FIELD_USAGE_DATE, filter.getDateEnd());
-    	
+    	addCondition(conditions, DLAB_RESOURCE_TYPE, getResourceTypeIds(filter.getResourceType()));
+    	if (filter.getDateStart() != null && !filter.getDateStart().isEmpty()) {
+    		conditions.add(gte(FIELD_USAGE_DATE, filter.getDateStart()));
+    	}
+    	if (filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
+    		conditions.add(lte(FIELD_USAGE_DATE, filter.getDateEnd()));
+    	}
+
     	// Create aggregation conditions
-    	List<? extends Bson> pipeline = Arrays.asList(
-    			group(getGrouppingFields(USER, FIELD_DLAB_ID, DLAB_RESOURCE_TYPE, FIELD_PRODUCT, FIELD_RESOURCE_TYPE, FIELD_CURRENCY_CODE),
+		
+    	List<Bson> pipeline = new ArrayList<>();
+    	if(!conditions.isEmpty()) {
+			pipeline.add(match(and(conditions)));
+    	}
+    	pipeline.add(
+    		group(getGrouppingFields(USER, FIELD_DLAB_ID, DLAB_RESOURCE_TYPE, FIELD_PRODUCT, FIELD_RESOURCE_TYPE, FIELD_CURRENCY_CODE),
     				sum(FIELD_COST, "$" + FIELD_COST),
     				min(USAGE_DATE_START, "$" + FIELD_USAGE_DATE),
     				max(USAGE_DATE_END, "$" + FIELD_USAGE_DATE)
-    				),
-    			sort(new Document(ID + "." + USER, 1)
+    			));
+    	pipeline.add(
+    		sort(new Document(ID + "." + USER, 1)
     					.append(ID + "." + FIELD_DLAB_ID, 1)
     					.append(ID + "." + DLAB_RESOURCE_TYPE, 1)
     					.append(ID + "." + FIELD_PRODUCT, 1))
-    		);
-    	if(conditions.size() > 0) {
-    		conditions.add(match(and(conditions)));
-    	}
+    			);
 
     	// Get billing report and the list of shape info
     	AggregateIterable<Document> agg = getCollection(BILLING).aggregate(pipeline);
@@ -221,7 +272,7 @@ public class BillingDAO extends BaseDAO {
 		String usageDateStart = "";
 		String usageDateEnd = "";
 		double costTotal = 0;
-		
+
 		for (Document d : agg) {
 			Document id = (Document) d.get(ID);
 			String resourceId = id.getString(FIELD_DLAB_ID);
