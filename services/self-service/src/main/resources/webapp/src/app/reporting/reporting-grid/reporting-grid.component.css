@@ -16,7 +16,10 @@ limitations under the License.
 
 ****************************************************************************/
 
-.dashboard_table.reporting tr td{
+.dashboard_table.reporting {
+    margin-bottom: 60px;
+}
+.dashboard_table.reporting tr th {
     font-size: 11px;
 }
 .reporting .filter-row .filter-field,

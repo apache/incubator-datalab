@@ -16,22 +16,22 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Injectable } from '@angular/core';
-import { Response } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
+export class ReportingFilterConfigurationModel {
+  constructor(
+    public user: Array<string>,
+    public product: Array<string>,
+    public resource_type: Array<string>,
+    public shape: Array<string>,
+    public date_start: string,
+    public date_end: string,
+  ) { }
 
-import { ApplicationServiceFacade, AppRoutingService } from './';
-import { HTTP_STATUS_CODES } from '../util';
-
-@Injectable()
-export class BillingReportService {
-
-    constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
-
-    public getGeneralBillingData(data): Observable<Response> {
-        return this.applicationServiceFacade
-        .buildGetGeneralBillingData(data)
-        .map((response: Response) => response.json())
-        .catch((error: any) => error);
-    }
+  defaultConfigurations(): void {
+    this.user = [];
+    this.product = [];
+    this.resource_type = [];
+    this.shape = [];
+    this.date_start = '';
+    this.date_end = '';
+  }
 }

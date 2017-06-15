@@ -30,31 +30,46 @@ limitations under the License.
 
   <tr *ngIf="collapseFilterRow" class="filter-row">
     <td>
-      <input placeholder="Filter by user name" class="form-control filter-field" />
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'user'" [items]="filterConfiguration.user" [model]="filteredReportData.user"></multi-select-dropdown>
     </td>
     <td>
-      <input placeholder="Filter by environment name" class="form-control filter-field" />
+      <!--<input placeholder="Filter by environment name" class="form-control filter-field" />-->
     </td>
     <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'type'" [items]="[1,2,3]" [model]="[]"></multi-select-dropdown>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resource_type'" [items]="filterConfiguration.resource_type" [model]="filteredReportData.resource_type"></multi-select-dropdown>
     </td>
     <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'shapes'" [items]="[4,5,6]" [model]="[]"></multi-select-dropdown>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'shape'" [items]="filterConfiguration.shape" [model]="filteredReportData.shape"></multi-select-dropdown>
     </td>
     <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'service'" [items]="[7,8,9]" [model]="[]"></multi-select-dropdown>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'product'" [items]="filterConfiguration.product" [model]="filteredReportData.product"></multi-select-dropdown>
     </td>
     <td></td>
     <td>
       <div class="actions">
-        <button md-icon-button class="btn reset">
+        <button md-icon-button class="btn reset" (click)="filter_btnClick('reset')">
           <i class="material-icons">close</i>
         </button>
 
-        <button md-icon-button class="btn apply">
+        <button md-icon-button class="btn apply" (click)="filter_btnClick()">
           <i class="material-icons">done</i>
         </button>
       </div>
     </td>
   </tr>
+  <tr *ngIf="!reportData" class="message_block">
+    <td colspan="7">To start working, please, create new environment</td>
+  </tr>
+
+  <template [ngIf]="reportData && reportData">
+    <tr *ngFor="let line of reportData">
+      <td>{{ line.user }}</td>
+      <td>{{ line.dlab_id }}</td>
+      <td>{{ line.dlab_resource_type }}</td>
+      <td>{{ line.shape }}</td>
+      <td>{{ line.product }} ({{ line.resource_type}})</td>
+      <td>{{ line.cost }} {{ line.currency_code }}</td>
+      <td>act</td>
+    </tr>
+  </template>
 </table>

@@ -1,5 +1,23 @@
-import { Component, OnInit } from '@angular/core';
-import { BillingReportService }  from '../../core/services';
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { ReportingFilterConfigurationModel } from '../reporting-data.model';
 
 @Component({
   selector: 'dlab-reporting-grid',
@@ -9,9 +27,14 @@ import { BillingReportService }  from '../../core/services';
 })
 export class ReportingGridComponent implements OnInit {
 
+  filterConfiguration: ReportingFilterConfigurationModel;
+  filteredReportData: ReportingFilterConfigurationModel = new ReportingFilterConfigurationModel([], [], [], [], '', '');
   collapseFilterRow: boolean = false;
+  reportData: ReportingFilterConfigurationModel[];
 
-  constructor(private billingReportService: BillingReportService) { }
+  @Output() filterReport: EventEmitter<{}> = new EventEmitter();
+
+  constructor() { }
 
   public filteringColumns: Array<any> = [
     { title: 'User', name: 'user', className: 'th_user', filtering: {}, role: 'admin'},
@@ -22,24 +45,29 @@ export class ReportingGridComponent implements OnInit {
     { title: 'Service Charges', name: 'charges', className: 'th_charges' },
     // { title: 'Cloud provider', className: 'th_provider' },
     { title: 'Actions', className: 'th_actions' }
-
   ];
 
   ngOnInit() {
-    this.getGeneralBillingData();
+    console.log(this.reportData);
   }
 
-  onUpdate($event) {
-    console.log($event);
+  onUpdate($event): void {
+    this.filteredReportData[$event.type] = $event.model;
+    console.log(this.filteredReportData);
   }
 
   toggleFilterRow(): void {
     this.collapseFilterRow = !this.collapseFilterRow;
   }
 
-  getGeneralBillingData() {
-    this.billingReportService.getGeneralBillingData()
-      .subscribe(data => console.log(data)
-    );
+  setConfiguration(users, types, shapes, services): void {
+    this.filterConfiguration = new ReportingFilterConfigurationModel(users, services, types, shapes, '', '' );
+    console.log('filterConfiguration: ', this.filterConfiguration);
+  }
+
+  filter_btnClick(clearing?: string): void {
+    if (clearing) this.filteredReportData.defaultConfigurations();
+
+    this.filterReport.emit(this.filteredReportData);
   }
 }

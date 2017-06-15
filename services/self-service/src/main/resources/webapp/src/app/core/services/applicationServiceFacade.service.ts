@@ -227,10 +227,10 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
-  public buildGetGeneralBillingData(): Observable<Response> {
+  public buildGetGeneralBillingData(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
-      this.requestRegistry.Item(ApplicationServiceFacade.INSTALLED_LIBS),
-      null,
+      this.requestRegistry.Item(ApplicationServiceFacade.BILLING),
+      data,
       this.getRequestOptions(true, true));
   }
 

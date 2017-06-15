@@ -16,16 +16,21 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+
+import { BillingReportService }  from './../core/services';
+import { ReportingFilterConfigurationModel }  from './reporting-data.model';
+import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
+import { ToolbarComponent } from './toolbar/toolbar.component';
 
 @Component({
   selector: 'dlab-reporting',
   template: `
   <dlab-navbar></dlab-navbar>
-  <dlab-toolbar></dlab-toolbar>
-  <dlab-reporting-grid></dlab-reporting-grid>
+  <dlab-toolbar (rebuildReport)="getGeneralBillingData()"></dlab-toolbar>
+  <dlab-reporting-grid (filterReport)="filterReport($event)"></dlab-reporting-grid>
   <footer>
-    Total price *** $
+    Total {{data?.cost_total}} {{data?.currency_code}}
   </footer>
   `,
   styles: [`
@@ -45,8 +50,56 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ReportingComponent implements OnInit {
 
-  constructor() { }
+  @ViewChild(ReportingGridComponent) reportingGrid: ReportingGridComponent;
+  @ViewChild(ToolbarComponent) reportingToolbar: ToolbarComponent;
 
-  ngOnInit() {}
+  reportDataConfig: ReportingFilterConfigurationModel = new ReportingFilterConfigurationModel([],[],[],[],'','');
+  data: any;
 
+  constructor(private billingReportService: BillingReportService) { }
+
+  ngOnInit() {
+    this.getGeneralBillingData();
+  }
+
+  getGeneralBillingData() {
+    this.billingReportService.getGeneralBillingData(this.reportDataConfig)
+      .subscribe(data => {
+        this.data = data;
+        this.reportingGrid.reportData = this.data.lines;
+        this.reportingToolbar.reportData = this.data;
+
+        this.getDefaultFilterConfiguration(this.data);
+     });
+  }
+
+  getDefaultFilterConfiguration(data): void {
+    console.log(data);
+    const users = [], types = [], shapes = [], services = [];
+
+    data.lines.forEach((item: any) => {
+      if (item.user && users.indexOf(item.user) === -1)
+        users.push(item.user);
+
+      if (item.dlab_resource_type && types.indexOf(item.dlab_resource_type) === -1)
+        types.push(item.dlab_resource_type);
+
+      if (item.shape && shapes.indexOf(item.shape) === -1)
+        shapes.push(item.shape);
+
+      if (item.product && services.indexOf(item.product) === -1)
+        services.push(item.product);
+    });
+    console.log('users: ' + users);
+    console.log('types: ' + types);
+    console.log('shapes: ' + shapes);
+    console.log('services: ' + services);
+    this.reportingGrid.setConfiguration(users, types, shapes, services);
+  }
+
+  filterReport(event: ReportingFilterConfigurationModel): void {
+    console.log('ReportingComponent ',event);
+    this.reportDataConfig = event;
+    this.getGeneralBillingData();
+  }
 }
