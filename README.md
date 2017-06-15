@@ -498,6 +498,41 @@ List of parameters for Notebook node to **install** additional libraries:
 }
 ```
 
+### Manage git credentials
+
+In order to manage git credentials on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage git credentials” action.
+
+List of parameters for Notebook node to **manage git credentials**:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_os\_user                | Name of the SSH user                                                              |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
+| aws\_region                   | AWS region where infrastructure was deployed                                      |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| git\_creds                    | User git credentials in JSON format                                               |
+| action                        | git\_creds                                                                        |
+
+**Example** of git_creds parameter:
+
+```
+{
+  "username": "Test User",
+  "email": "test@example.com",
+  "hostname": "github.com",
+  "login": "testlogin",
+  "password": "testpassword"
+}          
+```
+
+**Note:** Fields "username" and "email" used for commits (displays Author in git log).
+
+**Note:** Leave "hostname" field empty to apply login/password by default for all services.
+
 ## EMR cluster <a name="EMR_cluster"></a>
 
 EMR cluster can be created if more computational resources are needed for executing analytical algorithms and models, triggered from analytical tools. Jobs execution will be scaled to a cluster mode increasing the performance and decreasing execution time.
