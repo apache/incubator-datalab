@@ -19,12 +19,23 @@
         ]
 }
 {
+    "_id" : "nbCreateDeeplearning",
+    "description" : "Create Notebook Deep Learning",
+    "exploratories" : [ 
+        "docker.dlab-deeplearning"
+        ],
+    "groups" : [
+        "$anyuser" 
+        ]
+}
+{
     "_id" : "nbCreateJupyter",
     "description" : "Create Notebook Jupyter",
     "exploratories" : [ 
         "docker.dlab-jupyter"
         ],
     "groups" : [
+        "$anyuser" 
         ]
 }
 {
@@ -34,6 +45,7 @@
         "docker.dlab-rstudio"
         ],
     "groups" : [
+        "$anyuser" 
         ]
 }
 {
@@ -43,6 +55,7 @@
         "docker.dlab-tensor"
         ],
     "groups" : [
+        "$anyuser" 
         ]
 }
 {
@@ -52,6 +65,7 @@
         "docker.dlab-zeppelin"
         ],
     "groups" : [
+        "$anyuser" 
         ]
 }
 {
@@ -61,5 +75,18 @@
         "docker.dlab-emr"
         ],
     "groups" : [
+        "$anyuser" 
+        ]
+}
+{
+    "_id" : "nbBillingReportFull",
+    "description" : "View full billing report for all users",
+    "pages" : [ 
+        "/api/infrastructure_provision/billing"
+        ],
+    "groups" : [
+        "$anyuser" 
+        ],
+    "users" : [ 
         ]
 }

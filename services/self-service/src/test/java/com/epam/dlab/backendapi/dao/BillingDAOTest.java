@@ -26,10 +26,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.BillingFilterFormDTO;
 import com.google.common.collect.Lists;
 
-//@Ignore
+@Ignore
 public class BillingDAOTest extends DAOTestBase {
     private BillingDAO dao;
     
@@ -58,7 +59,8 @@ public class BillingDAOTest extends DAOTestBase {
     	BillingFilterFormDTO filter = new BillingFilterFormDTO();
     	filter.setProduct(Lists.newArrayList("S3", "EC2"));
     	filter.setDateStart("2017-06-09");
-    	Document report = dao.getReport("user", filter);
+    	UserInfo userInfo = new UserInfo("user", "accessToken");
+		Document report = dao.getReport(userInfo, filter);
         assertEquals(report, report);
     }
 }

@@ -49,7 +49,10 @@ import java.util.Map;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.BillingFilterFormDTO;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.mongo.DlabResourceType;
 import com.google.common.base.MoreObjects;
@@ -68,6 +71,7 @@ public class BillingDAO extends BaseDAO {
     private static final String DLAB_RESOURCE_TYPE = "dlab_resource_type";
 	private static final String USAGE_DATE_START = "usage_date_start";
 	private static final String USAGE_DATE_END = "usage_date_end";
+	private static final String FULL_REPORT = "full_report";
 	
 	@Inject
 	private SettingsDAO settings;
@@ -223,16 +227,17 @@ System.out.println("getResourceTypeIds " + list);
     }
     
     /** Build and returns the billing report. 
-     * @param user name
+     * @param userInfo user info
      * @param filter the filter for report data.
      * @return
      */
-    public Document getReport(String user, BillingFilterFormDTO filter) {
+    public Document getReport(UserInfo userInfo, BillingFilterFormDTO filter) {
     	// Create filter
     	List<Bson> conditions = new ArrayList<>();
-    	if (false /*TODO check for admin*/) {
-    		filter.setUser(Lists.newArrayList(user));
-    	}
+    	boolean isFullReport = UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing");
+    	if (!isFullReport) {
+    		filter.setUser(Lists.newArrayList(userInfo.getSimpleName()));
+		}
     	addCondition(conditions, USER, filter.getUser());
     	addCondition(conditions, FIELD_RESOURCE_TYPE, filter.getProduct());
     	addCondition(conditions, DLAB_RESOURCE_TYPE, getResourceTypeIds(filter.getResourceType()));
@@ -322,6 +327,8 @@ System.out.println("getResourceTypeIds " + list);
 				.append(USAGE_DATE_END, usageDateEnd)
 				.append("lines", reportItems)
 				.append("cost_total", BillingUtils.round(costTotal, 2))
-				.append(FIELD_CURRENCY_CODE, (reportItems.size() > 0 ? reportItems.get(0).getString(FIELD_CURRENCY_CODE) : null));
+				.append(FIELD_CURRENCY_CODE, (reportItems.isEmpty() ? null :
+												reportItems.get(0).getString(FIELD_CURRENCY_CODE)))
+				.append(FULL_REPORT, isFullReport);
     }
 }

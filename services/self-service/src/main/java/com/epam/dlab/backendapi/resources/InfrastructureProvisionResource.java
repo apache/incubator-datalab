@@ -228,7 +228,7 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilterFormDTO formDTO) {
         LOGGER.debug("Loading billing report for user {} with filter {}", userInfo.getName(), formDTO);
         try {
-        	return billingDAO.getReport(userInfo.getSimpleName(), formDTO);
+        	return billingDAO.getReport(userInfo, formDTO);
         } catch (Throwable t) {
         	LOGGER.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), formDTO, t);
             throw new DlabException("Cannot load billing report: " + t.getLocalizedMessage(), t);

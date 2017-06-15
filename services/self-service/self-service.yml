@@ -32,9 +32,9 @@ maxEmrSpotInstanceBidPct: 90
 checkEnvStatusTimeout: 5m
 
 # Restrict access to DLab features using roles policy
-rolePolicyEnabled : false
+rolePolicyEnabled : true
 # Default access to DLab features using roles policy
-roleDefaultAccess : false
+roleDefaultAccess : true
 
 # Set to true to enable the scheduler of billing report.
 billingSchedulerEnabled: false
