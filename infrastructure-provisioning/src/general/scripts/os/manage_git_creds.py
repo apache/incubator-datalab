@@ -76,11 +76,10 @@ if __name__ == "__main__":
                 new_config.append('default login {0} password {1}'.format(data['login'], data['password']))
             else:
                 new_config.append('machine {0} login {1} password {2}'.format(data['hostname'], data['login'], data['password']))
-        local('rm .netrc')
-        with open(".netrc", "w+") as f:
+        with open("new_netrc", "w+") as f:
             for conf in sorted(new_config, reverse=True):
                 f.writelines(conf)
-        put('.netrc', '/home/{}/.netrc'.format(args.os_user))
+        put('new_netrc', '/home/{}/.netrc'.format(args.os_user))
     except Exception as err:
         append_result("Failed to add host/login/(password/token) to config.", str(err))
         sys.exit(1)
