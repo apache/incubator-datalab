@@ -18,6 +18,8 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.resources.dto;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
@@ -25,16 +27,16 @@ import com.google.common.base.MoreObjects;
  */
 public class BillingFilterFormDTO {
     @JsonProperty
-    private String user;
+    private List<String> user;
 
     @JsonProperty
-    private String product;
+    private List<String> product;
 
     @JsonProperty("resource_type")
-    private String resourceType;
+    private List<String> resourceType;
     
     @JsonProperty
-    private String shape;
+    private List<String> shape;
 
     @JsonProperty("date_start")
     private String dateStart;
@@ -44,42 +46,42 @@ public class BillingFilterFormDTO {
 
 
     /** Return the name of user. */
-    public String getUser() {
+    public List<String> getUser() {
     	return user;
     }
 
     /** Set the name of user. */
-    public void setUser(String user) {
+    public void setUser(List<String> user) {
     	this.user = user;
     }
 
     /** Return name of product. */
-	public String getProduct() {
+	public List<String> getProduct() {
 		return product;
 	}
 
     /** Set name of product. */
-	public void setProduct(String product) {
+	public void setProduct(List<String> product) {
 		this.product = product;
 	}
 
 	/** Return type of resource. */
-	public String getResourceType() {
+	public List<String> getResourceType() {
 		return resourceType;
 	}
 
 	/** Set type of resource. */
-	public void setResourceType(String resourceType) {
+	public void setResourceType(List<String> resourceType) {
 		this.resourceType = resourceType;
 	}
 
     /** Return name of shape. */
-    public String getShape() {
+    public List<String> getShape() {
         return shape;
     }
 
     /** Set name of shape. */
-    public void setShape(String shape) {
+    public void setShape(List<String> shape) {
         this.shape = shape;
     }
 
