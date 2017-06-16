@@ -92,9 +92,9 @@ limitations under the License.
           <description>
             Dictionary of git credentials in json format. For example:
             {
-              "username": "test user",
-              "email": "test@test.com",
-              "hostname": "test.com",
+              "username": "Test User",
+              "email": "test@example.com",
+              "hostname": "github.com",
               "login": "testlogin",
               "password": "testpassword"
             }
