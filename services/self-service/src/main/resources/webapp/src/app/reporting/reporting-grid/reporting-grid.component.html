@@ -60,8 +60,11 @@ limitations under the License.
   <tr *ngIf="!reportData" class="message_block">
     <td colspan="7">To start working, please, create new environment</td>
   </tr>
+    <tr *ngIf="reportData && reportData.length == 0" class="message_block">
+    <td colspan="7">No matches found</td>
+  </tr>
 
-  <template [ngIf]="reportData && reportData">
+  <template [ngIf]="reportData">
     <tr *ngFor="let line of reportData">
       <td>{{ line.user }}</td>
       <td>{{ line.dlab_id }}</td>

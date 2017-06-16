@@ -60,7 +60,9 @@ limitations under the License.
 .cdk-overlay-container {
     z-index: 9999;
 }
-
+.cdk-overlay-pane {
+  min-width: 220px;
+}
 .install-libs .mat-tab-label {
     width: 50%;
     font-family: 'Open Sans',sans-serif !important;

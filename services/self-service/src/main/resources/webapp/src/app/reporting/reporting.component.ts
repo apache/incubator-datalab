@@ -23,11 +23,13 @@ import { ReportingFilterConfigurationModel }  from './reporting-data.model';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
+import * as moment from 'moment';
+
 @Component({
   selector: 'dlab-reporting',
   template: `
   <dlab-navbar></dlab-navbar>
-  <dlab-toolbar (rebuildReport)="getGeneralBillingData()"></dlab-toolbar>
+  <dlab-toolbar (rebuildReport)="getGeneralBillingData()" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
   <dlab-reporting-grid (filterReport)="filterReport($event)"></dlab-reporting-grid>
   <footer>
     Total {{data?.cost_total}} {{data?.currency_code}}
@@ -38,13 +40,13 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
       position: fixed;
       left: 0px;
       bottom: 0px;
-      height: 30px;
       width: 100%;
-      background: #f9fafb;
-      color: #36b1d8;
+      background: #a1b7d1;
+      color: #ffffff;
       text-align: right;
-      padding: 30px 40px;
-      font-size: 20px;
+      padding: 5px 120px;
+      font-size: 18px;
+      box-shadow: 0 9px 18px 15px #f5f5f5;
     }
   `]
 })
@@ -100,6 +102,14 @@ export class ReportingComponent implements OnInit {
   filterReport(event: ReportingFilterConfigurationModel): void {
     console.log('ReportingComponent ',event);
     this.reportDataConfig = event;
+    this.getGeneralBillingData();
+  }
+
+  setRangeOption(en) {
+    console.log('RANGE START', en);
+    this.reportDataConfig.date_start = en;
+    this.reportDataConfig.date_end = moment().format('YYYY-MM-D');
+    console.log('RANGE reportDataConfig', this.reportDataConfig);
     this.getGeneralBillingData();
   }
 }

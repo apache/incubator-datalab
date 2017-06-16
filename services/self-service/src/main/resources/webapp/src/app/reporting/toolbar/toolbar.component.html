@@ -21,17 +21,20 @@ limitations under the License.
       <div>Service base name: <strong>{{ reportData.service_base_name }}</strong></div>
       <div>Resource tag ID: <strong>{{ reportData.tag_resource_id }}</strong></div>
     </div>
-    <div>Report period: <strong>from: {{ reportData.usage_date_start }} to: {{ reportData.usage_date_end }}</strong></div>
+    <div *ngIf="reportData.usage_date_start && reportData.usage_date_end">
+      Report period:
+      <strong>from: {{ reportData.usage_date_start }} to: {{ reportData.usage_date_end }}</strong>
+    </div>
   </div>
 
-  <div>
-    <button md-button [mdMenuTriggerFor]="dateRange">
+  <div class="action-butt">
+    <button md-raised-button class="butt butt-report-range" [mdMenuTriggerFor]="dateRange">
       <!--<i class="material-icons">date_range</i>-->
       <i class="material-icons">event</i>
       Report period range
     </button>
     <md-menu #dateRange="mdMenu">
-      <button md-menu-item *ngFor="let item of rangeOptions" (click)="setRangeOption(item)">{{item}}</button>
+      <button md-menu-item *ngFor="let item of rangeOptions" (click)="calculateRange(item)">{{item}}</button>
     </md-menu>
     <button md-raised-button class="butt" (click)="rebuild($event)">
       <i class="material-icons">autorenew</i>Refresh

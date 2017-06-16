@@ -17,7 +17,8 @@ limitations under the License.
 ****************************************************************************/
 
 .dashboard_table.reporting {
-    margin-bottom: 60px;
+    margin-bottom: 50px;
+    zoom: 0.75;
 }
 .dashboard_table.reporting tr th {
     font-size: 11px;
