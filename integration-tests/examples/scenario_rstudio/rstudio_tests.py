@@ -20,6 +20,9 @@
 
 from fabric.api import *
 import argparse
+import boto3
+from botocore.client import Config
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -29,9 +32,25 @@ parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 
+def get_files(s3client, s3resource, dist, bucket, local):
+    s3list = s3client.get_paginator('list_objects')
+    for result in s3list.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
+        if result.get('CommonPrefixes') is not None:
+            for subdir in result.get('CommonPrefixes'):
+                get_files(s3client, s3resource, subdir.get('Prefix'), bucket, local)
+        if result.get('Contents') is not None:
+            for file in result.get('Contents'):
+                if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
+                    os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
+                s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
+
+
 def prepare_templates():
-    local('aws s3 cp --region {} --recursive s3://{}/test_templates_rstudio/ /home/{}/test_rstudio/'.
-          format(args.region, args.bucket, args.os_user))
+    templates_dir = '/home/{}/test_rstudio/'.format(args.os_user)
+    local('mkdir -p {}'.format(templates_dir))
+    s3client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
+    s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'))
+    get_files(s3client, s3resource, 'test_templates_rstudio', args.bucket, templates_dir)
 
 
 def prepare_rscript(template_path, rscript_name):
