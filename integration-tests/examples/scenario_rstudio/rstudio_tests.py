@@ -25,12 +25,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
 parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 
 def prepare_templates():
-    local('aws s3 cp --recursive s3://' + args.bucket + '/test_templates_rstudio/ /home/{}/test_rstudio/'.
-          format(args.os_user))
+    local('aws s3 cp --region {} --recursive s3://{}/test_templates_rstudio/ /home/{}/test_rstudio/'.
+          format(args.region, args.bucket, args.os_user))
 
 
 def prepare_rscript(template_path, rscript_name):

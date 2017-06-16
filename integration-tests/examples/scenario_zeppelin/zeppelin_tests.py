@@ -30,6 +30,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
 parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 
@@ -139,8 +140,8 @@ def run_sparkr():
 
 
 def prepare_templates():
-    local('aws s3 cp --recursive s3://' + args.bucket + '/test_templates_zeppelin/ /home/{}/test_templates/'.
-          format(args.os_user))
+    local('aws s3 cp --region {} --recursive s3://{}/test_templates_zeppelin/ /home/{}/test_templates/'.
+          format(args.region, args.bucket, args.os_user))
     
 notebook_ip = local('hostname -I', capture=True)
 prepare_templates()
