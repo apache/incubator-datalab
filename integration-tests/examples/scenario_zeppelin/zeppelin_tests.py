@@ -25,6 +25,7 @@ import argparse
 import sys
 import json
 import os
+from botocore.client import Config
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
@@ -32,6 +33,19 @@ parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
+
+
+def get_files(s3client, s3resource, dist, bucket, local):
+    s3list = s3client.get_paginator('list_objects')
+    for result in s3list.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
+        if result.get('CommonPrefixes') is not None:
+            for subdir in result.get('CommonPrefixes'):
+                get_files(s3client, s3resource, subdir.get('Prefix'), bucket, local)
+        if result.get('Contents') is not None:
+            for file in result.get('Contents'):
+                if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
+                    os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
+                s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
 
 
 def get_note_status(note_id, notebook_ip):
@@ -140,8 +154,11 @@ def run_sparkr():
 
 
 def prepare_templates():
-    local('aws s3 cp --region {} --recursive s3://{}/test_templates_zeppelin/ /home/{}/test_templates/'.
-          format(args.region, args.bucket, args.os_user))
+    templates_dir = '/home/{}/test_zeppelin/'.format(args.os_user)
+    local('mkdir -p {}'.format(templates_dir))
+    s3client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
+    s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'))
+    get_files(s3client, s3resource, 'test_templates_zeppelin', args.bucket, templates_dir)
     
 notebook_ip = local('hostname -I', capture=True)
 prepare_templates()
