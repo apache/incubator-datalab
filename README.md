@@ -520,13 +520,13 @@ List of parameters for Notebook node to **manage git credentials**:
 **Example** of git_creds parameter:
 
 ```
-{
+[{
   "username": "Test User",
   "email": "test@example.com",
   "hostname": "github.com",
   "login": "testlogin",
   "password": "testpassword"
-}
+}, ...]
 ```
 
 **Note:** Fields "username" and "email" used for commits (displays Author in git log).

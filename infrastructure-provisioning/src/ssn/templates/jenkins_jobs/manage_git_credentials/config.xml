@@ -90,14 +90,14 @@ limitations under the License.
         <hudson.model.StringParameterDefinition>
           <name>git_creds</name>
           <description>
-            Dictionary of git credentials in json format. For example:
-            {
+            List of git credentials in json format. For example:
+            [{
               "username": "Test User",
               "email": "test@example.com",
               "hostname": "github.com",
               "login": "testlogin",
               "password": "testpassword"
-            }
+            }, ...]
             Fileds "username" and "email" used for commits (display Author).
             Leave "hostname" field empty to apply login/password by default for all services
           </description>
