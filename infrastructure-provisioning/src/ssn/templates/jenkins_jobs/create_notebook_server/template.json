@@ -9,5 +9,6 @@
     "aws_notebook_instance_type":"NIT",
     "edge_user_name":"NUN",
     "aws_security_groups_ids":"SGI",
-    "application":"APP"
+    "application":"APP",
+    "git_creds": GIT
 }

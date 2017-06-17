@@ -101,7 +101,7 @@ limitations under the License.
             Fileds "username" and "email" used for commits (display Author).
             Leave "hostname" field empty to apply login/password by default for all services
           </description>
-          <defaultValue></defaultValue>
+          <defaultValue>[{"username": "", "email": "", "hostname": "", "login": "", "password": ""}]</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
