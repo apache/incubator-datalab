@@ -16,10 +16,10 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 
 import { BillingReportService }  from './../core/services';
-import { ReportingFilterConfigurationModel }  from './reporting-data.model';
+import { ReportingConfigModel }  from './reporting-data.model';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
@@ -50,12 +50,13 @@ import * as moment from 'moment';
     }
   `]
 })
-export class ReportingComponent implements OnInit {
+export class ReportingComponent implements OnInit, OnDestroy {
 
   @ViewChild(ReportingGridComponent) reportingGrid: ReportingGridComponent;
   @ViewChild(ToolbarComponent) reportingToolbar: ToolbarComponent;
 
-  reportDataConfig: ReportingFilterConfigurationModel = new ReportingFilterConfigurationModel([],[],[],[],'','');
+  reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
+  filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();
   data: any;
 
   constructor(private billingReportService: BillingReportService) { }
@@ -63,20 +64,27 @@ export class ReportingComponent implements OnInit {
   ngOnInit() {
     this.getGeneralBillingData();
   }
+  ngOnDestroy() {
+    localStorage.removeItem('report_config');
+  }
 
   getGeneralBillingData() {
-    this.billingReportService.getGeneralBillingData(this.reportDataConfig)
+    this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
         this.reportingGrid.reportData = this.data.lines;
         this.reportingToolbar.reportData = this.data;
 
-        this.getDefaultFilterConfiguration(this.data);
+        if (localStorage.getItem('report_config')) {
+          this.filterConfiguration = JSON.parse(localStorage.getItem('report_config'));
+          this.reportingGrid.setConfiguration(this.filterConfiguration);
+        } else {
+          this.getDefaultFilterConfiguration(this.data);
+        }
      });
   }
 
   getDefaultFilterConfiguration(data): void {
-    console.log(data);
     const users = [], types = [], shapes = [], services = [];
 
     data.lines.forEach((item: any) => {
@@ -92,24 +100,21 @@ export class ReportingComponent implements OnInit {
       if (item.product && services.indexOf(item.product) === -1)
         services.push(item.product);
     });
-    console.log('users: ' + users);
-    console.log('types: ' + types);
-    console.log('shapes: ' + shapes);
-    console.log('services: ' + services);
-    this.reportingGrid.setConfiguration(users, types, shapes, services);
+
+    this.filterConfiguration = new ReportingConfigModel(users, services, types, shapes, '', '' );
+    this.reportingGrid.setConfiguration(this.filterConfiguration);
+    localStorage.setItem('report_config' , JSON.stringify(this.filterConfiguration));
   }
 
-  filterReport(event: ReportingFilterConfigurationModel): void {
-    console.log('ReportingComponent ',event);
-    this.reportDataConfig = event;
+  filterReport(event: ReportingConfigModel): void {
+    this.reportData = event;
     this.getGeneralBillingData();
   }
 
-  setRangeOption(en) {
-    console.log('RANGE START', en);
-    this.reportDataConfig.date_start = en;
-    this.reportDataConfig.date_end = moment().format('YYYY-MM-D');
-    console.log('RANGE reportDataConfig', this.reportDataConfig);
+  setRangeOption(dateRangeOption: string): void {
+    this.reportData.date_start = dateRangeOption;
+    this.reportData.date_end = moment().format('YYYY-MM-D');
+    console.log('RANGE reportData', this.reportData);
     this.getGeneralBillingData();
   }
 }

@@ -16,7 +16,12 @@ limitations under the License.
 
 ****************************************************************************/
 
-export class ReportingFilterConfigurationModel {
+export class ReportingConfigModel {
+
+  static getDefault(): ReportingConfigModel {
+    return new ReportingConfigModel([], [], [], [], '', '');
+  }
+
   constructor(
     public user: Array<string>,
     public product: Array<string>,

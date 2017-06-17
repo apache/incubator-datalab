@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { ReportingFilterConfigurationModel } from '../reporting-data.model';
+import { ReportingConfigModel } from '../reporting-data.model';
 
 @Component({
   selector: 'dlab-reporting-grid',
@@ -27,10 +27,10 @@ import { ReportingFilterConfigurationModel } from '../reporting-data.model';
 })
 export class ReportingGridComponent implements OnInit {
 
-  filterConfiguration: ReportingFilterConfigurationModel;
-  filteredReportData: ReportingFilterConfigurationModel = new ReportingFilterConfigurationModel([], [], [], [], '', '');
+  filterConfiguration: ReportingConfigModel;
+  filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], '', '');
   collapseFilterRow: boolean = false;
-  reportData: ReportingFilterConfigurationModel[];
+  reportData: ReportingConfigModel[];
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
 
@@ -60,8 +60,10 @@ export class ReportingGridComponent implements OnInit {
     this.collapseFilterRow = !this.collapseFilterRow;
   }
 
-  setConfiguration(users, types, shapes, services): void {
-    this.filterConfiguration = new ReportingFilterConfigurationModel(users, services, types, shapes, '', '' );
+  setConfiguration(reportConfig: ReportingConfigModel): void {
+    // this.filterConfiguration = new ReportingFilterConfigurationModel(users, services, types, shapes, '', '' );
+    this.filterConfiguration = reportConfig;
+
     console.log('filterConfiguration: ', this.filterConfiguration);
   }
 
