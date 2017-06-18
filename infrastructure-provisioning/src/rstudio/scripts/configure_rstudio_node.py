@@ -36,11 +36,16 @@ parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--rstudio_pass', type=str, default='')
 parser.add_argument('--rstudio_version', type=str, default='')
+parser.add_argument('--r_mirror', type=str, default='')
 args = parser.parse_args()
 
 spark_version = os.environ['notebook_spark_version']
 hadoop_version = os.environ['notebook_hadoop_version']
-spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
+if args.region == 'cn-north-1':
+    spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
+                 "-bin-hadoop" + hadoop_version + ".tgz"
+else:
+    spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
 local_spark_path = '/opt/spark/'
 s3_jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
@@ -77,7 +82,7 @@ if __name__ == "__main__":
     ensure_python3_libraries(args.os_user)
 
     print "Installing R"
-    ensure_r(args.os_user, r_libs)
+    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
     print "Install RStudio"
     install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version)

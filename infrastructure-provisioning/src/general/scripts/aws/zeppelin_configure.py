@@ -97,8 +97,8 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO ZEPPELIN NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO ZEPPELIN NOTEBOOK INSTANCE]')
-        params = "--hostname {} --keyfile {} --user {}" \
-            .format(instance_hostname, keyfile_name, os.environ['conf_os_user'])
+        params = "--hostname {} --keyfile {} --user {} --region {}" \
+            .format(instance_hostname, keyfile_name, os.environ['conf_os_user'], os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -117,12 +117,13 @@ if __name__ == "__main__":
                              "backend_hostname": get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name']),
                              "backend_port": "8080",
                              "nginx_template_dir": "/root/templates/"}
-        params = "--hostname {} --instance_name {} --keyfile {} --region {} --additional_config '{}' --os_user {} --spark_version {} --hadoop_version {} --edge_hostname {} --proxy_port {} --zeppelin_version {} --scala_version {} --livy_version {} --multiple_emrs {}" \
+        params = "--hostname {} --instance_name {} --keyfile {} --region {} --additional_config '{}' --os_user {} --spark_version {} --hadoop_version {} --edge_hostname {} --proxy_port {} --zeppelin_version {} --scala_version {} --livy_version {} --multiple_emrs {} --r_mirror {}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['aws_region'],
                     json.dumps(additional_config), os.environ['conf_os_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
-                    os.environ['notebook_livy_version'], os.environ['notebook_multiple_emrs'])
+                    os.environ['notebook_livy_version'], os.environ['notebook_multiple_emrs'],
+                    os.environ['notebook_r_mirror'])
         try:
             local("~/scripts/{}.py {}".format('configure_zeppelin_node', params))
         except:
