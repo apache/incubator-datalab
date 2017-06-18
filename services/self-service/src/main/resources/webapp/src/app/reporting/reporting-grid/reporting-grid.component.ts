@@ -31,6 +31,7 @@ export class ReportingGridComponent implements OnInit {
   filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], '', '');
   collapseFilterRow: boolean = false;
   reportData: ReportingConfigModel[];
+  isFiltered: boolean = false;
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
 
@@ -39,9 +40,9 @@ export class ReportingGridComponent implements OnInit {
   public filteringColumns: Array<any> = [
     { title: 'User', name: 'user', className: 'th_user', filtering: {}, role: 'admin'},
     { title: 'Environment name', name: 'name', className: 'th_env_name', filtering: {} },
-    { title: 'Resource Type', name: 'type', className: 'th_type', filtering: {} },
+    { title: 'Resource Type', name: 'resource_type', className: 'th_type', filtering: {} },
     { title: 'Shape', name: 'shape', className: 'th_shape', filtering: {} },
-    { title: 'Service', name: 'service', className: 'th_service', filtering: {} },
+    { title: 'Service', name: 'product', className: 'th_service', filtering: {} },
     { title: 'Service Charges', name: 'charges', className: 'th_charges' },
     // { title: 'Cloud provider', className: 'th_provider' },
     { title: 'Actions', className: 'th_actions' }
@@ -61,7 +62,6 @@ export class ReportingGridComponent implements OnInit {
   }
 
   setConfiguration(reportConfig: ReportingConfigModel): void {
-    // this.filterConfiguration = new ReportingFilterConfigurationModel(users, services, types, shapes, '', '' );
     this.filterConfiguration = reportConfig;
 
     console.log('filterConfiguration: ', this.filterConfiguration);
@@ -71,5 +71,6 @@ export class ReportingGridComponent implements OnInit {
     if (clearing) this.filteredReportData.defaultConfigurations();
 
     this.filterReport.emit(this.filteredReportData);
+    this.isFiltered = true;
   }
 }

@@ -20,9 +20,9 @@ limitations under the License.
   <tr>
     <th *ngFor="let column of filteringColumns" ngClass="{{column.className || ''}}">{{column.title}}
       <button md-icon-button *ngIf="column.filtering" aria-label="More" class="pull-right" (click)="toggleFilterRow()">
-        <i class="material-icons">
-          <span>filter_list</span>
-          <!--<span>more_vert</span>-->
+        <i class="material-icons" *ngIf="filteredReportData[column.name]">
+          <span *ngIf="isFiltered && filteredReportData[column.name].length > 0 && !collapseFilterRow">filter_list</span>
+          <span [hidden]="isFiltered && filteredReportData[column.name].length > 0 && !collapseFilterRow">more_vert</span>
         </i>
       </button>
     </th>
@@ -47,7 +47,7 @@ limitations under the License.
     <td></td>
     <td>
       <div class="actions">
-        <button md-icon-button class="btn reset" (click)="filter_btnClick('reset')">
+        <button md-icon-button class="btn reset" (click)="filter_btnClick('reset'); isFiltered = !isFiltered">
           <i class="material-icons">close</i>
         </button>
 
@@ -72,7 +72,7 @@ limitations under the License.
       <td>{{ line.shape }}</td>
       <td>{{ line.product }} ({{ line.resource_type}})</td>
       <td>{{ line.cost }} {{ line.currency_code }}</td>
-      <td>act</td>
+      <td></td>
     </tr>
   </template>
 </table>
