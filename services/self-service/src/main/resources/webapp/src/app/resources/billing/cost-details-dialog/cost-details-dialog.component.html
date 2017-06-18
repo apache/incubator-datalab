@@ -25,10 +25,10 @@ limitations under the License.
       <div class="detail-header-wrap">
         <table class="detail-header">
           <tr>
-            <td><div>{{notebook.name}}</div></td>
-            <td><div>{{notebook.template_name}}</div></td>
-            <td><span class="status" ngClass="{{notebook.status || ''}}">{{notebook.status}}</span></td>
-            <td>{{notebook.shape}}</td>
+            <td mdTooltip="{{ notebook.name }}" mdTooltipPosition="above">{{ notebook.name }}</td>
+            <td>{{ notebook.template_name }}</td>
+            <td class="status" ngClass="{{ notebook.status || ''}}">{{ notebook.status }}</td>
+            <td>{{ notebook.shape }}</td>
           </tr>
         </table>
       </div>
@@ -44,7 +44,11 @@ limitations under the License.
             </md-list-item>
             <div class="scrolling-content">
               <md-list-item *ngFor="let item of notebook.billing">
-                <div class="resource-name">{{ item.resource_name }}</div>
+                <div class="resource-name"
+                     mdTooltip="{{ item.resource_name }}"
+                     mdTooltipPosition="above">
+                     {{ item.resource_name }}
+                </div>
                 <div class="service">{{ item.product }}</div>
                 <div class="resource-type">{{ item.resource_type }}</div>
                 <div class="cost-currency">{{ item.cost }} {{ item.currency_code }}</div>

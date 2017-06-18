@@ -21,6 +21,8 @@ limitations under the License.
   font-weight: 600;
   color: #455c74;
   text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 .billing-detail table {
@@ -69,7 +71,9 @@ limitations under the License.
   text-overflow: ellipsis;
   padding-right: 10px;
 }
-
+.billing-detail .resource-name {
+  cursor: pointer;
+}
 .mat-list-item-content {
     font-size: 15px !important;
 }
