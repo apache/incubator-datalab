@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # *****************************************************************************
 #
 # Copyright (c) 2016, EPAM SYSTEMS INC
@@ -16,22 +18,19 @@
 #
 # ******************************************************************************
 
+import os
+import sys
+import json
+import subprocess
 
-FROM docker.dlab-base:latest
+data = json.loads(open("/home/" + os.environ['USER'] + "/.gitcreds").read())
+url = subprocess.check_output(["git", "config", "--local", "remote.origin.url"])
 
-ARG OS
-ARG CLOUD
-
-COPY rstudio/ /root/
-COPY general/scripts/${CLOUD}/rstudio_* /root/scripts/
-COPY general/scripts/os/* /root/scripts/
-COPY rstudio/scripts/create_configs.py /root/scripts/
-COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
-COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
-COPY general/templates/os/${OS}/ungit.service /root/templates/
-COPY general/templates/os/git_pre_commit.py /root/templates/
-COPY general/files/os/notebook_local_jars.tar.gz /root/files/
-
-RUN chmod a+x /root/fabfile.py; \
-    chmod a+x /root/scripts/*
-
+for host in data.keys():
+    if host in url:
+        if os.environ['GIT_AUTHOR_NAME'] != data[host][0] or os.environ['GIT_AUTHOR_EMAIL'] != data[host][1]:
+            subprocess.check_output(["git", "config", "--local", "user.name", data[host][0]])
+            subprocess.check_output(["git", "config", "--local", "user.email", data[host][1]])
+            sys.exit(1)
+        else:
+            sys.exit(0)

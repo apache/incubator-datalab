@@ -31,6 +31,7 @@ COPY general/templates/${CLOUD}/emr_interpreter_livy.json /root/templates/
 COPY general/templates/${CLOUD}/emr_interpreter_spark.json /root/templates/
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
+COPY general/templates/os/git_pre_commit.py /root/templates/
 COPY general/files/os/notebook_local_jars.tar.gz /root/files/
 
 RUN chmod a+x /root/fabfile.py; \

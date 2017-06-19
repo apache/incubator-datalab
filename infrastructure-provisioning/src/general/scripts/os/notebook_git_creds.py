@@ -36,8 +36,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        logging.info('[SETUPPING USER GIT CREDENTIALS]')
-        print '[SETUPPING USER GIT CREDENTIALS]'
+        logging.info('[SETUP USER GIT CREDENTIALS]')
+        print '[SETUP USER GIT CREDENTIALS]'
         create_aws_config_files()
         notebook_config = dict()
         try:
@@ -51,7 +51,7 @@ if __name__ == "__main__":
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
-        params = "--os_user {} --notebook_ip {} --keyfile '{}' --git_creds '{}'" \
+        params = '--os_user {} --notebook_ip {} --keyfile "{}" --git_creds "{}"' \
             .format(notebook_config['os_user'], notebook_config['notebook_ip'],
                     notebook_config['keyfile'], notebook_config['git_creds'])
         try:
@@ -63,3 +63,7 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Failed to manage git credentials.", str(err))
         sys.exit(1)
+
+    with open("/root/result.json", 'w') as result:
+        res = {"Action": "Setup git credentials"}
+        result.write(json.dumps(res))

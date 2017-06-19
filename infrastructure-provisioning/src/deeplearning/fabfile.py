@@ -55,13 +55,6 @@ def run():
         append_result("Failed configuring Notebook node.", str(err))
         sys.exit(1)
 
-    try:
-        local("~/scripts/{}.py".format('notebook_git_creds'))
-    except Exception as err:
-        traceback.print_exc()
-        append_result("Failed to manage git credentials for notebook node.", str(err))
-        sys.exit(1)
-
 
 # Main function for terminating exploratory environment
 def terminate():
@@ -106,13 +99,6 @@ def start():
     except Exception as err:
         traceback.print_exc()
         append_result("Failed starting Notebook node.", str(err))
-        sys.exit(1)
-
-    try:
-        local("~/scripts/{}.py".format('notebook_git_creds'))
-    except Exception as err:
-        traceback.print_exc()
-        append_result("Failed to manage git credentials for notebook node.", str(err))
         sys.exit(1)
 
 

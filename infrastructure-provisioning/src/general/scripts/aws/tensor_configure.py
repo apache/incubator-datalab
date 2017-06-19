@@ -161,6 +161,21 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        print '[SETUP USER GIT CREDENTIALS]'
+        logging.info('[SETUP USER GIT CREDENTIALS]')
+        params = '--os_user {} --notebook_ip {} --keyfile "{}" --git_creds "{}"' \
+            .format(os.environ['conf_os_user'], instance_hostname, keyfile_name, os.environ['git_creds'])
+        try:
+            local("~/scripts/{}.py {}".format('manage_git_creds', params))
+        except:
+            append_result("Failed setup git credentials")
+            raise Exception
+    except Exception as err:
+        append_result("Failed to setup git credentials.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
+    try:
         print '[CREATING AMI]'
         logging.info('[CREATING AMI]')
         ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])

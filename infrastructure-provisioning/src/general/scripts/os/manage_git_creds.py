@@ -48,16 +48,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        run('git config --global user.name \"{}\"'.format(data[0]['username']))
-        run('git config --global user.email \"{}\"'.format(data[0]['email']))
-    except Exception as err:
-        append_result("Failed to add username and email to git config.", str(err))
-        sys.exit(1)
-
-    try:
         new_config = list()
-        for i in len(data):
-            if data['hostname'] == "":
+        for i in range(len(data)):
+            if data[i]['hostname'] == "":
                 new_config.append('default login {0} password {1}'.format(data[i]['login'], data[i]['password']))
             else:
                 new_config.append('machine {0} login {1} password {2}'.format(data[i]['hostname'], data[i]['login'], data[i]['password']))
@@ -67,10 +60,16 @@ if __name__ == "__main__":
             for conf in sorted(new_config, reverse=True):
                 f.writelines(conf)
         put('new_netrc', '/home/{}/.netrc'.format(args.os_user))
+
+        if exists('/home/{}/.gitcreds'.format(args.os_user)):
+            run('rm .gitcreds')
+        creds = dict()
+        with open("new_gitcreds", 'w') as gitcreds:
+            for i in range(len(data)):
+                creds.update({data[i]['hostname']: [data[i]['username'], data[i]['email']]})
+            gitcreds.write(json.dumps(creds))
+        put('new_gitcreds', '/home/{}/.gitcreds'.format(args.os_user))
+
     except Exception as err:
         append_result("Failed to add host/login/(password/token) to config.", str(err))
         sys.exit(1)
-
-    with open("/root/result.json", 'w') as result:
-        res = {"Action": "Setup git credentials"}
-        result.write(json.dumps(res))
