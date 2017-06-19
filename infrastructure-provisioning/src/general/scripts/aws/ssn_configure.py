@@ -89,9 +89,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        if os.environ['os_family'] == 'debian':
+        if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
-        if os.environ['os_family'] == 'redhat':
+        if os.environ['conf_os_family'] == 'redhat':
             initial_user = 'ec2-user'
 
         logging.info('[CREATING DLAB SSH USER]')

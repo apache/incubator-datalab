@@ -45,7 +45,7 @@ if __name__ == "__main__":
     env.key_filename = [args.keyfile]
     env.host_string = '{}@{}'.format(args.initial_user, args.hostname)
 
-    print "Creating ssh user 'dlab'"
+    print "Creating ssh user: {}".format(args.os_user)
     try:
         ensure_ssh_user(args.initial_user, args.os_user)
     except:
