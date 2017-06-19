@@ -30,8 +30,6 @@ parser.add_argument('--os_family', type=str, default='',
                     help='Operating system type. Available options: debian, redhat')
 parser.add_argument('--cloud_provider', type=str, default='',
                     help='Where DLab should be deployed. Available options: aws')
-parser.add_argument('--os_user', type=str, default='',
-                    help='Name of OS user. By default for Debian - ubuntu, RedHat - ec2-user')
 parser.add_argument('--vpc_id', type=str, default='', help='AWS VPC ID')
 parser.add_argument('--subnet_id', type=str, default='', help='AWS Subnet ID')
 parser.add_argument('--sg_ids', type=str, default='', help='One of more comma-separated Security groups IDs for SSN')
@@ -92,13 +90,13 @@ def deploy_dlab(args):
           format(args.workspace_path))
     # Creating SSN node
     local('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -v {2}/web_app:/root/web_app -e "conf_os_family={3}" '
-          '-e "conf_os_user={4}" -e "conf_cloud_provider={5}" -e "conf_resource=ssn" '
-          '-e "aws_ssn_instance_size=t2.medium" -e "aws_region={6}" -e "aws_vpc_id={7}" -e "aws_subnet_id={8}" '
-          '-e "aws_security_groups_ids={9}" -e "conf_key_name={1}" -e "conf_service_base_name={10}" '
-          '-e "aws_access_key={11}" -e "aws_secret_access_key={12}" -e "conf_tag_resource_id={14}" '
-          '-e "aws_account_id={15}" -e "aws_billing_bucket={16}" -e "aws_report_path={17}" '
-          'docker.dlab-ssn --action {13}'.format(args.key_path, args.key_name, args.workspace_path, args.os_family,
-                                                 args.os_user, args.cloud_provider, args.region, args.vpc_id,
+          '-e "conf_cloud_provider={4}" -e "conf_resource=ssn" '
+          '-e "aws_ssn_instance_size=t2.medium" -e "aws_region={5}" -e "aws_vpc_id={6}" -e "aws_subnet_id={7}" '
+          '-e "aws_security_groups_ids={8}" -e "conf_key_name={1}" -e "conf_service_base_name={9}" '
+          '-e "aws_access_key={10}" -e "aws_secret_access_key={11}" -e "conf_tag_resource_id={13}" '
+          '-e "aws_account_id={14}" -e "aws_billing_bucket={15}" -e "aws_report_path={16}" '
+          'docker.dlab-ssn --action {12}'.format(args.key_path, args.key_name, args.workspace_path, args.os_family,
+                                                 args.cloud_provider, args.region, args.vpc_id,
                                                  args.subnet_id, args.sg_ids, args.infrastructure_tag,
                                                  args.access_key_id, args.secret_access_key, args.action,
                                                  args.tag_resource_id, args.aws_account_id, args.aws_billing_bucket,
