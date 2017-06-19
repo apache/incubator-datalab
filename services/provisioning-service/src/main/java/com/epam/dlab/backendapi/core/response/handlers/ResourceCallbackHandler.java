@@ -147,6 +147,9 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
         if (success) {
             switch (action) {
             	case STATUS:
+            	case GIT_CREDS:
+                case LIB_LIST:
+                case LIB_INSTALL:
             		return UserInstanceStatus.CREATED; // Any status besides failed
                 case CREATE:
                     return UserInstanceStatus.RUNNING;
@@ -158,10 +161,6 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
                     return UserInstanceStatus.STOPPED;
                 case TERMINATE:
                     return UserInstanceStatus.TERMINATED;
-                case LIB_LIST:
-                    return UserInstanceStatus.CREATED;
-                case LIB_INSTALL:
-                    return UserInstanceStatus.CREATED;
 			default:
 				break;
             }
