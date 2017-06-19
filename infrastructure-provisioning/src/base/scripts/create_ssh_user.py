@@ -38,7 +38,7 @@ def ensure_ssh_user(initial_user, os_user):
     sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
     sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
     sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
-    sudo('echo "{} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-cloud-init-users'.format(os_user))
+    sudo('echo "{} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/90-cloud-init-users'.format(os_user))
 
 
 if __name__ == "__main__":
