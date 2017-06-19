@@ -53,7 +53,7 @@ if __name__ == "__main__":
         pre_defined_subnet = False
         pre_defined_sg = False
         billing_enabled = True
-        dlab_ssh_user = os.environ['conf_dlab_ssh_user']
+        dlab_ssh_user = os.environ['conf_os_user']
         try:
             if os.environ['aws_vpc_id'] == '':
                 raise KeyError
