@@ -70,7 +70,7 @@ if __name__ == "__main__":
 
         try:
             del sheet.metadata["widgets"]
-        except AttributeError:
+        except KeyError:
             pass
 
         try:

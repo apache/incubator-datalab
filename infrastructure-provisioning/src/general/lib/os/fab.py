@@ -264,6 +264,11 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo("systemctl daemon-reload")
             sudo("systemctl enable jupyter-notebook")
             sudo("systemctl start jupyter-notebook")
+            run('mkdir -p ~/.git')
+            put('/root/scripts/ipynb_output_filter.py', '~/.git/ipynb_output_filter.py', mode=0755)
+            run('echo "*.ipynb    filter=clear_output_ipynb" > ~/.gitattributes')
+            run('git config --global core.attributesfile ~/.gitattributes')
+            run('git config --global filter.clear_output_ipynb.clean ~/.git/ipynb_output_filter.py')
             sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -588,20 +593,5 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
                 'sed -i "s|Apache Toree - Scala|Local Apache Toree - Scala (Scala-' + scala_version +
                 ', Spark-' + spark_version + ')|g" ' + scala_kernel_path + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured')
-        except:
-            sys.exit(1)
-
-
-def add_ipynb_output_filter(os_user):
-    if not exists('/home/{}/.ensure_dir/ipynb_output_filter_ensured'.format(os_user)):
-        try:
-            if not exists('~/.git'):
-                run('mkdir ~/.git')
-            put('/root/scripts/ipynb_output_filter.py', '~/.git/ipynb_output_filter.py')
-            run('chmod +x ~/.git/ipynb_output_filter.py')
-            run('echo "*.ipynb    filter=clear_output_ipynb" > ~/.gitattributes')
-            run('git config --global core.attributesfile ~/.gitattributes')
-            run('git config --global filter.clear_output_ipynb.clean ~/.git/ipynb_output_filter.py')
-            sudo('touch /home/{}/.ensure_dir/ipynb_output_filter_ensured'.format(os_user))
         except:
             sys.exit(1)
