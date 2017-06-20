@@ -71,7 +71,7 @@ public class ExploratoryResource implements DockerCommands {
 
     @Path("/start")
     @POST
-    public String start(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws IOException, InterruptedException {
+    public String start(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws IOException, InterruptedException {
         return action(ui.getName(), dto, DockerAction.START);
     }
 
