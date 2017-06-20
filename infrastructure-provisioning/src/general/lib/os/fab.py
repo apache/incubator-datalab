@@ -340,16 +340,16 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
         if region == 'cn-north-1':
             try:
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 600 -U pip --no-cache-dir'.format(pip_mirror))
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip --no-cache-dir'.format(pip_mirror))
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 600 ipython ipykernel --no-cache-dir'.
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel --no-cache-dir'.
                       format(pip_mirror))
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 600 boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
                       format(pip_mirror))
                 if application == 'deeplearning':
                     local(venv_command + ' && sudo -i ' + pip_command +
-                          ' install -i https://{0}/simple --trusted-host {0} --timeout 600 mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(pip_mirror))
+                          ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(pip_mirror))
                     python_without_dots = python_version.replace('.', '')
                     local(venv_command + ' && sudo -i ' + pip_command +
                           ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.

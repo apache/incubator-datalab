@@ -44,8 +44,8 @@ public class TestEmr {
     private final static Logger LOGGER = LogManager.getLogger(WaitForStatus.class);
     
     private final static String COMMAND_COPY_TO_NOTEBOOK = "scp -i %s -o 'StrictHostKeyChecking no' ~/%s %s@%s:/tmp/";
-    private final static String COMMAND_RUN_PYTHON = "/usr/bin/python %s --bucket %s --cluster_name %s --os_user %s";
-    private final static String COMMAND_RUN_PYTHON2 = "/usr/bin/python /home/%s/%s --bucket %s --templates_bucket %s";
+    private final static String COMMAND_RUN_PYTHON = "/usr/bin/python %s --region %s --bucket %s --cluster_name %s --os_user %s";
+    private final static String COMMAND_RUN_PYTHON2 = "/usr/bin/python /home/%s/%s --region %s --bucket %s --templates_bucket %s";
     
     
     public void run(String notebookName, String clusterName) throws Exception {
@@ -69,7 +69,7 @@ public class TestEmr {
         AckStatus status;
 
         command = String.format(COMMAND_RUN_PYTHON2, ConfigPropertyValue.getClusterOsUser(), notebookTestFile,
-                    NamingHelper.getBucketName(), ConfigPropertyValue.getS3TestsTemplateBucketName());
+        			ConfigPropertyValue.getAwsRegion(), NamingHelper.getBucketName(), ConfigPropertyValue.getS3TestsTemplateBucketName());
         LOGGER.info("{}: Executing command {}...", notebookName, command);
 
         ChannelExec runScript = SSHConnect.setCommand(ssnSession, command);
@@ -88,6 +88,7 @@ public class TestEmr {
         try {
             command = String.format(COMMAND_RUN_PYTHON,
                     "/tmp/" +  notebookTestFile,
+                    ConfigPropertyValue.getAwsRegion(),
                     NamingHelper.getBucketName(),
                     cluster_name,
                     ConfigPropertyValue.getClusterOsUser());

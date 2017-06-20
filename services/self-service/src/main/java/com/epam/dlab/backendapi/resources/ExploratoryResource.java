@@ -64,6 +64,7 @@ import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
@@ -200,14 +201,7 @@ public class ExploratoryResource implements ExploratoryAPI {
     @POST
     public String start(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryActionFormDTO formDTO) throws DlabException {
         LOGGER.debug("Starting exploratory environment {} for user {}", formDTO.getNotebookInstanceName(), userInfo.getName());
-        try {
-        	return action(userInfo, formDTO.getNotebookInstanceName(), EXPLORATORY_START, STARTING);
-        } catch (DlabException e) {
-        	LOGGER.error("Could not start exploratory environment {} for user {}",
-        			formDTO.getNotebookInstanceName(), userInfo.getName(), e);
-        	throw new DlabException("Could not start exploratory environment " + formDTO.getNotebookInstanceName() +
-        			" for user " + userInfo.getName() + ": " + e.getLocalizedMessage(), e);
-        }
+        return action(userInfo, formDTO.getNotebookInstanceName(), EXPLORATORY_START, STARTING);
     }
 
     /** Stops exploratory environment for user.
@@ -219,35 +213,8 @@ public class ExploratoryResource implements ExploratoryAPI {
     @DELETE
     @Path("/{name}/stop")
     public String stop(@Auth UserInfo userInfo, @PathParam("name") String name) throws DlabException {
-        System.out.println("stopping " + name);
         LOGGER.debug("Stopping exploratory environment {} for user {}", name, userInfo.getName());
-
-        try {
-        	updateExploratoryStatus(userInfo.getName(), name, STOPPING);
-        	updateComputationalStatuses(userInfo.getName(), name, TERMINATING);
-        } catch (DlabException e) {
-        	LOGGER.error("Could not update status for exploratory environment {} for user {}:",
-        			name, userInfo.getName(), e);
-            throw new DlabException("Could not update status for exploratory environment " + name +
-            		" for user " + userInfo.getName() + ": " + e.getLocalizedMessage(), e);
-        }
-        
-        try {
-            UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), name);
-            ExploratoryActionDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class);
-            dto.withNotebookImage(userInstance.getImageName())
-            	.withNotebookInstanceName(userInstance.getExploratoryId())
-            	.withExploratoryName(name);
-
-            String uuid = provisioningService.post(EXPLORATORY_STOP, userInfo.getAccessToken(), dto, String.class);
-            RequestId.put(userInfo.getName(), uuid);
-            return uuid;
-        } catch (Throwable t) {
-        	LOGGER.error("Could not stop exploratory environment {} for user {}",
-                    name, userInfo.getName(), t);
-        	updateExploratoryStatusSilent(userInfo.getName(), name, FAILED);
-            throw new DlabException("Could not stop exploratory environment " + name + " for user " + userInfo.getName() + ": " + t.getLocalizedMessage(), t);
-        }
+        return action(userInfo, name, EXPLORATORY_STOP, STOPPING);
     }
 
     /** Terminates exploratory environment for user.
@@ -260,25 +227,47 @@ public class ExploratoryResource implements ExploratoryAPI {
     @Path("/{name}/terminate")
     public String terminate(@Auth UserInfo userInfo, @PathParam("name") String name) throws DlabException {
         LOGGER.debug("Terminating exploratory environment {} for user {}", name, userInfo.getName());
-        UserInstanceStatus status = TERMINATING;
+        return action(userInfo, name, EXPLORATORY_TERMINATE, TERMINATING);
+    }
+    
+    /** Sends the post request to the provisioning service and update the status of exploratory environment.
+     * @param userInfo user info.
+     * @param exploratoryName name of exploratory environment.
+     * @param action action for exploratory environment.
+     * @param status status for exploratory environment.
+     * @return Invocation request as JSON string.
+     * @throws DlabException
+     */
+    private String action(UserInfo userInfo, String exploratoryName, String action, UserInstanceStatus status) throws DlabException {
         try {
-            updateExploratoryStatus(userInfo.getName(), name, status);
-            updateComputationalStatuses(userInfo.getName(), name, status);
-        } catch (DlabException e) {
-        	LOGGER.error("Could not update status for exploratory environment {} for user {}",
-        			name, userInfo.getName(), e);
-            throw new DlabException("Could not update status for exploratory environment " + name +
-            		" for user " + userInfo.getName() + ": " + e.getLocalizedMessage(), e);
-        }
-        
-        try {
-        	return action(userInfo, name, EXPLORATORY_TERMINATE, status);
-        } catch (DlabException e) {
-        	LOGGER.error("Could not terminate exploratory environment {} for user {}",
-                    name, userInfo.getName(), e);
-           	throw new DlabException("Could not terminate exploratory environment " + name + " for user " + userInfo.getName() + ": " + e.getLocalizedMessage(), e);
+            updateExploratoryStatus(userInfo.getName(), exploratoryName, status);
+            if (status == STOPPING || status == TERMINATING) {
+            	updateComputationalStatuses(userInfo.getName(), exploratoryName, TERMINATING);
+            }
+
+            UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
+            ExploratoryActionDTO<?> dto = (status == STARTING ?
+            		ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class) :
+            		ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class));
+            dto.withNotebookImage(userInstance.getImageName())
+            	.withNotebookInstanceName(userInstance.getExploratoryId())
+            	.withExploratoryName(exploratoryName);
+            if (status == STARTING) {
+            	ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
+        		((ExploratoryGitCredsUpdateDTO) dto).withGitCreds(gitCreds.getGitCreds());
+            }
+
+            String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
+            RequestId.put(userInfo.getName(), uuid);
+            return uuid;
+        } catch (Throwable t) {
+        	LOGGER.error("Could not " + action + " exploratory environment {} for user {}", exploratoryName, userInfo.getName(), t);
+        	updateExploratoryStatusSilent(userInfo.getName(), exploratoryName, FAILED);
+            throw new DlabException("Could not " + action + " exploratory environment " + exploratoryName + ": " + t.getLocalizedMessage(), t);
         }
     }
+
+
     
     /** Returns the list of libraries groups for exploratory.
      * @param userInfo user info.
@@ -367,33 +356,6 @@ public class ExploratoryResource implements ExploratoryAPI {
         }
 
     	return Response.ok().build();
-    }
-
-    /** Sends the post request to the provisioning service and update the status of exploratory environment.
-     * @param userInfo user info.
-     * @param exploratoryName name of exploratory environment.
-     * @param action action for exploratory environment.
-     * @param status status for exploratory environment.
-     * @return Invocation request as JSON string.
-     * @throws DlabException
-     */
-    private String action(UserInfo userInfo, String exploratoryName, String action, UserInstanceStatus status) throws DlabException {
-        try {
-            updateExploratoryStatus(userInfo.getName(), exploratoryName, status);
-
-            UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
-            ExploratoryActionDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class);
-            dto.withNotebookImage(userInstance.getImageName())
-            	.withNotebookInstanceName(userInstance.getExploratoryId())
-            	.withExploratoryName(exploratoryName);
-
-            String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
-            RequestId.put(userInfo.getName(), uuid);
-            return uuid;
-        } catch (Throwable t) {
-        	updateExploratoryStatusSilent(userInfo.getName(), exploratoryName, FAILED);
-            throw new DlabException("Could not " + action + " exploratory environment " + exploratoryName + ": " + t.getLocalizedMessage(), t);
-        }
     }
 
     /** Instantiates and returns the descriptor of exploratory environment status.

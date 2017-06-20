@@ -44,7 +44,7 @@ public class GitCredsDAO extends BaseDAO {
     													eq(ID, user),
     													fields(include(FIELD_GIT_CREDS), excludeId()),
     													ExploratoryGitCredsDTO.class);
-    	return (opt.isPresent() ? opt.get() : null);
+    	return (opt.isPresent() ? opt.get() : new ExploratoryGitCredsDTO());
     }
 
     /** Update the GIT credentials for user.
