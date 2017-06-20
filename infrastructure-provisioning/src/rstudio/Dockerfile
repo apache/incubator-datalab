@@ -29,7 +29,6 @@ COPY rstudio/scripts/create_configs.py /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
-COPY general/templates/os/git_pre_commit.py /root/templates/
 COPY general/files/os/notebook_local_jars.tar.gz /root/files/
 
 RUN chmod a+x /root/fabfile.py; \

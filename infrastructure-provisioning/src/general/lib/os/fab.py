@@ -601,7 +601,7 @@ def install_ungit(os_user):
         run('git config --global http.proxy $http_proxy')
         run('git config --global https.proxy $https_proxy')
         run('mkdir -p ~/.git/templates/hooks')
-        put('/root/templates/git_pre_commit.py', '~/.git/templates/hooks/pre-commit')
+        put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit')
         run('chmod +x ~/.git/templates/hooks/pre-commit')
         run('git config --global init.templatedir ~/.git/templates')
         sudo('systemctl daemon-reload')
