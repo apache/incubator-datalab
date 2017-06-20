@@ -20,21 +20,18 @@
 
 from fabric.api import *
 import argparse
-import sys, os
+import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--initial_user', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--sudo_group', type=str, default='')
 args = parser.parse_args()
 
 
-def ensure_ssh_user(initial_user, os_user):
-    if os.environ['conf_os_family'] == 'debian':
-        sudo_group = 'sudo'
-    if os.environ['conf_os_family'] == 'redhat':
-        sudo_group = 'wheel'
+def ensure_ssh_user(initial_user, os_user, sudo_group):
     sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
     sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
     sudo('mkdir /home/{}/.ssh'.format(os_user))
@@ -53,7 +50,7 @@ if __name__ == "__main__":
 
     print "Creating ssh user: {}".format(args.os_user)
     try:
-        ensure_ssh_user(args.initial_user, args.os_user)
+        ensure_ssh_user(args.initial_user, args.os_user, args.sudo_group)
     except:
         sys.exit(1)
 

@@ -79,13 +79,16 @@ if __name__ == "__main__":
     try:
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
+            sudo_group = 'sudo'
         if os.environ['conf_os_family'] == 'redhat':
             initial_user = 'ec2-user'
+            sudo_group = 'wheel'
 
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
-        params = "--hostname {} --keyfile {} --initial_user {} --os_user {}".format\
-            (instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", initial_user, notebook_config['dlab_ssh_user'])
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
+            (instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", initial_user,
+             notebook_config['dlab_ssh_user'], sudo_group)
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
