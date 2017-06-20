@@ -20,7 +20,7 @@
 
 from fabric.api import *
 import argparse
-import sys
+import sys, os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -31,8 +31,12 @@ args = parser.parse_args()
 
 
 def ensure_ssh_user(initial_user, os_user):
-    sudo('useradd -m -G sudo -s /bin/bash {}'.format(os_user))
-    sudo('echo "{} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/90-cloud-init-users'.format(os_user))
+    if os.environ['conf_os_family'] == 'debian':
+        sudo_group = 'sudo'
+    if os.environ['conf_os_family'] == 'redhat':
+        sudo_group = 'wheel'
+    sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
+    sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
     sudo('mkdir /home/{}/.ssh'.format(os_user))
     sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
     sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
