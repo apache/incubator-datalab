@@ -17,13 +17,9 @@ limitations under the License.
 -->
 <section>
   <div class="info_color" *ngIf="reportData">
-    <div>
-      <div>Service base name: <strong>{{ reportData.service_base_name }}</strong></div>
-      <div>Resource tag ID: <strong>{{ reportData.tag_resource_id }}</strong></div>
-    </div>
-    <div *ngIf="reportData.usage_date_start && reportData.usage_date_end">
-      Report period:
-      <strong>from: {{ reportData.usage_date_start }} to: {{ reportData.usage_date_end }}</strong>
+    <div class="general">
+      <div><span>Service base name: </span><strong>{{ reportData.service_base_name }}</strong></div>
+      <div><span>Resource tag ID: </span><strong>{{ reportData.tag_resource_id }}</strong></div>
     </div>
   </div>
 
@@ -39,5 +35,10 @@ limitations under the License.
     <button md-raised-button class="butt" (click)="rebuild($event)">
       <i class="material-icons">autorenew</i>Refresh
     </button>
+
+    <div class="report-period info_color" *ngIf="reportData && reportData.usage_date_start && reportData.usage_date_end">
+      From: <strong>{{ reportData.usage_date_start | date }} </strong>
+      To: <strong>{{ reportData.usage_date_end | date }}</strong>
+    </div>
   </div>
 </section>

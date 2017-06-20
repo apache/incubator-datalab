@@ -32,6 +32,7 @@ export class ReportingGridComponent implements OnInit {
   collapseFilterRow: boolean = false;
   reportData: ReportingConfigModel[];
   isFiltered: boolean = false;
+  full_report: boolean = false;
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
 

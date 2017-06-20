@@ -18,7 +18,9 @@ limitations under the License.
 
 <table class="dashboard_table reporting">
   <tr>
-    <th *ngFor="let column of filteringColumns" ngClass="{{column.className || ''}}">{{column.title}}
+    <th *ngFor="let column of filteringColumns"
+        ngClass="{{column.className || ''}}"
+        [hidden]="column.role && !full_report">{{ column.title }}
       <button md-icon-button *ngIf="column.filtering" aria-label="More" class="pull-right" (click)="toggleFilterRow()">
         <i class="material-icons" *ngIf="filteredReportData[column.name]">
           <span *ngIf="isFiltered && filteredReportData[column.name].length > 0 && !collapseFilterRow">filter_list</span>
@@ -29,7 +31,7 @@ limitations under the License.
   </tr>
 
   <tr *ngIf="collapseFilterRow" class="filter-row">
-    <td>
+    <td *ngIf="full_report">
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'user'" [items]="filterConfiguration.user" [model]="filteredReportData.user"></multi-select-dropdown>
     </td>
     <td>
@@ -66,7 +68,7 @@ limitations under the License.
 
   <template [ngIf]="reportData">
     <tr *ngFor="let line of reportData">
-      <td>{{ line.user }}</td>
+      <td *ngIf="full_report">{{ line.user }}</td>
       <td>{{ line.dlab_id }}</td>
       <td>{{ line.dlab_resource_type }}</td>
       <td>{{ line.shape }}</td>
