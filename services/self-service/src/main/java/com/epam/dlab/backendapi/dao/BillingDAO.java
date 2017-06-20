@@ -48,6 +48,8 @@ import java.util.Map;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.BillingFilterFormDTO;
@@ -64,6 +66,8 @@ import com.mongodb.client.FindIterable;
 /** DAO for user billing.
  */
 public class BillingDAO extends BaseDAO {
+	private static final Logger LOGGER = LoggerFactory.getLogger(BaseDAO.class);
+	
     private static final String SHAPE = "shape";
     private static final String MASTER_NODE_SHAPE = "master_node_shape";
     private static final String SLAVE_NODE_SHAPE = "slave_node_shape";
@@ -123,7 +127,7 @@ public class BillingDAO extends BaseDAO {
     	Map<String, ShapeInfo> shapes = new HashMap<>();
     	for (Document d : docs) {
 			String name = d.getString(SHAPE);
-			if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(name)) { 
+			if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(name)) {
 				shapes.put(d.getString(EXPLORATORY_ID), new ShapeInfo(d.getString(SHAPE)));
 			}
 			
@@ -150,6 +154,7 @@ public class BillingDAO extends BaseDAO {
     		shapes.put(String.join("-", serviceBaseName, d.getString(ID), "edge"), new ShapeInfo("t2.medium"));
         }
     	
+		LOGGER.trace("Loaded shapes is {}", shapes);
     	return shapes;
     }
     
@@ -222,7 +227,6 @@ public class BillingDAO extends BaseDAO {
 					list.add(name);	
 			}
     	}
-System.out.println("getResourceTypeIds " + list);
 		return list;
     }
     
@@ -239,8 +243,9 @@ System.out.println("getResourceTypeIds " + list);
     		filter.setUser(Lists.newArrayList(userInfo.getSimpleName()));
 		}
     	addCondition(conditions, USER, filter.getUser());
-    	addCondition(conditions, FIELD_RESOURCE_TYPE, filter.getProduct());
+    	addCondition(conditions, FIELD_PRODUCT, filter.getProduct());
     	addCondition(conditions, DLAB_RESOURCE_TYPE, getResourceTypeIds(filter.getResourceType()));
+    	
     	if (filter.getDateStart() != null && !filter.getDateStart().isEmpty()) {
     		conditions.add(gte(FIELD_USAGE_DATE, filter.getDateStart()));
     	}
@@ -252,6 +257,7 @@ System.out.println("getResourceTypeIds " + list);
 		
     	List<Bson> pipeline = new ArrayList<>();
     	if(!conditions.isEmpty()) {
+    		LOGGER.trace("Filter conditions is {}", conditions);
 			pipeline.add(match(and(conditions)));
     	}
     	pipeline.add(
