@@ -26,7 +26,7 @@ import * as moment from 'moment';
 })
 export class ToolbarComponent implements OnInit {
   reportData: any;
-  rangeOptions = ['YTD', 'QTD', 'MTD'];
+  rangeOptions = {'YTD': 'Year To Date', 'QTD': 'Quarter To Date', 'MTD': 'Month To Date', 'reset': 'All Period Report'};
   today: string = moment().format('YYYY-MM-D');
 
   @Output() rebuildReport: EventEmitter<{}> = new EventEmitter();
@@ -38,30 +38,23 @@ export class ToolbarComponent implements OnInit {
     this.rebuildReport.emit($event);
   }
 
-  calculateRange(opt: string): void {
-    console.log('setRangeOption: ', opt);
+  calculateRange(option: string): void {
     let rangeValue;
-    if(opt === 'YTD') {
-      console.log('full year', moment().subtract(1, 'year').format('YYYY-MM-D'));
-      console.log('start year', moment().startOf('year').format('YYYY-MM-D'));
 
-      rangeValue = moment().startOf('year').format('YYYY-MM-D');
-    } else if (opt === 'QTD') {
-      console.log('quarter', moment().quarter(moment().quarter()).startOf('quarter').format('YYYY-MM-D'));
-
-      rangeValue = moment().quarter(moment().quarter()).startOf('quarter').format('YYYY-MM-D');
-    } else if (opt === 'MTD') {
-      console.log('all months', moment().subtract(1, 'months').format('YYYY-MM-D'));
-      console.log('start months', moment().startOf('months').format('YYYY-MM-D'));
-
-      rangeValue = moment().startOf('months').format('YYYY-MM-D')
-    } else if (opt === 'WTD') {
-      console.log('week', moment().subtract(1, 'week').format('YYYY-MM-D'));
-
-      rangeValue = moment().subtract(1, 'week').format('YYYY-MM-D')
+    switch(option) {
+      case 'YTD':
+          rangeValue = moment().startOf('year').format('YYYY-MM-D');
+          break;
+      case 'QTD':
+          rangeValue = moment().quarter(moment().quarter()).startOf('quarter').format('YYYY-MM-D');
+          break;
+      case 'MTD':
+          rangeValue = moment().startOf('months').format('YYYY-MM-D');
+          break;
+      default:
+          rangeValue = '';
     }
-    console.log('rangeValue', rangeValue);
-
+    //   console.log('week', moment().subtract(1, 'week').format('YYYY-MM-D'));
     this.setRangeOption.emit(rangeValue);
   }
 }

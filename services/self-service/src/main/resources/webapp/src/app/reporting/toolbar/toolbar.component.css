@@ -35,3 +35,8 @@ section {
 .report-period {
     padding: 20px 0 10px;
 }
+
+.general div span {
+    width: 160px;
+    display: inline-block;
+}
