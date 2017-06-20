@@ -595,7 +595,7 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
 def add_ipynb_output_filter(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/ipynb_output_filter_ensured'):
         try:
-            put('/root/templates/ipynb_output_filter.py', '~/.git/ipynb_output_filter.py')
+            put('/root/scripts/ipynb_output_filter.py', '~/.git/ipynb_output_filter.py')
             run('chmod +x ~/.git/ipynb_output_filter.py')
             run('echo "*.ipynb    filter=clear_output_ipynb" > ~/.gitattributes')
             run('git config --global core.attributesfile ~/.gitattributes')
