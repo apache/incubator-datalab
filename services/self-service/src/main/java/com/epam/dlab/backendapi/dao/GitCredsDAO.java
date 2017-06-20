@@ -19,22 +19,32 @@
 package com.epam.dlab.backendapi.dao;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
+
+import java.util.Optional;
 
 import org.bson.Document;
 
-import com.epam.dlab.backendapi.resources.dto.ExploratoryGitCredsFormDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
 import com.epam.dlab.exceptions.DlabException;
 
 /** DAO for user exploratory.
  */
 public class GitCredsDAO extends BaseDAO {
+	private static final String FIELD_GIT_CREDS = "git_creds";
 
     /** Find and return the list of GIT credentials for user. 
      * @param user name
      * @return
      */
-    public Iterable<Document> findGitCreds(String user) {
-        return find(GIT_CREDS, eq(ID, user));
+    public ExploratoryGitCredsDTO findGitCreds(String user) {
+    	Optional<ExploratoryGitCredsDTO> opt = findOne(GIT_CREDS,
+    													eq(ID, user),
+    													fields(include(FIELD_GIT_CREDS), excludeId()),
+    													ExploratoryGitCredsDTO.class);
+    	return (opt.isPresent() ? opt.get() : null);
     }
 
     /** Update the GIT credentials for user.
@@ -42,7 +52,7 @@ public class GitCredsDAO extends BaseDAO {
      * @param dto GIT credentials
      * @exception DlabException
      */
-    public void updateGitCreds(String user, ExploratoryGitCredsFormDTO dto) throws DlabException {
+    public void updateGitCreds(String user, ExploratoryGitCredsDTO dto) throws DlabException {
     	Document d = new Document(SET,
 							convertToBson(dto)
 								.append(ID, user));

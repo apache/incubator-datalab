@@ -18,13 +18,18 @@ limitations under the License.
 
 package com.epam.dlab.dto.exploratory;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 public class ExploratoryCreateDTO extends ExploratoryBaseDTO<ExploratoryCreateDTO> {
     @JsonProperty("aws_notebook_instance_type")
     private String notebookInstanceType;
     @JsonProperty("aws_security_groups_ids")
     private String securityGroupIds;
+    @JsonProperty("git_creds")
+    private List<ExploratoryGitCreds> gitCreds;
 
     public String getNotebookInstanceType() {
         return notebookInstanceType;
@@ -52,4 +57,31 @@ public class ExploratoryCreateDTO extends ExploratoryBaseDTO<ExploratoryCreateDT
         return this;
     }
 
+    /** Return the list of GIT credentials.
+     */
+    public List<ExploratoryGitCreds> getGitCreds() {
+        return gitCreds;
+    }
+
+    /** Set the list of GIT credentials.
+     */
+    public void setGitCreds(List<ExploratoryGitCreds> gitCreds) {
+        this.gitCreds = gitCreds;
+    }
+
+    /** Set the list of GIT credentials and return this object.
+     */
+    public ExploratoryCreateDTO withGitCreds(List<ExploratoryGitCreds> gitCreds) {
+        setGitCreds(gitCreds);
+        return this;
+    }
+    
+    
+    @Override
+    public ToStringHelper toStringHelper(Object self) {
+    	return super.toStringHelper(self)
+    			.add("notebookInstanceType", notebookInstanceType)
+    			.add("securityGroupIds", securityGroupIds)
+    			.add("gitCreds", gitCreds);
+    }
 }

@@ -16,17 +16,16 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.backendapi.resources.dto;
+package com.epam.dlab.dto.exploratory;
 
 import java.util.List;
 
-import com.epam.dlab.dto.exploratory.ExploratoryGitCreds;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 /** Stores info about the GIT credentials. 
  * */
-public class ExploratoryGitCredsFormDTO {
+public class ExploratoryGitCredsDTO {
     @JsonProperty("git_creds")
     private List<ExploratoryGitCreds> gitCreds;
 

@@ -31,7 +31,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +40,9 @@ import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.resources.dto.ExploratoryGitCredsFormDTO;
 import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -78,7 +77,7 @@ public class GitCredsResource implements ExploratoryAPI {
      * @throws DlabException
      */
     @PUT
-    public Response updateGitCreds(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryGitCredsFormDTO formDTO) throws DlabException {
+    public Response updateGitCreds(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryGitCredsDTO formDTO) throws DlabException {
         LOGGER.debug("Updating GIT creds for user {} to {}", userInfo.getName(), formDTO);
         try {
         	gitCredsDAO.updateGitCreds(userInfo.getName(), formDTO);
@@ -121,7 +120,7 @@ public class GitCredsResource implements ExploratoryAPI {
      * @param userInfo user info.
      */
     @GET
-    public Iterable<Document> getGitCreds(@Auth UserInfo userInfo) throws DlabException {
+    public ExploratoryGitCredsDTO getGitCreds(@Auth UserInfo userInfo) throws DlabException {
         LOGGER.debug("Loading GIT creds for user {}", userInfo.getName());
         try {
     		return gitCredsDAO.findGitCreds(userInfo.getName());

@@ -50,6 +50,7 @@ import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
+import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
@@ -62,6 +63,7 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
@@ -93,6 +95,8 @@ public class ExploratoryResource implements ExploratoryAPI {
     @Inject
     private ExploratoryLibDAO libraryDAO;
     @Inject
+    private GitCredsDAO gitCredsDAO;
+    @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
 
@@ -123,13 +127,14 @@ public class ExploratoryResource implements ExploratoryAPI {
                     .withImageVersion(formDTO.getVersion())
                     .withTemplateName(formDTO.getTemplateName())
                     .withShape(formDTO.getShape()));
-
+            ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
             ExploratoryCreateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryCreateDTO.class)
                     .withExploratoryName(formDTO.getName())
                     .withNotebookImage(formDTO.getImage())
                     .withApplicationName(ResourceUtils.getApplicationNameFromImage(formDTO.getImage()))
                     .withNotebookInstanceType(formDTO.getShape())
-                    .withAwsSecurityGroupIds(settingsDAO.getAwsSecurityGroups());
+                    .withAwsSecurityGroupIds(settingsDAO.getAwsSecurityGroups())
+                    .withGitCreds(gitCreds.getGitCreds());
             LOGGER.debug("Created exploratory environment {} for user {}", formDTO.getName(), userInfo.getName());
 
             String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), dto, String.class);
