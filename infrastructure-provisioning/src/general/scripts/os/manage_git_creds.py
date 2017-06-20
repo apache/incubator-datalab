@@ -58,7 +58,7 @@ if __name__ == "__main__":
             run('rm .netrc')
         with open("new_netrc", "w+") as f:
             for conf in sorted(new_config, reverse=True):
-                f.writelines(conf)
+                f.writelines(conf + "\n")
         put('new_netrc', '/home/{}/.netrc'.format(args.os_user))
 
         if exists('/home/{}/.gitcreds'.format(args.os_user)):
