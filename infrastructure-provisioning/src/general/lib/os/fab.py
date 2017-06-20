@@ -602,6 +602,6 @@ def add_ipynb_output_filter(os_user):
             run('echo "*.ipynb    filter=clear_output_ipynb" > ~/.gitattributes')
             run('git config --global core.attributesfile ~/.gitattributes')
             run('git config --global filter.clear_output_ipynb.clean ~/.git/ipynb_output_filter.py')
-            run('touch /home/{}/.ensure_dir/ipynb_output_filter_ensured'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/ipynb_output_filter_ensured'.format(os_user))
         except:
             sys.exit(1)
