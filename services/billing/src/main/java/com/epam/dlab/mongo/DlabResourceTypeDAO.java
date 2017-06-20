@@ -118,6 +118,10 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	return name.replace('_', '-').toLowerCase();
     }
     
+    private String getSimpleUserName(String username) {
+        return (username == null ? null : username.replaceAll("@.*", ""));
+    }
+
     /** Load and return DLab resources from Mongo DB.
      * @throws InitializationException
      */
@@ -134,7 +138,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	Iterable<Document> docs = connection.getCollection(COLLECTION_USER_EDGE).find().projection(projection);
     	for (Document d : docs) {
     		String username = d.getString(FIELD_ID);
-    		resourceList.append(sbName + "-" + username + "-edge", "EDGE Node", DlabResourceType.EDGE, username, null);
+    		resourceList.append(sbName + "-" + getSimpleUserName(username) + "-edge", "EDGE Node", DlabResourceType.EDGE, username, null);
     		resourceList.append(getBucketName(d.getString(FIELD_EDGE_BUCKET)), "EDGE bucket", DlabResourceType.EDGE_BUCKET, username, null);
     	}
     	
