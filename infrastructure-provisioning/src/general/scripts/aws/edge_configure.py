@@ -51,15 +51,45 @@ if __name__ == "__main__":
     edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
     edge_conf['edge_private_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Private')
     edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
+    edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
 
     instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
     keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
 
     try:
+        if os.environ['conf_os_family'] == 'debian':
+            initial_user = 'ubuntu'
+            sudo_group = 'sudo'
+        if os.environ['conf_os_family'] == 'redhat':
+            initial_user = 'ec2-user'
+            sudo_group = 'wheel'
+
+        logging.info('[CREATING DLAB SSH USER]')
+        print('[CREATING DLAB SSH USER]')
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
+            (instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", initial_user,
+             edge_conf['dlab_ssh_user'], sudo_group)
+
+        try:
+            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed creating ssh user 'dlab'.", str(err))
+        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
+        remove_all_iam_resources('edge', os.environ['edge_user_name'])
+        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+        remove_sgroups(edge_conf['notebook_instance_name'])
+        remove_sgroups(edge_conf['instance_name'])
+        remove_s3('edge', os.environ['edge_user_name'])
+        sys.exit(1)
+
+    try:
         print '[INSTALLING PREREQUISITES]'
         logging.info('[INSTALLING PREREQUISITES]')
         params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, os.environ['conf_os_user'], os.environ['aws_region'])
+            format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -81,7 +111,7 @@ if __name__ == "__main__":
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf"}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}" \
-                 .format(instance_hostname, keyfile_name, json.dumps(additional_config), os.environ['conf_os_user'])
+                 .format(instance_hostname, keyfile_name, json.dumps(additional_config), edge_conf['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('configure_http_proxy', params))
         except:
@@ -104,7 +134,7 @@ if __name__ == "__main__":
         additional_config = {"user_keyname": edge_conf['user_keyname'],
                              "user_keydir": "/root/keys/"}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            instance_hostname, keyfile_name, json.dumps(additional_config), os.environ['conf_os_user'])
+            instance_hostname, keyfile_name, json.dumps(additional_config), edge_conf['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:

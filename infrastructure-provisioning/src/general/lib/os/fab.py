@@ -264,6 +264,11 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo("systemctl daemon-reload")
             sudo("systemctl enable jupyter-notebook")
             sudo("systemctl start jupyter-notebook")
+            run('mkdir -p ~/.git')
+            put('/root/scripts/ipynb_output_filter.py', '~/.git/ipynb_output_filter.py', mode=0755)
+            run('echo "*.ipynb    filter=clear_output_ipynb" > ~/.gitattributes')
+            run('git config --global core.attributesfile ~/.gitattributes')
+            run('git config --global filter.clear_output_ipynb.clean ~/.git/ipynb_output_filter.py')
             sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -340,16 +345,16 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
         if region == 'cn-north-1':
             try:
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 600 -U pip --no-cache-dir'.format(pip_mirror))
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip --no-cache-dir'.format(pip_mirror))
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 600 ipython ipykernel --no-cache-dir'.
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel --no-cache-dir'.
                       format(pip_mirror))
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 600 boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
                       format(pip_mirror))
                 if application == 'deeplearning':
                     local(venv_command + ' && sudo -i ' + pip_command +
-                          ' install -i https://{0}/simple --trusted-host {0} --timeout 600 mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(pip_mirror))
+                          ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(pip_mirror))
                     python_without_dots = python_version.replace('.', '')
                     local(venv_command + ' && sudo -i ' + pip_command +
                           ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
