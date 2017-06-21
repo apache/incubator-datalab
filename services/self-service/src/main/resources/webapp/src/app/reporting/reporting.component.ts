@@ -97,6 +97,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
       if (item.shape && shapes.indexOf(item.shape) === -1)
         shapes.push(item.shape);
+        // sh.split("\u21b5")
 
       if (item.product && services.indexOf(item.product) === -1)
         services.push(item.product);
@@ -114,7 +115,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
   setRangeOption(dateRangeOption: string): void {
     this.reportData.date_start = dateRangeOption;
-    this.reportData.date_end = moment().format('YYYY-MM-D');
+    this.reportData.date_end = moment().format('YYYY-MM-DD');
     console.log('RANGE reportData', this.reportData);
     this.getGeneralBillingData();
   }

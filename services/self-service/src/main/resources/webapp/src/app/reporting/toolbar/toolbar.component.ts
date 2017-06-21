@@ -43,13 +43,13 @@ export class ToolbarComponent implements OnInit {
 
     switch(option) {
       case 'YTD':
-          rangeValue = moment().startOf('year').format('YYYY-MM-D');
+          rangeValue = moment().startOf('year').format('YYYY-MM-DD');
           break;
       case 'QTD':
-          rangeValue = moment().quarter(moment().quarter()).startOf('quarter').format('YYYY-MM-D');
+          rangeValue = moment().quarter(moment().quarter()).startOf('quarter').format('YYYY-MM-DD');
           break;
       case 'MTD':
-          rangeValue = moment().startOf('months').format('YYYY-MM-D');
+          rangeValue = moment().startOf('months').format('YYYY-MM-DD');
           break;
       default:
           rangeValue = '';
