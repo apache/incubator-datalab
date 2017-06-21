@@ -44,7 +44,7 @@ import * as moment from 'moment';
       background: #a1b7d1;
       color: #ffffff;
       text-align: right;
-      padding: 5px 120px;
+      padding: 5px 15px;
       font-size: 18px;
       box-shadow: 0 9px 18px 15px #f5f5f5;
     }

@@ -46,7 +46,7 @@ export class ReportingGridComponent implements OnInit {
     { title: 'Service', name: 'product', className: 'th_service', filtering: {} },
     { title: 'Service Charges', name: 'charges', className: 'th_charges' },
     // { title: 'Cloud provider', className: 'th_provider' },
-    { title: 'Actions', className: 'th_actions' }
+    // { title: 'Actions', className: 'th_actions' }
   ];
 
   ngOnInit() {

@@ -46,7 +46,6 @@ limitations under the License.
     <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'product'" [items]="filterConfiguration.product" [model]="filteredReportData.product"></multi-select-dropdown>
     </td>
-    <td></td>
     <td>
       <div class="actions">
         <button md-icon-button class="btn reset" (click)="filter_btnClick('reset'); isFiltered = !isFiltered">
@@ -74,7 +73,6 @@ limitations under the License.
       <td>{{ line.shape }}</td>
       <td>{{ line.product }} ({{ line.resource_type}})</td>
       <td>{{ line.cost }} {{ line.currency_code }}</td>
-      <td></td>
     </tr>
   </template>
 </table>
