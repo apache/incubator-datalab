@@ -142,4 +142,11 @@ public class BillingUtils {
 		int d = (int) Math.pow(10, scale);
 		return (double) (Math.round(value * d)) / d;
 	}
+
+	/** Format and return the double value as string.
+	 * @param value the value.
+	 */
+	public static String formatDouble(Double value) {
+		return (value == null ? null : String.format("%,.2f", value));
+	}
 }

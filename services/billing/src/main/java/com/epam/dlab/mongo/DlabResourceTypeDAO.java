@@ -220,10 +220,6 @@ public class DlabResourceTypeDAO implements MongoConstants {
 		return d;
     }
     
-    private String formatDouble(Double d) {
-    	return (d == null ? null : String.format("%,.2f", d));
-    }
-    
     /** Update monthly total in Mongo DB.
      * @param month the month in format YYYY-MM.
      * @throws InitializationException
@@ -321,7 +317,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
     			.append(FIELD_RESOURCE_NAME, resources.getById(id.getString(FIELD_DLAB_RESOURCE_ID)).getResourceName())
         		.append(ReportLine.FIELD_PRODUCT, id.getString(ReportLine.FIELD_PRODUCT))
         		.append(ReportLine.FIELD_RESOURCE_TYPE, id.getString(ReportLine.FIELD_RESOURCE_TYPE))
-    			.append(ReportLine.FIELD_COST, formatDouble(cost))
+    			.append(ReportLine.FIELD_COST, BillingUtils.formatDouble(cost))
     			.append(ReportLine.FIELD_CURRENCY_CODE, id.getString(ReportLine.FIELD_CURRENCY_CODE))
     			.append(FIELD_USAGE_DATE_START, d.getString(FIELD_USAGE_DATE_START))
     			.append(FIELD_USAGE_DATE_END, d.getString(FIELD_USAGE_DATE_END));
@@ -334,7 +330,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
 
 		MongoCollection<Document> cExploratory = connection.getCollection(COLLECTION_USER_INSTANCES);
     	Bson values = Updates.combine(
-				Updates.set(ReportLine.FIELD_COST, formatDouble(costTotal)),
+				Updates.set(ReportLine.FIELD_COST, BillingUtils.formatDouble(costTotal)),
 				Updates.set(FIELD_CURRENCY_CODE, currencyCode),
 				Updates.set(COLLECTION_BILLING, (billing.size() > 0 ? billing : null)));
 		cExploratory.updateOne(

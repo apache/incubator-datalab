@@ -258,7 +258,7 @@ public class BillingDAO extends BaseDAO {
 		
     	List<Bson> pipeline = new ArrayList<>();
     	if(!conditions.isEmpty()) {
-    		LOGGER.debug("Filter conditions is {}", conditions);
+    		LOGGER.trace("Filter conditions is {}", conditions);
 			pipeline.add(match(and(conditions)));
     	}
     	pipeline.add(
@@ -320,7 +320,7 @@ public class BillingDAO extends BaseDAO {
 					.append(SHAPE, shapeName)
 					.append(FIELD_PRODUCT, id.getString(FIELD_PRODUCT))
 					.append(FIELD_RESOURCE_TYPE, id.getString(FIELD_RESOURCE_TYPE))
-					.append(FIELD_COST, cost)
+					.append(FIELD_COST, BillingUtils.formatDouble(cost))
 					.append(FIELD_CURRENCY_CODE, id.getString(FIELD_CURRENCY_CODE))
 					.append(USAGE_DATE_START, dateStart)
 					.append(USAGE_DATE_END, dateEnd);
@@ -333,7 +333,7 @@ public class BillingDAO extends BaseDAO {
 				.append(USAGE_DATE_START, usageDateStart)
 				.append(USAGE_DATE_END, usageDateEnd)
 				.append("lines", reportItems)
-				.append("cost_total", BillingUtils.round(costTotal, 2))
+				.append("cost_total", BillingUtils.formatDouble(BillingUtils.round(costTotal, 2)))
 				.append(FIELD_CURRENCY_CODE, (reportItems.isEmpty() ? null :
 												reportItems.get(0).getString(FIELD_CURRENCY_CODE)))
 				.append(FULL_REPORT, isFullReport);
