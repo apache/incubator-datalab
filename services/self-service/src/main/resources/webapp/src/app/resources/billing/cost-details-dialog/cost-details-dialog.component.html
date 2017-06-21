@@ -22,46 +22,43 @@ limitations under the License.
   </modal-header>
   <modal-content>
     <div *ngIf="notebook">
-
       <div class="detail-header-wrap">
         <table class="detail-header">
           <tr>
-            <td>
-              <div>{{notebook.name}}</div>
-            </td>
-            <td>
-              <div>{{notebook.template_name}}</div>
-            </td>
-            <td><span class="status" ngClass="{{notebook.status || ''}}">{{notebook.status}}</span></td>
-            <td>{{notebook.shape}}</td>
+            <td mdTooltip="{{ notebook.name }}" mdTooltipPosition="above">{{ notebook.name }}</td>
+            <td>{{ notebook.template_name }}</td>
+            <td class="status" ngClass="{{ notebook.status || ''}}">{{ notebook.status }}</td>
+            <td>{{ notebook.shape }}</td>
           </tr>
         </table>
       </div>
       <div class="billing-detail">
-        <table>
-          <tr>
-            <th>Name</th>
-            <th>Service</th>
-            <th>Type</th>
-            <th>Cost</th>
-            <th>Start</th>
-            <th>End</th>
-          </tr>
-          <tr *ngFor="let item of notebook.billing">
-            <td>{{item.resource_name}}</td>
-            <td>{{item.product}}</td>
-            <td>{{item.resource_type}}</td>
-            <td>{{item.cost}} {{item.currency_code}}</td>
-            <td>{{item.usage_date_start | date}}</td>
-            <td>{{item.usage_date_end | date}}</td>
-          </tr>
-        </table>
-        <div class="total"><strong>Total: </strong>{{notebook.cost}} {{notebook.currency_code}}</div>
+        <md-list>
+            <md-list-item class="list-header">
+              <div class="resource-name">Name</div>
+              <div class="service">Service</div>
+              <div class="resource-type">Type</div>
+              <div class="cost-currency">Cost</div>
+              <div class="usage-date-start">Start</div>
+              <div class="usage-date-end">End</div>
+            </md-list-item>
+            <div class="scrolling-content">
+              <md-list-item *ngFor="let item of notebook.billing">
+                <div class="resource-name"
+                     mdTooltip="{{ item.resource_name }}"
+                     mdTooltipPosition="above">
+                     {{ item.resource_name }}
+                </div>
+                <div class="service">{{ item.product }}</div>
+                <div class="resource-type">{{ item.resource_type }}</div>
+                <div class="cost-currency">{{ item.cost }} {{ item.currency_code }}</div>
+                <div class="usage-date-start">{{ item.usage_date_start | date }}</div>
+                <div class="usage-date-end">{{ item.usage_date_end | date }}</div>
+              </md-list-item>
+            </div>
+        </md-list>
+        <div class="total"><strong>Total: </strong>{{ notebook.cost }} {{ notebook.currency_code }}</div>
       </div>
-     
-      <!--<div class="text-center m-top-30">
-        <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
-      </div>-->
     </div>
   </modal-content>
 </modal-dialog>
