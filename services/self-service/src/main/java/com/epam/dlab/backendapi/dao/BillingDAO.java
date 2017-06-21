@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
@@ -257,7 +258,7 @@ public class BillingDAO extends BaseDAO {
 		
     	List<Bson> pipeline = new ArrayList<>();
     	if(!conditions.isEmpty()) {
-    		LOGGER.trace("Filter conditions is {}", conditions);
+    		LOGGER.debug("Filter conditions is {}", conditions);
 			pipeline.add(match(and(conditions)));
     	}
     	pipeline.add(
@@ -280,8 +281,8 @@ public class BillingDAO extends BaseDAO {
     	// Build billing report lines
 		List<Document> reportItems = new ArrayList<>();
 		boolean filterByShape = !(filter.getShape() == null || filter.getShape().isEmpty());
-		String usageDateStart = "";
-		String usageDateEnd = "";
+		String usageDateStart = null;
+		String usageDateEnd = null;
 		double costTotal = 0;
 
 		for (Document d : agg) {
@@ -302,11 +303,11 @@ public class BillingDAO extends BaseDAO {
 			}
 			
 			String dateStart = d.getString(USAGE_DATE_START);
-			if (usageDateStart.compareTo(dateStart) < 0) {
+			if (StringUtils.compare(usageDateStart, dateStart, false) > 0) {
 				usageDateStart = dateStart;
 			}
 			String dateEnd = d.getString(USAGE_DATE_END);
-			if (usageDateEnd.compareTo(dateEnd) < 0) {
+			if (StringUtils.compare(usageDateEnd, dateEnd) < 0) {
 				usageDateEnd = dateEnd;
 			}
 			double cost = BillingUtils.round(d.getDouble(FIELD_COST), 2);
