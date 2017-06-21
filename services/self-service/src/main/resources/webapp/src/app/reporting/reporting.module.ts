@@ -23,7 +23,7 @@ import { MaterialModule } from '@angular/material';
 import { ReportingComponent } from './reporting.component';
 import { NavbarModule, ModalModule } from './../shared';
 import { FormControlsModule } from './../shared/form-controls';
-import { KeysPipeModule } from './../core/pipes';
+import { KeysPipeModule, LineBreaksPipeModule } from './../core/pipes';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
@@ -34,6 +34,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
     NavbarModule,
     FormControlsModule,
     KeysPipeModule,
+    LineBreaksPipeModule,
     MaterialModule.forRoot()
   ],
   declarations: [ReportingComponent, ReportingGridComponent, ToolbarComponent],
