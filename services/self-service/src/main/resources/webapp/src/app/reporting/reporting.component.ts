@@ -95,9 +95,18 @@ export class ReportingComponent implements OnInit, OnDestroy {
       if (item.dlab_resource_type && types.indexOf(item.dlab_resource_type) === -1)
         types.push(item.dlab_resource_type);
 
-      if (item.shape && shapes.indexOf(item.shape) === -1)
-        shapes.push(item.shape);
-        // sh.split("\u21b5")
+      if (item.shape && shapes.indexOf(item.shape) === -1) {
+        if (item.shape.indexOf('Master') > -1) {
+          let tmpl, master, slave;
+          tmpl = item.shape.split("\n");
+          master = tmpl[0].replace('Master: ', ''),
+          slave = tmpl[1].replace('Slave:  2x', '');
+          shapes.indexOf(master) === -1 && shapes.push(master);
+          shapes.indexOf(slave) === -1 && shapes.push(slave);
+        } else {
+          shapes.push(item.shape);
+        }
+      }
 
       if (item.product && services.indexOf(item.product) === -1)
         services.push(item.product);
