@@ -25,6 +25,11 @@ limitations under the License.
 
   <div id="range-picker">
     <ng-daterangepicker [(ngModel)]="value" [options]="options" (ngModelChange)="onChange($event)"></ng-daterangepicker>
+
+    <div class="report-period info_color" *ngIf="reportData && reportData.usage_date_start && reportData.usage_date_end">
+      From: <strong>{{ reportData.usage_date_start | date }} </strong>
+      To: <strong>{{ reportData.usage_date_end | date }}</strong>
+    </div>
   </div>
   <div class="action-butt">
     <!--<button md-raised-button class="butt butt-report-range" [mdMenuTriggerFor]="dateRange">-->
@@ -39,9 +44,5 @@ limitations under the License.
       <i class="material-icons">autorenew</i>Refresh
     </button>
 
-    <div class="report-period info_color" *ngIf="reportData && reportData.usage_date_start && reportData.usage_date_end">
-      From: <strong>{{ reportData.usage_date_start | date }} </strong>
-      To: <strong>{{ reportData.usage_date_end | date }}</strong>
-    </div>
   </div>
 </section>

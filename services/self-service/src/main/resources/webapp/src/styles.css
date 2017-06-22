@@ -224,6 +224,16 @@ button {
   opacity: 0.6;
 }
 
+.message {
+    padding: 40px 20px;
+    text-align: center;
+}
+.info {
+    font-size: 16px;
+    font-weight: 300;
+    color: #35afd5;
+}
+
 @-webkit-keyframes spin {
   0% {
     -webkit-transform: rotate(0deg);

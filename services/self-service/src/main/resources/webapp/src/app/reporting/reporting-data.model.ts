@@ -19,7 +19,7 @@ limitations under the License.
 export class ReportingConfigModel {
 
   static getDefault(): ReportingConfigModel {
-    return new ReportingConfigModel([], [], [], [], '', '');
+    return new ReportingConfigModel([], [], [], [], '', '', '');
   }
 
   constructor(
@@ -29,6 +29,7 @@ export class ReportingConfigModel {
     public shape: Array<string>,
     public date_start: string,
     public date_end: string,
+    public dlab_id: string
   ) { }
 
   defaultConfigurations(): void {
@@ -38,5 +39,6 @@ export class ReportingConfigModel {
     this.shape = [];
     this.date_start = '';
     this.date_end = '';
+    this.dlab_id = '';
   }
 }

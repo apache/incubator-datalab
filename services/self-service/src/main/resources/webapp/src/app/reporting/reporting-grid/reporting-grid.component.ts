@@ -28,7 +28,7 @@ import { ReportingConfigModel } from '../reporting-data.model';
 export class ReportingGridComponent implements OnInit {
 
   filterConfiguration: ReportingConfigModel;
-  filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], '', '');
+  filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], '', '', '');
   collapseFilterRow: boolean = false;
   reportData: ReportingConfigModel[];
   isFiltered: boolean = false;
@@ -37,12 +37,12 @@ export class ReportingGridComponent implements OnInit {
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
 
   public filteringColumns: Array<any> = [
-    { title: 'User', name: 'user', className: 'th_user', filtering: {}, role: 'admin'},
-    { title: 'Environment name', name: 'name', className: 'th_env_name', filtering: {} },
-    { title: 'Resource Type', name: 'resource_type', className: 'th_type', filtering: {} },
-    { title: 'Shape', name: 'shape', className: 'th_shape', filtering: {} },
-    { title: 'Service', name: 'product', className: 'th_service', filtering: {} },
-    { title: 'Service Charges', name: 'charges', className: 'th_charges' }
+    { title: 'User', name: 'user', className: 'th_user', filtering: true, role: 'admin'},
+    { title: 'Environment name', name: 'dlab_id', className: 'th_env_name', filtering: true },
+    { title: 'Resource Type', name: 'resource_type', className: 'th_type', filtering: true },
+    { title: 'Shape', name: 'shape', className: 'th_shape', filtering: true },
+    { title: 'Service', name: 'product', className: 'th_service', filtering: true },
+    { title: 'Service Charges', name: 'charges', className: 'th_charges', filtering: false }
   ];
 
   ngOnInit() { }

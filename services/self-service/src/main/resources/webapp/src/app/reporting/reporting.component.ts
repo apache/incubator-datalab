@@ -115,7 +115,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
         services.push(item.product);
     });
 
-    this.filterConfiguration = new ReportingConfigModel(users, services, types, shapes, '', '');
+    this.filterConfiguration = new ReportingConfigModel(users, services, types, shapes, '', '', '');
     this.reportingGrid.setConfiguration(this.filterConfiguration);
     localStorage.setItem('report_config' , JSON.stringify(this.filterConfiguration));
   }

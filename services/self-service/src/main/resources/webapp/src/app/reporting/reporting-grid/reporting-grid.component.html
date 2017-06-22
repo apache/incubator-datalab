@@ -22,7 +22,7 @@ limitations under the License.
         ngClass="{{column.className || ''}}"
         [hidden]="column.role && !full_report">{{ column.title }}
       <button md-icon-button *ngIf="column.filtering" aria-label="More" class="pull-right" (click)="toggleFilterRow()">
-        <i class="material-icons" *ngIf="filteredReportData[column.name]">
+        <i class="material-icons">
           <span *ngIf="isFiltered && filteredReportData[column.name].length > 0 && !collapseFilterRow">filter_list</span>
           <span [hidden]="isFiltered && filteredReportData[column.name].length > 0 && !collapseFilterRow">more_vert</span>
         </i>
@@ -35,7 +35,7 @@ limitations under the License.
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'user'" [items]="filterConfiguration.user" [model]="filteredReportData.user"></multi-select-dropdown>
     </td>
     <td>
-      <!--<input placeholder="Filter by environment name" class="form-control filter-field" />-->
+      <input placeholder="Filter by environment name" class="form-control filter-field" [value]="filteredReportData.dlab_id" (input)="filteredReportData.dlab_id = $event.target.value" />
     </td>
     <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resource_type'" [items]="filterConfiguration.resource_type" [model]="filteredReportData.resource_type"></multi-select-dropdown>
@@ -58,12 +58,6 @@ limitations under the License.
       </div>
     </td>
   </tr>
-  <tr *ngIf="!reportData" class="message_block">
-    <td colspan="6">To start working, please, create new environment</td>
-  </tr>
-    <tr *ngIf="reportData && reportData.length == 0" class="message_block">
-    <td colspan="6">No matches found</td>
-  </tr>
 
   <template [ngIf]="reportData">
     <tr *ngFor="let line of reportData">
@@ -76,3 +70,10 @@ limitations under the License.
     </tr>
   </template>
 </table>
+
+<div *ngIf="!reportData" class="message_block message info">
+  <span>To start working, please, create new environment</span>
+</div>
+<div *ngIf="reportData && reportData.length == 0" class="message_block message info">
+  <span>No matches found</span>
+</div>

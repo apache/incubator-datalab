@@ -20,21 +20,12 @@ limitations under the License.
     padding: 0 20px;
 }
 
-.info {
-    font-size: 16px;
-    font-weight: 300;
-    color: #35afd5;
-}
 .scrollingList.info p {
     text-align: center;
     padding: 40px;
 }
 
 /* Tab Installation */
-.message {
-    padding: 40px 20px;
-    text-align: center;
-}
 .upload-libs div {
     width: 25%;
     margin: 0 auto;
