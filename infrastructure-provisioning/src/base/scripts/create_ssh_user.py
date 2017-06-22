@@ -19,6 +19,7 @@
 # ******************************************************************************
 
 from fabric.api import *
+from fabric.contrib.files import exists
 import argparse
 import sys
 
@@ -32,14 +33,16 @@ args = parser.parse_args()
 
 
 def ensure_ssh_user(initial_user, os_user, sudo_group):
-    sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
-    sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
-    sudo('mkdir /home/{}/.ssh'.format(os_user))
-    sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
-    sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
-    sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
-    sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
-    sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
+    if not exists('/home/{}/.ensure_dir/ssh_user_ensured'.format(os_user)):
+        sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
+        sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
+        sudo('mkdir /home/{}/.ssh'.format(os_user))
+        sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
+        sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
+        sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
+        sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
+        sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
+        sudo('touch /home/{}/.ensure_dir/ssh_user_ensured'.format(os_user))
 
 
 if __name__ == "__main__":
