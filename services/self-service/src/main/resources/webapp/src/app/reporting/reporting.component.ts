@@ -98,13 +98,16 @@ export class ReportingComponent implements OnInit, OnDestroy {
         types.push(item.dlab_resource_type);
 
       if (item.shape) {
-        for (let shape of item.shape.split("\n")) {
-          shape = shape.replace('Master: ', '');
-          shape = shape.replace(/Slave:\s+\d+x/, '');
-          shape = shape.replace(/\S+/g, '');
-          if (shapes.indexOf(shape) === -1) {
-            shapes.push(shape);
+        if (item.shape.indexOf('Master') > -1) {
+          for (let shape of item.shape.split('\n')) {
+              shape = shape.replace('Master: ', '');
+              shape = shape.replace(/Slave:\s+\d+x/, '');
+              shape = shape.replace(/\s+/g, '');
+
+              shapes.indexOf(shape) === -1 && shapes.push(shape);
           }
+        } else {
+          shapes.indexOf(item.shape) === -1 && shapes.push(item.shape);
         }
       }
 

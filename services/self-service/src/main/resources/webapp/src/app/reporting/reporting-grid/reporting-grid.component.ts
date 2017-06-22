@@ -36,26 +36,19 @@ export class ReportingGridComponent implements OnInit {
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
 
-  constructor() { }
-
   public filteringColumns: Array<any> = [
     { title: 'User', name: 'user', className: 'th_user', filtering: {}, role: 'admin'},
     { title: 'Environment name', name: 'name', className: 'th_env_name', filtering: {} },
     { title: 'Resource Type', name: 'resource_type', className: 'th_type', filtering: {} },
     { title: 'Shape', name: 'shape', className: 'th_shape', filtering: {} },
     { title: 'Service', name: 'product', className: 'th_service', filtering: {} },
-    { title: 'Service Charges', name: 'charges', className: 'th_charges' },
-    // { title: 'Cloud provider', className: 'th_provider' },
-    // { title: 'Actions', className: 'th_actions' }
+    { title: 'Service Charges', name: 'charges', className: 'th_charges' }
   ];
 
-  ngOnInit() {
-    console.log(this.reportData);
-  }
+  ngOnInit() { }
 
   onUpdate($event): void {
     this.filteredReportData[$event.type] = $event.model;
-    console.log(this.filteredReportData);
   }
 
   toggleFilterRow(): void {
@@ -64,8 +57,6 @@ export class ReportingGridComponent implements OnInit {
 
   setConfiguration(reportConfig: ReportingConfigModel): void {
     this.filterConfiguration = reportConfig;
-
-    console.log('filterConfiguration: ', this.filterConfiguration);
   }
 
   filter_btnClick(clearing?: string): void {
