@@ -1,7 +1,6 @@
 {
     "request_id":"RID",
     "conf_resource": "emr",
-    "conf_os_user":"GOS",
     "conf_service_base_name":"SBN",
     "edge_user_name":"EUN",
     "emr_version":"EVER",
