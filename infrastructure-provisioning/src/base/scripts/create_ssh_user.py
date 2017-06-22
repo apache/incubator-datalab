@@ -42,6 +42,7 @@ def ensure_ssh_user(initial_user, os_user, sudo_group):
         sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
         sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
         sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
+        sudo('mkdir /home/{}/.ensure_dir'.format(os_user))
         sudo('touch /home/{}/.ensure_dir/ssh_user_ensured'.format(os_user))
 
 
