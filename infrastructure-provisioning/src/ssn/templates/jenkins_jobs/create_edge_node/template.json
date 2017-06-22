@@ -2,7 +2,6 @@
     "request_id":"RID",
     "conf_resource": "edge",
     "conf_os_family":"COF",
-    "conf_os_user":"GOS",
     "conf_service_base_name":"SBN",
     "edge_user_name":"UN",
     "aws_security_groups_ids":"SGI",
