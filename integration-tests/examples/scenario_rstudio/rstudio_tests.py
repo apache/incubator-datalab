@@ -47,9 +47,8 @@ def get_files(s3client, s3resource, dist, bucket, local):
 
 def prepare_templates():
     templates_dir = '/home/{}/'.format(args.os_user)
-    local('mkdir -p {}'.format(templates_dir))
-    s3client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
-    s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'))
+    s3client = boto3.client('s3', config=Config(signature_version='s3v4'), endpoint_url='https://s3-{}.amazonaws.com'.format(args.region), region_name=args.region)
+    s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'), endpoint_url='https://s3-{}.amazonaws.com'.format(args.region), region_name=args.region)
     get_files(s3client, s3resource, 'test_templates_rstudio', args.bucket, templates_dir)
     local('mv /home/{0}/test_templates_rstudio /home/{0}/test_templates'.format(args.os_user))
 
