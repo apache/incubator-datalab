@@ -74,7 +74,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
         this.data = data;
         this.reportingGrid.reportData = this.data.lines;
         this.reportingGrid.full_report = this.data.full_report;
+
         this.reportingToolbar.reportData = this.data;
+        // this.reportingToolbar.setDateRange();
 
         if (localStorage.getItem('report_config')) {
           this.filterConfiguration = JSON.parse(localStorage.getItem('report_config'));
@@ -112,7 +114,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
         services.push(item.product);
     });
 
-    this.filterConfiguration = new ReportingConfigModel(users, services, types, shapes, '', '' );
+    this.filterConfiguration = new ReportingConfigModel(users, services, types, shapes, '', '');
     this.reportingGrid.setConfiguration(this.filterConfiguration);
     localStorage.setItem('report_config' , JSON.stringify(this.filterConfiguration));
   }
@@ -122,10 +124,9 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.getGeneralBillingData();
   }
 
-  setRangeOption(dateRangeOption: string): void {
-    this.reportData.date_start = dateRangeOption;
+  setRangeOption(dateRangeOption: any): void {
+    this.reportData.date_start = dateRangeOption.start_date;
     this.reportData.date_end = moment().format('YYYY-MM-DD');
-    console.log('RANGE reportData', this.reportData);
     this.getGeneralBillingData();
   }
 }

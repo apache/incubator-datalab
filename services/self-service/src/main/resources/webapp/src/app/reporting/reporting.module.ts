@@ -19,6 +19,7 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@angular/material';
+import { NgDateRangePickerModule } from 'ng-daterangepicker';
 
 import { ReportingComponent } from './reporting.component';
 import { NavbarModule, ModalModule } from './../shared';
@@ -35,6 +36,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
     FormControlsModule,
     KeysPipeModule,
     LineBreaksPipeModule,
+    NgDateRangePickerModule,
     MaterialModule.forRoot()
   ],
   declarations: [ReportingComponent, ReportingGridComponent, ToolbarComponent],
