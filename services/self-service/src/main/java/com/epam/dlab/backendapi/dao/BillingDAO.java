@@ -37,6 +37,7 @@ import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.gte;
 import static com.mongodb.client.model.Filters.in;
 import static com.mongodb.client.model.Filters.lte;
+import static com.mongodb.client.model.Filters.regex;
 import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;
@@ -146,13 +147,16 @@ public class BillingDAO extends BaseDAO {
 		}
     	
     	// Add SSN and EDGE nodes
-    	String serviceBaseName = settings.getServiceBaseName();
-    	shapes.put(serviceBaseName + "-ssn", new ShapeInfo("t2.medium"));
-    	docs = getCollection(USER_EDGE)
-    			.find()
-    			.projection(fields(include(ID)));
-    	for (Document d : docs) {
-    		shapes.put(String.join("-", serviceBaseName, d.getString(ID), "edge"), new ShapeInfo("t2.medium"));
+    	final String ssnShape = "t2.medium";
+    	if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnShape)) {
+    		String serviceBaseName = settings.getServiceBaseName();
+    		shapes.put(serviceBaseName + "-ssn", new ShapeInfo(ssnShape));
+    		docs = getCollection(USER_EDGE)
+    				.find()
+    				.projection(fields(include(ID)));
+    		for (Document d : docs) {
+    			shapes.put(String.join("-", serviceBaseName, d.getString(ID), "edge"), new ShapeInfo(ssnShape));
+    		}
         }
     	
 		LOGGER.trace("Loaded shapes is {}", shapes);
@@ -247,6 +251,10 @@ public class BillingDAO extends BaseDAO {
     	addCondition(conditions, FIELD_PRODUCT, filter.getProduct());
     	addCondition(conditions, DLAB_RESOURCE_TYPE, getResourceTypeIds(filter.getResourceType()));
     	
+    	if (filter.getDlabId() != null && !filter.getDlabId().isEmpty()) {
+    		conditions.add(regex(FIELD_DLAB_ID, filter.getDlabId(), "i"));
+    	}
+
     	if (filter.getDateStart() != null && !filter.getDateStart().isEmpty()) {
     		conditions.add(gte(FIELD_USAGE_DATE, filter.getDateStart()));
     	}
@@ -298,7 +306,7 @@ public class BillingDAO extends BaseDAO {
 			String shapeName = "";
 			if (shape != null) {
 				shapeName = (shape.isExploratory ? shape.shape :
-					"Master: " + shape.shape + System.lineSeparator() +
+					"Master: " + shape.shape + "\n" +
 					"Slave:  " + shape.slaveCount + "x" + shape.slaveShape);
 			}
 			
