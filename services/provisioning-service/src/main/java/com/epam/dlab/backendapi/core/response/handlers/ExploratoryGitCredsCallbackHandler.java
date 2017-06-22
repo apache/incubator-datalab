@@ -48,7 +48,7 @@ public class ExploratoryGitCredsCallbackHandler extends ResourceCallbackHandler<
 
 	@Override
     protected ExploratoryStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryStatusDTO baseStatus) throws DlabException {
-		LOGGER.debug("Parse GIT Creds: "  + resultNode);
+		LOGGER.trace("Parse GIT Creds: "  + resultNode);
     	return baseStatus;
     }
 

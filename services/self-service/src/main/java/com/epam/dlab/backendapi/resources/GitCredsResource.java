@@ -138,38 +138,15 @@ public class GitCredsResource implements ExploratoryAPI {
     @POST
     @Path(ApiCallbacks.STATUS_URI)
     public Response status(ExploratoryStatusDTO dto) throws DlabException {
-        LOGGER.debug("Git creds has been updated for exploratory environment {} for user {}, status is {}",
-        		dto.getExploratoryName(), dto.getUser(), dto.getStatus());
+    	if (UserInstanceStatus.CREATED != UserInstanceStatus.of(dto.getStatus())) {
+            //TODO Handle error status?
+    		LOGGER.error("Git creds has not been updated for exploratory environment {} for user {}, status is {}",
+    				dto.getExploratoryName(), dto.getUser(), dto.getStatus());
+    	} else {
+    		LOGGER.debug("Git creds has been updated for exploratory environment {} for user {}, status is {}",
+    				dto.getExploratoryName(), dto.getUser(), dto.getStatus());
+    	}
         RequestId.checkAndRemove(dto.getRequestId());
-        //TODO Handle status?
-    	/*
-        UserInstanceStatus currentStatus;
-        
-        try {
-        	currentStatus = exploratoryDAO.fetchExploratoryStatus(dto.getUser(), dto.getExploratoryName());
-        } catch (DlabException e) {
-        	LOGGER.error("Could not get current status for exploratory environment {} for user {}",
-        			dto.getExploratoryName(), dto.getUser(), e);
-            throw new DlabException("Could not get current status for exploratory environment " + dto.getExploratoryName() +
-            		" for user " + dto.getUser() + ": " + e.getLocalizedMessage(), e);
-        }
-        LOGGER.debug("Current status for exploratory environment {} for user {} is {}",
-        		dto.getExploratoryName(), dto.getUser(), currentStatus);
-
-        try {
-            exploratoryDAO.updateExploratoryFields(dto);
-            if (currentStatus == TERMINATING) {
-            	updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), UserInstanceStatus.of(dto.getStatus()));
-            } else if (currentStatus == STOPPING) {
-            	updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), TERMINATED);
-            }
-        } catch (DlabException e) {
-        	LOGGER.error("Could not update status for exploratory environment {} for user {} to {}",
-        			dto.getExploratoryName(), dto.getUser(), dto.getStatus(), e);
-        	throw new DlabException("Could not update status for exploratory environment " + dto.getExploratoryName() +
-        			" for user " + dto.getUser() + " to " + dto.getStatus() + ": " + e.getLocalizedMessage(), e);
-        }
-    	 */
     	return Response.ok().build();
     }
 }
