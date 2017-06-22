@@ -29,6 +29,9 @@ public class BillingFilterFormDTO {
     @JsonProperty
     private List<String> user;
 
+    @JsonProperty("dlab_id")
+    private String dlabId;
+
     @JsonProperty
     private List<String> product;
 
@@ -53,6 +56,16 @@ public class BillingFilterFormDTO {
     /** Set the name of user. */
     public void setUser(List<String> user) {
     	this.user = user;
+    }
+
+    /** Set the id of DLab resource. */
+    public String getDlabId() {
+    	return dlabId;
+    }
+
+    /** Set the id of DLab resource. */
+    public void setDlabId(String dlabId) {
+    	this.dlabId = dlabId;
     }
 
     /** Return name of product. */
@@ -110,6 +123,7 @@ public class BillingFilterFormDTO {
     public String toString() {
     	return MoreObjects.toStringHelper(this)
     			.add("user", user)
+    			.add("dlabId", dlabId)
     			.add("product", product)
     			.add("resourceType", resourceType)
     			.add("shape", shape)
