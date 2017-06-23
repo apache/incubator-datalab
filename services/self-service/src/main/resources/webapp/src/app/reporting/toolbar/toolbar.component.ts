@@ -29,6 +29,9 @@ import * as moment from 'moment';
 })
 export class ToolbarComponent implements OnInit {
   reportData: any;
+  availablePeriodFrom: string;
+  availablePeriodTo: string;
+
   rangeOptions = {'YTD': 'Year To Date', 'QTD': 'Quarter To Date', 'MTD': 'Month To Date', 'reset': 'All Period Report'};
   options: NgDateRangePickerOptions;
   hElement: HTMLElement;
@@ -54,13 +57,24 @@ export class ToolbarComponent implements OnInit {
   }
 
   ngOnInit() {
-    for(let label = 0; label < this.rangeLabels.length; ++label)
-      this.rangeLabels[label].className += ' untouched'
+    this.clearRangePicker();
+     if (localStorage.getItem('report_period')) {
+        const availableRange = JSON.parse(localStorage.getItem('report_period'));
+        this.availablePeriodFrom = availableRange.start_date;
+        this.availablePeriodTo = availableRange.end_date;
+     }
   }
 
   setDateRange() {
-    console.log('setDateRange: ', this.reportData);
-    console.log(this.reportData.usage_date_start.split('-').join('/').concat('-', this.reportData.usage_date_end.split('-').join('/')));
+    const availableRange = JSON.parse(localStorage.getItem('report_period'));
+
+    this.availablePeriodFrom = availableRange.start_date;
+    this.availablePeriodTo = availableRange.end_date;
+  }
+
+  clearRangePicker(): void {
+    for(let label = 0; label < this.rangeLabels.length; ++label)
+      this.rangeLabels[label].className += ' untouched';
   }
 
   onChange(dateRange: string): void {

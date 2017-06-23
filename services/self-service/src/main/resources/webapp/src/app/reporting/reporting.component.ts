@@ -30,7 +30,7 @@ import * as moment from 'moment';
   template: `
   <dlab-navbar></dlab-navbar>
   <dlab-toolbar (rebuildReport)="getGeneralBillingData()" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
-  <dlab-reporting-grid (filterReport)="filterReport($event)"></dlab-reporting-grid>
+  <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
   <footer>
     Total {{data?.cost_total}} {{data?.currency_code}}
   </footer>
@@ -66,6 +66,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy() {
     localStorage.removeItem('report_config');
+    localStorage.removeItem('report_period');
   }
 
   getGeneralBillingData() {
@@ -76,7 +77,10 @@ export class ReportingComponent implements OnInit, OnDestroy {
         this.reportingGrid.full_report = this.data.full_report;
 
         this.reportingToolbar.reportData = this.data;
-        // this.reportingToolbar.setDateRange();
+        if (!localStorage.getItem('report_period')) {
+          localStorage.setItem('report_period' , JSON.stringify({start_date: this.data.usage_date_start, end_date: this.data.usage_date_end}));
+          this.reportingToolbar.setDateRange();
+        }
 
         if (localStorage.getItem('report_config')) {
           this.filterConfiguration = JSON.parse(localStorage.getItem('report_config'));
@@ -123,6 +127,10 @@ export class ReportingComponent implements OnInit, OnDestroy {
   filterReport(event: ReportingConfigModel): void {
     this.reportData = event;
     this.getGeneralBillingData();
+  }
+
+  resetRangePicker() {
+    this.reportingToolbar.clearRangePicker();
   }
 
   setRangeOption(dateRangeOption: any): void {

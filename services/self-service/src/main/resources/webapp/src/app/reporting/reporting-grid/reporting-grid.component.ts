@@ -35,6 +35,7 @@ export class ReportingGridComponent implements OnInit {
   full_report: boolean = false;
 
   @Output() filterReport: EventEmitter<{}> = new EventEmitter();
+  @Output() resetRangePicker: EventEmitter<boolean> = new EventEmitter();
 
   public filteringColumns: Array<any> = [
     { title: 'User', name: 'user', className: 'th_user', filtering: true, role: 'admin'},
@@ -60,8 +61,10 @@ export class ReportingGridComponent implements OnInit {
   }
 
   filter_btnClick(clearing?: string): void {
-    if (clearing) this.filteredReportData.defaultConfigurations();
-
+    if (clearing) {
+      this.filteredReportData.defaultConfigurations();
+      this.resetRangePicker.emit(true);
+    }
     this.filterReport.emit(this.filteredReportData);
     this.isFiltered = true;
   }

@@ -20,9 +20,9 @@ limitations under the License.
     <div class="general">
       <div><span>Service base name: </span><strong>{{ reportData.service_base_name }}</strong></div>
       <div><span>Resource tag ID: </span><strong>{{ reportData.tag_resource_id }}</strong></div>
-      <div class="report-period info_color" *ngIf="reportData && reportData.usage_date_start && reportData.usage_date_end">
-        Available reporting period from: <strong>{{ reportData.usage_date_start | date }} </strong>
-        to: <strong>{{ reportData.usage_date_end | date }}</strong>
+      <div class="report-period info_color" *ngIf="availablePeriodFrom && availablePeriodTo">
+        Available reporting period from: <strong>{{ availablePeriodFrom | date }} </strong>
+        to: <strong>{{ availablePeriodTo | date }}</strong>
     </div>
     </div>
   </div>
