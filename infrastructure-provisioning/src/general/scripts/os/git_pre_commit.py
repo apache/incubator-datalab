@@ -34,3 +34,4 @@ for host in data.keys():
             sys.exit(1)
         else:
             sys.exit(0)
+sys.exit(1)
