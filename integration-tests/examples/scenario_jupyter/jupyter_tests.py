@@ -56,7 +56,7 @@ def prepare_ipynb(kernel_name, template_path, ipynb_name):
 
 
 def run_ipynb(ipynb_name):
-    local('jupyter nbconvert --ExecutePreprocessor.timeout=-1 --execute /home/{}/{}.ipynb'.format(args.os_user, ipynb_name))
+    local('jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.startup_timeout=300 --execute /home/{}/{}.ipynb'.format(args.os_user, ipynb_name))
 
 
 def prepare_templates():
