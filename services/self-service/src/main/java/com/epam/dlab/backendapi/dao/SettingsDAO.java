@@ -45,11 +45,6 @@ public class SettingsDAO extends BaseDAO {
         return getSetting(AWS_SECURITY_GROUPS);
     }
 
-    /** Returns the OS user name. */
-    public String getConfOsUser() {
-        return getSetting(CONF_OS_USER);
-    }
-
     /** Returns the name of OS family. */
     public String getConfOsFamily() {
         return getSetting(CONF_OS_FAMILY);

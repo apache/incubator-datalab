@@ -73,8 +73,7 @@ public class ResourceUtils {
     	return (T) resource
     			.withServiceBaseName(getSettingsDAO().getServiceBaseName())
     			.withConfTagResourceId(getSettingsDAO().getConfTagResourceId())
-    			.withConfOsFamily(getSettingsDAO().getConfOsFamily())
-            	.withConfOsUser(getSettingsDAO().getConfOsUser());
+    			.withConfOsFamily(getSettingsDAO().getConfOsFamily());
 
     }
     

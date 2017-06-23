@@ -26,8 +26,6 @@ public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends Resourc
     private String serviceBaseName;
     @JsonProperty("conf_tag_resource_id")
     private String confTagResourceId;
-    @JsonProperty("conf_os_user")
-    private String confOsUser;
     @JsonProperty("conf_os_family")
     private String confOsFamily;
 
@@ -60,19 +58,6 @@ public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends Resourc
         return self;
     }
     
-    public String getConfOsUser() {
-        return confOsUser;
-    }
-
-    public void setConfOsUser(String confOsUser) {
-        this.confOsUser = confOsUser;
-    }
-
-    public T withConfOsUser(String confOsUser) {
-        setConfOsUser(confOsUser);
-        return self;
-    }
-    
     public String getConfOsFamily() {
         return confOsFamily;
     }
@@ -90,7 +75,6 @@ public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends Resourc
     public ToStringHelper toStringHelper(Object self) {
     	return super.toStringHelper(self)
     	        .add("serviceBaseName", serviceBaseName)
-    	        .add("confOsUser", confOsUser)
     	        .add("confOsFamily", confOsFamily);
     }
     
