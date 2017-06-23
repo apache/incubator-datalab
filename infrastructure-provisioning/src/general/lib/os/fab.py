@@ -605,6 +605,8 @@ def install_ungit(os_user):
         sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')
         run('git config --global http.proxy $http_proxy')
         run('git config --global https.proxy $https_proxy')
+        run('git config --global user.name "Example User"')
+        run('git config --global user.name "example@example.com"')
         run('mkdir -p ~/.git/templates/hooks')
         put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0755)
         run('git config --global init.templatedir ~/.git/templates')
