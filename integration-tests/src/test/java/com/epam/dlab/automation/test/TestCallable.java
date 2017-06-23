@@ -111,12 +111,12 @@ public class TestCallable implements Callable<Boolean> {
                        Paths.get(PropertiesResolver.getClusterConfFileLocation(), notebookConfigurationFile).toString(),
                        CreateNotebookDto.class);
 
-           createNoteBookRequest.setName(notebookName);
+       createNoteBookRequest.setName(notebookName);
 
-           Response responseCreateNotebook = new HttpRequest().webApiPut(ssnExpEnvURL, ContentType.JSON,
+       Response responseCreateNotebook = new HttpRequest().webApiPut(ssnExpEnvURL, ContentType.JSON,
                    createNoteBookRequest, token);
-           LOGGER.info(" {}:  responseCreateNotebook.getBody() is {}", notebookName, responseCreateNotebook.getBody().asString());
-           Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not created");
+       LOGGER.info(" {}:  responseCreateNotebook.getBody() is {}", notebookName, responseCreateNotebook.getBody().asString());
+       Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not created");
 
        String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating", ConfigPropertyValue.getTimeoutNotebookCreate());
        if (!gettingStatus.contains("running")) {
