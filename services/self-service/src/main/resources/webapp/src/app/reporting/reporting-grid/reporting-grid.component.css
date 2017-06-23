@@ -21,11 +21,11 @@ limitations under the License.
     zoom: 0.85;
 }
 .dashboard_table.reporting tr th {
-    font-size: 11px;
+    font-size: 13px;
 }
 .reporting .filter-row .filter-field,
 .reporting .dropdown-multiselect  button.dropdown-toggle.btn {
-    font-size: 13px;
+    font-size: 14px;
 }
 .dashboard_table.reporting .th_shape {
     width: 10%;

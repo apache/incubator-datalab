@@ -32,12 +32,11 @@ section {
     margin-right: 10px;
 }
 
-.report-period {
-    padding: 20px 0 10px;
+.general {
+    font-size: 13px;
 }
-
 .general div span {
-    width: 160px;
+    width: 190px;
     display: inline-block;
 }
 
@@ -81,5 +80,17 @@ section {
 }
 
 #range-picker .ng-daterangepicker .input-section .value-txt {
+    color: #718ba6;
+}
+
+#range-picker .ng-daterangepicker .input-section .value-txt.untouched,
+#range-picker .ng-daterangepicker .input-section .label-txt.untouched {
+    color: #fff;
+}
+#range-picker .ng-daterangepicker .input-section .value-txt.untouched::after {
+    content: 'Select date';
+    position: absolute;
+    top: 22px;
+    left: 34px;
     color: #718ba6;
 }
