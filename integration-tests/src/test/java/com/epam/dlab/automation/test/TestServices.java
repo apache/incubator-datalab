@@ -220,10 +220,10 @@ public class TestServices {
         ExecutorService executor =  Executors.newFixedThreadPool(ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads(): N_THREADS);
         List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
 
-        boolean testRestartStopped = true;
+        boolean fullTest = true;
         for (String notebookTemplate: notebookTemplates) {
-            FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookTemplate, testRestartStopped));
-            testRestartStopped = false;
+            FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookTemplate, fullTest));
+            fullTest = false;
             futureTasks.add(runScenarioTask);
             executor.execute(runScenarioTask);
         }

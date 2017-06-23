@@ -56,15 +56,15 @@ def prepare_ipynb(kernel_name, template_path, ipynb_name):
 
 
 def run_ipynb(ipynb_name):
-    local('jupyter nbconvert --ExecutePreprocessor.timeout=-1 --execute /home/{}/{}.ipynb'.format(args.os_user, ipynb_name))
+    local('jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.startup_timeout=300 --execute /home/{}/{}.ipynb'.format(args.os_user, ipynb_name))
 
 
 def prepare_templates():
-    templates_dir = '/home/{}/test_jupyter/'.format(args.os_user)
-    local('mkdir -p {}'.format(templates_dir))
-    s3client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
-    s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'))
+    templates_dir = '/home/{}/'.format(args.os_user)
+    s3client = boto3.client('s3', config=Config(signature_version='s3v4'), endpoint_url='https://s3-{}.amazonaws.com'.format(args.region), region_name=args.region)
+    s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'), endpoint_url='https://s3-{}.amazonaws.com'.format(args.region), region_name=args.region)
     get_files(s3client, s3resource, 'test_templates_jupyter', args.bucket, templates_dir)
+    local('mv /home/{0}/test_templates_jupyter /home/{0}/test_templates'.format(args.os_user))
 
 
 def run_pyspark():

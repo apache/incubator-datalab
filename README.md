@@ -236,7 +236,7 @@ To build SSN node, following steps should be executed:
 2.  Go to *dlab* directory.
 3.  Execute following script:
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --infrastructure_tag dlab_test --access_key_id XXXXXXX --secret_access_key XXXXXXXXXX --region us-west-2 --os_family debian --cloud_provider aws --os_user ubuntu --vpc_id vpc-xxxxx --subnet_id subnet-xxxxx --sg_ids sg-xxxxx,sg-xxxx --key_path /root/ --key_name Test --tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --infrastructure_tag dlab_test --access_key_id XXXXXXX --secret_access_key XXXXXXXXXX --region us-west-2 --os_family debian --cloud_provider aws --vpc_id vpc-xxxxx --subnet_id subnet-xxxxx --sg_ids sg-xxxxx,sg-xxxx --key_path /root/ --key_name Test --tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
 ```
 
 This bash script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
@@ -251,7 +251,6 @@ List of parameters for SSN node deployment:
 | region              | AWS region                                                                              |
 | os\_family          | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
 | cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS)                            |
-| os\_user            | Name of OS user. By default for Debian – **ubuntu**, for RedHat – **ec2-user**          |
 | vpc\_id             | ID of the Virtual Private Cloud (VPC)                                                   |
 | subnet\_id          | ID of the public subnet                                                                 |
 | sg\_ids             | One or more ID\`s of AWS Security Groups, which will be assigned to SSN node            |
@@ -322,7 +321,6 @@ List of parameters for Edge node creation:
 | Parameter                  | Description/Value                                                                     |
 |--------------------------------|-----------------------------------------------------------------------------------|
 | conf\_resource                 | edge                                                                              |
-| conf\_os\_user                 | Name of the SSH user                                                              |
 | conf\_os\_family               | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
 | conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
 | conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
@@ -361,7 +359,6 @@ List of parameters for Edge node recreation:
 | Parameter                  | Description/Value                                                                 |
 |----------------------------|-----------------------------------------------------------------------------------|
 | conf\_resource             | edge                                                                              |
-| conf\_os\_user             | Name of the SSH user                                                              |
 | conf\_os\_family           | Name of the Linux distributive family, which is supported by DLAB (Debian/RedHat) |
 | conf\_service\_base\_name  | Unique infrastructure value, specified during SSN deployment                      |
 | conf\_key\_name            | Name of the uploaded SSH key file (without ".pem")                                |
@@ -388,7 +385,6 @@ List of parameters for Notebook node creation:
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
 | conf\_resource                | notebook                                                                          |
-| conf\_os\_user                | Name of the SSH user                                                              |
 | conf\_os\_family              | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
 | conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
 | conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
@@ -409,7 +405,6 @@ List of parameters for Notebook node stopping:
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
 | conf\_resource            | notebook                                                     |
-| conf\_os\_user            | Name of the SSH user                                         |
 | conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment |
 | conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")           |
 | edge\_user\_name          | Value that previously was used when Edge being provisioned   |
@@ -444,7 +439,6 @@ List of parameters for Notebook node to **get list** of available libraries:
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
 | conf\_resource                | notebook                                                                          |
-| conf\_os\_user                | Name of the SSH user                                                              |
 | conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
 | conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
 | edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
@@ -472,7 +466,6 @@ List of parameters for Notebook node to **install** additional libraries:
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
 | conf\_resource                | notebook                                                                          |
-| conf\_os\_user                | Name of the SSH user                                                              |
 | conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
 | conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
 | edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
@@ -511,7 +504,6 @@ List of parameters for EMR cluster creation:
 | Parameter                   | Description/Value                                            |
 |-----------------------------|--------------------------------------------------------------|
 | conf\_resource              | emr                                                          |
-| conf\_os\_user              | Name of the SSH user                                         |
 | conf\_service\_base\_name   | Unique infrastructure value, specified during SSN deployment |
 | conf\_key\_name             | Name of the uploaded SSH key file (without ".pem")           |
 | emr\_timeout                | Value of timeout for EMR during build.                       |
@@ -536,7 +528,6 @@ List of parameters for EMR cluster termination:
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
 | conf\_resource            | emr                                                          |
-| conf\_os\_user            | Name of the SSH user                                         |
 | conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment |
 | conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")           |
 | edge\_user\_name          | Value that previously was used when Edge being provisioned   |
@@ -1044,7 +1035,7 @@ Using this Docker file, all required scripts and files will be copied to Docker 
 
 -   Docker command for building SSN:
 ```
-docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_os_family=debian" -e "conf_os_user=ubuntu" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "aws_ssn_instance_size=t2.medium" -e "aws_region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" -e "conf_tag_resource_id=dlab" docker.dlab-ssn --action create ;
+docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_os_family=debian" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "aws_ssn_instance_size=t2.medium" -e "aws_region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" -e "conf_tag_resource_id=dlab" docker.dlab-ssn --action create ;
 ```
 
 -   Docker executes *entrypoint.py* script with action *create*. *Entrypoint.py* will set environment variables, which were provided from Docker and execute *general/api/create.py* script:
