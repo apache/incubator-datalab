@@ -32,7 +32,7 @@ COPY general/templates/os/${OS}/jupyter-notebook.service /root/templates/
 COPY general/templates/os/pyspark_local_template.json /root/templates/
 COPY general/templates/os/py3spark_local_template.json /root/templates/
 COPY general/templates/os/pyspark_emr_template.json /root/templates/
-COPY general/templates/os/${OS}/gitweb-virtualhost.conf /root/templates/
+COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/files/os/notebook_local_jars.tar.gz /root/files/
 COPY general/files/os/cudnn-8.0-linux-x64-v5.1.tgz /root/files/
 COPY general/templates/os/tensorboard.service /root/templates/

@@ -28,6 +28,7 @@ public enum DockerAction {
     TERMINATE,
     LIB_LIST,
     LIB_INSTALL,
+    GIT_CREDS,
     STATUS;
 
     @Override

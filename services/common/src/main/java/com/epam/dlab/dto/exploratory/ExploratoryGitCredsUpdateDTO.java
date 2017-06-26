@@ -18,44 +18,16 @@ limitations under the License.
 
 package com.epam.dlab.dto.exploratory;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class ExploratoryCreateDTO extends ExploratoryBaseDTO<ExploratoryCreateDTO> {
-    @JsonProperty("aws_notebook_instance_type")
-    private String notebookInstanceType;
-    @JsonProperty("aws_security_groups_ids")
-    private String securityGroupIds;
+import java.util.List;
+
+/** Store GIT credentials which should be updated on exploratory.
+ */
+public class ExploratoryGitCredsUpdateDTO extends ExploratoryActionDTO<ExploratoryGitCredsUpdateDTO> {
     @JsonProperty("git_creds")
     private List<ExploratoryGitCreds> gitCreds;
-
-    public String getNotebookInstanceType() {
-        return notebookInstanceType;
-    }
-
-    public void setNotebookInstanceType(String notebookInstanceType) {
-        this.notebookInstanceType = notebookInstanceType;
-    }
-
-    public ExploratoryCreateDTO withNotebookInstanceType(String notebookInstanceType) {
-        setNotebookInstanceType(notebookInstanceType);
-        return this;
-    }
-
-    public String getSecurityGroupIds() {
-        return securityGroupIds;
-    }
-
-    public void setSecurityGroupIds(String securityGroupIds) {
-        this.securityGroupIds = securityGroupIds;
-    }
-
-    public ExploratoryCreateDTO withAwsSecurityGroupIds(String securityGroupIds) {
-        setSecurityGroupIds(securityGroupIds);
-        return this;
-    }
 
     /** Return the list of GIT credentials.
      */
@@ -71,17 +43,15 @@ public class ExploratoryCreateDTO extends ExploratoryBaseDTO<ExploratoryCreateDT
 
     /** Set the list of GIT credentials and return this object.
      */
-    public ExploratoryCreateDTO withGitCreds(List<ExploratoryGitCreds> gitCreds) {
+    public ExploratoryGitCredsUpdateDTO withGitCreds(List<ExploratoryGitCreds> gitCreds) {
         setGitCreds(gitCreds);
         return this;
     }
-    
-    
+
+
     @Override
     public ToStringHelper toStringHelper(Object self) {
-    	return super.toStringHelper(self)
-    			.add("notebookInstanceType", notebookInstanceType)
-    			.add("securityGroupIds", securityGroupIds)
-    			.add("gitCreds", gitCreds);
+            return super.toStringHelper(self)
+                    .add("gitCreds", gitCreds);
     }
 }

@@ -25,10 +25,12 @@ import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
+import com.epam.dlab.backendapi.core.response.handlers.ExploratoryGitCredsCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -69,7 +71,7 @@ public class ExploratoryResource implements DockerCommands {
 
     @Path("/start")
     @POST
-    public String start(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws IOException, InterruptedException {
+    public String start(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws IOException, InterruptedException {
         return action(ui.getName(), dto, DockerAction.START);
     }
 
@@ -89,6 +91,12 @@ public class ExploratoryResource implements DockerCommands {
     @POST
     public String libInstall(@Auth UserInfo ui, ExploratoryLibInstallDTO dto) throws IOException, InterruptedException {
         return action(ui.getName(), dto, DockerAction.LIB_INSTALL);
+    }
+
+    @Path("/git_creds")
+    @POST
+    public String gitCredsUpdate(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws IOException, InterruptedException {
+        return action(ui.getName(), dto, DockerAction.GIT_CREDS);
     }
 
     private String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws IOException, InterruptedException {
@@ -114,10 +122,16 @@ public class ExploratoryResource implements DockerCommands {
         return uuid;
     }
 
-    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
-        return (action == DockerAction.LIB_INSTALL ?
-        		new LibInstallCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), (ExploratoryLibInstallDTO) dto) :
-        		new ExploratoryCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName()));
+	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
+    	switch (action) {
+    		case LIB_INSTALL:
+        		return new LibInstallCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), (ExploratoryLibInstallDTO) dto);
+    		case GIT_CREDS:
+    			return new ExploratoryGitCredsCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName());
+    		default:
+    			break;
+    	}
+		return new ExploratoryCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName());
     }
 
     private String nameContainer(String user, DockerAction action, String name) {

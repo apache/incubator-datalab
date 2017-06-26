@@ -394,7 +394,10 @@ List of parameters for Notebook node creation:
 | aws\_security\_groups\_ids    | ID of the SSN instance's security group                                           |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor)                   |
 | conf\_tag\_resource\_id       | The name of tag for billing reports                                               |
+| git\_creds                    | User git credentials in JSON format                                               |
 | action                        | Create                                                                            |
+
+**Note** For format of git_creds see "Manage git credentials" lower.
 
 ### Stop
 
@@ -412,11 +415,11 @@ List of parameters for Notebook node stopping:
 | aws\_region               | AWS region where infrastructure was deployed                 |
 | action                    | Stop                                                         |
 
-### Start/Terminate
+### Start
 
-In order to start/terminate Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Start” or “Terminate” action.
+In order to start Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Start” action.
 
-List of parameters for Notebook node start/termination:
+List of parameters for Notebook node start:
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -426,7 +429,26 @@ List of parameters for Notebook node start/termination:
 | edge\_user\_name          | Value that previously was used when Edge being provisioned   |
 | notebook\_instance\_name  | Name of the Notebook instance to terminate                   |
 | aws\_region               | AWS region where infrastructure was deployed                 |
-| action                    | Stop                                                         |
+| git\_creds                | User git credentials in JSON format                          |
+| action                    | start                                                        |
+
+**Note** For format of git_creds see "Manage git credentials" lower.
+
+### Terminate
+
+In order to terminate Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Terminate” action.
+
+List of parameters for Notebook node termination:
+
+| Parameter                 | Description/Value                                            |
+|---------------------------|--------------------------------------------------------------|
+| conf\_resource            | notebook                                                     |
+| conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment |
+| conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")           |
+| edge\_user\_name          | Value that previously was used when Edge being provisioned   |
+| notebook\_instance\_name  | Name of the Notebook instance to terminate                   |
+| aws\_region               | AWS region where infrastructure was deployed                 |
+| action                    | terminate                                                         |
 
 **Note:** If terminate action is called, all connected EMR clusters will be removed.
 
@@ -442,10 +464,10 @@ List of parameters for Notebook node to **get list** of available libraries:
 | conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
 | conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
 | edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
-| notebook\_instance\_name      | Name of the Notebook instance to terminate                   |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
-| action                        | lib_list                                                                           |
+| action                        | lib_list                                                                          |
 
 **Note:** This operation will returns a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
 
@@ -490,6 +512,41 @@ List of parameters for Notebook node to **install** additional libraries:
   ...
 }
 ```
+
+### Manage git credentials
+
+In order to manage git credentials on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage git credentials” action.
+
+List of parameters for Notebook node to **manage git credentials**:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
+| aws\_region                   | AWS region where infrastructure was deployed                                      |
+| git\_creds                    | User git credentials in JSON format                                               |
+| action                        | git\_creds                                                                        |
+
+**Example** of git_creds parameter:
+
+```
+[{
+  "username": "Test User",
+  "email": "test@example.com",
+  "hostname": "github.com",
+  "login": "testlogin",
+  "password": "testpassword"
+}, ...]
+```
+
+**Note:** Fields "username" and "email" used for commits (displays Author in git log).
+
+**Note:** Leave "hostname" field empty to apply login/password by default for all services.
+
+**Note:** Also your can use "Personal access tokens" against passwords.
 
 ## EMR cluster <a name="EMR_cluster"></a>
 

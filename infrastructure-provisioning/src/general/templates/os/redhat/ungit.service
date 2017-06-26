@@ -1,0 +1,13 @@
+[Unit]
+Description=ungit
+
+[Service]
+Type=simple
+ExecStart=/bin/ungit --port=8085 --no-b
+User=OS_USR
+Group=OS_USR
+WorkingDirectory=/home/OS_USR/
+PIDFile=/var/run/ungit.pid
+
+[Install]
+WantedBy=multi-user.target

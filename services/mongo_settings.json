@@ -19,10 +19,6 @@
 	"value": "sg-1a23bc45"
 }
 {
-	"_id": "conf_os_user",
-	"value": "ubuntu"
-}
-{
 	"_id": "conf_os_family",
 	"value": "debian"
 }
