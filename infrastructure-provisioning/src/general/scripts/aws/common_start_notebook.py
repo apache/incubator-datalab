@@ -64,8 +64,8 @@ if __name__ == "__main__":
         notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['tag_name'],
                                                                  notebook_config['notebook_name']).get('Private')
         notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-        params = '--os_user {} --notebook_ip {} --keyfile "{}" --git_creds "{}"' \
-            .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'], os.environ['git_creds'])
+        params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
+            .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
         except Exception as err:

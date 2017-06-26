@@ -429,7 +429,6 @@ List of parameters for Notebook node start:
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
 | conf\_resource            | notebook                                                     |
-| conf\_os\_user            | Name of the SSH user                                         |
 | conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment |
 | conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")           |
 | edge\_user\_name          | Value that previously was used when Edge being provisioned   |
