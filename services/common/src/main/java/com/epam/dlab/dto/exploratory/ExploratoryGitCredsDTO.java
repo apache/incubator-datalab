@@ -16,14 +16,29 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.rest.contracts;
+package com.epam.dlab.dto.exploratory;
 
-public interface ExploratoryAPI {
-    String EXPLORATORY = "exploratory";
-    String EXPLORATORY_CREATE = EXPLORATORY + "/create";
-    String EXPLORATORY_START = EXPLORATORY + "/start";
-    String EXPLORATORY_TERMINATE = EXPLORATORY + "/terminate";
-    String EXPLORATORY_STOP = EXPLORATORY + "/stop";
-    String EXPLORATORY_LIB_INSTALL = EXPLORATORY + "/lib_install";
-    String EXPLORATORY_GIT_CREDS = EXPLORATORY + "/git_creds";
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
+
+/** Stores info about the GIT credentials. 
+ * */
+public class ExploratoryGitCredsDTO {
+    @JsonProperty("git_creds")
+    private List<ExploratoryGitCreds> gitCreds;
+
+    /** Return the list of GIT credentials.
+     */
+    public List<ExploratoryGitCreds> getGitCreds() {
+        return gitCreds;
+    }
+
+    @Override
+    public String toString() {
+    	return MoreObjects.toStringHelper(this)
+                .add("gitCreds", gitCreds)
+    			.toString();
+    }
 }

@@ -113,5 +113,6 @@ if __name__ == "__main__":
     print "Install R kernel for Jupyter"
     ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
 
-    print "Install GitWeb"
-    install_gitweb(args.os_user)
+    print "Install Ungit"
+    install_nodejs(args.os_user)
+    install_ungit(args.os_user)

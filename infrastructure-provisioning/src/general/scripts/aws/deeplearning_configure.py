@@ -161,6 +161,21 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        print '[SETUP USER GIT CREDENTIALS]'
+        logging.info('[SETUP USER GIT CREDENTIALS]')
+        params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
+            .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
+        try:
+            local("~/scripts/{}.py {}".format('manage_git_creds', params))
+        except:
+            append_result("Failed setup git credentials")
+            raise Exception
+    except Exception as err:
+        append_result("Failed to setup git credentials.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
+    try:
         print '[CREATING AMI]'
         logging.info('[CREATING AMI]')
         ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
@@ -181,7 +196,7 @@ if __name__ == "__main__":
     dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     tensor_board_url = 'http://' + ip_address + ':6006'
     jupyter_url = 'http://' + ip_address + ':8888'
-    gitweb_ip_url = "http://" + ip_address + ":8085"
+    ungit_ip_url = "http://" + ip_address + ":8085"
     print '[SUMMARY]'
     logging.info('[SUMMARY]')
     print "Instance name: " + notebook_config['instance_name']
@@ -195,7 +210,7 @@ if __name__ == "__main__":
     print "Profile name: " + notebook_config['role_profile_name']
     print "SG name: " + notebook_config['security_group_name']
 
-    print "GitWeb URL: " + gitweb_ip_url
+    print "Ungit URL: " + ungit_ip_url
     print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
         'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
     print 'SSH access (from Edge node, via FQDN): ssh -i ' + notebook_config['key_name'] + '.pem ' + \
@@ -213,7 +228,7 @@ if __name__ == "__main__":
                     "url": tensor_board_url},
                    {"description": "Jupyter",
                     "url": jupyter_url},
-                   {"description": "GitWeb",
-                    "url": gitweb_ip_url}
+                   {"description": "Ungit",
+                    "url": ungit_ip_url}
                ]}
         result.write(json.dumps(res))

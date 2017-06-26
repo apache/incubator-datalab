@@ -5,5 +5,6 @@
     "edge_user_name":"NUN",
     "aws_region":"CREG",
     "notebook_instance_name":"NIN",
-    "conf_key_name":"CKN"
+    "conf_key_name":"CKN",
+    "git_creds": GIT
 }
