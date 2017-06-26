@@ -68,7 +68,7 @@ import com.mongodb.client.FindIterable;
 /** DAO for user billing.
  */
 public class BillingDAO extends BaseDAO {
-	private static final Logger LOGGER = LoggerFactory.getLogger(BaseDAO.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BillingDAO.class);
 	
     private static final String SHAPE = "shape";
     private static final String MASTER_NODE_SHAPE = "master_node_shape";
@@ -155,7 +155,7 @@ public class BillingDAO extends BaseDAO {
     				.find()
     				.projection(fields(include(ID)));
     		for (Document d : docs) {
-    			shapes.put(String.join("-", serviceBaseName, d.getString(ID), "edge"), new ShapeInfo(ssnShape));
+    			shapes.put(String.join("-", serviceBaseName, BillingUtils.getSimpleUserName(d.getString(ID)), "edge"), new ShapeInfo(ssnShape));
     		}
         }
     	
@@ -244,8 +244,12 @@ public class BillingDAO extends BaseDAO {
     	// Create filter
     	List<Bson> conditions = new ArrayList<>();
     	boolean isFullReport = UserRoles.checkAccess(userInfo, RoleType.PAGE, "/api/infrastructure_provision/billing");
-    	if (!isFullReport) {
-    		filter.setUser(Lists.newArrayList(userInfo.getSimpleName()));
+    	if (isFullReport) {
+    		if (filter.getUser() != null) {
+    			filter.getUser().replaceAll(String::toLowerCase);
+    		}
+    	} else {
+    		filter.setUser(Lists.newArrayList(userInfo.getName().toLowerCase()));
 		}
     	addCondition(conditions, USER, filter.getUser());
     	addCondition(conditions, FIELD_PRODUCT, filter.getProduct());
