@@ -195,8 +195,8 @@ if __name__ == "__main__":
     try:
         print '[SETUP USER GIT CREDENTIALS]'
         logging.info('[SETUP USER GIT CREDENTIALS]')
-        params = '--os_user {} --notebook_ip {} --keyfile "{}" --git_creds "{}"' \
-            .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name, os.environ['git_creds'])
+        params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
+            .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
         try:
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
         except:

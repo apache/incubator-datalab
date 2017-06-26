@@ -24,13 +24,13 @@ from dlab.notebook_lib import *
 from dlab.fab import *
 from fabric.api import *
 import ast
+import os
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--notebook_ip', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
-parser.add_argument('--git_creds', type=str, default='')
 args = parser.parse_args()
 
 
@@ -41,8 +41,19 @@ if __name__ == "__main__":
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
 
+    git_creds = dict()
     try:
-        data = ast.literal_eval(args.git_creds)
+        if exists('/home/{}/.netrc'.format(args.os_user)):
+            run('rm .netrc')
+        if exists('/home/{}/.gitcreds'.format(args.os_user)):
+            run('rm .gitcreds')
+        git_creds = os.environ['git_creds']
+    except KeyError:
+        print "Parameter git_creds does not exist. Skipping."
+        sys.exit(0)
+
+    try:
+        data = ast.literal_eval(git_creds)
     except Exception as err:
         append_result("Failed to parse git credentials.", str(err))
         sys.exit(1)
@@ -54,15 +65,11 @@ if __name__ == "__main__":
                 new_config.append('default login {0} password {1}'.format(data[i]['login'], data[i]['password']))
             else:
                 new_config.append('machine {0} login {1} password {2}'.format(data[i]['hostname'], data[i]['login'], data[i]['password']))
-        if exists('/home/{}/.netrc'.format(args.os_user)):
-            run('rm .netrc')
         with open("new_netrc", "w+") as f:
             for conf in sorted(new_config, reverse=True):
                 f.writelines(conf + "\n")
         put('new_netrc', '/home/{}/.netrc'.format(args.os_user))
 
-        if exists('/home/{}/.gitcreds'.format(args.os_user)):
-            run('rm .gitcreds')
         creds = dict()
         with open("new_gitcreds", 'w') as gitcreds:
             for i in range(len(data)):

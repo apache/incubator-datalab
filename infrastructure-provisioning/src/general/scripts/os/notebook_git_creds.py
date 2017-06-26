@@ -47,13 +47,11 @@ if __name__ == "__main__":
             notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
             notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['tag_name'], notebook_config['notebook_name']).get('Private')
             notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-            notebook_config['git_creds'] = os.environ['git_creds']
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
-        params = '--os_user {} --notebook_ip {} --keyfile "{}" --git_creds "{}"' \
-            .format(notebook_config['os_user'], notebook_config['notebook_ip'],
-                    notebook_config['keyfile'], notebook_config['git_creds'])
+        params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
+            .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
             # Run script to manage git credentials
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
