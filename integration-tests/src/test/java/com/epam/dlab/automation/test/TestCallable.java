@@ -96,6 +96,7 @@ public class TestCallable implements Callable<Boolean> {
        	createNotebook(notebookNewName);
        	terminateNotebook(notebookNewName);
 
+       	LOGGER.info("{} All tests finished successfully", notebookName);
         return true;
    }
 
