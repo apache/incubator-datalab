@@ -26,8 +26,6 @@ public enum MongoSetting {
     AWS_REGION("aws_region"),
 	/** Id of security group. */
     AWS_SECURITY_GROUPS("aws_security_groups_ids"),
-	/** OS user name. */
-    CONF_OS_USER("conf_os_user"),
 	/** Name of OS family. */
     CONF_OS_FAMILY("conf_os_family"),
 	/** Name of directory for user key. */
