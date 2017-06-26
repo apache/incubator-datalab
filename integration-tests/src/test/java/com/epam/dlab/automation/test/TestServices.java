@@ -140,12 +140,11 @@ public class TestServices {
         LOGGER.info("   SSN login URL is {}", ssnLoginURL);
         
         ResponseBody<?> responseBody;
-        // TODO Choose username and password for this check
-//        if (!ConfigPropertyValue.isRunModeLocal()) {
-//        	responseBody = login(ConfigPropertyValue.getNotIAMUsername(), ConfigPropertyValue.getNotIAMPassword(),
-//        			HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotIAMUsername());
-//        	Assert.assertEquals(responseBody.asString(), "Please contact AWS administrator to create corresponding IAM User");
-//        }
+        if (!ConfigPropertyValue.isRunModeLocal()) {
+        	responseBody = login(ConfigPropertyValue.getNotIAMUsername(), ConfigPropertyValue.getNotIAMPassword(),
+        			HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotIAMUsername());
+        	Assert.assertEquals(responseBody.asString(), "Please contact AWS administrator to create corresponding IAM User");
+        }
  		
         responseBody = login(ConfigPropertyValue.getNotDLabUsername(), ConfigPropertyValue.getNotDLabPassword(),
         		HttpStatusCode.UNAUTHORIZED, "Unauthorized user " + ConfigPropertyValue.getNotDLabUsername());
