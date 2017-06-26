@@ -91,12 +91,10 @@ public class TestCallable implements Callable<Boolean> {
         	terminateNotebook(deployEMR);
         }
 
-        if (fullTest) {
-        	// Create notebook from AMI
-        	String notebookNewName = "AMI" + notebookName;
-        	createNotebook(notebookNewName);
-        	terminateNotebook(notebookNewName);
-        }
+       	// Create notebook from AMI
+       	String notebookNewName = "AMI" + notebookName;
+       	createNotebook(notebookNewName);
+       	terminateNotebook(notebookNewName);
 
         return true;
    }
@@ -241,7 +239,6 @@ public class TestCallable implements Callable<Boolean> {
        LOGGER.info("    EMR {} has been terminated for Notebook {}", deployEmr.getName(), deployEmr.getNotebook_name());
 
        AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(deployEmr.getNotebook_name(), deployEmr.getName()), AmazonInstanceState.TERMINATED);
-       Docker.checkDockerStatus(NamingHelper.getEmrContainerName(deployEmr.getName(), "terminate"), NamingHelper.getSsnIp());
    }
 
    private void terminateEMR(String emrNewName) throws Exception {
