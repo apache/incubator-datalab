@@ -24,6 +24,7 @@ import { ResourcesComponent } from './resources.component';
 import { ResourcesGridModule } from './resources-grid';
 import { NavbarModule, ModalModule, ProgressDialogModule, UploadKeyDialogModule } from './../shared';
 import { ExploratoryEnvironmentCreateDialogModule } from './exploratory/exploratory-environment-create-dialog';
+import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 
 @NgModule({
   imports: [
@@ -36,7 +37,7 @@ import { ExploratoryEnvironmentCreateDialogModule } from './exploratory/explorat
     NavbarModule,
     MaterialModule.forRoot()
   ],
-  declarations: [ResourcesComponent],
+  declarations: [ResourcesComponent, ManageUngitComponent],
   exports: [ResourcesComponent]
 })
 export class ResourcesModule { }

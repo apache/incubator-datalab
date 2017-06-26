@@ -16,18 +16,6 @@ limitations under the License.
 
 ****************************************************************************/
 
-.btn_refresh {
-  outline: none;
-}
-
-.butt.butt-create {
-  color: #35afd5;
-}
-
-.butt.butt-create:disabled{
-  color: #577289!important;
-}
-
-.butt.butt-tool {
-  margin-right: 10px;
+.modal-dialog .manage-ungit .modal-body {
+    padding: 0 20px;
 }

@@ -61,16 +61,19 @@ limitations under the License.
     z-index: 9999;
 }
 
-.install-libs .mat-tab-label {
+.install-libs .mat-tab-label,
+.manage-ungit .mat-tab-label {
     width: 50%;
     font-family: 'Open Sans',sans-serif !important;
 }
-.install-libs .mat-ink-bar {
+.install-libs .mat-ink-bar,
+.manage-ungit .mat-ink-bar {
     background-color: #35afd5;
     width: 50% !important;
 }
 
-.install-libs .mat-tab-labels .mat-tab-label:focus {
+.install-libs .mat-tab-labels .mat-tab-label:focus,
+.manage-ungit .mat-tab-labels .mat-tab-label:focus {
     background-color: rgba(53, 175, 213, 0.11);
 }
 
