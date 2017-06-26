@@ -87,14 +87,14 @@ def run_rscript(rscript_name):
 
 prepare_templates()
 # Running on remote kernel
-prepare_rscript('/home/{}/test_rstudio/template_preparation.r'.format(args.os_user), 'preparation')
+prepare_rscript('/home/{}/test_templates/template_preparation.r'.format(args.os_user), 'preparation')
 run_rscript('preparation')
-prepare_rscript('/home/{}/test_rstudio/template_visualization.r'.format(args.os_user), 'visualization')
+prepare_rscript('/home/{}/test_templates/template_visualization.r'.format(args.os_user), 'visualization')
 run_rscript('visualization')
 # Running on local kernel
 enable_local_kernel()
-enable_local_kernel_in_template('/home/{}/test_rstudio/template_preparation.r'.format(args.os_user), 'preparation')
-enable_local_kernel_in_template('/home/{}/test_rstudio/template_visualization.r'.format(args.os_user), 'visualization')
+enable_local_kernel_in_template('/home/{}/test_templates/template_preparation.r'.format(args.os_user), 'preparation')
+enable_local_kernel_in_template('/home/{}/test_templates/template_visualization.r'.format(args.os_user), 'visualization')
 run_rscript('preparation')
 run_rscript('visualization')
 
