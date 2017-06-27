@@ -34,7 +34,6 @@ import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
 public class Docker {
@@ -45,7 +44,7 @@ public class Docker {
     private static final String DOCKER_STATUS_EXIT0 = "Exited (0)";
 
     public static void checkDockerStatus(String containerName, String ip)
-            throws IOException, JSchException, InterruptedException {
+            throws Exception {
         
         LOGGER.info("Check docker status for instance {} and container {}", ip, containerName);
         if (ConfigPropertyValue.isRunModeLocal()) {
@@ -87,7 +86,7 @@ public class Docker {
         return dockerContainerList;
     }
     
-    private static DockerContainer getDockerContainer(List<DockerContainer> dockerContainerList, String containerName) {
+    private static DockerContainer getDockerContainer(List<DockerContainer> dockerContainerList, String containerName) throws Exception {
         for(Iterator<DockerContainer> i = dockerContainerList.iterator(); i.hasNext(); ) {
         	DockerContainer dockerContainer = i.next();
         	String name = dockerContainer.getNames().get(0);
@@ -95,6 +94,18 @@ public class Docker {
                 return dockerContainer;
             }
         }
-        return null;
+        
+        final String msg = "Docker container for " + containerName + " not found";
+        LOGGER.error(msg);
+        String containers = "Container list:";
+        for(Iterator<DockerContainer> i = dockerContainerList.iterator(); i.hasNext(); ) {
+        	containers += System.lineSeparator() +
+        			i.next()
+        			.getNames()
+        			.get(0);
+        }
+        LOGGER.debug(containers);
+        
+        throw new Exception("Docker container for " + containerName + " not found");
     }
 }
