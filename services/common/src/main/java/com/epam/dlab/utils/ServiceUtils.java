@@ -8,8 +8,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hibernate.validator.internal.util.privilegedactions.GetClassLoader;
-
 import com.epam.dlab.constants.ServiceConsts;
 
 public class ServiceUtils {
@@ -49,10 +47,10 @@ public class ServiceUtils {
 		return false;
 	}
 	
-	public static URL findManifestForMainClass(Class<?> mainClazz) throws IOException {
-		String className = (mainClazz == null ? null : mainClazz.getName());
+	public static URL findManifestForMainClass(Class<?> mainClass) throws IOException {
+		String className = (mainClass == null ? null : mainClass.getName());
 		try {
-			Enumeration<URL> urls = ClassLoader.getSystemResources("META-INF/MANIFEST.MF");
+			Enumeration<URL> urls = ClassLoader.getSystemResources("/META-INF/MANIFEST.MF");
 			while (urls.hasMoreElements()) {
 				URL url = urls.nextElement();
 				System.out.println("  url: " + url);
@@ -61,56 +59,43 @@ public class ServiceUtils {
 				}
 			}
 		} catch (IOException e) {
-			throw new IOException("Cannot open mainfest " + className + ": " + e.getLocalizedMessage());
+			throw new IOException("Cannot read mainfest " + className + ": " + e.getLocalizedMessage());
 		}
 		return null;
 	}
 	
 	
-	public static Map<String, String> getManifest(Class<?> mainClazz) {
+	public static Map<String, String> getManifest(Class<?> mainClass) {
 		Map<String, String> manifest = new HashMap<>();
-		
-		System.out.println("MANIFEST.MF is " + mainClazz.getClassLoader().getResource("MANIFEST.MF"));
-		System.out.println("META-INF/MANIFEST.MF is " + mainClazz.getClassLoader().getResource("META-INF/MANIFEST.MF"));
-		System.out.println("/META-INF/MANIFEST.MF is " + mainClazz.getClassLoader().getResource("/META-INF/MANIFEST.MF"));
+		URL url;
+		BufferedReader reader = null;
 		try {
-			System.out.println("find mainifest is " +findManifestForMainClass(mainClazz));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		/*
-		Enumeration<URL> urls;
-		try {
-			urls = mainClazz.getClassLoader().getResources("META-INF/MANIFEST.MF");
-			while (urls.hasMoreElements()) {
-				URL url = urls.nextElement();
-				System.out.println("  url: " + url);
-				"Main-Class: com.epam.dlab.backendapi.SelfServiceApplication"
+			url = findManifestForMainClass(mainClass);
+			if (url != null) {
+				reader = new BufferedReader(new InputStreamReader(url.openStream()));
+	
+				String line;
+				System.out.println("    <<< Content >>    ");
+				while ((line = reader.readLine()) != null) {
+					int pos = line.indexOf(": ");
+					if (pos > 0) {
+						System.out.println(line);
+						manifest.put(line.substring(0,  pos), line.substring(pos + 2));
+					}
+				}
+				System.out.println("    <<< Content >>    ");
 			}
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}*/
-		
-		
-		try (BufferedReader reader = new BufferedReader(
-				new InputStreamReader(mainClazz.getResourceAsStream("/META-INF/MANIFEST.MF")))
-				) {
-			String line;
-			System.out.println("    <<< Content >>    ");
-			while ((line = reader.readLine()) != null) {
-				int pos = line.indexOf(": ");
-				if (pos > 0) {
-					System.out.println(line);
-					manifest.put(line.substring(0,  pos), line.substring(pos + 2));
+		} catch (IOException e) {
+			System.err.println("Cannot read mainfest: " + e.getLocalizedMessage());
+			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
-			System.out.println("    <<< Content >>    ");
-		} catch (IOException e) {
-			System.err.println("Cannot open mainfest: " + e.getLocalizedMessage());
-			e.printStackTrace(); 
 		}
 		
 		return manifest;
