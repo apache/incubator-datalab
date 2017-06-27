@@ -595,3 +595,22 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             sudo('touch /home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured')
         except:
             sys.exit(1)
+
+
+def install_ungit(os_user):
+    if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
+        sudo('npm -g install ungit')
+        put('/root/templates/ungit.service', '/tmp/ungit.service')
+        sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
+        sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')
+        run('git config --global http.proxy $http_proxy')
+        run('git config --global https.proxy $https_proxy')
+        run('git config --global user.name "Example User"')
+        run('git config --global user.name "example@example.com"')
+        run('mkdir -p ~/.git/templates/hooks')
+        put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0755)
+        run('git config --global init.templatedir ~/.git/templates')
+        sudo('systemctl daemon-reload')
+        sudo('systemctl enable ungit.service')
+        sudo('systemctl start ungit.service')
+        sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))

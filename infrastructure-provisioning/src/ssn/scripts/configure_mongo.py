@@ -98,7 +98,6 @@ if __name__ == "__main__":
         client.dlabdb.settings.insert_one({"_id": "aws_subnet_id", "value": args.subnet})
         client.dlabdb.settings.insert_one({"_id": "conf_service_base_name", "value": args.base_name})
         client.dlabdb.settings.insert_one({"_id": "aws_security_groups_ids", "value": args.sg})
-        client.dlabdb.settings.insert_one({"_id": "conf_os_user", "value": args.os_user})
         client.dlabdb.settings.insert_one({"_id": "conf_os_family", "value": args.os_family})
         client.dlabdb.settings.insert_one({"_id": "conf_tag_resource_id", "value": args.tag_resource_id})
         client.dlabdb.settings.insert_one({"_id": "conf_key_dir", "value": "/root/keys"})

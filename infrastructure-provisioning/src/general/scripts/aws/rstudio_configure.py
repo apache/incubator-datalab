@@ -161,6 +161,21 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        print '[SETUP USER GIT CREDENTIALS]'
+        logging.info('[SETUP USER GIT CREDENTIALS]')
+        params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
+            .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
+        try:
+            local("~/scripts/{}.py {}".format('manage_git_creds', params))
+        except:
+            append_result("Failed setup git credentials")
+            raise Exception
+    except Exception as err:
+        append_result("Failed to setup git credentials.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
+    try:
         print '[CREATING AMI]'
         logging.info('[CREATING AMI]')
         ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
@@ -181,7 +196,7 @@ if __name__ == "__main__":
     dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     rstudio_ip_url = "http://" + ip_address + ":8787/"
     rstudio_dns_url = "http://" + dns_name + ":8787/"
-    gitweb_ip_url = "http://" + ip_address + ":8085/"
+    ungit_ip_url = "http://" + ip_address + ":8085/"
     print '[SUMMARY]'
     logging.info('[SUMMARY]')
     print "Instance name: " + notebook_config['instance_name']
@@ -198,7 +213,7 @@ if __name__ == "__main__":
     print "Rstudio URL: " + rstudio_dns_url
     print "Rstudio user: " + notebook_config['dlab_ssh_user']
     print "Rstudio pass: " + notebook_config['rstudio_pass']
-    print "GitWeb URL: " + gitweb_ip_url
+    print "Ungit URL: " + ungit_ip_url
     print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
         'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
     print 'SSH access (from Edge node, via FQDN): ssh -i ' + notebook_config['key_name'] + '.pem ' + \
@@ -214,8 +229,8 @@ if __name__ == "__main__":
                "exploratory_url": [
                    {"description": "Rstudio",
                     "url": rstudio_ip_url},
-                   {"description": "GitWeb",
-                    "url": gitweb_ip_url}],
+                   {"description": "Ungit",
+                    "url": ungit_ip_url}],
                "exploratory_user": notebook_config['dlab_ssh_user'],
                "exploratory_pass": notebook_config['rstudio_pass']}
         result.write(json.dumps(res))

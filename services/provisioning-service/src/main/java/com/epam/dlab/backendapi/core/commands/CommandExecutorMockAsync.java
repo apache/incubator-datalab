@@ -124,6 +124,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			case START:
 			case STOP:
 			case TERMINATE:
+			case GIT_CREDS:
 				action(user, action);
 				break;
 			case CONFIGURE:

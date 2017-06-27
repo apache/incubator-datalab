@@ -66,7 +66,6 @@ public class ComputationalConfigure implements DockerCommands {
                 .withEdgeUserName(dto.getEdgeUserName())
                 .withAwsIamUser(dto.getAwsIamUser())
                 .withAwsRegion(dto.getAwsRegion())
-                .withConfOsUser(dto.getConfOsUser())
                 .withConfTagResourceId(dto.getConfTagResourceId());
     	ComputationalConfigure conf = new ComputationalConfigure();
     	ProvisioningServiceApplication

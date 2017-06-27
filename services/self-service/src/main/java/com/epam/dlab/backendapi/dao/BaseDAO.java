@@ -312,7 +312,7 @@ class BaseDAO implements MongoCollections {
      * @param object object
      * @throws DlabException
      */
-    protected <T> T convertFromDocument(Document document, Class<T> clazz) throws DlabException {
+    public <T> T convertFromDocument(Document document, Class<T> clazz) throws DlabException {
         try {
             String json = document.toJson();
             return MAPPER.readValue(json, clazz);

@@ -54,8 +54,18 @@ if __name__ == "__main__":
 
     for sheet in sheets:
         for cell in sheet.cells:
-            if "outputs" in cell:
-                cell.outputs = []
+            # Uncomment next 2 lines and comment next section to clear all output in notebook
+            #if "outputs" in cell:
+            #    cell.outputs = []
+
+            if hasattr(cell, "outputs"):
+                if len(cell.outputs) >= 1:
+                    for field in cell.outputs[0]:
+                        if field == "execution_count":
+                            cell.outputs[0].execution_count = None
+                        elif field == "metadata":
+                            cell.outputs[0].metadata = dict()
+
             for field in ("execution_count",):
                 if field in cell:
                     cell[field] = None
@@ -68,15 +78,11 @@ if __name__ == "__main__":
                     if field in cell.metadata:
                         del cell.metadata[field]
 
-        try:
+        if hasattr(sheet.metadata, "widgets"):
             del sheet.metadata["widgets"]
-        except KeyError:
-            pass
 
-        try:
+        if hasattr(sheet.metadata.language_info, "version"):
             del sheet.metadata.language_info["version"]
-        except AttributeError:
-            pass
 
     if 'signature' in data.metadata:
         data.metadata['signature'] = ""
