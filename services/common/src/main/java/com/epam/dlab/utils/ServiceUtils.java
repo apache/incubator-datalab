@@ -3,6 +3,8 @@ package com.epam.dlab.utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +36,18 @@ public class ServiceUtils {
 		System.out.println("MANIFEST.MF is " + mainClazz.getClassLoader().getResource("MANIFEST.MF"));
 		System.out.println("META-INF/MANIFEST.MF is " + mainClazz.getClassLoader().getResource("META-INF/MANIFEST.MF"));
 		System.out.println("/META-INF/MANIFEST.MF is " + mainClazz.getClassLoader().getResource("/META-INF/MANIFEST.MF"));
+		
+		Enumeration<URL> urls;
+		try {
+			urls = mainClazz.getClassLoader().getResources("META-INF/MANIFEST.MF");
+			while (urls.hasMoreElements()) {
+				System.out.println("  url: " + urls.nextElement());
+			}
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(mainClazz.getResourceAsStream("/META-INF/MANIFEST.MF")))
