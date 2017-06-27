@@ -44,6 +44,7 @@ export class ApplicationServiceFacade {
   private static readonly LIB_LIST = 'lib_list';
   private static readonly LIB_INSTALL = 'lib_install';
   private static readonly INSTALLED_LIBS = 'installed_libs';
+  private static readonly GIT_CREDS = 'git_creds';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -226,6 +227,20 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetGitCreds(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.GIT_CREDS),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildUpdateGitCredentials(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.GIT_CREDS),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -266,6 +281,9 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_LIST, '/api/infrastructure_provision/lib_list');
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_INSTALL, '/api/infrastructure_provision/exploratory_environment/lib_install');
     this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS, '/api/infrastructure_provision/exploratory_environment/lib_list');
+
+    // UnGit credentials
+    this.requestRegistry.Add(ApplicationServiceFacade.GIT_CREDS, '/api/user/git_creds');
   }
 
   private buildRequest(method: RequestMethod, url: string, body: any, opt: RequestOptions): Observable<Response> {

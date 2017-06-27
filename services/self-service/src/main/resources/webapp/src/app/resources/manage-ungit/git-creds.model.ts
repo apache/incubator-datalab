@@ -16,13 +16,12 @@ limitations under the License.
 
 ****************************************************************************/
 
-export { UserAccessKeyService } from './userAccessKey.service';
-export { UserResourceService } from './userResource.service';
-export { HealthStatusService } from './healthStatus.service';
-
-export { ApplicationSecurityService } from './applicationSecurity.service';
-export { ApplicationServiceFacade } from './applicationServiceFacade.service';
-export { AuthorizationGuard } from './authorization.guard';
-export { AppRoutingService } from './appRouting.service';
-export { LibrariesInstallationService } from './librariesInstallation.service';
-export { ManageUngitService } from './manageUngit.service';
+export class GitCredentialsModel {
+  constructor(
+    public hostname: string,
+    public username: string,
+    public email: string,
+    public login: string,
+    public password: string,
+  ) { }
+}
