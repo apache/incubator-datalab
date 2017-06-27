@@ -8,6 +8,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hibernate.validator.internal.util.privilegedactions.GetClassLoader;
+
 import com.epam.dlab.constants.ServiceConsts;
 
 public class ServiceUtils {
@@ -30,23 +32,67 @@ public class ServiceUtils {
 	}
 	
 	
+	private static boolean findClassName(URL resourceName, String mainClassName) throws IOException {
+		try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(resourceName.openStream()))
+				) {
+			String line;
+			final String findLine = "Main-Class: " + mainClassName;
+			while ((line = reader.readLine()) != null) {
+				if (line.equals(findLine)) {
+					return true;
+				}
+			}
+		} catch (IOException e) {
+			throw new IOException("Cannot read mainfest " + resourceName + ": " + e.getLocalizedMessage());
+		}
+		return false;
+	}
+	
+	public static URL findManifestForMainClass(Class<?> mainClazz) throws IOException {
+		String className = (mainClazz == null ? null : mainClazz.getName());
+		try {
+			Enumeration<URL> urls = ClassLoader.getSystemResources("META-INF/MANIFEST.MF");
+			while (urls.hasMoreElements()) {
+				URL url = urls.nextElement();
+				System.out.println("  url: " + url);
+				if (className == null || findClassName(url, className)) {
+					return url;
+				}
+			}
+		} catch (IOException e) {
+			throw new IOException("Cannot open mainfest " + className + ": " + e.getLocalizedMessage());
+		}
+		return null;
+	}
+	
+	
 	public static Map<String, String> getManifest(Class<?> mainClazz) {
 		Map<String, String> manifest = new HashMap<>();
 		
 		System.out.println("MANIFEST.MF is " + mainClazz.getClassLoader().getResource("MANIFEST.MF"));
 		System.out.println("META-INF/MANIFEST.MF is " + mainClazz.getClassLoader().getResource("META-INF/MANIFEST.MF"));
 		System.out.println("/META-INF/MANIFEST.MF is " + mainClazz.getClassLoader().getResource("/META-INF/MANIFEST.MF"));
-		
-		Enumeration<URL> urls;
 		try {
-			urls = mainClazz.getClassLoader().getResources("META-INF/MANIFEST.MF");
-			while (urls.hasMoreElements()) {
-				System.out.println("  url: " + urls.nextElement());
-			}
+			System.out.println("find mainifest is " +findManifestForMainClass(mainClazz));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+
+		/*
+		Enumeration<URL> urls;
+		try {
+			urls = mainClazz.getClassLoader().getResources("META-INF/MANIFEST.MF");
+			while (urls.hasMoreElements()) {
+				URL url = urls.nextElement();
+				System.out.println("  url: " + url);
+				"Main-Class: com.epam.dlab.backendapi.SelfServiceApplication"
+			}
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}*/
 		
 		
 		try (BufferedReader reader = new BufferedReader(
