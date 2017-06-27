@@ -60,12 +60,13 @@ export class ReportingGridComponent implements OnInit {
     this.filterConfiguration = reportConfig;
   }
 
-  filter_btnClick(clearing?: string): void {
-    if (clearing) {
-      this.filteredReportData.defaultConfigurations();
-      this.resetRangePicker.emit(true);
-    }
+  filter_btnClick(): void {
     this.filterReport.emit(this.filteredReportData);
     this.isFiltered = true;
+  }
+
+  resetFiltering(): void {
+    this.filteredReportData.defaultConfigurations();
+    this.resetRangePicker.emit(true);
   }
 }

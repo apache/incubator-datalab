@@ -84,7 +84,8 @@ export class ToolbarComponent implements OnInit {
     }
 
     const reportDateRange = dateRange.split('-');
-    this.setRangeOption.emit({start_date: reportDateRange[0].split('/').join('-')});
+    this.setRangeOption.emit({start_date: reportDateRange[0].split('/').join('-'),
+      end_date: reportDateRange[1].split('/').join('-')});
   }
 
   rebuild($event): void {

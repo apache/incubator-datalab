@@ -29,7 +29,7 @@ import * as moment from 'moment';
   selector: 'dlab-reporting',
   template: `
   <dlab-navbar></dlab-navbar>
-  <dlab-toolbar (rebuildReport)="getGeneralBillingData()" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
+  <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
   <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
   <footer>
     Total {{data?.cost_total}} {{data?.currency_code}}
@@ -62,14 +62,16 @@ export class ReportingComponent implements OnInit, OnDestroy {
   constructor(private billingReportService: BillingReportService) { }
 
   ngOnInit() {
-    this.getGeneralBillingData();
+    this.rebuildBillingReport();
   }
+
   ngOnDestroy() {
-    localStorage.removeItem('report_config');
-    localStorage.removeItem('report_period');
+    this.clearStorage();
   }
 
   getGeneralBillingData() {
+    localStorage.removeItem('report_config');
+
     this.billingReportService.getGeneralBillingData(this.reportData)
       .subscribe(data => {
         this.data = data;
@@ -89,6 +91,14 @@ export class ReportingComponent implements OnInit, OnDestroy {
           this.getDefaultFilterConfiguration(this.data);
         }
      });
+  }
+
+  rebuildBillingReport($event?): void {
+    this.clearStorage();
+    this.resetRangePicker();
+    this.reportData.defaultConfigurations();
+
+    this.getGeneralBillingData();
   }
 
   getDefaultFilterConfiguration(data): void {
@@ -133,9 +143,14 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.reportingToolbar.clearRangePicker();
   }
 
+  clearStorage(): void {
+    localStorage.removeItem('report_config');
+    localStorage.removeItem('report_period');
+  }
+
   setRangeOption(dateRangeOption: any): void {
     this.reportData.date_start = dateRangeOption.start_date;
-    this.reportData.date_end = moment().format('YYYY-MM-DD');
+    this.reportData.date_end = dateRangeOption.end_date;
     this.getGeneralBillingData();
   }
 }
