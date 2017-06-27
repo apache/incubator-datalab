@@ -1,17 +1,10 @@
 package com.epam.dlab.utils;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-import java.util.stream.Stream;
 
 import com.epam.dlab.constants.ServiceConsts;
 
@@ -38,8 +31,12 @@ public class ServiceUtils {
 	public static Map<String, String> getManifest(Class<?> mainClazz) {
 		Map<String, String> manifest = new HashMap<>();
 		
+		System.out.println("MANIFEST.MF is " + mainClazz.getResource("MANIFEST.MF"));
+		System.out.println("META-INF/MANIFEST.MF is " + mainClazz.getResource("META-INF/MANIFEST.MF"));
+		System.out.println("/META-INF/MANIFEST.MF is " + mainClazz.getResource("/META-INF/MANIFEST.MF"));
+		
 		try (BufferedReader reader = new BufferedReader(
-				new InputStreamReader(mainClazz.getResourceAsStream("/" + JarFile.MANIFEST_NAME)))
+				new InputStreamReader(mainClazz.getResourceAsStream("/META-INF/MANIFEST.MF")))
 				) {
 			String line;
 			System.out.println("    <<< Content >>    ");
