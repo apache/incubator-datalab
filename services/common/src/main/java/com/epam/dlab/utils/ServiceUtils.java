@@ -1,10 +1,17 @@
 package com.epam.dlab.utils;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.stream.Stream;
 
 import com.epam.dlab.constants.ServiceConsts;
 
@@ -25,6 +32,28 @@ public class ServiceUtils {
 	
 	public static String getConfPath() {
         return includePath;
+	}
+	
+	
+	public static Map<String, String> getManifest(Class<?> mainClazz) {
+		Map<String, String> manifest = new HashMap<>();
+		
+		try (BufferedReader reader = new BufferedReader(
+				new InputStreamReader(mainClazz.getResourceAsStream("/" + JarFile.MANIFEST_NAME)))
+				) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				int pos = line.indexOf(": ");
+				if (pos > 0) {
+					manifest.put(line.substring(0,  pos), line.substring(pos + 2));
+				}
+			}
+		} catch (IOException e) {
+			System.err.println("Cannot open mainfest: " + e.getLocalizedMessage());
+			e.printStackTrace(); 
+		}
+		
+		return manifest;
 	}
 	
 	
@@ -49,29 +78,22 @@ public class ServiceUtils {
 				return result;
 			}
 		}
-        
 		
-		InputStream in = mainClazz.getResourceAsStream("/" + JarFile.MANIFEST_NAME);
-		Manifest manifest;
-		try {
-			manifest = new Manifest(in);
-		} catch (IOException e) {
-			System.err.println("Cannot open mainfest: " + e.getLocalizedMessage());
-			e.printStackTrace();
+		Map<String, String> manifest = getManifest(mainClazz);
+		if (manifest.isEmpty()) {
 			return result;
 		}
 		
-		Attributes attr = manifest.getMainAttributes();
-		System.out.println("Title       " + attr.getValue(java.util.jar.Attributes.Name.IMPLEMENTATION_TITLE));
-		System.out.println("Version     " + attr.getValue(java.util.jar.Attributes.Name.IMPLEMENTATION_VERSION));
-		System.out.println("Created By  " + attr.getValue("Created-By"));
-		System.out.println("Vendor      " + attr.getValue(java.util.jar.Attributes.Name.IMPLEMENTATION_VENDOR));
-		System.out.println("GIT-Branch  " + attr.getValue("GIT-Branch"));
-		System.out.println("GIT-Commit  " + attr.getValue("GIT-Commit"));
-		System.out.println("Build JDK   " + attr.getValue("Build-JDK"));
-		System.out.println("Build OS    " + attr.getValue("Build-OS"));
-		System.out.println("Built Time  " + attr.getValue("Build-Time"));
-		System.out.println("Built By    " + attr.getValue("Built-By"));
+		System.out.println("Title       " + manifest.get("Implementation-Title"));
+		System.out.println("Version     " + manifest.get("Implementation-Version"));
+		System.out.println("Created By  " + manifest.get("Created-By"));
+		System.out.println("Vendor      " + manifest.get("Implementation-Vendor"));
+		System.out.println("GIT-Branch  " + manifest.get("GIT-Branch"));
+		System.out.println("GIT-Commit  " + manifest.get("GIT-Commit"));
+		System.out.println("Build JDK   " + manifest.get("Build-Jdk"));
+		System.out.println("Build OS    " + manifest.get("Build-OS"));
+		System.out.println("Built Time  " + manifest.get("Build-Time"));
+		System.out.println("Built By    " + manifest.get("Built-By"));
 		
 		return result;
 	}
