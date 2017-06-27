@@ -31,9 +31,9 @@ public class ServiceUtils {
 	public static Map<String, String> getManifest(Class<?> mainClazz) {
 		Map<String, String> manifest = new HashMap<>();
 		
-		System.out.println("MANIFEST.MF is " + mainClazz.getResource("MANIFEST.MF"));
-		System.out.println("META-INF/MANIFEST.MF is " + mainClazz.getResource("META-INF/MANIFEST.MF"));
-		System.out.println("/META-INF/MANIFEST.MF is " + mainClazz.getResource("/META-INF/MANIFEST.MF"));
+		System.out.println("MANIFEST.MF is " + mainClazz.getClassLoader().getResource("MANIFEST.MF"));
+		System.out.println("META-INF/MANIFEST.MF is " + mainClazz.getClassLoader().getResource("META-INF/MANIFEST.MF"));
+		System.out.println("/META-INF/MANIFEST.MF is " + mainClazz.getClassLoader().getResource("/META-INF/MANIFEST.MF"));
 		
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(mainClazz.getResourceAsStream("/META-INF/MANIFEST.MF")))
