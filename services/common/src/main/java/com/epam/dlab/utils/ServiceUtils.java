@@ -42,12 +42,15 @@ public class ServiceUtils {
 				new InputStreamReader(mainClazz.getResourceAsStream("/" + JarFile.MANIFEST_NAME)))
 				) {
 			String line;
+			System.out.println("    <<< Content >>    ");
 			while ((line = reader.readLine()) != null) {
 				int pos = line.indexOf(": ");
 				if (pos > 0) {
+					System.out.println(line);
 					manifest.put(line.substring(0,  pos), line.substring(pos + 2));
 				}
 			}
+			System.out.println("    <<< Content >>    ");
 		} catch (IOException e) {
 			System.err.println("Cannot open mainfest: " + e.getLocalizedMessage());
 			e.printStackTrace(); 
