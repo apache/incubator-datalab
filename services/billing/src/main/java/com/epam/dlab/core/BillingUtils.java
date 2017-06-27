@@ -149,4 +149,11 @@ public class BillingUtils {
 	public static String formatDouble(Double value) {
 		return (value == null ? null : String.format("%,.2f", value));
 	}
+	
+	/** Return the name of user without domain.
+	 * @param value the value.
+	 */
+	public static String getSimpleUserName(String username) {
+        return (username == null ? null : username.replaceAll("@.*", ""));
+    }
 }
