@@ -24,10 +24,68 @@ limitations under the License.
    
    <md-tab-group #tabGroup>
       <md-tab label="LIST">
+          <md-list>
+            <md-list-item class="list-header">
+              <div class="hostname-field">Host name</div>
+              <div>User</div>
+              <div class="mail-field">Email</div>
+              <div>Login</div>
+              <div>Password</div>
+            </md-list-item>
 
+            <div class="scrollingList" *ngIf="gitCredentials">
+              <md-list-item *ngFor="let item of gitCredentials">
+                <div class="hostname-field"><strong>{{ item.hostname }}</strong></div>
+                <div>{{ item.username }}</div>
+                <div class="mail-field">{{ item.email }}</div>
+                <div>{{ item.login }}</div>
+                <div>{{ item.password }}</div>
+              </md-list-item>
+            </div>
+            <div *ngIf="!gitCredentials" class="scrollingList info">
+              <p>You have no any related accounts</p>
+            </div>
+          </md-list>
       </md-tab>
       <md-tab label="EDIT | CREATE">
-       
+       <form [formGroup]="updateAccountCredentialsForm" novalidate (submit)="editAccounts_btnClick($event, updateAccountCredentialsForm.value)">
+         <!-- formControlName="environment_name" -->
+         <div class="tab-content">
+           <div class="col">1
+            <md-input-container>
+              <input mdInput type="text"
+                     formControlName="hostname"
+                     placeholder="Enter host name">
+            </md-input-container>
+            <md-input-container>
+              <input mdInput type="text"
+                     formControlName="username"
+                     placeholder="Enter user name">
+            </md-input-container>
+           </div>
+           <div class="col">2
+             <md-input-container>
+              <input mdInput type="email"
+                     formControlName="email"
+                     placeholder="Enter email">
+            </md-input-container>
+            <md-input-container>
+              <input mdInput type="text"
+                     formControlName="login"
+                     placeholder="Enter login">
+            </md-input-container>
+            <md-input-container>
+              <input mdInput type="password"
+                     formControlName="password"
+                     placeholder="Enter password">
+            </md-input-container>
+           </div>
+         </div>
+          <div class="text-center m-top-30">
+            <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
+            <button md-raised-button type="submit" [disabled]="!updateAccountCredentialsForm.valid" class="butt butt-success">Create</button>
+          </div>
+       </form>
       </md-tab>
     </md-tab-group>
   </modal-content>

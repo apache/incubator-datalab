@@ -19,3 +19,8 @@ limitations under the License.
 .modal-dialog .manage-ungit .modal-body {
     padding: 0 20px;
 }
+
+.list-header div + div{
+    width: 20%;
+    text-align: center;
+}

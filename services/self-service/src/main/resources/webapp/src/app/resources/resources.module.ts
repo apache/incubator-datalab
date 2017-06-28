@@ -19,6 +19,7 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@angular/material';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { ResourcesComponent } from './resources.component';
 import { ResourcesGridModule } from './resources-grid';
@@ -30,6 +31,8 @@ import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
   imports: [
     CommonModule,
     ModalModule,
+    FormsModule,
+    ReactiveFormsModule,
     ResourcesGridModule,
     ProgressDialogModule,
     UploadKeyDialogModule,
