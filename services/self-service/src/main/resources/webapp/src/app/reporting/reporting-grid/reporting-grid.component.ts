@@ -67,6 +67,8 @@ export class ReportingGridComponent implements OnInit {
 
   resetFiltering(): void {
     this.filteredReportData.defaultConfigurations();
+    
+    this.filterReport.emit(this.filteredReportData);
     this.resetRangePicker.emit(true);
   }
 }
