@@ -16,7 +16,14 @@ limitations under the License.
 
 ****************************************************************************/
 
-export * from './keys-pipe';
-export * from './underscoreless-pipe';
-export * from './lib-sort-pipe';
-export * from './replace-breaks-pipe';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { LineBreakPipe } from './replace-breaks.pipe';
+
+@NgModule({
+  imports: [CommonModule],
+  declarations: [LineBreakPipe],
+  exports: [LineBreakPipe]
+})
+
+export class LineBreaksPipeModule { }

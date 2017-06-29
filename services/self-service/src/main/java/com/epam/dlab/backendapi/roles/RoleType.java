@@ -22,7 +22,8 @@ package com.epam.dlab.backendapi.roles;
  */
 public enum RoleType {
 	COMPUTATIONAL("computationals"),
-	EXPLORATORY("exploratories");
+	EXPLORATORY("exploratories"),
+	PAGE("pages");
 	
     private String nodeName;
 

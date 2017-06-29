@@ -16,7 +16,29 @@ limitations under the License.
 
 ****************************************************************************/
 
-export * from './keys-pipe';
-export * from './underscoreless-pipe';
-export * from './lib-sort-pipe';
-export * from './replace-breaks-pipe';
+.dashboard_table.reporting {
+    margin-bottom: 50px;
+    zoom: 0.85;
+}
+.dashboard_table.reporting tr th {
+    font-size: 13px;
+}
+.reporting .filter-row .filter-field,
+.reporting .dropdown-multiselect  button.dropdown-toggle.btn {
+    font-size: 14px;
+}
+.dashboard_table.reporting .th_shape {
+    width: 10%;
+}
+.th_env_name, .th_service {
+    width: 18%;
+}
+.th_user {
+    width: 15%;
+}
+.th_type {
+    width: 12%;
+}
+.th_charges {
+    width: 8%;
+}

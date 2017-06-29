@@ -42,7 +42,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
  */
 public class ComputationalDAO extends BaseDAO {
     protected static final String COMPUTATIONAL_NAME = "computational_name";
-    private static final String COMPUTATIONAL_ID = "computational_id";
+    protected static final String COMPUTATIONAL_ID = "computational_id";
 
     private static String computationalFieldFilter(String fieldName) {
         return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;

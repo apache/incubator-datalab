@@ -49,7 +49,7 @@ import com.mongodb.client.result.UpdateResult;
  */
 public class ExploratoryDAO extends BaseDAO {
     public static final String EXPLORATORY_NAME = "exploratory_name";
-    private static final String EXPLORATORY_ID = "exploratory_id";
+    protected static final String EXPLORATORY_ID = "exploratory_id";
     private static final String EXPLORATORY_URL = "exploratory_url";
     private static final String EXPLORATORY_URL_DESC = "description";
     private static final String EXPLORATORY_URL_URL = "url";
