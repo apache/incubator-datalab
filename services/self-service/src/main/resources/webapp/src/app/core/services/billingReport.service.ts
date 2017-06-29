@@ -16,7 +16,22 @@ limitations under the License.
 
 ****************************************************************************/
 
-export * from './keys-pipe';
-export * from './underscoreless-pipe';
-export * from './lib-sort-pipe';
-export * from './replace-breaks-pipe';
+import { Injectable } from '@angular/core';
+import { Response } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
+
+import { ApplicationServiceFacade, AppRoutingService } from './';
+import { HTTP_STATUS_CODES } from '../util';
+
+@Injectable()
+export class BillingReportService {
+
+    constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
+
+    public getGeneralBillingData(data): Observable<Response> {
+        return this.applicationServiceFacade
+        .buildGetGeneralBillingData(data)
+        .map((response: Response) => response.json())
+        .catch((error: any) => error);
+    }
+}

@@ -58,6 +58,7 @@ public class CommandExecutorMock implements ICommandExecutor {
         LOGGER.debug("Run OS command for user {} with UUID {}: {}", user, uuid, command);
         if (command.startsWith("docker images |")) {
         	return Arrays.asList(
+        			"docker.dlab-deeplearning:latest",
         			"docker.dlab-emr:latest",
             		"docker.dlab-jupyter:latest",
             		"docker.dlab-rstudio:latest",

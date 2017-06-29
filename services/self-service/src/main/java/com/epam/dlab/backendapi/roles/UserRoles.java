@@ -38,6 +38,8 @@ import com.mongodb.client.FindIterable;
  */
 public class UserRoles {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserRoles.class);
+
+	private static final Object ANY_USER = "$anyuser";
 	
 	/** Single instance of the user roles. */
 	private static UserRoles userRoles = null;
@@ -187,12 +189,16 @@ public class UserRoles {
 		}
 		if (role.getUsers() != null &&
 			userInfo.getName() != null &&
-			role.getUsers().contains(userInfo.getName().toLowerCase())) {
+			(role.getUsers().contains(ANY_USER) ||
+			role.getUsers().contains(userInfo.getName().toLowerCase()))) {
 			LOGGER.trace("Got access by name");
 			return true;
 		}
 		Set<String> groups = role.getGroups();
 		if (groups != null) {
+			if (groups.contains(ANY_USER)) {
+				return true;
+			}
 			for (String group : userInfo.getRoles()) {
 				if (group != null && groups.contains(group.toLowerCase())) {
 					LOGGER.trace("Got access by group {}", group);

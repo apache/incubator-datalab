@@ -16,7 +16,29 @@ limitations under the License.
 
 ****************************************************************************/
 
-export * from './keys-pipe';
-export * from './underscoreless-pipe';
-export * from './lib-sort-pipe';
-export * from './replace-breaks-pipe';
+export class ReportingConfigModel {
+
+  static getDefault(): ReportingConfigModel {
+    return new ReportingConfigModel([], [], [], [], '', '', '');
+  }
+
+  constructor(
+    public user: Array<string>,
+    public product: Array<string>,
+    public resource_type: Array<string>,
+    public shape: Array<string>,
+    public date_start: string,
+    public date_end: string,
+    public dlab_id: string
+  ) { }
+
+  defaultConfigurations(): void {
+    this.user = [];
+    this.product = [];
+    this.resource_type = [];
+    this.shape = [];
+    this.date_start = '';
+    this.date_end = '';
+    this.dlab_id = '';
+  }
+}

@@ -60,7 +60,10 @@ limitations under the License.
 .cdk-overlay-container {
     z-index: 9999;
 }
-
+.cdk-overlay-pane {
+    min-width: 240px;
+    margin-top: 38px;
+}
 .install-libs .mat-tab-label {
     width: 50%;
     font-family: 'Open Sans',sans-serif !important;
@@ -219,6 +222,16 @@ button {
   cursor: not-allowed !important;
   user-select: none;
   opacity: 0.6;
+}
+
+.message {
+    padding: 40px 20px;
+    text-align: center;
+}
+.info {
+    font-size: 16px;
+    font-weight: 300;
+    color: #35afd5;
 }
 
 @-webkit-keyframes spin {

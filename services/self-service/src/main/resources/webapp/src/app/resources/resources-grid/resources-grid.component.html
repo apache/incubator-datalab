@@ -63,7 +63,7 @@ limitations under the License.
     <td colspan="6">No matches found</td>
   </tr>
 
-  <tr *ngFor="let env of filteredEnvironments;" [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
+  <tr *ngFor="let env of filteredEnvironments;" class="dashboard_table_body" [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
     <!-- Need to be restored after debugging -->
     <!-- (click)="(env.status != 'starting' && env.status != 'creating' && printDetailEnvironmentModal(env))" [ngClass]="{'not-allowed' : env.status == 'starting' || env.status == 'creating'}" -->
     <td (click)="printDetailEnvironmentModal(env)">{{env.name}}</td>

@@ -32,6 +32,8 @@ import { NotFoundModule } from './not-found/not-found.module';
 import { ResourcesModule } from './resources/resources.module';
 import { HealthStatusModule } from './health-status/health-status.module';
 import { LogInterceptorFactory } from './core/interceptors/logInterceptor.factory';
+import { ReportingModule } from './reporting/reporting.module';
+
 import {
   UserAccessKeyService,
   UserResourceService,
@@ -40,7 +42,8 @@ import {
   AuthorizationGuard,
   ApplicationServiceFacade,
   ApplicationSecurityService,
-  LibrariesInstallationService
+  LibrariesInstallationService,
+  BillingReportService
 } from './core/services';
 
 @NgModule({
@@ -54,6 +57,7 @@ import {
     GuidesModule,
     NotFoundModule,
     HealthStatusModule,
+    ReportingModule,
     RouterModule,
     AppRoutingModule
   ],
@@ -73,6 +77,7 @@ import {
     UserResourceService,
     HealthStatusService,
     LibrariesInstallationService,
+    BillingReportService,
     ApplicationServiceFacade
   ],
   bootstrap: [AppComponent]

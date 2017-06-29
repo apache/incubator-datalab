@@ -1,4 +1,4 @@
-{
+[{
     "_id" : "_Example",
     "description" : "Example role",
     "exploratories" : [ 
@@ -17,7 +17,17 @@
         "comma separated list of the DLab's users in lower case", 
         "example@user"
         ]
-}
+},
+{
+    "_id" : "nbCreateDeeplearning",
+    "description" : "Create Notebook Deep Learning",
+    "exploratories" : [ 
+        "docker.dlab-deeplearning"
+        ],
+    "groups" : [
+        "$anyuser" 
+        ]
+},
 {
     "_id" : "nbCreateJupyter",
     "description" : "Create Notebook Jupyter",
@@ -25,8 +35,9 @@
         "docker.dlab-jupyter"
         ],
     "groups" : [
+        "$anyuser" 
         ]
-}
+},
 {
     "_id" : "nbCreateRstudio",
     "description" : "Create Notebook R-Studio",
@@ -34,8 +45,9 @@
         "docker.dlab-rstudio"
         ],
     "groups" : [
+        "$anyuser" 
         ]
-}
+},
 {
     "_id" : "nbCreateTensor",
     "description" : "Create Notebook Tensor Flow",
@@ -43,8 +55,9 @@
         "docker.dlab-tensor"
         ],
     "groups" : [
+        "$anyuser" 
         ]
-}
+},
 {
     "_id" : "nbCreateZeppelin",
     "description" : "Create Notebook Zeppelin",
@@ -52,8 +65,9 @@
         "docker.dlab-zeppelin"
         ],
     "groups" : [
+        "$anyuser" 
         ]
-}
+},
 {
     "_id" : "nbCreateEMR",
     "description" : "Create EMR",
@@ -61,5 +75,18 @@
         "docker.dlab-emr"
         ],
     "groups" : [
+        "$anyuser" 
         ]
-}
+},
+{
+    "_id" : "nbBillingReportFull",
+    "description" : "View full billing report for all users",
+    "pages" : [ 
+        "/api/infrastructure_provision/billing"
+        ],
+    "groups" : [
+        "$anyuser" 
+        ],
+    "users" : [ 
+        ]
+}]
