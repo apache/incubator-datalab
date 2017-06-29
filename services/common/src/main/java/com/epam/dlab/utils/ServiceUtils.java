@@ -1,16 +1,25 @@
 package com.epam.dlab.utils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.net.JarURLConnection;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.epam.dlab.constants.ServiceConsts;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+
 public class ServiceUtils {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceUtils.class);
 	
 	private static String includePath = null;
 	
@@ -30,87 +39,56 @@ public class ServiceUtils {
 	}
 	
 	
-	private static boolean findClassName(URL resourceName, String mainClassName) throws IOException {
-		try (BufferedReader reader = new BufferedReader(
-				new InputStreamReader(resourceName.openStream()))
-				) {
-			String line;
-			final String findLine = "Main-Class: " + mainClassName;
-			while ((line = reader.readLine()) != null) {
-				if (line.equals(findLine)) {
-					return true;
-				}
-			}
-		} catch (IOException e) {
-			throw new IOException("Cannot read mainfest " + resourceName + ": " + e.getLocalizedMessage());
-		}
-		return false;
+	
+	private static Manifest getManifestForClass(Class<?> clazz) throws IOException {
+		LOGGER.trace("Find mainfest in default class loader for class {}", clazz);
+		URL url = clazz.getClassLoader().getResource(JarFile.MANIFEST_NAME);
+		InputStream is = url.openStream();
+        return new Manifest(is);
+	}
+
+	private static Manifest getManifestFromJar(String classPath) throws IOException {
+		LOGGER.trace("Find mainfest for path {}", classPath);
+		URL url = new URL(classPath);
+		JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
+		return jarConnection.getManifest();
 	}
 	
-	public static URL findManifestForMainClass(Class<?> mainClass) throws IOException {
-		String className = (mainClass == null ? null : mainClass.getName());
+	public static Map<String, String> getManifest(Class<?> clazz) {
+		LOGGER.trace("Find mainfest for class {}", clazz);
+		String className = "/" + clazz.getName().replace('.', '/') + ".class";
+		LOGGER.trace("Resource name for class is {}", className);
+		String classPath = clazz.getResource(className).toString();
+		LOGGER.trace("Found for class {} resource path {}", className, classPath);
+
+		Map<String, String> map = new HashMap<>();
 		try {
-			Enumeration<URL> urls = ClassLoader.getSystemResources("/META-INF/MANIFEST.MF");
-			while (urls.hasMoreElements()) {
-				URL url = urls.nextElement();
-				System.out.println("  url: " + url);
-				if (className == null || findClassName(url, className)) {
-					return url;
-				}
+			Manifest manifest = (classPath.startsWith("jar:file:") ? getManifestFromJar(classPath) : getManifestForClass(clazz));
+			Attributes attributes = manifest.getMainAttributes();
+			for (Object key : attributes.keySet()) {
+				map.put(key.toString(), (String) attributes.get(key));
 			}
+			LOGGER.trace("Manifest properties {}", map);
 		} catch (IOException e) {
-			throw new IOException("Cannot read mainfest " + className + ": " + e.getLocalizedMessage());
-		}
-		return null;
-	}
-	
-	
-	public static Map<String, String> getManifest(Class<?> mainClass) {
-		Map<String, String> manifest = new HashMap<>();
-		URL url;
-		BufferedReader reader = null;
-		try {
-			url = findManifestForMainClass(mainClass);
-			if (url != null) {
-				reader = new BufferedReader(new InputStreamReader(url.openStream()));
-	
-				String line;
-				System.out.println("    <<< Content >>    ");
-				while ((line = reader.readLine()) != null) {
-					int pos = line.indexOf(": ");
-					if (pos > 0) {
-						System.out.println(line);
-						manifest.put(line.substring(0,  pos), line.substring(pos + 2));
-					}
-				}
-				System.out.println("    <<< Content >>    ");
-			}
-		} catch (IOException e) {
-			System.err.println("Cannot read mainfest: " + e.getLocalizedMessage());
-			e.printStackTrace();
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			LOGGER.warn("Cannot found or open manifest for class {}", className);
 		}
 		
-		return manifest;
+		return map;
 	}
 	
 	
 	/** Print to standard output the manifest info about application. If parameter <b>args</b> is not
 	 * <b>null</b> and one or more arguments have value -v or --version then print version and return <b>true<b/>
 	 * otherwise <b>false</b>.
-	 * @param mainClazz the main class of application.
+	 * @param mainClass the main class of application.
 	 * @param args the arguments of main class function or null.
 	 * @return if parameter <b>args</b> is not null and one or more arguments have value -v or --version
 	 * then return <b>true<b/> otherwise <b>false</b>.
 	 */
-	public static boolean printAppVersion(Class<?> mainClazz, String ... args) {
+	public static boolean printAppVersion(Class<?> mainClass, String ... args) {
+		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+		context.getLogger(LOGGER.getName()).setLevel(Level.TRACE);
+		
 		boolean result = false;
 		if (args != null) {
 			for (String arg : args) {
@@ -124,7 +102,7 @@ public class ServiceUtils {
 			}
 		}
 		
-		Map<String, String> manifest = getManifest(mainClazz);
+		Map<String, String> manifest = getManifest(mainClass);
 		if (manifest.isEmpty()) {
 			return result;
 		}
