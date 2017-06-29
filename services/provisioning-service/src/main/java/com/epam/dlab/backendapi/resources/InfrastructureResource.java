@@ -20,8 +20,6 @@ package com.epam.dlab.backendapi.resources;
 
 import static com.epam.dlab.backendapi.core.commands.DockerAction.STATUS;
 
-import java.io.IOException;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -68,15 +66,16 @@ public class InfrastructureResource implements DockerCommands {
     @Inject
     private RESTService selfService;
 
+    /** Return status of provisioning service.
+     */
     @GET
-    @Path("/status")
-    public Response status(@Auth UserInfo ui) throws IOException, InterruptedException {
+    public Response status(@Auth UserInfo ui) {
         return Response.status(Response.Status.OK).build();
     }
     
     @Path("/status")
     @POST
-    public String status(@Auth UserInfo ui, EnvResourceDTO dto) throws IOException, InterruptedException {
+    public String status(@Auth UserInfo ui, EnvResourceDTO dto) {
     	LOGGER.trace("Request the status of resources for user {}: {}", ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
