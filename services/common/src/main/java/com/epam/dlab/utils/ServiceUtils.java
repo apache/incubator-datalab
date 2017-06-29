@@ -1,7 +1,6 @@
 package com.epam.dlab.utils;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -10,17 +9,10 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.epam.dlab.constants.ServiceConsts;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
-
 public class ServiceUtils {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceUtils.class);
-	
+
 	private static String includePath = null;
 	
 	static {
@@ -30,36 +22,45 @@ public class ServiceUtils {
         }
 	}
 	
+	/* Return working directory.
+	 */
 	public static String getUserDir() {
 		return System.getProperty("user.dir");
 	}
 	
+	/** Return path to DLab configuration directory.
+	 * @return
+	 */
 	public static String getConfPath() {
         return includePath;
 	}
 	
 	
-	
+	/** Return manifest for given class or empty manifest if {@link JarFile#MANIFEST_NAME} not found.
+	 * @param clazz class.
+	 * @throws IOException
+	 */
 	private static Manifest getManifestForClass(Class<?> clazz) throws IOException {
-		LOGGER.trace("Find mainfest in default class loader for class {}", clazz);
 		URL url = clazz.getClassLoader().getResource(JarFile.MANIFEST_NAME);
-		InputStream is = url.openStream();
-        return new Manifest(is);
+		return (url == null ? new Manifest() : new Manifest(url.openStream()));
 	}
 
+	/** Return manifest from JAR file.
+	 * @param classPath path to class in JAR file.
+	 * @throws IOException
+	 */
 	private static Manifest getManifestFromJar(String classPath) throws IOException {
-		LOGGER.trace("Find mainfest for path {}", classPath);
 		URL url = new URL(classPath);
 		JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
 		return jarConnection.getManifest();
 	}
 	
+	/** Return manifest map for given class or empty map if manifest not found or cannot be read.
+	 * @param clazz class.
+	 */
 	public static Map<String, String> getManifest(Class<?> clazz) {
-		LOGGER.trace("Find mainfest for class {}", clazz);
 		String className = "/" + clazz.getName().replace('.', '/') + ".class";
-		LOGGER.trace("Resource name for class is {}", className);
 		String classPath = clazz.getResource(className).toString();
-		LOGGER.trace("Found for class {} resource path {}", className, classPath);
 
 		Map<String, String> map = new HashMap<>();
 		try {
@@ -68,14 +69,13 @@ public class ServiceUtils {
 			for (Object key : attributes.keySet()) {
 				map.put(key.toString(), (String) attributes.get(key));
 			}
-			LOGGER.trace("Manifest properties {}", map);
 		} catch (IOException e) {
-			LOGGER.warn("Cannot found or open manifest for class {}", className);
+			System.err.println("Cannot found or open manifest for class " + className);
+			e.printStackTrace();
 		}
 		
 		return map;
 	}
-	
 	
 	/** Print to standard output the manifest info about application. If parameter <b>args</b> is not
 	 * <b>null</b> and one or more arguments have value -v or --version then print version and return <b>true<b/>
@@ -86,9 +86,6 @@ public class ServiceUtils {
 	 * then return <b>true<b/> otherwise <b>false</b>.
 	 */
 	public static boolean printAppVersion(Class<?> mainClass, String ... args) {
-		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-		context.getLogger(LOGGER.getName()).setLevel(Level.TRACE);
-		
 		boolean result = false;
 		if (args != null) {
 			for (String arg : args) {
