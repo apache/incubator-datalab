@@ -27,7 +27,6 @@ public class ExploratoryGitCreds implements Comparable<ExploratoryGitCreds> {
 	@JsonProperty
 	private String login;
 	
-	@NotNull
 	@JsonProperty
 	private String password;
 	
@@ -116,24 +115,7 @@ public class ExploratoryGitCreds implements Comparable<ExploratoryGitCreds> {
     	if (obj == null) {
     		return 1;
     	}
-
-    	int result = StringUtils.compare(this.hostname, obj.hostname);
-    	if (result != 0) {
-    		return result;
-    	}
-    	result = StringUtils.compare(this.username, obj.username);
-    	if (result != 0) {
-    		return result;
-    	}
-    	result = StringUtils.compare(this.email, obj.email);
-    	if (result != 0) {
-    		return result;
-    	}
-    	result = StringUtils.compare(this.login, obj.login);
-    	if (result != 0) {
-    		return result;
-    	}
-    	return StringUtils.compare(this.password, obj.password);
+    	return StringUtils.compareIgnoreCase(this.hostname, obj.hostname);
       }
 	
 	@Override
