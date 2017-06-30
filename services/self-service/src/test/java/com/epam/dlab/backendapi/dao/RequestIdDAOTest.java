@@ -56,7 +56,7 @@ public class RequestIdDAOTest extends DAOTestBase {
     }
 
     @Test
-    public void test() {
+    public void test() throws InterruptedException {
     	RequestIdDTO dto = new RequestIdDTO()
     			.withId(UUID.randomUUID().toString())
     			.withUser("user1")
@@ -74,5 +74,9 @@ public class RequestIdDAOTest extends DAOTestBase {
 
     	RequestIdDTO dto2 = dao.get(dto.getId());
         assertEquals(expirationTime, dto2.getExpirationTime());
+        
+        Thread.sleep(1);
+        long deleteCount = dao.removeExpired();
+        assertEquals(1, deleteCount);
     }
 }

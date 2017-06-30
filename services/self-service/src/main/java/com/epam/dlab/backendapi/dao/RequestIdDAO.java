@@ -19,6 +19,7 @@
 package com.epam.dlab.backendapi.dao;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.lt;
 
 import java.util.Date;
 import java.util.Optional;
@@ -28,6 +29,7 @@ import org.bson.Document;
 import com.epam.dlab.backendapi.domain.RequestIdDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.DeleteResult;
 
 /** DAO for request id.
  */
@@ -56,4 +58,9 @@ public class RequestIdDAO extends BaseDAO {
 		getCollection(REQUEST_ID).updateMany(new Document(), Updates.set(EXPIRATION_TIME, time));
     }
 	
+	public long removeExpired() throws DlabException {
+		DeleteResult result = getCollection(REQUEST_ID)
+								.deleteMany(lt(EXPIRATION_TIME, new Date()));
+		return result.getDeletedCount();
+    }
 }
