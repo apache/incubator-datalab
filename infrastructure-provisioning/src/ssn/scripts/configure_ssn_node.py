@@ -58,6 +58,37 @@ def cp_backup_scripts(dlab_path):
         return False
 
 
+def cp_cloud_scripts():
+    try:
+        put('/usr/lib/python2.7/dlab/actions_lib.py', '/tmp/actions_lib.py')
+        put('/usr/lib/python2.7/dlab/meta_lib.py', '/tmp/meta_lib.py')
+        sudo('mkdir -p /usr/lib/python2.7/dlab')
+        sudo('mv /tmp/actions_lib.py', '/usr/lib/python2.7/dlab/actions_lib.py')
+        sudo('mv /tmp/meta_lib.py', '/usr/lib/python2.7/dlab/meta_lib.py')
+        return True
+    except:
+        return False
+
+
+def cp_gitlab_scripts(dlab_path):
+    try:
+        if not exists('{}tmp/gitlab'.format(dlab_path)):
+            local('mkdir -p {}tmp/gitlab'.format(dlab_path))
+        with cd('{}tmp/gitlab'.format(dlab_path)):
+            put('/root/scripts/gitlab_deploy.py', 'gitlab_deploy.py')
+            run('chmod +x gitlab_deploy.py')
+            put('/root/templates/gitlab.rb', 'gitlab.rb')
+            put('/root/templates/gitlab.ini', 'gitlab.ini')
+            run('sed -i "s/CONF_OS_USER/{}/g" gitlab.ini'.format(os.environ['conf_os_user']))
+            run('sed -i "s/CONF_OS_FAMILY/{}/g" gitlab.ini'.format(os.environ['conf_os_family']))
+            run('sed -i "s/CONF_KEY_NAME/{}/g" gitlab.ini'.format(os.environ['conf_key_name']))
+            run('sed -i "s,CONF_DLAB_PATH,{},g" gitlab.ini'.format(dlab_path))
+            run('sed -i "s/SERVICE_BASE_NAME/{}/g" gitlab.ini'.format(os.environ['conf_service_base_name']))
+        return True
+    except:
+        return False
+
+
 def creating_service_directories(dlab_path, os_user):
     try:
         if not exists(dlab_path):
@@ -136,6 +167,14 @@ if __name__ == "__main__":
 
     print "Copying backup scripts"
     if not cp_backup_scripts(args.dlab_path):
+        sys.exit(1)
+
+    print "Copying cloud actions & meta scripts"
+    if not cp_cloud_scripts():
+        sys.exit(1)
+
+    print "Copying gitlab scripts & files"
+    if not cp_gitlab_scripts(args.dlab_path):
         sys.exit(1)
 
     print "Ensuring safest ssh ciphers"
