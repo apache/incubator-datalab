@@ -41,4 +41,6 @@ public interface MongoCollections {
     String ROLES = "roles";
     /** GIT credentials of user. */
     String GIT_CREDS = "gitCreds";
+    /** RequestId */
+    String REQUEST_ID = "requestId";
 }
