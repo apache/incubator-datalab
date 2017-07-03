@@ -76,7 +76,8 @@ def cp_gitlab_scripts(dlab_path):
             run('mkdir -p {}tmp/gitlab'.format(dlab_path))
         with cd('{}tmp/gitlab'.format(dlab_path)):
             put('/root/scripts/gitlab_deploy.py', 'gitlab_deploy.py')
-            run('chmod +x gitlab_deploy.py')
+            put('/root/scripts/configure_gitlab.py', 'configure_gitlab.py')
+            run('chmod +x gitlab_deploy.py configure_gitlab.py')
             put('/root/templates/gitlab.rb', 'gitlab.rb')
             put('/root/templates/gitlab.ini', 'gitlab.ini')
             run('sed -i "s/CONF_OS_USER/{}/g" gitlab.ini'.format(os.environ['conf_os_user']))

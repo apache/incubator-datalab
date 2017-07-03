@@ -26,8 +26,36 @@ import os
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--instance_ip', type=str, default='')
-parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
+
+
+def create_user(os_user):
+    initial_user = ''
+    sudo_group = ''
+
+    if os.environ['conf_os_family'] == 'debian':
+        initial_user = 'ubuntu'
+        sudo_group = 'sudo'
+    elif os.environ['conf_os_family'] == 'redhat':
+        initial_user = 'ec2-user'
+        sudo_group = 'wheel'
+
+    env.hosts = '{}'.format(args.instance_ip)
+    env['connection_attempts'] = 100
+    env.key_filename = args.keyfile
+    env.user = initial_user
+    env.host_string = env.user + "@" + env.hosts
+
+    sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
+    sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
+    sudo('mkdir /home/{}/.ssh'.format(os_user))
+    sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
+    sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
+    sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
+    sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
+    sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
+    sudo('mkdir /home/{}/.ensure_dir'.format(os_user))
+    sudo('touch /home/{}/.ensure_dir/ssh_user_ensured'.format(os_user))
 
 
 def prepare_config():
@@ -35,12 +63,12 @@ def prepare_config():
         local('cp gitlab.rb gitlab.rb.bak')
         if json.loads(os.environ['gitlab_ssl_enabled']):
             local('sed -i "s,EXTERNAL_URL,https://{}:443,g" gitlab.rb'.format(os.environ['instance_hostname']))
-            local('sed -i "s/.*NGINX_ENABLED.*/nginx[\'enable\'] = true/g" gitlab.rb')
-            local('sed -i "s,.*NGINX_SSL_CERTIFICATE.*,nginx[\'ssl_certificate\'] = \"{}\",g" gitlab.rb'.format(
-                os.environ['gitlab_ssl_certificate']))
-            local('sed -i "s,.*NGINX_SSL_CERTIFICATE_KEY.*,nginx[\'ssl_certificate_key\'] = \"{}\",g" gitlab.rb'.format(
+            local('sed -i "s/.*NGINX_ENABLED/nginx[\'enable\'] = true/g" gitlab.rb')
+            local('sed -i "s,.*NGINX_SSL_CERTIFICATE_KEY,nginx[\'ssl_certificate_key\'] = \'{}\',g" gitlab.rb'.format(
                 os.environ['gitlab_ssl_certificate_key']))
-            local('sed -i "s,.*NGINX_SSL_DHPARAMS.*,nginx[\'ssl_dhparam\'] = \"{}\",g" gitlab.rb'.format(
+            local('sed -i "s,.*NGINX_SSL_CERTIFICATE,nginx[\'ssl_certificate\'] = \'{}\',g" gitlab.rb'.format(
+                os.environ['gitlab_ssl_certificate']))
+            local('sed -i "s,.*NGINX_SSL_DHPARAMS.*,nginx[\'ssl_dhparam\'] = \'{}\',g" gitlab.rb'.format(
                 os.environ['gitlab_ssl_dhparams']))
         else:
             local('sed -i "s,EXTERNAL_URL,http://{},g" gitlab.rb'.format(os.environ['instance_hostname']))
@@ -51,8 +79,8 @@ def prepare_config():
         local('sed -i "s/LDAP_BIND_DN/{}/g" gitlab.rb'.format(os.environ['ldap_bind_dn']))
         local("sed -i 's/LDAP_PASSWORD/{}/g' gitlab.rb".format(os.environ['ldap_password']))
         local('sed -i "s/LDAP_BASE/{}/g" gitlab.rb'.format(os.environ['ldap_base']))
-        local('sed -i "s/LDAP_ATTR_USERNAME/{}/g" gitlab.rb'.format(os.environ['ldap_attr_username']))
-        local('sed -i "s/LDAP_ATTR_EMAIL/{}/g" gitlab.rb'.format(os.environ['ldap_attr_email']))
+        local("sed -i 's/LDAP_ATTR_USERNAME/{}/g' gitlab.rb".format(os.environ['ldap_attr_username']))
+        local("sed -i 's/LDAP_ATTR_EMAIL/{}/g' gitlab.rb".format(os.environ['ldap_attr_email']))
 
         local("sed -i 's/GITLAB_ROOT_PASSWORD/{}/g' gitlab.rb".format(os.environ['gitlab_root_password']))
     print 'Initial config is ready.'
@@ -73,7 +101,7 @@ def install_gitlab():
 
         with cd('{}tmp/gitlab'.format(os.environ['conf_dlab_path'])):
             put('gitlab.rb', '/tmp/gitlab.rb')
-            # local('rm gitlab.rb')
+            local('rm gitlab.rb')
         sudo('rm /etc/gitlab/gitlab.rb')
         sudo('mv /tmp/gitlab.rb /etc/gitlab/gitlab.rb')
 
@@ -85,7 +113,6 @@ def install_gitlab():
                                                                             os.environ['instance_hostname']))
             sudo('openssl dhparam -out {} 2048'.format(os.environ['gitlab_ssl_dhparams']))
 
-
         sudo('gitlab-ctl reconfigure')
     except Exception as err:
         print 'Failed to install gitlab.', str(err)
@@ -95,17 +122,22 @@ def install_gitlab():
 def configure_gitlab():
     try:
         # Get root private token
-        raw = run('curl --request POST "http://localhost/api/v4/session?login=root&password={}"'
-                  .format(os.environ['gitlab_root_password']))
+        if json.loads(os.environ['gitlab_ssl_enabled']):
+            proto = 'https'
+        else:
+            proto = 'http'
+
+        raw = run('curl -k --request POST "{0}://localhost/api/v4/session?login=root&password={1}"'
+                  .format(proto, os.environ['gitlab_root_password']))
         data = json.loads(raw)
         if not json.loads(os.environ['gitlab_signup_enabled']):
             print 'Disabling signup...'
-            run('curl --request PUT "http://localhost/api/v4/application/settings?private_token={}&sudo=root&signup_enabled=false"'
-                .format(data['private_token']))
+            run('curl -k --request PUT "{0}://localhost/api/v4/application/settings?private_token={1}&sudo=root&signup_enabled=false"'
+                .format(proto, data['private_token']))
         if not json.loads(os.environ['gitlab_public_repos']):
             print 'Disabling public repos...'
-            run('curl --request PUT "http://localhost/api/v4/application/settings?private_token={}&sudo=root&restricted_visibility_levels=public"'
-                .format(data['private_token']))
+            run('curl -k --request PUT "{0}://localhost/api/v4/application/settings?private_token={1}&sudo=root&restricted_visibility_levels=public"'
+                .format(proto, data['private_token']))
     except Exception as err:
         print "Failed to connect to GitLab via API..", str(err)
         sys.exit(1)
@@ -114,18 +146,21 @@ def configure_gitlab():
 def summary():
     print '[SUMMARY]'
     print 'Gitlab hostname: {}'.format(os.environ['instance_hostname'])
-    print 'ROOT password: {}'.format(os.environ['gitlab_root_password'])
+    print 'Gitlab username: {}'.format(os.environ['conf_os_user'])
+    print 'Keyname: {}'.format(os.environ['conf_key_name'])
+    print 'Gitlab ROOT password: {}'.format(os.environ['gitlab_root_password'])
     print 'SSL enabled: {}'.format(json.loads(os.environ['gitlab_ssl_enabled']))
     print 'Signup enabled: {}'.format(json.loads(os.environ['gitlab_signup_enabled']))
     print 'Public repos: {}'.format(json.loads(os.environ['gitlab_public_repos']))
 
 
-
 if __name__ == "__main__":
+    create_user(os.environ['conf_os_user'])
+
     env.hosts = '{}'.format(args.instance_ip)
     env['connection_attempts'] = 100
-    env.user = args.os_user
     env.key_filename = args.keyfile
+    env.user = os.environ['conf_os_user']
     env.host_string = env.user + "@" + env.hosts
 
     prepare_config()

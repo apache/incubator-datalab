@@ -730,8 +730,8 @@ gitlab_rails['initial_root_password'] = "GITLAB_ROOT_PASSWORD"
 ##! if ssl_verify_client on, verification depth in the client certificates chain
 # nginx['ssl_verify_depth'] = "1"
 
-# nginx['ssl_certificate'] = "NGINX_SSL_CERTIFICATE"
-# nginx['ssl_certificate_key'] = "NGINX_SSL_CERTIFICATE_KEY"
+# nginx['ssl_certificate'] = NGINX_SSL_CERTIFICATE
+# nginx['ssl_certificate_key'] = NGINX_SSL_CERTIFICATE_KEY
 # nginx['ssl_ciphers'] = "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256"
 # nginx['ssl_prefer_server_ciphers'] = "on"
 

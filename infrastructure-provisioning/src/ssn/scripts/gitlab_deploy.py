@@ -55,7 +55,7 @@ def create_instance():
         local('echo "region = {}" >> ~/.aws/config'.format(os.environ['aws_region']))
         ec2 = boto3.resource('ec2')
         security_groups_ids = []
-        ami_id = get_ami_id('aws_{}_ami_name'.format(os.environ['conf_os_family']))
+        ami_id = get_ami_id(os.environ['aws_{}_ami_name'.format(os.environ['conf_os_family'])])
         for chunk in os.environ['aws_sg_ids'].split(','):
             security_groups_ids.append(chunk.strip())
         instances = ec2.create_instances(ImageId=ami_id, MinCount=1, MaxCount=1,
@@ -134,8 +134,9 @@ if __name__ == "__main__":
         print 'Instance hostname: {}'.format(os.environ['instance_hostname'])
 
         keyfile = '{}'.format('{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name']))
-        params = '--keyfile {0} --instance_ip {1} --os_user {2}'.format(keyfile, os.environ['instance_hostname'], os.environ['conf_os_user'])
-        local('configure_gitlab.py {}'.format(params))
+        params = '--keyfile {0} --instance_ip {1}'.format(keyfile, os.environ['instance_hostname'])
+        head, tail = os.path.split(os.path.realpath(__file__))
+        local('{0}/{1}.py {2}'.format(head, 'configure_gitlab', params))
 
     elif args.action == 'terminate':
         # TBD...
