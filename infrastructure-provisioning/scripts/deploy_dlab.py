@@ -54,7 +54,7 @@ def generate_docker_command():
     command.append('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -v {2}/web_app:/root/web_app '.
                    format(args.key_path, args.conf_key_name, args.workspace_path))
     if args.conf_cloud_provider == 'gcp':
-        command.append('-v {}:/root/service_account.json '.format(args.service_account_path))
+        command.append('-v {}:/root/service_account.json '.format(args.gcp_service_account_path))
     attrs = vars(args)
     for i in attrs:
         if attrs[i] and i != 'action' and i != 'key_path' and i != 'workspace_path' and i != 'gcp_service_account_path':
