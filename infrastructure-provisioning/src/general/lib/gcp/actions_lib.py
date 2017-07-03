@@ -71,6 +71,6 @@ class GCPActions:
             credentials = ServiceAccountCredentials.from_json_keyfile_name(
                 self.key_file, scopes=('https://www.googleapis.com/auth/devstorage.full_control', 'https://www.googleapis.com/auth/devstorage.read_only', 'https://www.googleapis.com/auth/devstorage.read_write'))
             self.service = build('compute', 'v1', credentials=credentials)
-        storage_client = storage.Client()
+        storage_client = storage.Client(credentials=credentials)
         bucket = storage_client.create_bucket(bucket_name)
         print('Bucket {} created.'.format(bucket.name))
