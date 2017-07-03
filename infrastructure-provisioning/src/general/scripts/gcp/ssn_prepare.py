@@ -52,10 +52,10 @@ if __name__ == "__main__":
 
     logging.info('[CREATE VPC]')
     print '[CREATE VPC]'
-    GcpActions().create_vpc(service_base_name)
+    GCPActions().create_vpc(service_base_name)
 
     time.sleep(10)
-    network_selfLink = GcpMeta().network_get(service_base_name)['selfLink']
+    network_selfLink = GCPMeta().network_get(service_base_name)['selfLink']
 
     subnet_name = service_base_name + '-ssn-subnet'
     public_net_cidr = '10.0.1.0/24'
@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     logging.info('[CREATE SUBNET]')
     print '[CREATE SUBNET]'
-    GcpActions().create_subnet(subnet_name, vpc_cidr, network_selfLink, region)
+    GCPActions().create_subnet(subnet_name, vpc_cidr, network_selfLink, region)
 
     params = {}
     params['name'] = 'ssh22'
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     logging.info('[CREATE FIREWALL]')
     print '[CREATE FIREWALL]'
-    GcpActions.firewall_add(params)
+    GCPActions().firewall_add(params)
 
     logging.info('[CREATE SSN INSTANCE]')
     print '[CREATE SSN INSTANCE]'
@@ -119,3 +119,4 @@ if __name__ == "__main__":
             }
           ]
         }
+    GCPActions().instance_insert(instance_params)

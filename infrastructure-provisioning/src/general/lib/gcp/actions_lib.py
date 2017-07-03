@@ -23,7 +23,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import os
 
 
-class GcpActions:
+class GCPActions:
     def __init__(self, auth_type='service_account'):
 
         self.auth_type = auth_type
@@ -56,4 +56,9 @@ class GcpActions:
     def firewall_add(self, firewall_params):
         request = self.service.firewalls().insert(
             project=self.project, body=firewall_params)
+        return request.execute()
+
+    def create_instance(self, instance_params):
+        request = self.service.instances().insert(
+            project=self.project, body=instance_params)
         return request.execute()

@@ -23,7 +23,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import os
 
 
-class GcpMeta:
+class GCPMeta:
     def __init__(self, auth_type='service_account'):
 
         self.auth_type = auth_type
