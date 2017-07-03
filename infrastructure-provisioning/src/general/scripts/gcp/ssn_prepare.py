@@ -119,4 +119,4 @@ if __name__ == "__main__":
             }
           ]
         }
-    GCPActions().instance_insert(instance_params)
+    GCPActions().create_instance(instance_params)
