@@ -119,4 +119,5 @@ if __name__ == "__main__":
             }
           ]
         }
+    time.sleep(30)
     GCPActions().create_instance(instance_params)
