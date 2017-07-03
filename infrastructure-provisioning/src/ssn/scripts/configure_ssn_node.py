@@ -63,8 +63,8 @@ def cp_cloud_scripts():
         put('/usr/lib/python2.7/dlab/actions_lib.py', '/tmp/actions_lib.py')
         put('/usr/lib/python2.7/dlab/meta_lib.py', '/tmp/meta_lib.py')
         sudo('mkdir -p /usr/lib/python2.7/dlab')
-        sudo('mv /tmp/actions_lib.py', '/usr/lib/python2.7/dlab/actions_lib.py')
-        sudo('mv /tmp/meta_lib.py', '/usr/lib/python2.7/dlab/meta_lib.py')
+        sudo('mv /tmp/actions_lib.py /usr/lib/python2.7/dlab/actions_lib.py')
+        sudo('mv /tmp/meta_lib.py /usr/lib/python2.7/dlab/meta_lib.py')
         return True
     except:
         return False
