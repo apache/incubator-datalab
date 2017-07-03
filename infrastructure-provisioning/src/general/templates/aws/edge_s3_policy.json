@@ -14,7 +14,8 @@
       ],
       "Resource": [
         "arn:aws:s3:::SSN_BUCK",
-        "arn:aws:s3:::BUCKET_NAME"
+        "arn:aws:s3:::BUCKET_NAME",
+        "arn:aws:s3:::COMMON_BUCK"
 	  ]
     },
     {
@@ -33,7 +34,10 @@
         "s3:GetObject",
         "s3:DeleteObject"
       ],
-      "Resource": "arn:aws:s3:::BUCKET_NAME/*"
+      "Resource": [
+        "arn:aws:s3:::BUCKET_NAME/*",
+        "arn:aws:s3:::COMMON_BUCK/*"
+      ]
     }
   ]
 }

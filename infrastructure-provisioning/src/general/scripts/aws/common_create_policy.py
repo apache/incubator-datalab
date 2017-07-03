@@ -27,6 +27,7 @@ import boto3, botocore
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')
 parser.add_argument('--ssn_bucket_name', type=str, default='')
+parser.add_argument('--common_bucket_name', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
 parser.add_argument('--username', type=str, default='')
 parser.add_argument('--edge_role_name', type=str, default='')
@@ -43,6 +44,7 @@ if __name__ == "__main__":
             policy = handler.read()
             policy = policy.replace('BUCKET_NAME', args.bucket_name)
             policy = policy.replace('SSN_BUCK', args.ssn_bucket_name)
+            policy = policy.replace('COMMON_BUCK', args.common_bucket_name)
             if args.region == 'cn-north-1':
                 policy = policy.replace('aws', 'aws-cn')
         except OSError:
