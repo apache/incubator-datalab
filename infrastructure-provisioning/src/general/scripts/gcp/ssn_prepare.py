@@ -47,7 +47,7 @@ if __name__ == "__main__":
     region = os.environ['region']
     ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
     policy_path = '/root/files/ssn_policy.json'
-    vpc_cidr = '172.31.0.0/16'
+    vpc_cidr = '10.0.1.0/24'
     sg_name = instance_name + '-SG'
 
     logging.info('[CREATE VPC]')
@@ -56,6 +56,14 @@ if __name__ == "__main__":
 
     time.sleep(10)
     network_selfLink = GcpMeta().network_get(service_base_name)['selfLink']
+
+    subnet_name = service_base_name + '-ssn-subnet'
+    public_net_cidr = '10.0.1.0/24'
+    time.sleep(10)
+
+    logging.info('[CREATE SUBNET]')
+    print '[CREATE SUBNET]'
+    GcpActions().create_subnet(subnet_name, vpc_cidr, network_selfLink, region)
 
     params = {}
     params['name'] = 'ssh22'
@@ -66,10 +74,6 @@ if __name__ == "__main__":
     params['allowed'] = []
     params['allowed'].append(rule)
     params['network'] = network_selfLink
-
-    logging.info('[CREATE SUBNET]')
-    print '[CREATE SUBNET]'
-    GcpActions().create_subnet(service_base_name, vpc_cidr, service_base_name, region)
 
     logging.info('[CREATE FIREWALL]')
     print '[CREATE FIREWALL]'
