@@ -10,7 +10,7 @@
 ##! URL on which GitLab will be reachable.
 ##! For more details on configuring external_url see:
 ##! https://docs.gitlab.com/omnibus/settings/configuration.html#configuring-the-external-url-for-gitlab
-external_url 'http://EXTERNAL_URL'
+external_url 'EXTERNAL_URL'
 
 ## Legend
 ##! The following notations at the beginning of each line may be used to
@@ -716,7 +716,7 @@ gitlab_rails['initial_root_password'] = "GITLAB_ROOT_PASSWORD"
 ##! Docs: https://docs.gitlab.com/omnibus/settings/nginx.html
 ################################################################################
 
-# nginx['enable'] = true
+# nginx['enable'] = NGINX_ENABLED
 # nginx['client_max_body_size'] = '250m'
 # nginx['redirect_http_to_https'] = false
 # nginx['redirect_http_to_https_port'] = 80
@@ -730,8 +730,8 @@ gitlab_rails['initial_root_password'] = "GITLAB_ROOT_PASSWORD"
 ##! if ssl_verify_client on, verification depth in the client certificates chain
 # nginx['ssl_verify_depth'] = "1"
 
-# nginx['ssl_certificate'] = "/etc/gitlab/ssl/#{node['fqdn']}.crt"
-# nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/#{node['fqdn']}.key"
+# nginx['ssl_certificate'] = "NGINX_SSL_CERTIFICATE"
+# nginx['ssl_certificate_key'] = "NGINX_SSL_CERTIFICATE_KEY"
 # nginx['ssl_ciphers'] = "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256"
 # nginx['ssl_prefer_server_ciphers'] = "on"
 
@@ -745,7 +745,7 @@ gitlab_rails['initial_root_password'] = "GITLAB_ROOT_PASSWORD"
 ##! **Default according to https://nginx.org/en/docs/http/ngx_http_ssl_module.html**
 # nginx['ssl_session_timeout'] = "5m"
 
-# nginx['ssl_dhparam'] = nil # Path to dhparams.pem, eg. /etc/gitlab/ssl/dhparams.pem
+# nginx['ssl_dhparam'] = NGINX_SSL_DHPARAMS # Path to dhparams.pem, eg. /etc/gitlab/ssl/dhparams.pem
 # nginx['listen_addresses'] = ['*', '[::]']
 
 ##! **Defaults to forcing web browsers to always communicate using only HTTPS**
