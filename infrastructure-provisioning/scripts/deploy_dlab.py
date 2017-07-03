@@ -38,7 +38,7 @@ parser.add_argument('--key_path', type=str, default='', help='Path to admin key 
 parser.add_argument('--conf_key_name', type=str, default='', help='Admin key name (WITHOUT ".pem")')
 parser.add_argument('--workspace_path', type=str, default='', help='Admin key name (WITHOUT ".pem")')
 parser.add_argument('--conf_tag_resource_id', type=str, default='dlab', help='The name of user tag')
-parser.add_argument('--aws_ssn_instance_size', type=str, default='t2.medium', help='The SSN instance shape')
+parser.add_argument('--ssn_instance_size', type=str, default='t2.medium', help='The SSN instance shape')
 parser.add_argument('--aws_account_id', type=str, default='', help='The ID of Amazon account')
 parser.add_argument('--aws_billing_bucket', type=str, default='', help='The name of S3 bucket where billing reports will be placed.')
 parser.add_argument('--aws_report_path', type=str, default='', help='The path to billing reports directory in S3 bucket')
@@ -114,7 +114,7 @@ def deploy_dlab(args):
     local(docker_command)
     # local('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -v {2}/web_app:/root/web_app -e "conf_os_family={3}" '
     #       '-e "conf_cloud_provider={4}" -e "conf_resource=ssn" '
-    #       '-e "aws_ssn_instance_size=t2.medium" -e "region={5}" -e "aws_vpc_id={6}" -e "aws_subnet_id={7}" '
+    #       '-e "ssn_instance_size=t2.medium" -e "region={5}" -e "aws_vpc_id={6}" -e "aws_subnet_id={7}" '
     #       '-e "aws_security_groups_ids={8}" -e "conf_key_name={1}" -e "conf_service_base_name={9}" '
     #       '-e "aws_access_key={10}" -e "aws_secret_access_key={11}" -e "conf_tag_resource_id={13}" '
     #       '-e "aws_account_id={14}" -e "aws_billing_bucket={15}" -e "aws_report_path={16}" '

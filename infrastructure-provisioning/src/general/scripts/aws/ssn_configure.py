@@ -265,7 +265,7 @@ if __name__ == "__main__":
         print "VPC ID: " + os.environ['aws_vpc_id']
         print "Subnet ID: " + os.environ['aws_subnet_id']
         print "Security IDs: " + os.environ['aws_security_groups_ids']
-        print "SSN instance shape: " + os.environ['aws_ssn_instance_size']
+        print "SSN instance shape: " + os.environ['ssn_instance_size']
         print "SSN AMI name: " + ssn_ami_name
         print "SSN bucket name: " + user_bucket_name
         print "Region: " + region
@@ -290,7 +290,7 @@ if __name__ == "__main__":
                    "vpc_id": os.environ['aws_vpc_id'],
                    "subnet_id": os.environ['aws_subnet_id'],
                    "security_id": os.environ['aws_security_groups_ids'],
-                   "instance_shape": os.environ['aws_ssn_instance_size'],
+                   "instance_shape": os.environ['ssn_instance_size'],
                    "bucket_name": user_bucket_name,
                    "region": region,
                    "action": "Create SSN instance"}

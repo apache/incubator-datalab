@@ -86,11 +86,11 @@ if __name__ == "__main__":
 
     instance_params = {
           "name": instance_name,
-          "machineType": "zones/us-central1-c/machineTypes/n1-standard-1",
+          "machineType": "zones/{}/machineTypes/{}".format(os.environ['zone'], os.environ['ssn_instance_size']),
           "networkInterfaces": [
             {
-              "network": "global/networks/dlab",
-              "subnetwork": "regions/us-central1/subnetworks/dlabpublic",
+              "network": "global/networks/{}".format(service_base_name),
+              "subnetwork": "regions/{}/subnetworks/{}".format(os.environ['region'], subnet_name),
               "accessConfigs": [
                 {
                   "type": "ONE_TO_ONE_NAT"
