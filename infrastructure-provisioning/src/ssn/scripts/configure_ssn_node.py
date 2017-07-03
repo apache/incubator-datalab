@@ -73,7 +73,7 @@ def cp_cloud_scripts():
 def cp_gitlab_scripts(dlab_path):
     try:
         if not exists('{}tmp/gitlab'.format(dlab_path)):
-            local('mkdir -p {}tmp/gitlab'.format(dlab_path))
+            run('mkdir -p {}tmp/gitlab'.format(dlab_path))
         with cd('{}tmp/gitlab'.format(dlab_path)):
             put('/root/scripts/gitlab_deploy.py', 'gitlab_deploy.py')
             run('chmod +x gitlab_deploy.py')
