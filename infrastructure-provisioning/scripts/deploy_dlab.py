@@ -83,9 +83,9 @@ def build_docker_images(args):
     # Building base and ssn docker images
     with lcd(args.workspace_path + '/infrastructure-provisioning/src/'):
         local('sudo docker build --build-arg OS={} --build-arg CLOUD={} --file base/Dockerfile '
-              '-t docker.dlab-base .'.format(args.os_family, args.conf_cloud_provider))
+              '-t docker.dlab-base .'.format(args.conf_os_family, args.conf_cloud_provider))
         local('sudo docker build --build-arg OS={} --build-arg CLOUD={} --file ssn/Dockerfile '
-              '-t docker.dlab-ssn .'.format(args.os_family, args.conf_cloud_provider))
+              '-t docker.dlab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider))
 
 
 def deploy_dlab(args):
@@ -117,7 +117,7 @@ def deploy_dlab(args):
     #       '-e "aws_security_groups_ids={8}" -e "conf_key_name={1}" -e "conf_service_base_name={9}" '
     #       '-e "aws_access_key={10}" -e "aws_secret_access_key={11}" -e "conf_tag_resource_id={13}" '
     #       '-e "aws_account_id={14}" -e "aws_billing_bucket={15}" -e "aws_report_path={16}" '
-    #       'docker.dlab-ssn --action {12}'.format(args.key_path, args.conf_key_name, args.workspace_path, args.os_family,
+    #       'docker.dlab-ssn --action {12}'.format(args.key_path, args.conf_key_name, args.workspace_path, args.conf_os_family,
     #                                              args.conf_cloud_provider, args.region, args.vpc_id,
     #                                              args.subnet_id, args.sg_ids, args.infrastructure_tag,
     #                                              args.access_key_id, args.secret_access_key, args.action,
