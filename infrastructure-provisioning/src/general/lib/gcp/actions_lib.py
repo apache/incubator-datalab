@@ -20,6 +20,7 @@ from pprint import pprint
 from googleapiclient.discovery import build
 from oauth2client.client import GoogleCredentials
 from oauth2client.service_account import ServiceAccountCredentials
+from google.cloud import storage
 import os
 
 
@@ -62,3 +63,8 @@ class GCPActions:
         request = self.service.instances().insert(
             project=self.project, zone=os.environ['zone'], body=instance_params)
         return request.execute()
+
+    def create_bucket(self, bucket_name):
+        storage_client = storage.Client()
+        bucket = storage_client.create_bucket(bucket_name)
+        print('Bucket {} created.'.format(bucket.name))

@@ -79,6 +79,10 @@ if __name__ == "__main__":
     print '[CREATE FIREWALL]'
     GCPActions().firewall_add(params)
 
+    logging.info('[CREATE SSN BUCKET]')
+    print '[CREATE SSN BUCKET]'
+    GCPActions().create_bucket(user_bucket_name)
+
     logging.info('[CREATE SSN INSTANCE]')
     print '[CREATE SSN INSTANCE]'
 
