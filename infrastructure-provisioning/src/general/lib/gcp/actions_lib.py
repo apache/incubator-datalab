@@ -60,5 +60,5 @@ class GCPActions:
 
     def create_instance(self, instance_params):
         request = self.service.instances().insert(
-            project=self.project, body=instance_params)
+            project=self.project, zone=os.environ['zone'], body=instance_params)
         return request.execute()
