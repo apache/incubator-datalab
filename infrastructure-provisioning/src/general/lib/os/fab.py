@@ -94,7 +94,7 @@ def create_aws_config_files(generate_full_config=False):
 
         with open(aws_user_dir + '/config', 'w') as aws_file:
             aws_file.write("[default]\n")
-            aws_file.write("region = {}\n".format(os.environ['aws_region']))
+            aws_file.write("region = {}\n".format(os.environ['region']))
 
         if generate_full_config:
             with open(aws_user_dir + '/credentials', 'w') as aws_file:

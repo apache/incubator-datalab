@@ -3,7 +3,7 @@
     "conf_os_family":"COF",
     "request_id":"RID",
     "conf_service_base_name":"SBN",
-    "aws_region":"CREG",
+    "region":"CREG",
     "conf_key_name":"CKN",
     "aws_notebook_instance_type":"NIT",
     "edge_user_name":"NUN",

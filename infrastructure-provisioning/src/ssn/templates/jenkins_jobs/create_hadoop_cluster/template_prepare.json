@@ -11,7 +11,7 @@
     "emr_instance_count":"EIC",
     "emr_timeout":"ETIM",
     "conf_key_name":"KN",
-    "aws_region":"CREG",
+    "region":"CREG",
     "notebook_instance_name":"NNM",
     "emr_slave_spot_instance":"SPI",
     "emr_slave_instance_spot_pct_price": "SISPP"

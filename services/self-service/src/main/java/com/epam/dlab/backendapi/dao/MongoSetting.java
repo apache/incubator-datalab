@@ -23,7 +23,7 @@ public enum MongoSetting {
 	/** Base name of service. */
     SERIVICE_BASE_NAME("conf_service_base_name"),
 	/** Name of AWS region. */
-    AWS_REGION("aws_region"),
+    AWS_REGION("region"),
 	/** Id of security group. */
     AWS_SECURITY_GROUPS("aws_security_groups_ids"),
 	/** Name of OS family. */

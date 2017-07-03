@@ -47,7 +47,7 @@ public class RunDockerCommandTest {
             "-e \"notebook_name=%s\" " +
             "-e \"edge_user_name=%s\" " +
             "-e \"edge_subnet_cidr=%s\" " +
-            "-e \"aws_region=%s\" " +
+            "-e \"region=%s\" " +
             "-e \"conf_key_name=%s\" " +
             "%s --action create";
 
@@ -55,13 +55,13 @@ public class RunDockerCommandTest {
             "-e \"conf_service_base_name=%s\" " +
             "-e \"edge_user_name=%s\" " +
             "-e \"emr_cluster_name=%s\" " +
-            "-e \"aws_region=%s\" " +
+            "-e \"region=%s\" " +
             "-e \"conf_key_name=%s\" " +
             "%s --action terminate";
 
     String EXPLORATORY_ENVIRONMENT = DOCKER_BASE +
             "-e \"conf_service_base_name=%s\" " +
-            "-e \"aws_region=%s\" " +
+            "-e \"region=%s\" " +
             "-e \"conf_key_name=%s\" ";
 
     String CREATE_EXPLORATORY_ENVIRONMENT = EXPLORATORY_ENVIRONMENT +

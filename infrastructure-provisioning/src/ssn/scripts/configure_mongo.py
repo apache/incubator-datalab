@@ -87,7 +87,7 @@ if __name__ == "__main__":
         time.sleep(5)
         client.dlabdb.add_user('admin', mongo_passwd, roles=[{'role':'userAdminAnyDatabase','db':'admin'}])
         client.dlabdb.command('grantRolesToUser', "admin", roles=["readWrite"])
-        client.dlabdb.settings.insert_one({"_id": "aws_region", "value": args.region})
+        client.dlabdb.settings.insert_one({"_id": "region", "value": args.region})
         client.dlabdb.settings.insert_one({"_id": "aws_vpc_id", "value": args.vpc})
         client.dlabdb.settings.insert_one({"_id": "aws_subnet_id", "value": args.subnet})
         client.dlabdb.settings.insert_one({"_id": "conf_service_base_name", "value": args.base_name})

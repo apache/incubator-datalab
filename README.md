@@ -1092,7 +1092,7 @@ Using this Docker file, all required scripts and files will be copied to Docker 
 
 -   Docker command for building SSN:
 ```
-docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_os_family=debian" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "aws_ssn_instance_size=t2.medium" -e "aws_region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" -e "conf_tag_resource_id=dlab" docker.dlab-ssn --action create ;
+docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_os_family=debian" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "aws_ssn_instance_size=t2.medium" -e "region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" -e "conf_tag_resource_id=dlab" docker.dlab-ssn --action create ;
 ```
 
 -   Docker executes *entrypoint.py* script with action *create*. *Entrypoint.py* will set environment variables, which were provided from Docker and execute *general/api/create.py* script:
@@ -1139,7 +1139,7 @@ docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/we
 SSN:
 
 ```
-docker run -i -v <key_path><key_name>.pem:/root/keys/<key_name>.pem -e "aws_region=<region>" -e "conf_service_base_name=<Infrastructure_Tag>" -e  “conf_resource=ssn" -e "aws_access_key=<Access_Key_ID>" -e "aws_secret_access_key=<Secret_Access_Key>" docker.dlab-ssn --action <action>
+docker run -i -v <key_path><key_name>.pem:/root/keys/<key_name>.pem -e "region=<region>" -e "conf_service_base_name=<Infrastructure_Tag>" -e  “conf_resource=ssn" -e "aws_access_key=<Access_Key_ID>" -e "aws_secret_access_key=<Secret_Access_Key>" docker.dlab-ssn --action <action>
 ```
 All parameters are listed in section "Self-ServiceNode" chapter.
 
@@ -1208,7 +1208,7 @@ Path: *infrastructure-provisioning/src/general/scripts/aws/jupyter\_configure.py
         logging.info('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         print '[CONFIGURE JUPYTER NOTEBOOK INSTANCE]'
         params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {}".\
-            format(instance_hostname, keyfile_name, os.environ['aws_region'], os.environ['notebook_spark_version'],
+            format(instance_hostname, keyfile_name, os.environ['region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], os.environ['conf_os_user'],
                    os.environ['notebook_scala_version'])
         try:
