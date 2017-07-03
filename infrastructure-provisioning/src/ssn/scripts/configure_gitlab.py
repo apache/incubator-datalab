@@ -112,6 +112,7 @@ def install_gitlab():
                                                                             os.environ['gitlab_ssl_certificate'],
                                                                             os.environ['instance_hostname']))
             sudo('openssl dhparam -out {} 2048'.format(os.environ['gitlab_ssl_dhparams']))
+            get('{}'.format(os.environ['gitlab_ssl_certificate']), '{}tmp/gitlab'.format(os.environ['conf_dlab_path']))
 
         sudo('gitlab-ctl reconfigure')
     except Exception as err:

@@ -58,18 +58,6 @@ def cp_backup_scripts(dlab_path):
         return False
 
 
-def cp_cloud_scripts():
-    try:
-        put('/usr/lib/python2.7/dlab/actions_lib.py', '/tmp/actions_lib.py')
-        put('/usr/lib/python2.7/dlab/meta_lib.py', '/tmp/meta_lib.py')
-        sudo('mkdir -p /usr/lib/python2.7/dlab')
-        sudo('mv /tmp/actions_lib.py /usr/lib/python2.7/dlab/actions_lib.py')
-        sudo('mv /tmp/meta_lib.py /usr/lib/python2.7/dlab/meta_lib.py')
-        return True
-    except:
-        return False
-
-
 def cp_gitlab_scripts(dlab_path):
     try:
         if not exists('{}tmp/gitlab'.format(dlab_path)):
@@ -168,10 +156,6 @@ if __name__ == "__main__":
 
     print "Copying backup scripts"
     if not cp_backup_scripts(args.dlab_path):
-        sys.exit(1)
-
-    print "Copying cloud actions & meta scripts"
-    if not cp_cloud_scripts():
         sys.exit(1)
 
     print "Copying gitlab scripts & files"

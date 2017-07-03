@@ -21,6 +21,7 @@ from ConfigParser import SafeConfigParser
 from fabric.api import *
 import argparse
 import boto3
+from botocore.client import Config
 import sys
 import os
 
@@ -111,6 +112,18 @@ def get_ami_id(ami_name):
         print "Failed to get AMI ID.", str(err)
 
 
+def create_elastic_ip(instance_id):
+    try:
+        client = boto3.client('ec2')
+        response = client.allocate_address(Domain='vpc')
+        allocation_id = response.get('AllocationId')
+        response = client.associate_address(InstanceId=instance_id, AllocationId=allocation_id)
+        print 'Association ID: {}'.format(response.get('AssociationId'))
+    except Exception as err:
+        print 'Failed to allocate elastic IP.', str(err)
+        sys.exit(1)
+
+
 def get_ec2_ip(instance_id):
     try:
         ec2 = boto3.resource('ec2')
@@ -123,6 +136,16 @@ def get_ec2_ip(instance_id):
         sys.exit(1)
 
 
+def put_to_bucket(bucket_name, local_file, destination_file):
+    try:
+        s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
+        with open(local_file, 'rb') as data:
+            s3.upload_fileobj(data, bucket_name, destination_file)
+    except Exception as err:
+        print 'Unable to upload files to S3 bucket.', str(err)
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     if args.action == 'create':
         # Read all configs
@@ -130,13 +153,29 @@ if __name__ == "__main__":
 
         instance_id = create_instance()
         print 'Instance {} created.'.format(instance_id)
+        create_elastic_ip(instance_id)
         os.environ['instance_hostname'] = get_ec2_ip(instance_id)
         print 'Instance hostname: {}'.format(os.environ['instance_hostname'])
 
         keyfile = '{}'.format('{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name']))
         params = '--keyfile {0} --instance_ip {1}'.format(keyfile, os.environ['instance_hostname'])
         head, tail = os.path.split(os.path.realpath(__file__))
-        local('{0}/{1}.py {2}'.format(head, 'configure_gitlab', params))
+
+        try:
+            local('{0}/{1}.py {2}'.format(head, 'configure_gitlab', params))
+        except Exception as err:
+            print 'Failed to configure gitlab.', str(err)
+            sys.exit(1)
+
+        bucket_name = '{}-ssn-bucket'.format(os.environ['conf_service_base_name'])
+        try:
+            for filename in os.listdir(head):
+                if filename.endswith('.crt'):
+                    put_to_bucket(bucket_name, filename, filename)
+        except Exception as err:
+            print 'Failed to put gitlab ssl certificate to s3 bucket.', str(err)
+            sys.exit(1)
+
 
     elif args.action == 'terminate':
         # TBD...
