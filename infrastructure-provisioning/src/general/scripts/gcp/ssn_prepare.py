@@ -46,7 +46,6 @@ if __name__ == "__main__":
     instance_name = service_base_name + '-ssn'
     region = os.environ['region']
     ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
-    ssn_ami_id = get_ami_id(ssn_ami_name)
     policy_path = '/root/files/ssn_policy.json'
     vpc_cidr = '172.31.0.0/16'
     sg_name = instance_name + '-SG'
