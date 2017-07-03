@@ -66,7 +66,7 @@ if __name__ == "__main__":
     GCPActions().create_subnet(subnet_name, vpc_cidr, network_selfLink, region)
 
     params = {}
-    params['name'] = 'ssh22'
+    params['name'] = service_base_name + '-ssn-firewall'
     params['sourceRanges'] = ['0.0.0.0/0']
     rule = {}
     rule['IPProtocol'] = 'tcp'
