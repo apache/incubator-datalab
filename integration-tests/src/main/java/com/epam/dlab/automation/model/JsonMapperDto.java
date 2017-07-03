@@ -19,20 +19,40 @@ limitations under the License.
 package com.epam.dlab.automation.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
 public class JsonMapperDto {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     @SuppressWarnings("unchecked")
 	public static <T> T readNode(String pathToJson, Class<T> clasz) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-
-        try (FileInputStream in = new FileInputStream(pathToJson);){
-          return (T) mapper
+        try (FileInputStream in = new FileInputStream(pathToJson)){
+          return (T) OBJECT_MAPPER
         		  .readerFor(clasz)
         		  .readValue(in);
+        }
+    }
+
+    public static <T> List<T> readListOf(String pathToJson, Class<T> clasz) {
+        try (FileInputStream in = new FileInputStream(pathToJson)){
+            CollectionType typeReference = TypeFactory.defaultInstance().constructCollectionType(List.class, clasz);
+            return OBJECT_MAPPER.readValue(in, typeReference);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot read json file", e);
+        }
+    }
+
+    public static <T> T readObject(String pathToJson, Class<T> clasz) {
+        try (FileInputStream in = new FileInputStream(pathToJson)){
+            return OBJECT_MAPPER.readValue(in, clasz);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot read json file", e);
         }
     }
 }

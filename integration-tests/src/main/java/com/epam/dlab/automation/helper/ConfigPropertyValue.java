@@ -60,6 +60,9 @@ public class ConfigPropertyValue {
     private static final String TIMEOUT_NOTEBOOK_TERMINATE="TIMEOUT_NOTEBOOK_TERMINATE";
     private static final String TIMEOUT_EMR_CREATE="TIMEOUT_EMR_CREATE";
     private static final String TIMEOUT_EMR_TERMINATE="TIMEOUT_EMR_TERMINATE";
+    private static final String TIMEOUT_LIB_GROUPS="TIMEOUT_LIB_GROUPS";
+    private static final String TIMEOUT_LIB_LIST="TIMEOUT_LIB_LIST";
+    private static final String TIMEOUT_LIB_INSTALL="TIMEOUT_LIB_INSTALL";
 
     private static final String CLUSTER_OS_USERNAME = "CLUSTER_OS_USERNAME";
     private static final String CLUSTER_OS_FAMILY = "CLUSTER_OS_FAMILY";
@@ -129,9 +132,8 @@ public class ConfigPropertyValue {
 	}
 	
 	private static void loadProperties() {
-        try {
-            File f1 = new File(CONFIG_FILE_NAME);
-            FileReader fin = new FileReader(f1);
+        try (FileReader fin = new FileReader(new File(CONFIG_FILE_NAME))) {
+
             props.load(fin);
 
             PropertiesResolver.overlapProperty(props, CLUSTER_OS_USERNAME, true);
@@ -173,6 +175,9 @@ public class ConfigPropertyValue {
         printProperty(TIMEOUT_NOTEBOOK_TERMINATE);
         printProperty(TIMEOUT_EMR_CREATE);
         printProperty(TIMEOUT_EMR_TERMINATE);
+        printProperty(TIMEOUT_LIB_GROUPS);
+        printProperty(TIMEOUT_LIB_LIST);
+        printProperty(TIMEOUT_LIB_INSTALL);
 
         printProperty(JUPYTER_SCENARIO_FILES);
         printProperty(S3_TESTS_TEMPLATE_BUCKET_NAME);
@@ -309,6 +314,18 @@ public class ConfigPropertyValue {
 
     public static Duration getTimeoutEMRTerminate() {
     	return getDuration(get(TIMEOUT_EMR_TERMINATE, "0s"));
+    }
+
+    public static Duration getTimeoutLibGroups() {
+        return getDuration(get(TIMEOUT_LIB_GROUPS, "5m"));
+    }
+
+    public static Duration getTimeoutLibList() {
+        return getDuration(get(TIMEOUT_LIB_LIST, "5m"));
+    }
+
+    public static Duration getTimeoutLibInstall() {
+        return getDuration(get(TIMEOUT_LIB_INSTALL, "15m"));
     }
 
     public static String getClusterOsUser() {
