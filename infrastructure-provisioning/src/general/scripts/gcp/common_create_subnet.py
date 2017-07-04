@@ -30,7 +30,7 @@ import ipaddress
 parser = argparse.ArgumentParser()
 parser.add_argument('--subnet_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
-parser.add_argument('--vpc_name', type=str, default='')
+parser.add_argument('--vpc_selflink', type=str, default='')
 parser.add_argument('--subnet_cidr', type=str, default='')
 args = parser.parse_args()
 
@@ -38,10 +38,10 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if args.vpc_name != '':
         if GCPMeta().get_subnet(args.subnet_name, args.region):
-            print "REQUESTED SUBNET {} ALREADY EXISTS".format(args.vpc_name)
+            print "REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name)
         else:
-            print "Creating Subnet {} in VPC {}".format(args.subnet_name, args.vpc_name)
-            GCPActions().create_subnet(args.subnet_name, args.subnet_cidr, args.vpc_name, args.region)
+            print "Creating Subnet {}".format(args.subnet_name)
+            GCPActions().create_subnet(args.subnet_name, args.subnet_cidr, args.vpc_selflink, args.region)
         print "Subnet name - {} ".format(args.subnet_name)
     else:
         sys.exit(1)

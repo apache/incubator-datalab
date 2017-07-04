@@ -82,11 +82,11 @@ class GCPActions:
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
 
-    def create_subnet(self, subnet_name, subnet_cidr, network_name, region):
+    def create_subnet(self, subnet_name, subnet_cidr, vpc_selflink, region):
         subnetwork_params = {
                 'name': subnet_name,
                 'ipCidrRange': subnet_cidr,
-                'network': network_name
+                'network': vpc_selflink
         }
         request = self.service.subnetworks().insert(
                 project=self.project, region=region, body=subnetwork_params)

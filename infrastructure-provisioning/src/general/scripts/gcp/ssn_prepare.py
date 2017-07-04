@@ -82,7 +82,7 @@ if __name__ == "__main__":
                 except:
                     print "VPC hasn't been created."
             sys.exit(1)
-    ssn_conf['network_selfLink'] = GCPMeta().get_vpc(ssn_conf['vpc_name'])['selfLink']
+    ssn_conf['vpc_selflink'] = GCPMeta().get_vpc(ssn_conf['vpc_name'])['selfLink']
 
     try:
         if os.environ['gcp_subnet_name'] == '':
@@ -92,8 +92,8 @@ if __name__ == "__main__":
             pre_defined_subnet = True
             logging.info('[CREATE SUBNET]')
             print '[CREATE SUBNET]'
-            params = "--subnet_name {} --region {} --vpc_name {} --subnet_cidr {}".\
-                format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_name'], ssn_conf['subnet_cidr'])
+            params = "--subnet_name {} --region {} --vpc_selflink {} --subnet_cidr {}".\
+                format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_selflink'], ssn_conf['subnet_cidr'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_subnet', params))
             except:
@@ -144,7 +144,7 @@ if __name__ == "__main__":
     rule['ports'] = '22'
     params['allowed'] = []
     params['allowed'].append(rule)
-    params['network'] = ssn_conf['network_selfLink']
+    params['network'] = ssn_conf['vpc_selflink']
 
     logging.info('[CREATE FIREWALL]')
     print '[CREATE FIREWALL]'
