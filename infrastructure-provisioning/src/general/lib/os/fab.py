@@ -613,7 +613,7 @@ def install_ungit(os_user):
         put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0755)
         run('git config --global init.templatedir ~/.git/templates')
         try:
-            ssn_bucket = '{}-ssn'.format(os.environ['conf_service_base_name'])
+            ssn_bucket = '{}-ssn-bucket'.format(os.environ['conf_service_base_name'])
             certfile = 'dlab-gitlab.crt'
             s3 = boto3.resource('s3')
             s3.Bucket(ssn_bucket).download_file(certfile, certfile)
