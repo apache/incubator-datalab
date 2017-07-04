@@ -44,7 +44,7 @@ if __name__ == "__main__":
     ssn_conf['zone'] = os.environ['zone']
     ssn_conf['ssn_bucket_name'] = (ssn_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
     ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
-    ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-VPC'
+    ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
     ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
     ssn_conf['subnet_cidr'] = '172.31.1.0/24'
 
