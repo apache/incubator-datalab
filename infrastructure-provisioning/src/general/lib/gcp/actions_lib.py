@@ -35,8 +35,10 @@ class GCPActions:
             credentials = ServiceAccountCredentials.from_json_keyfile_name(
                 self.key_file, scopes='https://www.googleapis.com/auth/compute')
             self.service = build('compute', 'v1', credentials=credentials)
+            self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
         else:
             self.service = build('compute', 'v1')
+            self.storage_client = storage.Client()
 
     def create_vpc(self, network_name):
         network_params = {'name': network_name, 'autoCreateSubnetworks': False}
@@ -65,12 +67,5 @@ class GCPActions:
         return request.execute()
 
     def create_bucket(self, bucket_name):
-        if os.environ['conf_resource'] == 'ssn':
-            self.key_file = '/root/service_account.json'
-            print('ServiceAccountCredentials')
-            credentials = ServiceAccountCredentials.from_json_keyfile_name(
-                self.key_file, scopes='https://www.googleapis.com/auth/devstorage.full_control')
-            self.service = build('storage', 'v1', credentials=credentials)
-        storage_client = storage.Client()
-        bucket = storage_client.create_bucket(bucket_name)
+        bucket = self.storage_client.create_bucket(bucket_name)
         print('Bucket {} created.'.format(bucket.name))
