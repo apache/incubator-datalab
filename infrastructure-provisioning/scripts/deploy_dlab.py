@@ -32,8 +32,11 @@ parser.add_argument('--conf_os_family', type=str, default='',
 parser.add_argument('--conf_cloud_provider', type=str, default='',
                     help='Where DLab should be deployed. Available options: aws, gcp')
 parser.add_argument('--aws_vpc_id', type=str, default='', help='AWS VPC ID')
+parser.add_argument('--gcp_vpc_name', type=str, default='', help='GCP VPC Name')
 parser.add_argument('--aws_subnet_id', type=str, default='', help='AWS Subnet ID')
+parser.add_argument('--gcp_subnet_name', type=str, default='', help='GCP Subnet Name')
 parser.add_argument('--aws_security_groups_ids', type=str, default='', help='One of more comma-separated Security groups IDs for SSN')
+parser.add_argument('--gcp_firewall_rules', type=str, default='', help='One of more comma-separated GCP Firewall rules for SSN')
 parser.add_argument('--key_path', type=str, default='', help='Path to admin key (WITHOUT KEY NAME)')
 parser.add_argument('--conf_key_name', type=str, default='', help='Admin key name (WITHOUT ".pem")')
 parser.add_argument('--workspace_path', type=str, default='', help='Admin key name (WITHOUT ".pem")')

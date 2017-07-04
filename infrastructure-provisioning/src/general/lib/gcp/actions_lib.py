@@ -21,7 +21,11 @@ from googleapiclient.discovery import build
 from oauth2client.client import GoogleCredentials
 from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import storage
+from googleapiclient import errors
 import os
+import logging
+import traceback
+import sys, time
 
 
 class GCPActions:
@@ -40,21 +44,84 @@ class GCPActions:
             self.service = build('compute', 'v1')
             self.storage_client = storage.Client()
 
-    def create_vpc(self, network_name):
-        network_params = {'name': network_name, 'autoCreateSubnetworks': False}
+    def create_vpc(self, vpc_name, vpc_cidr):
+        network_params = {'name': vpc_name, 'autoCreateSubnetworks': False, "IPv4Range": vpc_cidr}
         request = self.service.networks().insert(project=self.project, body=network_params)
-        return request.execute()
+        try:
+            result = request.execute()
+            vpc_created = GCPMeta().get_vpc(vpc_name)
+            while not vpc_created:
+                print "VPC {} is still being created".format(vpc_name)
+                time.sleep(5)
+                vpc_created = GCPMeta().get_vpc(vpc_name)
+            return result
+        except Exception as err:
+                logging.info(
+                    "Unable to create VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to create VPC",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
 
-    def create_subnet(self, subnet_name, ip_cidr_range, network_name, region):
+    def remove_vpc(self, vpc_name):
+        request = self.service.networks().delete(project=self.project, network=vpc_name)
+        try:
+            result = request.execute()
+            vpc_removed = GCPMeta().get_vpc(vpc_name)
+            while not vpc_removed:
+                print "VPC {} is still being removed".format(vpc_name)
+                time.sleep(5)
+                vpc_removed = GCPMeta().get_vpc(vpc_name)
+            return result
+        except Exception as err:
+                logging.info(
+                    "Unable to remove VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to remove VPC",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def create_subnet(self, subnet_name, subnet_cidr, network_name, region):
         subnetwork_params = {
                 'name': subnet_name,
-                'ipCidrRange': ip_cidr_range,
+                'ipCidrRange': subnet_cidr,
                 'network': network_name
-
         }
         request = self.service.subnetworks().insert(
                 project=self.project, region=region, body=subnetwork_params)
-        return request.execute()
+        try:
+            result = request.execute()
+            subnet_created = GCPMeta().get_subnet(subnet_name, region)
+            while not subnet_created:
+                print "Subnet {} is still being created".format(subnet_name)
+                time.sleep(5)
+                subnet_created = GCPMeta().get_subnet(subnet_name, region)
+            return result
+        except Exception as err:
+                logging.info(
+                    "Unable to create Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to create Subnet",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def remove_subnet(self, subnet_name, region):
+        request = self.service.subnetworks().delete(project=self.project, region=region, subnetwork=subnet_name)
+        try:
+            result = request.execute()
+            subnet_removed = GCPMeta().get_subnet(subnet_name, region)
+            while subnet_removed:
+                print "Subnet {} is still being removed".format(subnet_name)
+                time.sleep(5)
+                subnet_removed = GCPMeta().get_subnet(subnet_name, region)
+            return result
+        except Exception as err:
+                logging.info(
+                    "Unable to remove Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to remove Subnet",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
 
     def firewall_add(self, firewall_params):
         request = self.service.firewalls().insert(

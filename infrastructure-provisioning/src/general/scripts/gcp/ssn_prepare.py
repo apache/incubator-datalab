@@ -34,46 +34,113 @@ if __name__ == "__main__":
     instance = 'ssn'
     pre_defined_vpc = False
     pre_defined_subnet = False
-    pre_defined_sg = False
+    pre_defined_firewall = False
     logging.info('[DERIVING NAMES]')
     print '[DERIVING NAMES]'
-    service_base_name = os.environ['conf_service_base_name']
-    role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
-    role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
-    policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
-    user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
-    tag_name = service_base_name + '-Tag'
-    instance_name = service_base_name + '-ssn'
-    region = os.environ['region']
-    ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
-    policy_path = '/root/files/ssn_policy.json'
-    vpc_cidr = '10.0.1.0/24'
-    sg_name = instance_name + '-SG'
+    ssn_conf = dict()
+    ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
+    ssn_conf['vpc_cidr'] = '172.31.0.0/16'
+    ssn_conf['region'] = os.environ['region']
+    ssn_conf['zone'] = os.environ['zone']
+    ssn_conf['ssn_bucket_name'] = (ssn_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
+    ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
+    ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-VPC'
+    ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
+    ssn_conf['subnet_cidr'] = '172.31.1.0/24'
 
-    logging.info('[CREATE VPC]')
-    print '[CREATE VPC]'
-    GCPActions().create_vpc(service_base_name)
+    # service_base_name = os.environ['conf_service_base_name']
+    # role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
+    # role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
+    # policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
+    # user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
+    # tag_name = service_base_name + '-Tag'
+    # instance_name = service_base_name + '-ssn'
+    # region = os.environ['region']
+    # ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
+    # policy_path = '/root/files/ssn_policy.json'
+    # vpc_cidr = '10.0.1.0/24'
+    # sg_name = instance_name + '-SG'
 
-    time.sleep(10)
-    network_selfLink = GCPMeta().network_get(service_base_name)['selfLink']
+    try:
+        if os.environ['gcp_vpc_name'] == '':
+            raise KeyError
+    except KeyError:
+        try:
+            pre_defined_vpc = True
+            logging.info('[CREATE VPC]')
+            print '[CREATE VPC]'
+            params = "--vpc_name {} --vpc_cidr {}".format(ssn_conf['vpc_name'], ssn_conf['vpc_cidr'])
+            try:
+                local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+        except Exception as err:
+            append_result("Failed to create VPC. Exception:" + str(err))
+            sys.exit(1)
+    ssn_conf['network_selfLink'] = GCPMeta().get_vpc(ssn_conf['service_base_name'])['selfLink']
 
-    subnet_name = service_base_name + '-ssn-subnet'
-    public_net_cidr = '10.0.1.0/24'
-    time.sleep(10)
+    try:
+        if os.environ['gcp_subnet_name'] == '':
+            raise KeyError
+    except KeyError:
+        try:
+            pre_defined_subnet = True
+            logging.info('[CREATE SUBNET]')
+            print '[CREATE SUBNET]'
+            params = "--subnet_name {} --region {} --vpc_name {} --subnet_cidr {}".\
+                format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_name'], ssn_conf['subnet_cidr'])
+            try:
+                local("~/scripts/{}.py {}".format('common_create_subnet', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+        except Exception as err:
+            append_result("Failed to create Subnet.", str(err))
+            if pre_defined_vpc:
+                try:
+                    GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+                except:
+                    print "Subnet hasn't been created."
+                    GCPActions().remove_vpc(ssn_conf['vpc_name'])
+            sys.exit(1)
 
-    logging.info('[CREATE SUBNET]')
-    print '[CREATE SUBNET]'
-    GCPActions().create_subnet(subnet_name, vpc_cidr, network_selfLink, region)
+
+    try:
+        if os.environ['gcp_firewall_rules'] == '':
+            raise KeyError
+    except KeyError:
+        try:
+            pre_defined_firewall = True
+            logging.info('[CREATE FIREWALL]')
+            print '[CREATE FIREWALL]'
+            params = "--subnet_name {} --region {} --vpc_name {} --subnet_cidr {}".\
+                format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_name'], ssn_conf['subnet_cidr'])
+            try:
+                local("~/scripts/{}.py {}".format('common_create_subnet', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+        except Exception as err:
+            append_result("Failed to create Firewall.", str(err))
+            if pre_defined_vpc:
+                try:
+                    GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+                except:
+                    print "Subnet hasn't been created."
+                    GCPActions().remove_vpc(ssn_conf['vpc_name'])
+            sys.exit(1)
+
 
     params = {}
-    params['name'] = service_base_name + '-ssn-firewall'
+    params['name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
     params['sourceRanges'] = ['0.0.0.0/0']
     rule = {}
     rule['IPProtocol'] = 'tcp'
     rule['ports'] = '22'
     params['allowed'] = []
     params['allowed'].append(rule)
-    params['network'] = network_selfLink
+    params['network'] = ssn_conf['network_selfLink']
 
     logging.info('[CREATE FIREWALL]')
     print '[CREATE FIREWALL]'
@@ -81,7 +148,7 @@ if __name__ == "__main__":
 
     logging.info('[CREATE SSN BUCKET]')
     print '[CREATE SSN BUCKET]'
-    GCPActions().create_bucket(user_bucket_name)
+    GCPActions().create_bucket(ssn_conf['ssn_bucket_name'])
 
     logging.info('[CREATE SSN INSTANCE]')
     print '[CREATE SSN INSTANCE]'
@@ -89,12 +156,12 @@ if __name__ == "__main__":
     ssh_key = open('/root/keys/' + os.environ['conf_key_name'] + '.pem', 'r')
 
     instance_params = {
-          "name": instance_name,
-          "machineType": "zones/{}/machineTypes/{}".format(os.environ['zone'], os.environ['ssn_instance_size']),
+          "name": ssn_conf['instance_name'],
+          "machineType": "zones/{}/machineTypes/{}".format(ssn_conf['zone'], os.environ['ssn_instance_size']),
           "networkInterfaces": [
             {
-              "network": "global/networks/{}".format(service_base_name),
-              "subnetwork": "regions/{}/subnetworks/{}".format(os.environ['region'], subnet_name),
+              "network": "global/networks/{}".format(ssn_conf['service_base_name']),
+              "subnetwork": "regions/{}/subnetworks/{}".format(ssn_conf['region'], ssn_conf['subnet_name']),
               "accessConfigs": [
                 {
                   "type": "ONE_TO_ONE_NAT"
@@ -112,7 +179,7 @@ if __name__ == "__main__":
             },
           "disks": [
             {
-              "deviceName": instance_name,
+              "deviceName": ssn_conf['instance_name'],
               "autoDelete": 'true',
               "initializeParams": {
                 "diskSizeGb": "10",

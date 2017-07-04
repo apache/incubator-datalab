@@ -20,7 +20,12 @@ from pprint import pprint
 from googleapiclient.discovery import build
 from oauth2client.client import GoogleCredentials
 from oauth2client.service_account import ServiceAccountCredentials
+from google.cloud import storage
 import os
+from googleapiclient import errors
+import logging
+import traceback
+import sys, time
 
 
 class GCPMeta:
@@ -34,10 +39,43 @@ class GCPMeta:
             credentials = ServiceAccountCredentials.from_json_keyfile_name(
                 self.key_file, scopes='https://www.googleapis.com/auth/compute')
             self.service = build('compute', 'v1', credentials = credentials)
+            self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
         else:
             self.service = build('compute', 'v1')
+            self.storage_client = storage.Client()
 
-    def network_get(self, network_name):
+    def get_vpc(self, network_name):
         request = self.service.networks().get(
-                    project=self.project, network=network_name)
-        return request.execute()
+            project=self.project,
+            network=network_name
+        )
+        try:
+            return request.execute()
+        except errors.HttpError as err:
+            if err.resp.status == 404:
+                return ''
+        except Exception as err:
+                logging.info(
+                    "Unable to get VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to get VPC",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def get_subnet(self, subnet_name, region):
+        request = self.service.subnetworks().get(
+            project=self.project,
+            region=region,
+            subnetwork=subnet_name)
+        try:
+            return request.execute()
+        except errors.HttpError as err:
+            if err.resp.status == 404:
+                return ''
+        except Exception as err:
+                logging.info(
+                    "Unable to get Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to get Subnet",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
