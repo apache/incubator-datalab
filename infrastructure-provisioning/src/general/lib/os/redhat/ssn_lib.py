@@ -32,12 +32,13 @@ def ensure_docker_daemon(dlab_path, os_user, region):
                 mirror = 'mirror.lzu.edu.cn'
             else:
                 mirror = 'mirror.centos.org'
-            sudo('echo "[centosrepo]" > centos.repo')
-            sudo('echo "name=Centos 7 Repository" >> centos.repo')
-            sudo('echo "baseurl=http://{}/centos/7/extras/x86_64/" >> centos.repo'.format(mirror))
-            sudo('echo "enabled=1" >> centos.repo')
-            sudo('echo "gpgcheck=1" >> centos.repo')
-            sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
+            with cd('/etc/yum.repos.d/'):
+                sudo('echo "[centosrepo]" > centos.repo')
+                sudo('echo "name=Centos 7 Repository" >> centos.repo')
+                sudo('echo "baseurl=http://{}/centos/7/extras/x86_64/" >> centos.repo'.format(mirror))
+                sudo('echo "enabled=1" >> centos.repo')
+                sudo('echo "gpgcheck=1" >> centos.repo')
+                sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
             sudo('yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo')
             sudo('yum update -y')
             sudo('yum install container-selinux -y')
