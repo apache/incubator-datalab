@@ -35,7 +35,7 @@ if __name__ == "__main__":
             print "REQUESTED VPC {} ALREADY EXISTS".format(args.vpc_name)
         else:
             print "Creating VPC {}".format(args.vpc_name, args.vpc_cidr)
-            GCPActions().create_vpc(args.vpc_name)
+            GCPActions().create_vpc(args.vpc_name, args.vpc_cidr)
         print "VPC name - {} ".format(args.vpc_name)
     else:
         sys.exit(1)
