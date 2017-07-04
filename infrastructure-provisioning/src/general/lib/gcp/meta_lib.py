@@ -21,7 +21,7 @@ from googleapiclient.discovery import build
 from oauth2client.client import GoogleCredentials
 from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import storage
-from dlab import actions_lib
+import actions_lib.GCPActions
 import os
 from googleapiclient import errors
 import logging

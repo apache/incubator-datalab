@@ -22,7 +22,7 @@ from oauth2client.client import GoogleCredentials
 from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import storage
 from googleapiclient import errors
-from dlab import meta_lib
+import meta_lib.GCPMeta
 import os
 import logging
 import traceback
