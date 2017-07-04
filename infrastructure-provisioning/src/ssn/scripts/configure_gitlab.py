@@ -91,10 +91,10 @@ def install_gitlab():
         print 'Installing gitlab...'
         if os.environ['conf_os_family'] == 'debian':
             sudo('curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash')
-            sudo('apt install gitlab-ce')
+            sudo('apt install gitlab-ce -y')
         elif os.environ['conf_os_family'] == 'redhat':
             sudo('curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash')
-            sudo('yum install gitlab-ce')
+            sudo('yum install gitlab-ce -y')
         else:
             print 'Failed to install gitlab.'
             raise Exception
