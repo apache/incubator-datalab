@@ -76,6 +76,11 @@ if __name__ == "__main__":
                 raise Exception
         except Exception as err:
             append_result("Failed to create VPC. Exception:" + str(err))
+            if pre_defined_vpc:
+                try:
+                    GCPActions().remove_vpc(ssn_conf['vpc_name'])
+                except:
+                    print "VPC hasn't been created."
             sys.exit(1)
     ssn_conf['network_selfLink'] = GCPMeta().get_vpc(ssn_conf['service_base_name'])['selfLink']
 
