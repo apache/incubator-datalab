@@ -39,7 +39,6 @@ if __name__ == "__main__":
     print '[DERIVING NAMES]'
     ssn_conf = dict()
     ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
-    ssn_conf['vpc_cidr'] = '172.31.0.0/16'
     ssn_conf['region'] = os.environ['region']
     ssn_conf['zone'] = os.environ['zone']
     ssn_conf['ssn_bucket_name'] = (ssn_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
@@ -69,7 +68,7 @@ if __name__ == "__main__":
             pre_defined_vpc = True
             logging.info('[CREATE VPC]')
             print '[CREATE VPC]'
-            params = "--vpc_name {} --vpc_cidr {}".format(ssn_conf['vpc_name'], ssn_conf['vpc_cidr'])
+            params = "--vpc_name {}".format(ssn_conf['vpc_name'])
             try:
                 local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
             except:

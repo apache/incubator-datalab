@@ -25,7 +25,6 @@ from dlab.meta_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vpc_name', type=str, default='')
-parser.add_argument('--vpc_cidr', type=str, default='')
 args = parser.parse_args()
 
 
@@ -34,8 +33,8 @@ if __name__ == "__main__":
         if GCPMeta().get_vpc(args.vpc_name):
             print "REQUESTED VPC {} ALREADY EXISTS".format(args.vpc_name)
         else:
-            print "Creating VPC {}".format(args.vpc_name, args.vpc_cidr)
-            GCPActions().create_vpc(args.vpc_name, args.vpc_cidr)
+            print "Creating VPC {}".format(args.vpc_name)
+            GCPActions().create_vpc(args.vpc_name)
         print "VPC name - {} ".format(args.vpc_name)
     else:
         sys.exit(1)
