@@ -36,7 +36,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    if args.vpc_name != '':
+    if args.subnet_name != '':
         if GCPMeta().get_subnet(args.subnet_name, args.region):
             print "REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name)
         else:
