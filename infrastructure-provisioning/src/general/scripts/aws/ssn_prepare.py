@@ -156,6 +156,18 @@ if __name__ == "__main__":
                         "FromPort": -1,
                         "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
                         "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
+                    },
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 80,
+                        "IpRanges": [{"CidrIp": vpc_cidr}],
+                        "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                    },
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 443,
+                        "IpRanges": [{"CidrIp": vpc_cidr}],
+                        "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     }
                 ]
                 egress_sg_rules_template = [

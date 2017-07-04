@@ -161,6 +161,7 @@ if __name__ == "__main__":
         params = '--keyfile {0} --instance_ip {1}'.format(keyfile, os.environ['instance_hostname'])
         head, tail = os.path.split(os.path.realpath(__file__))
 
+        # Main script for configure gitlab
         try:
             local('{0}/{1}.py {2}'.format(head, 'configure_gitlab', params))
         except Exception as err:
@@ -174,7 +175,7 @@ if __name__ == "__main__":
                     put_to_bucket(bucket_name, filename, filename)
         except Exception as err:
             print 'Failed to put gitlab ssl certificate to s3 bucket.', str(err)
-            sys.exit(1)
+            # sys.exit(1)
 
 
     elif args.action == 'terminate':

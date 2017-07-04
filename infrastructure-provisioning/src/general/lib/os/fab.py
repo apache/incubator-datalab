@@ -27,6 +27,8 @@ import json, uuid, time, datetime, csv
 from dlab.meta_lib import *
 from dlab.actions_lib import *
 import re
+import boto3
+import botocore
 
 
 def ensure_pip(requisites):
@@ -606,10 +608,20 @@ def install_ungit(os_user):
         run('git config --global http.proxy $http_proxy')
         run('git config --global https.proxy $https_proxy')
         run('git config --global user.name "Example User"')
-        run('git config --global user.name "example@example.com"')
+        run('git config --global user.email "example@example.com"')
         run('mkdir -p ~/.git/templates/hooks')
         put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0755)
         run('git config --global init.templatedir ~/.git/templates')
+        try:
+            ssn_bucket = '{}-ssn'.format(os.environ['conf_service_base_name'])
+            certfile = 'dlab-gitlab.crt'
+            s3 = boto3.resource('s3')
+            s3.Bucket(ssn_bucket).download_file(certfile, certfile)
+            sudo('mv /home/{0}/{1} /etc/ssl/certs/'.format(os_user, certfile))
+        except botocore.exceptions.ClientError as err:
+            if err.response['Error']['Code'] == "404":
+                print("The object does not exist.")
+            pass
         sudo('systemctl daemon-reload')
         sudo('systemctl enable ungit.service')
         sudo('systemctl start ungit.service')
