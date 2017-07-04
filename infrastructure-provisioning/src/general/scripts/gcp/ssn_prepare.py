@@ -82,7 +82,7 @@ if __name__ == "__main__":
                 except:
                     print "VPC hasn't been created."
             sys.exit(1)
-    ssn_conf['network_selfLink'] = GCPMeta().get_vpc(ssn_conf['service_base_name'])['selfLink']
+    ssn_conf['network_selfLink'] = GCPMeta().get_vpc(ssn_conf['vpc_name'])['selfLink']
 
     try:
         if os.environ['gcp_subnet_name'] == '':
