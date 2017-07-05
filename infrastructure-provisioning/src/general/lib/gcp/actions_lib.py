@@ -51,11 +51,14 @@ class GCPActions:
         try:
             result = request.execute()
             vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
+            print "VPC STATUS------------------>>"
             print vpc_created
             while not vpc_created:
                 print "VPC {} is still being created".format(vpc_name)
                 time.sleep(5)
                 vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
+                print "VPC STATUS------------------>>"
+                print vpc_created
             return result
         except Exception as err:
                 logging.info(
