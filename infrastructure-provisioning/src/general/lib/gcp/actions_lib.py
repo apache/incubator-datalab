@@ -51,14 +51,11 @@ class GCPActions:
         try:
             result = request.execute()
             vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
-            print "VPC STATUS------------------>>"
-            print vpc_created
             while not vpc_created:
                 print "VPC {} is still being created".format(vpc_name)
                 time.sleep(5)
                 vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
-                print "VPC STATUS------------------>>"
-                print vpc_created
+            time.sleep(10)
             return result
         except Exception as err:
                 logging.info(
@@ -77,6 +74,7 @@ class GCPActions:
                 print "VPC {} is still being removed".format(vpc_name)
                 time.sleep(5)
                 vpc_removed = meta_lib.GCPMeta().get_vpc(vpc_name)
+            time.sleep(10)
             return result
         except Exception as err:
                 logging.info(
@@ -101,6 +99,7 @@ class GCPActions:
                 print "Subnet {} is still being created".format(subnet_name)
                 time.sleep(5)
                 subnet_created = meta_lib.GCPMeta().get_subnet(subnet_name, region)
+            time.sleep(10)
             return result
         except Exception as err:
                 logging.info(
@@ -119,6 +118,7 @@ class GCPActions:
                 print "Subnet {} is still being removed".format(subnet_name)
                 time.sleep(5)
                 subnet_removed = meta_lib.GCPMeta().get_subnet(subnet_name, region)
+            time.sleep(10)
             return result
         except Exception as err:
                 logging.info(
