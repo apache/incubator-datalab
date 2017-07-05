@@ -35,7 +35,6 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
             sudo('rm -f epel-release-latest-7.noarch.rpm')
             sudo('export LC_ALL=C')
             sudo('yum -y install ' + requisites)
-            sudo('mkdir /home/{}/.ensure_dir'.format(user))
             sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
         return True
     except:
