@@ -106,7 +106,7 @@ if __name__ == "__main__":
                     GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
                 except:
                     print "Subnet hasn't been created."
-                    GCPActions().remove_vpc(ssn_conf['vpc_name'])
+                GCPActions().remove_vpc(ssn_conf['vpc_name'])
             sys.exit(1)
 
 
@@ -128,11 +128,8 @@ if __name__ == "__main__":
         except Exception as err:
             append_result("Failed to create Firewall.", str(err))
             if pre_defined_vpc:
-                try:
-                    GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-                except:
-                    print "Subnet hasn't been created."
-                    GCPActions().remove_vpc(ssn_conf['vpc_name'])
+                GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+                GCPActions().remove_vpc(ssn_conf['vpc_name'])
             sys.exit(1)
 
 
