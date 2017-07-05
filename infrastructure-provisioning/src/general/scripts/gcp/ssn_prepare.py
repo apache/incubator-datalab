@@ -45,7 +45,7 @@ if __name__ == "__main__":
     ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
     ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
     ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
-    ssn_conf['subnet_cidr'] = '172.31.1.0/24'
+    ssn_conf['subnet_cidr'] = '10.10.1.0/24'
     ssn_conf['firewall_name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
 
     # service_base_name = os.environ['conf_service_base_name']

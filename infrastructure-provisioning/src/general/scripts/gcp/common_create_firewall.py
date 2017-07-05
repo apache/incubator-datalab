@@ -27,17 +27,18 @@ from botocore.exceptions import ClientError
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--firewall', type=dict)
+parser.add_argument('--firewall', type=str)
 args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    if not args.firewall:
-        if GCPMeta().get_firewall(args.firewall['name']):
-            print "REQUESTED FIREWALL {} ALREADY EXISTS".format(args.firewall['name'])
+    firewall = json.loads(args.firewall)
+    if not firewall:
+        if GCPMeta().get_firewall(firewall['name']):
+            print "REQUESTED FIREWALL {} ALREADY EXISTS".format(firewall['name'])
         else:
-            print "Creating Firewall {}".format(args.firewall['name'])
-            GCPActions().create_firewall(args.firewall)
-        print "Firewall name - {} ".format(args.firewall['name'])
+            print "Creating Firewall {}".format(firewall['name'])
+            GCPActions().create_firewall(firewall)
+        print "Firewall name - {} ".format(firewall['name'])
     else:
         sys.exit(1)
