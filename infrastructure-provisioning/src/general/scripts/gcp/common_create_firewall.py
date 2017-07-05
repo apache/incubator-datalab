@@ -33,7 +33,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     firewall = json.loads(args.firewall)
-    if not firewall:
+    if firewall:
         if GCPMeta().get_firewall(firewall['name']):
             print "REQUESTED FIREWALL {} ALREADY EXISTS".format(firewall['name'])
         else:

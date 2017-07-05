@@ -23,6 +23,7 @@ from dlab.actions_lib import *
 import sys, os
 from fabric.api import *
 from dlab.ssn_lib import *
+import json
 
 
 if __name__ == "__main__":
@@ -129,9 +130,9 @@ if __name__ == "__main__":
             firewall['allowed'].append(rule)
             firewall['network'] = ssn_conf['vpc_selflink']
 
-            params = "--firewall '{}'".format(firewall)
+            params = "--firewall '{}'".format(json.dumps(firewall))
             try:
-                local("~/scripts/{}.py {}".format('common_create_firewall', params))
+                local("~/scripts/{}.py '{}'".format('common_create_firewall', params))
             except:
                 traceback.print_exc()
                 raise Exception
