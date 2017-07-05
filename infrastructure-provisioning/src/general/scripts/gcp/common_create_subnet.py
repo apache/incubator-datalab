@@ -42,6 +42,5 @@ if __name__ == "__main__":
         else:
             print "Creating Subnet {}".format(args.subnet_name)
             GCPActions().create_subnet(args.subnet_name, args.subnet_cidr, args.vpc_selflink, args.region)
-        print "Subnet name - {} ".format(args.subnet_name)
     else:
         sys.exit(1)

@@ -35,6 +35,5 @@ if __name__ == "__main__":
         else:
             print "Creating VPC {}".format(args.vpc_name)
             GCPActions().create_vpc(args.vpc_name)
-        print "VPC name - {} ".format(args.vpc_name)
     else:
         sys.exit(1)

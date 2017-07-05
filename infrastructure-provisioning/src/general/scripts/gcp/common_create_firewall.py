@@ -39,6 +39,5 @@ if __name__ == "__main__":
         else:
             print "Creating Firewall {}".format(firewall['name'])
             GCPActions().create_firewall(firewall)
-        print "Firewall name - {} ".format(firewall['name'])
     else:
         sys.exit(1)
