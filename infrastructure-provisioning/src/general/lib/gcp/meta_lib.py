@@ -36,7 +36,6 @@ class GCPMeta:
         self.project = os.environ['gcp_project_id']
         if os.environ['conf_resource'] == 'ssn':
             self.key_file = '/root/service_account.json'
-            print('ServiceAccountCredentials')
             credentials = ServiceAccountCredentials.from_json_keyfile_name(
                 self.key_file, scopes='https://www.googleapis.com/auth/compute')
             self.service = build('compute', 'v1', credentials = credentials)
@@ -77,6 +76,23 @@ class GCPMeta:
                 logging.info(
                     "Unable to get Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
                 append_result(str({"error": "Unable to get Subnet",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def get_firewall(self, firewall_name):
+        request = self.service.firewalls().get(
+            project=self.project,
+            firewall=firewall_name)
+        try:
+            return request.execute()
+        except errors.HttpError as err:
+            if err.resp.status == 404:
+                return ''
+        except Exception as err:
+                logging.info(
+                    "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to get Firewall",
                                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)

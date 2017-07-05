@@ -36,7 +36,6 @@ class GCPActions:
         self.project = os.environ['gcp_project_id']
         if os.environ['conf_resource'] == 'ssn':
             self.key_file = '/root/service_account.json'
-            print('ServiceAccountCredentials')
             credentials = ServiceAccountCredentials.from_json_keyfile_name(
                 self.key_file, scopes='https://www.googleapis.com/auth/compute')
             self.service = build('compute', 'v1', credentials=credentials)
@@ -72,7 +71,6 @@ class GCPActions:
             result = request.execute()
             vpc_removed = meta_lib.GCPMeta().get_vpc(vpc_name)
             while vpc_removed:
-                print "VPC {} is still being removed".format(vpc_name)
                 time.sleep(5)
                 vpc_removed = meta_lib.GCPMeta().get_vpc(vpc_name)
             time.sleep(10)
@@ -118,7 +116,6 @@ class GCPActions:
             result = request.execute()
             subnet_removed = meta_lib.GCPMeta().get_subnet(subnet_name, region)
             while subnet_removed:
-                print "Subnet {} is still being removed".format(subnet_name)
                 time.sleep(5)
                 subnet_removed = meta_lib.GCPMeta().get_subnet(subnet_name, region)
             print "Subnet {} has been removed".format(subnet_name)
@@ -132,10 +129,41 @@ class GCPActions:
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
 
-    def firewall_add(self, firewall_params):
-        request = self.service.firewalls().insert(
-            project=self.project, body=firewall_params)
-        return request.execute()
+    def create_firewall(self, firewall_params):
+        request = self.service.firewalls().insert(project=self.project, body=firewall_params)
+        try:
+            result = request.execute()
+            firewall_created = meta_lib.GCPMeta().get_firewall(firewall_params['name'])
+            while not firewall_created:
+                time.sleep(5)
+                firewall_created = meta_lib.GCPMeta().get_firewall(firewall_params['name'])
+            time.sleep(10)
+            return result
+        except Exception as err:
+                logging.info(
+                    "Unable to create Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to create Firewall",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def remove_firewall(self, firewall_name):
+        request = self.service.firewalls().delete(project=self.project, body=firewall_name)
+        try:
+            result = request.execute()
+            firewall_removed = meta_lib.GCPMeta().get_firewall(firewall_name)
+            while firewall_removed:
+                time.sleep(5)
+                firewall_removed = meta_lib.GCPMeta().get_firewall(firewall_name)
+            time.sleep(10)
+            return result
+        except Exception as err:
+                logging.info(
+                    "Unable to remove Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to remove Firewall",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
 
     def create_instance(self, instance_params):
         request = self.service.instances().insert(

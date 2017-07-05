@@ -46,6 +46,7 @@ if __name__ == "__main__":
     ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
     ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
     ssn_conf['subnet_cidr'] = '172.31.1.0/24'
+    ssn_conf['firewall_name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
 
     # service_base_name = os.environ['conf_service_base_name']
     # role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
@@ -118,10 +119,19 @@ if __name__ == "__main__":
             pre_defined_firewall = True
             logging.info('[CREATE FIREWALL]')
             print '[CREATE FIREWALL]'
-            params = "--subnet_name {} --region {} --vpc_name {} --subnet_cidr {}".\
-                format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_name'], ssn_conf['subnet_cidr'])
+            firewall = {}
+            firewall['name'] = ssn_conf['firewall_name']
+            firewall['sourceRanges'] = ['0.0.0.0/0']
+            rule = {}
+            rule['IPProtocol'] = ['tcp', 'icmp']
+            rule['ports'] = ['22', '80', '8080', '443']
+            firewall['allowed'] = []
+            firewall['allowed'].append(rule)
+            firewall['network'] = ssn_conf['vpc_selflink']
+
+            params = "--firewall {}".format(firewall)
             try:
-                local("~/scripts/{}.py {}".format('common_create_subnet', params))
+                local("~/scripts/{}.py {}".format('common_create_firewall', params))
             except:
                 traceback.print_exc()
                 raise Exception
@@ -132,20 +142,6 @@ if __name__ == "__main__":
                 GCPActions().remove_vpc(ssn_conf['vpc_name'])
             sys.exit(1)
 
-
-    params = {}
-    params['name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
-    params['sourceRanges'] = ['0.0.0.0/0']
-    rule = {}
-    rule['IPProtocol'] = 'tcp'
-    rule['ports'] = '22'
-    params['allowed'] = []
-    params['allowed'].append(rule)
-    params['network'] = ssn_conf['vpc_selflink']
-
-    logging.info('[CREATE FIREWALL]')
-    print '[CREATE FIREWALL]'
-    GCPActions().firewall_add(params)
 
     logging.info('[CREATE SSN BUCKET]')
     print '[CREATE SSN BUCKET]'
