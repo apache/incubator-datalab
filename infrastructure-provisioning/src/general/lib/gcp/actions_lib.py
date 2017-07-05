@@ -22,7 +22,7 @@ from oauth2client.client import GoogleCredentials
 from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import storage
 from googleapiclient import errors
-import meta_lib.GCPMeta
+import meta_lib
 import os
 import logging
 import traceback
@@ -50,11 +50,11 @@ class GCPActions:
         request = self.service.networks().insert(project=self.project, body=network_params)
         try:
             result = request.execute()
-            vpc_created = GCPMeta().get_vpc(vpc_name)
+            vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
             while not vpc_created:
                 print "VPC {} is still being created".format(vpc_name)
                 time.sleep(5)
-                vpc_created = GCPMeta().get_vpc(vpc_name)
+                vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
             return result
         except Exception as err:
                 logging.info(
@@ -68,11 +68,11 @@ class GCPActions:
         request = self.service.networks().delete(project=self.project, network=vpc_name)
         try:
             result = request.execute()
-            vpc_removed = GCPMeta().get_vpc(vpc_name)
+            vpc_removed = meta_lib.GCPMeta().get_vpc(vpc_name)
             while not vpc_removed:
                 print "VPC {} is still being removed".format(vpc_name)
                 time.sleep(5)
-                vpc_removed = GCPMeta().get_vpc(vpc_name)
+                vpc_removed = meta_lib.GCPMeta().get_vpc(vpc_name)
             return result
         except Exception as err:
                 logging.info(
@@ -92,11 +92,11 @@ class GCPActions:
                 project=self.project, region=region, body=subnetwork_params)
         try:
             result = request.execute()
-            subnet_created = GCPMeta().get_subnet(subnet_name, region)
+            subnet_created = meta_lib.GCPMeta().get_subnet(subnet_name, region)
             while not subnet_created:
                 print "Subnet {} is still being created".format(subnet_name)
                 time.sleep(5)
-                subnet_created = GCPMeta().get_subnet(subnet_name, region)
+                subnet_created = meta_lib.GCPMeta().get_subnet(subnet_name, region)
             return result
         except Exception as err:
                 logging.info(
@@ -110,11 +110,11 @@ class GCPActions:
         request = self.service.subnetworks().delete(project=self.project, region=region, subnetwork=subnet_name)
         try:
             result = request.execute()
-            subnet_removed = GCPMeta().get_subnet(subnet_name, region)
+            subnet_removed = meta_lib.GCPMeta().get_subnet(subnet_name, region)
             while subnet_removed:
                 print "Subnet {} is still being removed".format(subnet_name)
                 time.sleep(5)
-                subnet_removed = GCPMeta().get_subnet(subnet_name, region)
+                subnet_removed = meta_lib.GCPMeta().get_subnet(subnet_name, region)
             return result
         except Exception as err:
                 logging.info(
