@@ -132,7 +132,7 @@ if __name__ == "__main__":
                     'IPProtocol': 'icmp'
                 }
             ]
-            firewall['allowed'] = []
+            #firewall['allowed'] = []
             firewall['allowed'].append(rules)
             firewall['network'] = ssn_conf['vpc_selflink']
 
