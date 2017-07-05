@@ -20,8 +20,13 @@ package com.epam.dlab.automation.test;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.Random;
 import java.util.concurrent.Callable;
 
+import com.epam.dlab.automation.test.libs.TestLibGroupStep;
+import com.epam.dlab.automation.test.libs.TestLibInstallStep;
+import com.epam.dlab.automation.test.libs.TestLibListStep;
+import com.epam.dlab.automation.test.libs.models.Lib;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -44,17 +49,17 @@ import com.jayway.restassured.response.Response;
 
 public class TestCallable implements Callable<Boolean> {
     private final static Logger LOGGER = LogManager.getLogger(TestCallable.class);
-    
+
     private final String notebookTemplate;
     private final boolean fullTest;
     private final String token, ssnExpEnvURL, ssnProUserResURL;
     private final String bucketName;
     private final String notebookName, emrName;
-    
+
     public TestCallable(String notebookTemplate, boolean fullTest) {
     	this.notebookTemplate = notebookTemplate;
         this.fullTest = fullTest;
-        
+
         this.token = NamingHelper.getSsnToken();
         this.ssnExpEnvURL = NamingHelper.getSelfServiceURL(ApiPath.EXP_ENVIRONMENT);
         this.ssnProUserResURL = NamingHelper.getSelfServiceURL(ApiPath.PROVISIONED_RES);
@@ -71,6 +76,7 @@ public class TestCallable implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         final String notebookIp = createNotebook(notebookName);
+        testLibs();
         final DeployEMRDto deployEMR = createEMR();
 
         final String emrClusterName = NamingHelper.getEmrClusterName(NamingHelper.getEmrInstanceName(notebookName, emrName));
@@ -135,7 +141,33 @@ public class TestCallable implements Callable<Boolean> {
 
        return notebookIp;
    }
-   
+
+   private void testLibs() throws Exception {
+       LOGGER.info("Install libraries  ...", notebookName);
+
+       TestLibGroupStep testLibGroupStep = new TestLibGroupStep(ApiPath.LIB_GROUPS, token, notebookName,
+               ConfigPropertyValue.getTimeoutLibGroups().getSeconds(),
+               Paths.get(PropertiesResolver.getNotebookTestLibLocation(), "lib_groups.json").toString());
+
+       testLibGroupStep.init();
+       testLibGroupStep.verify();
+
+       TestLibListStep testLibListStep = new TestLibListStep(ApiPath.LIB_LIST, token, notebookName,
+               ConfigPropertyValue.getTimeoutLibList().getSeconds(),
+               Paths.get(PropertiesResolver.getNotebookTestLibLocation(), "lib_list.json").toString());
+
+       testLibListStep.init();
+       testLibListStep.verify();
+
+       Lib lib = testLibListStep.getLibs().get(new Random().nextInt(testLibListStep.getLibs().size()));
+
+       TestLibInstallStep testLibInstallStep = new TestLibInstallStep(ApiPath.LIB_INSTALL, ApiPath.LIB_LIST_EXPLORATORY,
+               token, notebookName, ConfigPropertyValue.getTimeoutLibInstall().getSeconds(), lib);
+
+       testLibInstallStep.init();
+       testLibInstallStep.verify();
+   }
+
    private DeployEMRDto createEMR() throws Exception {
        String gettingStatus;
        LOGGER.info("7. EMR {} will be deployed for {} ...", emrName, notebookName);
@@ -187,7 +219,7 @@ public class TestCallable implements Callable<Boolean> {
 
        return deployEMR;
    }
-   
+
    private void restartNotebookAndRedeployToTerminate(DeployEMRDto deployEMR) throws Exception {
 	   restartNotebook();
 	   final String emrNewName = redeployEMR(deployEMR);
@@ -228,7 +260,7 @@ public class TestCallable implements Callable<Boolean> {
 
    private void terminateNotebook(DeployEMRDto deployEmr) throws Exception {
        terminateNotebook(deployEmr.getNotebook_name());
-       
+
        String gettingStatus = WaitForStatus.getEmrStatus(
 				new HttpRequest()
 					.webApiGet(ssnProUserResURL, token)
@@ -289,7 +321,7 @@ public class TestCallable implements Callable<Boolean> {
        Docker.checkDockerStatus(NamingHelper.getEmrContainerName(emrNewName, "create"), NamingHelper.getSsnIp());
        return emrNewName;
    }
-   
+
    private void stopEnvironment() throws Exception {
        String gettingStatus;
        LOGGER.info("8. Notebook {} will be stopped ...", notebookName);
