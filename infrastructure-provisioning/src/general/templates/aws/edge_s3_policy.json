@@ -15,7 +15,7 @@
       "Resource": [
         "arn:aws:s3:::SSN_BUCK",
         "arn:aws:s3:::BUCKET_NAME",
-        "arn:aws:s3:::COMMON_BUCK"
+        "arn:aws:s3:::SHARED_BUCK"
 	  ]
     },
     {
@@ -36,7 +36,7 @@
       ],
       "Resource": [
         "arn:aws:s3:::BUCKET_NAME/*",
-        "arn:aws:s3:::COMMON_BUCK/*"
+        "arn:aws:s3:::SHARED_BUCK/*"
       ]
     }
   ]

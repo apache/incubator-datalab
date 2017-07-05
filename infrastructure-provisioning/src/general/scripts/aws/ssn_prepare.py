@@ -54,7 +54,7 @@ if __name__ == "__main__":
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
         user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
-        common_bucket_name = (service_base_name + '-common-bucket').lower().replace('_', '-')
+        shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
@@ -247,7 +247,7 @@ if __name__ == "__main__":
             raise Exception
 
         params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {}". \
-                 format(common_bucket_name, tag_name, common_bucket_name, region)
+                 format(shared_bucket_name, tag_name, shared_bucket_name, region)
 
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))

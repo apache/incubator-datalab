@@ -49,7 +49,7 @@ if __name__ == "__main__":
     edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
     edge_conf['bucket_name'] = (edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
     edge_conf['ssn_bucket_name'] = (edge_conf['service_base_name'] + "-ssn-bucket").lower().replace('_', '-')
-    edge_conf['common_bucket_name'] = (edge_conf['service_base_name'] + "-common-bucket").lower().replace('_', '-')
+    edge_conf['shared_bucket_name'] = (edge_conf['service_base_name'] + "-shared-bucket").lower().replace('_', '-')
     edge_conf['role_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Role'
     edge_conf['role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Profile'
     edge_conf['policy_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Policy'
@@ -296,8 +296,8 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
         print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-        params = '--bucket_name {} --ssn_bucket_name {} --common_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {}'.format(
-            edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], edge_conf['common_bucket_name'], os.environ['edge_user_name'],
+        params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {}'.format(
+            edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], edge_conf['shared_bucket_name'], os.environ['edge_user_name'],
             edge_conf['role_name'], edge_conf['notebook_role_name'],  edge_conf['service_base_name'], edge_conf['region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_policy', params))
