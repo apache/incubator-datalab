@@ -132,7 +132,7 @@ if __name__ == "__main__":
 
             params = "--firewall '{}'".format(json.dumps(firewall))
             try:
-                local("~/scripts/{}.py '{}'".format('common_create_firewall', params))
+                local("~/scripts/{}.py {}".format('common_create_firewall', params))
             except:
                 traceback.print_exc()
                 raise Exception
