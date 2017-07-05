@@ -70,11 +70,12 @@ class GCPActions:
         try:
             result = request.execute()
             vpc_removed = meta_lib.GCPMeta().get_vpc(vpc_name)
-            while not vpc_removed:
+            while vpc_removed:
                 print "VPC {} is still being removed".format(vpc_name)
                 time.sleep(5)
                 vpc_removed = meta_lib.GCPMeta().get_vpc(vpc_name)
             time.sleep(10)
+            print "VPC {} has been removed".format(vpc_name)
             return result
         except Exception as err:
                 logging.info(
@@ -118,6 +119,7 @@ class GCPActions:
                 print "Subnet {} is still being removed".format(subnet_name)
                 time.sleep(5)
                 subnet_removed = meta_lib.GCPMeta().get_subnet(subnet_name, region)
+            print "Subnet {} has been removed".format(subnet_name)
             time.sleep(10)
             return result
         except Exception as err:
