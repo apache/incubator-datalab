@@ -156,7 +156,7 @@ def summary():
     data['key_name'] = os.environ['conf_key_name']
     print '[SUMMARY]'
     for key in data:
-        print key, data[key]
+        print '{0}: {1}'.format(key.title(), data[key])
 
     with open('{}tmp/gitlab/result.json'.format(os.environ['conf_dlab_path']), 'w') as result:
         result.write(json.dumps(data))
