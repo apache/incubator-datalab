@@ -39,6 +39,7 @@ public class PropertiesResolver {
     private final static String CONF_FILE_LOCATION_PROPERTY = "conf.file.location";
     private static String KEYS_DIRECTORY_LOCATION_PROPERTY = "keys.directory.location";
     private static String NOTEBOOK_TEST_DATA_COPY_SCRIPT = "notebook.test.data.copy.script";
+    private static String NOTEBOOK_TEST_LIB_LOCATION = "notebook.test.lib.location";
     private static String JUPYTER_FILES_LOCATION_PROPERTY = "scenario.jupyter.files.location";
     private static String RSTUDIO_FILES_LOCATION_PROPERTY = "scenario.rstudio.files.location";
     private static String ZEPPELIN_FILES_LOCATION_PROPERTY = "scenario.zeppelin.files.location";
@@ -95,6 +96,7 @@ public class PropertiesResolver {
             LOGGER.info(properties.getProperty(CONF_FILE_LOCATION_PROPERTY));
             LOGGER.info(properties.getProperty(KEYS_DIRECTORY_LOCATION_PROPERTY));
             LOGGER.info(properties.getProperty(NOTEBOOK_TEST_DATA_COPY_SCRIPT));
+            LOGGER.info(properties.getProperty(NOTEBOOK_TEST_LIB_LOCATION));
             LOGGER.info(properties.getProperty(JUPYTER_FILES_LOCATION_PROPERTY));
             LOGGER.info(properties.getProperty(RSTUDIO_FILES_LOCATION_PROPERTY));
             LOGGER.info(properties.getProperty(ZEPPELIN_FILES_LOCATION_PROPERTY));
@@ -127,6 +129,10 @@ public class PropertiesResolver {
 
     public static String getNotebookTestDataCopyScriptLocation() {
         return properties.getProperty(NOTEBOOK_TEST_DATA_COPY_SCRIPT);
+    }
+
+    public static String getNotebookTestLibLocation() {
+        return properties.getProperty(NOTEBOOK_TEST_LIB_LOCATION);
     }
 
     public static String getJupyterFilesLocation() {

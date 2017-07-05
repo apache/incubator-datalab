@@ -28,10 +28,11 @@ public class IsoDateModule extends SimpleModule {
 	
 	private static final long serialVersionUID = -2103066255354028256L;
 
-	/** Registers the deserializer for date type {@link IsoDateDeSerializer}.
+	/** Registers the ser/de for date type {@link IsoDateDeSerializer} and {@link IsoDateSerializer}.
 	 */
     public IsoDateModule() {
         super();
         addDeserializer(Date.class, new IsoDateDeSerializer());
+        addSerializer(Date.class, new IsoDateSerializer());
     }
 }
