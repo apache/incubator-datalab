@@ -123,11 +123,17 @@ if __name__ == "__main__":
             firewall = {}
             firewall['name'] = ssn_conf['firewall_name']
             firewall['sourceRanges'] = ['0.0.0.0/0']
-            rule = {}
-            rule['IPProtocol'] = ['tcp', 'icmp']
-            rule['ports'] = ['22', '80', '8080', '443']
+            rules = [
+                {
+                    'IPProtocol': 'tcp',
+                    'ports': ['22', '80', '8080', '443']
+                },
+                {
+                    'IPProtocol': 'icmp'
+                }
+            ]
             firewall['allowed'] = []
-            firewall['allowed'].append(rule)
+            firewall['allowed'].append(rules)
             firewall['network'] = ssn_conf['vpc_selflink']
 
             params = "--firewall '{}'".format(json.dumps(firewall))
