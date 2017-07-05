@@ -25,6 +25,7 @@ from botocore.client import Config
 import sys
 import os
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--action', required=True, type=str, default='', choices=['create', 'terminate'],
                     help='Available options: create, terminate')
@@ -146,11 +147,49 @@ def put_to_bucket(bucket_name, local_file, destination_file):
         sys.exit(1)
 
 
-if __name__ == "__main__":
-    if args.action == 'create':
-        # Read all configs
-        read_ini()
+def terminate_gitlab():
+    try:
+        ec2 = boto3.resource('ec2')
+        client = boto3.client('ec2')
+        node_name = '{0}-{1}'.format(os.environ['conf_service_base_name'], os.environ['conf_node_name'])
+        inst = ec2.instances.filter(
+            Filters=[{'Name': 'instance-state-name', 'Values': ['running', 'stopped', 'pending', 'stopping']},
+                     {'Name': 'tag:Name', 'Values': ['{}'.format(node_name)]}])
+        instances = list(inst)
+        if instances:
+            for instance in instances:
+                try:
+                    response = client.describe_instances(InstanceIds=[instance.id])
+                    for i in response.get('Reservations'):
+                        for h in i.get('Instances'):
+                            elastic_ip = h.get('PublicIpAddress')
+                            try:
+                                response = client.describe_addresses(PublicIps=[elastic_ip]).get('Addresses')
+                                for el_ip in response:
+                                    allocation_id = el_ip.get('AllocationId')
+                                    association_id = el_ip.get('AssociationId')
+                                    client.disassociate_address(AssociationId=association_id)
+                                    client.release_address(AllocationId=allocation_id)
+                                    print 'Releasing Elastic IP: {}'.format(elastic_ip)
+                            except:
+                                print 'There is no such Elastic IP: {}'.format(elastic_ip)
+                except Exception as err:
+                    print 'There is no Elastic IP to disassociate from instance: {}'.format(instance.id), str(err)
+                client.terminate_instances(InstanceIds=[instance.id])
+                waiter = client.get_waiter('instance_terminated')
+                waiter.wait(InstanceIds=[instance.id])
+                print 'The instance {} has been terminated successfully'.format(instance.id)
+        else:
+            print 'There are no instances with "{}" tag to terminate'.format(node_name)
+    except Exception as err:
+        print 'Failed to terminate gitlab instance.', str(err)
 
+
+if __name__ == "__main__":
+    # Read all configs
+    read_ini()
+
+    if args.action == 'create':
         instance_id = create_instance()
         print 'Instance {} created.'.format(instance_id)
         create_elastic_ip(instance_id)
@@ -175,11 +214,9 @@ if __name__ == "__main__":
                     put_to_bucket(bucket_name, filename, filename)
         except Exception as err:
             print 'Failed to put gitlab ssl certificate to s3 bucket.', str(err)
-            # sys.exit(1)
-
 
     elif args.action == 'terminate':
-        # TBD...
-        pass
+        terminate_gitlab()
+
     else:
         print 'Unknown action. Try again.'
