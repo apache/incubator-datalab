@@ -54,7 +54,7 @@ class GCPActions:
                 print "VPC {} is still being created".format(vpc_name)
                 time.sleep(5)
                 vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
-            time.sleep(10)
+            time.sleep(20)
             print "VPC {} has been created".format(vpc_name)
             return result
         except Exception as err:
@@ -73,7 +73,7 @@ class GCPActions:
             while vpc_removed:
                 time.sleep(5)
                 vpc_removed = meta_lib.GCPMeta().get_vpc(vpc_name)
-            time.sleep(10)
+            time.sleep(20)
             print "VPC {} has been removed".format(vpc_name)
             return result
         except Exception as err:
@@ -99,7 +99,7 @@ class GCPActions:
                 print "Subnet {} is still being created".format(subnet_name)
                 time.sleep(5)
                 subnet_created = meta_lib.GCPMeta().get_subnet(subnet_name, region)
-            time.sleep(10)
+            time.sleep(20)
             print "Subnet {} has been created".format(subnet_name)
             return result
         except Exception as err:
@@ -119,7 +119,7 @@ class GCPActions:
                 time.sleep(5)
                 subnet_removed = meta_lib.GCPMeta().get_subnet(subnet_name, region)
             print "Subnet {} has been removed".format(subnet_name)
-            time.sleep(10)
+            time.sleep(20)
             return result
         except Exception as err:
                 logging.info(
@@ -137,7 +137,7 @@ class GCPActions:
             while not firewall_created:
                 time.sleep(5)
                 firewall_created = meta_lib.GCPMeta().get_firewall(firewall_params['name'])
-            time.sleep(10)
+            time.sleep(20)
             return result
         except Exception as err:
                 logging.info(
@@ -155,7 +155,7 @@ class GCPActions:
             while firewall_removed:
                 time.sleep(5)
                 firewall_removed = meta_lib.GCPMeta().get_firewall(firewall_name)
-            time.sleep(10)
+            time.sleep(20)
             return result
         except Exception as err:
                 logging.info(
