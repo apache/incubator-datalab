@@ -129,7 +129,7 @@ if __name__ == "__main__":
             firewall['allowed'].append(rule)
             firewall['network'] = ssn_conf['vpc_selflink']
 
-            params = "--firewall {}".format(firewall)
+            params = "--firewall '{}'".format(firewall)
             try:
                 local("~/scripts/{}.py {}".format('common_create_firewall', params))
             except:
