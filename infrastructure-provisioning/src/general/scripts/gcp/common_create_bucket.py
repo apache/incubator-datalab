@@ -27,32 +27,15 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket_name', type=str, default='')
-parser.add_argument('--infra_tag_name', type=str, default='')
-parser.add_argument('--infra_tag_value', type=str, default='')
-parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    success = False
-    tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
-    if args.bucket_name != '':
-        try:
-            bucket = get_bucket_by_name(args.bucket_name)
-            if bucket == '':
-                print "Creating bucket %s with tag %s." % (args.bucket_name, json.dumps(tag))
-                bucket = create_s3_bucket(args.bucket_name, tag, args.region)
-            else:
-                print "REQUESTED BUCKET ALREADY EXISTS"
-            print "BUCKET_NAME " + bucket
-            success = True
-        except:
-            success = False
-    else:
-        parser.print_help()
-        sys.exit(2)
-
-    if success:
-        sys.exit(0)
+    if args.bucket_name:
+        if GCPMeta.get_bucket(args.bucket_name):
+            print "REQUESTED BUCKET {} ALREADY EXISTS".format(args.bucket_name)
+        else:
+            print "Creating Bucket {}".format(args.bucket_name)
+            GCPActions().create_bucket(args.bucket_name)
     else:
         sys.exit(1)

@@ -44,23 +44,12 @@ if __name__ == "__main__":
     ssn_conf['zone'] = os.environ['zone']
     ssn_conf['ssn_bucket_name'] = (ssn_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
     ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
+    ssn_conf['instance_size'] = os.environ['ssn_instance_size']
     ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
     ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
     ssn_conf['subnet_cidr'] = '10.10.1.0/24'
     ssn_conf['firewall_name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
-
-    # service_base_name = os.environ['conf_service_base_name']
-    # role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
-    # role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
-    # policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
-    # user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
-    # tag_name = service_base_name + '-Tag'
-    # instance_name = service_base_name + '-ssn'
-    # region = os.environ['region']
-    # ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
-    # policy_path = '/root/files/ssn_policy.json'
-    # vpc_cidr = '10.0.1.0/24'
-    # sg_name = instance_name + '-SG'
+    ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
 
     try:
         if os.environ['gcp_vpc_name'] == '':
@@ -133,7 +122,6 @@ if __name__ == "__main__":
                 }
             ]
             firewall['allowed'] = rules
-            #firewall['allowed'].append(rules)
             firewall['network'] = ssn_conf['vpc_selflink']
 
             params = "--firewall '{}'".format(json.dumps(firewall))
@@ -149,50 +137,44 @@ if __name__ == "__main__":
                 GCPActions().remove_vpc(ssn_conf['vpc_name'])
             sys.exit(1)
 
+    try:
+        logging.info('[CREATE BUCKETS]')
+        print('[CREATE BUCKETS]')
+        params = "--bucket_name {}".format(ssn_conf['ssn_bucket_name'])
 
-    logging.info('[CREATE SSN BUCKET]')
-    print '[CREATE SSN BUCKET]'
-    GCPActions().create_bucket(ssn_conf['ssn_bucket_name'])
+        try:
+            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Unable to create bucket.", str(err))
+        if pre_defined_firewall:
+            GCPActions.remove_firewall(ssn_conf['firewall_name'])
+        if pre_defined_subnet:
+            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+        sys.exit(1)
 
-    logging.info('[CREATE SSN INSTANCE]')
-    print '[CREATE SSN INSTANCE]'
-
-    ssh_key = open('/root/keys/' + os.environ['conf_key_name'] + '.pem', 'r')
-
-    instance_params = {
-          "name": ssn_conf['instance_name'],
-          "machineType": "zones/{}/machineTypes/{}".format(ssn_conf['zone'], os.environ['ssn_instance_size']),
-          "networkInterfaces": [
-            {
-              "network": "global/networks/{}".format(ssn_conf['vpc_name']),
-              "subnetwork": "regions/{}/subnetworks/{}".format(ssn_conf['region'], ssn_conf['subnet_name']),
-              "accessConfigs": [
-                {
-                  "type": "ONE_TO_ONE_NAT"
-                }
-              ]
-            },
-          ],
-          "metadata":
-            { "items": [
-              {
-                "key": "ssh-keys",
-                "value": "{}:{}".format(os.environ['conf_os_user'], ssh_key.read())
-              }
-              ]
-            },
-          "disks": [
-            {
-              "deviceName": ssn_conf['instance_name'],
-              "autoDelete": 'true',
-              "initializeParams": {
-                "diskSizeGb": "10",
-                "sourceImage": "/projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20170502"
-              },
-              "boot": 'true',
-              "mode": "READ_WRITE"
-            }
-          ]
-        }
-    time.sleep(30)
-    GCPActions().create_instance(instance_params)
+    try:
+        logging.info('[CREATE SSN INSTANCE]')
+        print('[CREATE SSN INSTANCE]')
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {}".\
+            format(ssn_conf['instance_name'], ssn_conf['region'], ssn_conf['zone'], ssn_conf['vpc_name'],
+                   ssn_conf['subnet_name'], ssn_conf['instance_size'], ssn_conf['ssh_key_path'])
+        try:
+            local("~/scripts/{}.py {}".format('common_create_instance', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Unable to create ssn instance.", str(err))
+        GCPActions().create_bucket(ssn_conf['ssn_bucket_name'])
+        if pre_defined_firewall:
+            GCPActions.remove_firewall(ssn_conf['firewall_name'])
+        if pre_defined_subnet:
+            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+        sys.exit(1)

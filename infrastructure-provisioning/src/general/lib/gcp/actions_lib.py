@@ -165,11 +165,99 @@ class GCPActions:
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
 
-    def create_instance(self, instance_params):
-        request = self.service.instances().insert(
-            project=self.project, zone=os.environ['zone'], body=instance_params)
-        return request.execute()
-
     def create_bucket(self, bucket_name):
-        bucket = self.storage_client.create_bucket(bucket_name)
-        print('Bucket {} created.'.format(bucket.name))
+        try:
+            bucket = self.storage_client.create_bucket(bucket_name)
+            print('Bucket {} created.'.format(bucket.name))
+        except Exception as err:
+                logging.info(
+                    "Unable to create Bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to create Bucket",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def remove_bucket(self, bucket_name):
+        try:
+            storage_resource = storage.Bucket(self.storage_client, bucket_name)
+            storage_resource.delete(force=True)
+            print('Bucket {} removed.'.format(bucket_name))
+        except Exception as err:
+                logging.info(
+                    "Unable to create Bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to create Bucket",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path):
+        ssh_key = open(ssh_key_path, 'r')
+        instance_params = {
+            "name": instance_name,
+            "machineType": "zones/{}/machineTypes/{}".format(zone, instance_size),
+            "networkInterfaces": [
+                {
+                    "network": "global/networks/{}".format(vpc_name),
+                    "subnetwork": "regions/{}/subnetworks/{}".format(region, subnet_name),
+                    "accessConfigs": [
+                        {
+                            "type": "ONE_TO_ONE_NAT"
+                        }
+                    ]
+                },
+            ],
+            "metadata":
+                {"items": [
+                    {
+                        "key": "ssh-keys",
+                        "value": "{}:{}".format(os.environ['conf_os_user'], ssh_key.read())
+                    }
+                ]
+                },
+            "disks": [
+                {
+                    "deviceName": instance_name,
+                    "autoDelete": 'true',
+                    "initializeParams": {
+                        "diskSizeGb": "10",
+                        "sourceImage": "/projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20170502"
+                    },
+                    "boot": 'true',
+                    "mode": "READ_WRITE"
+                }
+            ]
+        }
+        request = self.service.instances().insert(project=self.project, zone=zone, body=instance_params)
+        try:
+            result = request.execute()
+            instance_created = meta_lib.GCPMeta().get_instance(instance_name)
+            while not instance_created:
+                time.sleep(5)
+                instance_created = meta_lib.GCPMeta().get_instance(instance_name)
+            time.sleep(60)
+            return result
+        except Exception as err:
+                logging.info(
+                    "Unable to create Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to create Instance",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def remove_instance(self, instance_name):
+        request = self.service.instances().delete(project=self.project, zone=os.environ['zone'], instance=instance_name)
+        try:
+            result = request.execute()
+            instance_removed = meta_lib.GCPMeta().get_instance(instance_name)
+            while instance_removed:
+                time.sleep(5)
+                instance_removed = meta_lib.GCPMeta().get_instance(instance_name)
+            time.sleep(30)
+            return result
+        except Exception as err:
+                logging.info(
+                    "Unable to remove Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to remove Instance",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)

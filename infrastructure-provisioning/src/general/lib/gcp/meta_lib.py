@@ -21,6 +21,7 @@ from googleapiclient.discovery import build
 from oauth2client.client import GoogleCredentials
 from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import storage
+from google.cloud import exceptions
 import actions_lib
 import os
 from googleapiclient import errors
@@ -84,6 +85,35 @@ class GCPMeta:
         request = self.service.firewalls().get(
             project=self.project,
             firewall=firewall_name)
+        try:
+            return request.execute()
+        except errors.HttpError as err:
+            if err.resp.status == 404:
+                return ''
+        except Exception as err:
+                logging.info(
+                    "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to get Firewall",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def get_bucket(self, bucket_name):
+        try:
+            bucket = self.storage_client.get_bucket(bucket_name)
+            return bucket
+        except exceptions.NotFound:
+                return ''
+        except Exception as err:
+                logging.info(
+                    "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to get Firewall",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def get_instance(self, instance_name):
+        request = self.service.instances().get(project=self.project, zone=os.environ['zone'], instance=instance_name)
         try:
             return request.execute()
         except errors.HttpError as err:
