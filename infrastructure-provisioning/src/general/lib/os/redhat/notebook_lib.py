@@ -459,3 +459,10 @@ def install_torch(os_user):
             run('./install.sh -b')
         run('source /home/{}/.bashrc'.format(os_user))
         sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
+
+
+def install_gitlab_cert(os_user, certfile):
+    if not exists('/home/{}/.ensure_dir/gitlab_cert'.format(os_user)):
+        sudo('mv /home/{0}/{1} /etc/pki/ca-trust/source/anchors/{1}'.format(os_user, certfile))
+        sudo('update-ca-trust')
+        sudo('touch /home/{}/.ensure_dir/gitlab_cert'.format(os_user))

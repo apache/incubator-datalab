@@ -26,9 +26,8 @@ import string
 import json, uuid, time, datetime, csv
 from dlab.meta_lib import *
 from dlab.actions_lib import *
+from dlab.notebook_lib import *
 import re
-import boto3
-import botocore
 
 
 def ensure_pip(requisites):
@@ -612,17 +611,12 @@ def install_ungit(os_user):
         run('mkdir -p ~/.git/templates/hooks')
         put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0755)
         run('git config --global init.templatedir ~/.git/templates')
-        try:
-            ssn_bucket = '{}-ssn-bucket'.format(os.environ['conf_service_base_name'])
-            certfile = 'dlab-gitlab.crt'
-            s3 = boto3.resource('s3')
-            s3.Bucket(ssn_bucket).download_file(certfile, certfile)
-            sudo('mv /home/{0}/{1} /etc/ssl/certs/'.format(os_user, certfile))
-        except botocore.exceptions.ClientError as err:
-            if err.response['Error']['Code'] == "404":
-                print("The object does not exist.")
-            pass
         sudo('systemctl daemon-reload')
         sudo('systemctl enable ungit.service')
         sudo('systemctl start ungit.service')
+        certfile = 'dlab-gitlab.crt'
+        if get_gitlab_cert('{}-ssn-bucket'.format(os.environ['conf_service_base_name']), certfile):
+            put(certfile, certfile)
+            sudo('chown root:root {}'.format(certfile))
+            install_gitlab_cert(os_user, certfile)
         sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))

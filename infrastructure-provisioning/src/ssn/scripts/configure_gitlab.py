@@ -145,14 +145,21 @@ def configure_gitlab():
 
 
 def summary():
+    data = dict()
+    data['gitlab_hostname'] = os.environ['instance_hostname']
+    data['root_password'] = os.environ['gitlab_root_password']
+    data['ssl_enabled'] = json.loads(os.environ['gitlab_ssl_enabled'])
+    data['signup_enabled'] = json.loads(os.environ['gitlab_signup_enabled'])
+    data['public_repos'] = json.loads(os.environ['gitlab_public_repos'])
+    data['os_family'] = os.environ['conf_os_family']
+    data['os_user'] = os.environ['conf_os_user']
+    data['key_name'] = os.environ['conf_key_name']
     print '[SUMMARY]'
-    print 'Gitlab hostname: {}'.format(os.environ['instance_hostname'])
-    print 'Gitlab username: {}'.format(os.environ['conf_os_user'])
-    print 'Keyname: {}'.format(os.environ['conf_key_name'])
-    print 'Gitlab ROOT password: {}'.format(os.environ['gitlab_root_password'])
-    print 'SSL enabled: {}'.format(json.loads(os.environ['gitlab_ssl_enabled']))
-    print 'Signup enabled: {}'.format(json.loads(os.environ['gitlab_signup_enabled']))
-    print 'Public repos: {}'.format(json.loads(os.environ['gitlab_public_repos']))
+    for key in data:
+        print key, data[key]
+
+    with open('{}tmp/gitlab/result.json'.format(os.environ['conf_dlab_path']), 'w') as result:
+        result.write(json.dumps(data))
 
 
 if __name__ == "__main__":
