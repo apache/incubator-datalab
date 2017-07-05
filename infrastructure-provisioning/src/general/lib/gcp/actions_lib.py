@@ -56,6 +56,7 @@ class GCPActions:
                 time.sleep(5)
                 vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
             time.sleep(10)
+            print "VPC {} has been created".format(vpc_name)
             return result
         except Exception as err:
                 logging.info(
@@ -101,6 +102,7 @@ class GCPActions:
                 time.sleep(5)
                 subnet_created = meta_lib.GCPMeta().get_subnet(subnet_name, region)
             time.sleep(10)
+            print "Subnet {} has been created".format(subnet_name)
             return result
         except Exception as err:
                 logging.info(
