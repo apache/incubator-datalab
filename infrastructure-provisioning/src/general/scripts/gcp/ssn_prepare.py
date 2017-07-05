@@ -158,7 +158,7 @@ if __name__ == "__main__":
           "machineType": "zones/{}/machineTypes/{}".format(ssn_conf['zone'], os.environ['ssn_instance_size']),
           "networkInterfaces": [
             {
-              "network": "global/networks/{}".format(ssn_conf['service_base_name']),
+              "network": "global/networks/{}".format(ssn_conf['vpc_name']),
               "subnetwork": "regions/{}/subnetworks/{}".format(ssn_conf['region'], ssn_conf['subnet_name']),
               "accessConfigs": [
                 {
