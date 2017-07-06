@@ -158,7 +158,7 @@ def summary():
     for key in data:
         print '{0}: {1}'.format(key.title(), data[key])
 
-    with open('{}tmp/gitlab/result.json'.format(os.environ['conf_dlab_path']), 'w') as result:
+    with open('{}tmp/result/gitlab.json'.format(os.environ['conf_dlab_path']), 'w') as result:
         result.write(json.dumps(data))
 
 
