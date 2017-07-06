@@ -126,3 +126,20 @@ class GCPMeta:
                                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
+
+    def get_instance_public_ip_by_name(self, instance_name):
+        try:
+            result = GCPMeta().get_instance(instance_name)
+            if result:
+                for i in result.get('networkInterfaces'):
+                    for j in i.get('accessConfigs'):
+                        return j.get('natIP')
+            else:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get Instance IP: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Instance IP",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)

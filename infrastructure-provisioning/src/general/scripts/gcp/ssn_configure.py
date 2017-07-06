@@ -20,6 +20,7 @@
 
 from dlab.fab import *
 from dlab.actions_lib import *
+from dlab.meta_lib import *
 import sys, os
 from fabric.api import *
 from dlab.ssn_lib import *
@@ -36,44 +37,55 @@ if __name__ == "__main__":
     try:
         logging.info('[DERIVING NAMES]')
         print '[DERIVING NAMES]'
-        service_base_name = os.environ['conf_service_base_name']
-        role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
-        role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
-        policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
-        user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
-        tag_name = service_base_name + '-Tag'
-        instance_name = service_base_name + '-ssn'
-        region = os.environ['region']
-        ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
-        ssn_ami_id = get_ami_id(ssn_ami_name)
-        policy_path = '/root/files/ssn_policy.json'
-        vpc_cidr = '172.31.0.0/16'
-        sg_name = instance_name + '-SG'
+        # service_base_name = os.environ['conf_service_base_name']
+        # role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
+        # role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
+        # policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
+        # user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
+        # tag_name = service_base_name + '-Tag'
+        # instance_name = service_base_name + '-ssn'
+        # region = os.environ['region']
+        # ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
+        # ssn_ami_id = get_ami_id(ssn_ami_name)
+        # policy_path = '/root/files/ssn_policy.json'
+        # vpc_cidr = '172.31.0.0/16'
+        # sg_name = instance_name + '-SG'
         pre_defined_vpc = False
         pre_defined_subnet = False
-        pre_defined_sg = False
-        billing_enabled = True
-        dlab_ssh_user = os.environ['conf_os_user']
+        pre_defined_firewall = False
+        billing_enabled = False
+        # dlab_ssh_user = os.environ['conf_os_user']
+
+        ssn_conf = dict()
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
+        ssn_conf['region'] = os.environ['region']
+        ssn_conf['zone'] = os.environ['zone']
+        ssn_conf['ssn_bucket_name'] = (ssn_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
+        ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
+        ssn_conf['instance_size'] = os.environ['ssn_instance_size']
+        ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
+        ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
+        ssn_conf['subnet_cidr'] = '10.10.1.0/24'
+        ssn_conf['firewall_name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
+        ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+
         try:
-            if os.environ['aws_vpc_id'] == '':
+            if os.environ['gcp_vpc_name'] == '':
                 raise KeyError
         except KeyError:
-            tag = {"Key": tag_name, "Value": "{}-subnet".format(service_base_name)}
-            os.environ['aws_vpc_id'] = get_vpc_by_tag(tag_name, service_base_name)
             pre_defined_vpc = True
         try:
-            if os.environ['aws_subnet_id'] == '':
+            if os.environ['gcp_subnet_name'] == '':
                 raise KeyError
         except KeyError:
-            tag = {"Key": tag_name, "Value": "{}-subnet".format(service_base_name)}
-            os.environ['aws_subnet_id'] = get_subnet_by_tag(tag, True)
             pre_defined_subnet = True
         try:
-            if os.environ['aws_security_groups_ids'] == '':
+            if os.environ['gcp_firewall_rules'] == '':
                 raise KeyError
         except KeyError:
-            os.environ['aws_security_groups_ids'] = get_security_group_by_name(sg_name)
-            pre_defined_sg = True
+            pre_defined_firewall = True
+
         try:
             if os.environ['aws_account_id'] == '':
                 raise KeyError
@@ -89,48 +101,13 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        if os.environ['conf_os_family'] == 'debian':
-            initial_user = 'ubuntu'
-            sudo_group = 'sudo'
-        if os.environ['conf_os_family'] == 'redhat':
-            initial_user = 'ec2-user'
-            sudo_group = 'wheel'
-
-        logging.info('[CREATING DLAB SSH USER]')
-        print('[CREATING DLAB SSH USER]')
-        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (get_instance_hostname(tag_name, instance_name), "/root/keys/" + os.environ['conf_key_name'] + ".pem",
-             initial_user, dlab_ssh_user, sudo_group)
-
-        try:
-            local("~/scripts/{}.py {}".format('create_ssh_user', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed creating ssh user 'dlab'.", str(err))
-        remove_ec2(tag_name, instance_name)
-        remove_all_iam_resources(instance)
-        remove_s3(instance)
-        if pre_defined_sg:
-            remove_sgroups(tag_name)
-        if pre_defined_subnet:
-            remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-            remove_subnets(service_base_name + "-subnet")
-        if pre_defined_vpc:
-            remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            remove_route_tables(tag_name, True)
-            remove_vpc(os.environ['aws_vpc_id'])
-        sys.exit(1)
-
-    try:
-        instance_hostname = get_instance_hostname(tag_name, instance_name)
+        instance_hostname = GCPMeta().get_instance_public_ip_by_name(ssn_conf['instance_name'])
 
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric awscli pymongo pyyaml' --user {} --region {}". \
-            format(instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", dlab_ssh_user,
-                   os.environ['region'])
+            format(instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", ssn_conf['dlab_ssh_user'],
+                   ssn_conf['region'])
 
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
@@ -139,28 +116,27 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing software: pip, packages.", str(err))
-        remove_ec2(tag_name, instance_name)
-        remove_all_iam_resources(instance)
-        remove_s3(instance)
-        if pre_defined_sg:
-            remove_sgroups(tag_name)
+        GCPActions().remove_instance(ssn_conf['instance_name'])
+        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
+        if pre_defined_firewall:
+            GCPActions().remove_firewall(ssn_conf['firewall_name'])
         if pre_defined_subnet:
-            remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-            remove_subnets(service_base_name + "-subnet")
+            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            remove_route_tables(tag_name, True)
-            remove_vpc(os.environ['aws_vpc_id'])
+            GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
     try:
         logging.info('[CONFIGURE SSN INSTANCE]')
         print('[CONFIGURE SSN INSTANCE]')
-        additional_config = {"nginx_template_dir": "/root/templates/", "service_base_name": service_base_name, "security_group_id": os.environ['aws_security_groups_ids'], "vpc_id": os.environ['aws_vpc_id'], "subnet_id": os.environ['aws_subnet_id'], "admin_key": os.environ['conf_key_name']}
+        additional_config = {"nginx_template_dir": "/root/templates/",
+                             "service_base_name": ssn_conf['service_base_name'],
+                             "security_group_id": ssn_conf['firewall_name'], "vpc_id": ssn_conf['vpc_name'],
+                             "subnet_id": ssn_conf['subnet_name'], "admin_key": os.environ['conf_key_name']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),
-                   json.dumps(additional_config), dlab_ssh_user, os.environ['ssn_dlab_path'],
-                   os.environ['conf_tag_resource_id'])
+                   json.dumps(additional_config), ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
+                   ssn_conf['service_base_name'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_ssn_node', params))
@@ -169,18 +145,14 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed configuring ssn.", str(err))
-        remove_ec2(tag_name, instance_name)
-        remove_all_iam_resources(instance)
-        remove_s3(instance)
-        if pre_defined_sg:
-            remove_sgroups(tag_name)
+        GCPActions().remove_instance(ssn_conf['instance_name'])
+        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
+        if pre_defined_firewall:
+            GCPActions().remove_firewall(ssn_conf['firewall_name'])
         if pre_defined_subnet:
-            remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-            remove_subnets(service_base_name + "-subnet")
+            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            remove_route_tables(tag_name, True)
-            remove_vpc(os.environ['aws_vpc_id'])
+            GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
     try:
@@ -196,8 +168,8 @@ if __name__ == "__main__":
                              {"name": "emr", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),
-                   json.dumps(additional_config), os.environ['conf_os_family'], dlab_ssh_user,
-                   os.environ['ssn_dlab_path'], os.environ['conf_cloud_provider'], os.environ['region'])
+                   json.dumps(additional_config), os.environ['conf_os_family'], ssn_conf['dlab_ssh_user'],
+                   os.environ['ssn_dlab_path'], os.environ['conf_cloud_provider'], ssn_conf['region'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_docker', params))
@@ -206,18 +178,14 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Unable to configure docker.", str(err))
-        remove_ec2(tag_name, instance_name)
-        remove_all_iam_resources(instance)
-        remove_s3(instance)
-        if pre_defined_sg:
-            remove_sgroups(tag_name)
+        GCPActions().remove_instance(ssn_conf['instance_name'])
+        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
+        if pre_defined_firewall:
+            GCPActions().remove_firewall(ssn_conf['firewall_name'])
         if pre_defined_subnet:
-            remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-            remove_subnets(service_base_name + "-subnet")
+            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            remove_route_tables(tag_name, True)
-            remove_vpc(os.environ['aws_vpc_id'])
+            GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
     try:
@@ -225,9 +193,9 @@ if __name__ == "__main__":
         print('[CONFIGURE SSN INSTANCE UI]')
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']), os.environ['ssn_dlab_path'],
-                   dlab_ssh_user, os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'], os.environ['region'],
-                   os.environ['conf_service_base_name'], os.environ['aws_security_groups_ids'], os.environ['aws_vpc_id'],
-                   os.environ['aws_subnet_id'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
+                   ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'], ssn_conf['region'],
+                   ssn_conf['service_base_name'], ssn_conf['firewall_name'], ssn_conf['vpc_name'],
+                   ssn_conf['subnet_name'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
                    os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],
                    billing_enabled)
 
@@ -238,39 +206,35 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Unable to configure UI.", str(err))
-        remove_ec2(tag_name, instance_name)
-        remove_all_iam_resources(instance)
-        remove_s3(instance)
-        if pre_defined_sg:
-            remove_sgroups(tag_name)
+        GCPActions().remove_instance(ssn_conf['instance_name'])
+        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
+        if pre_defined_firewall:
+            GCPActions().remove_firewall(ssn_conf['firewall_name'])
         if pre_defined_subnet:
-            remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-            remove_subnets(service_base_name + "-subnet")
+            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            remove_route_tables(tag_name, True)
-            remove_vpc(os.environ['aws_vpc_id'])
+            GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
     try:
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
-        print "Service base name: " + service_base_name
-        print "SSN Name: " + instance_name
+        print "Service base name: " + ssn_conf['service_base_name']
+        print "SSN Name: " + ssn_conf['instance_name']
         print "SSN Hostname: " + instance_hostname
-        print "Role name: " + role_name
-        print "Role profile name: " + role_profile_name
-        print "Policy name: " + policy_name
+        #print "Role name: " + role_name
+        #print "Role profile name: " + role_profile_name
+        #print "Policy name: " + policy_name
         print "Key name: " + os.environ['conf_key_name']
-        print "VPC ID: " + os.environ['aws_vpc_id']
-        print "Subnet ID: " + os.environ['aws_subnet_id']
-        print "Security IDs: " + os.environ['aws_security_groups_ids']
-        print "SSN instance shape: " + os.environ['ssn_instance_size']
-        print "SSN AMI name: " + ssn_ami_name
-        print "SSN bucket name: " + user_bucket_name
-        print "Region: " + region
-        jenkins_url = "http://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
-        jenkins_url_https = "https://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
+        print "VPC Name: " + ssn_conf['vpc_name']
+        print "Subnet Name: " + ssn_conf['subnet_name']
+        print "Firewall Names: " + ssn_conf['firewall_name']
+        print "SSN instance size: " + os.environ['ssn_instance_size']
+        #print "SSN AMI name: " + ssn_ami_name
+        print "SSN bucket name: " + ssn_conf['ssn_bucket_name']
+        print "Region: " + ssn_conf['region']
+        jenkins_url = "http://{}/jenkins".format(instance_hostname)
+        jenkins_url_https = "https://{}/jenkins".format(instance_hostname)
         print "Jenkins URL: " + jenkins_url
         print "Jenkins URL HTTPS: " + jenkins_url_https
         try:
@@ -280,44 +244,34 @@ if __name__ == "__main__":
             print "Jenkins is either configured already or have issues in configuration routine."
 
         with open("/root/result.json", 'w') as f:
-            res = {"service_base_name": service_base_name,
-                   "instance_name": instance_name,
-                   "instance_hostname": get_instance_hostname(tag_name, instance_name),
-                   "role_name": role_name,
-                   "role_profile_name": role_profile_name,
-                   "policy_name": policy_name,
+            res = {"service_base_name": ssn_conf['service_base_name'],
+                   "instance_name": ssn_conf['instance_name'],
+                   "instance_hostname": instance_hostname,
+                   #"role_name": role_name,
+                   #"role_profile_name": role_profile_name,
+                   #"policy_name": policy_name,
                    "master_keyname": os.environ['conf_key_name'],
-                   "vpc_id": os.environ['aws_vpc_id'],
-                   "subnet_id": os.environ['aws_subnet_id'],
-                   "security_id": os.environ['aws_security_groups_ids'],
+                   "vpc_id": ssn_conf['vpc_name'],
+                   "subnet_id": ssn_conf['subnet_name'],
+                   "security_id": ssn_conf['firewall_name'],
                    "instance_shape": os.environ['ssn_instance_size'],
-                   "bucket_name": user_bucket_name,
-                   "region": region,
+                   "bucket_name": ssn_conf['ssn_bucket_name'],
+                   "region": ssn_conf['region'],
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))
 
         print 'Upload response file'
-        params = "--instance_name {} --local_log_filepath {} --os_user {}".format(instance_name, local_log_filepath,
-                                                                                  dlab_ssh_user)
+        params = "--instance_name {} --local_log_filepath {} --os_user {}".format(ssn_conf['instance_name'],
+                                                                                  local_log_filepath,
+                                                                                  ssn_conf['dlab_ssh_user'])
         local("~/scripts/{}.py {}".format('upload_response_file', params))
-
-        logging.info('[FINALIZE]')
-        print('[FINALIZE]')
-        params = ""
-        if os.environ['conf_lifecycle_stage'] == 'prod':
-            params += "--key_id {}".format(os.environ['aws_access_key'])
-            local("~/scripts/{}.py {}".format('ssn_finalize', params))
     except:
-        remove_ec2(tag_name, instance_name)
-        remove_all_iam_resources(instance)
-        remove_s3(instance)
-        if pre_defined_sg:
-            remove_sgroups(tag_name)
+        GCPActions().remove_instance(ssn_conf['instance_name'])
+        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
+        if pre_defined_firewall:
+            GCPActions().remove_firewall(ssn_conf['firewall_name'])
         if pre_defined_subnet:
-            remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-            remove_subnets(service_base_name + "-subnet")
+            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            remove_route_tables(tag_name, True)
-            remove_vpc(os.environ['aws_vpc_id'])
+            GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)

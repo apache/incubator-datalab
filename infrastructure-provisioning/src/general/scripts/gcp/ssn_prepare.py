@@ -170,7 +170,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Unable to create ssn instance.", str(err))
-        GCPActions().create_bucket(ssn_conf['ssn_bucket_name'])
+        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         if pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'])
         if pre_defined_subnet:
