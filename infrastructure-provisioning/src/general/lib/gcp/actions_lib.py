@@ -238,6 +238,7 @@ class GCPActions:
                 time.sleep(5)
                 instance_created = meta_lib.GCPMeta().get_instance(instance_name)
             time.sleep(60)
+            print('Instance {} created.'.format(instance_name))
             return result
         except Exception as err:
                 logging.info(
