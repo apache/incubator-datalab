@@ -139,6 +139,7 @@ class GCPActions:
                 time.sleep(5)
                 firewall_created = meta_lib.GCPMeta().get_firewall(firewall_params['name'])
             time.sleep(30)
+            print('Firewall {} created.'.format(firewall_params['name']))
             return result
         except Exception as err:
                 logging.info(
@@ -157,6 +158,7 @@ class GCPActions:
                 time.sleep(5)
                 firewall_removed = meta_lib.GCPMeta().get_firewall(firewall_name)
             time.sleep(30)
+            print('Firewall {} removed.'.format(firewall_name))
             return result
         except Exception as err:
                 logging.info(
