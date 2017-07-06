@@ -297,8 +297,8 @@ if __name__ == "__main__":
             f.write(json.dumps(res))
 
         print 'Upload response file'
-        params = "--instance_name {} --local_log_filepath {} --os_user {}".format(instance_name, local_log_filepath,
-                                                                                  dlab_ssh_user)
+        params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}".\
+            format(instance_name, local_log_filepath, dlab_ssh_user, instance_hostname)
         local("~/scripts/{}.py {}".format('upload_response_file', params))
 
         logging.info('[FINALIZE]')
