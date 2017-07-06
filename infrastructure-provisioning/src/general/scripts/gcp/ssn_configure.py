@@ -113,8 +113,7 @@ if __name__ == "__main__":
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem",
-             initial_user, ssn_conf['dlab_ssh_user'], sudo_group)
+            (instance_hostname, ssn_conf['ssh_key_path'], initial_user, ssn_conf['dlab_ssh_user'], sudo_group)
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -137,8 +136,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric awscli pymongo pyyaml' --user {} --region {}". \
-            format(instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", ssn_conf['dlab_ssh_user'],
-                   ssn_conf['region'])
+            format(instance_hostname, ssn_conf['ssh_key_path'], ssn_conf['dlab_ssh_user'], ssn_conf['region'])
 
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
@@ -165,9 +163,8 @@ if __name__ == "__main__":
                              "security_group_id": ssn_conf['firewall_name'], "vpc_id": ssn_conf['vpc_name'],
                              "subnet_id": ssn_conf['subnet_name'], "admin_key": os.environ['conf_key_name']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
-            format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),
-                   json.dumps(additional_config), ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
-                   ssn_conf['service_base_name'])
+            format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),
+                   ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_ssn_node', params))
@@ -198,9 +195,9 @@ if __name__ == "__main__":
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "emr", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
-            format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),
-                   json.dumps(additional_config), os.environ['conf_os_family'], ssn_conf['dlab_ssh_user'],
-                   os.environ['ssn_dlab_path'], os.environ['conf_cloud_provider'], ssn_conf['region'])
+            format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),
+                   os.environ['conf_os_family'], ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
+                   os.environ['conf_cloud_provider'], ssn_conf['region'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_docker', params))
@@ -223,9 +220,9 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
-            format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']), os.environ['ssn_dlab_path'],
-                   ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'], ssn_conf['region'],
-                   ssn_conf['service_base_name'], ssn_conf['firewall_name'], ssn_conf['vpc_name'],
+            format(instance_hostname, ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
+                   os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'],
+                   ssn_conf['region'], ssn_conf['service_base_name'], ssn_conf['firewall_name'], ssn_conf['vpc_name'],
                    ssn_conf['subnet_name'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
                    os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],
                    billing_enabled)

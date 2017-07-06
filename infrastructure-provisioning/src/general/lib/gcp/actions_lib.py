@@ -27,6 +27,7 @@ import os
 import logging
 import traceback
 import sys, time
+from Crypto.PublicKey import RSA
 
 
 class GCPActions:
@@ -192,7 +193,8 @@ class GCPActions:
 
     def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path,
                         initial_user):
-        ssh_key = open(ssh_key_path, 'r')
+        key = RSA.importKey(open(ssh_key_path, 'rb').read())
+        ssh_key = key.publickey().exportKey("OpenSSH")
         instance_params = {
             "name": instance_name,
             "machineType": "zones/{}/machineTypes/{}".format(zone, instance_size),
@@ -211,7 +213,7 @@ class GCPActions:
                 {"items": [
                     {
                         "key": "ssh-keys",
-                        "value": "{}:{}".format(initial_user, ssh_key.read())
+                        "value": "{}:{}".format(initial_user, ssh_key)
                     }
                 ]
                 },
