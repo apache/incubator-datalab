@@ -27,6 +27,7 @@ import string
 import sys
 import os
 from dlab.notebook_lib import *
+from dlab.actions_lib import *
 from dlab.fab import *
 
 parser = argparse.ArgumentParser()
@@ -71,6 +72,7 @@ elif args.region == 'cn-north-1':
 else:
     endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
+gitlab_certfile = 'dlab-gitlab.crt'
 
 
 def configure_zeppelin(os_user):
@@ -235,4 +237,6 @@ if __name__ == "__main__":
 
     print "Install Ungit"
     install_nodejs(args.os_user)
-    install_ungit(args.os_user)
+    install_ungit(args.os_user, gitlab_certfile)
+    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+        install_gitlab_cert(args.os_user, gitlab_certfile)

@@ -26,7 +26,6 @@ import string
 import json, uuid, time, datetime, csv
 from dlab.meta_lib import *
 from dlab.actions_lib import *
-from dlab.notebook_lib import *
 import re
 
 
@@ -598,25 +597,26 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             sys.exit(1)
 
 
-def install_ungit(os_user):
+def install_ungit(os_user, certfile):
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
-        sudo('npm -g install ungit')
-        put('/root/templates/ungit.service', '/tmp/ungit.service')
-        sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
-        sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')
-        run('git config --global http.proxy $http_proxy')
-        run('git config --global https.proxy $https_proxy')
-        run('git config --global user.name "Example User"')
-        run('git config --global user.email "example@example.com"')
-        run('mkdir -p ~/.git/templates/hooks')
-        put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0755)
-        run('git config --global init.templatedir ~/.git/templates')
-        sudo('systemctl daemon-reload')
-        sudo('systemctl enable ungit.service')
-        sudo('systemctl start ungit.service')
-        certfile = 'dlab-gitlab.crt'
-        if get_gitlab_cert('{}-ssn-bucket'.format(os.environ['conf_service_base_name']), certfile):
-            put(certfile, certfile)
-            sudo('chown root:root {}'.format(certfile))
-            install_gitlab_cert(os_user, certfile)
-        sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
+        try:
+            sudo('npm -g install ungit')
+            put('/root/templates/ungit.service', '/tmp/ungit.service')
+            sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
+            sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')
+            run('git config --global http.proxy $http_proxy')
+            run('git config --global https.proxy $https_proxy')
+            run('git config --global user.name "Example User"')
+            run('git config --global user.email "example@example.com"')
+            run('mkdir -p ~/.git/templates/hooks')
+            put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0755)
+            run('git config --global init.templatedir ~/.git/templates')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable ungit.service')
+            sudo('systemctl start ungit.service')
+            if get_gitlab_cert('{}-ssn-bucket'.format(os.environ['conf_service_base_name']), certfile):
+                put(certfile, certfile)
+                sudo('chown root:root {}'.format(certfile))
+            sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
+        except:
+            sys.exit(1)
