@@ -33,6 +33,7 @@ parser.add_argument('--vpc_name', type=str, default='')
 parser.add_argument('--subnet_name', type=str, default='')
 parser.add_argument('--instance_size', type=str, default='')
 parser.add_argument('--ssh_key_path', type=str, default='')
+parser.add_argument('--initial_user', type=str, default='')
 args = parser.parse_args()
 
 
@@ -43,6 +44,6 @@ if __name__ == "__main__":
         else:
             print "Creating Instance {}".format(args.instance_name)
             GCPActions().create_instance(args.instance_name, args.region, args.zone, args.vpc_name, args.subnet_name,
-                                         args.instance_size, args.ssh_key_path)
+                                         args.instance_size, args.ssh_key_path, args.initial_user)
     else:
         sys.exit(1)

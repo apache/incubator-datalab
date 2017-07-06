@@ -190,7 +190,8 @@ class GCPActions:
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
 
-    def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path):
+    def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path,
+                        initial_user):
         ssh_key = open(ssh_key_path, 'r')
         instance_params = {
             "name": instance_name,
@@ -210,7 +211,7 @@ class GCPActions:
                 {"items": [
                     {
                         "key": "ssh-keys",
-                        "value": "{}:{}".format(os.environ['conf_os_user'], ssh_key.read())
+                        "value": "{}:{}".format(initial_user, ssh_key.read())
                     }
                 ]
                 },

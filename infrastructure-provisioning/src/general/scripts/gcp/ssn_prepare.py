@@ -157,12 +157,19 @@ if __name__ == "__main__":
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
+    if os.environ['conf_os_family'] == 'debian':
+        initial_user = 'ubuntu'
+        sudo_group = 'sudo'
+    if os.environ['conf_os_family'] == 'redhat':
+        initial_user = 'ec2-user'
+        sudo_group = 'wheel'
+
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {}".\
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {}".\
             format(ssn_conf['instance_name'], ssn_conf['region'], ssn_conf['zone'], ssn_conf['vpc_name'],
-                   ssn_conf['subnet_name'], ssn_conf['instance_size'], ssn_conf['ssh_key_path'])
+                   ssn_conf['subnet_name'], ssn_conf['instance_size'], ssn_conf['ssh_key_path'], initial_user)
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

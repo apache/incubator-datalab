@@ -100,9 +100,40 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
-    try:
-        instance_hostname = GCPMeta().get_instance_public_ip_by_name(ssn_conf['instance_name'])
+    instance_hostname = GCPMeta().get_instance_public_ip_by_name(ssn_conf['instance_name'])
 
+    try:
+        if os.environ['conf_os_family'] == 'debian':
+            initial_user = 'ubuntu'
+            sudo_group = 'sudo'
+        if os.environ['conf_os_family'] == 'redhat':
+            initial_user = 'ec2-user'
+            sudo_group = 'wheel'
+
+        logging.info('[CREATING DLAB SSH USER]')
+        print('[CREATING DLAB SSH USER]')
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
+            (instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem",
+             initial_user, ssn_conf['dlab_ssh_user'], sudo_group)
+
+        try:
+            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed creating ssh user 'dlab-user'.", str(err))
+        GCPActions().remove_instance(ssn_conf['instance_name'])
+        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
+        if pre_defined_firewall:
+            GCPActions().remove_firewall(ssn_conf['firewall_name'])
+        if pre_defined_subnet:
+            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+        sys.exit(1)
+
+    try:
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric awscli pymongo pyyaml' --user {} --region {}". \
