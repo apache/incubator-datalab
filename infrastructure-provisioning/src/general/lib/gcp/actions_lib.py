@@ -149,7 +149,7 @@ class GCPActions:
                 traceback.print_exc(file=sys.stdout)
 
     def remove_firewall(self, firewall_name):
-        request = self.service.firewalls().delete(project=self.project, body=firewall_name)
+        request = self.service.firewalls().delete(project=self.project, firewall=firewall_name)
         try:
             result = request.execute()
             firewall_removed = meta_lib.GCPMeta().get_firewall(firewall_name)
@@ -256,6 +256,7 @@ class GCPActions:
                 time.sleep(5)
                 instance_removed = meta_lib.GCPMeta().get_instance(instance_name)
             time.sleep(30)
+            print('Instance {} removed.'.format(instance_name))
             return result
         except Exception as err:
                 logging.info(
