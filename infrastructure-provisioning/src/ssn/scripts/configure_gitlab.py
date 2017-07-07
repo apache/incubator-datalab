@@ -70,6 +70,9 @@ def prepare_config():
                 os.environ['gitlab_ssl_certificate']))
             local('sed -i "s,.*NGINX_SSL_DHPARAMS.*,nginx[\'ssl_dhparam\'] = \'{}\',g" gitlab.rb'.format(
                 os.environ['gitlab_ssl_dhparams']))
+            if json.loads(os.environ['gitlab_https_redirect_enabled']):
+                local('sed -i "s,.*NGINX_REDIRECT_TO_HTTPS,nginx[\'redirect_http_to_https\'] = true,g" gitlab.rb')
+                local('sed -i "s,.*NGINX_REDIRECT_PORT,nginx[\'redirect_http_to_https_port\'] = 80,g" gitlab.rb')
         else:
             local('sed -i "s,EXTERNAL_URL,http://{},g" gitlab.rb'.format(os.environ['instance_hostname']))
 
@@ -128,17 +131,18 @@ def configure_gitlab():
         else:
             proto = 'http'
 
-        raw = run('curl -k --request POST "{0}://localhost/api/v4/session?login=root&password={1}"'
-                  .format(proto, os.environ['gitlab_root_password']))
-        data = json.loads(raw)
-        if not json.loads(os.environ['gitlab_signup_enabled']):
-            print 'Disabling signup...'
-            run('curl -k --request PUT "{0}://localhost/api/v4/application/settings?private_token={1}&sudo=root&signup_enabled=false"'
-                .format(proto, data['private_token']))
-        if not json.loads(os.environ['gitlab_public_repos']):
-            print 'Disabling public repos...'
-            run('curl -k --request PUT "{0}://localhost/api/v4/application/settings?private_token={1}&sudo=root&restricted_visibility_levels=public"'
-                .format(proto, data['private_token']))
+        with settings(hide('running')):
+            raw = run('curl -k --request POST "{0}://localhost/api/v4/session?login=root&password={1}"'
+                    .format(proto, os.environ['gitlab_root_password']))
+            data = json.loads(raw)
+            if not json.loads(os.environ['gitlab_signup_enabled']):
+                print 'Disabling signup...'
+                run('curl -k --request PUT "{0}://localhost/api/v4/application/settings?private_token={1}&sudo=root&signup_enabled=false"'
+                    .format(proto, data['private_token']))
+            if not json.loads(os.environ['gitlab_public_repos']):
+                print 'Disabling public repos...'
+                run('curl -k --request PUT "{0}://localhost/api/v4/application/settings?private_token={1}&sudo=root&restricted_visibility_levels=public"'
+                    .format(proto, data['private_token']))
     except Exception as err:
         print "Failed to connect to GitLab via API..", str(err)
         sys.exit(1)
@@ -150,6 +154,7 @@ def summary():
     data['gitlab_hostname'] = os.environ['instance_hostname']
     data['root_password'] = os.environ['gitlab_root_password']
     data['ssl_enabled'] = json.loads(os.environ['gitlab_ssl_enabled'])
+    data['https_redirect_enabled'] = json.loads(os.environ['gitlab_https_redirect_enabled'])
     data['signup_enabled'] = json.loads(os.environ['gitlab_signup_enabled'])
     data['public_repos'] = json.loads(os.environ['gitlab_public_repos'])
     data['os_family'] = os.environ['conf_os_family']

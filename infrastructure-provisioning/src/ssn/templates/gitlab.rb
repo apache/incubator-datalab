@@ -718,8 +718,8 @@ gitlab_rails['initial_root_password'] = "GITLAB_ROOT_PASSWORD"
 
 # nginx['enable'] = NGINX_ENABLED
 # nginx['client_max_body_size'] = '250m'
-# nginx['redirect_http_to_https'] = false
-# nginx['redirect_http_to_https_port'] = 80
+# nginx['redirect_http_to_https'] = NGINX_REDIRECT_TO_HTTPS
+# nginx['redirect_http_to_https_port'] = NGINX_REDIRECT_PORT
 
 ##! Most root CA's are included by default
 # nginx['ssl_client_certificate'] = "/etc/gitlab/ssl/ca.crt"
