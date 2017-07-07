@@ -193,6 +193,7 @@ if __name__ == "__main__":
         instance_id = create_instance()
         print 'Instance {} created.'.format(instance_id)
         create_elastic_ip(instance_id)
+        os.environ['instance_id'] = instance_id
         os.environ['instance_hostname'] = get_ec2_ip(instance_id)
         print 'Instance hostname: {}'.format(os.environ['instance_hostname'])
 

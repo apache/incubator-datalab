@@ -146,6 +146,7 @@ def configure_gitlab():
 
 def summary():
     data = dict()
+    data['instance_id'] = os.environ['instance_id']
     data['gitlab_hostname'] = os.environ['instance_hostname']
     data['root_password'] = os.environ['gitlab_root_password']
     data['ssl_enabled'] = json.loads(os.environ['gitlab_ssl_enabled'])
@@ -156,7 +157,7 @@ def summary():
     data['key_name'] = os.environ['conf_key_name']
     print '[SUMMARY]'
     for key in data:
-        print '{0}: {1}'.format(key.title(), data[key])
+        print '{0}: {1}'.format(key, data[key])
 
     with open('{}tmp/result/gitlab.json'.format(os.environ['conf_dlab_path']), 'w') as result:
         result.write(json.dumps(data))

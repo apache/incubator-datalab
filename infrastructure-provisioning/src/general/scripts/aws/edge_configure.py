@@ -40,6 +40,7 @@ if __name__ == "__main__":
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
     edge_conf['bucket_name'] = (edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
+    edge_conf['shared_bucket_name'] = (edge_conf['service_base_name'] + 'shared-bucket').lower().replace('_', '-')
     edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-SG'
     edge_conf['notebook_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
     edge_conf['notebook_role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + \
@@ -160,6 +161,7 @@ if __name__ == "__main__":
         print "Instance ID: " + get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name'])
         print "Key name: " + edge_conf['key_name']
         print "Bucket name: " + edge_conf['bucket_name']
+        print "Shared bucket name: " + edge_conf['shared_bucket_name']
         print "Notebook SG: " + edge_conf['notebook_security_group_name']
         print "Notebook profiles: " + edge_conf['notebook_role_profile_name']
         print "Edge SG: " + edge_conf['edge_security_group_name']
@@ -171,6 +173,7 @@ if __name__ == "__main__":
                    "instance_id": get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name']),
                    "key_name": edge_conf['key_name'],
                    "user_own_bicket_name": edge_conf['bucket_name'],
+                   "shared_bucket_name": edge_conf['shared_bucket_name'],
                    "tunnel_port": "22",
                    "socks_port": "1080",
                    "notebook_sg": edge_conf['notebook_security_group_name'],

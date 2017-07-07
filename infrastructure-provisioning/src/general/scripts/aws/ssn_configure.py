@@ -294,7 +294,7 @@ if __name__ == "__main__":
                    "security_id": os.environ['aws_security_groups_ids'],
                    "instance_shape": os.environ['aws_ssn_instance_size'],
                    "bucket_name": user_bucket_name,
-                   "shared_bucket": shared_bucket_name,
+                   "shared_bucket_name": shared_bucket_name,
                    "region": region,
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))
