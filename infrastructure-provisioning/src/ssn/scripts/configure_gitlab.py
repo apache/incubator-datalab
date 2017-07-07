@@ -46,47 +46,57 @@ def create_user(os_user):
     env.user = initial_user
     env.host_string = env.user + "@" + env.hosts
 
-    sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
-    sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
-    sudo('mkdir /home/{}/.ssh'.format(os_user))
-    sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
-    sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
-    sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
-    sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
-    sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
-    sudo('mkdir /home/{}/.ensure_dir'.format(os_user))
-    sudo('touch /home/{}/.ensure_dir/ssh_user_ensured'.format(os_user))
+    try:
+        sudo('useradd -m -G {1} -s /bin/bash {0}'.format(os_user, sudo_group))
+        sudo('echo "{} ALL = NOPASSWD:ALL" >> /etc/sudoers'.format(os_user))
+        sudo('mkdir /home/{}/.ssh'.format(os_user))
+        sudo('chown -R {0}:{0} /home/{1}/.ssh/'.format(initial_user, os_user))
+        sudo('cat /home/{0}/.ssh/authorized_keys > /home/{1}/.ssh/authorized_keys'.format(initial_user, os_user))
+        sudo('chown -R {0}:{0} /home/{0}/.ssh/'.format(os_user))
+        sudo('chmod 700 /home/{0}/.ssh'.format(os_user))
+        sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
+        sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
+    except Exception as err:
+        print 'Failed to install gitlab.', str(err)
+        sys.exit(1)
 
 
 def prepare_config():
-    with cd('{}tmp/gitlab'.format(os.environ['conf_dlab_path'])):
-        local('cp gitlab.rb gitlab.rb.bak')
-        if json.loads(os.environ['gitlab_ssl_enabled']):
-            local('sed -i "s,EXTERNAL_URL,https://{}:443,g" gitlab.rb'.format(os.environ['instance_hostname']))
-            local('sed -i "s/.*NGINX_ENABLED/nginx[\'enable\'] = true/g" gitlab.rb')
-            local('sed -i "s,.*NGINX_SSL_CERTIFICATE_KEY,nginx[\'ssl_certificate_key\'] = \'{}\',g" gitlab.rb'.format(
-                os.environ['gitlab_ssl_certificate_key']))
-            local('sed -i "s,.*NGINX_SSL_CERTIFICATE,nginx[\'ssl_certificate\'] = \'{}\',g" gitlab.rb'.format(
-                os.environ['gitlab_ssl_certificate']))
-            local('sed -i "s,.*NGINX_SSL_DHPARAMS.*,nginx[\'ssl_dhparam\'] = \'{}\',g" gitlab.rb'.format(
-                os.environ['gitlab_ssl_dhparams']))
-            if json.loads(os.environ['gitlab_https_redirect_enabled']):
-                local('sed -i "s,.*NGINX_REDIRECT_TO_HTTPS,nginx[\'redirect_http_to_https\'] = true,g" gitlab.rb')
-                local('sed -i "s,.*NGINX_REDIRECT_PORT,nginx[\'redirect_http_to_https_port\'] = 80,g" gitlab.rb')
-        else:
-            local('sed -i "s,EXTERNAL_URL,http://{},g" gitlab.rb'.format(os.environ['instance_hostname']))
+    try:
+        with lcd('{}tmp/gitlab'.format(os.environ['conf_dlab_path'])):
+            if os.path.exists('{}tmp/gitlab/gitlab.rb.bak'.format(os.environ['conf_dlab_path'])):
+                local('cp gitlab.rb.bak gitlab.rb')
+            else:
+                local('cp gitlab.rb gitlab.rb.bak')
+            if json.loads(os.environ['gitlab_ssl_enabled']):
+                local('sed -i "s,EXTERNAL_URL,https://{}:443,g" gitlab.rb'.format(os.environ['instance_hostname']))
+                local('sed -i "s/.*NGINX_ENABLED/nginx[\'enable\'] = true/g" gitlab.rb')
+                local('sed -i "s,.*NGINX_SSL_CERTIFICATE_KEY,nginx[\'ssl_certificate_key\'] = \'{}\',g" gitlab.rb'.format(
+                    os.environ['gitlab_ssl_certificate_key']))
+                local('sed -i "s,.*NGINX_SSL_CERTIFICATE,nginx[\'ssl_certificate\'] = \'{}\',g" gitlab.rb'.format(
+                    os.environ['gitlab_ssl_certificate']))
+                local('sed -i "s,.*NGINX_SSL_DHPARAMS.*,nginx[\'ssl_dhparam\'] = \'{}\',g" gitlab.rb'.format(
+                    os.environ['gitlab_ssl_dhparams']))
+                if json.loads(os.environ['gitlab_https_redirect_enabled']):
+                    local('sed -i "s,.*NGINX_REDIRECT_TO_HTTPS,nginx[\'redirect_http_to_https\'] = true,g" gitlab.rb')
+                    local('sed -i "s,.*NGINX_REDIRECT_PORT,nginx[\'redirect_http_to_https_port\'] = 80,g" gitlab.rb')
+            else:
+                local('sed -i "s,EXTERNAL_URL,http://{},g" gitlab.rb'.format(os.environ['instance_hostname']))
 
-        local('sed -i "s/LDAP_HOST/{}/g" gitlab.rb'.format(os.environ['ldap_host']))
-        local('sed -i "s/LDAP_PORT/{}/g" gitlab.rb'.format(os.environ['ldap_port']))
-        local('sed -i "s/LDAP_UID/{}/g" gitlab.rb'.format(os.environ['ldap_uid']))
-        local('sed -i "s/LDAP_BIND_DN/{}/g" gitlab.rb'.format(os.environ['ldap_bind_dn']))
-        local("sed -i 's/LDAP_PASSWORD/{}/g' gitlab.rb".format(os.environ['ldap_password']))
-        local('sed -i "s/LDAP_BASE/{}/g" gitlab.rb'.format(os.environ['ldap_base']))
-        local("sed -i 's/LDAP_ATTR_USERNAME/{}/g' gitlab.rb".format(os.environ['ldap_attr_username']))
-        local("sed -i 's/LDAP_ATTR_EMAIL/{}/g' gitlab.rb".format(os.environ['ldap_attr_email']))
+            local('sed -i "s/LDAP_HOST/{}/g" gitlab.rb'.format(os.environ['ldap_host']))
+            local('sed -i "s/LDAP_PORT/{}/g" gitlab.rb'.format(os.environ['ldap_port']))
+            local('sed -i "s/LDAP_UID/{}/g" gitlab.rb'.format(os.environ['ldap_uid']))
+            local('sed -i "s/LDAP_BIND_DN/{}/g" gitlab.rb'.format(os.environ['ldap_bind_dn']))
+            local("sed -i 's/LDAP_PASSWORD/{}/g' gitlab.rb".format(os.environ['ldap_password']))
+            local('sed -i "s/LDAP_BASE/{}/g" gitlab.rb'.format(os.environ['ldap_base']))
+            local("sed -i 's/LDAP_ATTR_USERNAME/{}/g' gitlab.rb".format(os.environ['ldap_attr_username']))
+            local("sed -i 's/LDAP_ATTR_EMAIL/{}/g' gitlab.rb".format(os.environ['ldap_attr_email']))
 
-        local("sed -i 's/GITLAB_ROOT_PASSWORD/{}/g' gitlab.rb".format(os.environ['gitlab_root_password']))
-    print 'Initial config is ready.'
+            local("sed -i 's/GITLAB_ROOT_PASSWORD/{}/g' gitlab.rb".format(os.environ['gitlab_root_password']))
+        print 'Initial config is ready.'
+    except Exception as err:
+        print 'Failed to install gitlab.', str(err)
+        sys.exit(1)
 
 
 def install_gitlab():
@@ -102,7 +112,7 @@ def install_gitlab():
             print 'Failed to install gitlab.'
             raise Exception
 
-        with cd('{}tmp/gitlab'.format(os.environ['conf_dlab_path'])):
+        with lcd('{}tmp/gitlab'.format(os.environ['conf_dlab_path'])):
             put('gitlab.rb', '/tmp/gitlab.rb')
             local('rm gitlab.rb')
         sudo('rm /etc/gitlab/gitlab.rb')
@@ -131,7 +141,7 @@ def configure_gitlab():
         else:
             proto = 'http'
 
-        with settings(hide('running')):
+        with settings(hide('everything')):
             raw = run('curl -k --request POST "{0}://localhost/api/v4/session?login=root&password={1}"'
                     .format(proto, os.environ['gitlab_root_password']))
             data = json.loads(raw)

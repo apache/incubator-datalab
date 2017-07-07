@@ -152,6 +152,7 @@ def terminate_gitlab():
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
         node_name = '{0}-{1}'.format(os.environ['conf_service_base_name'], os.environ['conf_node_name'])
+        print 'Terminating "{}" instance...'.format(node_name)
         inst = ec2.instances.filter(
             Filters=[{'Name': 'instance-state-name', 'Values': ['running', 'stopped', 'pending', 'stopping']},
                      {'Name': 'tag:Name', 'Values': ['{}'.format(node_name)]}])
@@ -206,15 +207,13 @@ if __name__ == "__main__":
             local('{0}/{1}.py {2}'.format(head, 'configure_gitlab', params))
         except Exception as err:
             print 'Failed to configure gitlab.', str(err)
+            terminate_gitlab()
             sys.exit(1)
 
         bucket_name = '{}-ssn-bucket'.format(os.environ['conf_service_base_name'])
-        try:
-            for filename in os.listdir(head):
-                if filename.endswith('.crt'):
-                    put_to_bucket(bucket_name, filename, filename)
-        except Exception as err:
-            print 'Failed to put gitlab ssl certificate to s3 bucket.', str(err)
+        for filename in os.listdir(head):
+            if filename.endswith('.crt'):
+                put_to_bucket(bucket_name, os.path.join(head, filename), filename)
 
     elif args.action == 'terminate':
         terminate_gitlab()
