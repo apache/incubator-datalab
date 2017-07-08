@@ -20,38 +20,48 @@ limitations under the License.
   <modal-header>
     <h4 class="modal-title" id="myModalLabel">Manage UnGit</h4>
   </modal-header>
-  <modal-content>
+  <modal-content class="manage-ungit">
    
    <md-tab-group #tabGroup>
       <md-tab label="LIST">
           <md-list>
             <md-list-item class="list-header">
               <div class="hostname-field">Host name</div>
-              <div>User</div>
+              <div class="user-field">User</div>
               <div class="mail-field">Email</div>
-              <div>Login</div>
-              <div>Password</div>
+              <div class="login-field">Login</div>
+              <div class="actions"></div>
             </md-list-item>
 
             <div class="scrollingList" *ngIf="gitCredentials">
               <md-list-item *ngFor="let item of gitCredentials">
                 <div class="hostname-field"><strong>{{ item.hostname }}</strong></div>
-                <div>{{ item.username }}</div>
+                <div class="user-field">{{ item.username }}</div>
                 <div class="mail-field">{{ item.email }}</div>
-                <div>{{ item.login }}</div>
-                <div>{{ item.password }}</div>
+                <div class="login-field">{{ item.login }}</div>
+                <div class="actions">
+                  <span class="git-actions" (click)="editSpecificAccount(item)">
+                    <i class="material-icons">mode_edit</i>
+                  </span>
+                </div>
+
               </md-list-item>
             </div>
             <div *ngIf="!gitCredentials" class="scrollingList info">
               <p>You have no any related accounts</p>
             </div>
           </md-list>
+
+          <div class="text-center m-top-30 m-bott-10" *ngIf="editableForm">
+            <button md-raised-button type="button" class="butt" (click)="cancelModifyings()">Cancel</button>
+            <button md-raised-button type="button" class="butt butt-success" (click)="editAccounts_btnClick()">Apply changes</button>
+          </div>
       </md-tab>
       <md-tab label="EDIT | CREATE">
-       <form [formGroup]="updateAccountCredentialsForm" novalidate (submit)="editAccounts_btnClick($event, updateAccountCredentialsForm.value)">
-         <!-- formControlName="environment_name" -->
-         <div class="tab-content">
-           <div class="col">1
+        <!--(submit)="editAccounts_btnClick($event, updateAccountCredentialsForm.value)"-->
+       <form [formGroup]="updateAccountCredentialsForm" novalidate>
+         <div class="tab-content git-form">
+           <div class="col">
             <md-input-container>
               <input mdInput type="text"
                      formControlName="hostname"
@@ -62,13 +72,14 @@ limitations under the License.
                      formControlName="username"
                      placeholder="Enter user name">
             </md-input-container>
-           </div>
-           <div class="col">2
-             <md-input-container>
+            <md-input-container>
               <input mdInput type="email"
                      formControlName="email"
                      placeholder="Enter email">
             </md-input-container>
+           </div>
+
+           <div class="col">
             <md-input-container>
               <input mdInput type="text"
                      formControlName="login"
@@ -77,13 +88,17 @@ limitations under the License.
             <md-input-container>
               <input mdInput type="password"
                      formControlName="password"
-                     placeholder="Enter password">
+                     placeholder="Enter Password">
+            </md-input-container>
+            <md-input-container>
+              <input #confirm mdInput type="password"
+                     placeholder="Confirm Password">
             </md-input-container>
            </div>
          </div>
-          <div class="text-center m-top-30">
-            <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
-            <button md-raised-button type="submit" [disabled]="!updateAccountCredentialsForm.valid" class="butt butt-success">Create</button>
+          <div class="text-center m-top-30 m-bott-10">
+            <button md-raised-button type="button" class="butt" (click)="resetForm()">Cancel</button>
+            <button md-raised-button type="button" [disabled]="!updateAccountCredentialsForm.valid" (click)="assignChanges(updateAccountCredentialsForm.value)" class="butt butt-success">Assign</button>
           </div>
        </form>
       </md-tab>

@@ -20,7 +20,41 @@ limitations under the License.
     padding: 0 20px;
 }
 
-.list-header div + div{
+.manage-ungit .mail-field,
+.manage-ungit .user-field,
+.manage-ungit .login-field,
+.manage-ungit .hostname-field,
+.manage-ungit .actions {
+    width: 25%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.manage-ungit .hostname-field,
+.manage-ungit .actions {
     width: 20%;
-    text-align: center;
+}
+
+.manage-ungit .actions {
+    position: relative;
+    overflow: visible;
+    width: 50px;
+}
+.manage-ungit .actions span {
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    zoom: 0.8;
+}
+
+.git-form .mat-input-container {
+    width: 100%;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.git-form .col {
+    padding: 20px 15px;
+}
+
+.git-actions {
+    cursor: pointer;
 }

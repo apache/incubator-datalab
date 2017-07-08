@@ -44,7 +44,7 @@ export class ManageUngitService {
     public updateGitCredentials(data): Observable<Response> {
         return this.applicationServiceFacade
         .buildUpdateGitCredentials(data)
-        .map((response: Response) => response.json())
+        .map((response: Response) => response)
         .catch((error: any) => {
             return Observable.throw(new Error(`${ error.status } ${ error.statusText } ${ error._body }`));
         });

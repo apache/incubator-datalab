@@ -57,9 +57,9 @@ export class MangeUngitModel {
         return this.manageUngitService.getGitCreds();
     }
 
-    private updateGitCredentials(Items): Observable<Response> {
+    private updateGitCredentials(gitCreds): Observable<Response> {
         return this.manageUngitService.updateGitCredentials({
-            git_creds : [Items]
+            git_creds : gitCreds
         });
     }
 

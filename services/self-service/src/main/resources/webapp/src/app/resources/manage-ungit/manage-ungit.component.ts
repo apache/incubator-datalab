@@ -34,10 +34,15 @@ export class ManageUngitComponent implements OnInit {
   model: MangeUngitModel;
   gitCredentials: Array<AccountCredentials>;
 
+  public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
+
+  currentEditableItem: AccountCredentials;
+  currentEditableHostname: string;
 
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('tabGroup') tabGroup;
+  @ViewChild('confirm') confirmPassword;
 
   constructor(
     private manageUngitService: ManageUngitService,
@@ -46,20 +51,16 @@ export class ManageUngitComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.bindDialog.onClosing = () => this.resetForm();
+
     this.initFormModel();
     this.getGitCredentials();
   }
-
-  // public open(param): void {
-  //   if (!this.bindDialog.isOpened)
-  //     this.bindDialog.open(param);
-  // }
 
   public open(param): void {
     if (!this.bindDialog.isOpened)
       this.model = new MangeUngitModel((response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
-          // this.getInstalledLibrariesList();
           // this.resetDialog();
         }
       },
@@ -83,32 +84,63 @@ export class ManageUngitComponent implements OnInit {
       this.bindDialog.close();
   }
 
-  initFormModel(): void {
+  public resetForm(): void {
+    this.initFormModel();
+    this.currentEditableItem = null;
+    console.log(this.confirmPassword);
+  }
+
+  public cancelModifyings() {
+    this.getGitCredentials();
+    this.editableForm = false;
+  }
+
+  public editSpecificAccount(item: AccountCredentials) {
+    this.tabGroup.selectedIndex = 1;
+    this.currentEditableItem = item;
+
     this.updateAccountCredentialsForm = this._fb.group({
-      'hostname': '',
-      'username': '',
-      'email': '',
-      'login': '',
-      'password': ''
+      'hostname': [item.hostname, Validators.required],
+      'username': [item.username, Validators.required],
+      'email': [item.email, Validators.required],
+      'login': [item.login, Validators.required],
+      'password': [item.password, Validators.required]
     });
   }
 
-  public editAccounts_btnClick($event, item) {
-    console.log($event, item);
+  public assignChanges(current: FormGroup): void {
+    const modifiedCredentials = JSON.parse(JSON.stringify(this.gitCredentials));
+    const index = modifiedCredentials.findIndex(el => JSON.stringify(el) === JSON.stringify(this.currentEditableItem));
     
-    this.model.confirmAction(item);
-    this.tabGroup.selectedIndex = 0;
+    index > -1 ? modifiedCredentials.splice(index, 1, current) : modifiedCredentials.push(current);
 
+    this.gitCredentials = modifiedCredentials;
+    this.editableForm = true;
+    this.tabGroup.selectedIndex = 0;
+    this.resetForm();
+  }
+
+  public editAccounts_btnClick() {
+    this.model.confirmAction(this.gitCredentials);
+    this.tabGroup.selectedIndex = 0;
+    this.editableForm = false;
+  }
+
+  private initFormModel(): void {
+    this.updateAccountCredentialsForm = this._fb.group({
+      'hostname': ['', Validators.required],
+      'username': ['', Validators.required],
+      'email': ['', Validators.required],
+      'login': ['', Validators.required],
+      'password': ['', Validators.required]
+    });
   }
 
   private getGitCredentials(): void {
     this.model.getGitCredentials()
       .subscribe((response: any) => {
-          console.log(response);
-          this.gitCredentials = response.git_creds;
+          this.gitCredentials = response.git_creds || [];
         },
-        error => {
-          console.log(error);
-        });
+        error => console.log(error));
   }
 }
