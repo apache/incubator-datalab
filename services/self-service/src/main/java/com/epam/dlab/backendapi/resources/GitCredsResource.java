@@ -123,7 +123,7 @@ public class GitCredsResource implements ExploratoryAPI {
     public ExploratoryGitCredsDTO getGitCreds(@Auth UserInfo userInfo) throws DlabException {
         LOGGER.debug("Loading GIT creds for user {}", userInfo.getName());
         try {
-    		return gitCredsDAO.findGitCreds(userInfo.getName());
+        	return gitCredsDAO.findGitCreds(userInfo.getName(), true);
         } catch (Throwable t) {
         	LOGGER.error("Cannot load list of GIT creds for user: {}", userInfo.getName(), t);
             throw new DlabException("Cannot load GIT credentials for user " + userInfo.getName() + ": " + t.getLocalizedMessage(), t);
