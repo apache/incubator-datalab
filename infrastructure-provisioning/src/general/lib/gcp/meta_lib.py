@@ -38,11 +38,14 @@ class GCPMeta:
         if os.environ['conf_resource'] == 'ssn':
             self.key_file = '/root/service_account.json'
             credentials = ServiceAccountCredentials.from_json_keyfile_name(
-                self.key_file, scopes='https://www.googleapis.com/auth/compute')
+                self.key_file, scopes=('https://www.googleapis.com/auth/compute', 'https://www.googleapis.com/auth/iam',
+                                       'https://www.googleapis.com/auth/cloud-platform'))
             self.service = build('compute', 'v1', credentials = credentials)
+            self.service_iam = build('iam', 'v1', credentials=credentials)
             self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
         else:
             self.service = build('compute', 'v1')
+            self.service_iam = build('iam', 'v1')
             self.storage_client = storage.Client()
 
     def get_vpc(self, network_name):
@@ -143,3 +146,8 @@ class GCPMeta:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def get_service_account(self, service_account_name):
+        request = self.service_iam.projects().serviceAccounts().get(
+            name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_name))
+        return request.execute()

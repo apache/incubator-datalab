@@ -38,11 +38,14 @@ class GCPActions:
         if os.environ['conf_resource'] == 'ssn':
             self.key_file = '/root/service_account.json'
             credentials = ServiceAccountCredentials.from_json_keyfile_name(
-                self.key_file, scopes='https://www.googleapis.com/auth/compute')
+                self.key_file, scopes=('https://www.googleapis.com/auth/compute', 'https://www.googleapis.com/auth/iam',
+                                       'https://www.googleapis.com/auth/cloud-platform'))
             self.service = build('compute', 'v1', credentials=credentials)
+            self.service_iam = build('iam', 'v1', credentials=credentials)
             self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
         else:
             self.service = build('compute', 'v1')
+            self.service_iam = build('iam', 'v1')
             self.storage_client = storage.Client()
 
     def create_vpc(self, vpc_name):
@@ -268,3 +271,15 @@ class GCPActions:
                                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
+
+    def delete_service_account(self, service_account_name):
+        request = self.service_iam.projects().serviceAccounts().delete(
+            name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_name))
+        return request.execute()
+
+    def create_service_account(self, service_account_email, service_account_name):
+        params = {"accountId": service_account_email, "serviceAccount": {"displayName": service_account_name}}
+        request = self.service_iam.projects().serviceAccounts().create(name='projects/{}'.format(self.project),
+                                                                       body=params)
+        return request.execute()
+
