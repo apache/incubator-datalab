@@ -294,8 +294,7 @@ class GCPActions:
                 traceback.print_exc(file=sys.stdout)
 
     def create_service_account(self, service_account_name):
-        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
-        params = {"accountId": service_account_email, "serviceAccount": {"displayName": service_account_name}}
+        params = {"accountId": service_account_name, "serviceAccount": {"displayName": service_account_name}}
         request = self.service_iam.projects().serviceAccounts().create(name='projects/{}'.format(self.project),
                                                                        body=params)
         try:
