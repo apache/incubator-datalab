@@ -34,6 +34,7 @@ parser.add_argument('--subnet_name', type=str, default='')
 parser.add_argument('--instance_size', type=str, default='')
 parser.add_argument('--ssh_key_path', type=str, default='')
 parser.add_argument('--initial_user', type=str, default='')
+parser.add_argument('--service_account_name', type=str, default='')
 args = parser.parse_args()
 
 
@@ -45,5 +46,7 @@ if __name__ == "__main__":
             print "Creating Instance {}".format(args.instance_name)
             GCPActions().create_instance(args.instance_name, args.region, args.zone, args.vpc_name, args.subnet_name,
                                          args.instance_size, args.ssh_key_path, args.initial_user)
+            print "Setting Service account to the instance"
+            GCPActions().set_service_account_to_instance(args.service_account_name, args.instance_name)
     else:
         sys.exit(1)

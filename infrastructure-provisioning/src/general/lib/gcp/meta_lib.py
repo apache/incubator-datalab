@@ -148,6 +148,18 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
 
     def get_service_account(self, service_account_name):
+        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         request = self.service_iam.projects().serviceAccounts().get(
-            name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_name))
-        return request.execute()
+            name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_email))
+        try:
+            return request.execute()
+        except errors.HttpError as err:
+            if err.resp.status == 404:
+                return ''
+        except Exception as err:
+                logging.info(
+                    "Unable to get Service account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to get Service account",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)

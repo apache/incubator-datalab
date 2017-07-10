@@ -273,13 +273,90 @@ class GCPActions:
                 traceback.print_exc(file=sys.stdout)
 
     def delete_service_account(self, service_account_name):
+        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         request = self.service_iam.projects().serviceAccounts().delete(
-            name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_name))
-        return request.execute()
+            name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_email))
+        try:
+            result = request.execute()
+            service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name)
+            while service_account_removed:
+                time.sleep(5)
+                service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name)
+            time.sleep(30)
+            print('Service account {} removed.'.format(service_account_name))
+            return result
+        except Exception as err:
+                logging.info(
+                    "Unable to remove Service account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to remove Service account",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
 
-    def create_service_account(self, service_account_email, service_account_name):
+    def create_service_account(self, service_account_name):
+        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         params = {"accountId": service_account_email, "serviceAccount": {"displayName": service_account_name}}
         request = self.service_iam.projects().serviceAccounts().create(name='projects/{}'.format(self.project),
                                                                        body=params)
-        return request.execute()
+        try:
+            result = request.execute()
+            service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name)
+            while not service_account_created:
+                time.sleep(5)
+                service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name)
+            time.sleep(30)
+            print('Service account {} created.'.format(service_account_name))
+            return result
+        except Exception as err:
+                logging.info(
+                    "Unable to create Service account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to create Service account",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
 
+    def set_policy_to_service_account(self, service_account_name):
+        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
+        params = {
+            "policy":
+                {
+                    "bindings": [
+                        {
+                            "role": "roles/compute.storageAdmin",
+                            "members": [
+                                "serviceAccount:{}".format(service_account_email)
+                            ]
+                        }
+                    ]
+                }
+        }
+        request = self.service_iam.projects().serviceAccounts().setIamPolicy(resource=
+                                                                             'projects/{}/serviceAccounts/{}'.
+                                                                             format(self.project,
+                                                                                    service_account_email), body=params)
+        try:
+            return request.execute()
+        except Exception as err:
+                logging.info(
+                    "Unable to set Service account policy: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to set Service account policy",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def set_service_account_to_instance(self, service_account_name, instance_name):
+        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
+        params = {
+            "email": service_account_email
+        }
+        request = self.service.instances().setServiceAccount(
+            project=self.project, zone=os.environ['zone'], instance=instance_name, body=params)
+        try:
+            return request.execute()
+        except Exception as err:
+                logging.info(
+                    "Unable to set Service account to instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to set Service account to instance",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)

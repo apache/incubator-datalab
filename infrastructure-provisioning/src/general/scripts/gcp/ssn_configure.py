@@ -123,6 +123,7 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Failed creating ssh user 'dlab-user'.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         if pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'])
@@ -146,6 +147,7 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Failed installing software: pip, packages.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         if pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'])
@@ -174,6 +176,7 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Failed configuring ssn.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         if pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'])
@@ -207,6 +210,7 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Unable to configure docker.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         if pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'])
@@ -235,6 +239,7 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Unable to configure UI.", str(err))
         GCPActions().remove_instance(ssn_conf['instance_name'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         if pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'])
@@ -294,6 +299,7 @@ if __name__ == "__main__":
         local("~/scripts/{}.py {}".format('upload_response_file', params))
     except:
         GCPActions().remove_instance(ssn_conf['instance_name'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         if pre_defined_firewall:
             GCPActions().remove_firewall(ssn_conf['firewall_name'])
