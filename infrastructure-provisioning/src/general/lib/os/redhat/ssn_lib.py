@@ -160,6 +160,7 @@ def ensure_mongo():
             sudo('yum install -y mongodb-org')
             sudo('semanage port -a -t mongod_port_t -p tcp 27017')
             sudo('chkconfig mongod on')
+            sudo('systemctl daemon-reload')
             sudo('systemctl enable mongod.service')
             sudo('systemctl start mongod.service')
             sudo('touch {}tmp/mongo_ensured'.format(os.environ['ssn_dlab_path']))
