@@ -321,7 +321,7 @@ class GCPActions:
                 {
                     "bindings": [
                         {
-                            "role": "roles/compute.storageAdmin",
+                            "role": "roles/compute.instanceAdmin.v1",
                             "members": [
                                 "serviceAccount:{}".format(service_account_email)
                             ]
