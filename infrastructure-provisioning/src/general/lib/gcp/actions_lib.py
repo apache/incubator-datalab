@@ -272,7 +272,7 @@ class GCPActions:
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
 
-    def delete_service_account(self, service_account_name):
+    def remove_service_account(self, service_account_name):
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         request = self.service_iam.projects().serviceAccounts().delete(
             name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_email))
@@ -321,7 +321,7 @@ class GCPActions:
                 {
                     "bindings": [
                         {
-                            "role": "roles/compute.instanceAdmin.v1",
+                            "role": "roles/viewer",
                             "members": [
                                 "serviceAccount:{}".format(service_account_email)
                             ]
