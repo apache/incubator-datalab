@@ -95,7 +95,9 @@ public class InfrastructureProvisionResource implements DockerAPI {
         	int i = 0;
     		for (Document d : documents) {
         		d.append(EDGE_IP, edgeInfo.getPublicIp())
-    			 .append(EdgeInfoDTO.USER_OWN_BUCKET_NAME, edgeInfo.getUserOwnBucketName());
+                        .append(EdgeInfoDTO.USER_OWN_BUCKET_NAME, edgeInfo.getUserOwnBucketName())
+                        .append(EdgeInfoDTO.SHARED_BUCKET_NAME, edgeInfo.getSharedBucketName());
+
         		notebooks.add(d);
         		LOGGER.debug("Notebook[{}]: {}", ++i, d);
         	}
