@@ -210,7 +210,7 @@ if __name__ == "__main__":
             terminate_gitlab()
             sys.exit(1)
 
-        bucket_name = '{}-ssn-bucket'.format(os.environ['conf_service_base_name'])
+        bucket_name = ('{}-ssn-bucket'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
         for filename in os.listdir(head):
             if filename.endswith('.crt'):
                 put_to_bucket(bucket_name, os.path.join(head, filename), filename)
