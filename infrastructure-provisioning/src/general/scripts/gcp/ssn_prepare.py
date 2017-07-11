@@ -50,7 +50,7 @@ if __name__ == "__main__":
     ssn_conf['subnet_cidr'] = '10.10.1.0/24'
     ssn_conf['firewall_name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
     ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
-    ssn_conf['service_account_name'] = ssn_conf['service_base_name'] + '-ssn-service-account'
+    ssn_conf['service_account_name'] = ssn_conf['service_base_name'] + '-ssn-sa'
 
     try:
         if os.environ['gcp_vpc_name'] == '':
