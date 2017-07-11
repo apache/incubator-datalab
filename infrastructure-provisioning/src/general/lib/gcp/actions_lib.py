@@ -242,7 +242,11 @@ class GCPActions:
             while not instance_created:
                 time.sleep(5)
                 instance_created = meta_lib.GCPMeta().get_instance(instance_name)
-            time.sleep(60)
+            instance_started = meta_lib.GCPMeta().get_instance_status(instance_name)
+            while instance_started != 'RUNNING':
+                time.sleep(5)
+                instance_started = meta_lib.GCPMeta().get_instance_status(instance_name)
+            time.sleep(5)
             print('Instance {} created.'.format(instance_name))
             return result
         except Exception as err:
@@ -268,6 +272,42 @@ class GCPActions:
                 logging.info(
                     "Unable to remove Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
                 append_result(str({"error": "Unable to remove Instance",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def stop_instance(self, instance_name, zone):
+        request = self.service.instances().stop(project=self.project, zone=zone, instance=instance_name)
+        try:
+            request.execute()
+            instance_stopped = meta_lib.GCPMeta().get_instance_status(instance_name)
+            while instance_stopped != 'TERMINATED':
+                time.sleep(5)
+                instance_stopped = meta_lib.GCPMeta().get_instance_status(instance_name)
+            time.sleep(5)
+            return True
+        except Exception as err:
+                logging.info(
+                    "Unable to stop Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to stop Instance",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def start_instance(self, instance_name, zone):
+        request = self.service.instances().start(project=self.project, zone=zone, instance=instance_name)
+        try:
+            request.execute()
+            instance_started = meta_lib.GCPMeta().get_instance_status(instance_name)
+            while instance_started != 'RUNNING':
+                time.sleep(5)
+                instance_started = meta_lib.GCPMeta().get_instance_status(instance_name)
+            time.sleep(5)
+            return True
+        except Exception as err:
+                logging.info(
+                    "Unable to start Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to start Instance",
                                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)

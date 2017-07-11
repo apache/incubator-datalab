@@ -58,6 +58,8 @@ class GCPMeta:
         except errors.HttpError as err:
             if err.resp.status == 404:
                 return ''
+            else:
+                raise err
         except Exception as err:
                 logging.info(
                     "Unable to get VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -76,6 +78,8 @@ class GCPMeta:
         except errors.HttpError as err:
             if err.resp.status == 404:
                 return ''
+            else:
+                raise err
         except Exception as err:
                 logging.info(
                     "Unable to get Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -93,6 +97,8 @@ class GCPMeta:
         except errors.HttpError as err:
             if err.resp.status == 404:
                 return ''
+            else:
+                raise err
         except Exception as err:
                 logging.info(
                     "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -122,6 +128,26 @@ class GCPMeta:
         except errors.HttpError as err:
             if err.resp.status == 404:
                 return ''
+            else:
+                raise err
+        except Exception as err:
+                logging.info(
+                    "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to get Firewall",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def get_instance_status(self, instance_name):
+        request = self.service.instances().get(project=self.project, zone=os.environ['zone'], instance=instance_name)
+        try:
+            result = request.execute()
+            return result.get('status')
+        except errors.HttpError as err:
+            if err.resp.status == 404:
+                return ''
+            else:
+                raise err
         except Exception as err:
                 logging.info(
                     "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -156,6 +182,8 @@ class GCPMeta:
         except errors.HttpError as err:
             if err.resp.status == 404:
                 return ''
+            else:
+                raise err
         except Exception as err:
                 logging.info(
                     "Unable to get Service account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
