@@ -68,8 +68,6 @@ def configure_mongo(mongo_passwd):
                 local('sed -i "s/MONGO_USR/mongodb/g" /root/templates/mongod.service_template')
             elif os.environ['conf_os_family'] == 'redhat':
                 local('sed -i "s/MONGO_USR/mongod/g" /root/templates/mongod.service_template')
-                sudo('echo "d /var/run/mongodb 0755 mongod mongod" > /lib/tmpfiles.d/mongodb.conf')
-                sudo('sudo systemd-tmpfiles --create mongodb.conf')
             local('scp -i {} /root/templates/mongod.service_template {}:/tmp/mongod.service'.format(args.keyfile,
                                                                                                     env.host_string))
             sudo('mv /tmp/mongod.service /lib/systemd/system/mongod.service')
