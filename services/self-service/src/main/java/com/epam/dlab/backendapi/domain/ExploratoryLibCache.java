@@ -188,12 +188,12 @@ public class ExploratoryLibCache implements Managed, Runnable {
 		while (true) {
 			try {
 				Thread.sleep(ExploratoryLibList.UPDATE_REQUEST_TIMEOUT_MILLIS);
-				for (String key : cache.keySet()) {
-					ExploratoryLibList lib = cache.get(key);
-					if (lib.isExpired()) {
-						cache.remove(key);
-					}
+
+				synchronized (cache) {
+					cache.entrySet().removeIf(e -> e.getValue().isExpired());
 				}
+
+				// TODO race conditions
 				if (cache.size() == 0) {
 					synchronized (libCache) {
 						thread = null;
