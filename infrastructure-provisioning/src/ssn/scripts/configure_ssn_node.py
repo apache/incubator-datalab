@@ -58,6 +58,26 @@ def cp_backup_scripts(dlab_path):
         return False
 
 
+def cp_gitlab_scripts(dlab_path):
+    try:
+        if not exists('{}tmp/gitlab'.format(dlab_path)):
+            run('mkdir -p {}tmp/gitlab'.format(dlab_path))
+        with cd('{}tmp/gitlab'.format(dlab_path)):
+            put('/root/scripts/gitlab_deploy.py', 'gitlab_deploy.py')
+            put('/root/scripts/configure_gitlab.py', 'configure_gitlab.py')
+            run('chmod +x gitlab_deploy.py configure_gitlab.py')
+            put('/root/templates/gitlab.rb', 'gitlab.rb')
+            put('/root/templates/gitlab.ini', 'gitlab.ini')
+            run('sed -i "s/CONF_OS_USER/{}/g" gitlab.ini'.format(os.environ['conf_os_user']))
+            run('sed -i "s/CONF_OS_FAMILY/{}/g" gitlab.ini'.format(os.environ['conf_os_family']))
+            run('sed -i "s/CONF_KEY_NAME/{}/g" gitlab.ini'.format(os.environ['conf_key_name']))
+            run('sed -i "s,CONF_DLAB_PATH,{},g" gitlab.ini'.format(dlab_path))
+            run('sed -i "s/SERVICE_BASE_NAME/{}/g" gitlab.ini'.format(os.environ['conf_service_base_name']))
+        return True
+    except:
+        return False
+
+
 def creating_service_directories(dlab_path, os_user):
     try:
         if not exists(dlab_path):
@@ -136,6 +156,10 @@ if __name__ == "__main__":
 
     print "Copying backup scripts"
     if not cp_backup_scripts(args.dlab_path):
+        sys.exit(1)
+
+    print "Copying gitlab scripts & files"
+    if not cp_gitlab_scripts(args.dlab_path):
         sys.exit(1)
 
     print "Ensuring safest ssh ciphers"

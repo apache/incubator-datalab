@@ -41,6 +41,7 @@ if __name__ == "__main__":
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
         user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
+        shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
@@ -268,6 +269,7 @@ if __name__ == "__main__":
         print "SSN instance shape: " + os.environ['aws_ssn_instance_size']
         print "SSN AMI name: " + ssn_ami_name
         print "SSN bucket name: " + user_bucket_name
+        print "Shared bucket name: " + shared_bucket_name
         print "Region: " + region
         jenkins_url = "http://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
         jenkins_url_https = "https://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
@@ -292,6 +294,7 @@ if __name__ == "__main__":
                    "security_id": os.environ['aws_security_groups_ids'],
                    "instance_shape": os.environ['aws_ssn_instance_size'],
                    "bucket_name": user_bucket_name,
+                   "shared_bucket_name": shared_bucket_name,
                    "region": region,
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))

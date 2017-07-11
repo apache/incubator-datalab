@@ -959,3 +959,12 @@ def get_cluster_python_version(region, bucket, user_name, cluster_name):
     s3_client.download_file(bucket, user_name + '/' + cluster_name + '/python_version', '/tmp/python_version')
 
 
+def get_gitlab_cert(bucket, certfile):
+    try:
+        s3 = boto3.resource('s3')
+        s3.Bucket(bucket).download_file(certfile, certfile)
+        return True
+    except botocore.exceptions.ClientError as err:
+        if err.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        return False

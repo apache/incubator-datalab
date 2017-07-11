@@ -52,6 +52,7 @@ s3_jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 jupyter_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_notebook_config.py'
+gitlab_certfile = 'dlab-gitlab.crt'
 
 
 ##############
@@ -102,4 +103,6 @@ if __name__ == "__main__":
 
     print "Install Ungit"
     install_nodejs(args.os_user)
-    install_ungit(args.os_user)
+    install_ungit(args.os_user, gitlab_certfile)
+    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+        install_gitlab_cert(args.os_user, gitlab_certfile)

@@ -33,6 +33,8 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Backup and Restore](#Backup_and_Restore)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [GitLab server](#GitLab_server)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Troubleshooting](#Troubleshooting)
 
 [Development](#Development)
@@ -699,6 +701,26 @@ List of parameters for run restore:
 **Note:** You can type ```-h``` or ```--help``` for usage details.
 
 **Note:** Restore process required stopping services.
+
+## GitLab server <a name="GitLab_server"></a>
+
+Own GitLab server can be deployed from SSN node with script, which located in:
+
+```dlab_path/tmp/gitlab```. Default: ```/opt/dlab/tmp/gitlab```
+
+All initial configuration parameters located in ```gitlab.ini``` file.
+
+Some of parameters are already setuped from SSN provisioning.
+
+GitLab uses the same LDAP server as DLab.
+
+To deploy Gitlab server, set all needed parameters in ```gitlab.ini``` and run script:
+
+```./gitlab_deploy.py --action [create/terminate]```
+
+**Note:** Terminate process uses ```node_name``` to find instance.
+
+**Note:** GitLab wouldn't be terminated with all environment termination process. 
 
 ## Troubleshooting <a name="Troubleshooting"></a>
 
