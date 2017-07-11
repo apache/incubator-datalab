@@ -614,7 +614,8 @@ def install_ungit(os_user, certfile):
             sudo('systemctl daemon-reload')
             sudo('systemctl enable ungit.service')
             sudo('systemctl start ungit.service')
-            if get_gitlab_cert('{}-ssn-bucket'.format(os.environ['conf_service_base_name']), certfile):
+            bucket_name = ('{}-ssn-bucket'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
+            if get_gitlab_cert(bucket_name, certfile):
                 put(certfile, certfile)
                 sudo('chown root:root {}'.format(certfile))
             sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
