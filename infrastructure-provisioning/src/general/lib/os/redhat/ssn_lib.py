@@ -159,10 +159,9 @@ def ensure_mongo():
             sudo('echo -e "[MongoDB]\nname=MongoDB Repository\nbaseurl=http://repo.mongodb.org/yum/redhat/7Server/mongodb-org/3.2/x86_64/\ngpgcheck=0\nenabled=1\n" > /etc/yum.repos.d/mongodb.repo')
             sudo('yum install -y mongodb-org')
             sudo('semanage port -a -t mongod_port_t -p tcp 27017')
+            sudo('chkconfig mongod on')
             sudo('echo "d /var/run/mongodb 0755 mongod mongod" > /lib/tmpfiles.d/mongodb.conf')
             sudo('sudo systemd-tmpfiles --create mongodb.conf')
-            sudo('systemctl daemon-reload')
-            sudo('/sbin/chkconfig mongod on')
             sudo('systemctl start mongod.service')
             sudo('touch {}tmp/mongo_ensured'.format(os.environ['ssn_dlab_path']))
         return True

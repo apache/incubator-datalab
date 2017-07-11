@@ -71,6 +71,8 @@ def configure_mongo(mongo_passwd):
             local('scp -i {} /root/templates/mongod.service_template {}:/tmp/mongod.service'.format(args.keyfile,
                                                                                                     env.host_string))
             sudo('mv /tmp/mongod.service /lib/systemd/system/mongod.service')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable mongod.service')
         local('scp -i {} /root/files/ssn_instance_shapes.lst {}:/tmp/ssn_instance_shapes.lst'.format(args.keyfile,
                                                                                                  env.host_string))
         sudo('mv /tmp/ssn_instance_shapes.lst ' + args.dlab_path + 'tmp/')
