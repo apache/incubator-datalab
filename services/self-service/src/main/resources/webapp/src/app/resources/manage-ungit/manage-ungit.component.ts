@@ -33,16 +33,15 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from './../../core/util';
 export class ManageUngitComponent implements OnInit {
   model: MangeUngitModel;
   gitCredentials: Array<AccountCredentials>;
+  currentEditableItem: AccountCredentials;
+  currentEditableHostname: string;
+  mail_validity_pattern = '^[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})$';
 
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
 
-  currentEditableItem: AccountCredentials;
-  currentEditableHostname: string;
-
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('tabGroup') tabGroup;
-  @ViewChild('confirm') confirmPassword;
 
   constructor(
     private manageUngitService: ManageUngitService,
@@ -87,7 +86,6 @@ export class ManageUngitComponent implements OnInit {
   public resetForm(): void {
     this.initFormModel();
     this.currentEditableItem = null;
-    console.log(this.confirmPassword);
   }
 
   public cancelModifyings() {
@@ -102,16 +100,21 @@ export class ManageUngitComponent implements OnInit {
     this.updateAccountCredentialsForm = this._fb.group({
       'hostname': [item.hostname, Validators.required],
       'username': [item.username, Validators.required],
-      'email': [item.email, Validators.required],
+      'email': [item.email, [Validators.required, Validators.pattern(this.mail_validity_pattern)]],
       'login': [item.login, Validators.required],
-      'password': [item.password, Validators.required]
+      'password': [''],
+      'confirmPassword': ['']
     });
+
+    this.updateAccountCredentialsForm.get('hostname').valueChanges
+      .subscribe(data => this.isHostNameChanged(data));
   }
 
   public assignChanges(current: FormGroup): void {
     const modifiedCredentials = JSON.parse(JSON.stringify(this.gitCredentials));
     const index = modifiedCredentials.findIndex(el => JSON.stringify(el) === JSON.stringify(this.currentEditableItem));
     
+    delete current['confirmPassword'];
     index > -1 ? modifiedCredentials.splice(index, 1, current) : modifiedCredentials.push(current);
 
     this.gitCredentials = modifiedCredentials;
@@ -130,9 +133,10 @@ export class ManageUngitComponent implements OnInit {
     this.updateAccountCredentialsForm = this._fb.group({
       'hostname': ['', Validators.required],
       'username': ['', Validators.required],
-      'email': ['', Validators.required],
+      'email': ['', [Validators.required, Validators.pattern(this.mail_validity_pattern)]],
       'login': ['', Validators.required],
-      'password': ['', Validators.required]
+      'password': ['', Validators.required],
+      'confirmPassword': ['', Validators.compose([Validators.required, this.validConfirmField.bind(this)])]
     });
   }
 
@@ -142,5 +146,29 @@ export class ManageUngitComponent implements OnInit {
           this.gitCredentials = response.git_creds || [];
         },
         error => console.log(error));
+  }
+
+  private validConfirmField(control) {
+    if (this.updateAccountCredentialsForm) {
+      const passReq = this.updateAccountCredentialsForm.get('password');
+      const confirmPassReq = this.updateAccountCredentialsForm.get('confirmPassword');
+
+      return passReq.value === confirmPassReq.value ? null : { valid: false };
+    }
+  }
+
+  isHostNameChanged(value) {
+    const passReq = this.updateAccountCredentialsForm.get('password');
+    const confirmPassReq = this.updateAccountCredentialsForm.get('confirmPassword');
+
+    if (value && value !== this.currentEditableItem.hostname) {
+      confirmPassReq.setValidators([Validators.required, this.validConfirmField.bind(this)]);
+      passReq.setValidators([Validators.required, Validators.minLength(6)]);
+    } else {
+      passReq.setValidators([]);
+      confirmPassReq.setValidators([]);
+    }
+    passReq.updateValueAndValidity();
+    confirmPassReq.updateValueAndValidity();
   }
 }

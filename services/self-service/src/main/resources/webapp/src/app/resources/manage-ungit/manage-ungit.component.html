@@ -58,7 +58,6 @@ limitations under the License.
           </div>
       </md-tab>
       <md-tab label="EDIT | CREATE">
-        <!--(submit)="editAccounts_btnClick($event, updateAccountCredentialsForm.value)"-->
        <form [formGroup]="updateAccountCredentialsForm" novalidate>
          <div class="tab-content git-form">
            <div class="col">
@@ -67,16 +66,25 @@ limitations under the License.
                      formControlName="hostname"
                      placeholder="Enter host name">
             </md-input-container>
+            <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['hostname'].valid && updateAccountCredentialsForm.controls['hostname'].touched">
+              Hostname field is required
+            </span>
             <md-input-container>
               <input mdInput type="text"
                      formControlName="username"
                      placeholder="Enter user name">
             </md-input-container>
+            <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['username'].valid && updateAccountCredentialsForm.controls['username'].touched">
+              Username field is required
+            </span>
             <md-input-container>
               <input mdInput type="email"
                      formControlName="email"
                      placeholder="Enter email">
             </md-input-container>
+            <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['email'].valid && updateAccountCredentialsForm.controls['email'].touched">
+              Email field is required. Please provide a valid email
+            </span>
            </div>
 
            <div class="col">
@@ -85,15 +93,25 @@ limitations under the License.
                      formControlName="login"
                      placeholder="Enter login">
             </md-input-container>
+            <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['login'].valid && updateAccountCredentialsForm.controls['login'].touched">
+              Login field is required
+            </span>
             <md-input-container>
               <input mdInput type="password"
                      formControlName="password"
                      placeholder="Enter Password">
             </md-input-container>
+            <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['password'].valid && updateAccountCredentialsForm.controls['password'].touched">
+              Field is required. Please provide a password
+            </span>
             <md-input-container>
-              <input #confirm mdInput type="password"
+              <input mdInput type="password"
+                     formControlName="confirmPassword"
                      placeholder="Confirm Password">
             </md-input-container>
+            <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['confirmPassword'].valid && updateAccountCredentialsForm.controls['confirmPassword'].touched">
+              Field is required. Please confirm a password
+            </span>
            </div>
          </div>
           <div class="text-center m-top-30 m-bott-10">
