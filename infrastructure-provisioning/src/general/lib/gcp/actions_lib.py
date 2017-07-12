@@ -237,7 +237,8 @@ class GCPActions:
             ],
             "serviceAccounts": [
                 {
-                    "email": service_account_email
+                    "email": service_account_email,
+                    "scopes": ["https://www.googleapis.com/auth/cloud-platform"]
                 }
             ]
         }
