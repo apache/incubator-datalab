@@ -25,6 +25,7 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--service_account_name', type=str, default='')
+parser.add_argument('--role_name', type=str, default='')
 args = parser.parse_args()
 
 
@@ -35,8 +36,12 @@ if __name__ == "__main__":
         else:
             print "Creating Service account {}".format(args.service_account_name)
             GCPActions().create_service_account(args.service_account_name)
+            if GCPMeta().get_role(args.role_name):
+                print "REQUESTED ROLE {} ALREADY EXISTS".format(args.role_name)
+            else:
+                print "Creating Role {}".format(args.role_name)
             print "Assigning policy to Service account."
-            GCPActions().set_policy_to_service_account(args.service_account_name)
+            GCPActions().set_policy_to_service_account(args.service_account_name, args.role_name)
     else:
         sys.exit(1)
 

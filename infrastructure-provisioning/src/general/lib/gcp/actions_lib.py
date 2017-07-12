@@ -354,14 +354,14 @@ class GCPActions:
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
 
-    def set_policy_to_service_account(self, service_account_name):
+    def set_policy_to_service_account(self, service_account_name, role_name):
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         params = {
             "policy":
                 {
                     "bindings": [
                         {
-                            "role": "roles/viewer",
+                            "role": "projects/{}/roles/{}".format(self.project, role_name),
                             "members": [
                                 "serviceAccount:{}".format(service_account_email)
                             ]
@@ -372,7 +372,8 @@ class GCPActions:
         request = self.service_iam.projects().serviceAccounts().setIamPolicy(resource=
                                                                              'projects/{}/serviceAccounts/{}'.
                                                                              format(self.project,
-                                                                                    service_account_email), body=params)
+                                                                                    service_account_email),
+                                                                             body=params)
         try:
             return request.execute()
         except Exception as err:

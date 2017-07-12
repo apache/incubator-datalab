@@ -191,3 +191,7 @@ class GCPMeta:
                                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
+
+    def get_role(self, role_name):
+        print "Role name -> {}".format(role_name)
+        return role_name

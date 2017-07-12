@@ -52,6 +52,7 @@ if __name__ == "__main__":
     ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
     ssn_conf['service_account_name'] = ssn_conf['service_base_name'] + '-ssn-sa'
     ssn_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
+    ssn_conf['role_name'] = 'dlab_ssn_role'
 
     try:
         if os.environ['gcp_vpc_name'] == '':
