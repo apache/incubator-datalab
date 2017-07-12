@@ -48,10 +48,10 @@ if __name__ == "__main__":
             print "Creating Instance {}".format(args.instance_name)
             GCPActions().create_instance(args.instance_name, args.region, args.zone, args.vpc_name, args.subnet_name,
                                          args.instance_size, args.ssh_key_path, args.initial_user, args.ami_name,
-                                         args.primary_disk_size)
-            print "Setting Service account to the instance"
-            GCPActions().stop_instance(args.instance_name, args.zone)
-            GCPActions().set_service_account_to_instance(args.service_account_name, args.instance_name)
-            GCPActions().start_instance(args.instance_name, args.zone)
+                                         args.service_account_name, args.primary_disk_size)
+            # print "Setting Service account to the instance"
+            # GCPActions().stop_instance(args.instance_name, args.zone)
+            # GCPActions().set_service_account_to_instance(args.service_account_name, args.instance_name)
+            # GCPActions().start_instance(args.instance_name, args.zone)
     else:
         sys.exit(1)

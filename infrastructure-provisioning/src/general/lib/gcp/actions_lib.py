@@ -197,9 +197,10 @@ class GCPActions:
                 traceback.print_exc(file=sys.stdout)
 
     def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path,
-                        initial_user, ami_name, primary_disk_size='12'):
+                        initial_user, ami_name, service_account_name, primary_disk_size='12'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
+        service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         instance_params = {
             "name": instance_name,
             "machineType": "zones/{}/machineTypes/{}".format(zone, instance_size),
@@ -232,6 +233,11 @@ class GCPActions:
                     },
                     "boot": 'true',
                     "mode": "READ_WRITE"
+                }
+            ],
+            "serviceAccounts": [
+                {
+                    "email": service_account_email
                 }
             ]
         }
