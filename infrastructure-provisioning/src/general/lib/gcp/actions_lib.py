@@ -197,7 +197,7 @@ class GCPActions:
                 traceback.print_exc(file=sys.stdout)
 
     def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path,
-                        initial_user):
+                        initial_user, ami_name, primary_disk_size='12'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
         instance_params = {
@@ -227,8 +227,8 @@ class GCPActions:
                     "deviceName": instance_name,
                     "autoDelete": 'true',
                     "initializeParams": {
-                        "diskSizeGb": "10",
-                        "sourceImage": "/projects/ubuntu-os-cloud/global/images/ubuntu-1604-xenial-v20170502"
+                        "diskSizeGb": primary_disk_size,
+                        "sourceImage": ami_name
                     },
                     "boot": 'true',
                     "mode": "READ_WRITE"

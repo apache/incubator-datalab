@@ -51,6 +51,7 @@ if __name__ == "__main__":
     ssn_conf['firewall_name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
     ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
     ssn_conf['service_account_name'] = ssn_conf['service_base_name'] + '-ssn-sa'
+    ssn_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
 
     try:
         if os.environ['gcp_vpc_name'] == '':
@@ -193,10 +194,10 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {}".\
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {}".\
             format(ssn_conf['instance_name'], ssn_conf['region'], ssn_conf['zone'], ssn_conf['vpc_name'],
                    ssn_conf['subnet_name'], ssn_conf['instance_size'], ssn_conf['ssh_key_path'], initial_user,
-                   ssn_conf['service_account_name'])
+                   ssn_conf['service_account_name'], ssn_conf['ami_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
