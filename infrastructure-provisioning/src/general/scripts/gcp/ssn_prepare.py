@@ -163,7 +163,8 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SERVICE ACCOUNT]')
         print('[CREATE SERVICE ACCOUNT]')
-        params = "--service_account_name {}".format(ssn_conf['service_account_name'])
+        params = "--service_account_name {} --role_name {}".format(ssn_conf['service_account_name'],
+                                                                   ssn_conf['role_name'])
 
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))
