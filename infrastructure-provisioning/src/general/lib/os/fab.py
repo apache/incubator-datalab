@@ -25,7 +25,7 @@ import sys
 import string
 import json, uuid, time, datetime, csv
 from dlab.meta_lib import *
-from dlab.actions_lib import *
+import dlab.actions_lib
 import re
 
 
@@ -598,6 +598,10 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
 
 
 def install_ungit(os_user, certfile):
+    bucket_name = ('{}-ssn-bucket'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
+    if dlab.actions_lib.get_gitlab_cert(bucket_name, certfile):
+        put(certfile, certfile)
+        sudo('chown root:root {}'.format(certfile))
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
             sudo('npm -g install ungit')
@@ -614,10 +618,6 @@ def install_ungit(os_user, certfile):
             sudo('systemctl daemon-reload')
             sudo('systemctl enable ungit.service')
             sudo('systemctl start ungit.service')
-            bucket_name = ('{}-ssn-bucket'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
-            if get_gitlab_cert(bucket_name, certfile):
-                put(certfile, certfile)
-                sudo('chown root:root {}'.format(certfile))
             sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
         except:
             sys.exit(1)
