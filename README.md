@@ -569,7 +569,7 @@ List of parameters for EMR cluster creation:
 | emr\_instance\_count        | Amount of instance in cluster                                |
 | emr\_master\_instance\_type | Value for EMR EC2 master instance shape                      |
 | emr\_slave\_instance\_type  | Value for EMR EC2 slave instances shapes                     |
-| emr\_version                | Available versions of EMR (emr-5.2.0/emr-5.3.1)              |
+| emr\_version                | Available versions of EMR (emr-5.2.0/emr-5.3.1/emr-5.6.0)              |
 | notebook\_instance\_name    | Name of the Notebook EMR will be linked to                   |
 | edge\_user\_name            | Value that previously was used when Edge being provisioned   |
 | aws\_region                 | AWS region where infrastructure was deployed                 |
