@@ -238,7 +238,7 @@ export class ApplicationServiceFacade {
   public buildUpdateGitCredentials(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.GIT_CREDS),
-      null,
+      data,
       this.getRequestOptions(true, true));
   }
 

@@ -18,7 +18,7 @@ limitations under the License.
 
 <modal-dialog #bindDialog  modalClass="manage-ungit modal-xl">
   <modal-header>
-    <h4 class="modal-title" id="myModalLabel">Manage UnGit</h4>
+    <h4 class="modal-title" id="myModalLabel">Manage Git Credentials</h4>
   </modal-header>
   <modal-content class="manage-ungit">
    
@@ -60,17 +60,17 @@ limitations under the License.
             <button md-raised-button type="button" class="butt butt-success" (click)="editAccounts_btnClick()">Apply changes</button>
           </div>
       </md-tab>
-      <md-tab label="EDIT | CREATE">
+      <md-tab label="MANAGE ACCOUNT">
        <form [formGroup]="updateAccountCredentialsForm" novalidate>
          <div class="tab-content git-form">
            <div class="col">
             <md-input-container>
               <input mdInput type="text"
                      formControlName="hostname"
-                     placeholder="Enter host name">
+                     placeholder="Enter host name ( without http:// or https:// )">
             </md-input-container>
             <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['hostname'].valid && updateAccountCredentialsForm.controls['hostname'].touched">
-              Hostname field is required
+              Hostname field is required. Please provide a qualified domain name
             </span>
             <md-input-container>
               <input mdInput type="text"

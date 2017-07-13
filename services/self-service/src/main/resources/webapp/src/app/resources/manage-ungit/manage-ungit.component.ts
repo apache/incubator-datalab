@@ -35,7 +35,8 @@ export class ManageUngitComponent implements OnInit {
   gitCredentials: Array<AccountCredentials>;
   currentEditableItem: AccountCredentials;
   currentEditableHostname: string;
-  mail_validity_pattern = '^[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})$';
+  mail_validity_pattern = '^[a-zA-Z0-9.!*_-]*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})$';
+  hostname_validity_pattern = '^((([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]))$';
 
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
@@ -98,9 +99,9 @@ export class ManageUngitComponent implements OnInit {
     this.currentEditableItem = item;
 
     this.updateAccountCredentialsForm = this._fb.group({
-      'hostname': [item.hostname, Validators.required],
+      'hostname': [item.hostname, Validators.compose([Validators.required, Validators.pattern(this.hostname_validity_pattern)])],
       'username': [item.username, Validators.required],
-      'email': [item.email, [Validators.required, Validators.pattern(this.mail_validity_pattern)]],
+      'email': [item.email, Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
       'login': [item.login, Validators.required],
       'password': [''],
       'confirmPassword': ['']
@@ -136,9 +137,9 @@ export class ManageUngitComponent implements OnInit {
 
   private initFormModel(): void {
     this.updateAccountCredentialsForm = this._fb.group({
-      'hostname': ['', Validators.required],
+      'hostname': ['', Validators.compose([Validators.required, Validators.pattern(this.hostname_validity_pattern)])],
       'username': ['', Validators.required],
-      'email': ['', [Validators.required, Validators.pattern(this.mail_validity_pattern)]],
+      'email': ['', Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
       'login': ['', Validators.required],
       'password': ['', Validators.required],
       'confirmPassword': ['', Validators.compose([Validators.required, this.validConfirmField.bind(this)])]
