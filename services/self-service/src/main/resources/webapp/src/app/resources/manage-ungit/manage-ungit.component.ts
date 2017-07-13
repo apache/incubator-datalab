@@ -110,6 +110,11 @@ export class ManageUngitComponent implements OnInit {
       .subscribe(data => this.isHostNameChanged(data));
   }
 
+  public deleteAccount(item: AccountCredentials) {
+    this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
+    this.model.confirmAction(this.gitCredentials);
+  }
+
   public assignChanges(current: FormGroup): void {
     const modifiedCredentials = JSON.parse(JSON.stringify(this.gitCredentials));
     const index = modifiedCredentials.findIndex(el => JSON.stringify(el) === JSON.stringify(this.currentEditableItem));

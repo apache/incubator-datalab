@@ -58,3 +58,6 @@ limitations under the License.
 .git-actions {
     cursor: pointer;
 }
+.manage-ungit .actions .remove {
+    left: 45px;
+}
