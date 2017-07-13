@@ -1,0 +1,47 @@
+<!--
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<section>
+  <div class="info_color" *ngIf="reportData">
+    <div class="general">
+      <div><span>Service base name: </span><strong>{{ reportData.service_base_name }}</strong></div>
+      <div><span>Resource tag ID: </span><strong>{{ reportData.tag_resource_id }}</strong></div>
+      <div class="report-period info_color" *ngIf="availablePeriodFrom && availablePeriodTo">
+        Available reporting period from: <strong>{{ availablePeriodFrom | date }} </strong>
+        to: <strong>{{ availablePeriodTo | date }}</strong>
+    </div>
+    </div>
+  </div>
+
+  <div id="range-picker">
+    <ng-daterangepicker [(ngModel)]="value" [options]="options" (ngModelChange)="onChange($event)"></ng-daterangepicker>
+  </div>
+  <div class="action-butt">
+    <!--<button md-raised-button class="butt butt-report-range" [mdMenuTriggerFor]="dateRange">-->
+      <!--<i class="material-icons">date_range</i>-->
+      <!--<i class="material-icons">event</i>
+      Report period range
+    </button>-->
+    <!--<md-menu #dateRange="mdMenu">
+      <button md-menu-item *ngFor="let item of rangeOptions | keys" (click)="calculateRange(item.key)">{{item.value}}</button>
+    </md-menu>-->
+    <button md-raised-button class="butt" (click)="rebuild($event)">
+      <i class="material-icons">autorenew</i>Refresh
+    </button>
+
+  </div>
+</section>

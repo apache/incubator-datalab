@@ -67,7 +67,7 @@ limitations under the License.
   text-align: center;
 }
 
-.dashboard_table tr td:first-child {
+.dashboard_table_body td:first-child {
   background: #f3fbfd;
   color: #455c74;
   font-weight: 600;

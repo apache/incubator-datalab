@@ -45,6 +45,7 @@ export class ApplicationServiceFacade {
   private static readonly LIB_INSTALL = 'lib_install';
   private static readonly INSTALLED_LIBS = 'installed_libs';
   private static readonly GIT_CREDS = 'git_creds';
+  private static readonly BILLING = 'billing';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -237,6 +238,13 @@ export class ApplicationServiceFacade {
   public buildUpdateGitCredentials(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.GIT_CREDS),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetGeneralBillingData(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.BILLING),
       data,
       this.getRequestOptions(true, true));
   }
@@ -284,6 +292,9 @@ export class ApplicationServiceFacade {
 
     // UnGit credentials
     this.requestRegistry.Add(ApplicationServiceFacade.GIT_CREDS, '/api/user/git_creds');
+
+    // billing report
+    this.requestRegistry.Add(ApplicationServiceFacade.BILLING, '/api/infrastructure_provision/billing');
   }
 
   private buildRequest(method: RequestMethod, url: string, body: any, opt: RequestOptions): Observable<Response> {

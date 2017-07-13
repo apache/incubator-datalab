@@ -60,6 +60,7 @@ r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', '
 r_kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
 toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snapshots/dev1/toree-pip/toree-0.2.0.dev1.tar.gz'
 scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
+gitlab_certfile = 'dlab-gitlab.crt'
 
 
 def install_itorch(args):
@@ -133,7 +134,9 @@ if __name__ == "__main__":
 
     print "Install Ungit"
     install_nodejs(args.os_user)
-    install_ungit(args.os_user)
+    install_ungit(args.os_user, gitlab_certfile)
+    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+        install_gitlab_cert(args.os_user, gitlab_certfile)
 
     print "Installing Torch"
     install_torch(args.os_user)

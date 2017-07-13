@@ -19,25 +19,18 @@ limitations under the License.
 package com.epam.dlab.backendapi.util;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.google.inject.Inject;
 
 /** Utilities for resource methods.
  */
 public class ResourceUtils {
-	
+
+	@Inject
 	private static SettingsDAO settingsDAO;
-	
-	private static SettingsDAO getSettingsDAO() {
-		if (settingsDAO == null) {
-			settingsDAO = new SettingsDAO();
-			SelfServiceApplication.getInjector().injectMembers(settingsDAO);
-		}
-		return settingsDAO;
-	}
 
 	/** Instantiate, initialize and return class instance which inherits from {@link com.epam.dlab.dto.ResourceBaseDTO}.
 	 * Initialize: AWS region, AWS IAM user name, EDGE user name.
@@ -51,7 +44,7 @@ public class ResourceUtils {
 		try {
 			T resource = resourceClass.newInstance();
 	    	return (T) resource
-	    			.withAwsRegion(getSettingsDAO().getAwsRegion())
+	    			.withAwsRegion(settingsDAO.getAwsRegion())
 	    			.withAwsIamUser(userInfo.getName())
 	    			.withEdgeUserName(userInfo.getSimpleName());
 		} catch (Exception e) {
@@ -71,9 +64,9 @@ public class ResourceUtils {
 	public static <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass) throws DlabException {
     	T resource = newResourceBaseDTO(userInfo, resourceClass);
     	return (T) resource
-    			.withServiceBaseName(getSettingsDAO().getServiceBaseName())
-    			.withConfTagResourceId(getSettingsDAO().getConfTagResourceId())
-    			.withConfOsFamily(getSettingsDAO().getConfOsFamily());
+    			.withServiceBaseName(settingsDAO.getServiceBaseName())
+    			.withConfTagResourceId(settingsDAO.getConfTagResourceId())
+    			.withConfOsFamily(settingsDAO.getConfOsFamily());
 
     }
     

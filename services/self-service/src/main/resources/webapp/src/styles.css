@@ -61,6 +61,11 @@ limitations under the License.
     z-index: 9999;
 }
 
+.cdk-overlay-pane {
+    min-width: 240px;
+    margin-top: 38px;
+}
+
 .install-libs .mat-tab-label,
 .manage-ungit .mat-tab-label {
     width: 50%;
@@ -222,6 +227,16 @@ button {
   cursor: not-allowed !important;
   user-select: none;
   opacity: 0.6;
+}
+
+.message {
+    padding: 40px 20px;
+    text-align: center;
+}
+.info {
+    font-size: 16px;
+    font-weight: 300;
+    color: #35afd5;
 }
 
 @-webkit-keyframes spin {

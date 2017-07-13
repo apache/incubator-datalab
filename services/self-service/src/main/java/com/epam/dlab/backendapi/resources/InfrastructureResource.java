@@ -55,6 +55,13 @@ public class InfrastructureResource implements InfrasctructureAPI {
     @Inject
     private EnvStatusDAO envDAO;
 
+    /** Return status of self-service.
+     */
+    @GET
+    public Response status() {
+        return Response.status(Response.Status.OK).build();
+    }
+
     /** Returns the status of infrastructure: edge.
      * @param userInfo user info.
      */

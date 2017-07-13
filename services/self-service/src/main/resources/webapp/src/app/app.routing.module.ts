@@ -24,6 +24,7 @@ import { ResourcesComponent } from './resources/resources.component';
 import { HealthStatusComponent } from './health-status/health-status.component';
 import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './not-found/not-found.component';
+import { ReportingComponent } from './reporting/reporting.component';
 import { AuthorizationGuard } from './core/services';
 
 const routes: Routes = [{
@@ -36,6 +37,10 @@ const routes: Routes = [{
   }, {
     path: 'environment_health_status',
     component: HealthStatusComponent,
+    canActivate: [AuthorizationGuard]
+  }, {
+    path: 'reporting',
+    component: ReportingComponent,
     canActivate: [AuthorizationGuard]
   }, {
     path: 'help/publickeyguide',

@@ -62,7 +62,7 @@ abstract class DAOTestBase {
             mongoClient = new MongoClient(
                     new ServerAddress("localhost", 27017),
                     Collections.singletonList(
-                    MongoCredential.createCredential("admin", "dlabdb", "XS3ms9R3tP".toCharArray())));
+                    MongoCredential.createCredential("admin", "dlabdb", "MONGO_PASSWORD".toCharArray())));
         }
         mongoService = new MongoService(mongoClient, DBNAME, WriteConcern.ACKNOWLEDGED);
     }

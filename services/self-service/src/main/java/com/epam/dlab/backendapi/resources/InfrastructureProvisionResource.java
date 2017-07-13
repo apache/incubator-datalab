@@ -39,10 +39,12 @@ import org.slf4j.LoggerFactory;
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.UserInstanceDTO;
+import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.resources.dto.BillingFilterFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryGetLibsFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
@@ -71,6 +73,8 @@ public class InfrastructureProvisionResource implements DockerAPI {
     @Inject
     private ExploratoryDAO expDAO;
     @Inject
+    private BillingDAO billingDAO;
+    @Inject
     private KeyDAO keyDAO;
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
@@ -91,7 +95,9 @@ public class InfrastructureProvisionResource implements DockerAPI {
         	int i = 0;
     		for (Document d : documents) {
         		d.append(EDGE_IP, edgeInfo.getPublicIp())
-    			 .append(EdgeInfoDTO.USER_OWN_BUCKET_NAME, edgeInfo.getUserOwnBucketName());
+                        .append(EdgeInfoDTO.USER_OWN_BUCKET_NAME, edgeInfo.getUserOwnBucketName())
+                        .append(EdgeInfoDTO.SHARED_BUCKET_NAME, edgeInfo.getSharedBucketName());
+
         		notebooks.add(d);
         		LOGGER.debug("Notebook[{}]: {}", ++i, d);
         	}
@@ -213,6 +219,24 @@ public class InfrastructureProvisionResource implements DockerAPI {
         // Always necessary send OK for status request
         return Response.ok().build();
     }
+
+    
+    /** Returns the billing report.
+     * @param userInfo user info.
+     * @param formDTO filter for report data.
+     */
+    @POST
+    @Path("/billing")
+    public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilterFormDTO formDTO) {
+        LOGGER.trace("Loading billing report for user {} with filter {}", userInfo.getName(), formDTO);
+        try {
+        	return billingDAO.getReport(userInfo, formDTO);
+        } catch (Throwable t) {
+        	LOGGER.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), formDTO, t);
+            throw new DlabException("Cannot load billing report: " + t.getLocalizedMessage(), t);
+        }
+    }
+    
 
 
     /** Return the image name without suffix version.

@@ -64,9 +64,15 @@ keystore_passwd = id_generator()
 def configure_mongo(mongo_passwd):
     try:
         if not exists("/lib/systemd/system/mongod.service"):
+            if os.environ['conf_os_family'] == 'debian':
+                local('sed -i "s/MONGO_USR/mongodb/g" /root/templates/mongod.service_template')
+            elif os.environ['conf_os_family'] == 'redhat':
+                local('sed -i "s/MONGO_USR/mongod/g" /root/templates/mongod.service_template')
             local('scp -i {} /root/templates/mongod.service_template {}:/tmp/mongod.service'.format(args.keyfile,
                                                                                                     env.host_string))
             sudo('mv /tmp/mongod.service /lib/systemd/system/mongod.service')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable mongod.service')
         local('scp -i {} /root/files/ssn_instance_shapes.lst {}:/tmp/ssn_instance_shapes.lst'.format(args.keyfile,
                                                                                                  env.host_string))
         sudo('mv /tmp/ssn_instance_shapes.lst ' + args.dlab_path + 'tmp/')

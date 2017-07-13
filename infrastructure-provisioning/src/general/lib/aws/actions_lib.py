@@ -614,6 +614,7 @@ def s3_cleanup(bucket, cluster_name, user_name):
 def remove_s3(bucket_type='all', scientist=''):
     try:
         client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
+        s3 = boto3.resource('s3')
         bucket_list = []
         if bucket_type == 'ssn':
             bucket_name = (os.environ['conf_service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
@@ -629,18 +630,11 @@ def remove_s3(bucket_type='all', scientist=''):
                         bucket_list.append(item.get('Name'))
         for s3bucket in bucket_list:
             if s3bucket:
-                list_obj = client.list_objects(Bucket=s3bucket)
-                list_obj = list_obj.get('Contents')
-                if list_obj is not None:
-                    for o in list_obj:
-                        list_obj = o.get('Key')
-                        client.delete_objects(
-                            Bucket=s3bucket,
-                            Delete={'Objects': [{'Key': list_obj}]}
-                        )
-                    print "The S3 bucket " + s3bucket + " has been cleaned"
+                bucket = s3.Bucket(s3bucket)
+                bucket.objects.all().delete()
+                print "The S3 bucket {} has been cleaned".format(s3bucket)
                 client.delete_bucket(Bucket=s3bucket)
-                print "The S3 bucket " + s3bucket + " has been deleted successfully"
+                print "The S3 bucket {} has been deleted successfully".format(s3bucket)
             else:
                 print "There are no buckets to delete"
     except Exception as err:
@@ -965,3 +959,12 @@ def get_cluster_python_version(region, bucket, user_name, cluster_name):
     s3_client.download_file(bucket, user_name + '/' + cluster_name + '/python_version', '/tmp/python_version')
 
 
+def get_gitlab_cert(bucket, certfile):
+    try:
+        s3 = boto3.resource('s3')
+        s3.Bucket(bucket).download_file(certfile, certfile)
+        return True
+    except botocore.exceptions.ClientError as err:
+        if err.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        return False
