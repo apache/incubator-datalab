@@ -41,6 +41,7 @@ export class ResourcesComponent implements OnInit {
   @ViewChild('keyUploadModal') keyUploadModal;
   @ViewChild('preloaderModal') preloaderModal;
   @ViewChild('createAnalyticalModal') createAnalyticalModal;
+  @ViewChild('manageUngitDialog') manageUngitDialog;
   @ViewChild(ResourcesGridComponent) resourcesGrid: ResourcesGridComponent;
   @ViewChild(NavbarComponent) navbarComponent: NavbarComponent;
 
@@ -86,6 +87,11 @@ export class ResourcesComponent implements OnInit {
       response => this.processAccessKeyStatus(response.status, false),
       error => this.processAccessKeyStatus(error.status, false)
       );
+  }
+
+  public manageUngit(): void {
+    if (!this.manageUngitDialog.isOpened)
+        this.manageUngitDialog.open({ isFooter: false });
   }
 
   private toggleDialogs(keyUploadDialogToggle, preloaderDialogToggle, createAnalyticalToolDialogToggle) {

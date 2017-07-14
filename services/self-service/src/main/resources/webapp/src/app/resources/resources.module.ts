@@ -19,16 +19,20 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '@angular/material';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { ResourcesComponent } from './resources.component';
 import { ResourcesGridModule } from './resources-grid';
 import { NavbarModule, ModalModule, ProgressDialogModule, UploadKeyDialogModule } from './../shared';
 import { ExploratoryEnvironmentCreateDialogModule } from './exploratory/exploratory-environment-create-dialog';
+import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 
 @NgModule({
   imports: [
     CommonModule,
     ModalModule,
+    FormsModule,
+    ReactiveFormsModule,
     ResourcesGridModule,
     ProgressDialogModule,
     UploadKeyDialogModule,
@@ -36,7 +40,7 @@ import { ExploratoryEnvironmentCreateDialogModule } from './exploratory/explorat
     NavbarModule,
     MaterialModule.forRoot()
   ],
-  declarations: [ResourcesComponent],
+  declarations: [ResourcesComponent, ManageUngitComponent],
   exports: [ResourcesComponent]
 })
 export class ResourcesModule { }

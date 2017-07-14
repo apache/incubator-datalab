@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.dto.exploratory;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,6 +34,20 @@ public class ExploratoryGitCredsDTO {
      */
     public List<ExploratoryGitCreds> getGitCreds() {
         return gitCreds;
+    }
+
+    /** Set the list of GIT credentials and check the unique for host names.
+     */
+    public void setGitCreds(List<ExploratoryGitCreds> gitCreds) {
+    	if (gitCreds != null) {
+    		Collections.sort(gitCreds);
+    		for (int i = 1; i < gitCreds.size(); i++) {
+				if (gitCreds.get(i).equals(gitCreds.get(i - 1))) {
+					throw new IllegalArgumentException("Duplicate found for host name in git credentials: " + gitCreds.get(i).getHostname());
+				}
+			}
+    	}
+        this.gitCreds = gitCreds;
     }
 
     @Override

@@ -43,6 +43,7 @@ import {
   ApplicationServiceFacade,
   ApplicationSecurityService,
   LibrariesInstallationService,
+  ManageUngitService,
   BillingReportService
 } from './core/services';
 
@@ -77,6 +78,7 @@ import {
     UserResourceService,
     HealthStatusService,
     LibrariesInstallationService,
+    ManageUngitService,
     BillingReportService,
     ApplicationServiceFacade
   ],

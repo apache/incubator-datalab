@@ -1,0 +1,63 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+.modal-dialog .manage-ungit .modal-body {
+    padding: 0 20px;
+}
+
+.manage-ungit .mail-field,
+.manage-ungit .user-field,
+.manage-ungit .login-field,
+.manage-ungit .hostname-field,
+.manage-ungit .actions {
+    width: 25%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.manage-ungit .hostname-field,
+.manage-ungit .actions {
+    width: 20%;
+}
+
+.manage-ungit .actions {
+    position: relative;
+    overflow: visible;
+    width: 50px;
+}
+.manage-ungit .actions span {
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    zoom: 0.8;
+}
+
+.git-form .mat-input-container {
+    width: 100%;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.git-form .col {
+    padding: 20px 15px;
+}
+
+.git-actions {
+    cursor: pointer;
+}
+.manage-ungit .actions .remove {
+    left: 45px;
+}
