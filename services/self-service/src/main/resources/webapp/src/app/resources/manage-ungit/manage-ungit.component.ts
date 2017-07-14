@@ -32,9 +32,8 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from './../../core/util';
 })
 export class ManageUngitComponent implements OnInit {
   model: MangeUngitModel;
-  gitCredentials: Array<AccountCredentials>;
+  gitCredentials: Array<AccountCredentials> = [];
   currentEditableItem: AccountCredentials;
-  currentEditableHostname: string;
   mail_validity_pattern = '^[a-zA-Z0-9.!*_-]*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})$';
   hostname_validity_pattern = '^((([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]))$';
 
@@ -51,7 +50,7 @@ export class ManageUngitComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.bindDialog.onClosing = () => this.resetForm();
+    this.bindDialog.onClosing = () => this.cancelAllModifyings();
 
     this.initFormModel();
     this.getGitCredentials();
@@ -59,21 +58,16 @@ export class ManageUngitComponent implements OnInit {
 
   public open(param): void {
     if (!this.bindDialog.isOpened)
-      this.model = new MangeUngitModel((response: Response) => {
-        if (response.status === HTTP_STATUS_CODES.OK) {
-          // this.resetDialog();
-        }
-      },
+      this.model = new MangeUngitModel((response: Response) => { },
       (response: Response) => {
         // this.processError = true;
         // this.errorMessage = ErrorMapUtils.setErrorMessage(response);
-        console.log('ERROR');
-        
+        console.log('ERROR', response);
       },
       () => {
         this.bindDialog.open(param);
 
-        if (!this.gitCredentials)
+        if (!this.gitCredentials.length)
           this.tabGroup.selectedIndex = 1;
       },
       this.manageUngitService);
@@ -89,9 +83,10 @@ export class ManageUngitComponent implements OnInit {
     this.currentEditableItem = null;
   }
 
-  public cancelModifyings() {
-    this.getGitCredentials();
+  public cancelAllModifyings() {
     this.editableForm = false;
+    this.getGitCredentials();
+    this.resetForm();
   }
 
   public editSpecificAccount(item: AccountCredentials) {
@@ -103,12 +98,9 @@ export class ManageUngitComponent implements OnInit {
       'username': [item.username, Validators.required],
       'email': [item.email, Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
       'login': [item.login, Validators.required],
-      'password': [''],
-      'confirmPassword': ['']
+      'password': ['', Validators.compose([Validators.required, Validators.minLength(6)])],
+      'confirmPassword': ['', Validators.compose([Validators.required, this.validConfirmField.bind(this)])]
     });
-
-    this.updateAccountCredentialsForm.get('hostname').valueChanges
-      .subscribe(data => this.isHostNameChanged(data));
   }
 
   public deleteAccount(item: AccountCredentials) {
@@ -116,10 +108,10 @@ export class ManageUngitComponent implements OnInit {
     this.model.confirmAction(this.gitCredentials);
   }
 
-  public assignChanges(current: FormGroup): void {
+  public assignChanges(current: any): void {
     const modifiedCredentials = JSON.parse(JSON.stringify(this.gitCredentials));
     const index = modifiedCredentials.findIndex(el => JSON.stringify(el) === JSON.stringify(this.currentEditableItem));
-    
+
     delete current['confirmPassword'];
     index > -1 ? modifiedCredentials.splice(index, 1, current) : modifiedCredentials.push(current);
 
@@ -141,7 +133,7 @@ export class ManageUngitComponent implements OnInit {
       'username': ['', Validators.required],
       'email': ['', Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
       'login': ['', Validators.required],
-      'password': ['', Validators.required],
+      'password': ['', Validators.compose([Validators.required, Validators.minLength(6)])],
       'confirmPassword': ['', Validators.compose([Validators.required, this.validConfirmField.bind(this)])]
     });
   }
@@ -161,20 +153,5 @@ export class ManageUngitComponent implements OnInit {
 
       return passReq.value === confirmPassReq.value ? null : { valid: false };
     }
-  }
-
-  isHostNameChanged(value) {
-    const passReq = this.updateAccountCredentialsForm.get('password');
-    const confirmPassReq = this.updateAccountCredentialsForm.get('confirmPassword');
-
-    if (value && value !== this.currentEditableItem.hostname) {
-      confirmPassReq.setValidators([Validators.required, this.validConfirmField.bind(this)]);
-      passReq.setValidators([Validators.required, Validators.minLength(6)]);
-    } else {
-      passReq.setValidators([]);
-      confirmPassReq.setValidators([]);
-    }
-    passReq.updateValueAndValidity();
-    confirmPassReq.updateValueAndValidity();
   }
 }

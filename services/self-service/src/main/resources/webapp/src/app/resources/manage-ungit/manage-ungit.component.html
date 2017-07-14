@@ -33,7 +33,7 @@ limitations under the License.
               <div class="actions"></div>
             </md-list-item>
 
-            <div class="scrollingList" *ngIf="gitCredentials">
+            <div class="scrollingList" *ngIf="gitCredentials?.length">
               <md-list-item *ngFor="let item of gitCredentials">
                 <div class="hostname-field"><strong>{{ item.hostname }}</strong></div>
                 <div class="user-field">{{ item.username }}</div>
@@ -50,13 +50,13 @@ limitations under the License.
 
               </md-list-item>
             </div>
-            <div *ngIf="!gitCredentials" class="scrollingList info">
+            <div *ngIf="!gitCredentials?.length" class="scrollingList info">
               <p>You have no any related accounts</p>
             </div>
           </md-list>
 
           <div class="text-center m-top-30 m-bott-10" *ngIf="editableForm">
-            <button md-raised-button type="button" class="butt" (click)="cancelModifyings()">Cancel</button>
+            <button md-raised-button type="button" class="butt" (click)="cancelAllModifyings()">Cancel</button>
             <button md-raised-button type="button" class="butt butt-success" (click)="editAccounts_btnClick()">Apply changes</button>
           </div>
       </md-tab>
@@ -70,7 +70,7 @@ limitations under the License.
                      placeholder="Enter host name ( without http:// or https:// )">
             </md-input-container>
             <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['hostname'].valid && updateAccountCredentialsForm.controls['hostname'].touched">
-              Hostname field is required. Please provide a qualified domain name
+              Hostname field is required. Please provide a qualified domain name (e.g. gitlab.com or github.com)
             </span>
             <md-input-container>
               <input mdInput type="text"
@@ -105,7 +105,7 @@ limitations under the License.
                      placeholder="Enter Password">
             </md-input-container>
             <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['password'].valid && updateAccountCredentialsForm.controls['password'].touched">
-              Field is required. Please provide a password
+              Field is required. Password must be at least 6 characters
             </span>
             <md-input-container>
               <input mdInput type="password"
