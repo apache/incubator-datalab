@@ -35,8 +35,9 @@ export class ManageUngitComponent implements OnInit {
   model: MangeUngitModel;
   gitCredentials: Array<AccountCredentials> = [];
   currentEditableItem: AccountCredentials;
-  mail_validity_pattern = '^[a-zA-Z0-9.!*_-]*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})$';
-  hostname_validity_pattern = '^((([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]))$';
+
+  mail_validity_pattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+  hostname_validity_pattern = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])+\.[a-z\.]+/;
 
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
