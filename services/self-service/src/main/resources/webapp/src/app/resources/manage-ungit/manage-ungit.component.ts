@@ -19,6 +19,7 @@ limitations under the License.
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
+import { MdDialog, MdDialogRef, MdDialogConfig } from '@angular/material';
 
 import { AccountCredentials, MangeUngitModel } from './manage-ungit.model';
 import { ManageUngitService } from './../../core/services';
@@ -45,7 +46,8 @@ export class ManageUngitComponent implements OnInit {
 
   constructor(
     private manageUngitService: ManageUngitService,
-    private _fb: FormBuilder) {
+    private _fb: FormBuilder,
+    public dialog: MdDialog) {
     this.model = MangeUngitModel.getDefault(manageUngitService);
   }
 
@@ -104,8 +106,13 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public deleteAccount(item: AccountCredentials) {
-    this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
-    this.model.confirmAction(this.gitCredentials);
+    const dialogRef: MdDialogRef<DialogResultExampleDialog> = this.dialog.open(DialogResultExampleDialog, { data: item, width: '550px' });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
+        this.model.confirmAction(this.gitCredentials);
+      }
+    });
   }
 
   public assignChanges(current: any): void {
@@ -154,4 +161,24 @@ export class ManageUngitComponent implements OnInit {
       return passReq.value === confirmPassReq.value ? null : { valid: false };
     }
   }
+}
+
+@Component({
+  selector: 'dialog-result-example-dialog',
+  template: `
+  <div md-dialog-content class="content">
+    <p>Account <strong>{{ dialogRef.config.data.hostname }}</strong> will be decommissioned.</p>
+    <p><strong>Do you want to proceed?</strong></p>
+  </div>
+  <div class="text-center">
+    <button type="button" class="butt" md-raised-button (click)="dialogRef.close()">No</button>
+    <button type="button" class="butt butt-success" md-raised-button (click)="dialogRef.close(true)">Yes</button>
+  </div>
+  `,
+  styles: [`
+    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
+  `]
+})
+export class DialogResultExampleDialog {
+  constructor(public dialogRef: MdDialogRef<DialogResultExampleDialog>) { }
 }
