@@ -39,6 +39,9 @@ export class ManageUngitComponent implements OnInit {
   mail_validity_pattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
   hostname_validity_pattern = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])+\.[a-z\.]+/;
 
+  errorMessage: string;
+  processError: boolean = false;
+
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
 
@@ -62,10 +65,9 @@ export class ManageUngitComponent implements OnInit {
   public open(param): void {
     if (!this.bindDialog.isOpened)
       this.model = new MangeUngitModel((response: Response) => { },
-      (response: Response) => {
-        // this.processError = true;
-        // this.errorMessage = ErrorMapUtils.setErrorMessage(response);
-        console.log('ERROR', response);
+      error => {
+        this.processError = true;
+        this.errorMessage = error.message;
       },
       () => {
         this.bindDialog.open(param);
@@ -88,6 +90,9 @@ export class ManageUngitComponent implements OnInit {
 
   public cancelAllModifyings() {
     this.editableForm = false;
+    this.errorMessage = '';
+    this.processError = false;
+
     this.getGitCredentials();
     this.resetForm();
   }
