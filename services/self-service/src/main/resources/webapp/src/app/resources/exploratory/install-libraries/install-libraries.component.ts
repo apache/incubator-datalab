@@ -163,7 +163,7 @@ export class InstallLibrariesComponent implements OnInit {
 
     if (this.installingInProgress || this.notebookFailedLibs.length) {
       if (this.clearCheckInstalling === undefined)
-        this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 4000);
+        this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 10000);
     } else {
       clearInterval(this.clearCheckInstalling);
       this.clearCheckInstalling = undefined;
