@@ -61,11 +61,6 @@ limitations under the License.
     z-index: 9999;
 }
 
-.cdk-overlay-pane {
-    min-width: 240px;
-    margin-top: 38px;
-}
-
 .install-libs .mat-tab-label,
 .manage-ungit .mat-tab-label {
     width: 50%;

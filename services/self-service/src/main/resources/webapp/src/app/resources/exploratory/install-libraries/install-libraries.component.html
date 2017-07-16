@@ -41,24 +41,28 @@ limitations under the License.
                 <div class="lib-group">{{ groupsListMap[lib.group] }}</div>
                 <div class="lib-status status" ngClass="{{lib.status.toLowerCase() || ''}}">
                   {{ lib.status }}
-                  <span *ngIf="lib.status === 'failed'">
-                    <button class="reinstall" [ngClass]="{'not-allowed' : installingInProgress}" [disabled]="installingInProgress">
-                      <i class="material-icons" *ngIf="!installingInProgress"
-                        mdTooltip="Retry installation"
-                        mdTooltipPosition="above"
-                        (click)="model.confirmAction([{group: lib.group, name: lib.name, version: lib.version}])">replay</i>
-
-                      <i class="material-icons" *ngIf="installingInProgress"
-                        mdTooltip="You can't reinstall library until previous process will be completed"
-                        mdTooltipPosition="above">replay</i>
-                    </button>
-                  </span>
-                  <span class="lib-error">
-                    <i class="material-icons"
+                  <div class="warn-action" *ngIf="lib.status === 'failed'">
+                    <div>
+                        <span *ngIf="!installingInProgress"
+                          mdTooltip="Retry installation"
+                          mdTooltipPosition="above"
+                          (click)="model.confirmAction([{group: lib.group, name: lib.name, version: lib.version}])">
+                          <i class="material-icons">replay</i>
+                        </span>
+                        <span class="not-allowed"
+                          *ngIf="installingInProgress"
+                          mdTooltip="You can't reinstall library until previous process will be completed"
+                            mdTooltipPosition="above">
+                          <i class="material-icons">replay</i>
+                        </span>
+                    </div>
+                    <div *ngIf="lib.status === 'failed' && lib.error_message"
+                       class="lib-error"
                        mdTooltip="{{ lib.error_message }}"
-                       mdTooltipPosition="above"
-                       *ngIf="lib.status === 'failed' && lib.error_message">error_outline</i>
-                  </span>
+                       mdTooltipPosition="above">
+                       <i class="material-icons">error_outline</i>
+                    </div>
+                  </div>
                 </div>
               </md-list-item>
             </div>
