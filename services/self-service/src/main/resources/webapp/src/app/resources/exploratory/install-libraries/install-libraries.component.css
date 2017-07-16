@@ -20,11 +20,6 @@ limitations under the License.
     padding: 0 20px;
 }
 
-.scrollingList.info p {
-    text-align: center;
-    padding: 40px;
-}
-
 /* Tab Installation */
 .upload-libs div {
     width: 25%;
@@ -103,7 +98,7 @@ limitations under the License.
 .list-header {
     border-bottom: 1px solid #e0e0e0;
     color: #577289;
-    position: fixed;
+    /*position: fixed;*/
     width: 100%;
 }
 .list-selected {
@@ -170,7 +165,10 @@ limitations under the License.
 .scrollingList {
     max-height: 290px;
     overflow-y: auto;
-    margin-top: 55px;
+}
+.scrollingList.info p {
+    text-align: center;
+    padding: 40px;
 }
 
 .mat-tab-labels .mat-ink-bar {
