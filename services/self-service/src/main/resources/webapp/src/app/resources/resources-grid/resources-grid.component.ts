@@ -163,6 +163,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   buildGrid(): void {
+
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result) => {
         this.environments = this.loadEnvironments(result);
