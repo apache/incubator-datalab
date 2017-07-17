@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import com.epam.dlab.exceptions.DlabException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -128,24 +129,20 @@ public class ExploratoryLibList {
 	 * @param startWith the prefix for library name.
 	 */
 	public Map<String, String> getLibs(String group, String startWith) {
+
+		String startsWithLower = startWith.toLowerCase();
+
+		// TODO Race conditions
 		Map<String, String> libMap = getLibs(group);
 		Map<String, String> map = new TreeMap<>();
 		
 		if (libMap == null) {
 			return map;
 		}
-		
-		boolean found = false;
-		for (String key : libMap.keySet()) {
-			if (key.startsWith(startWith)) {
-				map.put(key, libMap.get(key));
-				found = true;
-			} else if (found) {
-				break;
-			}
-		}
-		
-		return map;
+
+		return libMap.entrySet().stream()
+				.filter(e -> e.getKey().toLowerCase().startsWith(startsWithLower))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 	
 	/** Set last access time.
