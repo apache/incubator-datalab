@@ -80,7 +80,7 @@ export class InstallLibrariesComponent implements OnInit {
         this.query = newValue;
         this.filterList();
       });
-    this.bindDialog.onClosing = () => this.resetDialog();
+    this.bindDialog.onClosing = () => this.close();
   }
   
   uploadLibraries(): void {
@@ -163,7 +163,7 @@ export class InstallLibrariesComponent implements OnInit {
 
     if (this.installingInProgress || this.notebookFailedLibs.length) {
       if (this.clearCheckInstalling === undefined)
-        this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 4000);
+        this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 10000);
     } else {
       clearInterval(this.clearCheckInstalling);
       this.clearCheckInstalling = undefined;
@@ -204,6 +204,9 @@ export class InstallLibrariesComponent implements OnInit {
 
     this.processError = false;
     this.isFilteringProc = false;
+    this.isInstalled = false;
+    this.isInSelectedList = false;
+
     this.errorMessage = '';
     this.model.selectedLibs = [];
     this.filteredList = null ;

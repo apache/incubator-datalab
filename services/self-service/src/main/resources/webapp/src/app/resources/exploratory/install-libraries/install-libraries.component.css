@@ -20,11 +20,6 @@ limitations under the License.
     padding: 0 20px;
 }
 
-.scrollingList.info p {
-    text-align: center;
-    padding: 40px;
-}
-
 /* Tab Installation */
 .upload-libs div {
     width: 25%;
@@ -103,7 +98,6 @@ limitations under the License.
 .list-header {
     border-bottom: 1px solid #e0e0e0;
     color: #577289;
-    position: fixed;
     width: 100%;
 }
 .list-selected {
@@ -146,31 +140,36 @@ limitations under the License.
     text-align: center;
     position: relative;
 }
-.lib-status .reinstall {
-    border: none;
-    background: none;
-    outline: none;
-}
-.lib-status .reinstall,
-.lib-status .lib-error {
+
+.warn-action {
     position: absolute;
     top: 0;
-    right: 15px;
-    cursor: pointer;
+    right: -10px;
 }
+.warn-action div {
+    display: inline-block;
+    cursor: pointer;
+    width: 25px;
+}
+.warn-action div span {
+    display: block;
+}
+.warn-action .lib-error {
+    color: #35afd5;
+}
+
 .reinstall-all {
     text-align: right;
-    margin: 10px 30px;
+    margin: 10px 5px;
 }
-.lib-status .lib-error {
-    right: -10px;
-    color: #35afd5;
-    cursor: help;
-}
+
 .scrollingList {
     max-height: 290px;
     overflow-y: auto;
-    margin-top: 55px;
+}
+.scrollingList.info p {
+    text-align: center;
+    padding: 40px;
 }
 
 .mat-tab-labels .mat-ink-bar {
