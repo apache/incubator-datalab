@@ -38,10 +38,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     private_subnet_size = ipaddress.ip_network(u'0.0.0.0/{}'.format(args.prefix)).num_addresses
-    vpc = ec2.Vpc(args.vpc_id)
-    vpc_cidr = vpc.cidr_block
-
-    first_vpc_ip = int(ipaddress.IPv4Address(vpc_cidr.split('/')[0].decode("utf-8")))
+    first_vpc_ip = int(ipaddress.IPv4Address(args.vpc_cidr.split('/')[0].decode("utf-8")))
     subnets = GCPMeta().get_vpc(args.vpc_selflink.split('/')[-1])['subnetworks']
     subnets_cidr = []
     for subnet in subnets:
