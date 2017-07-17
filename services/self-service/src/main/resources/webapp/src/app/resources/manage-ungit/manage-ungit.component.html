@@ -54,7 +54,9 @@ limitations under the License.
               <p>You have no any related accounts</p>
             </div>
           </md-list>
-
+          <div class="info message error" *ngIf="processError">
+            <small>{{ errorMessage }}</small>
+          </div>
           <div class="text-center m-top-30 m-bott-10" *ngIf="editableForm">
             <button md-raised-button type="button" class="butt" (click)="cancelAllModifyings()">Cancel</button>
             <button md-raised-button type="button" class="butt butt-success" (click)="editAccounts_btnClick()">Apply changes</button>
@@ -117,10 +119,10 @@ limitations under the License.
             </span>
            </div>
          </div>
-          <div class="text-center m-top-30 m-bott-10">
-            <button md-raised-button type="button" class="butt" (click)="resetForm()">Cancel</button>
-            <button md-raised-button type="button" [disabled]="!updateAccountCredentialsForm.valid" (click)="assignChanges(updateAccountCredentialsForm.value)" class="butt butt-success">Assign</button>
-          </div>
+         <div class="text-center m-top-30 m-bott-10">
+           <button md-raised-button type="button" class="butt" (click)="resetForm()">Cancel</button>
+           <button md-raised-button type="button" [disabled]="!updateAccountCredentialsForm.valid" (click)="assignChanges(updateAccountCredentialsForm.value)" class="butt butt-success">Assign</button>
+         </div>
        </form>
       </md-tab>
     </md-tab-group>

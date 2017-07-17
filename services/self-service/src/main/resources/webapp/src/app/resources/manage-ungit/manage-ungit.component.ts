@@ -19,6 +19,7 @@ limitations under the License.
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
+import { MdDialog, MdDialogRef, MdDialogConfig } from '@angular/material';
 
 import { AccountCredentials, MangeUngitModel } from './manage-ungit.model';
 import { ManageUngitService } from './../../core/services';
@@ -34,8 +35,12 @@ export class ManageUngitComponent implements OnInit {
   model: MangeUngitModel;
   gitCredentials: Array<AccountCredentials> = [];
   currentEditableItem: AccountCredentials;
-  mail_validity_pattern = '^[a-zA-Z0-9.!*_-]*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})$';
-  hostname_validity_pattern = '^((([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]))$';
+
+  mail_validity_pattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+  hostname_validity_pattern = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])+\.[a-z\.]+/;
+
+  errorMessage: string;
+  processError: boolean = false;
 
   public editableForm: boolean = false;
   public updateAccountCredentialsForm: FormGroup;
@@ -45,7 +50,8 @@ export class ManageUngitComponent implements OnInit {
 
   constructor(
     private manageUngitService: ManageUngitService,
-    private _fb: FormBuilder) {
+    private _fb: FormBuilder,
+    public dialog: MdDialog) {
     this.model = MangeUngitModel.getDefault(manageUngitService);
   }
 
@@ -59,10 +65,9 @@ export class ManageUngitComponent implements OnInit {
   public open(param): void {
     if (!this.bindDialog.isOpened)
       this.model = new MangeUngitModel((response: Response) => { },
-      (response: Response) => {
-        // this.processError = true;
-        // this.errorMessage = ErrorMapUtils.setErrorMessage(response);
-        console.log('ERROR', response);
+      error => {
+        this.processError = true;
+        this.errorMessage = error.message;
       },
       () => {
         this.bindDialog.open(param);
@@ -85,6 +90,9 @@ export class ManageUngitComponent implements OnInit {
 
   public cancelAllModifyings() {
     this.editableForm = false;
+    this.errorMessage = '';
+    this.processError = false;
+
     this.getGitCredentials();
     this.resetForm();
   }
@@ -104,8 +112,13 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public deleteAccount(item: AccountCredentials) {
-    this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
-    this.model.confirmAction(this.gitCredentials);
+    const dialogRef: MdDialogRef<DialogResultExampleDialog> = this.dialog.open(DialogResultExampleDialog, { data: item, width: '550px' });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
+        this.model.confirmAction(this.gitCredentials);
+      }
+    });
   }
 
   public assignChanges(current: any): void {
@@ -154,4 +167,24 @@ export class ManageUngitComponent implements OnInit {
       return passReq.value === confirmPassReq.value ? null : { valid: false };
     }
   }
+}
+
+@Component({
+  selector: 'dialog-result-example-dialog',
+  template: `
+  <div md-dialog-content class="content">
+    <p>Account <strong>{{ dialogRef.config.data.hostname }}</strong> will be decommissioned.</p>
+    <p><strong>Do you want to proceed?</strong></p>
+  </div>
+  <div class="text-center">
+    <button type="button" class="butt" md-raised-button (click)="dialogRef.close()">No</button>
+    <button type="button" class="butt butt-success" md-raised-button (click)="dialogRef.close(true)">Yes</button>
+  </div>
+  `,
+  styles: [`
+    .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
+  `]
+})
+export class DialogResultExampleDialog {
+  constructor(public dialogRef: MdDialogRef<DialogResultExampleDialog>) { }
 }
