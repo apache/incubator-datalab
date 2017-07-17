@@ -64,7 +64,7 @@ if __name__ == "__main__":
             pre_defined_vpc = True
             logging.info('[CREATE VPC]')
             print '[CREATE VPC]'
-            params = "--vpc_name {} --vpc_cidr {}".format(ssn_conf['vpc_name'], ssn_conf['vpc_cidr'])
+            params = "--vpc_name {}".format(ssn_conf['vpc_name'])
             try:
                 local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
             except:

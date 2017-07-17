@@ -48,8 +48,8 @@ class GCPActions:
             self.service_iam = build('iam', 'v1')
             self.storage_client = storage.Client()
 
-    def create_vpc(self, vpc_name, vpc_cidr):
-        network_params = {'name': vpc_name, 'IPv4Range': vpc_cidr}  # 'autoCreateSubnetworks': False}
+    def create_vpc(self, vpc_name):
+        network_params = {'name': vpc_name, 'autoCreateSubnetworks': False}
         request = self.service.networks().insert(project=self.project, body=network_params)
         try:
             result = request.execute()
