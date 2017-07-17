@@ -22,6 +22,15 @@ section {
     padding: 10px 15px;
     font-weight: 300;
 }
+section > div {
+    width: 33%;
+}
+section > div:nth-child(2) {
+    text-align: center;
+}
+section > div:nth-child(3) {
+    text-align: right;
+}
 
 .action-butt {
     align-self: center;
