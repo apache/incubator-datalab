@@ -19,6 +19,9 @@ limitations under the License.
 .modal-dialog .manage-ungit .modal-body {
     padding: 0 20px;
 }
+.manage-ungit .scrollingList {
+    overflow-x: hidden;
+}
 
 .manage-ungit .mail-field,
 .manage-ungit .user-field,
@@ -42,7 +45,7 @@ limitations under the License.
 .manage-ungit .actions span {
     position: absolute;
     top: -10px;
-    left: 10px;
+    left: 0;
     zoom: 0.8;
 }
 
@@ -59,5 +62,5 @@ limitations under the License.
     cursor: pointer;
 }
 .manage-ungit .actions .remove {
-    left: 45px;
+    left: 35px;
 }
