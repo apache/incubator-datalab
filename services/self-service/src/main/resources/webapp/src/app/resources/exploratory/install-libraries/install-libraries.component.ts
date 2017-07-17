@@ -80,7 +80,7 @@ export class InstallLibrariesComponent implements OnInit {
         this.query = newValue;
         this.filterList();
       });
-    this.bindDialog.onClosing = () => this.resetDialog();
+    this.bindDialog.onClosing = () => this.close();
   }
   
   uploadLibraries(): void {
@@ -204,6 +204,9 @@ export class InstallLibrariesComponent implements OnInit {
 
     this.processError = false;
     this.isFilteringProc = false;
+    this.isInstalled = false;
+    this.isInSelectedList = false;
+
     this.errorMessage = '';
     this.model.selectedLibs = [];
     this.filteredList = null ;
