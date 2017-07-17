@@ -47,6 +47,22 @@ def get_available_pip_pkgs(version):
         sys.exit(1)
 
 
+def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
+    try:
+        pip_pkgs = dict()
+        client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
+        raw_pkgs = client.list_packages()
+        all_pkgs_other = []
+        for pkg in raw_pkgs:
+            if pkg not in all_pkgs_pip2 and pkg not in all_pkgs_pip3:
+                all_pkgs_other.append(pkg)
+        for pkg in all_pkgs_other:
+            pip_pkgs[pkg] = "N/A"
+        return pip_pkgs
+    except:
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
@@ -56,6 +72,7 @@ if __name__ == "__main__":
     all_pkgs['os_pkg'] = get_available_os_pkgs()
     all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
     all_pkgs['pip3'] = get_available_pip_pkgs("3.5")
+    all_pkgs['other'] = get_uncategorised_pip_pkgs(all_pkgs['pip2'], all_pkgs['pip3'])
 
     if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
         all_pkgs['r_pkg'] = get_available_r_pkgs()

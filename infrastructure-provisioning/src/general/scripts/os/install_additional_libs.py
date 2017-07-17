@@ -77,6 +77,15 @@ if __name__ == "__main__":
     except KeyError:
         pass
 
+    try:
+        print 'Installing other packages:', pkgs['libraries']['other']
+        status = install_pip2_pkg(pkgs['libraries']['pip2'])
+        general_status = general_status + status
+        status = install_pip3_pkg(pkgs['libraries']['pip3'])
+        general_status = general_status + status
+    except KeyError:
+        pass
+
     if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
         try:
             print 'Installing R packages:', pkgs['libraries']['r_pkg']
