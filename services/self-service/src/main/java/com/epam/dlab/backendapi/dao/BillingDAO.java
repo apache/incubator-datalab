@@ -197,6 +197,7 @@ public class BillingDAO extends BaseDAO {
 					return "Edge Node";
 				case EDGE_BUCKET:
 				case SSN_BUCKET:
+				case COLLABORATION_BUCKET:
 					return "Bucket";
 				case SSN:
 					return "SSN";
@@ -224,6 +225,7 @@ public class BillingDAO extends BaseDAO {
 				case "Bucket":
 					list.add(DlabResourceType.EDGE_BUCKET.toString());
 					list.add(DlabResourceType.SSN_BUCKET.toString());
+					list.add(DlabResourceType.COLLABORATION_BUCKET.toString());
 					break;
 				case "SSN":
 					list.add(DlabResourceType.SSN.toString());
