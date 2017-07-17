@@ -618,6 +618,7 @@ def install_ungit(os_user, certfile):
             run('touch ~/.gitignore')
             run('git config --global core.excludesfile ~/.gitignore')
             run('echo ".ipynb_checkpoints/" >> ~/.gitignore')
+            run('echo "spark-warehouse/" >> ~/.gitignore')
             run('echo "metastore_db/" >> ~/.gitignore')
             run('echo "derby.log" >> ~/.gitignore')
             sudo('systemctl daemon-reload')
