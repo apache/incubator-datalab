@@ -37,12 +37,14 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
+    empty_vpc = False
     private_subnet_size = ipaddress.ip_network(u'0.0.0.0/{}'.format(args.prefix)).num_addresses
     first_vpc_ip = int(ipaddress.IPv4Address(args.vpc_cidr.split('/')[0].decode("utf-8")))
     subnets_cidr = []
     try:
         subnets = GCPMeta().get_vpc(args.vpc_selflink.split('/')[-1])['subnetworks']
     except KeyError:
+        empty_vpc = True
         subnets = []
     for subnet in subnets:
         subnets_cidr.append(GCPMeta().get_subnet(subnet.split('/')[-1], args.region)['ipCidrRange'])
@@ -56,7 +58,10 @@ if __name__ == "__main__":
             last_ip = first_ip + subnet_size - 1
         else:
             break
-    dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
+    if empty_vpc:
+        dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip), args.prefix)
+    else:
+        dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
     if args.subnet_name != '':
         if GCPMeta().get_subnet(args.subnet_name, args.region):
             print "REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name)
