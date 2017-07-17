@@ -47,7 +47,9 @@ if __name__ == "__main__":
     ssn_conf['instance_size'] = os.environ['ssn_instance_size']
     ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
     ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
+    ssn_conf['vpc_cidr'] = '10.10.0.0/16'
     ssn_conf['subnet_cidr'] = '10.10.1.0/24'
+    ssn_conf['subnet_prefix'] = '20'
     ssn_conf['firewall_name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
     ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
     ssn_conf['service_account_name'] = 'dlabowner' # ssn_conf['service_base_name'] + '-ssn-sa'
@@ -86,8 +88,9 @@ if __name__ == "__main__":
             pre_defined_subnet = True
             logging.info('[CREATE SUBNET]')
             print '[CREATE SUBNET]'
-            params = "--subnet_name {} --region {} --vpc_selflink {} --subnet_cidr {}".\
-                format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_selflink'], ssn_conf['subnet_cidr'])
+            params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {}".\
+                format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_selflink'], ssn_conf['subnet_prefix'],
+                       ssn_conf['vpc_cidr'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_subnet', params))
             except:

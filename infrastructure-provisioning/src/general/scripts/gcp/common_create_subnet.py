@@ -31,16 +31,37 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--subnet_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--vpc_selflink', type=str, default='')
-parser.add_argument('--subnet_cidr', type=str, default='')
+parser.add_argument('--prefix', type=str, default='')
+parser.add_argument('--vpc_cidr', type=str, default='')
 args = parser.parse_args()
 
 
 if __name__ == "__main__":
+    private_subnet_size = ipaddress.ip_network(u'0.0.0.0/{}'.format(args.prefix)).num_addresses
+    vpc = ec2.Vpc(args.vpc_id)
+    vpc_cidr = vpc.cidr_block
+
+    first_vpc_ip = int(ipaddress.IPv4Address(vpc_cidr.split('/')[0].decode("utf-8")))
+    subnets = GCPMeta().get_vpc(args.vpc_selflink.split('/')[-1])['subnetworks']
+    subnets_cidr = []
+    for subnet in subnets:
+        subnets_cidr.append(GCPMeta().get_subnet(subnet.split('/')[-1], args.region)['ipCidrRange'])
+    sorted_subnets_cidr = sorted(subnets_cidr)
+
+    last_ip = first_vpc_ip
+    for cidr in sorted_subnets_cidr:
+        first_ip = int(ipaddress.IPv4Address(cidr.split('/')[0].decode("utf-8")))
+        if first_ip - last_ip < private_subnet_size:
+            subnet_size = ipaddress.ip_network(u'{}'.format(cidr)).num_addresses
+            last_ip = first_ip + subnet_size - 1
+        else:
+            break
+    dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
     if args.subnet_name != '':
         if GCPMeta().get_subnet(args.subnet_name, args.region):
             print "REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name)
         else:
             print "Creating Subnet {}".format(args.subnet_name)
-            GCPActions().create_subnet(args.subnet_name, args.subnet_cidr, args.vpc_selflink, args.region)
+            GCPActions().create_subnet(args.subnet_name, dlab_subnet_cidr, args.vpc_selflink, args.region)
     else:
         sys.exit(1)
