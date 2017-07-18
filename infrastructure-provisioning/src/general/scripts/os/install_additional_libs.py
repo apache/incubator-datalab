@@ -78,10 +78,10 @@ if __name__ == "__main__":
         pass
 
     try:
-        print 'Installing other packages:', pkgs['libraries']['other']
-        status = install_pip2_pkg(pkgs['libraries']['other'])
+        print 'Installing other packages:', pkgs['libraries']['others']
+        status = install_pip2_pkg(pkgs['libraries']['others'])
         general_status = general_status + status
-        status = install_pip3_pkg(pkgs['libraries']['other'])
+        status = install_pip3_pkg(pkgs['libraries']['others'])
         general_status = general_status + status
     except KeyError:
         pass
