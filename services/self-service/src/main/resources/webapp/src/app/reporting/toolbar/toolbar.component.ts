@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, Output, EventEmitter, ViewEncapsulation, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation, ElementRef } from '@angular/core';
 
 import { NgDateRangePickerOptions } from 'ng-daterangepicker';
 import * as moment from 'moment';
@@ -27,7 +27,7 @@ import * as moment from 'moment';
   styleUrls: ['./toolbar.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class ToolbarComponent implements OnInit {
+export class ToolbarComponent implements OnInit, AfterViewInit {
   reportData: any;
   availablePeriodFrom: string;
   availablePeriodTo: string;
@@ -57,12 +57,16 @@ export class ToolbarComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.clearRangePicker();
      if (localStorage.getItem('report_period')) {
         const availableRange = JSON.parse(localStorage.getItem('report_period'));
         this.availablePeriodFrom = availableRange.start_date;
         this.availablePeriodTo = availableRange.end_date;
      }
+  }
+
+  ngAfterViewInit() {
+    console.log(this.rangeLabels);
+    this.clearRangePicker();
   }
 
   setDateRange() {
