@@ -41,6 +41,15 @@ public class LibInstallDTO {
     @JsonProperty("error_message")
     private String errorMessage;
 
+    public LibInstallDTO() {
+    }
+
+    public LibInstallDTO(String group, String name, String version) {
+        this.group = group;
+        this.name = name;
+        this.version = version;
+    }
+
     /** Returns the group name of library. */
     public String getGroup() {
     	return group;
