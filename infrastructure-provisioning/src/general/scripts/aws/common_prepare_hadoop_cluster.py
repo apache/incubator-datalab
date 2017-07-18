@@ -100,7 +100,7 @@ if __name__ == "__main__":
     logging.info(json.dumps(emr_conf))
 
     with open('/root/result.json', 'w') as f:
-        data = {"computational_id": emr_conf['cluster_name'], "error": ""}
+        data = {"hostname": emr_conf['cluster_name'], "error": ""}
         json.dump(data, f)
 
     try:

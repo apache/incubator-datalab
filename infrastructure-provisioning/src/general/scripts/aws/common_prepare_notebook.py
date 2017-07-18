@@ -95,7 +95,7 @@ if __name__ == "__main__":
     notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)
 
     with open('/root/result.json', 'w') as f:
-        data = {"exploratory_id": notebook_config['instance_name'], "error": ""}
+        data = {"notebook_name": notebook_config['instance_name'], "error": ""}
         json.dump(data, f)
 
     # launching instance for notebook server
