@@ -65,23 +65,23 @@ if __name__ == "__main__":
 
     try:
         print 'Installing pip2 packages:', pkgs['libraries']['pip2']
-        status = install_pip2_pkg(pkgs['libraries']['pip2'])
+        status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2')
         general_status = general_status + status
     except KeyError:
         pass
 
     try:
         print 'Installing pip3 packages:', pkgs['libraries']['pip3']
-        status = install_pip3_pkg(pkgs['libraries']['pip3'])
+        status = install_pip_pkg(pkgs['libraries']['pip3'], 'pip3', 'pip3')
         general_status = general_status + status
     except KeyError:
         pass
 
     try:
         print 'Installing other packages:', pkgs['libraries']['others']
-        status = install_pip2_pkg(pkgs['libraries']['others'])
+        status = install_pip_pkg(pkgs['libraries']['others'], 'pip2', 'others')
         general_status = general_status + status
-        status = install_pip3_pkg(pkgs['libraries']['others'])
+        status = install_pip_pkg(pkgs['libraries']['others'], 'pip3', 'others')
         general_status = general_status + status
     except KeyError:
         pass
