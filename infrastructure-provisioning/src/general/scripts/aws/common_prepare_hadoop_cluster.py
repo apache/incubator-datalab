@@ -99,6 +99,10 @@ if __name__ == "__main__":
           json.dumps(emr_conf, sort_keys=True, indent=4, separators=(',', ': '))
     logging.info(json.dumps(emr_conf))
 
+    with open('/root/result.json', 'w') as f:
+        data = {"computational_id": emr_conf['cluster_name'], "error": ""}
+        json.dump(data, f)
+
     try:
         emr_waiter(os.environ['notebook_instance_name'])
         local('touch /response/.emr_creating_' + os.environ['exploratory_name'])
