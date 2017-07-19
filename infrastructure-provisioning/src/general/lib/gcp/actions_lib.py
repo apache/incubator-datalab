@@ -407,3 +407,28 @@ class GCPActions:
                                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
+
+    def create_static_address(self, address_name, region):
+        params = {"name": address_name}
+        request = self.service.addresses().insert(project=self.project, region=region, body=params)
+        try:
+            return request.execute()
+        except Exception as err:
+                logging.info(
+                    "Unable to create Static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to create Static IP address",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def remove_static_address(self, address_name, region):
+        request = self.service.addresses().delete(project=self.project, region=region, address=address_name)
+        try:
+            return request.execute()
+        except Exception as err:
+                logging.info(
+                    "Unable to remove Static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to remove Static IP address",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)

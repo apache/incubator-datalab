@@ -60,6 +60,36 @@ if __name__ == "__main__":
     edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb-SG'
     edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
 
+    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+    edge_conf['key_name'] = os.environ['conf_key_name']
+    edge_conf['user_keyname'] = os.environ['edge_user_name']
+    try:
+        if os.environ['gcp_vpc_name'] == '':
+            raise KeyError
+        else:
+            edge_conf['vpc_name'] = os.environ['gcp_vpc_name']
+    except KeyError:
+        edge_conf['vpc_name'] = edge_conf['service_base_name'] + '-ssn-vpc'
+    edge_conf['vpc_cidr'] = '10.10.0.0/16'
+    edge_conf['subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name']
+    edge_conf['region'] = os.environ['region']
+    edge_conf['zone'] = os.environ['zone']
+    edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
+    edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
+    edge_conf['edge_service_account_name'] = 'dlabowner' # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
+        # 'edge_user_name'] + '-edge-Role'
+    edge_conf['notebook_service_account_name'] = 'dlabowner' # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
+        # 'edge_user_name'] + '-nb-Role'
+    edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    edge_conf['firewall_name'] = edge_conf['instance_name'] + '-firewall'
+    edge_conf['notebook_firewall_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                          '-nb-firewall'
+    edge_conf['bucket_name'] = (
+    edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
+    edge_conf['instance_size'] = os.environ['ssn_instance_size']
+    edge_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+    edge_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
+
     # FUSE in case of absence of user's key
     fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
     if not os.path.isfile(fname):
@@ -73,9 +103,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SUBNET]')
         print '[CREATE SUBNET]'
-        params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {}" \
-                 .format(edge_conf['vpc_id'], edge_conf['tag_name'], edge_conf['service_base_name'],
-                         os.environ['edge_user_name'], edge_conf['private_subnet_prefix'])
+        params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {}" \
+                 .format(edge_conf['subnet_name'], edge_conf['region'], edge_conf['vpc_selflink'],
+                         edge_conf['private_subnet_prefix'], edge_conf['vpc_cidr'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:
@@ -85,256 +115,161 @@ if __name__ == "__main__":
         append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
-    tag = {"Key": edge_conf['tag_name'], "Value": "{}-{}-subnet".format(edge_conf['service_base_name'], os.environ['edge_user_name'])}
-    edge_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
+    edge_conf['private_subnet_cidr'] = GCPMeta().get_subnet(edge_conf['subnet_name'],
+                                                            edge_conf['region'])['ipCidrRange']
     print 'NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr'])
 
-    try:
-        logging.info('[CREATE EDGE ROLES]')
-        print '[CREATE EDGE ROLES]'
-        params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
-                 .format(edge_conf['role_name'], edge_conf['role_profile_name'],
-                         edge_conf['policy_name'], os.environ['region'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_role_policy', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed to creating roles.", str(err))
-        sys.exit(1)
+    # try:
+    #     logging.info('[CREATE EDGE ROLES]')
+    #     print '[CREATE EDGE ROLES]'
+    #     params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
+    #              .format(edge_conf['role_name'], edge_conf['role_profile_name'],
+    #                      edge_conf['policy_name'], os.environ['region'])
+    #     try:
+    #         local("~/scripts/{}.py {}".format('common_create_role_policy', params))
+    #     except:
+    #         traceback.print_exc()
+    #         raise Exception
+    # except Exception as err:
+    #     append_result("Failed to creating roles.", str(err))
+    #     sys.exit(1)
+    #
+    # try:
+    #     logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
+    #     print '[CREATE BACKEND (NOTEBOOK) ROLES]'
+    #     params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
+    #              .format(edge_conf['notebook_role_name'], edge_conf['notebook_role_profile_name'],
+    #                      edge_conf['notebook_policy_name'], os.environ['region'])
+    #     try:
+    #         local("~/scripts/{}.py {}".format('common_create_role_policy', params))
+    #     except:
+    #         traceback.print_exc()
+    #         raise Exception
+    # except Exception as err:
+    #     append_result("Failed to creating roles.", str(err))
+    #     remove_all_iam_resources('edge', os.environ['edge_user_name'])
+    #     sys.exit(1)
 
     try:
-        logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
-        print '[CREATE BACKEND (NOTEBOOK) ROLES]'
-        params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
-                 .format(edge_conf['notebook_role_name'], edge_conf['notebook_role_profile_name'],
-                         edge_conf['notebook_policy_name'], os.environ['region'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_role_policy', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed to creating roles.", str(err))
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        sys.exit(1)
-
-    try:
-        logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
-        print '[CREATE SECURITY GROUPS FOR EDGE]'
-        sg_rules_template = [
+        pre_defined_firewall = True
+        logging.info('[CREATE FIREWALL FOR EDGE NODE]')
+        print '[CREATE FIREWALL]'
+        firewall = {}
+        firewall['name'] = edge_conf['firewall_name']
+        firewall['sourceRanges'] = ['0.0.0.0/0']
+        rules = [
             {
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "UserIdGroupPairs": [], "PrefixListIds": []
+                'IPProtocol': 'tcp',
+                'ports': ['22', '80', '8080', '443']
             },
             {
-                "PrefixListIds": [],
-                "FromPort": 22,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-                "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                'IPProtocol': 'icmp'
             }
         ]
-        sg_rules_template_egress = [
-            {
-                "PrefixListIds": [],
-                "FromPort": 22,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8888,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 8888, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8080,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8787,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 8787, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 6006,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 6006, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 20888,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 20888, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8088,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 8088, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 18080,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 18080, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 50070,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 50070, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 53,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-                "ToPort": 53, "IpProtocol": "udp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 80,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-                "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 443,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8085,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 8085, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            }
-        ]
-        params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} --egress '{}' --force {} --nb_sg_name {} --resource {}".\
-            format(edge_conf['edge_security_group_name'], edge_conf['vpc_id'], json.dumps(sg_rules_template),
-                   edge_conf['service_base_name'], edge_conf['instance_name'], json.dumps(sg_rules_template_egress),
-                   True, edge_conf['notebook_instance_name'], 'edge')
-        try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
-        except Exception as err:
-            traceback.print_exc()
-            append_result("Failed creating security group for edge node.", str(err))
-            raise Exception
+        firewall['allowed'] = rules
+        firewall['network'] = edge_conf['vpc_selflink']
 
-        with hide('stderr', 'running', 'warnings'):
-            print 'Waiting for changes to propagate'
-            time.sleep(10)
-    except:
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        sys.exit(1)
-
-    try:
-        logging.info('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
-        print '[CREATE SECURITY GROUP FOR PRIVATE SUBNET]'
-        edge_group_id = check_security_group(edge_conf['edge_security_group_name'])
-        sg_list = edge_conf['sg_ids'].replace(" ", "").split(',')
-        rules_list = []
-        for i in sg_list:
-            rules_list.append({"GroupId": i})
-        ingress_sg_rules_template = [
-            {"IpProtocol": "-1", "IpRanges": [], "UserIdGroupPairs": [{"GroupId": edge_group_id}], "PrefixListIds": []},
-            #{"IpProtocol": "-1", "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['instance_name']).get('Private') + "/32"}], "UserIdGroupPairs": [], "PrefixListIds": []},
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}], "UserIdGroupPairs": [], "PrefixListIds": []},
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(edge_conf['service_base_name'])).get('Private') + "/32"}], "UserIdGroupPairs": [], "PrefixListIds": []}
-        ]
-        egress_sg_rules_template = [
-            {"IpProtocol": "-1", "IpRanges": [], "UserIdGroupPairs": [{"GroupId": edge_group_id}], "PrefixListIds": []},
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "PrefixListIds": []}
-        ]
-        params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}".\
-            format(edge_conf['notebook_security_group_name'], edge_conf['vpc_id'], json.dumps(ingress_sg_rules_template),
-                   json.dumps(egress_sg_rules_template), edge_conf['service_base_name'], edge_conf['notebook_instance_name'], True)
+        params = "--firewall '{}'".format(json.dumps(firewall))
         try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            local("~/scripts/{}.py {}".format('common_create_firewall', params))
         except:
             traceback.print_exc()
             raise Exception
-
-        with hide('stderr', 'running', 'warnings'):
-            print 'Waiting for changes to propagate'
-            time.sleep(10)
     except Exception as err:
-        append_result("Failed creating security group for private subnet.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
+        append_result("Failed to create Firewall.", str(err))
+        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
+        sys.exit(1)
+
+    try:
+        logging.info('[CREATE FIREWALL FOR PRIVATE SUBNET]')
+        print '[CREATE FIREWALL FOR PRIVATE SUBNET]'
+        firewall = {}
+        firewall['name'] = edge_conf['notebook_firewall_name']
+        firewall['sourceRanges'] = ['0.0.0.0/0']
+        rules = [
+            {
+                'IPProtocol': 'tcp',
+                'ports': ['22', '80', '8080', '443']
+            },
+            {
+                'IPProtocol': 'icmp'
+            }
+        ]
+        firewall['allowed'] = rules
+        firewall['network'] = edge_conf['vpc_selflink']
+
+        params = "--firewall '{}'".format(json.dumps(firewall))
+        try:
+            local("~/scripts/{}.py {}".format('common_create_firewall', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        GCPActions().remove_firewall(edge_conf['firewall_name'])
+        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
 
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {}" \
-                 .format(edge_conf['bucket_name'], edge_conf['tag_name'], edge_conf['bucket_name'],
-                  edge_conf['region'])
+        params = "--bucket_name {}".format(edge_conf['bucket_name'])
+
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to create bucket.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
+        append_result("Unable to create bucket.", str(err))
+        GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
+        GCPActions().remove_firewall(edge_conf['firewall_name'])
+        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
 
-    try:
-        logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-        print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-        params = '--bucket_name {} --ssn_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {}'.format(
-            edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], os.environ['edge_user_name'],
-            edge_conf['role_name'], edge_conf['notebook_role_name'],  edge_conf['service_base_name'],
-            edge_conf['region'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_policy', params))
-        except:
-            traceback.print_exc()
-    except Exception as err:
-        append_result("Failed to create bucket policy.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
-        sys.exit(1)
+    # try:
+    #     logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
+    #     print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
+    #     params = '--bucket_name {} --ssn_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {}'.format(
+    #         edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], os.environ['edge_user_name'],
+    #         edge_conf['role_name'], edge_conf['notebook_role_name'],  edge_conf['service_base_name'],
+    #         edge_conf['region'])
+    #     try:
+    #         local("~/scripts/{}.py {}".format('common_create_policy', params))
+    #     except:
+    #         traceback.print_exc()
+    # except Exception as err:
+    #     append_result("Failed to create bucket policy.", str(err))
+    #     remove_all_iam_resources('notebook', os.environ['edge_user_name'])
+    #     remove_all_iam_resources('edge', os.environ['edge_user_name'])
+    #     remove_sgroups(edge_conf['notebook_instance_name'])
+    #     remove_sgroups(edge_conf['instance_name'])
+    #     remove_s3('edge', os.environ['edge_user_name'])
+    #     sys.exit(1)
+
+    if os.environ['conf_os_family'] == 'debian':
+        initial_user = 'ubuntu'
+        sudo_group = 'sudo'
+    if os.environ['conf_os_family'] == 'redhat':
+        initial_user = 'ec2-user'
+        sudo_group = 'wheel'
 
     try:
         logging.info('[CREATE EDGE INSTANCE]')
-        print '[CREATE EDGE INSTANCE]'
-        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} " \
-                 "--subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
-            .format(edge_conf['instance_name'], edge_conf['ami_id'], edge_conf['instance_size'], edge_conf['key_name'],
-                    edge_group_id, edge_conf['public_subnet_id'], edge_conf['role_profile_name'],
-                    edge_conf['tag_name'], edge_conf['instance_name'])
+        print('[CREATE SSN INSTANCE]')
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {}".\
+            format(edge_conf['instance_name'], edge_conf['region'], edge_conf['zone'], edge_conf['vpc_name'],
+                   edge_conf['subnet_name'], edge_conf['instance_size'], edge_conf['ssh_key_path'], initial_user,
+                   edge_conf['edge_service_account_name'], edge_conf['ami_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
             traceback.print_exc()
             raise Exception
-
     except Exception as err:
-        append_result("Failed to create instance.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
-        sys.exit(1)
-
+        GCPActions().remove_bucket(edge_conf['bucket_name'])
+        GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
+        GCPActions().remove_firewall(edge_conf['firewall_name'])
+        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
 
     try:
         logging.info('[ASSOCIATING ELASTIC IP]')

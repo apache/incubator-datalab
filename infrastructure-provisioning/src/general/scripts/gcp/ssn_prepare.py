@@ -48,7 +48,6 @@ if __name__ == "__main__":
     ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
     ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
     ssn_conf['vpc_cidr'] = '10.10.0.0/16'
-    ssn_conf['subnet_cidr'] = '10.10.1.0/24'
     ssn_conf['subnet_prefix'] = '20'
     ssn_conf['firewall_name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
     ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
@@ -59,6 +58,8 @@ if __name__ == "__main__":
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
+        else:
+            ssn_conf['vpc_name'] = os.environ['gcp_vpc_name']
     except KeyError:
         try:
             pre_defined_vpc = True
@@ -83,6 +84,8 @@ if __name__ == "__main__":
     try:
         if os.environ['gcp_subnet_name'] == '':
             raise KeyError
+        else:
+            ssn_conf['subnet_name'] = os.environ['gcp_subnet_name']
     except KeyError:
         try:
             pre_defined_subnet = True
@@ -108,8 +111,10 @@ if __name__ == "__main__":
 
 
     try:
-        if os.environ['gcp_firewall_rules'] == '':
+        if os.environ['gcp_firewall_name'] == '':
             raise KeyError
+        else:
+            ssn_conf['firewall_name'] = os.environ['gcp_firewall_name']
     except KeyError:
         try:
             pre_defined_firewall = True

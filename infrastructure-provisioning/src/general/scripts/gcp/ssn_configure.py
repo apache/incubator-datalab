@@ -84,7 +84,7 @@ if __name__ == "__main__":
         except KeyError:
             pre_defined_subnet = True
         try:
-            if os.environ['gcp_firewall_rules'] == '':
+            if os.environ['gcp_firewall_name'] == '':
                 raise KeyError
         except KeyError:
             pre_defined_firewall = True
