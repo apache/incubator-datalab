@@ -102,7 +102,7 @@ export class ManageUngitComponent implements OnInit {
     this.currentEditableItem = item;
 
     this.updateAccountCredentialsForm = this._fb.group({
-      'hostname': [item.hostname, Validators.compose([Validators.required, Validators.pattern(this.hostname_validity_pattern)])],
+      'hostname': [item.hostname, Validators.compose([Validators.required, Validators.pattern(this.hostname_validity_pattern), this.containsHostname.bind(this)])],
       'username': [item.username, Validators.required],
       'email': [item.email, Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
       'login': [item.login, Validators.required],
@@ -142,7 +142,7 @@ export class ManageUngitComponent implements OnInit {
 
   private initFormModel(): void {
     this.updateAccountCredentialsForm = this._fb.group({
-      'hostname': ['', Validators.compose([Validators.required, Validators.pattern(this.hostname_validity_pattern)])],
+      'hostname': ['', Validators.compose([Validators.required, Validators.pattern(this.hostname_validity_pattern), this.containsHostname.bind(this)])],
       'username': ['', Validators.required],
       'email': ['', Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
       'login': ['', Validators.required],
@@ -166,6 +166,15 @@ export class ManageUngitComponent implements OnInit {
 
       return passReq.value === confirmPassReq.value ? null : { valid: false };
     }
+  }
+
+  private containsHostname(control) {
+    if (control.value)
+      for (let index = 0; index < this.gitCredentials.length; index++)
+        if (control.value === this.gitCredentials[index].hostname)
+          return { duplicate: true }
+
+    return null;
   }
 }
 
