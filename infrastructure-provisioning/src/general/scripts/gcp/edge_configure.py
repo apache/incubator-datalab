@@ -212,7 +212,7 @@ if __name__ == "__main__":
                    "public_ip": edge_conf['elastic_ip'],
                    "ip": edge_conf['private_ip'],
                    "key_name": edge_conf['key_name'],
-                   "user_own_bucket_name": edge_conf['bucket_name'],
+                   "user_own_bicket_name": edge_conf['bucket_name'],
                    "tunnel_port": "22",
                    "socks_port": "1080",
                    "notebook_subnet": edge_conf['private_subnet_cidr'],
