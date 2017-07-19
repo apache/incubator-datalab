@@ -70,6 +70,8 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                 r_repository = r_mirror
             else:
                 r_repository = 'http://cran.us.r-project.org'
+            sudo('add-apt-repository -y ppa:marutter/rrutter')
+            sudo('apt update')
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
             sudo('apt-get install -y cmake')
             sudo('apt-get install -y r-base r-base-dev')

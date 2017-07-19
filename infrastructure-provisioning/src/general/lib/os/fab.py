@@ -43,48 +43,28 @@ def ensure_pip(requisites):
         return False
 
 
-def install_pip2_pkg(requisites):
+def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
     try:
-        sudo('pip2 install -U pip setuptools')
-        sudo('pip2 install -U pip --no-cache-dir')
-        sudo('pip2 install --upgrade pip')
-        for pip2_pkg in requisites:
+        if pip_version == 'pip3':
+            if not exists('/bin/pip3'):
+                sudo('ln -s /bin/pip3.5 /bin/pip3')
+        sudo('{} install -U pip setuptools'.format(pip_version))
+        sudo('{} install -U pip --no-cache-dir'.format(pip_version))
+        sudo('{} install --upgrade pip'.format(pip_version))
+        for pip_pkg in requisites:
             try:
-                sudo('pip2 install ' + pip2_pkg + ' --no-cache-dir')
-                res = sudo('pip2 freeze | grep ' + pip2_pkg)
+                sudo('{0} install {1} --no-cache-dir'.format(pip_version, pip_pkg))
+                res = sudo('{0} freeze | grep {1}'.format(pip_version, pip_pkg))
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
-                version = [i for i in ver if pip2_pkg in i][0].split('==')[1]
-                status.append({"group": "pip2", "name": pip2_pkg, "version": version, "status": "installed"})
+                version = [i for i in ver if pip_pkg in i][0].split('==')[1]
+                status.append({"group": "{}".format(lib_group), "name": pip_pkg, "version": version, "status": "installed"})
             except:
-                status.append({"group": "pip2", "name": pip2_pkg, "status": "failed", "error_message": ""})
+                status.append({"group": "{}".format(lib_group), "name": pip_pkg, "status": "failed", "error_message": ""})
         return status
     except:
-        return "Fail to install pip2 packages"
-
-
-def install_pip3_pkg(requisites):
-    status = list()
-    try:
-        if not exists('/bin/pip3'):
-            sudo('ln -s /bin/pip3.5 /bin/pip3')
-        sudo('pip3 install -U pip setuptools')
-        sudo('pip3 install -U pip --no-cache-dir')
-        sudo('pip3 install --upgrade pip')
-        for pip3_pkg in requisites:
-            try:
-                sudo('pip3 install ' + pip3_pkg + ' --no-cache-dir')
-                res = sudo('pip3 freeze | grep ' + pip3_pkg)
-                ansi_escape = re.compile(r'\x1b[^m]*m')
-                ver = ansi_escape.sub('', res).split("\r\n")
-                version = [i for i in ver if pip3_pkg in i][0].split('==')[1]
-                status.append({"group": "pip3", "name": pip3_pkg, "version": version, "status": "installed"})
-            except:
-                status.append({"group": "pip3", "name": pip3_pkg, "status": "failed", "error_message": ""})
-        return status
-    except:
-        return "Fail to install pip3 packages"
+        return "Failed to install {} packages".format(pip_version)
 
 
 def create_aws_config_files(generate_full_config=False):
@@ -616,6 +596,12 @@ def install_ungit(os_user, certfile):
             run('mkdir -p ~/.git/templates/hooks')
             put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0755)
             run('git config --global init.templatedir ~/.git/templates')
+            run('touch ~/.gitignore')
+            run('git config --global core.excludesfile ~/.gitignore')
+            run('echo ".ipynb_checkpoints/" >> ~/.gitignore')
+            run('echo "spark-warehouse/" >> ~/.gitignore')
+            run('echo "metastore_db/" >> ~/.gitignore')
+            run('echo "derby.log" >> ~/.gitignore')
             sudo('systemctl daemon-reload')
             sudo('systemctl enable ungit.service')
             sudo('systemctl start ungit.service')
