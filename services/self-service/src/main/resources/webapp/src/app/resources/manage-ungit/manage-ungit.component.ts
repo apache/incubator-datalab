@@ -122,6 +122,9 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public assignChanges(current: any): void {
+    this.errorMessage = '';
+    this.processError = false;
+
     const modifiedCredentials = JSON.parse(JSON.stringify(this.gitCredentials));
     const index = modifiedCredentials.findIndex(el => JSON.stringify(el) === JSON.stringify(this.currentEditableItem));
 
