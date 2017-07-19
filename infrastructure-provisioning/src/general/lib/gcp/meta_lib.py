@@ -195,3 +195,26 @@ class GCPMeta:
     def get_role(self, role_name):
         print "Role name -> {}".format(role_name)
         return role_name
+
+    def get_static_address(self, region, static_address_name):
+        request = self.service.addresses().get(project=self.project, region=region, address=static_address_name)
+        try:
+            return request.execute()
+        except errors.HttpError as err:
+            if err.resp.status == 404:
+                return ''
+            else:
+                raise err
+
+    def get_private_ip_address(self, instance_name):
+        try:
+            result = GCPMeta().get_instance(instance_name)
+            for i in result['networkInterfaces']:
+                return i['networkIP']
+        except Exception as err:
+                logging.info(
+                    "Unable to get Private IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to get Private IP address",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)

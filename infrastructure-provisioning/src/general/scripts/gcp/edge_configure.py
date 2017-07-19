@@ -56,6 +56,50 @@ if __name__ == "__main__":
     instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
     keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
 
+    # ===================
+
+    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+    edge_conf['key_name'] = os.environ['conf_key_name']
+    edge_conf['user_keyname'] = os.environ['edge_user_name']
+    try:
+        if os.environ['gcp_vpc_name'] == '':
+            raise KeyError
+        else:
+            edge_conf['vpc_name'] = os.environ['gcp_vpc_name']
+    except KeyError:
+        edge_conf['vpc_name'] = edge_conf['service_base_name'] + '-ssn-vpc'
+    edge_conf['vpc_cidr'] = '10.10.0.0/16'
+    edge_conf['subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name']
+    edge_conf['region'] = os.environ['region']
+    edge_conf['zone'] = os.environ['zone']
+    edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
+    edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
+    edge_conf[
+        'edge_service_account_name'] = 'dlabowner'  # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
+    # 'edge_user_name'] + '-edge-Role'
+    edge_conf[
+        'notebook_service_account_name'] = 'dlabowner'  # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
+    # 'edge_user_name'] + '-nb-Role'
+    edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    edge_conf['firewall_name'] = edge_conf['instance_name'] + '-firewall'
+    edge_conf['notebook_firewall_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                          '-nb-firewall'
+    edge_conf['bucket_name'] = (
+        edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
+    edge_conf['instance_size'] = os.environ['ssn_instance_size']
+    edge_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+    edge_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
+    edge_conf['static_address_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-ip'
+    instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_conf['instance_name'])
+    keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
+    edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+    edge_conf['private_subnet_cidr'] = GCPMeta().get_subnet(edge_conf['subnet_name'],
+                                                            edge_conf['region'])['ipCidrRange']
+    edge_conf['elastic_ip'] = \
+        GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
+    edge_conf['private_ip'] = GCPMeta().get_private_ip_address(edge_conf['instance_name'])
+    # =============
+
     try:
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -77,12 +121,12 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed creating ssh user 'dlab'.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
+        GCPActions().remove_instance(edge_conf['instance_name'])
+        GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
+        GCPActions().remove_bucket(edge_conf['bucket_name'])
+        GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
+        GCPActions().remove_firewall(edge_conf['firewall_name'])
+        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
 
     try:
@@ -97,12 +141,12 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing apps: apt & pip.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
+        GCPActions().remove_instance(edge_conf['instance_name'])
+        GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
+        GCPActions().remove_bucket(edge_conf['bucket_name'])
+        GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
+        GCPActions().remove_firewall(edge_conf['firewall_name'])
+        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
 
     try:
@@ -119,12 +163,12 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing http proxy.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
+        GCPActions().remove_instance(edge_conf['instance_name'])
+        GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
+        GCPActions().remove_bucket(edge_conf['bucket_name'])
+        GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
+        GCPActions().remove_firewall(edge_conf['firewall_name'])
+        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
 
 
@@ -142,12 +186,12 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing users key. Excpeption: " + str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
+        GCPActions().remove_instance(edge_conf['instance_name'])
+        GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
+        GCPActions().remove_bucket(edge_conf['bucket_name'])
+        GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
+        GCPActions().remove_firewall(edge_conf['firewall_name'])
+        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
 
     try:
@@ -155,27 +199,22 @@ if __name__ == "__main__":
         logging.info('[SUMMARY]')
         print "Instance name: " + edge_conf['instance_name']
         print "Hostname: " + instance_hostname
-        print "Public IP: " + edge_conf['edge_public_ip']
-        print "Private IP: " + edge_conf['edge_private_ip']
-        print "Instance ID: " + get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name'])
+        print "Public IP: " + edge_conf['elastic_ip']
+        print "Private IP: " + edge_conf['private_ip']
         print "Key name: " + edge_conf['key_name']
         print "Bucket name: " + edge_conf['bucket_name']
-        print "Notebook SG: " + edge_conf['notebook_security_group_name']
-        print "Notebook profiles: " + edge_conf['notebook_role_profile_name']
-        print "Edge SG: " + edge_conf['edge_security_group_name']
+        # print "Notebook SG: " + edge_conf['notebook_security_group_name']
+        # print "Notebook profiles: " + edge_conf['notebook_role_profile_name']
+        # print "Edge SG: " + edge_conf['edge_security_group_name']
         print "Notebook subnet: " + edge_conf['private_subnet_cidr']
         with open("/root/result.json", 'w') as result:
             res = {"hostname": instance_hostname,
-                   "public_ip": edge_conf['edge_public_ip'],
-                   "ip": edge_conf['edge_private_ip'],
-                   "instance_id": get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name']),
+                   "public_ip": edge_conf['elastic_ip'],
+                   "ip": edge_conf['private_ip'],
                    "key_name": edge_conf['key_name'],
-                   "user_own_bicket_name": edge_conf['bucket_name'],
+                   "user_own_bucket_name": edge_conf['bucket_name'],
                    "tunnel_port": "22",
                    "socks_port": "1080",
-                   "notebook_sg": edge_conf['notebook_security_group_name'],
-                   "notebook_profile": edge_conf['notebook_role_profile_name'],
-                   "edge_sg": edge_conf['edge_security_group_name'],
                    "notebook_subnet": edge_conf['private_subnet_cidr'],
                    "full_edge_conf": edge_conf,
                    "Action": "Create new EDGE server"}

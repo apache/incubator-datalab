@@ -39,30 +39,6 @@ if __name__ == "__main__":
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['key_name'] = os.environ['conf_key_name']
     edge_conf['user_keyname'] = os.environ['edge_user_name']
-    edge_conf['public_subnet_id'] = os.environ['aws_subnet_id']
-    edge_conf['vpc_id'] = os.environ['aws_vpc_id']
-    edge_conf['region'] = os.environ['region']
-    edge_conf['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
-    edge_conf['instance_size'] = os.environ['aws_edge_instance_size']
-    edge_conf['sg_ids'] = os.environ['aws_security_groups_ids']
-    edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
-    edge_conf['bucket_name'] = (edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
-    edge_conf['ssn_bucket_name'] = (edge_conf['service_base_name'] + "-ssn-bucket").lower().replace('_', '-')
-    edge_conf['role_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Role'
-    edge_conf['role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Profile'
-    edge_conf['policy_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Policy'
-    edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-SG'
-    edge_conf['notebook_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
-    edge_conf['notebook_role_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Role'
-    edge_conf['notebook_policy_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Policy'
-    edge_conf['notebook_role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Profile'
-    edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb-SG'
-    edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
-
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
-    edge_conf['key_name'] = os.environ['conf_key_name']
-    edge_conf['user_keyname'] = os.environ['edge_user_name']
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
@@ -89,6 +65,7 @@ if __name__ == "__main__":
     edge_conf['instance_size'] = os.environ['ssn_instance_size']
     edge_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
     edge_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
+    edge_conf['static_address_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-ip'
 
     # FUSE in case of absence of user's key
     fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
@@ -246,6 +223,36 @@ if __name__ == "__main__":
     #     remove_s3('edge', os.environ['edge_user_name'])
     #     sys.exit(1)
 
+    try:
+        logging.info('[CREATING ELASTIC IP ADDRESS]')
+        print '[CREATING ELASTIC IP ADDRESS]'
+        try:
+            edge_conf['elastic_ip'] = os.environ['edge_elastic_ip']
+        except:
+            edge_conf['elastic_ip'] = 'None'
+        if edge_conf['elastic_ip'] == 'None':
+            params = "--elastic_ip {} --address_name {} --region {}".format(edge_conf['elastic_ip'],
+                                                                            edge_conf['static_address_name'],
+                                                                            edge_conf['region'])
+            try:
+                local("~/scripts/{}.py {}".format('edge_create_elastic_ip', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+    except Exception as err:
+        append_result("Failed to associate elastic ip.", str(err))
+        try:
+            GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
+        except:
+            print "Elastic IP address hasn't been created."
+        GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
+        GCPActions().remove_firewall(edge_conf['firewall_name'])
+        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
+        sys.exit(1)
+
+    edge_conf['elastic_ip'] = \
+        GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
+
     if os.environ['conf_os_family'] == 'debian':
         initial_user = 'ubuntu'
         sudo_group = 'sudo'
@@ -256,46 +263,19 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE EDGE INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {}".\
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --elastic_ip {}".\
             format(edge_conf['instance_name'], edge_conf['region'], edge_conf['zone'], edge_conf['vpc_name'],
                    edge_conf['subnet_name'], edge_conf['instance_size'], edge_conf['ssh_key_path'], initial_user,
-                   edge_conf['edge_service_account_name'], edge_conf['ami_name'])
+                   edge_conf['edge_service_account_name'], edge_conf['ami_name'], 'edge', edge_conf['elastic_ip'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         GCPActions().remove_bucket(edge_conf['bucket_name'])
         GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
         GCPActions().remove_firewall(edge_conf['firewall_name'])
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
-
-    try:
-        logging.info('[ASSOCIATING ELASTIC IP]')
-        print '[ASSOCIATING ELASTIC IP]'
-        edge_conf['edge_id'] = get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name'])
-        try:
-            edge_conf['elastic_ip'] = os.environ['edge_elastic_ip']
-        except:
-            edge_conf['elastic_ip'] = 'None'
-        params = "--elastic_ip {} --edge_id {}".format(edge_conf['elastic_ip'], edge_conf['edge_id'])
-        try:
-            local("~/scripts/{}.py {}".format('edge_associate_elastic_ip', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed to associate elastic ip.", str(err))
-        try:
-            edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
-            edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
-        except:
-            print "No Elastic IPs to release!"
-        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
         sys.exit(1)

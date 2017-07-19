@@ -197,10 +197,19 @@ class GCPActions:
                 traceback.print_exc(file=sys.stdout)
 
     def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path,
-                        initial_user, ami_name, service_account_name, primary_disk_size='12'):
+                        initial_user, ami_name, service_account_name, instance_class, elastic_ip='',
+                        primary_disk_size='12'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
+        if instance_class == 'ssn' or instance_class == 'notebook':
+            access_configs = [{"type": "ONE_TO_ONE_NAT"}]
+        elif instance_class == 'edge':
+            access_configs = [{
+                "type": "ONE_TO_ONE_NAT",
+                "name": "External NAT",
+                "natIP": elastic_ip
+            }]
         instance_params = {
             "name": instance_name,
             "machineType": "zones/{}/machineTypes/{}".format(zone, instance_size),
@@ -208,11 +217,7 @@ class GCPActions:
                 {
                     "network": "global/networks/{}".format(vpc_name),
                     "subnetwork": "regions/{}/subnetworks/{}".format(region, subnet_name),
-                    "accessConfigs": [
-                        {
-                            "type": "ONE_TO_ONE_NAT"
-                        }
-                    ]
+                    "accessConfigs": access_configs
                 },
             ],
             "metadata":

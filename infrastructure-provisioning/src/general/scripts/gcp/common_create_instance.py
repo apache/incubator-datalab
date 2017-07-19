@@ -37,6 +37,8 @@ parser.add_argument('--initial_user', type=str, default='')
 parser.add_argument('--service_account_name', type=str, default='')
 parser.add_argument('--ami_name', type=str, default='')
 parser.add_argument('--primary_disk_size', type=str, default='12')
+parser.add_argument('--instance_class', type=str, default='')
+parser.add_argument('--elastic_ip', type=str, default='')
 args = parser.parse_args()
 
 
@@ -48,7 +50,8 @@ if __name__ == "__main__":
             print "Creating Instance {}".format(args.instance_name)
             GCPActions().create_instance(args.instance_name, args.region, args.zone, args.vpc_name, args.subnet_name,
                                          args.instance_size, args.ssh_key_path, args.initial_user, args.ami_name,
-                                         args.service_account_name, args.primary_disk_size)
+                                         args.service_account_name, args.instance_class, args.elastic_ip,
+                                         args.primary_disk_size)
             # print "Setting Service account to the instance"
             # GCPActions().stop_instance(args.instance_name, args.zone)
             # GCPActions().set_service_account_to_instance(args.service_account_name, args.instance_name)
