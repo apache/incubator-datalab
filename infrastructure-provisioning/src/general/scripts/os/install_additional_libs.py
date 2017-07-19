@@ -80,9 +80,9 @@ if __name__ == "__main__":
     try:
         print 'Installing other packages:', pkgs['libraries']['others']
         for pkg in pkgs['libraries']['others']:
-            status_pip2 = install_pip_pkg(pkg, 'pip2', 'others')
-            status_pip3 = install_pip_pkg(pkg, 'pip3', 'others')
-            if status_pip2['status'] == 'installed':
+            status_pip2 = install_pip_pkg([pkg], 'pip2', 'others')
+            status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
+            if status_pip2[0]['status'] == 'installed':
                 general_status = general_status + status_pip2
             else:
                 general_status = general_status + status_pip3
