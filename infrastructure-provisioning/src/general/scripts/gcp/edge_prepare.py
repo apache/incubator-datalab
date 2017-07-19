@@ -51,7 +51,7 @@ if __name__ == "__main__":
     edge_conf['region'] = os.environ['region']
     edge_conf['zone'] = os.environ['zone']
     edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
-    edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
+    edge_conf['private_subnet_prefix'] = os.environ['gcp_private_subnet_prefix']
     edge_conf['edge_service_account_name'] = 'dlabowner' # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
         # 'edge_user_name'] + '-edge-Role'
     edge_conf['notebook_service_account_name'] = 'dlabowner' # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
@@ -62,7 +62,7 @@ if __name__ == "__main__":
                                           '-nb-firewall'
     edge_conf['bucket_name'] = (
     edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
-    edge_conf['instance_size'] = os.environ['ssn_instance_size']
+    edge_conf['instance_size'] = os.environ['gcp_edge_instance_size']
     edge_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
     edge_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
     edge_conf['static_address_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-ip'
