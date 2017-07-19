@@ -76,7 +76,7 @@ limitations under the License.
               Hostname field is required. Please provide a qualified domain name (e.g. gitlab.com or github.com)
             </span>
             <span class="danger_color" *ngIf="updateAccountCredentialsForm.controls['hostname'].hasError('duplicate') && updateAccountCredentialsForm.controls['hostname'].dirty">
-              This hostname already exists
+              The Host name is already in use
             </span>
             <md-input-container>
               <input mdInput type="text"
