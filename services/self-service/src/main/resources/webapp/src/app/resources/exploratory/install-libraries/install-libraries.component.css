@@ -150,6 +150,7 @@ limitations under the License.
     display: inline-block;
     cursor: pointer;
     width: 25px;
+    pointer-events: auto;
 }
 .warn-action div span {
     display: block;

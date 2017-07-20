@@ -39,10 +39,10 @@ export class ReportingGridComponent implements OnInit {
 
   public filteringColumns: Array<any> = [
     { title: 'User', name: 'user', className: 'th_user', filtering: true, role: 'admin'},
-    { title: 'Environment name', name: 'dlab_id', className: 'th_env_name', filtering: true },
+    { title: 'Environment name', name: 'dlab_id', className: 'env_name', filtering: true },
     { title: 'Resource Type', name: 'resource_type', className: 'th_type', filtering: true },
     { title: 'Shape', name: 'shape', className: 'th_shape', filtering: true },
-    { title: 'Service', name: 'product', className: 'th_service', filtering: true },
+    { title: 'Service', name: 'product', className: 'service', filtering: true },
     { title: 'Service Charges', name: 'charges', className: 'th_charges', filtering: false }
   ];
 
