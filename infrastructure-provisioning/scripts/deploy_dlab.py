@@ -25,8 +25,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--conf_service_base_name', type=str, help='unique name for DLab environment')
 parser.add_argument('--aws_access_key', type=str, default='', help='AWS Access Key ID')
 parser.add_argument('--aws_secret_access_key', type=str, default='', help='AWS Secret Access Key')
-parser.add_argument('--region', type=str, default='', help='Cloud region')
-parser.add_argument('--zone', type=str, default='', help='Cloud zone')
+parser.add_argument('--aws_region', type=str, default='', help='AWS region')
+parser.add_argument('--gcp_region', type=str, default='', help='GCP region')
+parser.add_argument('--gcp_zone', type=str, default='', help='GCP zone')
 parser.add_argument('--conf_os_family', type=str, default='',
                     help='Operating system type. Available options: debian, redhat')
 parser.add_argument('--conf_cloud_provider', type=str, default='',

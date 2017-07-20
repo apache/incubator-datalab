@@ -43,7 +43,7 @@ if __name__ == "__main__":
         user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         instance_name = service_base_name + '-ssn'
-        region = os.environ['region']
+        region = os.environ['aws_region']
         ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
         ssn_ami_id = get_ami_id(ssn_ami_name)
         policy_path = '/root/files/ssn_policy.json'
@@ -130,7 +130,7 @@ if __name__ == "__main__":
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric awscli pymongo pyyaml' --user {} --region {}". \
             format(instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", dlab_ssh_user,
-                   os.environ['region'])
+                   os.environ['aws_region'])
 
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
@@ -197,7 +197,7 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),
                    json.dumps(additional_config), os.environ['conf_os_family'], dlab_ssh_user,
-                   os.environ['ssn_dlab_path'], os.environ['conf_cloud_provider'], os.environ['region'])
+                   os.environ['ssn_dlab_path'], os.environ['conf_cloud_provider'], os.environ['aws_region'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_docker', params))
@@ -225,7 +225,7 @@ if __name__ == "__main__":
         print('[CONFIGURE SSN INSTANCE UI]')
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']), os.environ['ssn_dlab_path'],
-                   dlab_ssh_user, os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'], os.environ['region'],
+                   dlab_ssh_user, os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'], os.environ['aws_region'],
                    os.environ['conf_service_base_name'], os.environ['aws_security_groups_ids'], os.environ['aws_vpc_id'],
                    os.environ['aws_subnet_id'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
                    os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],

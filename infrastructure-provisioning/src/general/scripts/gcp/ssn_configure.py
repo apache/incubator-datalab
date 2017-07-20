@@ -37,29 +37,15 @@ if __name__ == "__main__":
     try:
         logging.info('[DERIVING NAMES]')
         print '[DERIVING NAMES]'
-        # service_base_name = os.environ['conf_service_base_name']
-        # role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
-        # role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
-        # policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
-        # user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
-        # tag_name = service_base_name + '-Tag'
-        # instance_name = service_base_name + '-ssn'
-        # region = os.environ['region']
-        # ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
-        # ssn_ami_id = get_ami_id(ssn_ami_name)
-        # policy_path = '/root/files/ssn_policy.json'
-        # vpc_cidr = '172.31.0.0/16'
-        # sg_name = instance_name + '-SG'
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_firewall = False
         billing_enabled = False
-        # dlab_ssh_user = os.environ['conf_os_user']
 
         ssn_conf = dict()
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
-        ssn_conf['region'] = os.environ['region']
-        ssn_conf['zone'] = os.environ['zone']
+        ssn_conf['region'] = os.environ['gcp_region']
+        ssn_conf['zone'] = os.environ['gcp_zone']
         ssn_conf['ssn_bucket_name'] = (ssn_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
         ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
         ssn_conf['instance_size'] = os.environ['ssn_instance_size']

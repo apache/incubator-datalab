@@ -41,7 +41,7 @@ if __name__ == "__main__":
     edge_conf['user_keyname'] = os.environ['edge_user_name']
     edge_conf['public_subnet_id'] = os.environ['aws_subnet_id']
     edge_conf['vpc_id'] = os.environ['aws_vpc_id']
-    edge_conf['region'] = os.environ['region']
+    edge_conf['region'] = os.environ['aws_region']
     edge_conf['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
     edge_conf['instance_size'] = os.environ['aws_edge_instance_size']
     edge_conf['sg_ids'] = os.environ['aws_security_groups_ids']
@@ -94,7 +94,7 @@ if __name__ == "__main__":
         print '[CREATE EDGE ROLES]'
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
                  .format(edge_conf['role_name'], edge_conf['role_profile_name'],
-                         edge_conf['policy_name'], os.environ['region'])
+                         edge_conf['policy_name'], os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         print '[CREATE BACKEND (NOTEBOOK) ROLES]'
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
                  .format(edge_conf['notebook_role_name'], edge_conf['notebook_role_profile_name'],
-                         edge_conf['notebook_policy_name'], os.environ['region'])
+                         edge_conf['notebook_policy_name'], os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:

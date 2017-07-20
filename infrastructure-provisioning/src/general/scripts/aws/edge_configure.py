@@ -89,7 +89,7 @@ if __name__ == "__main__":
         print '[INSTALLING PREREQUISITES]'
         logging.info('[INSTALLING PREREQUISITES]')
         params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], os.environ['region'])
+            format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:

@@ -34,7 +34,7 @@ import urllib2
 
 def put_to_bucket(bucket_name, local_file, destination_file):
     try:
-        s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['region'])
+        s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
         with open(local_file, 'rb') as data:
             s3.upload_fileobj(data, bucket_name, destination_file)
         return True
@@ -594,7 +594,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
 
 def s3_cleanup(bucket, cluster_name, user_name):
     s3_res = boto3.resource('s3', config=Config(signature_version='s3v4'))
-    client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['region'])
+    client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
     try:
         client.head_bucket(Bucket=bucket)
     except:
@@ -613,7 +613,7 @@ def s3_cleanup(bucket, cluster_name, user_name):
 
 def remove_s3(bucket_type='all', scientist=''):
     try:
-        client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['region'])
+        client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
         bucket_list = []
         if bucket_type == 'ssn':
             bucket_name = (os.environ['conf_service_base_name'] + '-ssn-bucket').lower().replace('_', '-')

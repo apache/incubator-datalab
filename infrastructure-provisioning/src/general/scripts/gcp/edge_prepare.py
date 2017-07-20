@@ -48,8 +48,8 @@ if __name__ == "__main__":
         edge_conf['vpc_name'] = edge_conf['service_base_name'] + '-ssn-vpc'
     edge_conf['vpc_cidr'] = '10.10.0.0/16'
     edge_conf['subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name']
-    edge_conf['region'] = os.environ['region']
-    edge_conf['zone'] = os.environ['zone']
+    edge_conf['region'] = os.environ['gcp_region']
+    edge_conf['zone'] = os.environ['gcp_zone']
     edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
     edge_conf['private_subnet_prefix'] = os.environ['gcp_private_subnet_prefix']
     edge_conf['edge_service_account_name'] = 'dlabowner' # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     #     print '[CREATE EDGE ROLES]'
     #     params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
     #              .format(edge_conf['role_name'], edge_conf['role_profile_name'],
-    #                      edge_conf['policy_name'], os.environ['region'])
+    #                      edge_conf['policy_name'], os.environ['gcp_region'])
     #     try:
     #         local("~/scripts/{}.py {}".format('common_create_role_policy', params))
     #     except:
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     #     print '[CREATE BACKEND (NOTEBOOK) ROLES]'
     #     params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
     #              .format(edge_conf['notebook_role_name'], edge_conf['notebook_role_profile_name'],
-    #                      edge_conf['notebook_policy_name'], os.environ['region'])
+    #                      edge_conf['notebook_policy_name'], os.environ['gcp_region'])
     #     try:
     #         local("~/scripts/{}.py {}".format('common_create_role_policy', params))
     #     except:

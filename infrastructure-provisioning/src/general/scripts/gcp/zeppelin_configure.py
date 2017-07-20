@@ -123,7 +123,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO ZEPPELIN NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO ZEPPELIN NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {}" \
-            .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['region'])
+            .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['gcp_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -143,7 +143,7 @@ if __name__ == "__main__":
                              "backend_port": "8080",
                              "nginx_template_dir": "/root/templates/"}
         params = "--hostname {} --instance_name {} --keyfile {} --region {} --additional_config '{}' --os_user {} --spark_version {} --hadoop_version {} --edge_hostname {} --proxy_port {} --zeppelin_version {} --scala_version {} --livy_version {} --multiple_emrs {} --r_mirror {}" \
-            .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['region'],
+            .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['gcp_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],

@@ -122,7 +122,7 @@ class GCPMeta:
                 traceback.print_exc(file=sys.stdout)
 
     def get_instance(self, instance_name):
-        request = self.service.instances().get(project=self.project, zone=os.environ['zone'], instance=instance_name)
+        request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'], instance=instance_name)
         try:
             return request.execute()
         except errors.HttpError as err:
@@ -139,7 +139,7 @@ class GCPMeta:
                 traceback.print_exc(file=sys.stdout)
 
     def get_instance_status(self, instance_name):
-        request = self.service.instances().get(project=self.project, zone=os.environ['zone'], instance=instance_name)
+        request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'], instance=instance_name)
         try:
             result = request.execute()
             return result.get('status')

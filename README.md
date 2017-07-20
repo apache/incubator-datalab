@@ -1208,7 +1208,7 @@ Path: *infrastructure-provisioning/src/general/scripts/aws/jupyter\_configure.py
         logging.info('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         print '[CONFIGURE JUPYTER NOTEBOOK INSTANCE]'
         params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {}".\
-            format(instance_hostname, keyfile_name, os.environ['region'], os.environ['notebook_spark_version'],
+            format(instance_hostname, keyfile_name, os.environ['aws_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], os.environ['conf_os_user'],
                    os.environ['notebook_scala_version'])
         try:

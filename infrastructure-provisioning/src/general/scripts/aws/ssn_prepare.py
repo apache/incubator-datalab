@@ -56,7 +56,7 @@ if __name__ == "__main__":
         user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         instance_name = service_base_name + '-ssn'
-        region = os.environ['region']
+        region = os.environ['aws_region']
         ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
         ssn_ami_id = get_ami_id(ssn_ami_name)
         policy_path = '/root/files/ssn_policy.json'
@@ -180,7 +180,7 @@ if __name__ == "__main__":
         logging.info('[CREATE ROLES]')
         print('[CREATE ROLES]')
         params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {}".\
-            format(role_name, role_profile_name, policy_name, policy_path, os.environ['region'])
+            format(role_name, role_profile_name, policy_name, policy_path, os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -202,7 +202,7 @@ if __name__ == "__main__":
         logging.info('[CREATE ENDPOINT AND ROUTE-TABLE]')
         print('[CREATE ENDPOINT AND ROUTE-TABLE]')
         params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
-            os.environ['aws_vpc_id'], os.environ['region'], tag_name, service_base_name)
+            os.environ['aws_vpc_id'], os.environ['aws_region'], tag_name, service_base_name)
         try:
             local("~/scripts/{}.py {}".format('ssn_create_endpoint', params))
         except:

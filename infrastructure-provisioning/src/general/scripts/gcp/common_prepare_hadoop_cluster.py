@@ -67,7 +67,7 @@ if __name__ == "__main__":
     emr_conf['service_base_name'] = os.environ['conf_service_base_name']
     emr_conf['tag_name'] = emr_conf['service_base_name'] + '-Tag'
     emr_conf['key_name'] = os.environ['conf_key_name']
-    emr_conf['region'] = os.environ['region']
+    emr_conf['region'] = os.environ['gcp_region']
     emr_conf['release_label'] = os.environ['emr_version']
     emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
     emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']

@@ -270,7 +270,7 @@ class GCPActions:
                 traceback.print_exc(file=sys.stdout)
 
     def remove_instance(self, instance_name):
-        request = self.service.instances().delete(project=self.project, zone=os.environ['zone'], instance=instance_name)
+        request = self.service.instances().delete(project=self.project, zone=os.environ['gcp_zone'], instance=instance_name)
         try:
             result = request.execute()
             instance_removed = meta_lib.GCPMeta().get_instance(instance_name)
@@ -402,7 +402,7 @@ class GCPActions:
             "email": service_account_email
         }
         request = self.service.instances().setServiceAccount(
-            project=self.project, zone=os.environ['zone'], instance=instance_name, body=params)
+            project=self.project, zone=os.environ['gcp_zone'], instance=instance_name, body=params)
         try:
             return request.execute()
         except Exception as err:

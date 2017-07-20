@@ -130,7 +130,7 @@ if __name__ == "__main__":
         print('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {}".format(instance_hostname, keyfile_name,
                                                                            notebook_config['dlab_ssh_user'],
-                                                                           os.environ['region'])
+                                                                           os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -148,7 +148,7 @@ if __name__ == "__main__":
                  .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'],
                          os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                          os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
-                         os.environ['region'], os.environ['notebook_tensorflow_version'],
+                         os.environ['aws_region'], os.environ['notebook_tensorflow_version'],
                          os.environ['notebook_r_mirror'])
         try:
             local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))

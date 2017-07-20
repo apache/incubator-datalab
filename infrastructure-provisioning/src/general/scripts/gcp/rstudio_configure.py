@@ -115,7 +115,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO R_STUDIO NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO R_STUDIO NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['region'])
+            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['gcp_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -131,7 +131,7 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
         print '[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]'
         params = "--hostname {}  --keyfile {} --region {} --rstudio_pass {} --rstudio_version {} --os_user {} --r_mirror {}" \
-            .format(instance_hostname, keyfile_name, os.environ['region'], notebook_config['rstudio_pass'],
+            .format(instance_hostname, keyfile_name, os.environ['gcp_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'], os.environ['notebook_r_mirror'])
         try:
             local("~/scripts/{}.py {}".format('configure_rstudio_node', params))

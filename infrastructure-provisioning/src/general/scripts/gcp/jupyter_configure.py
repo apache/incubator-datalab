@@ -112,7 +112,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['region'])
+            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['gcp_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -128,7 +128,7 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         print '[CONFIGURE JUPYTER NOTEBOOK INSTANCE]'
         params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {}".\
-            format(instance_hostname, keyfile_name, os.environ['region'], os.environ['notebook_spark_version'],
+            format(instance_hostname, keyfile_name, os.environ['gcp_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'])
         try:
