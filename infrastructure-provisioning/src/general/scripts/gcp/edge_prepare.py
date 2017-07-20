@@ -85,15 +85,19 @@ if __name__ == "__main__":
                          edge_conf['private_subnet_prefix'], edge_conf['vpc_cidr'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
+            edge_conf['private_subnet_cidr'] = GCPMeta().get_subnet(edge_conf['subnet_name'],
+                                                                    edge_conf['region'])['ipCidrRange']
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        try:
+            GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
+        except:
+            print "Subnet hasn't been created."
         append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
-    edge_conf['private_subnet_cidr'] = GCPMeta().get_subnet(edge_conf['subnet_name'],
-                                                            edge_conf['region'])['ipCidrRange']
     print 'NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr'])
 
     # try:
@@ -250,8 +254,6 @@ if __name__ == "__main__":
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
 
-    edge_conf['elastic_ip'] = \
-        GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
 
     if os.environ['conf_os_family'] == 'debian':
         initial_user = 'ubuntu'
@@ -261,6 +263,8 @@ if __name__ == "__main__":
         sudo_group = 'wheel'
 
     try:
+        edge_conf['elastic_ip'] = \
+            GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
         logging.info('[CREATE EDGE INSTANCE]')
         print('[CREATE SSN INSTANCE]')
         params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --elastic_ip {}".\

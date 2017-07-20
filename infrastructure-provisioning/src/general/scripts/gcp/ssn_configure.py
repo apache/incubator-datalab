@@ -103,9 +103,8 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
-    instance_hostname = GCPMeta().get_instance_public_ip_by_name(ssn_conf['instance_name'])
-
     try:
+        instance_hostname = GCPMeta().get_instance_public_ip_by_name(ssn_conf['instance_name'])
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
             sudo_group = 'sudo'

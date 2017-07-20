@@ -417,7 +417,14 @@ class GCPActions:
         params = {"name": address_name}
         request = self.service.addresses().insert(project=self.project, region=region, body=params)
         try:
-            return request.execute()
+            result = request.execute()
+            static_address_created = meta_lib.GCPMeta().get_static_address(region, address_name)
+            while not static_address_created:
+                time.sleep(5)
+                static_address_created = meta_lib.GCPMeta().get_static_address(region, address_name)
+            time.sleep(30)
+            print('Static address {} created.'.format(address_name))
+            return result
         except Exception as err:
                 logging.info(
                     "Unable to create Static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -429,7 +436,14 @@ class GCPActions:
     def remove_static_address(self, address_name, region):
         request = self.service.addresses().delete(project=self.project, region=region, address=address_name)
         try:
-            return request.execute()
+            result = request.execute()
+            static_address_removed = meta_lib.GCPMeta().get_static_address(region, address_name)
+            while static_address_removed:
+                time.sleep(5)
+                static_address_removed = meta_lib.GCPMeta().get_static_address(region, address_name)
+            time.sleep(30)
+            print('Static address {} removed.'.format(address_name))
+            return result
         except Exception as err:
                 logging.info(
                     "Unable to remove Static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))

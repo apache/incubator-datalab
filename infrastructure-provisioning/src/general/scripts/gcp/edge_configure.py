@@ -34,28 +34,6 @@ if __name__ == "__main__":
 
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
-    edge_conf['key_name'] = os.environ['conf_key_name']
-    edge_conf['user_keyname'] = os.environ['edge_user_name']
-    edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
-    edge_conf['bucket_name'] = (edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
-    edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-SG'
-    edge_conf['notebook_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
-    edge_conf['notebook_role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + \
-                                              os.environ['edge_user_name'] + '-nb-Profile'
-    edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + '-nb-SG'
-    tag = {"Key": edge_conf['tag_name'], "Value": "{}-{}-subnet".format(edge_conf['service_base_name'], os.environ['edge_user_name'])}
-    edge_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
-    edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
-    edge_conf['edge_private_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Private')
-    edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
-    edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
-
-    instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
-    keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
-
     # ===================
 
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
@@ -86,7 +64,7 @@ if __name__ == "__main__":
                                           '-nb-firewall'
     edge_conf['bucket_name'] = (
         edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
-    edge_conf['instance_size'] = os.environ['ssn_instance_size']
+    edge_conf['instance_size'] = os.environ['gcp_edge_instance_size']
     edge_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
     edge_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
     edge_conf['static_address_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-ip'
