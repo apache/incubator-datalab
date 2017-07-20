@@ -26,7 +26,7 @@ COPY general/scripts/${CLOUD}/ssn_* /root/scripts/
 COPY general/lib/os/${OS}/ssn_lib.py /usr/lib/python2.7/dlab/ssn_lib.py
 COPY general/files/${CLOUD}/ssn_instance_shapes.lst /root/files/
 COPY general/files/${CLOUD}/ssn_policy.json /root/files/
-COPY general/templates/${CLOUD}/jenkins_jobs/* /root/templates/jenkins_jobs/
+COPY general/templates/${CLOUD}/jenkins_jobs /root/templates/jenkins_jobs
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
