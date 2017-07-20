@@ -174,7 +174,7 @@ export class ManageUngitComponent implements OnInit {
   private containsHostname(control) {
     if (control.value)
       for (let index = 0; index < this.gitCredentials.length; index++)
-        if (control.value === this.gitCredentials[index].hostname)
+        if (control.value === this.gitCredentials[index].hostname && control.value !== this.currentEditableItem.hostname)
           return { duplicate: true }
 
     return null;
