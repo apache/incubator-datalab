@@ -21,7 +21,7 @@ limitations under the License.
     zoom: 0.85;
 }
 .dashboard_table.reporting tr th {
-    font-size: 13px;
+    font-size: 12px;
 }
 .reporting .filter-row .filter-field,
 .reporting .dropdown-multiselect  button.dropdown-toggle.btn {
