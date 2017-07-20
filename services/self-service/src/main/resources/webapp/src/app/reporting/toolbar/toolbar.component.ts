@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 
 import { NgDateRangePickerOptions } from 'ng-daterangepicker';
 import * as moment from 'moment';
@@ -34,14 +34,12 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
 
   rangeOptions = {'YTD': 'Year To Date', 'QTD': 'Quarter To Date', 'MTD': 'Month To Date', 'reset': 'All Period Report'};
   options: NgDateRangePickerOptions;
-  hElement: HTMLElement;
-  rangeLabels: NodeListOf<Element>;
-  fromtoLabels: NodeListOf<Element>;
+  rangeLabels: any;
 
   @Output() rebuildReport: EventEmitter<{}> = new EventEmitter();
   @Output() setRangeOption: EventEmitter<{}> = new EventEmitter();
 
-  constructor(private elRef: ElementRef) {
+  constructor() {
     this.options = {
       theme: 'default',
       range: 'tm',
@@ -51,9 +49,6 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
       outputFormat: 'YYYY/MM/DD',
       startOfWeek: 1
     };
-
-    this.hElement = this.elRef.nativeElement;
-    this.rangeLabels = this.hElement.getElementsByClassName('value-txt');
   }
 
   ngOnInit() {
@@ -65,7 +60,6 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    console.log(this.rangeLabels);
     this.clearRangePicker();
   }
 
@@ -77,14 +71,18 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   }
 
   clearRangePicker(): void {
-    for(let label = 0; label < this.rangeLabels.length; ++label)
-      this.rangeLabels[label].className += ' untouched';
+    const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
+
+    for (let label = 0; label < rangeLabels.length; ++label)
+      rangeLabels[label].classList.add('untouched');
   }
 
   onChange(dateRange: string): void {
-    for (let label = 0; label < this.rangeLabels.length; ++label)
-      if (this.rangeLabels[label].classList.contains('untouched')) {
-        this.rangeLabels[label].classList.remove('untouched');
+    const rangeLabels = <NodeListOf<Element>>document.querySelectorAll('.value-txt');
+
+    for (let label = 0; label < rangeLabels.length; ++label)
+      if (rangeLabels[label].classList.contains('untouched')) {
+        rangeLabels[label].classList.remove('untouched');
     }
 
     const reportDateRange = dateRange.split('-');
