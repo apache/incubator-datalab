@@ -5,7 +5,7 @@
     "edge_user_name":"EUN",
     "emr_version":"EVER",
     "conf_key_name":"KN",
-    "region":"CREG",
+    "aws_region":"CREG",
     "notebook_instance_name":"NNM",
     "application":"APP"
 }

@@ -3,7 +3,7 @@
     "request_id":"RID",
     "conf_service_base_name":"SBN",
     "edge_user_name":"NUN",
-    "region":"CREG",
+    "gcp_region":"CREG",
     "notebook_instance_name":"NIN",
     "conf_key_name":"CKN",
     "application":"APP"
