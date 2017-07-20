@@ -21,18 +21,21 @@ limitations under the License.
 }
 .manage-ungit .scrollingList {
     overflow-x: hidden;
+    padding: 5px;
 }
 
 .manage-ungit .mail-field,
 .manage-ungit .user-field,
 .manage-ungit .login-field,
-.manage-ungit .hostname-field,
-.manage-ungit .actions {
+.manage-ungit .hostname-field {
     width: 25%;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding: 5px;
 }
-.manage-ungit .hostname-field,
+.manage-ungit .hostname-field {
+    width: 30%;
+}
 .manage-ungit .actions {
     width: 20%;
 }
