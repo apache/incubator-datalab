@@ -26,7 +26,6 @@ import os
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--elastic_ip', type=str, default='')
 parser.add_argument('--address_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
@@ -39,8 +38,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        if args.elastic_ip == 'None':
-            print "Creating Elastic IP"
-            GCPActions().create_static_address(args.address_name, args.region)
+        print "Creating Elastic IP"
+        GCPActions().create_static_address(args.address_name, args.region)
     except:
         sys.exit(1)

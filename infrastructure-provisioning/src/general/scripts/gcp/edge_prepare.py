@@ -235,20 +235,19 @@ if __name__ == "__main__":
         except:
             edge_conf['elastic_ip'] = 'None'
         if edge_conf['elastic_ip'] == 'None':
-            params = "--elastic_ip {} --address_name {} --region {}".format(edge_conf['elastic_ip'],
-                                                                            edge_conf['static_address_name'],
-                                                                            edge_conf['region'])
+            params = "--address_name {} --region {}".format(edge_conf['static_address_name'], edge_conf['region'])
             try:
                 local("~/scripts/{}.py {}".format('edge_create_elastic_ip', params))
             except:
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
-        append_result("Failed to associate elastic ip.", str(err))
+        append_result("Failed to create elastic ip.", str(err))
         try:
             GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         except:
             print "Elastic IP address hasn't been created."
+        GCPActions().remove_bucket(edge_conf['bucket_name'])
         GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
         GCPActions().remove_firewall(edge_conf['firewall_name'])
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])

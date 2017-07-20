@@ -3,6 +3,7 @@
     "conf_resource": "edge",
     "conf_service_base_name":"SBN",
     "gcp_region":"CREG",
+    "gcp_project_id":"GPI",
     "edge_user_name":"EUN",
     "conf_key_name":"CKN"
 }
