@@ -26,7 +26,7 @@ import 'rxjs/add/operator/distinctUntilChanged';
 
 import { InstallLibrariesModel } from './';
 import { LibrariesInstallationService} from '../../../core/services';
-import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
+import { ErrorMapUtils, SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   selector: 'install-libraries',
@@ -179,7 +179,7 @@ export class InstallLibrariesComponent implements OnInit {
 
   private libsUploadingStatus(groupsList): void {
     if (groupsList.length) {
-      this.groupsList = groupsList;
+      this.groupsList = SortUtil.libGroupsSort(groupsList);
       this.libs_uploaded = true;
       this.uploading = false;
     } else {
