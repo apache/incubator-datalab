@@ -37,12 +37,12 @@ if __name__ == "__main__":
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
+    edge_conf['zone'] = os.environ['zone']
 
     logging.info('[START EDGE]')
     print '[START EDGE]'
     try:
-        start_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+        GCPActions().start_instance(edge_conf['instance_name'], edge_conf['zone'])
     except Exception as err:
         append_result("Failed to start edge.", str(err))
         sys.exit(1)
@@ -51,10 +51,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
-        addresses = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name'])
-        ip_address = addresses.get('Private')
-        public_ip_address = addresses.get('Public')
+        instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_conf['instance_name'])
+        public_ip_address = \
+            GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
+        ip_address = GCPMeta().get_private_ip_address(edge_conf['instance_name'])
         print '[SUMMARY]'
         logging.info('[SUMMARY]')
         print "Instance name: " + edge_conf['instance_name']
