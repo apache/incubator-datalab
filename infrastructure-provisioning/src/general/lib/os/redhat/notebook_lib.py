@@ -407,10 +407,7 @@ def install_caffe2(os_user):
         sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
         sudo('git clone --recursive https://github.com/caffe2/caffe2')
         with cd('/home/{}/caffe2/'.format(os_user)):
-            sudo('mkdir build')
-        with cd('/home/{}/caffe2/build/'.format(os_user)):
-            sudo('cmake3 ..')
-            sudo('make -j8 install')
+            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="35 52 60 61" -DCUDA_ARCH_PTX="61" && make "-j$(nproc)" install')
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
