@@ -400,7 +400,7 @@ def install_caffe2(os_user):
              'scipy setuptools tornado --no-cache-dir')
         sudo('git clone --recursive https://github.com/caffe2/caffe2.git')
         with cd('/home/{}/caffe2/'.format(os_user)):
-            sudo('make && cd build && make install')
+            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="35 52 60 61" -DCUDA_ARCH_PTX="61" && make "-j$(nproc)" install')
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
