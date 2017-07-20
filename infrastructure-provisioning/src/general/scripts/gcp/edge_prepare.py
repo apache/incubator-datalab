@@ -233,8 +233,6 @@ if __name__ == "__main__":
         try:
             edge_conf['elastic_ip'] = os.environ['edge_elastic_ip']
         except:
-            edge_conf['elastic_ip'] = 'None'
-        if edge_conf['elastic_ip'] == 'None':
             params = "--address_name {} --region {}".format(edge_conf['static_address_name'], edge_conf['region'])
             try:
                 local("~/scripts/{}.py {}".format('edge_create_elastic_ip', params))
