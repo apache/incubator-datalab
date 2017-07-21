@@ -117,7 +117,7 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
 def prepare_disk(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
-            sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/xvdb' ''')
+            sudo('''bash -c 'echo -e "d\no\nn\np\n1\n\n\nw" | fdisk /dev/xvdb' ''')
             sudo('mkfs.ext4 /dev/xvdb1')
             sudo('mount /dev/xvdb1 /opt/')
             sudo(''' bash -c "echo '/dev/xvdb1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" ''')
