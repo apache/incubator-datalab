@@ -36,8 +36,10 @@ export class ManageUngitComponent implements OnInit {
   gitCredentials: Array<AccountCredentials> = [];
   currentEditableItem: AccountCredentials;
 
-  mail_validity_pattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+  mail_validity_pattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,63})$/;
   hostname_validity_pattern = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])+\.[a-z\.]+/;
+  login_acceptance_pattern = '[-_@.a-zA-Z0-9]+';
+  acceptance_pattern = '[-_ a-zA-Z0-9]+';
 
   errorMessage: string;
   processError: boolean = false;
@@ -103,9 +105,9 @@ export class ManageUngitComponent implements OnInit {
 
     this.updateAccountCredentialsForm = this._fb.group({
       'hostname': [item.hostname, Validators.compose([Validators.required, Validators.pattern(this.hostname_validity_pattern), this.containsHostname.bind(this)])],
-      'username': [item.username, Validators.required],
+      'username': [item.username, Validators.compose([Validators.required, Validators.pattern(this.acceptance_pattern)])],
       'email': [item.email, Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
-      'login': [item.login, Validators.required],
+      'login': [item.login, Validators.compose([Validators.required, Validators.pattern(this.login_acceptance_pattern)])],
       'password': ['', Validators.compose([Validators.required, Validators.minLength(6)])],
       'confirmPassword': ['', Validators.compose([Validators.required, this.validConfirmField.bind(this)])]
     });
@@ -146,9 +148,9 @@ export class ManageUngitComponent implements OnInit {
   private initFormModel(): void {
     this.updateAccountCredentialsForm = this._fb.group({
       'hostname': ['', Validators.compose([Validators.required, Validators.pattern(this.hostname_validity_pattern), this.containsHostname.bind(this)])],
-      'username': ['', Validators.required],
+      'username': ['', Validators.compose([Validators.required, Validators.pattern(this.acceptance_pattern)])],
       'email': ['', Validators.compose([Validators.required, Validators.pattern(this.mail_validity_pattern)])],
-      'login': ['', Validators.required],
+      'login': ['', Validators.compose([Validators.required, Validators.pattern(this.login_acceptance_pattern)])],
       'password': ['', Validators.compose([Validators.required, Validators.minLength(6)])],
       'confirmPassword': ['', Validators.compose([Validators.required, this.validConfirmField.bind(this)])]
     });
