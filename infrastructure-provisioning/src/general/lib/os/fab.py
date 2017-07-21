@@ -100,7 +100,7 @@ def prepare_disk(os_user):
         try:
             disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
             sudo('''bash -c 'echo -e "d\no\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
-            sudo('mkfs.ext4 /dev/{}1'.format(disk_name))
+            sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
             sudo('mount /dev/{}1 /opt/'.format(disk_name))
             sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
             sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
