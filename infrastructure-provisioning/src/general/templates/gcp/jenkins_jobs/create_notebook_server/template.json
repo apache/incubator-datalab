@@ -1,13 +1,16 @@
 {
     "conf_resource": "notebook",
     "conf_os_family":"COF",
+    "conf_os_user":"COU",
     "request_id":"RID",
     "conf_service_base_name":"SBN",
     "gcp_region":"CREG",
+    "gcp_zone":"ZONE",
+    "gcp_vpc_name":"GVNA",
     "conf_key_name":"CKN",
-    "aws_notebook_instance_type":"NIT",
+    "gcp_notebook_instance_size":"NIT",
     "edge_user_name":"NUN",
-    "aws_security_groups_ids":"SGI",
     "application":"APP",
+    "gcp_project_id":"GPI",
     "git_creds": GIT
 }

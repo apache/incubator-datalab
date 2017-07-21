@@ -41,81 +41,69 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    edge_status = get_instance_status(os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge')
-    if edge_status != 'RUNNING':
+    create_aws_config_files()
+    edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
+        os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-edge')
+    if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print 'ERROR: Edge node is unavailable! Aborting...'
         put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'])
         append_result("Edge node is unavailable")
         sys.exit(1)
-
     print 'Generating infrastructure names and tags'
     notebook_config = dict()
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
-    notebook_config['region'] = os.environ['gcp_region']
-    notebook_config['zone'] = os.environ['gcp_zone']
-    try:
-        if os.environ['gcp_vpc_name'] == '':
-            raise KeyError
-        else:
-            notebook_config['vpc_name'] = os.environ['gcp_vpc_name']
-    except KeyError:
-        notebook_config['vpc_name'] = notebook_config['service_base_name'] + '-ssn-vpc'
     try:
         notebook_config['exploratory_name'] = os.environ['exploratory_name']
     except:
         notebook_config['exploratory_name'] = ''
-    notebook_config['subnet_name'] = notebook_config['service_base_name'] + '-' + os.environ['edge_user_name']
-    notebook_config['instance_size'] = os.environ['gcp_notebook_instance_size']
-    notebook_config['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
-    notebook_config['notebook_service_account_name'] = "dlabowner"
-    notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
-    if os.environ['conf_os_family'] == 'debian':
-        initial_user = 'ubuntu'
-        sudo_group = 'sudo'
-    if os.environ['conf_os_family'] == 'redhat':
-        initial_user = 'ec2-user'
-        sudo_group = 'wheel'
+    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+    notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
+    notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
     if os.environ['application'] == 'deeplearning':
         notebook_config['primary_disk_size'] = '30'
     else:
         notebook_config['primary_disk_size'] = '12'
-    # if os.environ['application'] == 'zeppelin':
-    #     if os.environ['notebook_multiple_emrs'] == 'true':
-    #         notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-    #             'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
-    #     else:
-    #         notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-    #             'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
-    # else:
-    #     notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-    #         'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
-    # notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
-    #                                        os.environ['edge_user_name'] + "-nb-Profile"
-    # notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-    #     'edge_user_name'] + "-nb-SG"
-    # notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-    #
-    # print 'Searching preconfigured images'
-    # ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'], 'available')
-    # if ami_id != '':
-    #     print 'Preconfigured image found. Using: ' + ami_id
-    #     notebook_config['ami_id'] = ami_id
-    # else:
-    #     notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
-    #     print 'No preconfigured image found. Using default one: ' + notebook_config['ami_id']
+    if os.environ['application'] == 'zeppelin':
+        if os.environ['notebook_multiple_emrs'] == 'true':
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+                'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
+        else:
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+                'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
+    else:
+        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+            'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
+    notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
+                                           os.environ['edge_user_name'] + "-nb-Profile"
+    notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+        'edge_user_name'] + "-nb-SG"
+    notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
+
+    print 'Searching preconfigured images'
+    ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'], 'available')
+    if ami_id != '':
+        print 'Preconfigured image found. Using: ' + ami_id
+        notebook_config['ami_id'] = ami_id
+    else:
+        notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
+        print 'No preconfigured image found. Using default one: ' + notebook_config['ami_id']
+
+    tag = {"Key": notebook_config['tag_name'],
+           "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
+    notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)
 
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
         print '[CREATE NOTEBOOK INSTANCE]'
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --primary_disk_size {}".\
-            format(notebook_config['instance_name'], notebook_config['region'], notebook_config['zone'], notebook_config['vpc_name'],
-                   notebook_config['subnet_name'], notebook_config['instance_size'], notebook_config['ssh_key_path'], initial_user,
-                   notebook_config['notebook_service_account_name'], notebook_config['ami_name'], 'notebook',
-                   notebook_config['primary_disk_size'])
+        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {} --instance_class {} --instance_disk_size {} --primary_disk_size {}" \
+            .format(notebook_config['instance_name'], notebook_config['ami_id'], notebook_config['instance_type'],
+                    notebook_config['key_name'], get_security_group_by_name(notebook_config['security_group_name']),
+                    get_subnet_by_cidr(notebook_config['subnet_cidr']), notebook_config['role_profile_name'],
+                    notebook_config['tag_name'], notebook_config['instance_name'], instance_class,
+                    os.environ['notebook_disk_size'], notebook_config['primary_disk_size'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
