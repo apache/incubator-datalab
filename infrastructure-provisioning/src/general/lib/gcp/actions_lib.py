@@ -198,7 +198,7 @@ class GCPActions:
 
     def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path,
                         initial_user, ami_name, service_account_name, instance_class, elastic_ip='',
-                        primary_disk_size='12'):
+                        primary_disk_size='12', secondary_disk_size='30'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
@@ -209,6 +209,38 @@ class GCPActions:
                 "type": "ONE_TO_ONE_NAT",
                 "name": "External NAT",
                 "natIP": elastic_ip
+            }]
+        if instance_class == 'notebook':
+            disks = [{
+                "deviceName": instance_name + '-primary',
+                "autoDelete": 'true',
+                "initializeParams": {
+                    "diskSizeGb": primary_disk_size,
+                    "sourceImage": ami_name
+                },
+                "boot": 'true',
+                "mode": "READ_WRITE"
+            },
+                {
+                    "deviceName": instance_name + '-secondary',
+                    "autoDelete": 'true',
+                    "initializeParams": {
+                        "diskSizeGb": secondary_disk_size,
+                        "sourceImage": ami_name
+                    },
+                    "boot": 'true',
+                    "mode": "READ_WRITE"
+                }]
+        else:
+            disks = [{
+                "deviceName": instance_name + '-primary',
+                "autoDelete": 'true',
+                "initializeParams": {
+                    "diskSizeGb": primary_disk_size,
+                    "sourceImage": ami_name
+                },
+                "boot": 'true',
+                "mode": "READ_WRITE"
             }]
         instance_params = {
             "name": instance_name,
@@ -228,18 +260,7 @@ class GCPActions:
                     }
                 ]
                 },
-            "disks": [
-                {
-                    "deviceName": instance_name,
-                    "autoDelete": 'true',
-                    "initializeParams": {
-                        "diskSizeGb": primary_disk_size,
-                        "sourceImage": ami_name
-                    },
-                    "boot": 'true',
-                    "mode": "READ_WRITE"
-                }
-            ],
+            "disks": disks,
             "serviceAccounts": [
                 {
                     "email": service_account_email,

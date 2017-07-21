@@ -251,7 +251,6 @@ if __name__ == "__main__":
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
 
-
     if os.environ['conf_os_family'] == 'debian':
         initial_user = 'ubuntu'
         sudo_group = 'sudo'
