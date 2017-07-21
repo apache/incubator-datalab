@@ -399,7 +399,7 @@ List of parameters for Notebook node creation:
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | Create                                                                            |
 
-**Note** For format of git_creds see "Manage git credentials" lower.
+**Note:** For format of git_creds see "Manage git credentials" lower.
 
 ### Stop
 
@@ -434,7 +434,7 @@ List of parameters for Notebook node start:
 | git\_creds                | User git credentials in JSON format                          |
 | action                    | start                                                        |
 
-**Note** For format of git_creds see "Manage git credentials" lower.
+**Note:** For format of git_creds see "Manage git credentials" lower.
 
 ### Terminate
 
@@ -456,7 +456,7 @@ List of parameters for Notebook node termination:
 
 ### List/Install additional libraries
 
-In order to list available libraries (OS/Python2/Python3/R) on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Install additional libs” action.
+In order to list available libraries (OS/Python2/Python3/R) on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
 
 List of parameters for Notebook node to **get list** of available libraries:
 
@@ -471,7 +471,7 @@ List of parameters for Notebook node to **get list** of available libraries:
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | action                        | lib_list                                                                          |
 
-**Note:** This operation will returns a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
+**Note:** This operation will return a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
 
 **Example** of available libraries in response (type->library->version):
 
@@ -493,7 +493,7 @@ List of parameters for Notebook node to **install** additional libraries:
 | conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
 | conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
 | edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
-| notebook\_instance\_name      | Name of the Notebook instance to terminate                   |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg)    |
@@ -517,7 +517,7 @@ List of parameters for Notebook node to **install** additional libraries:
 
 ### Manage git credentials
 
-In order to manage git credentials on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage git credentials” action.
+In order to manage git credentials on Notebook node, click on the button “Git credentials”. Then in menu you can add or edit existing credentials.
 
 List of parameters for Notebook node to **manage git credentials**:
 
@@ -544,7 +544,7 @@ List of parameters for Notebook node to **manage git credentials**:
 }, ...]
 ```
 
-**Note:** Fields "username" and "email" used for commits (displays Author in git log).
+**Note:** Fields "username" and "email" are used for commits (displays Author in git log).
 
 **Note:** Leave "hostname" field empty to apply login/password by default for all services.
 
