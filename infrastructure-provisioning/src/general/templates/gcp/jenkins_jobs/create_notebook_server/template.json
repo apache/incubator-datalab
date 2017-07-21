@@ -1,7 +1,6 @@
 {
     "conf_resource": "notebook",
     "conf_os_family":"COF",
-    "conf_os_user":"COU",
     "request_id":"RID",
     "conf_service_base_name":"SBN",
     "gcp_region":"CREG",
