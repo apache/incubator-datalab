@@ -84,7 +84,7 @@ limitations under the License.
                      placeholder="Enter user name">
             </md-input-container>
             <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['username'].valid && updateAccountCredentialsForm.controls['username'].touched">
-              Username field is required
+              Username field is required. Please provide a valid username
             </span>
             <md-input-container>
               <input mdInput type="email"
@@ -103,7 +103,7 @@ limitations under the License.
                      placeholder="Enter login">
             </md-input-container>
             <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['login'].valid && updateAccountCredentialsForm.controls['login'].touched">
-              Login field is required
+              Login field is required. Please provide a valid login
             </span>
             <md-input-container>
               <input mdInput type="password"
