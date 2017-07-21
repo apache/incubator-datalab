@@ -25,6 +25,7 @@ from dlab.fab import *
 from fabric.api import *
 from fabric.contrib.files import exists
 import argparse
+import os
 
 
 parser = argparse.ArgumentParser()
@@ -60,7 +61,7 @@ r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', '
 r_kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
 toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snapshots/dev1/toree-pip/toree-0.2.0.dev1.tar.gz'
 scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
-gitlab_certfile = 'dlab-gitlab.crt'
+gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 
 def install_itorch(args):

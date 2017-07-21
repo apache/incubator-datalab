@@ -72,7 +72,7 @@ elif args.region == 'cn-north-1':
 else:
     endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
-gitlab_certfile = 'dlab-gitlab.crt'
+gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 
 def configure_zeppelin(os_user):
