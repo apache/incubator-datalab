@@ -49,10 +49,12 @@ limitations under the License.
     font-family: 'Open Sans', sans-serif;
 }
 
-.suggestions {
+.list-container {
     max-height: 150px;
     overflow-y: auto;
     overflow-x: hidden;
+}
+.suggestions {
     text-decoration: none;
     list-style: none;
     padding: 0 10px;
@@ -64,6 +66,7 @@ limitations under the License.
     position: relative;
     padding-top: 4px;
 }
+
 .suggestions a {
     display: block;
     cursor: pointer;
