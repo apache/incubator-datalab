@@ -28,9 +28,9 @@ import static com.mongodb.client.model.Projections.include;
 import static com.mongodb.client.model.Updates.push;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import com.mongodb.client.model.Projections;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -59,6 +59,16 @@ public class ExploratoryLibDAO extends BaseDAO {
         return elemMatch(EXPLORATORY_LIBS,
         				and(eq(LIB_GROUP, libraryGroup),
         					eq(LIB_NAME, libraryName)));
+    }
+
+    /** Return condition for search library into exploratory data.
+     * @param libraryGroup the name of group.
+     * @param libraryName the name of library.
+     * @param libraryVersion the name of library.
+     */
+    private static Bson libraryCondition(String libraryGroup, String libraryName, String libraryVersion) {
+        return elemMatch(EXPLORATORY_LIBS,
+                and(eq(LIB_GROUP, libraryGroup), eq(LIB_NAME, libraryName), eq(LIB_VERSION, libraryVersion)));
     }
     
     /** Return field filter for libraries properties in exploratory data.
@@ -108,14 +118,20 @@ public class ExploratoryLibDAO extends BaseDAO {
      * @param libraryName the name of library.
      * @exception DlabException
      */
-    public LibStatus fetchLibraryStatus(String user, String exploratoryName, String libraryGroup, String libraryName) throws DlabException {
-        return LibStatus.of(
-        		findOne(USER_INSTANCES,
-        				and(exploratoryCondition(user, exploratoryName),
-        					libraryCondition(libraryGroup, libraryName)),
-        				fields(include(STATUS), excludeId()))
-        			.orElse(new Document())
-        			.getOrDefault(STATUS, EMPTY).toString());
+    public LibStatus fetchLibraryStatus(String user, String exploratoryName,
+                                        String libraryGroup, String libraryName, String version) throws DlabException {
+    	Optional<Document> libraryStatus = findOne(USER_INSTANCES,
+				and(exploratoryCondition(user, exploratoryName), libraryCondition(libraryGroup, libraryName, version)),
+				Projections.fields(excludeId(), Projections.include("libs.status")));
+
+    	if (libraryStatus.isPresent()) {
+    	    Object lib = libraryStatus.get().get(EXPLORATORY_LIBS);
+            if (lib != null && lib instanceof List && !((List) lib).isEmpty()) {
+                return  LibStatus.of(((List<Document>)lib).get(0).getOrDefault(STATUS, EMPTY).toString());
+            }
+        }
+
+    	return LibStatus.of(EMPTY);
     }
 
     /** Add the user's library for exploratory into database.
@@ -125,7 +141,7 @@ public class ExploratoryLibDAO extends BaseDAO {
      * @return <b>true</b> if operation was successful, otherwise <b>false</b>.
      * @exception DlabException
      */
-    public boolean addLibrary(String user, String exploratoryName, LibInstallDTO library) throws DlabException {
+    public boolean addLibrary(String user, String exploratoryName, LibInstallDTO library, boolean reinstall) throws DlabException {
     	Optional<Document> opt = findOne(USER_INSTANCES,
         								and(exploratoryCondition(user, exploratoryName),
         									libraryCondition(library.getGroup(), library.getName())));
@@ -135,6 +151,15 @@ public class ExploratoryLibDAO extends BaseDAO {
                     push(EXPLORATORY_LIBS, convertToBson(library)));
             return true;
         } else {
+        Document values = updateLibraryFields(library, null);
+        if (reinstall) {
+            values.append(libraryFieldFilter(LIB_INSTALL_DATE), null);
+            values.append(libraryFieldFilter(LIB_ERROR_MESSAGE), null);
+        }
+
+        updateOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName),
+                libraryCondition(library.getGroup(), library.getName())), new Document(SET, values));
+
             return false;
         }
     }
@@ -149,16 +174,8 @@ public class ExploratoryLibDAO extends BaseDAO {
     	}
     	for (LibInstallDTO lib : dto.getLibs()) {
 	        try {
-	            Document values = new Document(libraryFieldFilter(STATUS), lib.getStatus());
-	        	if (lib.getVersion() != null) {
-	        		values.append(libraryFieldFilter(LIB_VERSION), lib.getVersion());
-	        	}
-	        	if (dto.getUptime() != null) {
-	        		values.append(libraryFieldFilter(LIB_INSTALL_DATE), dto.getUptime());
-	        	}
-	        	if (lib.getErrorMessage() != null) {
-	        		values.append(libraryFieldFilter(LIB_ERROR_MESSAGE), DateRemoverUtil.removeDateFormErrorMessage(lib.getErrorMessage()));
-	        	}
+	            Document values = updateLibraryFields(lib, dto.getUptime());
+
 	            updateOne(USER_INSTANCES,
 	            		and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
 	            			libraryCondition(lib.getGroup(), lib.getName())),
@@ -168,5 +185,22 @@ public class ExploratoryLibDAO extends BaseDAO {
 	            		" for exploratory " + dto.getExploratoryName(), t);
 	        }
     	}
+    }
+
+    private Document updateLibraryFields(LibInstallDTO lib, Date uptime) {
+        Document values = new Document(libraryFieldFilter(STATUS), lib.getStatus());
+        if (lib.getVersion() != null) {
+            values.append(libraryFieldFilter(LIB_VERSION), lib.getVersion());
+        }
+        if (uptime != null) {
+            values.append(libraryFieldFilter(LIB_INSTALL_DATE), uptime);
+        }
+
+        if (lib.getErrorMessage() != null) {
+            values.append(libraryFieldFilter(LIB_ERROR_MESSAGE),
+                    DateRemoverUtil.removeDateFormErrorMessage(lib.getErrorMessage()));
+        }
+
+        return values;
     }
 }

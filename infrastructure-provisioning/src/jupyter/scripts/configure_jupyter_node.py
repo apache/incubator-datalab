@@ -22,7 +22,9 @@ import argparse
 import json
 import sys
 from dlab.notebook_lib import *
+from dlab.actions_lib import *
 from dlab.fab import *
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -56,6 +58,7 @@ files_dir = '/root/files/'
 local_spark_path = '/opt/spark/'
 toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snapshots/dev1/toree-pip/toree-0.2.0.dev1.tar.gz'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
+gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 
 ##############
@@ -115,4 +118,6 @@ if __name__ == "__main__":
 
     print "Install Ungit"
     install_nodejs(args.os_user)
-    install_ungit(args.os_user)
+    install_ungit(args.os_user, gitlab_certfile)
+    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+        install_gitlab_cert(args.os_user, gitlab_certfile)

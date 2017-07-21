@@ -128,6 +128,9 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	String sbName = getServiceBaseName();
     	resourceList.append(sbName + "-ssn", "SSN", DlabResourceType.SSN, null, null);
     	resourceList.append(getBucketName(sbName) + "-ssn-bucket", "SSN bucket", DlabResourceType.SSN_BUCKET, null, null);
+
+    	// collaboration bucket
+		resourceList.append(getBucketName(sbName) + "-shared-bucket", "Collaboration bucket", DlabResourceType.COLLABORATION_BUCKET, null, null);
     	
     	// Add EDGE
     	Bson projection = fields(include(FIELD_ID, FIELD_EDGE_BUCKET));

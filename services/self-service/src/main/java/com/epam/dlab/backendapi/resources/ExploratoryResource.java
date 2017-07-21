@@ -310,19 +310,20 @@ public class ExploratoryResource implements ExploratoryAPI {
                 	.withLibs(libs);
             
         	for (LibInstallDTO lib : formDTO.getLibs()) {
-        		LibStatus status = libraryDAO.fetchLibraryStatus(userInfo.getName(), formDTO.getNotebookName(), lib.getGroup(), lib.getName());
+        		LibStatus status = libraryDAO.fetchLibraryStatus(userInfo.getName(), formDTO.getNotebookName(),
+                        lib.getGroup(), lib.getName(), lib.getVersion());
+
         		if (status == LibStatus.INSTALLING) {
         			throw new DlabException("Library " + lib.getName() + " is already installing");
         		}
-        		LibInstallDTO newLib = new LibInstallDTO()
-        								.withGroup(lib.getGroup())
-        								.withName(lib.getName());
+
+        		LibInstallDTO newLib = new LibInstallDTO(lib.getGroup(), lib.getName(), lib.getVersion());
 				if (libs.contains(newLib)) {
 					continue;
 				}
         		libs.add(newLib);
         		lib.setStatus(LibStatus.INSTALLING.toString());
-        		libraryDAO.addLibrary(userInfo.getName(), formDTO.getNotebookName(), lib);
+        		libraryDAO.addLibrary(userInfo.getName(), formDTO.getNotebookName(), lib, LibStatus.FAILED == status);
         	}
         	
         	String uuid = provisioningService.post(EXPLORATORY_LIB_INSTALL, userInfo.getAccessToken(), dto, String.class);

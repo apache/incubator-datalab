@@ -163,6 +163,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   buildGrid(): void {
+
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result) => {
         this.environments = this.loadEnvironments(result);
@@ -196,6 +197,7 @@ export class ResourcesGridComponent implements OnInit {
           value.exploratory_user,
           value.exploratory_pass,
           value.user_own_bicket_name,
+          value.shared_bucket_name,
           value.error_message,
           value.cost,
           value.currency_code,

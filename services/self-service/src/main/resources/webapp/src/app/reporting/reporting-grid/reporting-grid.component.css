@@ -21,7 +21,7 @@ limitations under the License.
     zoom: 0.85;
 }
 .dashboard_table.reporting tr th {
-    font-size: 13px;
+    font-size: 12px;
 }
 .reporting .filter-row .filter-field,
 .reporting .dropdown-multiselect  button.dropdown-toggle.btn {
@@ -30,8 +30,10 @@ limitations under the License.
 .dashboard_table.reporting .th_shape {
     width: 10%;
 }
-.th_env_name, .th_service {
+.env_name, .service {
     width: 18%;
+    overflow: hidden;
+    word-wrap: break-word;
 }
 .th_user {
     width: 15%;

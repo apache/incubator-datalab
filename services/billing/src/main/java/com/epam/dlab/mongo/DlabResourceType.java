@@ -21,6 +21,7 @@ package com.epam.dlab.mongo;
 public enum DlabResourceType {
 	SSN,
 	SSN_BUCKET,
+    COLLABORATION_BUCKET,
 	EDGE,
 	EDGE_BUCKET,
 	EXPLORATORY,

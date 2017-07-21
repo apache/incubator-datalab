@@ -18,11 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.commands;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -30,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.google.common.io.ByteStreams;
 import org.apache.commons.codec.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,20 +53,20 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private ObjectMapper MAPPER = new ObjectMapper()
     		.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
     		.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    
+
     private String user;
     private String uuid;
     private String command;
-    
+
     private CommandParserMock parser = new CommandParserMock();
     private String responseFileName;
-    
+
     public CommandExecutorMockAsync(String user, String uuid, String command) {
     	this.user = user;
     	this.uuid = uuid;
     	this.command = command;
 	}
-    
+
 	@Override
 	public Boolean get() {
 		try {
@@ -81,17 +78,17 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		return true;
 	}
 
-	
+
 	/** Return parser of command line. */
     public CommandParserMock getParser() {
     	return parser;
     }
-    
+
 	/** Return variables for substitution into Json response file. */
     public Map<String, String> getVariables() {
     	return parser.getVariables();
     }
-    
+
     /** Response file name. */
     public String getResponseFileName() {
     	return responseFileName;
@@ -105,11 +102,11 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	LOGGER.debug("Parser is {}", parser);
     	DockerAction action = DockerAction.of(parser.getAction());
     	LOGGER.debug("Action is {}", action);
-    	
+
     	if (action == null) {
     		throw new DlabException("Docker action not defined");
     	}
-    	
+
     	try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
@@ -139,7 +136,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 				break;
 			case LIB_LIST:
 				action(user, action);
-				copyFile("mock_response/notebook_lib_list_pkgs.json", parser.getResponsePath());
+				copyFile("mock_response/notebook_lib_list_pkgs.json", "notebook_lib_list_pkgs.json", parser.getResponsePath());
 				break;
 			case LIB_INSTALL:
 				parser.getVariables().put("lib_install", getResponseLibInstall(true));
@@ -155,14 +152,15 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	}
     }
 
-    private static void copyFile(String sourceFileName, String destination) throws URISyntaxException, IOException {
-        URL url = Resources.getResource(sourceFileName);
-        File from = new File(url.toURI());
-		File to = new File(getAbsolutePath(destination , from.getName()));
-		Files.copy(from, to);
+    private static void copyFile(String sourceFilePath, String destinationFileName, String destinationFolder) throws URISyntaxException, IOException {
+		File to = new File(getAbsolutePath(destinationFolder , destinationFileName));
 
-		LOGGER.debug("File {} copied to {}", from.getName(), to);
+		try (InputStream inputStream = CommandExecutorMockAsync.class.getClassLoader().getResourceAsStream(sourceFilePath);
+			 OutputStream outputStream = new FileOutputStream(to)) {
+			ByteStreams.copy(inputStream, outputStream);
+		}
 
+		LOGGER.debug("File {} copied to {}", sourceFilePath, to);
 	}
 
     /** Return absolute path to the file or folder.

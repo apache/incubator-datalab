@@ -26,6 +26,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EdgeInfoDTO {
 	public static final String USER_OWN_BUCKET_NAME = "user_own_bicket_name";
+	public static final String SHARED_BUCKET_NAME = "shared_bucket_name";
 	
     @JsonProperty("instance_id")
     private String instanceId;
@@ -51,6 +52,8 @@ public class EdgeInfoDTO {
     private String notebookSubnet;
     @JsonProperty("edge_sg")
     private String edgeSG;
+    @JsonProperty(SHARED_BUCKET_NAME)
+    private String sharedBucketName;
     @JsonProperty("edge_status")
     private String edgeStatus;
 
@@ -78,8 +81,12 @@ public class EdgeInfoDTO {
 	public String getEdgeStatus() {
 		return edgeStatus;
 	}
-	
-	public EdgeInfoDTO withEdgeStatus(String edgeStatus) {
+
+    public String getSharedBucketName() {
+        return sharedBucketName;
+    }
+
+    public EdgeInfoDTO withEdgeStatus(String edgeStatus) {
 		this.edgeStatus = edgeStatus;
 		return this;
 	}
@@ -98,6 +105,7 @@ public class EdgeInfoDTO {
     			.add("notebookProfile", notebookProfile)
     			.add("notebookSubnet", notebookSubnet)
     			.add("edgeSG", edgeSG)
+                .add("sharedBucketName", sharedBucketName)
     			.add("edgeStatus", edgeStatus);
     }
     

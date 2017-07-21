@@ -25,4 +25,5 @@ export { ApplicationServiceFacade } from './applicationServiceFacade.service';
 export { AuthorizationGuard } from './authorization.guard';
 export { AppRoutingService } from './appRouting.service';
 export { LibrariesInstallationService } from './librariesInstallation.service';
+export { ManageUngitService } from './manageUngit.service';
 export { BillingReportService } from './billingReport.service';

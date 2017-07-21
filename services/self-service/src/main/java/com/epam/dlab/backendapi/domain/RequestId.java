@@ -21,12 +21,11 @@ package com.epam.dlab.backendapi.domain;
 import java.util.Date;
 import java.util.UUID;
 
+import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.dao.RequestIdDAO;
-import com.epam.dlab.backendapi.resources.KeyUploaderResource;
 import com.epam.dlab.exceptions.DlabException;
 
 import io.dropwizard.util.Duration;
@@ -34,22 +33,13 @@ import io.dropwizard.util.Duration;
 /** Stores and checks the id of requests for Provisioning Service.
  */
 public class RequestId {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeyUploaderResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RequestId.class);
 
 	/**	Timeout in milliseconds when the request id is out of date. */
 	private static final long EXPIRED_TIMEOUT_MILLIS = Duration.hours(12).toMilliseconds();
 
-	/** DAO from request id. */
-	private static RequestIdDAO dao = null;
-	
-	/** Return DAO for request id. */
-	private static RequestIdDAO getDao() {
-		if (dao == null) {
-			dao = new RequestIdDAO();
-			SelfServiceApplication.getInjector().injectMembers(dao);
-		}
-		return dao;
-	}
+	@Inject
+	private static RequestIdDAO dao;
 	
 	/** Add the request id for user.
 	 * @param username the name of user.
@@ -57,7 +47,7 @@ public class RequestId {
 	 */
 	public static String put(String username, String uuid) {
 		LOGGER.trace("Register request id {} for user {}", uuid, username);
-		getDao().put(new RequestIdDTO()
+		dao.put(new RequestIdDTO()
 				.withId(uuid)
 				.withUser(username)
 				.withRequestTime(new Date())
@@ -79,7 +69,7 @@ public class RequestId {
 	 */
 	public static void remove(String uuid) throws DlabException {
 		LOGGER.trace("Unregister request id {}", uuid);
-		getDao().delete(uuid);
+		dao.delete(uuid);
 	}
 
 	/** Check and remove UUID, if it not exists throw exception.
@@ -88,9 +78,9 @@ public class RequestId {
 	 * @throws DlabException
 	 */
 	public static String checkAndRemove(String uuid) throws DlabException {
-		String username = getDao().get(uuid).getUser();
+		String username = dao.get(uuid).getUser();
 		LOGGER.trace("Unregister request id {} for user {}", uuid, username);
-		getDao().delete(uuid);
+		dao.delete(uuid);
 		return username;
 	}
 }

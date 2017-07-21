@@ -33,6 +33,8 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Backup and Restore](#Backup_and_Restore)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [GitLab server](#GitLab_server)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Troubleshooting](#Troubleshooting)
 
 [Development](#Development)
@@ -397,7 +399,7 @@ List of parameters for Notebook node creation:
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | Create                                                                            |
 
-**Note** For format of git_creds see "Manage git credentials" lower.
+**Note:** For format of git_creds see "Manage git credentials" lower.
 
 ### Stop
 
@@ -432,7 +434,7 @@ List of parameters for Notebook node start:
 | git\_creds                | User git credentials in JSON format                          |
 | action                    | start                                                        |
 
-**Note** For format of git_creds see "Manage git credentials" lower.
+**Note:** For format of git_creds see "Manage git credentials" lower.
 
 ### Terminate
 
@@ -454,7 +456,7 @@ List of parameters for Notebook node termination:
 
 ### List/Install additional libraries
 
-In order to list available libraries (OS/Python2/Python3/R) on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Install additional libs” action.
+In order to list available libraries (OS/Python2/Python3/R) on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
 
 List of parameters for Notebook node to **get list** of available libraries:
 
@@ -469,7 +471,7 @@ List of parameters for Notebook node to **get list** of available libraries:
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | action                        | lib_list                                                                          |
 
-**Note:** This operation will returns a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
+**Note:** This operation will return a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
 
 **Example** of available libraries in response (type->library->version):
 
@@ -491,7 +493,7 @@ List of parameters for Notebook node to **install** additional libraries:
 | conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
 | conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
 | edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
-| notebook\_instance\_name      | Name of the Notebook instance to terminate                   |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg)    |
@@ -515,7 +517,7 @@ List of parameters for Notebook node to **install** additional libraries:
 
 ### Manage git credentials
 
-In order to manage git credentials on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage git credentials” action.
+In order to manage git credentials on Notebook node, click on the button “Git credentials”. Then in menu you can add or edit existing credentials.
 
 List of parameters for Notebook node to **manage git credentials**:
 
@@ -542,7 +544,7 @@ List of parameters for Notebook node to **manage git credentials**:
 }, ...]
 ```
 
-**Note:** Fields "username" and "email" used for commits (displays Author in git log).
+**Note:** Fields "username" and "email" are used for commits (displays Author in git log).
 
 **Note:** Leave "hostname" field empty to apply login/password by default for all services.
 
@@ -567,7 +569,7 @@ List of parameters for EMR cluster creation:
 | emr\_instance\_count        | Amount of instance in cluster                                |
 | emr\_master\_instance\_type | Value for EMR EC2 master instance shape                      |
 | emr\_slave\_instance\_type  | Value for EMR EC2 slave instances shapes                     |
-| emr\_version                | Available versions of EMR (emr-5.2.0/emr-5.3.1)              |
+| emr\_version                | Available versions of EMR (emr-5.2.0/emr-5.3.1/emr-5.6.0)              |
 | notebook\_instance\_name    | Name of the Notebook EMR will be linked to                   |
 | edge\_user\_name            | Value that previously was used when Edge being provisioned   |
 | aws\_region                 | AWS region where infrastructure was deployed                 |
@@ -699,6 +701,26 @@ List of parameters for run restore:
 **Note:** You can type ```-h``` or ```--help``` for usage details.
 
 **Note:** Restore process required stopping services.
+
+## GitLab server <a name="GitLab_server"></a>
+
+Own GitLab server can be deployed from SSN node with script, which located in:
+
+```dlab_path/tmp/gitlab```. Default: ```/opt/dlab/tmp/gitlab```
+
+All initial configuration parameters located in ```gitlab.ini``` file.
+
+Some of parameters are already setuped from SSN provisioning.
+
+GitLab uses the same LDAP server as DLab.
+
+To deploy Gitlab server, set all needed parameters in ```gitlab.ini``` and run script:
+
+```./gitlab_deploy.py --action [create/terminate]```
+
+**Note:** Terminate process uses ```node_name``` to find instance.
+
+**Note:** GitLab wouldn't be terminated with all environment termination process. 
 
 ## Troubleshooting <a name="Troubleshooting"></a>
 

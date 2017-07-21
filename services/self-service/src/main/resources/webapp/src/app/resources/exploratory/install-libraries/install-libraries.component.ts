@@ -26,7 +26,7 @@ import 'rxjs/add/operator/distinctUntilChanged';
 
 import { InstallLibrariesModel } from './';
 import { LibrariesInstallationService} from '../../../core/services';
-import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
+import { ErrorMapUtils, SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 
 @Component({
   selector: 'install-libraries',
@@ -56,7 +56,7 @@ export class InstallLibrariesComponent implements OnInit {
   public isInSelectedList: boolean = false;
   public installingInProgress: boolean = false;
   public libSearch: FormControl = new FormControl();
-  public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum'};
+  public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum', 'others': 'Others'};
 
 
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
@@ -80,7 +80,7 @@ export class InstallLibrariesComponent implements OnInit {
         this.query = newValue;
         this.filterList();
       });
-    this.bindDialog.onClosing = () => this.resetDialog();
+    this.bindDialog.onClosing = () => this.close();
   }
   
   uploadLibraries(): void {
@@ -163,7 +163,7 @@ export class InstallLibrariesComponent implements OnInit {
 
     if (this.installingInProgress || this.notebookFailedLibs.length) {
       if (this.clearCheckInstalling === undefined)
-        this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 4000);
+        this.clearCheckInstalling = window.setInterval(() => this.getInstalledLibrariesList(), 10000);
     } else {
       clearInterval(this.clearCheckInstalling);
       this.clearCheckInstalling = undefined;
@@ -179,7 +179,7 @@ export class InstallLibrariesComponent implements OnInit {
 
   private libsUploadingStatus(groupsList): void {
     if (groupsList.length) {
-      this.groupsList = groupsList;
+      this.groupsList = SortUtil.libGroupsSort(groupsList);
       this.libs_uploaded = true;
       this.uploading = false;
     } else {
@@ -204,6 +204,9 @@ export class InstallLibrariesComponent implements OnInit {
 
     this.processError = false;
     this.isFilteringProc = false;
+    this.isInstalled = false;
+    this.isInSelectedList = false;
+
     this.errorMessage = '';
     this.model.selectedLibs = [];
     this.filteredList = null ;

@@ -39,7 +39,7 @@ limitations under the License.
       <div class="row">
         <div class="col-xs-12 detail-info" *ngIf="!notebook.error_message">
           <p>Edge Node IP Address {{notebook.ip}}</p>
-          <p>Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
+          <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
           <p>Open following URL(s) in your browser to access this box after creating a tunnel:</p>
           <div class="links_block">
             <p *ngFor="let item of notebook.url">
@@ -51,6 +51,7 @@ limitations under the License.
           <p *ngIf="notebook.username">Node User: <strong>{{notebook.username}}</strong></p>
           <p *ngIf="notebook.password">Password: <strong>{{notebook.password}}</strong></p>
           <p *ngIf="notebook.bucket_name">Data Bucket: <strong>{{notebook.bucket_name}}</strong></p>
+          <p *ngIf="notebook.shared_bucket_name">Collaboration Bucket: <strong>{{notebook.shared_bucket_name}}</strong></p>
           <br/>
           <p>
             <a href="#/help/accessnotebookguide" target="_blank">

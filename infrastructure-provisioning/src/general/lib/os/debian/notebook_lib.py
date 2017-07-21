@@ -70,6 +70,8 @@ def ensure_r(os_user, r_libs, region, r_mirror):
                 r_repository = r_mirror
             else:
                 r_repository = 'http://cran.us.r-project.org'
+            sudo('add-apt-repository -y ppa:marutter/rrutter')
+            sudo('apt update')
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
             sudo('apt-get install -y cmake')
             sudo('apt-get install -y r-base r-base-dev')
@@ -398,7 +400,7 @@ def install_caffe2(os_user):
              'scipy setuptools tornado --no-cache-dir')
         sudo('git clone --recursive https://github.com/caffe2/caffe2.git')
         with cd('/home/{}/caffe2/'.format(os_user)):
-            sudo('make && cd build && make install')
+            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="35 52 60 61" -DCUDA_ARCH_PTX="61" && make "-j$(nproc)" install')
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
@@ -431,3 +433,11 @@ def install_torch(os_user):
             run('./install.sh -b')
         run('source /home/{}/.bashrc'.format(os_user))
         sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
+
+
+def install_gitlab_cert(os_user, certfile):
+    try:
+        sudo('mv -f /home/{0}/{1} /etc/ssl/certs/{1}'.format(os_user, certfile))
+    except Exception as err:
+        print 'Failed to install gitlab certificate.', str(err)
+        pass

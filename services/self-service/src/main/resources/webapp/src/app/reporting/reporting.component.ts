@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 
-import { BillingReportService }  from './../core/services';
+import { BillingReportService, HealthStatusService }  from './../core/services';
 import { ReportingConfigModel }  from './reporting-data.model';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
@@ -28,7 +28,7 @@ import * as moment from 'moment';
 @Component({
   selector: 'dlab-reporting',
   template: `
-  <dlab-navbar></dlab-navbar>
+  <dlab-navbar [healthStatus]="healthStatus"></dlab-navbar>
   <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
   <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
   <footer>
@@ -58,11 +58,15 @@ export class ReportingComponent implements OnInit, OnDestroy {
   reportData: ReportingConfigModel = ReportingConfigModel.getDefault();
   filterConfiguration: ReportingConfigModel = ReportingConfigModel.getDefault();
   data: any;
+  healthStatus: any;
 
-  constructor(private billingReportService: BillingReportService) { }
+  constructor(
+    private billingReportService: BillingReportService,
+    private healthStatusService: HealthStatusService,) { }
 
   ngOnInit() {
     this.rebuildBillingReport();
+    this.getEnvironmentHealthStatus();
   }
 
   ngOnDestroy() {
@@ -98,6 +102,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.resetRangePicker();
     this.reportData.defaultConfigurations();
 
+    this.getEnvironmentHealthStatus();
     this.getGeneralBillingData();
   }
 
@@ -152,5 +157,10 @@ export class ReportingComponent implements OnInit, OnDestroy {
     this.reportData.date_start = dateRangeOption.start_date;
     this.reportData.date_end = dateRangeOption.end_date;
     this.getGeneralBillingData();
+  }
+
+  private getEnvironmentHealthStatus() {
+    this.healthStatusService.getEnvironmentHealthStatus()
+      .subscribe((result) => this.healthStatus = result.status);
   }
 }

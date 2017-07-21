@@ -52,6 +52,8 @@ templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2', 'evaluate', 'formatR', 'yaml',
           'Rcpp', 'rmarkdown', 'base64enc', 'tibble']
+gitlab_certfile = os.environ['conf_gitlab_certfile']
+
 
 ##############
 # Run script #
@@ -95,4 +97,6 @@ if __name__ == "__main__":
 
     print "Install Ungit"
     install_nodejs(args.os_user)
-    install_ungit(args.os_user)
+    install_ungit(args.os_user, gitlab_certfile)
+    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+        install_gitlab_cert(args.os_user, gitlab_certfile)
