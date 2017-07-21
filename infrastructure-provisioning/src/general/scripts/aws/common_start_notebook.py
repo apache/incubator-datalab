@@ -59,6 +59,15 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        bucket_name = ('{}-ssn-bucket'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
+        certfile = os.environ['conf_gitlab_certfile']
+        if get_gitlab_cert(bucket_name, certfile):
+            put(certfile, certfile)
+            sudo('chown root:root {}'.format(certfile))
+    except:
+        pass
+
+    try:
         logging.info('[SETUP USER GIT CREDENTIALS]')
         print '[SETUP USER GIT CREDENTIALS]'
         notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['tag_name'],
