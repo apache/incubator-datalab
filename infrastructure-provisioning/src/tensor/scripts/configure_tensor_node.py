@@ -52,7 +52,7 @@ s3_jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 jupyter_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_notebook_config.py'
-gitlab_certfile = 'dlab-gitlab.crt'
+gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 
 ##############
