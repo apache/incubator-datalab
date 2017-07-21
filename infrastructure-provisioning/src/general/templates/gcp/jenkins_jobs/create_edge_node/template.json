@@ -9,5 +9,4 @@
     "gcp_zone":"ZONE",
     "gcp_subnet_name":"CSI",
     "gcp_project_id":"GPI",
-    "gcp_vpc_name":"EVI"
-}
+    "gcp_vpc_name":"EVI"}

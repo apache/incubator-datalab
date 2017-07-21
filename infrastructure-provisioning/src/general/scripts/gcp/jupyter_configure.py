@@ -46,7 +46,7 @@ if __name__ == "__main__":
     except:
         notebook_config['exploratory_name'] = ''
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
-    notebook_config['instance_type'] = os.environ['gcp_notebook_instance_type']
+    notebook_config['instance_type'] = os.environ['gcp_notebook_instance_size']
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['user_keyname'] = os.environ['edge_user_name']
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[

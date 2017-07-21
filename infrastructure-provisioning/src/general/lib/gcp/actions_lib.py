@@ -228,7 +228,7 @@ class GCPActions:
                         "diskSizeGb": secondary_disk_size,
                         "sourceImage": ami_name
                     },
-                    "boot": 'true',
+                    "boot": 'false',
                     "mode": "READ_WRITE"
                 }]
         else:

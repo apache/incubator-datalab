@@ -41,7 +41,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    edge_status = get_instance_status(os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge')
+    edge_status = GCPMeta().get_instance_status(os.environ['conf_service_base_name'] + "-" +
+                                                   os.environ['edge_user_name'] + '-edge')
     if edge_status != 'RUNNING':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print 'ERROR: Edge node is unavailable! Aborting...'

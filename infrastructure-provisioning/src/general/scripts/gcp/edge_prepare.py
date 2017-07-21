@@ -47,7 +47,8 @@ if __name__ == "__main__":
     except KeyError:
         edge_conf['vpc_name'] = edge_conf['service_base_name'] + '-ssn-vpc'
     edge_conf['vpc_cidr'] = '10.10.0.0/16'
-    edge_conf['subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name']
+    edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name']
+    edge_conf['subnet_name'] = os.environ['gcp_subnet_name']
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
     edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
@@ -81,18 +82,18 @@ if __name__ == "__main__":
         logging.info('[CREATE SUBNET]')
         print '[CREATE SUBNET]'
         params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {}" \
-                 .format(edge_conf['subnet_name'], edge_conf['region'], edge_conf['vpc_selflink'],
+                 .format(edge_conf['private_subnet_name'], edge_conf['region'], edge_conf['vpc_selflink'],
                          edge_conf['private_subnet_prefix'], edge_conf['vpc_cidr'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
-            edge_conf['private_subnet_cidr'] = GCPMeta().get_subnet(edge_conf['subnet_name'],
+            edge_conf['private_subnet_cidr'] = GCPMeta().get_subnet(edge_conf['private_subnet_name'],
                                                                     edge_conf['region'])['ipCidrRange']
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
         try:
-            GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
+            GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         except:
             print "Subnet hasn't been created."
         append_result("Failed to create subnet.", str(err))
@@ -158,7 +159,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to create Firewall.", str(err))
-        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
+        GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         sys.exit(1)
 
     try:
@@ -187,7 +188,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         GCPActions().remove_firewall(edge_conf['firewall_name'])
-        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
+        GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         sys.exit(1)
 
     try:
@@ -204,7 +205,7 @@ if __name__ == "__main__":
         append_result("Unable to create bucket.", str(err))
         GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
         GCPActions().remove_firewall(edge_conf['firewall_name'])
-        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
+        GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         sys.exit(1)
 
     # try:
@@ -248,7 +249,7 @@ if __name__ == "__main__":
         GCPActions().remove_bucket(edge_conf['bucket_name'])
         GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
         GCPActions().remove_firewall(edge_conf['firewall_name'])
-        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
+        GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         sys.exit(1)
 
     if os.environ['conf_os_family'] == 'debian':
