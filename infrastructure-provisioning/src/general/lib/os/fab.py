@@ -98,10 +98,11 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
 def prepare_disk(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
-            sudo('''bash -c 'echo -e "d\no\nn\np\n1\n\n\nw" | fdisk /dev/xvdb' ''')
-            sudo('mkfs.ext4 /dev/xvdb1')
-            sudo('mount /dev/xvdb1 /opt/')
-            sudo(''' bash -c "echo '/dev/xvdb1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" ''')
+            disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
+            sudo('''bash -c 'echo -e "d\no\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
+            sudo('mkfs.ext4 /dev/{}1'.format(disk_name))
+            sudo('mount /dev/{}1 /opt/'.format(disk_name))
+            sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
             sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except:
             sys.exit(1)
