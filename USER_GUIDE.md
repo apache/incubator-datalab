@@ -137,25 +137,25 @@ To access analytical tool Web UI – you need to configure SOCKS proxy. Please f
 
 ### Manage libraries <a name="manage_libraries"></a>
 
-On every instance of analytical tool you can install additional libraries clicking on gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Manage libraries:
+On every analytical tool instance you can install additional libraries by clicking on gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Manage libraries:
 
 ![Notebook manage_libraries](doc/notebook_menu.png)
 
-After click you need to wait, while all list of available libraries for chosen notebook don't be received.
+You need to wait for a while after clicking till list of all available libraries for chosen notebook will be received.
 
 ![Notebook list_libraries](doc/notebook_list_libs.png)
 
-After downloading list, you will see window with 2 fields:
--   Group of package (apt/yum, Python 2, Python 3, R, other)
--   Field for search available package with autocomplete function
+After downloading the list, you will see the window with 2 fields:
+-   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Others)
+-   Field for search available packages with autocomplete function
 
 **Note:** apt or yum packages depends on your DLab OS family.
 
-**Note:** In group Other you can find other Python (2/3) packages, which haven't classifiers of version.
+**Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
 
 ![Notebook select_lib](doc/notebook_select_lib.png)
 
-After selecting library, you can see in on the right and can delete in from this list before installing.
+After selecting library, you can see it on the right and could delete in from this list before installing.
 
 ![Notebook selected_libs](doc/notebook_selected_libs.png)
 
@@ -163,7 +163,7 @@ After clicking on "Install" button you will see process of installation with app
 
 ![Notebook libs_status](doc/notebook_libs_status.png)
 
-**Note:** If package can't be installed you will see "Failed" in status column and button to retry installation. If such packages are several, you will see button "Retry all".
+**Note:** If package can't be installed you will see "Failed" in status column and button to retry installation. If several packages have been failed to install, you will see button "Retry all".
 
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
@@ -266,7 +266,7 @@ In a while EMR cluster will get **Terminated**. Corresponding EC2 instances will
 
 ### Manage Git credentials <a name="git_creds"></a>
 
-To work with Git (pull, push) via UI tool (ungit) you can add multiple credentials in DLab UI, which will be setupped on all running instances with analytical tools.
+To work with Git (pull, push) via UI tool (ungit) you could add multiple credentials in DLab UI, which will be setted on all running instances with analytical tools.
 
 When you click on the button "Git credentials" in the dashboard – popup will show up:
 
@@ -279,13 +279,13 @@ In this window you need to add:
 
 **Note:** If you have GitLab server, which was deployed with DLab, you should use your LDAP credentials for access to GitLab.
 
-After filling all fields, and click on "Asign" button, you will see list tab with all your credentials for Git.
+After filling all fields, and click on "Assign" button, you will see list with all your credentials for Git.
 
-After clicking on button "Apply changes" your credentials will be sent to all running instances with analytical tools. It takes few seconds.
+After clicking on button "Apply changes" your credentials will be sent to all running instances with analytical tools. It takes a few seconds.
 
 ![Git_creds_window1](doc/git_creds_window2.png)
 
-Also in this tab you can edit your credentials (click on pen icon) or delete (click on bun icon).
+Also in this tab you can edit your credentials (click on pen icon) or delete (click on bin icon).
 
 ### Git UI tool (ungit) <a name="git_ui"></a>
 
@@ -293,7 +293,7 @@ On every analytical tool instance you can see Git UI tool (ungit):
 
 ![Git_ui_link](doc/git_ui_link.png)
 
-Before start work with git repositories, you need to change working directory on the top of window to:
+Before start working with git repositories, you need to change working directory on the top of window to:
 
 **/home/dlab-user/** or **/opt/zeppelin/notebook** for Zeppelin analytical tool and press enter.
 
@@ -358,7 +358,7 @@ On the header you can see 3 fields:
 -   Resource tag ID
 -   Date period of available billing report
 
-On the center of header you can chose period of report in datepicker:
+On the center of header you can choose period of report in datepicker:
 
 ![Billing datepicker](doc/billing_datepicker.png)
 
@@ -366,9 +366,9 @@ On the header you also can filter data by every column:
 
 ![Billing filter](doc/billing_filter.png)
 
-**Note:** Administrator can see billing report of all users environments includes himself, and only hi can see/filter "User" column.
+**Note:** Administrator can see billing report of all users environments including own one, and only he can see/filter "User" column.
 
-On the bottom on the right corner you can see Total cost by all environment.
+On the right bottom corner you can see Total cost for all environments.
 
 --------------------
 # Web UI filters <a name="filters"></a>
