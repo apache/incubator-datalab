@@ -456,7 +456,7 @@ List of parameters for Notebook node termination:
 
 ### List/Install additional libraries
 
-In order to list available libraries (OS/Python2/Python3/R) on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
+In order to list available libraries (OS/Python2/Python3/R/Others) on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
 
 List of parameters for Notebook node to **get list** of available libraries:
 
@@ -480,24 +480,25 @@ List of parameters for Notebook node to **get list** of available libraries:
   "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
   "pip2": {"requests": "N/A", "configparser": "N/A"},
   "pip3": {"configparser": "N/A"},
-  "r_pkg": {"rmarkdown": "1.5"}
+  "r_pkg": {"rmarkdown": "1.5"},
+  "others": {"Keras": "N/A"},  
 }
 ```
 
 
 List of parameters for Notebook node to **install** additional libraries:
 
-| Parameter                     | Description/Value                                                                 |
-|-------------------------------|-----------------------------------------------------------------------------------|
-| conf\_resource                | notebook                                                                          |
-| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
-| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
-| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
-| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
-| aws\_region                   | AWS region where infrastructure was deployed                                      |
-| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
-| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg)    |
-| action                        | lib_install                                                                       |
+| Parameter                     | Description/Value                                                                    |
+|-------------------------------|--------------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                             |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                         |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                   |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                           |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                           |
+| aws\_region                   | AWS region where infrastructure was deployed                                         |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
+| action                        | lib_install                                                                          |
 
 **Example** of additional_libs parameter:
 
@@ -510,6 +511,7 @@ List of parameters for Notebook node to **install** additional libraries:
     {"group": "pip2", "name": "requests"},
     {"group": "pip3", "name": "configparser"},
     {"group": "r_pkg", "name": "rmarkdown"},
+    {"group": "others", "name": "Keras"}
   ]
   ...
 }
