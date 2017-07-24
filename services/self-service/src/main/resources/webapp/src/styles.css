@@ -58,7 +58,7 @@ limitations under the License.
 }
 
 .cdk-overlay-container {
-    z-index: 9999;
+    z-index: 9999 !important;
 }
 
 .install-libs .mat-tab-label,
@@ -68,7 +68,7 @@ limitations under the License.
 }
 .install-libs .mat-ink-bar,
 .manage-ungit .mat-ink-bar {
-    background-color: #35afd5;
+    background-color: #35afd5 !important;
     width: 50% !important;
 }
 
@@ -99,22 +99,22 @@ limitations under the License.
 }
 
 .mat-option.mat-selected {
-    color: #35afd5;
+    color: #35afd5 !important;
 }
 /*.mat-input-placeholder.mat-focused, */
 .mat-input-underline .mat-input-ripple,
 .mat-select-underline
 .mat-input-underline {
-    background-color: #35afd5;
+    background-color: #35afd5 !important;
 }
 .mat-input-placeholder.mat-focused,
 .mat-select:focus:not(.mat-select-disabled) .mat-select-trigger,
 .mat-select:focus:not(.mat-select-disabled) .mat-select-arrow,
 .mat-select:focus:not(.mat-select-disabled) .mat-select-underline {
-    color: #35afd5;
+    color: #35afd5 !important;
 }
 .mat-select:focus:not(.mat-select-disabled) .mat-select-underline {
-    background-color: #35afd5;
+    background-color: #35afd5 !important;
 }
 .mat-select-placeholder {
     font-size: 14px;
