@@ -99,15 +99,15 @@ if __name__ == "__main__":
     #     'edge_user_name'] + "-nb-SG"
     # notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
     #
-    print 'Searching preconfigured images'
-    preconfigured_ami = GCPMeta().get_ami_by_name(notebook_config['expected_ami_name'])
-    if preconfigured_ami != '':
-        print 'Preconfigured image found. Using: ' + preconfigured_ami
-        notebook_config['ami_name'] = preconfigured_ami
-    else:
-        notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
-        print 'No preconfigured image found. Using default one: ' + notebook_config['ami_name']
-
+    #print 'Searching preconfigured images'
+    #preconfigured_ami = GCPMeta().get_ami_by_name(notebook_config['expected_ami_name'])
+    #if preconfigured_ami != '':
+    #    print 'Preconfigured image found. Using: ' + preconfigured_ami
+    #    notebook_config['ami_name'] = preconfigured_ami
+    #else:
+    #    notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
+    #    print 'No preconfigured image found. Using default one: ' + notebook_config['ami_name']
+    notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
