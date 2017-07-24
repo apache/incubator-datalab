@@ -34,6 +34,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 [DLab Health Status Page](#health_page)
 
+[DLab billing report](#billing_page)
+
 [Web UI filters](#filter)
 
 ---------
@@ -339,6 +341,30 @@ Confirm you want to stop Edge node by clicking Yes:
 ![EDGE stop confirm](doc/edge_stop_confirm.png)
 
 In case you Edge node is Stopped or Terminated – you will have to Start or Recreate it correspondingly to proceed working with DLab. This can done as well via context actions menu.
+
+--------------------------------
+# DLab billing report <a name="billing_page"></a>
+
+On this page you can see all billing, which contains all costs applies to service base name of SSN.
+
+![Billing page](doc/billing_page.png)
+
+On the header you can see 3 fields:
+-   Service base name of your environment
+-   Resource tag ID
+-   Date period of available billing report
+
+On the center of header you can chose period of report in datepicker:
+
+![Billing datepicker](doc/billing_datepicker.png)
+
+On the header you also can filter data by every column:
+
+![Billing filter](doc/billing_filter.png)
+
+**Note:** Administrator can see billing report of all users environments includes himself, and only hi can see/filter "User" column.
+
+On the bottom on the right corner you can see Total cost by all environment.
 
 --------------------
 # Web UI filters <a name="filters"></a>
