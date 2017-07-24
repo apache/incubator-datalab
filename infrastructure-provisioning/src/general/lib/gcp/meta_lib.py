@@ -218,3 +218,16 @@ class GCPMeta:
                                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
+
+    def get_ami_by_name(self, ami_name):
+        try:
+            request = self.service.images().get(project=self.project, image=ami_name)
+            result = request.execute()
+            return result
+        except Exception as err:
+            logging.info("Error with getting AMI ID by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Error with getting AMI ID by name",
+                       "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+        return ''

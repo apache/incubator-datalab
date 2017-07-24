@@ -70,7 +70,7 @@ if __name__ == "__main__":
     notebook_config['instance_size'] = os.environ['gcp_notebook_instance_size']
     notebook_config['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
     notebook_config['notebook_service_account_name'] = "dlabowner"
-    notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
+
     if os.environ['conf_os_family'] == 'debian':
         initial_user = 'ubuntu'
         sudo_group = 'sudo'
@@ -83,30 +83,30 @@ if __name__ == "__main__":
         notebook_config['primary_disk_size'] = '30'
     else:
         notebook_config['primary_disk_size'] = '12'
-    # if os.environ['application'] == 'zeppelin':
-    #     if os.environ['notebook_multiple_emrs'] == 'true':
-    #         notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-    #             'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
-    #     else:
-    #         notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-    #             'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
-    # else:
-    #     notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-    #         'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
-    # notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
-    #                                        os.environ['edge_user_name'] + "-nb-Profile"
+    if os.environ['application'] == 'zeppelin':
+        if os.environ['notebook_multiple_emrs'] == 'true':
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+                'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
+        else:
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+                'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
+    else:
+        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+            'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
+    notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
+                                           os.environ['edge_user_name'] + "-nb-Profile"
     # notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
     #     'edge_user_name'] + "-nb-SG"
     # notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
     #
-    # print 'Searching preconfigured images'
-    # ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'], 'available')
-    # if ami_id != '':
-    #     print 'Preconfigured image found. Using: ' + ami_id
-    #     notebook_config['ami_id'] = ami_id
-    # else:
-    #     notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
-    #     print 'No preconfigured image found. Using default one: ' + notebook_config['ami_id']
+    print 'Searching preconfigured images'
+    preconfigured_ami = GCPMeta().get_ami_by_name(notebook_config['expected_ami_name'])
+    if preconfigured_ami != '':
+        print 'Preconfigured image found. Using: ' + preconfigured_ami
+        notebook_config['ami_name'] = preconfigured_ami
+    else:
+        notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
+        print 'No preconfigured image found. Using default one: ' + notebook_config['ami_name']
 
     # launching instance for notebook server
     try:

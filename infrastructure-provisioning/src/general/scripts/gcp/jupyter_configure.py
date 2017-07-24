@@ -181,21 +181,21 @@ if __name__ == "__main__":
         GCPActions().remove_instance(notebook_config['instance_name'])
         sys.exit(1)
 
-    # try:
-    #     print '[CREATING AMI]'
-    #     logging.info('[CREATING AMI]')
-    #     ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
-    #     if ami_id == '':
-    #         print "Looks like it's first time we configure notebook server. Creating image."
-    #         image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
-    #                                               instance_name=notebook_config['instance_name'],
-    #                                               image_name=notebook_config['expected_ami_name'])
-    #         if image_id != '':
-    #             print "Image was successfully created. It's ID is " + image_id
-    # except Exception as err:
-    #     append_result("Failed installing users key.", str(err))
-    #     GCPActions().remove_instance(notebook_config['instance_name'])
-    #     sys.exit(1)
+    #try:
+    #    print '[CREATING IMAGE]'
+    #    logging.info('[CREATING IMAGE]')
+    #    ami_name = GCPMeta().get_ami_by_name(notebook_config['expected_ami_name'])
+    #    if ami_name == '':
+    #        print "Looks like it's first time we configure notebook server. Creating image."
+    #        ami_name = GCPActions().create_image_from_instance_disk(notebook_config['expected_ami_name'],
+    #                                                                notebook_config['instance_name'],
+    #                                                                os.environ['gcp_zone'])["name"]
+    #        if ami_name != '':
+    #            print "Image {} was successfully created".format(ami_name)
+    #except Exception as err:
+    #    append_result("Failed to create image from disk.", str(err))
+    #    GCPActions().remove_instance(notebook_config['instance_name'])
+    #    sys.exit(1)
 
     # generating output information
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])

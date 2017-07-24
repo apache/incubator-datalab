@@ -472,3 +472,22 @@ class GCPActions:
                                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
+
+    def create_image_from_instance_disk(self, image_name, source_name, zone):
+        params = {"name": image_name, "sourceDisk": source_disk}
+        request = self.service.images().insert(project=self.project, body=params)
+        try:
+            GCPActions().stop_instance(self, source_name, zone)
+            result = request.execute()
+            while result["status"] == 'DONE':
+                time.sleep(20)
+                print 'The image is being created... Please wait'
+            return result
+        except Exception as err:
+                logging.info(
+                    "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to create image from disk",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+                return ''
