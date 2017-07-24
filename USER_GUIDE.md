@@ -16,6 +16,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Create notebook server](#notebook_create)
 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage libraries](#manage_libraries)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Stop Notebook server](#notebook_stop)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate Notebook server](#notebook_terminate)
@@ -24,7 +26,7 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate EMR](#emr_terminate)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Collaboration_space](#collaboration_space)
+&nbsp; &nbsp; &nbsp; &nbsp; [Collaboration space](#collaboration_space)
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage Git credentials](#git_creds)
 
@@ -127,6 +129,36 @@ In the body of the dialog:
 
 To access analytical tool Web UI – you need to configure SOCKS proxy. Please follow the steps described on “Read instruction how to create the tunnel” page to configure SOCKS proxy for Windows/MAC/Linux machines.
 
+### Manage libraries <a name="manage_libraries"></a>
+
+On every instance of analytical tool you can install additional libraries clicking on gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Manage libraries:
+
+![Notebook manage_libraries](doc/notebook_menu.png)
+
+After click you need to wait, while all list of available libraries for chosen notebook don't be received.
+
+![Notebook list_libraries](doc/notebook_list_libs.png)
+
+After downloading list, you will see window with 2 fields:
+-   Group of package (apt/yum, Python 2, Python 3, R, other)
+-   Field for search available package with autocomplete function
+
+**Note:** apt or yum packages depends on your DLab OS family.
+
+**Note:** In group Other you can find other Python (2/3) packages, which haven't classifiers of version.
+
+![Notebook select_lib](doc/notebook_select_lib.png)
+
+After selecting library, you can see in on the right and can delete in from this list before installing.
+
+![Notebook selected_libs](doc/notebook_selected_libs.png)
+
+After clicking on "Install" button you will see process of installation with appropriate status.
+
+![Notebook libs_status](doc/notebook_libs_status.png)
+
+**Note:** If package can't be installed you will see "Failed" in status column and button to retry installation. If such packages are several, you will see button "Retry all".
+
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
 
@@ -212,7 +244,7 @@ Insert following “magics” before blocks of your code to start executing your
 
 **R-studio –** open R.environ and comment out /opt/spark/ to switch to EMR and vise versa to switch to local kernel:
 
-![R-studio](doc/r-studio.png)
+![RStudio](doc/rstudio.png)
 
 ------------------
 ## Terminate EMR <a name="emr_terminate"></a>
@@ -223,6 +255,7 @@ To release cluster computational resources click on ![cross](doc/cross_icon.png)
 
 In a while EMR cluster will get **Terminated**. Corresponding EC2 instances will also removed on AWS.
 
+--------------------------------
 ## Collaboration space <a name="collaboration_space"></a>
 
 ### Manage Git credentials <a name="git_creds"></a>
@@ -256,7 +289,7 @@ On every analytical tool instance you can see Git UI tool (ungit):
 
 Before start work with git repositories, you need to change working directory on the top of window to:
 
-**/home/dlab-user/** and press enter or **/opt/zeppelin/notebook** for Zeppelin analytical tool.
+**/home/dlab-user/** or **/opt/zeppelin/notebook** for Zeppelin analytical tool and press enter.
 
 After changing working directory you can create repository or better way - clone existing:
 
@@ -270,7 +303,7 @@ On the top of window in the red field UI show us changed or new files to commit.
 
 **Note:** Git always check you credentials, and if this is your first commit after adding/changing credentials after clicking on "Commit" button nothing happend, you need click on this button again.
 
-On the right pane of window you also can see buttons to "fetch" repository and changing branches.
+On the right pane of window you also can see buttons to fetch last changes of repository, add upstreams and changing branches.
 
 All changes of files you can see clicking on the "circle" button on the center:
 
