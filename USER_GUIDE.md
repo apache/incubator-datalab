@@ -24,6 +24,12 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate EMR](#emr_terminate)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Collaboration_space](#collaboration_space)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage Git credentials](#git_creds)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Git UI tool](#git_ui)
+
 [DLab Health Status Page](#health_page)
 
 [Web UI filters](#filter)
@@ -81,13 +87,13 @@ To create new analytical environment from “List of Resources” page click on 
 
 Currently by means of DLab, Data Scientists can select between any of the following templates:
 
--   Jupyter, Zeppelin, R-studio, TensorFlow
+-   Jupyter, Zeppelin, RStudio, TensorFlow, Deep Learning
 
 ![Create notebook](doc/notebook_create.png)
 
 After specifying desired template, you should fill in the “Name” and “Instance shape”.
 
-Name field – is just for visual differentiation between analytical tools on “List of recourses” dashboard.
+Name field – is just for visual differentiation between analytical tools on “List of resources” dashboard.
 
 Instance shape dropdown, contains configurable list of shapes, which should be chosen depending on the type of analytical work to be performed. Following groups of instance shapes will be showing up with default setup configuration:
 
@@ -115,6 +121,8 @@ In the body of the dialog:
 
 -   Up time
 -   Analytical tool URL
+-   Git UI tool (ungit)
+-   S3 shared bucket for all users
 -   S3 bucket that has been provisioned for your needs
 
 To access analytical tool Web UI – you need to configure SOCKS proxy. Please follow the steps described on “Read instruction how to create the tunnel” page to configure SOCKS proxy for Windows/MAC/Linux machines.
@@ -214,6 +222,65 @@ To release cluster computational resources click on ![cross](doc/cross_icon.png)
 ![EMR terminate confirm](doc/emr_terminate_confirm.png)
 
 In a while EMR cluster will get **Terminated**. Corresponding EC2 instances will also removed on AWS.
+
+## Collaboration space <a name="collaboration_space"></a>
+
+### Manage Git credentials <a name="git_creds"></a>
+
+To work with Git (pull, push) via UI tool (ungit) you can add multiple credentials in DLab UI, which will be setupped on all running instances with analytical tools.
+
+When you click on the button "Git credentials" in the dashboard – popup will show up:
+
+![Git_creds_window](doc/git_creds_window.png)
+
+In this window you need to add:
+-   Your Git server hostname, without **http** or **https**, for example: gitlab.com, github.com, or you internal GitLab server, which can be deployed with DLab.
+-   Your Username and Email - used for display author of commit in git.
+-   Your Login and Password for authorization process to git server.
+
+**Note:** If you have GitLab server, which was deployed with DLab, you should use your LDAP credentials for access to GitLab.
+
+After filling all fields, and click on "Asign" button, you will see list tab with all your credentials for Git.
+
+After clicking on button "Apply changes" your credentials will be sent to all running instances with analytical tools. It takes few seconds.
+
+![Git_creds_window1](doc/git_creds_window2.png)
+
+Also in this tab you can edit your credentials (click on pen icon) or delete (click on bun icon).
+
+### Git UI tool (ungit) <a name="git_ui"></a>
+
+On every analytical tool instance you can see Git UI tool (ungit):
+
+![Git_ui_link](doc/git_ui_link.png)
+
+Before start work with git repositories, you need to change working directory on the top of window to:
+
+**/home/dlab-user/** and press enter or **/opt/zeppelin/notebook** for Zeppelin analytical tool.
+
+After changing working directory you can create repository or better way - clone existing:
+
+![Git_ui_ungit](doc/ungit_window.png)
+
+After creating repository you can see all commits and branches:
+
+![Git_ui_ungit_work](doc/ungit_work.png)
+
+On the top of window in the red field UI show us changed or new files to commit. You can uncheck or add some files to gitignore.
+
+**Note:** Git always check you credentials, and if this is your first commit after adding/changing credentials after clicking on "Commit" button nothing happend, you need click on this button again.
+
+On the right pane of window you also can see buttons to "fetch" repository and changing branches.
+
+All changes of files you can see clicking on the "circle" button on the center:
+
+![Git_ui_ungit_changes](doc/ungit_changes.png)
+
+After commit you will see your local version and remote repository. To push you changes click on your current branch and press "Push" button.
+
+![Git_ui_ungit_push](doc/ungit_push.png)
+
+Also clicking on "circle" button you can uncommit or revert changes.
 
 --------------------------------
 # DLab Health Status Page <a name="health_page"></a>
