@@ -226,7 +226,7 @@ class GCPActions:
                     "autoDelete": 'true',
                     "initializeParams": {
                         "diskSizeGb": secondary_disk_size,
-                        "sourceImage": ami_name
+                        "diskType": "pd-ssd"
                     },
                     "boot": 'false',
                     "mode": "READ_WRITE"
