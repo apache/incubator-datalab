@@ -295,3 +295,33 @@ if __name__ == "__main__":
             remove_route_tables(tag_name, True)
             remove_vpc(os.environ['aws_vpc_id'])
         sys.exit(1)
+
+    try:
+        logging.info('[ASSOCIATING ELASTIC IP]')
+        print '[ASSOCIATING ELASTIC IP]'
+        ssn_id = get_instance_by_name(tag_name, instance_name)
+        try:
+            elastic_ip = os.environ['ssn_elastic_ip']
+        except:
+            elastic_ip = 'None'
+        params = "--elastic_ip {} --ssn_id {}".format(elastic_ip, ssn_id)
+        try:
+            local("~/scripts/{}.py {}".format('ssn_associate_elastic_ip', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed to associate elastic ip.", str(err))
+        remove_ec2(tag_name, instance_name)
+        remove_all_iam_resources(instance)
+        remove_s3(instance)
+        if pre_defined_sg:
+            remove_sgroups(tag_name)
+        if pre_defined_subnet:
+            remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
+            remove_subnets(service_base_name + "-subnet")
+        if pre_defined_vpc:
+            remove_vpc_endpoints(os.environ['aws_vpc_id'])
+            remove_route_tables(tag_name, True)
+            remove_vpc(os.environ['aws_vpc_id'])
+        sys.exit(1)
