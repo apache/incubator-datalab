@@ -91,7 +91,11 @@ To create new analytical environment from “List of Resources” page click on 
 
 Currently by means of DLab, Data Scientists can select between any of the following templates:
 
--   Jupyter, Zeppelin, RStudio, TensorFlow, Deep Learning
+-   Jupyter
+-   Zeppelin
+-   RStudio
+-   TensorFlow (Jupyter + TensorFlow)
+-   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, Theano, CNTK, Torch and Keras)
 
 ![Create notebook](doc/notebook_create.png)
 
