@@ -481,7 +481,7 @@ List of parameters for Notebook node to **get list** of available libraries:
   "pip2": {"requests": "N/A", "configparser": "N/A"},
   "pip3": {"configparser": "N/A"},
   "r_pkg": {"rmarkdown": "1.5"},
-  "others": {"Keras": "N/A"},  
+  "others": {"Keras": "N/A"} 
 }
 ```
 
