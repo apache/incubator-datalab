@@ -26,7 +26,7 @@ limitations under the License.
     <span class="caret-btn">&#9663;</span>
   </button>
 
-  <ul class="dropdown-menu" [style.display]="isOpen ? 'block' : 'none'">
+  <ul class="dropdown-menu" id="scrolling" [style.display]="isOpen ? 'block' : 'none'">
     <li class="filter-actions">
       <a class="select_all" (click)="selectAllOptions($event)">
         <i class="glyphicon glyphicon-ok"></i>&nbsp;All
