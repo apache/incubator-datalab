@@ -62,13 +62,16 @@ if __name__ == "__main__":
         sorted_subnets_cidr = sorted(subnets_cidr, key=sortkey)
 
         last_ip = first_vpc_ip
+        previous_subnet_size = private_subnet_size
         for cidr in sorted_subnets_cidr:
             first_ip = int(ipaddress.IPv4Address(cidr.split('/')[0].decode("utf-8")))
-            if first_ip - last_ip < private_subnet_size:
+            if first_ip - last_ip < private_subnet_size or previous_subnet_size < private_subnet_size:
                 subnet_size = ipaddress.ip_network(u'{}'.format(cidr)).num_addresses
                 last_ip = first_ip + subnet_size - 1
+                previous_subnet_size = subnet_size
             else:
                 break
+
         dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
 
         if args.ssn:
