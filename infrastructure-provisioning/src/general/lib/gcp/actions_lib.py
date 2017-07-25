@@ -62,12 +62,12 @@ class GCPActions:
             print "VPC {} has been created".format(vpc_name)
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to create VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to create VPC",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to create VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create VPC",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def remove_vpc(self, vpc_name):
         request = self.service.networks().delete(project=self.project, network=vpc_name)
@@ -81,21 +81,21 @@ class GCPActions:
             print "VPC {} has been removed".format(vpc_name)
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to remove VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to remove VPC",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to remove VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove VPC",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def create_subnet(self, subnet_name, subnet_cidr, vpc_selflink, region):
         subnetwork_params = {
-                'name': subnet_name,
-                'ipCidrRange': subnet_cidr,
-                'network': vpc_selflink
+            'name': subnet_name,
+            'ipCidrRange': subnet_cidr,
+            'network': vpc_selflink
         }
         request = self.service.subnetworks().insert(
-                project=self.project, region=region, body=subnetwork_params)
+            project=self.project, region=region, body=subnetwork_params)
         try:
             result = request.execute()
             subnet_created = meta_lib.GCPMeta().get_subnet(subnet_name, region)
@@ -107,12 +107,12 @@ class GCPActions:
             print "Subnet {} has been created".format(subnet_name)
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to create Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to create Subnet",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to create Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Subnet",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def remove_subnet(self, subnet_name, region):
         request = self.service.subnetworks().delete(project=self.project, region=region, subnetwork=subnet_name)
@@ -126,12 +126,12 @@ class GCPActions:
             time.sleep(30)
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to remove Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to remove Subnet",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to remove Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove Subnet",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def create_firewall(self, firewall_params):
         request = self.service.firewalls().insert(project=self.project, body=firewall_params)
@@ -145,12 +145,12 @@ class GCPActions:
             print('Firewall {} created.'.format(firewall_params['name']))
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to create Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to create Firewall",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to create Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Firewall",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def remove_firewall(self, firewall_name):
         request = self.service.firewalls().delete(project=self.project, firewall=firewall_name)
@@ -164,24 +164,24 @@ class GCPActions:
             print('Firewall {} removed.'.format(firewall_name))
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to remove Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to remove Firewall",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to remove Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove Firewall",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def create_bucket(self, bucket_name):
         try:
             bucket = self.storage_client.create_bucket(bucket_name)
             print('Bucket {} created.'.format(bucket.name))
         except Exception as err:
-                logging.info(
-                    "Unable to create Bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to create Bucket",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to create Bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Bucket",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def remove_bucket(self, bucket_name):
         try:
@@ -189,32 +189,42 @@ class GCPActions:
             storage_resource.delete(force=True)
             print('Bucket {} removed.'.format(bucket_name))
         except Exception as err:
-                logging.info(
-                    "Unable to remove Bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to remove Bucket",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to remove Bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove Bucket",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def create_disk(self, instance_name, zone, size):
         try:
-            params = {"sizeGb": size, "type": 'pd-ssd', "name": instance_name + '-secondary'}
+            params = {"sizeGb": size, "name": instance_name + '-secondary',
+                      "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone)}
             request = self.service.disks().insert(project=self.project, zone=zone, body=params)
             request.execute()
-            disk = meta_lib.GCPMeta().get_disk(instance_name + '-secondary')
-            while disk:
-                time.sleep(5)
-                disk = meta_lib.GCPMeta().get_disk(instance_name + '-secondary')
-            time.sleep(10)
             print('Disk {}-secondary created.'.format(instance_name))
-            return disk
+            return request
         except Exception as err:
-                logging.info(
-                    "Unable to create disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to create disk",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to create disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def remove_disk(self, instance_name, zone):
+        try:
+            request = self.service.disks().delete(project=self.project, zone=zone, disk=instance_name + '-secondary')
+            request.execute()
+            print('Disk {}-secondary removed.'.format(instance_name))
+            return request
+        except Exception as err:
+            logging.info(
+                "Unable to remove disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path,
                         initial_user, ami_name, service_account_name, instance_class, elastic_ip='',
@@ -231,20 +241,29 @@ class GCPActions:
                 "natIP": elastic_ip
             }]
         if instance_class == 'notebook':
-            secondary_disk = GCPActions().create_disk(instance_name, zone, secondary_disk_size)
-            disks = [{
-                "deviceName": instance_name + '-primary',
-                "autoDelete": 'true',
-                "initializeParams": {
-                    "diskSizeGb": primary_disk_size,
-                    "sourceImage": ami_name
-                },
-                "boot": 'true',
-                "mode": "READ_WRITE"
-            },
+            GCPActions().create_disk(instance_name, zone, secondary_disk_size)
+            disks = [
                 {
-                "source": secondary_disk
-            }]
+                    "deviceName": instance_name + '-primary',
+                    "autoDelete": "true",
+                    "boot": "true",
+                    "mode": "READ_WRITE",
+                    "type": "PERSISTENT",
+                    "initializeParams": {
+                        "diskSizeGb": primary_disk_size,
+                        "sourceImage": ami_name
+                    }
+                },
+                {
+                    "deviceName": instance_name + '-secondary',
+                    "autoDelete": "true",
+                    "boot": "false",
+                    "mode": "READ_WRITE",
+                    "type": "PERSISTENT",
+                    "interface": "SCSI",
+                    "source": "projects/{0}/zones/{1}/disks/{2}-secondary".format(self.project, zone, instance_name)
+                }
+            ]
         else:
             disks = [{
                 "deviceName": instance_name + '-primary',
@@ -297,15 +316,16 @@ class GCPActions:
             print('Instance {} created.'.format(instance_name))
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to create Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to create Instance",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to create Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def remove_instance(self, instance_name):
-        request = self.service.instances().delete(project=self.project, zone=os.environ['gcp_zone'], instance=instance_name)
+        request = self.service.instances().delete(project=self.project, zone=os.environ['gcp_zone'],
+                                                  instance=instance_name)
         try:
             result = request.execute()
             instance_removed = meta_lib.GCPMeta().get_instance(instance_name)
@@ -316,12 +336,12 @@ class GCPActions:
             print('Instance {} removed.'.format(instance_name))
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to remove Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to remove Instance",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to remove Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove Instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def stop_instance(self, instance_name, zone):
         request = self.service.instances().stop(project=self.project, zone=zone, instance=instance_name)
@@ -334,12 +354,12 @@ class GCPActions:
             time.sleep(5)
             return True
         except Exception as err:
-                logging.info(
-                    "Unable to stop Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to stop Instance",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to stop Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to stop Instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def start_instance(self, instance_name, zone):
         request = self.service.instances().start(project=self.project, zone=zone, instance=instance_name)
@@ -352,12 +372,12 @@ class GCPActions:
             time.sleep(5)
             return True
         except Exception as err:
-                logging.info(
-                    "Unable to start Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to start Instance",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to start Instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to start Instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def remove_service_account(self, service_account_name):
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
@@ -373,12 +393,13 @@ class GCPActions:
             print('Service account {} removed.'.format(service_account_name))
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to remove Service account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to remove Service account",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to remove Service account: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to remove Service account",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def create_service_account(self, service_account_name):
         params = {"accountId": service_account_name, "serviceAccount": {"displayName": service_account_name}}
@@ -394,12 +415,13 @@ class GCPActions:
             print('Service account {} created.'.format(service_account_name))
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to create Service account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to create Service account",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to create Service account: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to create Service account",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def set_policy_to_service_account(self, service_account_name, role_name):
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
@@ -424,12 +446,13 @@ class GCPActions:
         try:
             return request.execute()
         except Exception as err:
-                logging.info(
-                    "Unable to set Service account policy: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to set Service account policy",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to set Service account policy: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to set Service account policy",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def set_service_account_to_instance(self, service_account_name, instance_name):
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
@@ -441,12 +464,13 @@ class GCPActions:
         try:
             return request.execute()
         except Exception as err:
-                logging.info(
-                    "Unable to set Service account to instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to set Service account to instance",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to set Service account to instance: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to set Service account to instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def create_static_address(self, address_name, region):
         params = {"name": address_name}
@@ -461,12 +485,13 @@ class GCPActions:
             print('Static address {} created.'.format(address_name))
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to create Static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to create Static IP address",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to create Static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to create Static IP address",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def remove_static_address(self, address_name, region):
         request = self.service.addresses().delete(project=self.project, region=region, address=address_name)
@@ -480,12 +505,13 @@ class GCPActions:
             print('Static address {} removed.'.format(address_name))
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to remove Static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to remove Static IP address",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to remove Static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to remove Static IP address",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def create_image_from_instance_disk(self, image_name, source_name, zone):
         params = {"name": image_name, "sourceDisk": source_disk}
@@ -498,10 +524,11 @@ class GCPActions:
                 print 'The image is being created... Please wait'
             return result
         except Exception as err:
-                logging.info(
-                    "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to create image from disk",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
-                return ''
+            logging.info(
+                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to create image from disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''

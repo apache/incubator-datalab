@@ -142,7 +142,7 @@ if __name__ == "__main__":
         rules = [
             {
                 'IPProtocol': 'tcp',
-                'ports': ['22', '80', '8080', '443']
+                'ports': ['22', '80', '8080', '443', '3128']
             },
             {
                 'IPProtocol': 'icmp'

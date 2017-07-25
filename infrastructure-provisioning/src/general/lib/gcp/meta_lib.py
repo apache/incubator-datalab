@@ -233,7 +233,7 @@ class GCPMeta:
 
     def get_disk(self, disk_name):
         try:
-            request = self.service.images().get(project=self.project, zone=os.environ['gcp_zone'], disk=disk_name)
+            request = self.service.disks().get(project=self.project, zone=os.environ['gcp_zone'], disk=disk_name)
             result = request.execute()
             return result
         except Exception as err:
