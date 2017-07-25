@@ -43,12 +43,10 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 As soon as DLab is deployed by an infrastructure provisioning team and you received DLab URL, your username and password – open DLab login page, fill in your credentials and hit Login.
 
-DLab Web Application uses two-factor authentication algorithm. On login user name is validated against:
+DLab Web Application authenticates users against:
 
--   Open LDAP;
--   AWS IAM;
-
-Make sure that corresponding user has been setup by administrator for each Data Scientist
+-   OpenLdap;
+-   Cloud Identity and Access Management service user validation;
 
 | Login error messages               | Reason                                                                           |
 |------------------------------------|----------------------------------------------------------------------------------|
