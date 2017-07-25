@@ -16,6 +16,8 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Create notebook server](#notebook_create)
 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage libraries](#manage_libraries)
+
 &nbsp; &nbsp; &nbsp; &nbsp; [Stop Notebook server](#notebook_stop)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate Notebook server](#notebook_terminate)
@@ -24,7 +26,15 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate EMR](#emr_terminate)
 
+&nbsp; &nbsp; &nbsp; &nbsp; [Collaboration space](#collaboration_space)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage Git credentials](#git_creds)
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Git UI tool (ungit)](#git_ui)
+
 [DLab Health Status Page](#health_page)
+
+[DLab billing report](#billing_page)
 
 [Web UI filters](#filter)
 
@@ -33,12 +43,10 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 As soon as DLab is deployed by an infrastructure provisioning team and you received DLab URL, your username and password – open DLab login page, fill in your credentials and hit Login.
 
-DLab Web Application uses two-factor authentication algorithm. On login user name is validated against:
+DLab Web Application authenticates users against:
 
--   Open LDAP;
--   AWS IAM;
-
-Make sure that corresponding user has been setup by administrator for each Data Scientist
+-   OpenLdap;
+-   Cloud Identity and Access Management service user validation;
 
 | Login error messages               | Reason                                                                           |
 |------------------------------------|----------------------------------------------------------------------------------|
@@ -81,13 +89,17 @@ To create new analytical environment from “List of Resources” page click on 
 
 Currently by means of DLab, Data Scientists can select between any of the following templates:
 
--   Jupyter, Zeppelin, R-studio, TensorFlow
+-   Jupyter
+-   Zeppelin
+-   RStudio
+-   TensorFlow (Jupyter + TensorFlow)
+-   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, Theano, CNTK, Torch and Keras)
 
 ![Create notebook](doc/notebook_create.png)
 
 After specifying desired template, you should fill in the “Name” and “Instance shape”.
 
-Name field – is just for visual differentiation between analytical tools on “List of recourses” dashboard.
+Name field – is just for visual differentiation between analytical tools on “List of resources” dashboard.
 
 Instance shape dropdown, contains configurable list of shapes, which should be chosen depending on the type of analytical work to be performed. Following groups of instance shapes will be showing up with default setup configuration:
 
@@ -95,7 +107,7 @@ Instance shape dropdown, contains configurable list of shapes, which should be c
 
 These groups have T-Shirt based shapes (configurable), that can help Data Scientist to either save money\* and leverage not very powerful shapes (for working with relatively small datasets), or that could boost the performance of analytics by selecting more powerful instance shape.
 
-\* Please refer to official documentation from Amazon that will help you understand what [instance shapes](https://aws.amazon.com/ec2/instance-types/) would be most preferable in your particular DLAB setup. Also, you can use [AWS calculator](https://calculator.s3.amazonaws.com/index.html) to roughly estimate the cost of your environment. *
+\* Please refer to official documentation from Amazon that will help you understand what [instance shapes](https://aws.amazon.com/ec2/instance-types/) would be most preferable in your particular DLAB setup. Also, you can use [AWS calculator](https://calculator.s3.amazonaws.com/index.html) to roughly estimate the cost of your environment.
 
 After you Select the template, fill in the Name and choose needed instance shape - you need to click on Create button for your instance to start creating. Corresponding record will show up in your dashboard:
 
@@ -115,9 +127,41 @@ In the body of the dialog:
 
 -   Up time
 -   Analytical tool URL
+-   Git UI tool (ungit)
+-   S3 shared bucket for all users
 -   S3 bucket that has been provisioned for your needs
 
 To access analytical tool Web UI – you need to configure SOCKS proxy. Please follow the steps described on “Read instruction how to create the tunnel” page to configure SOCKS proxy for Windows/MAC/Linux machines.
+
+### Manage libraries <a name="manage_libraries"></a>
+
+On every analytical tool instance you can install additional libraries by clicking on gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Manage libraries:
+
+![Notebook manage_libraries](doc/notebook_menu.png)
+
+You need to wait for a while after clicking till list of all available libraries for chosen notebook will be received.
+
+![Notebook list_libraries](doc/notebook_list_libs.png)
+
+After downloading the list, you will see the window with 2 fields:
+-   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Others)
+-   Field for search available packages with autocomplete function
+
+**Note:** apt or yum packages depends on your DLab OS family.
+
+**Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
+
+![Notebook select_lib](doc/notebook_select_lib.png)
+
+After selecting library, you can see it on the right and could delete in from this list before installing.
+
+![Notebook selected_libs](doc/notebook_selected_libs.png)
+
+After clicking on "Install" button you will see process of installation with appropriate status.
+
+![Notebook libs_status](doc/notebook_libs_status.png)
+
+**Note:** If package can't be installed you will see "Failed" in status column and button to retry installation. If several packages have been failed to install, you will see button "Retry all".
 
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
@@ -204,7 +248,7 @@ Insert following “magics” before blocks of your code to start executing your
 
 **R-studio –** open R.environ and comment out /opt/spark/ to switch to EMR and vise versa to switch to local kernel:
 
-![R-studio](doc/r-studio.png)
+![RStudio](doc/rstudio.png)
 
 ------------------
 ## Terminate EMR <a name="emr_terminate"></a>
@@ -214,6 +258,68 @@ To release cluster computational resources click on ![cross](doc/cross_icon.png)
 ![EMR terminate confirm](doc/emr_terminate_confirm.png)
 
 In a while EMR cluster will get **Terminated**. Corresponding EC2 instances will also removed on AWS.
+
+--------------------------------
+## Collaboration space <a name="collaboration_space"></a>
+
+### Manage Git credentials <a name="git_creds"></a>
+
+To work with Git (pull, push) via UI tool (ungit) you could add multiple credentials in DLab UI, which will be set on all running instances with analytical tools.
+
+When you click on the button "Git credentials" – following popup will show up:
+
+![Git_creds_window](doc/git_creds_window.png)
+
+In this window you need to add:
+-   Your Git server hostname, without **http** or **https**, for example: gitlab.com, github.com, or your internal GitLab server, which can be deployed with DLab.
+-   Your Username and Email - used to display author of commit in git.
+-   Your Login and Password - for authorization into git server.
+
+**Note:** If you have GitLab server, which was deployed with DLab, you should use your LDAP credentials for access to GitLab.
+
+Once all fields are filled in and you click on "Assign" button, you will see the list of all your Git credentials.
+
+Clicking on "Apply changes" button, your credentials will be sent to all running instances with analytical tools. It takes a few seconds for changes to be applied.
+
+![Git_creds_window1](doc/git_creds_window2.png)
+
+On this tab you can also edit your credentials (click on pen icon) or delete (click on bin icon).
+
+### Git UI tool (ungit) <a name="git_ui"></a>
+
+On every analytical tool instance you can see Git UI tool (ungit):
+
+![Git_ui_link](doc/git_ui_link.png)
+
+Before start working with git repositories, you need to change working directory on the top of window to:
+
+**/home/dlab-user/** or **/opt/zeppelin/notebook** for Zeppelin analytical tool and press Enter.
+
+**Note:** Zeppelin already uses git for local versioning of files, you can add upstream for all notebooks.
+
+After changing working directory you can create repository or better way - clone existing:
+
+![Git_ui_ungit](doc/ungit_window.png)
+
+After creating repository you can see all commits and branches:
+
+![Git_ui_ungit_work](doc/ungit_work.png)
+
+On the top of window in the red field UI show us changed or new files to commit. You can uncheck or add some files to gitignore.
+
+**Note:** Git always checks you credentials. If this is your first commit after adding/changing credentials and after clicking on "Commit" button nothing happened - just click on Commit button again.
+
+On the right pane of window you also can see buttons to fetch last changes of repository, add upstreams and switch between branches.
+
+To see all modified files - click on the "circle" button on the center:
+
+![Git_ui_ungit_changes](doc/ungit_changes.png)
+
+After commit you will see your local version and remote repository. To push you changes - click on your current branch and press "Push" button.
+
+![Git_ui_ungit_push](doc/ungit_push.png)
+
+Also clicking on "circle" button you can uncommit or revert changes.
 
 --------------------------------
 # DLab Health Status Page <a name="health_page"></a>
@@ -240,6 +346,29 @@ Confirm you want to stop Edge node by clicking Yes:
 
 In case you Edge node is Stopped or Terminated – you will have to Start or Recreate it correspondingly to proceed working with DLab. This can done as well via context actions menu.
 
+--------------------------------
+# DLab Billing report <a name="billing_page"></a>
+
+On this page you can see all billing information, including all costs assosiated with service base name of SSN.
+
+![Billing page](doc/billing_page.png)
+
+In the header you can see 3 fields:
+-   Service base name of your environment
+-   Resource tag ID
+-   Date period of available billing report
+
+On the center of header you can choose period of report in datepicker:
+
+![Billing datepicker](doc/billing_datepicker.png)
+
+You can also filter data by each column:
+
+![Billing filter](doc/billing_filter.png)
+
+**Note:** Administrator can see billing report of all users, and only he can see/filter "User" column.
+
+In the footer of billing report, you can see Total cost for all environments.
 --------------------
 # Web UI filters <a name="filters"></a>
 
