@@ -107,7 +107,7 @@ Instance shape dropdown, contains configurable list of shapes, which should be c
 
 These groups have T-Shirt based shapes (configurable), that can help Data Scientist to either save money\* and leverage not very powerful shapes (for working with relatively small datasets), or that could boost the performance of analytics by selecting more powerful instance shape.
 
-\* Please refer to official documentation from Amazon that will help you understand what [instance shapes](https://aws.amazon.com/ec2/instance-types/) would be most preferable in your particular DLAB setup. Also, you can use [AWS calculator](https://calculator.s3.amazonaws.com/index.html) to roughly estimate the cost of your environment. *
+\* Please refer to official documentation from Amazon that will help you understand what [instance shapes](https://aws.amazon.com/ec2/instance-types/) would be most preferable in your particular DLAB setup. Also, you can use [AWS calculator](https://calculator.s3.amazonaws.com/index.html) to roughly estimate the cost of your environment.
 
 After you Select the template, fill in the Name and choose needed instance shape - you need to click on Create button for your instance to start creating. Corresponding record will show up in your dashboard:
 
@@ -264,26 +264,26 @@ In a while EMR cluster will get **Terminated**. Corresponding EC2 instances will
 
 ### Manage Git credentials <a name="git_creds"></a>
 
-To work with Git (pull, push) via UI tool (ungit) you could add multiple credentials in DLab UI, which will be setted on all running instances with analytical tools.
+To work with Git (pull, push) via UI tool (ungit) you could add multiple credentials in DLab UI, which will be set on all running instances with analytical tools.
 
-When you click on the button "Git credentials" in the dashboard – popup will show up:
+When you click on the button "Git credentials" – following popup will show up:
 
 ![Git_creds_window](doc/git_creds_window.png)
 
 In this window you need to add:
--   Your Git server hostname, without **http** or **https**, for example: gitlab.com, github.com, or you internal GitLab server, which can be deployed with DLab.
--   Your Username and Email - used for display author of commit in git.
--   Your Login and Password for authorization process to git server.
+-   Your Git server hostname, without **http** or **https**, for example: gitlab.com, github.com, or your internal GitLab server, which can be deployed with DLab.
+-   Your Username and Email - used to display author of commit in git.
+-   Your Login and Password - for authorization into git server.
 
 **Note:** If you have GitLab server, which was deployed with DLab, you should use your LDAP credentials for access to GitLab.
 
-After filling all fields, and click on "Assign" button, you will see list with all your credentials for Git.
+Once all fields are filled in and you click on "Assign" button, you will see the list of all your Git credentials.
 
-After clicking on button "Apply changes" your credentials will be sent to all running instances with analytical tools. It takes a few seconds.
+Clicking on "Apply changes" button, your credentials will be sent to all running instances with analytical tools. It takes a few seconds for changes to be applied.
 
 ![Git_creds_window1](doc/git_creds_window2.png)
 
-Also in this tab you can edit your credentials (click on pen icon) or delete (click on bin icon).
+On this tab you can also edit your credentials (click on pen icon) or delete (click on bin icon).
 
 ### Git UI tool (ungit) <a name="git_ui"></a>
 
@@ -293,9 +293,9 @@ On every analytical tool instance you can see Git UI tool (ungit):
 
 Before start working with git repositories, you need to change working directory on the top of window to:
 
-**/home/dlab-user/** or **/opt/zeppelin/notebook** for Zeppelin analytical tool and press enter.
+**/home/dlab-user/** or **/opt/zeppelin/notebook** for Zeppelin analytical tool and press Enter.
 
-**Note:** Zeppelin already use git for local versioning of files, you can add upstream for all notebooks.
+**Note:** Zeppelin already uses git for local versioning of files, you can add upstream for all notebooks.
 
 After changing working directory you can create repository or better way - clone existing:
 
@@ -307,15 +307,15 @@ After creating repository you can see all commits and branches:
 
 On the top of window in the red field UI show us changed or new files to commit. You can uncheck or add some files to gitignore.
 
-**Note:** Git always check you credentials, and if this is your first commit after adding/changing credentials after clicking on "Commit" button nothing happend, you need click on this button again.
+**Note:** Git always checks you credentials. If this is your first commit after adding/changing credentials and after clicking on "Commit" button nothing happened - just click on Commit button again.
 
-On the right pane of window you also can see buttons to fetch last changes of repository, add upstreams and changing branches.
+On the right pane of window you also can see buttons to fetch last changes of repository, add upstreams and switch between branches.
 
-All changes of files you can see clicking on the "circle" button on the center:
+To see all modified files - click on the "circle" button on the center:
 
 ![Git_ui_ungit_changes](doc/ungit_changes.png)
 
-After commit you will see your local version and remote repository. To push you changes click on your current branch and press "Push" button.
+After commit you will see your local version and remote repository. To push you changes - click on your current branch and press "Push" button.
 
 ![Git_ui_ungit_push](doc/ungit_push.png)
 
@@ -349,11 +349,11 @@ In case you Edge node is Stopped or Terminated – you will have to Start or Rec
 --------------------------------
 # DLab billing report <a name="billing_page"></a>
 
-On this page you can see all billing, which contains all costs applies to service base name of SSN.
+On this page you can see all billing information, including all costs assosiated with service base name of SSN.
 
 ![Billing page](doc/billing_page.png)
 
-On the header you can see 3 fields:
+In the header you can see 3 fields:
 -   Service base name of your environment
 -   Resource tag ID
 -   Date period of available billing report
@@ -362,14 +362,13 @@ On the center of header you can choose period of report in datepicker:
 
 ![Billing datepicker](doc/billing_datepicker.png)
 
-On the header you also can filter data by every column:
+You can also filter data by each column:
 
 ![Billing filter](doc/billing_filter.png)
 
-**Note:** Administrator can see billing report of all users environments including own one, and only he can see/filter "User" column.
+**Note:** Administrator can see billing report of all users, and only he can see/filter "User" column.
 
-On the right bottom corner you can see Total cost for all environments.
-
+In the footer of billing report, you can see Total cost for all environments.
 --------------------
 # Web UI filters <a name="filters"></a>
 
