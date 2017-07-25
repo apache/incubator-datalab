@@ -63,31 +63,32 @@ if __name__ == "__main__":
     except KeyError:
         pass
 
-    try:
-        print 'Installing pip2 packages:', pkgs['libraries']['pip2']
-        status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2')
-        general_status = general_status + status
-    except KeyError:
-        pass
+    if os.environ['application'] in ['jupyter', 'zeppelin', 'deeplearning', 'tensor']:
+        try:
+            print 'Installing pip2 packages:', pkgs['libraries']['pip2']
+            status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2')
+            general_status = general_status + status
+        except KeyError:
+            pass
 
-    try:
-        print 'Installing pip3 packages:', pkgs['libraries']['pip3']
-        status = install_pip_pkg(pkgs['libraries']['pip3'], 'pip3', 'pip3')
-        general_status = general_status + status
-    except KeyError:
-        pass
+        try:
+            print 'Installing pip3 packages:', pkgs['libraries']['pip3']
+            status = install_pip_pkg(pkgs['libraries']['pip3'], 'pip3', 'pip3')
+            general_status = general_status + status
+        except KeyError:
+            pass
 
-    try:
-        print 'Installing other packages:', pkgs['libraries']['others']
-        for pkg in pkgs['libraries']['others']:
-            status_pip2 = install_pip_pkg([pkg], 'pip2', 'others')
-            status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
-            if status_pip2[0]['status'] == 'installed':
-                general_status = general_status + status_pip2
-            else:
-                general_status = general_status + status_pip3
-    except KeyError:
-        pass
+        try:
+            print 'Installing other packages:', pkgs['libraries']['others']
+            for pkg in pkgs['libraries']['others']:
+                status_pip2 = install_pip_pkg([pkg], 'pip2', 'others')
+                status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
+                if status_pip2[0]['status'] == 'installed':
+                    general_status = general_status + status_pip2
+                else:
+                    general_status = general_status + status_pip3
+        except KeyError:
+            pass
 
     if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
         try:
