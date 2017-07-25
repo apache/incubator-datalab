@@ -347,7 +347,7 @@ Confirm you want to stop Edge node by clicking Yes:
 In case you Edge node is Stopped or Terminated – you will have to Start or Recreate it correspondingly to proceed working with DLab. This can done as well via context actions menu.
 
 --------------------------------
-# DLab billing report <a name="billing_page"></a>
+# DLab Billing report <a name="billing_page"></a>
 
 On this page you can see all billing information, including all costs assosiated with service base name of SSN.
 
