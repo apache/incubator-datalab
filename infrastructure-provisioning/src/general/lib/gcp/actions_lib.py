@@ -190,8 +190,28 @@ class GCPActions:
             print('Bucket {} removed.'.format(bucket_name))
         except Exception as err:
                 logging.info(
-                    "Unable to create Bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to create Bucket",
+                    "Unable to remove Bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to remove Bucket",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
+
+    def create_disk(self, instance_name, zone, size):
+        try:
+            params = {"sizeGb": size, "type": 'pd-ssd', "name": instance_name + '-secondary'}
+            request = self.service.disks().insert(project=self.project, zone=zone, body=params)
+            request.execute()
+            disk = meta_lib.GCPMeta().get_disk(instance_name + '-secondary')
+            while disk:
+                time.sleep(5)
+                disk = meta_lib.GCPMeta().get_disk(instance_name + '-secondary')
+            time.sleep(10)
+            print('Disk {}-secondary created.'.format(instance_name))
+            return disk
+        except Exception as err:
+                logging.info(
+                    "Unable to create disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to create disk",
                                    "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                        file=sys.stdout)}))
                 traceback.print_exc(file=sys.stdout)
@@ -211,6 +231,7 @@ class GCPActions:
                 "natIP": elastic_ip
             }]
         if instance_class == 'notebook':
+            secondary_disk = GCPActions().create_disk(instance_name, zone, secondary_disk_size)
             disks = [{
                 "deviceName": instance_name + '-primary',
                 "autoDelete": 'true',
@@ -222,15 +243,8 @@ class GCPActions:
                 "mode": "READ_WRITE"
             },
                 {
-                    "deviceName": instance_name + '-secondary',
-                    "autoDelete": 'true',
-                    "initializeParams": {
-                        "diskSizeGb": secondary_disk_size,
-                        "sourceImage": ami_name
-                    },
-                    "boot": 'false',
-                    "mode": "READ_WRITE"
-                }]
+                "source": secondary_disk
+            }]
         else:
             disks = [{
                 "deviceName": instance_name + '-primary',

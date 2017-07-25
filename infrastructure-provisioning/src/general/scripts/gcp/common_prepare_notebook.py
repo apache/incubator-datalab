@@ -108,6 +108,7 @@ if __name__ == "__main__":
     #    notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
     #    print 'No preconfigured image found. Using default one: ' + notebook_config['ami_name']
     notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
+
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')

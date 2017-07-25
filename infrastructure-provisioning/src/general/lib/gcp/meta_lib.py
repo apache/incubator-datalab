@@ -225,9 +225,20 @@ class GCPMeta:
             result = request.execute()
             return result
         except Exception as err:
-            logging.info("Error with getting AMI ID by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Error with getting AMI ID by name",
+            logging.info("Error with getting image by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Error with getting image by name",
                        "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
-        return ''
+
+    def get_disk(self, disk_name):
+        try:
+            request = self.service.images().get(project=self.project, zone=os.environ['gcp_zone'], disk=disk_name)
+            result = request.execute()
+            return result
+        except Exception as err:
+            logging.info("Error with getting disk by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Error with getting disk by name",
+                       "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
