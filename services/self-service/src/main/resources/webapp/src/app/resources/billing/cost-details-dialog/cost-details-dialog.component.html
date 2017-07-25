@@ -42,7 +42,7 @@ limitations under the License.
               <div class="usage-date-start">Start</div>
               <div class="usage-date-end">End</div>
             </md-list-item>
-            <div class="scrolling-content">
+            <div class="scrolling-content" id="scrolling">
               <md-list-item *ngFor="let item of notebook.billing">
                 <div class="resource-name"
                      mdTooltip="{{ item.resource_name }}"
