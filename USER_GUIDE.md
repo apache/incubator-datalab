@@ -30,7 +30,7 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Manage Git credentials](#git_creds)
 
-&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Git UI tool](#git_ui)
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Git UI tool (ungit)](#git_ui)
 
 [DLab Health Status Page](#health_page)
 
@@ -296,6 +296,8 @@ On every analytical tool instance you can see Git UI tool (ungit):
 Before start working with git repositories, you need to change working directory on the top of window to:
 
 **/home/dlab-user/** or **/opt/zeppelin/notebook** for Zeppelin analytical tool and press enter.
+
+**Note:** Zeppelin already use git for local versioning of files, you can add upstream for all notebooks.
 
 After changing working directory you can create repository or better way - clone existing:
 
