@@ -53,7 +53,13 @@ if __name__ == "__main__":
         subnets_cidr = []
         for subnet in subnets:
             subnets_cidr.append(subnet.cidr_block)
-        sorted_subnets_cidr = sorted(subnets_cidr)
+        sortkey = lambda addr:\
+            (int(addr.split("/")[0].split(".")[0]),
+             int(addr.split("/")[0].split(".")[1]),
+             int(addr.split("/")[0].split(".")[2]),
+             int(addr.split("/")[0].split(".")[3]),
+             int(addr.split("/")[1]))
+        sorted_subnets_cidr = sorted(subnets_cidr, key=sortkey)
 
         last_ip = first_vpc_ip
         for cidr in sorted_subnets_cidr:
