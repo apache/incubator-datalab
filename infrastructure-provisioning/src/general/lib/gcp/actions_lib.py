@@ -20,6 +20,7 @@ from pprint import pprint
 from googleapiclient.discovery import build
 from oauth2client.client import GoogleCredentials
 from oauth2client.service_account import ServiceAccountCredentials
+from google.cloud import exceptions
 from google.cloud import storage
 from googleapiclient import errors
 import meta_lib
@@ -541,10 +542,7 @@ class GCPActions:
             blob = bucket.blob(certfile)
             blob.download_to_filename(certfile)
             return True
-        except Exception as err:
-            logging.info(
-                "Unable to download certificate from bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(
-                    file=sys.stdout))
+        except exceptions.NotFound as err:
             append_result(str({"error": "Unable to download certificate from bucket",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
