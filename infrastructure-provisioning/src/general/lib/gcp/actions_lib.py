@@ -202,10 +202,8 @@ class GCPActions:
                       "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone)}
             request = self.service.disks().insert(project=self.project, zone=zone, body=params)
             request.execute()
-            disk_status = meta_lib.GCPMeta().get_disk(instance_name + '-secondary')
-            while disk_status["status"] != "READY":
+            while meta_lib.GCPMeta().get_disk(instance_name + '-secondary')["status"] != "READY":
                 time.sleep(10)
-                disk_status = meta_lib.GCPMeta().get_disk(instance_name + '-secondary')
             print('Disk {}-secondary created.'.format(instance_name))
             return request
         except Exception as err:
