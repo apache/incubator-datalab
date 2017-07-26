@@ -172,6 +172,7 @@ if __name__ == "__main__":
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
         try:
+            local("~/scripts/{}.py {}".format('common_download_git_certfile', params))
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
         except:
             append_result("Failed setup git credentials")

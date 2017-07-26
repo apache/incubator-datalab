@@ -579,11 +579,7 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
             sys.exit(1)
 
 
-def install_ungit(os_user, certfile):
-    bucket_name = ('{}-ssn-bucket'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
-    if dlab.actions_lib.get_gitlab_cert(bucket_name, certfile):
-        put(certfile, certfile)
-        sudo('chown root:root {}'.format(certfile))
+def install_ungit(os_user):
     if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
         try:
             sudo('npm -g install ungit')

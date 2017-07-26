@@ -534,3 +534,19 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
+
+    def get_gitlab_cert(self, bucket_name, certfile):
+        try:
+            bucket = self.storage_client.get_bucket(bucket_name)
+            blob = bucket.blob(certfile)
+            blob.download_to_filename(certfile)
+            return True
+        except Exception as err:
+            logging.info(
+                "Unable to download certificate from bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to download certificate from bucket",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return False
