@@ -65,13 +65,17 @@ When you log into DLab Web Application, the first thing you will have to setup i
 
 To do this click on “Upload” button on “Create initial infrastructure”, select your personal public key and hit “Create” button.
 
-![Upload user public key](doc/upload_key.png)
+<p align="center"> 
+    <img src="doc/upload_key.png" alt="Upload user public key" width="400">
+</p>
 
 Please note that you need to have a key pair combination (public and private key) to work with DLab. To figure out how to create public and private key, please click on “Where can I get public key?” on “Create initial infrastructure” dialog. DLab build-in wiki page will guide Windows, MasOS and Linux on how to generate SSH key pairs quickly.
 
 After you hit Create button, creation of Edge node will start. This process is a one-time operation for each Data Scientist and it might take up-to 10 minutes for DLab to setup initial infrastructure for you. During this process, you will see following popup in your browser:
 
-![Loading user key](doc/loading_key.png)
+<p align="center"> 
+    <img src="doc/loading_key.png" alt="Loading user key" width="350">
+</p>
 
 As soon as an Edge node is created, Data Scientist will see a blank “List of Resources” page. The message “To start working, please create new environment” will be displayed:
 
@@ -95,7 +99,9 @@ Currently by means of DLab, Data Scientists can select between any of the follow
 -   TensorFlow (Jupyter + TensorFlow)
 -   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, Theano, CNTK, Torch and Keras)
 
-![Create notebook](doc/notebook_create.png)
+<p align="center"> 
+    <img src="doc/notebook_create.png" alt="Create notebook" width="480">
+</p>
 
 After specifying desired template, you should fill in the “Name” and “Instance shape”.
 
@@ -103,7 +109,9 @@ Name field – is just for visual differentiation between analytical tools on �
 
 Instance shape dropdown, contains configurable list of shapes, which should be chosen depending on the type of analytical work to be performed. Following groups of instance shapes will be showing up with default setup configuration:
 
-![Select shape](doc/select_shape.png)
+<p align="center"> 
+    <img src="doc/select_shape.png" alt="Select shape" width="250">
+</p>
 
 These groups have T-Shirt based shapes (configurable), that can help Data Scientist to either save money\* and leverage not very powerful shapes (for working with relatively small datasets), or that could boost the performance of analytics by selecting more powerful instance shape.
 
@@ -119,7 +127,9 @@ As soon as notebook server is created, its status will change to Running:
 
 When you click on the name of your Analytical tool in the dashboard – analytical tool popup will show up:
 
-![Notebook info](doc/notebook_info.png)
+<p align="center"> 
+    <img src="doc/notebook_info.png" alt="Notebook info" width="400">
+</p>
 
 In the header you will see version of analytical tool, its status and shape.
 
@@ -137,11 +147,15 @@ To access analytical tool Web UI – you need to configure SOCKS proxy. Please f
 
 On every analytical tool instance you can install additional libraries by clicking on gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Manage libraries:
 
-![Notebook manage_libraries](doc/notebook_menu.png)
+<p align="center"> 
+    <img src="doc/notebook_menu.png" alt="Notebook manage_libraries" width="150">
+</p>
 
 You need to wait for a while after clicking till list of all available libraries for chosen notebook will be received.
 
-![Notebook list_libraries](doc/notebook_list_libs.png)
+<p align="center"> 
+    <img src="doc/notebook_list_libs.png" alt="Notebook list_libraries" width="600">
+</p>
 
 After downloading the list, you will see the window with 2 fields:
 -   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Others)
@@ -151,15 +165,21 @@ After downloading the list, you will see the window with 2 fields:
 
 **Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
 
-![Notebook select_lib](doc/notebook_select_lib.png)
+<p align="center"> 
+    <img src="doc/notebook_select_lib.png" alt="Notebook select_lib" width="600">
+</p>
 
 After selecting library, you can see it on the right and could delete in from this list before installing.
 
-![Notebook selected_libs](doc/notebook_selected_libs.png)
+<p align="center"> 
+    <img src="doc/notebook_selected_libs.png" alt="Notebook selected_libs" width="600">
+</p>
 
 After clicking on "Install" button you will see process of installation with appropriate status.
 
-![Notebook libs_status](doc/notebook_libs_status.png)
+<p align="center"> 
+    <img src="doc/notebook_libs_status.png" alt="Notebook libs_status" width="600">
+</p>
 
 **Note:** If package can't be installed you will see "Failed" in status column and button to retry installation. If several packages have been failed to install, you will see button "Retry all".
 
@@ -170,13 +190,17 @@ Once you have stopped working with an analytical tool and you would like to rele
 
 To Stop the Notebook click on a gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Stop:
 
-![Notebook stopping](doc/notebook_menu.png)
+<p align="center"> 
+    <img src="doc/notebook_menu.png" alt="Notebook stopping" width="150">
+</p>
 
 Hit OK in confirmation popup.
 
 **NOTE:** if any EMR clusters have been connected to your notebook server – they will be automatically terminated if you stop the notebook.
 
-![Notebook stop confirm](doc/notebook_stop_confirm.png)
+<p align="center"> 
+    <img src="doc/notebook_stop_confirm.png" alt="Notebook stop confirm" width="400">
+</p>
 
 After you confirm you intent to Stop the notebook - the status will be changed to Stopping and will become Stopped in a while. EMR cluster status will be changed to Terminated.
 
@@ -215,7 +239,9 @@ Also, if you would like to save some costs for your EMR cluster you can create E
 
 **NOTE:** When the current Spot price rises above your bid price, the Spot instance is reclaimed by AWS so that it can be given to another customer. Please make sure to backup your data on periodic basis.
 
-![Create EMR](doc/emr_create.png)
+<p align="center"> 
+    <img src="doc/emr_create.png" alt="Create EMR" width="450">
+</p>
 
 If you click on Create button EMR cluster creation will kick off. You will see corresponding record on DLab Web UI in status **Creating**:
 
@@ -225,7 +251,9 @@ Once EMR clusters are provisioned, their status will be changed to **Running**.
 
 Clicking on EMR name in DLab dashboard will open EMR details popup:
 
-![EMR info](doc/emr_info.png)
+<p align="center"> 
+    <img src="doc/emr_info.png" alt="EMR info" width="400">
+</p>
 
 Since EMR cluster is up and running - you are now able to leverage cluster computational power to run your analytical jobs on.
 
@@ -255,7 +283,9 @@ Insert following “magics” before blocks of your code to start executing your
 
 To release cluster computational resources click on ![cross](doc/cross_icon.png) button close to EMR cluser alias. Confirm decommissioning of EMR by hitting Yes:
 
-![EMR terminate confirm](doc/emr_terminate_confirm.png)
+<p align="center"> 
+    <img src="doc/emr_terminate_confirm.png" alt="EMR terminate confirm" width="400">
+</p>
 
 In a while EMR cluster will get **Terminated**. Corresponding EC2 instances will also removed on AWS.
 
@@ -268,7 +298,9 @@ To work with Git (pull, push) via UI tool (ungit) you could add multiple credent
 
 When you click on the button "Git credentials" – following popup will show up:
 
-![Git_creds_window](doc/git_creds_window.png)
+<p align="center"> 
+    <img src="doc/git_creds_window.png" alt="Git_creds_window" width="600">
+</p>
 
 In this window you need to add:
 -   Your Git server hostname, without **http** or **https**, for example: gitlab.com, github.com, or your internal GitLab server, which can be deployed with DLab.
@@ -281,7 +313,9 @@ Once all fields are filled in and you click on "Assign" button, you will see the
 
 Clicking on "Apply changes" button, your credentials will be sent to all running instances with analytical tools. It takes a few seconds for changes to be applied.
 
-![Git_creds_window1](doc/git_creds_window2.png)
+<p align="center"> 
+    <img src="doc/git_creds_window2.png" alt="Git_creds_window1" width="600">
+</p>
 
 On this tab you can also edit your credentials (click on pen icon) or delete (click on bin icon).
 
@@ -289,7 +323,9 @@ On this tab you can also edit your credentials (click on pen icon) or delete (cl
 
 On every analytical tool instance you can see Git UI tool (ungit):
 
-![Git_ui_link](doc/git_ui_link.png)
+<p align="center"> 
+    <img src="doc/git_ui_link.png" alt="Git_ui_link" width="400">
+</p>
 
 Before start working with git repositories, you need to change working directory on the top of window to:
 
@@ -328,7 +364,9 @@ Health Status page is an administration page allowing users to start/stop/recrea
 
 To access Health status page either navigate to it via main menu:
 
-![Main menu](doc/main_menu.png)
+<p align="center"> 
+    <img src="doc/main_menu.png" alt="Main menu" width="250">
+</p>
 
 or by clicking on an icon close to logged in user name in the top right
 corner of the DLab:
@@ -338,11 +376,15 @@ corner of the DLab:
 
 To Stop Edge Node please click on actions icon on Health Status page and hit Stop.
 
-![EDGE stop](doc/edge_stop.png)
+<p align="center"> 
+    <img src="doc/edge_stop.png" alt="EDGE stop" width="150">
+</p>
 
 Confirm you want to stop Edge node by clicking Yes:
 
-![EDGE stop confirm](doc/edge_stop_confirm.png)
+<p align="center"> 
+    <img src="doc/edge_stop_confirm.png" alt="EDGE stop confirm" width="400">
+</p>
 
 In case you Edge node is Stopped or Terminated – you will have to Start or Recreate it correspondingly to proceed working with DLab. This can done as well via context actions menu.
 
@@ -360,7 +402,9 @@ In the header you can see 3 fields:
 
 On the center of header you can choose period of report in datepicker:
 
-![Billing datepicker](doc/billing_datepicker.png)
+<p align="center"> 
+    <img src="doc/billing_datepicker.png" alt="Billing datepicker" width="400">
+</p>
 
 You can also filter data by each column:
 
