@@ -47,6 +47,37 @@ def cp_key(keyfile, host_string, os_user):
         return False
 
 
+def cp_backup_scripts(dlab_path):
+    try:
+        with cd(dlab_path + "tmp/"):
+            put('/root/scripts/backup.py', "backup.py")
+            put('/root/scripts/restore.py', "restore.py")
+            run('chmod +x backup.py restore.py')
+        return True
+    except:
+        return False
+
+
+def cp_gitlab_scripts(dlab_path):
+    try:
+        if not exists('{}tmp/gitlab'.format(dlab_path)):
+            run('mkdir -p {}tmp/gitlab'.format(dlab_path))
+        with cd('{}tmp/gitlab'.format(dlab_path)):
+            put('/root/scripts/gitlab_deploy.py', 'gitlab_deploy.py')
+            put('/root/scripts/configure_gitlab.py', 'configure_gitlab.py')
+            run('chmod +x gitlab_deploy.py configure_gitlab.py')
+            put('/root/templates/gitlab.rb', 'gitlab.rb')
+            put('/root/templates/gitlab.ini', 'gitlab.ini')
+            run('sed -i "s/CONF_OS_USER/{}/g" gitlab.ini'.format(os.environ['conf_os_user']))
+            run('sed -i "s/CONF_OS_FAMILY/{}/g" gitlab.ini'.format(os.environ['conf_os_family']))
+            run('sed -i "s/CONF_KEY_NAME/{}/g" gitlab.ini'.format(os.environ['conf_key_name']))
+            run('sed -i "s,CONF_DLAB_PATH,{},g" gitlab.ini'.format(dlab_path))
+            run('sed -i "s/SERVICE_BASE_NAME/{}/g" gitlab.ini'.format(os.environ['conf_service_base_name']))
+        return True
+    except:
+        return False
+
+
 def creating_service_directories(dlab_path, os_user):
     try:
         if not exists(dlab_path):
@@ -67,6 +98,16 @@ def creating_service_directories(dlab_path, os_user):
             sudo('chown -R ' + os_user + ':' + os_user + ' /var/opt/dlab/log')
             sudo('chown -R ' + os_user + ':' + os_user + ' ' + dlab_path)
 
+        return True
+    except:
+        return False
+
+
+def generate_ssl(hostname):
+    try:
+        sudo('openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout /etc/ssl/certs/dlab-selfsigned.key \
+             -out /etc/ssl/certs/dlab-selfsigned.crt -subj "/C=US/ST=US/L=US/O=dlab/CN={}"'.format(hostname))
+        sudo('openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048')
         return True
     except:
         return False
@@ -93,8 +134,12 @@ if __name__ == "__main__":
     if not ensure_nginx(args.dlab_path):
         sys.exit(1)
 
+    print "Generating ssl key and cert for nginx."
+    if not generate_ssl(args.hostname):
+        sys.exit(1)
+
     print "Configuring nginx."
-    if not configure_nginx(deeper_config, args.dlab_path):
+    if not configure_nginx(deeper_config, args.dlab_path, args.hostname):
         sys.exit(1)
 
     print "Installing jenkins."
@@ -107,6 +152,14 @@ if __name__ == "__main__":
 
     print "Copying key"
     if not cp_key(args.keyfile, env.host_string, args.os_user):
+        sys.exit(1)
+
+    print "Copying backup scripts"
+    if not cp_backup_scripts(args.dlab_path):
+        sys.exit(1)
+
+    print "Copying gitlab scripts & files"
+    if not cp_gitlab_scripts(args.dlab_path):
         sys.exit(1)
 
     print "Ensuring safest ssh ciphers"

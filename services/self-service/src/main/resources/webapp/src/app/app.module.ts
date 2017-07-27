@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
@@ -32,6 +32,8 @@ import { NotFoundModule } from './not-found/not-found.module';
 import { ResourcesModule } from './resources/resources.module';
 import { HealthStatusModule } from './health-status/health-status.module';
 import { LogInterceptorFactory } from './core/interceptors/logInterceptor.factory';
+import { ReportingModule } from './reporting/reporting.module';
+
 import {
   UserAccessKeyService,
   UserResourceService,
@@ -39,7 +41,10 @@ import {
   AppRoutingService,
   AuthorizationGuard,
   ApplicationServiceFacade,
-  ApplicationSecurityService
+  ApplicationSecurityService,
+  LibrariesInstallationService,
+  ManageUngitService,
+  BillingReportService
 } from './core/services';
 
 @NgModule({
@@ -53,6 +58,7 @@ import {
     GuidesModule,
     NotFoundModule,
     HealthStatusModule,
+    ReportingModule,
     RouterModule,
     AppRoutingModule
   ],
@@ -71,6 +77,9 @@ import {
     AppRoutingService,
     UserResourceService,
     HealthStatusService,
+    LibrariesInstallationService,
+    ManageUngitService,
+    BillingReportService,
     ApplicationServiceFacade
   ],
   bootstrap: [AppComponent]

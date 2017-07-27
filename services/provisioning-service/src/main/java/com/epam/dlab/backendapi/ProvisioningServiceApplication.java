@@ -49,6 +49,9 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 	}
 	
     public static void main(String[] args) throws Exception {
+		if (ServiceUtils.printAppVersion(ProvisioningServiceApplication.class, args)) {
+			return;
+		}
         new ProvisioningServiceApplication().run(args);
     }
 

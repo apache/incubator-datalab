@@ -40,6 +40,12 @@ export class ApplicationServiceFacade {
   private static readonly EDGE_NODE_START = 'edge_node_start';
   private static readonly EDGE_NODE_STOP = 'edge_node_stop';
   private static readonly EDGE_NODE_RECREATE = 'edge_node_recreate';
+  private static readonly LIB_GROUPS = 'lib_groups';
+  private static readonly LIB_LIST = 'lib_list';
+  private static readonly LIB_INSTALL = 'lib_install';
+  private static readonly INSTALLED_LIBS = 'installed_libs';
+  private static readonly GIT_CREDS = 'git_creds';
+  private static readonly BILLING = 'billing';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -194,6 +200,55 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetGroupsList(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.LIB_GROUPS),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetAvailableLibrariesList(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.LIB_LIST),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildInstallLibraries(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.LIB_INSTALL),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetInstalledLibrariesList(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.INSTALLED_LIBS),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetGitCreds(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.GIT_CREDS),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildUpdateGitCredentials(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.GIT_CREDS),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetGeneralBillingData(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.BILLING),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -228,6 +283,18 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_START, '/api/infrastructure/edge/start');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_STOP, '/api/infrastructure/edge/stop');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_RECREATE, '/api/user/access_key/recover');
+
+    // Libraries Installation
+    this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/lib_groups');
+    this.requestRegistry.Add(ApplicationServiceFacade.LIB_LIST, '/api/infrastructure_provision/lib_list');
+    this.requestRegistry.Add(ApplicationServiceFacade.LIB_INSTALL, '/api/infrastructure_provision/exploratory_environment/lib_install');
+    this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS, '/api/infrastructure_provision/exploratory_environment/lib_list');
+
+    // UnGit credentials
+    this.requestRegistry.Add(ApplicationServiceFacade.GIT_CREDS, '/api/user/git_creds');
+
+    // billing report
+    this.requestRegistry.Add(ApplicationServiceFacade.BILLING, '/api/infrastructure_provision/billing');
   }
 
   private buildRequest(method: RequestMethod, url: string, body: any, opt: RequestOptions): Observable<Response> {

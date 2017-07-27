@@ -1,3 +1,21 @@
+# *****************************************************************************
+#
+# Copyright (c) 2016, EPAM SYSTEMS INC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ******************************************************************************
+
 <#include "ssn.yml">
 
 mocked: false
@@ -14,9 +32,9 @@ maxEmrSpotInstanceBidPct: 90
 checkEnvStatusTimeout: 5m
 
 # Restrict access to DLab features using roles policy
-rolePolicyEnabled : false
+rolePolicyEnabled : true
 # Default access to DLab features using roles policy
-roleDefaultAccess : false
+roleDefaultAccess : true
 
 # Set to true to enable the scheduler of billing report.
 billingSchedulerEnabled: false
@@ -32,14 +50,30 @@ server:
     appenders:
       - type: file
         currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-selfservice.log
-        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d.log
+        archive: true
+        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-selfservice-%d{yyyy-MM-dd}.log.gz
+        archivedFileCount: 10
   rootPath: "/api"
   applicationConnectors:
-    - type: http
-      port: 8080
+#    - type: http
+#      port: 8080
+    - type: https
+      port: 8443
+      certAlias: dlab
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
   adminConnectors:
-    - type: http
-      port: 8081
+#    - type: http
+#      port: 8081
+    - type: https
+      port: 8444
+      certAlias: dlab
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 logging:
   level: INFO

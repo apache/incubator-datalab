@@ -1,0 +1,46 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+.dashboard_table.reporting {
+    margin-bottom: 50px;
+    zoom: 0.85;
+}
+.dashboard_table.reporting tr th {
+    font-size: 12px;
+}
+.reporting .filter-row .filter-field,
+.reporting .dropdown-multiselect  button.dropdown-toggle.btn {
+    font-size: 14px;
+}
+.dashboard_table.reporting .th_shape {
+    width: 10%;
+}
+.env_name, .service {
+    width: 18%;
+    overflow: hidden;
+    word-wrap: break-word;
+}
+.th_user {
+    width: 15%;
+}
+.th_type {
+    width: 12%;
+}
+.th_charges {
+    width: 8%;
+}

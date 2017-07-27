@@ -54,6 +54,7 @@ if __name__ == "__main__":
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
         user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
+        shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
@@ -155,6 +156,18 @@ if __name__ == "__main__":
                         "FromPort": -1,
                         "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
                         "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
+                    },
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 80,
+                        "IpRanges": [{"CidrIp": vpc_cidr}],
+                        "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                    },
+                    {
+                        "PrefixListIds": [],
+                        "FromPort": 443,
+                        "IpRanges": [{"CidrIp": vpc_cidr}],
+                        "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     }
                 ]
                 egress_sg_rules_template = [
@@ -179,8 +192,8 @@ if __name__ == "__main__":
                 sys.exit(1)
         logging.info('[CREATE ROLES]')
         print('[CREATE ROLES]')
-        params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {}". \
-                format(role_name, role_profile_name, policy_name, policy_path)
+        params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {}".\
+            format(role_name, role_profile_name, policy_name, policy_path, os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -232,6 +245,15 @@ if __name__ == "__main__":
         except:
             traceback.print_exc()
             raise Exception
+
+        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {}". \
+                 format(shared_bucket_name, tag_name, shared_bucket_name, region)
+
+        try:
+            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+        except:
+            traceback.print_exc()
+            raise Exception
     except Exception as err:
         append_result("Unable to create bucket.", str(err))
         remove_all_iam_resources(instance)
@@ -261,6 +283,36 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Unable to create ssn instance.", str(err))
+        remove_all_iam_resources(instance)
+        remove_s3(instance)
+        if pre_defined_sg:
+            remove_sgroups(tag_name)
+        if pre_defined_subnet:
+            remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
+            remove_subnets(service_base_name + "-subnet")
+        if pre_defined_vpc:
+            remove_vpc_endpoints(os.environ['aws_vpc_id'])
+            remove_route_tables(tag_name, True)
+            remove_vpc(os.environ['aws_vpc_id'])
+        sys.exit(1)
+
+    try:
+        logging.info('[ASSOCIATING ELASTIC IP]')
+        print '[ASSOCIATING ELASTIC IP]'
+        ssn_id = get_instance_by_name(tag_name, instance_name)
+        try:
+            elastic_ip = os.environ['ssn_elastic_ip']
+        except:
+            elastic_ip = 'None'
+        params = "--elastic_ip {} --ssn_id {}".format(elastic_ip, ssn_id)
+        try:
+            local("~/scripts/{}.py {}".format('ssn_associate_elastic_ip', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed to associate elastic ip.", str(err))
+        remove_ec2(tag_name, instance_name)
         remove_all_iam_resources(instance)
         remove_s3(instance)
         if pre_defined_sg:

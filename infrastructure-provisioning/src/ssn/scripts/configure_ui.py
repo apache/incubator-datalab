@@ -58,14 +58,21 @@ logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                     level=logging.INFO,
                     filename=local_log_filepath)
 mongo_passwd = id_generator()
+keystore_passwd = id_generator()
 
 
 def configure_mongo(mongo_passwd):
     try:
         if not exists("/lib/systemd/system/mongod.service"):
+            if os.environ['conf_os_family'] == 'debian':
+                local('sed -i "s/MONGO_USR/mongodb/g" /root/templates/mongod.service_template')
+            elif os.environ['conf_os_family'] == 'redhat':
+                local('sed -i "s/MONGO_USR/mongod/g" /root/templates/mongod.service_template')
             local('scp -i {} /root/templates/mongod.service_template {}:/tmp/mongod.service'.format(args.keyfile,
                                                                                                     env.host_string))
             sudo('mv /tmp/mongod.service /lib/systemd/system/mongod.service')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable mongod.service')
         local('scp -i {} /root/files/ssn_instance_shapes.lst {}:/tmp/ssn_instance_shapes.lst'.format(args.keyfile,
                                                                                                  env.host_string))
         sudo('mv /tmp/ssn_instance_shapes.lst ' + args.dlab_path + 'tmp/')
@@ -119,7 +126,7 @@ if __name__ == "__main__":
     sudo('echo export DLAB_CONF_DIR >> /etc/profile')
 
     print "Starting Self-Service(UI)"
-    if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path, args.os_user, mongo_passwd,
+    if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path, args.os_user, mongo_passwd, keystore_passwd,
                     args.cloud_provider, args.service_base_name, args.tag_resource_id, args.account_id,
                     args.billing_bucket, args.dlab_path, args.billing_enabled, args.report_path):
         logging.error('Failed to start UI')

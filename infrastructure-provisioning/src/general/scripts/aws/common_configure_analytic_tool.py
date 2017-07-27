@@ -46,11 +46,12 @@ if __name__ == "__main__":
     notebook_config['bucket_name'] = (notebook_config['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
     notebook_config['cluster_name'] = get_not_configured_emr(notebook_config['tag_name'],
                                                              notebook_config['notebook_name'], True)
-    notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['notebook_name']).get('Private')
+    notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['tag_name'],
+                                                             notebook_config['notebook_name']).get('Private')
     notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
     notebook_config['cluster_id'] = get_emr_id_by_name(notebook_config['cluster_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_instance_hostname = get_instance_hostname(edge_instance_name)
+    edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
     if os.environ['application'] == 'deeplearning':
         application = 'jupyter'
     else:
@@ -59,11 +60,12 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         print '[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]'
-        params = "--bucket {} --cluster_name {} --emr_version {} --keyfile {} --notebook_ip {} --region {} --emr_excluded_spark_properties {} --edge_user_name {} --os_user {}  --edge_hostname {} --proxy_port {} --scala_version {}" \
+        params = "--bucket {} --cluster_name {} --emr_version {} --keyfile {} --notebook_ip {} --region {} --emr_excluded_spark_properties {} --edge_user_name {} --os_user {}  --edge_hostname {} --proxy_port {} --scala_version {} --application {} --pip_mirror {}" \
             .format(notebook_config['bucket_name'], notebook_config['cluster_name'], os.environ['emr_version'],
                     notebook_config['key_path'], notebook_config['notebook_ip'], os.environ['aws_region'],
                     os.environ['emr_excluded_spark_properties'], os.environ['edge_user_name'],
-                    os.environ['conf_os_user'], edge_instance_hostname, '3128', os.environ['notebook_scala_version'])
+                    os.environ['conf_os_user'], edge_instance_hostname, '3128', os.environ['notebook_scala_version'],
+                    os.environ['application'], os.environ['conf_pypi_mirror'])
         try:
             local("~/scripts/{}_{}.py {}".format(application, 'install_emr_kernels', params))
             remove_emr_tag(notebook_config['cluster_id'], ['State'])

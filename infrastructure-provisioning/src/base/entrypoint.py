@@ -145,3 +145,15 @@ if __name__ == "__main__":
     elif args.action == 'recreate':
         with hide('running'):
             local("/bin/recreate.py")
+
+    elif args.action == 'lib_install':
+        with hide('running'):
+            local("/bin/install_libs.py")
+
+    elif args.action == 'lib_list':
+        with hide('running'):
+            local("/bin/list_libs.py")
+
+    elif args.action == 'git_creds':
+        with hide('running'):
+            local("/bin/git_creds.py")

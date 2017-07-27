@@ -36,6 +36,10 @@ limitations under the License.
   width: 900px;
 }
 
+.modal-xxl {
+  width: 1000px;
+}
+
 .modal-backdrop {
   transition: .3s ease-in-out;
 }
@@ -77,6 +81,7 @@ limitations under the License.
 .modal {
   color: #718ba6;
   font-size: 14px;
+  overflow: auto !important;
 }
 
 .modal .control-label {

@@ -58,13 +58,37 @@ if __name__ == "__main__":
     notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-SG"
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-    notebook_config['os_user'] = 'ubuntu'
+    notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
 
     # generating variables regarding EDGE proxy on Notebook instance
-    instance_hostname = get_instance_hostname(notebook_config['instance_name'])
+    instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_instance_hostname = get_instance_hostname(edge_instance_name)
+    edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
     keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
+
+    try:
+        if os.environ['conf_os_family'] == 'debian':
+            initial_user = 'ubuntu'
+            sudo_group = 'sudo'
+        if os.environ['conf_os_family'] == 'redhat':
+            initial_user = 'ec2-user'
+            sudo_group = 'wheel'
+
+        logging.info('[CREATING DLAB SSH USER]')
+        print('[CREATING DLAB SSH USER]')
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
+            (instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", initial_user,
+             notebook_config['dlab_ssh_user'], sudo_group)
+
+        try:
+            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed creating ssh user 'dlab'.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
 
     # configuring proxy on Notebook instance
     try:
@@ -72,7 +96,7 @@ if __name__ == "__main__":
         print '[CONFIGURE PROXY ON DEEP LEARNING  INSTANCE]'
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
-            .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config), notebook_config['os_user'])
+            .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config), notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('notebook_configure_proxy', params))
         except:
@@ -89,7 +113,7 @@ if __name__ == "__main__":
         additional_config = {"user_keyname": notebook_config['user_keyname'],
                              "user_keydir": "/root/keys/"}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['os_user'])
+            instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
@@ -100,14 +124,32 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
+    # updating repositories & installing python packages
+    try:
+        logging.info('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
+        print('[INSTALLING PREREQUISITES TO DEEPLEARNING NOTEBOOK INSTANCE]')
+        params = "--hostname {} --keyfile {} --user {} --region {}".format(instance_hostname, keyfile_name,
+                                                                           notebook_config['dlab_ssh_user'],
+                                                                           os.environ['aws_region'])
+        try:
+            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed installing apps: apt & pip.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     try:
         logging.info('[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]')
         print '[CONFIGURE DEEP LEARNING NOTEBOOK INSTANCE]'
-        params = "--hostname {} --keyfile {} --os_user {} --jupyter_version {} --scala_version {} --spark_version {} --hadoop_version {} --region {}" \
-                 .format(instance_hostname, keyfile_name, notebook_config['os_user'],
+        params = "--hostname {} --keyfile {} --os_user {} --jupyter_version {} --scala_version {} --spark_version {} --hadoop_version {} --region {} --tensorflow_version {} --r_mirror {}" \
+                 .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'],
                          os.environ['notebook_jupyter_version'], os.environ['notebook_scala_version'],
                          os.environ['notebook_spark_version'], os.environ['notebook_hadoop_version'],
-                         os.environ['aws_region'])
+                         os.environ['aws_region'], os.environ['notebook_tensorflow_version'],
+                         os.environ['notebook_r_mirror'])
         try:
             local("~/scripts/{}.py {}".format('configure_deep_learning_node', params))
         except:
@@ -118,33 +160,49 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    # try:
-    #     print '[CREATING AMI]'
-    #     logging.info('[CREATING AMI]')
-    #     ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
-    #     if ami_id == '':
-    #         print "Looks like it's first time we configure notebook server. Creating image."
-    #         image_id = create_image_from_instance(instance_name=notebook_config['instance_name'],
-    #                                               image_name=notebook_config['expected_ami_name'])
-    #         if image_id != '':
-    #             print "Image was successfully created. It's ID is " + image_id
-    # except Exception as err:
-    #     append_result("Failed installing users key.", str(err))
-    #     remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
-    #     sys.exit(1)
+    try:
+        print '[SETUP USER GIT CREDENTIALS]'
+        logging.info('[SETUP USER GIT CREDENTIALS]')
+        params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
+            .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
+        try:
+            local("~/scripts/{}.py {}".format('manage_git_creds', params))
+        except:
+            append_result("Failed setup git credentials")
+            raise Exception
+    except Exception as err:
+        append_result("Failed to setup git credentials.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
+    try:
+        print '[CREATING AMI]'
+        logging.info('[CREATING AMI]')
+        ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
+        if ami_id == '':
+            print "Looks like it's first time we configure notebook server. Creating image."
+            image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
+                                                  instance_name=notebook_config['instance_name'],
+                                                  image_name=notebook_config['expected_ami_name'])
+            if image_id != '':
+                print "Image was successfully created. It's ID is " + image_id
+    except Exception as err:
+        append_result("Failed installing users key.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
 
     # generating output information
-    ip_address = get_instance_ip_address(notebook_config['instance_name']).get('Private')
-    dns_name = get_instance_hostname(notebook_config['instance_name'])
+    ip_address = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
+    dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     tensor_board_url = 'http://' + ip_address + ':6006'
     jupyter_url = 'http://' + ip_address + ':8888'
-    gitweb_ip_url = "http://" + ip_address + ":8085"
+    ungit_ip_url = "http://" + ip_address + ":8085"
     print '[SUMMARY]'
     logging.info('[SUMMARY]')
     print "Instance name: " + notebook_config['instance_name']
     print "Private DNS: " + dns_name
     print "Private IP: " + ip_address
-    print "Instance ID: " + get_instance_by_name(notebook_config['instance_name'])
+    print "Instance ID: " + get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name'])
     print "Instance type: " + notebook_config['instance_type']
     print "Key name: " + notebook_config['key_name']
     print "User key name: " + notebook_config['user_keyname']
@@ -152,16 +210,16 @@ if __name__ == "__main__":
     print "Profile name: " + notebook_config['role_profile_name']
     print "SG name: " + notebook_config['security_group_name']
 
-    print "GitWeb URL: " + gitweb_ip_url
+    print "Ungit URL: " + ungit_ip_url
     print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
-        'key_name'] + '.pem ' + os.environ['conf_os_user'] + '@' + ip_address
+        'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
     print 'SSH access (from Edge node, via FQDN): ssh -i ' + notebook_config['key_name'] + '.pem ' + \
-          os.environ['conf_os_user'] + '@' + dns_name
+          notebook_config['dlab_ssh_user'] + '@' + dns_name
 
     with open("/root/result.json", 'w') as result:
         res = {"hostname": dns_name,
                "ip": ip_address,
-               "instance_id": get_instance_by_name(notebook_config['instance_name']),
+               "instance_id": get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name']),
                "master_keyname": os.environ['conf_key_name'],
                "notebook_name": notebook_config['instance_name'],
                "Action": "Create new notebook server",
@@ -170,7 +228,7 @@ if __name__ == "__main__":
                     "url": tensor_board_url},
                    {"description": "Jupyter",
                     "url": jupyter_url},
-                   {"description": "GitWeb",
-                    "url": gitweb_ip_url}
+                   {"description": "Ungit",
+                    "url": ungit_ip_url}
                ]}
         result.write(json.dumps(res))

@@ -31,7 +31,6 @@ def ensure_pkg(user, requisites='linux-headers-generic python-pip python-dev gro
             sudo('apt-get -y install ' + requisites)
             sudo('unattended-upgrades -v')
             sudo('export LC_ALL=C')
-            sudo('mkdir /home/{}/.ensure_dir'.format(user))
             sudo('touch /home/{}/.ensure_dir/pkg_upgraded'.format(user))
         return True
     except:
@@ -44,3 +43,11 @@ def renew_gpg_key():
         sudo('apt-key update')
     except:
         sys.exit(1)
+
+
+def change_pkg_repos():
+    if not exists('/tmp/pkg_china_ensured'):
+        put('/root/files/sources.list', '/tmp/sources.list')
+        sudo('mv /tmp/sources.list /etc/apt/sources.list')
+        sudo('apt-get update')
+        sudo('touch /tmp/pkg_china_ensured')

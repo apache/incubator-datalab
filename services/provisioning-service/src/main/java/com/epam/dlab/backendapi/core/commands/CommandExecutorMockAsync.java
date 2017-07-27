@@ -18,21 +18,22 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.commands;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.google.common.io.ByteStreams;
 import org.apache.commons.codec.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epam.dlab.UserInstanceStatus;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
+import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.dto.status.EnvResource;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.exceptions.DlabException;
@@ -40,6 +41,7 @@ import com.epam.dlab.utils.ServiceUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
@@ -51,37 +53,42 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private ObjectMapper MAPPER = new ObjectMapper()
     		.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
     		.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    
+
     private String user;
     private String uuid;
     private String command;
-    
+
     private CommandParserMock parser = new CommandParserMock();
     private String responseFileName;
-    
+
     public CommandExecutorMockAsync(String user, String uuid, String command) {
     	this.user = user;
     	this.uuid = uuid;
     	this.command = command;
 	}
-    
+
 	@Override
 	public Boolean get() {
-		run();
+		try {
+			run();
+		} catch (Exception e) {
+			LOGGER.error("Command with UUID {} fails: {}", uuid, e.getLocalizedMessage(), e);
+			return false;
+		}
 		return true;
 	}
 
-	
+
 	/** Return parser of command line. */
     public CommandParserMock getParser() {
     	return parser;
     }
-    
+
 	/** Return variables for substitution into Json response file. */
     public Map<String, String> getVariables() {
     	return parser.getVariables();
     }
-    
+
     /** Response file name. */
     public String getResponseFileName() {
     	return responseFileName;
@@ -95,10 +102,15 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	LOGGER.debug("Parser is {}", parser);
     	DockerAction action = DockerAction.of(parser.getAction());
     	LOGGER.debug("Action is {}", action);
-    	
+
     	if (action == null) {
     		throw new DlabException("Docker action not defined");
     	}
+
+    	try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+		}
 
     	try {
 	    	switch (action) {
@@ -109,6 +121,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			case START:
 			case STOP:
 			case TERMINATE:
+			case GIT_CREDS:
 				action(user, action);
 				break;
 			case CONFIGURE:
@@ -121,6 +134,13 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 				parser.getVariables().put("list_resources", getResponseStatus(true));
 				action(user, action);
 				break;
+			case LIB_LIST:
+				action(user, action);
+				copyFile("mock_response/notebook_lib_list_pkgs.json", "notebook_lib_list_pkgs.json", parser.getResponsePath());
+				break;
+			case LIB_INSTALL:
+				parser.getVariables().put("lib_install", getResponseLibInstall(true));
+				action(user, action);
 			default:
 				break;
 			}
@@ -131,7 +151,18 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     		throw new DlabException(msg, e);
     	}
     }
-    
+
+    private static void copyFile(String sourceFilePath, String destinationFileName, String destinationFolder) throws URISyntaxException, IOException {
+		File to = new File(getAbsolutePath(destinationFolder , destinationFileName));
+
+		try (InputStream inputStream = CommandExecutorMockAsync.class.getClassLoader().getResourceAsStream(sourceFilePath);
+			 OutputStream outputStream = new FileOutputStream(to)) {
+			ByteStreams.copy(inputStream, outputStream);
+		}
+
+		LOGGER.debug("File {} copied to {}", sourceFilePath, to);
+	}
+
     /** Return absolute path to the file or folder.
      * @param first part of path.
      * @param more next path components.
@@ -252,6 +283,34 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	
     	try {
 			return MAPPER.writeValueAsString(resourceList);
+		} catch (JsonProcessingException e) {
+			throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
+		}
+    }
+
+    /** Return the section of resource statuses for docker action status.
+     */
+    private String getResponseLibInstall(boolean isSucces) {
+    	List<LibInstallDTO> list;
+    	try {
+        	JsonNode json = MAPPER.readTree(parser.getJson());
+			json = json.get("libs");
+			list = MAPPER.readValue(json.toString(), new TypeReference<List<LibInstallDTO>>() {});
+		} catch (IOException e) {
+			throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
+		}
+    	
+    	for (LibInstallDTO lib : list) {
+			if (isSucces) {
+				lib.setStatus(LibStatus.INSTALLED.toString());
+			} else {
+				lib.setStatus(LibStatus.FAILED.toString());
+				lib.setErrorMessage("Mock error message");
+			}
+		}
+    	
+    	try {
+			return MAPPER.writeValueAsString(list);
 		} catch (JsonProcessingException e) {
 			throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
 		}

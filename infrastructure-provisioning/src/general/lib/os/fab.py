@@ -23,9 +23,11 @@ import os
 import random
 import sys
 import string
-import json, uuid, time, datetime
+import json, uuid, time, datetime, csv
 from dlab.meta_lib import *
 from dlab.actions_lib import *
+import dlab.actions_lib
+import re
 
 
 def ensure_pip(requisites):
@@ -39,6 +41,30 @@ def ensure_pip(requisites):
         return True
     except:
         return False
+
+
+def install_pip_pkg(requisites, pip_version, lib_group):
+    status = list()
+    try:
+        if pip_version == 'pip3':
+            if not exists('/bin/pip3'):
+                sudo('ln -s /bin/pip3.5 /bin/pip3')
+        sudo('{} install -U pip setuptools'.format(pip_version))
+        sudo('{} install -U pip --no-cache-dir'.format(pip_version))
+        sudo('{} install --upgrade pip'.format(pip_version))
+        for pip_pkg in requisites:
+            try:
+                sudo('{0} install {1} --no-cache-dir'.format(pip_version, pip_pkg))
+                res = sudo('{0} freeze | grep {1}'.format(pip_version, pip_pkg))
+                ansi_escape = re.compile(r'\x1b[^m]*m')
+                ver = ansi_escape.sub('', res).split("\r\n")
+                version = [i for i in ver if pip_pkg in i][0].split('==')[1]
+                status.append({"group": "{}".format(lib_group), "name": pip_pkg, "version": version, "status": "installed"})
+            except:
+                status.append({"group": "{}".format(lib_group), "name": pip_pkg, "status": "failed", "error_message": ""})
+        return status
+    except:
+        return "Failed to install {} packages".format(pip_version)
 
 
 def create_aws_config_files(generate_full_config=False):
@@ -86,6 +112,8 @@ def ensure_local_jars(os_user, s3_jars_dir, files_dir, region, templates_dir):
         try:
             if region == 'us-east-1':
                 endpoint_url = 'https://s3.amazonaws.com'
+            elif region == 'cn-north-1':
+                endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
             else:
                 endpoint_url = 'https://s3-' + region + '.amazonaws.com'
             sudo('mkdir -p ' + s3_jars_dir)
@@ -139,6 +167,8 @@ def spark_defaults(args):
         f.write(text)
     if args.region == 'us-east-1':
         endpoint_url = 'https://s3.amazonaws.com'
+    elif args.region == 'cn-north-1':
+        endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
     else:
         endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
     local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> """ + spark_def_path + """'""")
@@ -172,7 +202,7 @@ def append_result(error, exception=''):
 def put_resource_status(resource, status, dlab_path, os_user):
     env['connection_attempts'] = 100
     keyfile = "/root/keys/" + os.environ['conf_key_name'] + ".pem"
-    hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-ssn')
+    hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag', os.environ['conf_service_base_name'] + '-ssn')
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
     sudo('python ' + dlab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
@@ -181,44 +211,45 @@ def put_resource_status(resource, status, dlab_path, os_user):
 def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version):
     if not exists('/home/' + os_user + '/.ensure_dir/jupyter_ensured'):
         try:
-            sudo('pip install notebook=={} --no-cache-dir'.format(jupyter_version))
-            sudo('pip install jupyter --no-cache-dir')
+            sudo('pip2 install notebook=={} --no-cache-dir'.format(jupyter_version))
+            sudo('pip2 install jupyter --no-cache-dir')
+            sudo('pip3.5 install notebook=={} --no-cache-dir'.format(jupyter_version))
+            sudo('pip3.5 install jupyter --no-cache-dir')
             sudo('rm -rf ' + jupyter_conf_file)
             run('jupyter notebook --generate-config --config ' + jupyter_conf_file)
+            with cd('/home/{}'.format(os_user)):
+                run('mkdir -p ~/.jupyter/custom/')
+                run('echo "#notebook-container { width: auto; }" > ~/.jupyter/custom/custom.css')
             sudo('echo "c.NotebookApp.ip = \'*\'" >> ' + jupyter_conf_file)
             sudo('echo c.NotebookApp.open_browser = False >> ' + jupyter_conf_file)
             sudo('echo \'c.NotebookApp.cookie_secret = b"' + id_generator() + '"\' >> ' + jupyter_conf_file)
             sudo('''echo "c.NotebookApp.token = u''" >> ''' + jupyter_conf_file)
             sudo('echo \'c.KernelSpecManager.ensure_native_kernel = False\' >> ' + jupyter_conf_file)
-            if os.environ['application'] == 'deeplearning':
-                put(templates_dir + 'jupyter-notebook.conf', '/tmp/jupyter-notebook.conf')
-                sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/jupyter-notebook.conf")
-                sudo("sed -i 's|CONF_PATH|" + jupyter_conf_file + "|' /tmp/jupyter-notebook.conf")
-                sudo("chmod 644 /tmp/jupyter-notebook.conf")
-                sudo('\cp /tmp/jupyter-notebook.conf /etc/init/')
-                sudo('\cp /tmp/jupyter-notebook.conf /etc/init.d/jupyter-notebook')
-            else:
-                put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
-                sudo("chmod 644 /tmp/jupyter-notebook.service")
-                if os.environ['application'] == 'tensor':
-                    sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
-                sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
-                sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
-                sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
+            put(templates_dir + 'jupyter-notebook.service', '/tmp/jupyter-notebook.service')
+            sudo("chmod 644 /tmp/jupyter-notebook.service")
+            if os.environ['application'] == 'tensor':
+                sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
+            elif os.environ['application'] == 'deeplearning':
+                sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:"
+                     "/usr/local/cuda/lib64 ; export PYTHONPATH=/home/" + os_user + "/caffe/python:/home/" + os_user +
+                     "/caffe2/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
+            sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
+            sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
+            sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
             sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
             sudo('mkdir /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             if os.environ['application'] == 'jupyter':
                 sudo('jupyter-kernelspec remove -f python2')
                 sudo('jupyter-kernelspec remove -f python3')
-            if os.environ['application'] == 'deeplearning':
-                sudo('update-rc.d jupyter-notebook defaults')
-                sudo('update-rc.d jupyter-notebook enable')
-                sudo('service jupyter-notebook start')
-            else:
-                sudo("systemctl daemon-reload")
-                sudo("systemctl enable jupyter-notebook")
-                sudo("systemctl start jupyter-notebook")
+            sudo("systemctl daemon-reload")
+            sudo("systemctl enable jupyter-notebook")
+            sudo("systemctl start jupyter-notebook")
+            #run('mkdir -p ~/.git')
+            #put('/root/scripts/ipynb_output_filter.py', '~/.git/ipynb_output_filter.py', mode=0755)
+            #run('echo "*.ipynb    filter=clear_output_ipynb" > ~/.gitattributes')
+            #run('git config --global core.attributesfile ~/.gitattributes')
+            #run('git config --global filter.clear_output_ipynb.clean ~/.git/ipynb_output_filter.py')
             sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -233,6 +264,7 @@ def ensure_pyspark_local_kernel(os_user, pyspark_local_path_dir, templates_dir, 
             sudo(
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/pyspark_local_template.json")
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/pyspark_local_template.json')
+            sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/caffe2/build:"|\' /tmp/pyspark_local_template.json'.format(os_user))
             sudo('\cp /tmp/pyspark_local_template.json ' + pyspark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/pyspark_local_kernel_ensured')
         except:
@@ -248,6 +280,7 @@ def ensure_py3spark_local_kernel(os_user, py3spark_local_path_dir, templates_dir
             sudo(
                 "PYJ=`find /opt/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; sed -i 's|PY4J|'$PYJ'|g' /tmp/py3spark_local_template.json")
             sudo('sed -i "s|SP_VER|' + spark_version + '|g" /tmp/py3spark_local_template.json')
+            sudo('sed -i \'/PYTHONPATH\"\:/s|\(.*\)"|\\1/home/{0}/caffe/python:/home/{0}/caffe2/build:"|\' /tmp/py3spark_local_template.json'.format(os_user))
             sudo('\cp /tmp/py3spark_local_template.json ' + py3spark_local_path_dir + 'kernel.json')
             sudo('touch /home/' + os_user + '/.ensure_dir/py3spark_local_kernel_ensured')
         except:
@@ -265,7 +298,7 @@ def ensure_ciphers():
         sudo('service sshd restart')
 
 
-def installing_python(region, bucket, user_name, cluster_name):
+def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror=''):
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
@@ -280,19 +313,59 @@ def installing_python(region, bucket, user_name, cluster_name):
             local('sudo make altinstall')
         with lcd('/tmp/'):
             local('sudo rm -rf Python-' + python_version + '/')
+        if region == 'cn-north-1':
+            local('sudo -i /opt/python/python{}/bin/python{} -m pip install -U pip --no-cache-dir'.format(
+                python_version, python_version[0:3]))
+            local('sudo mv /etc/pip.conf /etc/back_pip.conf')
+            local('sudo touch /etc/pip.conf')
+            local('sudo echo "[global]" >> /etc/pip.conf')
+            local('sudo echo "timeout = 600" >> /etc/pip.conf')
         local('sudo -i virtualenv /opt/python/python' + python_version)
         venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
         pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
-        local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
-        local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
-        local(venv_command + ' && sudo -i ' + pip_command +
-              ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
+        if region == 'cn-north-1':
+            try:
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip --no-cache-dir'.format(pip_mirror))
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel --no-cache-dir'.
+                      format(pip_mirror))
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
+                      format(pip_mirror))
+                if application == 'deeplearning':
+                    local(venv_command + ' && sudo -i ' + pip_command +
+                          ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(pip_mirror))
+                    python_without_dots = python_version.replace('.', '')
+                    local(venv_command + ' && sudo -i ' + pip_command +
+                          ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
+                          format(python_without_dots[:2]))
+                local('sudo rm /etc/pip.conf')
+                local('sudo mv /etc/back_pip.conf /etc/pip.conf')
+            except:
+                local('sudo rm /etc/pip.conf')
+                local('sudo mv /etc/back_pip.conf /etc/pip.conf')
+                local('sudo rm -rf /opt/python/python{}/'.format(python_version))
+                sys.exit(1)
+        else:
+            local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
+            local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
+            local(venv_command + ' && sudo -i ' + pip_command +
+                  ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
+            if application == 'deeplearning':
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install mxnet-cu80 opencv-python keras Theano --no-cache-dir')
+                python_without_dots = python_version.replace('.', '')
+                local(venv_command + ' && sudo -i ' + pip_command +
+                      ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
+                      format(python_without_dots[:2]))
         local('sudo rm -rf /usr/bin/python' + python_version[0:3])
         local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
               ' /usr/bin/python' + python_version[0:3])
 
 
-def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user=''):
+def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user='',
+                   application='', pip_mirror=''):
     spark_path = '/opt/' + emr_version + '/' + cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
     kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
@@ -309,19 +382,15 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
     with open(kernel_path, 'w') as f:
         f.write(text)
     local('touch /tmp/kernel_var.json')
-    local(
-        "PYJ=`find /opt/" + emr_version + "/" + cluster_name +
-        "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
-        " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
+    local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/caffe2/build:\"|\' > /tmp/kernel_var.json".
+          format(emr_version, cluster_name, kernel_path, os_user))
     local('sudo mv /tmp/kernel_var.json ' + kernel_path)
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
     # python_version = python_version[0:3]
     if python_version != '\n':
-        if not os.path.exists('/home/' + os_user + '/.ensure_dir/deep_learning'):
-            installing_python(region, bucket, user_name, cluster_name)
-
+        installing_python(region, bucket, user_name, cluster_name, application, pip_mirror)
         local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
         kernel_path = kernels_dir + "py3spark_" + cluster_name + "/kernel.json"
         template_file = "/tmp/pyspark_emr_template.json"
@@ -332,19 +401,14 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
         text = text.replace('SPARK_PATH', spark_path)
         text = text.replace('PYTHON_SHORT_VERSION', python_version[0:3])
         text = text.replace('PYTHON_FULL_VERSION', python_version[0:3])
-        if os.path.exists('/home/' + os_user + '/.ensure_dir/deep_learning'):
-            text = text.replace('PYTHON_PATH', '/usr/bin/python3.4')
-        else:
-            text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' +
-                                python_version[:3])
+        text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' +
+                            python_version[:3])
         text = text.replace('EMR_VERSION', emr_version)
         with open(kernel_path, 'w') as f:
             f.write(text)
         local('touch /tmp/kernel_var.json')
-        local(
-            "PYJ=`find /opt/" + emr_version + "/" + cluster_name +
-            "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
-            " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
+        local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/caffe2/build:\"|\' > /tmp/kernel_var.json".
+              format(emr_version, cluster_name, kernel_path, os_user))
         local('sudo mv /tmp/kernel_var.json ' + kernel_path)
 
 
@@ -465,6 +529,38 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             sys.exit(1)
 
 
+
+def install_r_pkg(requisites):
+    status = list()
+    try:
+        for r_pkg in requisites:
+            try:
+                sudo('R -e \'install.packages("'+ r_pkg +'", repos="http://cran.us.r-project.org", dep=TRUE)\'')
+                res = sudo('R -e \'installed.packages()[,c(3:4)]\' | grep ' + r_pkg)
+                ansi_escape = re.compile(r'\x1b[^m]*m')
+                version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
+                status.append({"group": "r_pkg", "name": r_pkg, "version": version, "status": "installed"})
+            except:
+                status.append({"group": "r_pkg", "name": r_pkg, "status": "failed", "error_message": ""})
+        return status
+    except:
+        return "Fail to install R packages"
+
+
+def get_available_r_pkgs():
+    try:
+        r_pkgs = dict()
+        sudo('R -e \'write.table(available.packages(contriburl="http://cran.us.r-project.org/src/contrib"), file="/tmp/r.csv", row.names=F, col.names=F, sep=",")\'')
+        get("/tmp/r.csv", "r.csv")
+        with open('r.csv', 'rb') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                r_pkgs[row[0]] = row[1]
+        return r_pkgs
+    except:
+        sys.exit(1)
+
+
 def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir, scala_version, spark_version):
     if not exists('/home/' + os_user + '/.ensure_dir/toree_local_kernel_ensured'):
         try:
@@ -481,3 +577,34 @@ def ensure_toree_local_kernel(os_user, toree_link, scala_kernel_path, files_dir,
         except:
             sys.exit(1)
 
+
+def install_ungit(os_user, certfile):
+    bucket_name = ('{}-ssn-bucket'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
+    if dlab.actions_lib.get_gitlab_cert(bucket_name, certfile):
+        put(certfile, certfile)
+        sudo('chown root:root {}'.format(certfile))
+    if not exists('/home/{}/.ensure_dir/ungit_ensured'.format(os_user)):
+        try:
+            sudo('npm -g install ungit')
+            put('/root/templates/ungit.service', '/tmp/ungit.service')
+            sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
+            sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')
+            run('git config --global http.proxy $http_proxy')
+            run('git config --global https.proxy $https_proxy')
+            run('git config --global user.name "Example User"')
+            run('git config --global user.email "example@example.com"')
+            run('mkdir -p ~/.git/templates/hooks')
+            put('/root/scripts/git_pre_commit.py', '~/.git/templates/hooks/pre-commit', mode=0755)
+            run('git config --global init.templatedir ~/.git/templates')
+            run('touch ~/.gitignore')
+            run('git config --global core.excludesfile ~/.gitignore')
+            run('echo ".ipynb_checkpoints/" >> ~/.gitignore')
+            run('echo "spark-warehouse/" >> ~/.gitignore')
+            run('echo "metastore_db/" >> ~/.gitignore')
+            run('echo "derby.log" >> ~/.gitignore')
+            sudo('systemctl daemon-reload')
+            sudo('systemctl enable ungit.service')
+            sudo('systemctl start ungit.service')
+            sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
+        except:
+            sys.exit(1)

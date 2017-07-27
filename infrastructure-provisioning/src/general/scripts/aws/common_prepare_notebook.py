@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     create_aws_config_files()
-    edge_status = get_instance_status(
+    edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
         os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-edge')
     if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
     if os.environ['application'] == 'deeplearning':
-        notebook_config['primary_disk_size'] = '50'
+        notebook_config['primary_disk_size'] = '30'
     else:
         notebook_config['primary_disk_size'] = '12'
     if os.environ['application'] == 'zeppelin':
@@ -72,8 +72,6 @@ if __name__ == "__main__":
         else:
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
                 'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
-    elif os.environ['application'] == 'deeplearning':
-        notebook_config['expected_ami_name'] = os.environ['notebook_deeplearning_ami_name']
     else:
         notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
             'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
@@ -89,17 +87,16 @@ if __name__ == "__main__":
         print 'Preconfigured image found. Using: ' + ami_id
         notebook_config['ami_id'] = ami_id
     else:
-        if os.environ['application'] == 'deeplearning':
-            print "ERROR: Deep Learning image wasn't found. Aborting..."
-            append_result('ERROR: Deep Learning image was not found.')
-            sys.exit(1)
-        else:
-            notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
-            print 'No preconfigured image found. Using default one: ' + notebook_config['ami_id']
+        notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
+        print 'No preconfigured image found. Using default one: ' + notebook_config['ami_id']
 
     tag = {"Key": notebook_config['tag_name'],
            "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
     notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)
+
+    with open('/root/result.json', 'w') as f:
+        data = {"notebook_name": notebook_config['instance_name'], "error": ""}
+        json.dump(data, f)
 
     # launching instance for notebook server
     try:

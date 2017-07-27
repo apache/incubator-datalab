@@ -24,7 +24,7 @@ public enum ResourceType {
 	COMPUTER,
 	CLUSTER,
 	STORAGE,
-	STORAGE_ESB,
+	STORAGE_EBS,
 	STORAGE_BUCKET,
 	IP_ADDRESS,
 	OTHER;
@@ -51,8 +51,8 @@ public enum ResourceType {
 			return "Compute";
 		case STORAGE:
 			return "Storage";
-		case STORAGE_ESB:
-			return "ESB";
+		case STORAGE_EBS:
+			return "EBS";
 		case STORAGE_BUCKET:
 			return "S3";
 		case IP_ADDRESS:

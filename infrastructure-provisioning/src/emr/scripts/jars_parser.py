@@ -46,6 +46,8 @@ if __name__ == "__main__":
     spark_def_path_line2 = spark_def_path_line2.strip('\n')
     if args.region == 'us-east-1':
         endpoint = "https://s3.amazonaws.com"
+    elif args.region == 'cn-north-1':
+        endpoint = "https://s3.{}.amazonaws.com.cn".format(args.region)
     else:
         endpoint = "https://s3-{}.amazonaws.com".format(args.region)
     os.system('touch /tmp/python_version')

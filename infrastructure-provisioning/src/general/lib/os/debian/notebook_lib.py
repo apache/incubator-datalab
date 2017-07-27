@@ -29,6 +29,7 @@ from dlab.notebook_lib import *
 from dlab.fab import *
 from dlab.common_lib import *
 import os
+import re
 
 
 def enable_proxy(proxy_host, proxy_port):
@@ -62,32 +63,28 @@ def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
             sys.exit(1)
 
 
-def ensure_r(os_user, r_libs):
+def ensure_r(os_user, r_libs, region, r_mirror):
     if not exists('/home/' + os_user + '/.ensure_dir/r_ensured'):
         try:
+            if region == 'cn-north-1':
+                r_repository = r_mirror
+            else:
+                r_repository = 'http://cran.us.r-project.org'
+            sudo('add-apt-repository -y ppa:marutter/rrutter')
+            sudo('apt update')
             sudo('apt-get install -y libcurl4-openssl-dev libssl-dev libreadline-dev')
             sudo('apt-get install -y cmake')
-            if os.environ['application'] == 'deeplearning':
-                try:
-                    sudo("""sh -c 'echo "deb http://cran.rstudio.com/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list'""")
-                    sudo('gpg --keyserver keyserver.ubuntu.com --recv-key E084DAB9')
-                    sudo('gpg -a --export E084DAB9 |  apt-key add -')
-                    sudo('apt-get update')
-                except:
-                    sudo('apt-get update')
-                sudo('apt-get -y --force-yes install r-base')
-            else:
-                sudo('apt-get install -y r-base r-base-dev')
+            sudo('apt-get install -y r-base r-base-dev')
             sudo('R CMD javareconf')
             sudo('cd /root; git clone https://github.com/zeromq/zeromq4-x.git; cd zeromq4-x/; mkdir build; cd build; cmake ..; make install; ldconfig')
             for i in r_libs:
-                sudo('R -e "install.packages(\'{}\',repos=\'http://cran.us.r-project.org\')"'.format(i))
-            sudo('R -e "library(\'devtools\');install.packages(repos=\'http://cran.us.r-project.org\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"')
+                sudo('R -e "install.packages(\'{}\',repos=\'{}\')"'.format(i, r_repository))
+            sudo('R -e "library(\'devtools\');install.packages(repos=\'{}\',c(\'rzmq\',\'repr\',\'digest\',\'stringr\',\'RJSONIO\',\'functional\',\'plyr\'))"'.format(r_repository))
             try:
                 sudo('R -e "library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
             except:
                 sudo('R -e "options(download.file.method = "wget");library(\'devtools\');install_github(\'IRkernel/repr\');install_github(\'IRkernel/IRdisplay\');install_github(\'IRkernel/IRkernel\');"')
-            sudo('R -e "install.packages(\'RJDBC\',repos=\'http://cran.us.r-project.org\',dep=TRUE)"')
+            sudo('R -e "install.packages(\'RJDBC\',repos=\'{}\',dep=TRUE)"'.format(r_repository))
             sudo('touch /home/' + os_user + '/.ensure_dir/r_ensured')
         except:
             sys.exit(1)
@@ -201,9 +198,12 @@ def ensure_python2_libraries(os_user):
             try:
                 sudo('apt-get install -y libssl-dev python-virtualenv')
             except:
-                sudo('pip2 install virtualenv')
+                sudo('pip2 install virtualenv --no-cache-dir')
                 sudo('apt-get install -y libssl-dev')
-            sudo('pip2 install ipython ipykernel --no-cache-dir')
+            try:
+                sudo('pip2 install ipython ipykernel --no-cache-dir')
+            except:
+                sudo('pip2 install ipython==5.0.0 ipykernel --no-cache-dir')
             sudo('pip2 install -U pip --no-cache-dir')
             sudo('pip2 install boto3 --no-cache-dir')
             sudo('pip2 install fabvenv fabric-virtualenv --no-cache-dir')
@@ -217,7 +217,10 @@ def ensure_python3_libraries(os_user):
         try:
             sudo('apt-get install python3-setuptools')
             sudo('apt install -y python3-pip')
-            sudo('pip3 install ipython ipykernel --no-cache-dir')
+            try:
+                sudo('pip3 install ipython ipykernel --no-cache-dir')
+            except:
+                sudo('pip3 install ipython==5.0.0 ipykernel --no-cache-dir')
             sudo('pip3 install -U pip --no-cache-dir')
             sudo('pip3 install boto3 --no-cache-dir')
             sudo('pip3 install fabvenv fabric-virtualenv --no-cache-dir')
@@ -253,10 +256,10 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bash_profile')
+            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
-            sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl')
-            sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl')
+            sudo('python2.7 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl --no-cache-dir')
+            sudo('python3 -m pip install --upgrade https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
             sudo('mkdir /var/log/tensorboard; chown ' + os_user + ':' + os_user + ' -R /var/log/tensorboard')
             put(templates_dir + 'tensorboard.service', '/tmp/tensorboard.service')
             sudo("sed -i 's|OS_USR|" + os_user + "|' /tmp/tensorboard.service")
@@ -266,8 +269,8 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo("systemctl enable tensorboard")
             sudo("systemctl start tensorboard")
             # install Theano
-            sudo('python2.7 -m pip install Theano')
-            sudo('python3 -m pip install Theano')
+            sudo('python2.7 -m pip install Theano --no-cache-dir')
+            sudo('python3 -m pip install Theano --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/tensor_ensured')
         except:
             sys.exit(1)
@@ -282,8 +285,8 @@ def install_maven(os_user):
 def install_livy_dependencies(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
         sudo('apt-get -y install libkrb5-dev')
-        sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest')
-        sudo('pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        sudo('pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
+        sudo('pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         sudo('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
 
@@ -296,18 +299,145 @@ def install_maven_emr(os_user):
 def install_livy_dependencies_emr(os_user):
     if not os.path.exists('/home/' + os_user + '/.ensure_dir/livy_dependencies_ensured'):
         local('sudo apt-get -y install libkrb5-dev')
-        local('sudo pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest')
-        local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest')
+        local('sudo pip2 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
+        local('sudo pip3 install cloudpickle requests requests-kerberos flake8 flaky pytest --no-cache-dir')
         local('touch /home/' + os_user + '/.ensure_dir/livy_dependencies_ensured')
 
 
-def install_gitweb(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/gitweb_ensured'):
-        sudo('apt-get install -y fcgiwrap gitweb libapache2-mod-perl2 libcgi-pm-perl apache2')
-        sudo('sed -i -e "s/80/8085/g" /etc/apache2/ports.conf')
-        sudo('sed -i -e "s/\/var\/lib\/git/\/home\/' + os_user + '/g" /etc/gitweb.conf')
-        put('/root/templates/gitweb-virtualhost.conf', '/tmp/gitweb-virtualhost.conf')
-        sudo('mv -f /tmp/gitweb-virtualhost.conf /etc/apache2/sites-available/000-default.conf')
-        sudo('a2enmod cgi')
-        sudo('service apache2 restart')
-        sudo('touch /home/' + os_user + '/.ensure_dir/gitweb_ensured')
+def install_nodejs(os_user):
+    if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
+        sudo('apt-get -y install npm nodejs nodejs-legacy')
+        sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
+
+
+def install_os_pkg(requisites):
+    status = list()
+    try:
+        print "Updating repositories and installing requested tools:", requisites
+        sudo('apt-get update')
+        sudo('apt-get -y install python-pip python3-pip')
+        for os_pkg in requisites:
+            try:
+                sudo('apt-get -y install ' + os_pkg)
+                res = sudo('apt list --installed | grep ' + os_pkg)
+                ansi_escape = re.compile(r'\x1b[^m]*m')
+                ver = ansi_escape.sub('', res).split("\r\n")
+                version = [i for i in ver if os_pkg in i][0].split(' ')[1]
+                status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
+            except:
+                status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": ""})
+        sudo('unattended-upgrades -v')
+        sudo('export LC_ALL=C')
+        return status
+    except:
+        return "Fail to install OS packages"
+
+
+def get_available_os_pkgs():
+    try:
+        os_pkgs = dict()
+        ansi_escape = re.compile(r'\x1b[^m]*m')
+        sudo('apt-get update')
+        apt_raw = sudo("apt list")
+        apt_list = ansi_escape.sub('', apt_raw).split("\r\n")
+        for pkg in apt_list:
+            if "/" in pkg:
+                os_pkgs[pkg.split('/')[0]] = pkg.split(' ')[1]
+        return os_pkgs
+    except:
+        sys.exit(1)
+
+
+def install_caffe(os_user):
+    if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
+        env.shell = "/bin/bash -l -c -i"
+        sudo('apt-get install -y python-dev')
+        sudo('apt-get install -y python3-dev')
+        sudo('apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev '
+             'protobuf-compiler')
+        sudo('apt-get install -y --no-install-recommends libboost-all-dev')
+        sudo('apt-get install -y libatlas-base-dev')
+        sudo('apt-get install -y libgflags-dev libgoogle-glog-dev liblmdb-dev')
+        with cd('/usr/lib/x86_64-linux-gnu/'):
+            sudo('ln -s libhdf5_serial_hl.so.10.0.2 libhdf5_hl.so')
+            sudo('ln -s libhdf5_serial.so.10.1.0 libhdf5.so')
+        sudo('git clone https://github.com/BVLC/caffe.git')
+        with cd('/home/{}/caffe/'.format(os_user)):
+            sudo('pip2 install -r python/requirements.txt --no-cache-dir')
+            sudo('pip3 install -r python/requirements.txt --no-cache-dir')
+            sudo('cp Makefile.config.example Makefile.config')
+            sudo('sed -i "/INCLUDE_DIRS :=/d" Makefile.config')
+            sudo("echo 'INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ "
+                 "/usr/local/lib/python2.7/dist-packages/numpy/core/include/' >> Makefile.config")
+            sudo('sed -i "/LIBRARIES :=/d" Makefile.config')
+            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" '
+                 '>> Makefile.config')
+            sudo('make all')
+            sudo('make test')
+            sudo('make runtest')
+            sudo('make pycaffe')
+        sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
+
+
+def install_caffe2(os_user):
+    if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
+        env.shell = "/bin/bash -l -c -i"
+        sudo('apt-get update')
+        sudo('apt-get install -y --no-install-recommends build-essential cmake git libgoogle-glog-dev libprotobuf-dev'
+             ' protobuf-compiler python-dev python-pip')
+        sudo('pip2 install numpy protobuf --no-cache-dir')
+        sudo('pip3 install numpy protobuf --no-cache-dir')
+        sudo('CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz"; '
+             'wget ${CUDNN_URL}')
+        sudo('tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local')
+        sudo('rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig')
+        sudo('apt-get install -y --no-install-recommends libgflags-dev')
+        sudo('apt-get install -y --no-install-recommends libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
+             'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
+        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
+             'scipy setuptools tornado --no-cache-dir')
+        sudo('pip3 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
+             'scipy setuptools tornado --no-cache-dir')
+        sudo('git clone --recursive https://github.com/caffe2/caffe2.git')
+        with cd('/home/{}/caffe2/'.format(os_user)):
+            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="35 52 60 61" -DCUDA_ARCH_PTX="61" && make "-j$(nproc)" install')
+        sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
+
+
+def install_cntk(os_user):
+    if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
+        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl --no-cache-dir')
+        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
+        sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
+
+
+def install_keras(os_user):
+    if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
+        sudo('pip2 install keras --no-cache-dir')
+        sudo('pip3 install keras --no-cache-dir')
+        sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
+
+
+def install_mxnet(os_user):
+    if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
+        sudo('pip2 install mxnet-cu80 opencv-python --no-cache-dir')
+        sudo('pip3 install mxnet-cu80 opencv-python --no-cache-dir')
+        sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
+
+
+def install_torch(os_user):
+    if not exists('/home/{}/.ensure_dir/torch_ensured'.format(os_user)):
+        run('git clone https://github.com/torch/distro.git ~/torch --recursive')
+        with cd('/home/{}/torch/'.format(os_user)):
+            run('bash install-deps;')
+            run('./install.sh -b')
+        run('source /home/{}/.bashrc'.format(os_user))
+        sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
+
+
+def install_gitlab_cert(os_user, certfile):
+    try:
+        sudo('mv -f /home/{0}/{1} /etc/ssl/certs/{1}'.format(os_user, certfile))
+    except Exception as err:
+        print 'Failed to install gitlab certificate.', str(err)
+        pass

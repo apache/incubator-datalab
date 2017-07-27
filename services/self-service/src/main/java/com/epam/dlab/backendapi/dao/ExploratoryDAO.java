@@ -18,31 +18,38 @@
 
 package com.epam.dlab.backendapi.dao;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.exclude;
+import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
+import static com.mongodb.client.model.Updates.set;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.bson.Document;
+import org.bson.conversions.Bson;
+
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.result.UpdateResult;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-
-import java.util.LinkedHashMap;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Projections.*;
-import static com.mongodb.client.model.Updates.set;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 /** DAO for user exploratory.
  */
 public class ExploratoryDAO extends BaseDAO {
     public static final String EXPLORATORY_NAME = "exploratory_name";
-    private static final String EXPLORATORY_ID = "exploratory_id";
+    protected static final String EXPLORATORY_ID = "exploratory_id";
     private static final String EXPLORATORY_URL = "exploratory_url";
     private static final String EXPLORATORY_URL_DESC = "description";
     private static final String EXPLORATORY_URL_URL = "url";
@@ -50,7 +57,7 @@ public class ExploratoryDAO extends BaseDAO {
     private static final String EXPLORATORY_PASSWORD = "exploratory_pass";
     private static final String EXPLORATORY_PRIVATE_IP = "private_ip";
     protected static final String UPTIME = "up_time";
-    protected static final String COMPUTATIONAL_RESOURCES = "computational_resources";
+    public static final String COMPUTATIONAL_RESOURCES = "computational_resources";
 
     public static Bson exploratoryCondition(String user, String exploratoryName) {
         return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));
@@ -91,13 +98,27 @@ public class ExploratoryDAO extends BaseDAO {
                         .getOrDefault(STATUS, EMPTY).toString());
     }
 
+    /** Finds and returns the info of all user's notebooks.
+     * @param user user name.
+     * @exception DlabException
+     */
+    public List<UserInstanceDTO> fetchExploratoryFields(String user) throws DlabException {
+     	FindIterable<Document> docs = getCollection(USER_INSTANCES)
+					.find(eq(USER, user))
+					.projection(fields(exclude(COMPUTATIONAL_RESOURCES)));
+     	List<UserInstanceDTO> instances = new ArrayList<>();
+     	for (Document d : docs) {
+     		instances.add(convertFromDocument(d, UserInstanceDTO.class));
+     	}
+    	return instances;
+    }
+
     /** Finds and returns the info of exploratory.
      * @param user user name.
      * @param exploratoryName the name of exploratory.
      * @exception DlabException
      */
     public UserInstanceDTO fetchExploratoryFields(String user, String exploratoryName) throws DlabException {
-
         Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
                 exploratoryCondition(user, exploratoryName),
                 fields(exclude(COMPUTATIONAL_RESOURCES)),
@@ -106,7 +127,7 @@ public class ExploratoryDAO extends BaseDAO {
         if( opt.isPresent() ) {
             return opt.get();
         }
-        throw new DlabException(String.format("Exploratory instance for user {} with name {} not found.", user, exploratoryName));
+        throw new DlabException("Exploratory instance for user " + user + " with name " + exploratoryName +" not found.");
     }
 
     /** Inserts the info about notebook into Mongo database.
@@ -140,8 +161,7 @@ public class ExploratoryDAO extends BaseDAO {
     		values.append(INSTANCE_ID, dto.getInstanceId());
     	}
         if (dto.getErrorMessage() != null) {
-            values.append(ERROR_MESSAGE,
-                    DateRemoverUtil.removeDateFormErrorMessage(dto.getErrorMessage(), DateRemoverUtil.ERROR_DATE_FORMAT, DateRemoverUtil.ERROR_WITHOUT_DATE_FORMAT));
+            values.append(ERROR_MESSAGE, DateRemoverUtil.removeDateFormErrorMessage(dto.getErrorMessage()));
         }
         if (dto.getExploratoryId() != null) {
             values.append(EXPLORATORY_ID, dto.getExploratoryId());

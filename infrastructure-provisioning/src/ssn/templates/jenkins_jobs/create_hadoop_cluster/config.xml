@@ -1,4 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!--
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
 <project>
     <actions/>
     <description>Create new EMR Cluster</description>
@@ -201,15 +218,6 @@
                   </choices>
                 </hudson.model.ChoiceParameterDefinition>
                 <hudson.model.ChoiceParameterDefinition>
-                  <name>os_user</name>
-                  <description>value of the ssh user</description>
-                  <choices class="java.util.Arrays$ArrayList">
-                    <a class="string-array">
-                      <string>ubuntu</string>
-                      <string>ec2-user</string>
-                    </a>
-                  </choices>
-                </hudson.model.ChoiceParameterDefinition>
                 <hudson.model.ChoiceParameterDefinition>
                     <name>Region</name>
                     <description>aws region where infrastructure was deployed</description>
@@ -235,9 +243,9 @@
     <builders>
         <hudson.tasks.Shell>
             <command>rand=`openssl rand -hex 10`;
-                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_hadoop_cluster/template_prepare.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/SPI/&apos;${slave_spot_instance}&apos;/g&apos; | sed &apos;s/SISPP/&apos;${slave_instance_spot_pct_price}&apos;/g&apos; | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ESR/&apos;${Service_role}&apos;/g&apos; | sed &apos;s/EE2R/&apos;${EMR_EC2_role}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | sed &apos;s/EMIT/&apos;${Master_node_size}&apos;/g&apos; | sed &apos;s/ESMT/&apos;${Slave_node_size}&apos;/g&apos; | sed &apos;s/GOS/&apos;${os_user}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/ETIM/&apos;${Timeout}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/${os_user}/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/emr:/logs/emr  docker.dlab-emr --action create;
+                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_hadoop_cluster/template_prepare.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/SPI/&apos;${slave_spot_instance}&apos;/g&apos; | sed &apos;s/SISPP/&apos;${slave_instance_spot_pct_price}&apos;/g&apos; | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ESR/&apos;${Service_role}&apos;/g&apos; | sed &apos;s/EE2R/&apos;${EMR_EC2_role}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | sed &apos;s/EMIT/&apos;${Master_node_size}&apos;/g&apos; | sed &apos;s/ESMT/&apos;${Slave_node_size}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/ETIM/&apos;${Timeout}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/emr:/logs/emr  docker.dlab-emr --action create;
                 rand=`openssl rand -hex 10`;
-                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_hadoop_cluster/template_configure.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sed &apos;s/GOS/&apos;${os_user}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/${os_user}/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/emr:/logs/emr  docker.dlab-${notebook_app} --action configure;
+                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_hadoop_cluster/template_configure.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/emr:/logs/emr  docker.dlab-${notebook_app} --action configure;
             </command>
         </hudson.tasks.Shell>
     </builders>

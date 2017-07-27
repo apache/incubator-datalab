@@ -41,6 +41,7 @@ if __name__ == "__main__":
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
         policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
         user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
+        shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
         tag_name = service_base_name + '-Tag'
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
@@ -53,6 +54,7 @@ if __name__ == "__main__":
         pre_defined_subnet = False
         pre_defined_sg = False
         billing_enabled = True
+        dlab_ssh_user = os.environ['conf_os_user']
         try:
             if os.environ['aws_vpc_id'] == '':
                 raise KeyError
@@ -88,12 +90,48 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        instance_hostname = get_instance_hostname(instance_name)
+        if os.environ['conf_os_family'] == 'debian':
+            initial_user = 'ubuntu'
+            sudo_group = 'sudo'
+        if os.environ['conf_os_family'] == 'redhat':
+            initial_user = 'ec2-user'
+            sudo_group = 'wheel'
+
+        logging.info('[CREATING DLAB SSH USER]')
+        print('[CREATING DLAB SSH USER]')
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
+            (get_instance_hostname(tag_name, instance_name), "/root/keys/" + os.environ['conf_key_name'] + ".pem",
+             initial_user, dlab_ssh_user, sudo_group)
+
+        try:
+            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed creating ssh user 'dlab'.", str(err))
+        remove_ec2(tag_name, instance_name)
+        remove_all_iam_resources(instance)
+        remove_s3(instance)
+        if pre_defined_sg:
+            remove_sgroups(tag_name)
+        if pre_defined_subnet:
+            remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
+            remove_subnets(service_base_name + "-subnet")
+        if pre_defined_vpc:
+            remove_vpc_endpoints(os.environ['aws_vpc_id'])
+            remove_route_tables(tag_name, True)
+            remove_vpc(os.environ['aws_vpc_id'])
+        sys.exit(1)
+
+    try:
+        instance_hostname = get_instance_hostname(tag_name, instance_name)
 
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric awscli pymongo pyyaml' --user {}". \
-            format(instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", os.environ['conf_os_user'])
+        params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric awscli pymongo pyyaml' --user {} --region {}". \
+            format(instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", dlab_ssh_user,
+                   os.environ['aws_region'])
 
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
@@ -120,10 +158,9 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE SSN INSTANCE]')
         print('[CONFIGURE SSN INSTANCE]')
         additional_config = {"nginx_template_dir": "/root/templates/", "service_base_name": service_base_name, "security_group_id": os.environ['aws_security_groups_ids'], "vpc_id": os.environ['aws_vpc_id'], "subnet_id": os.environ['aws_subnet_id'], "admin_key": os.environ['conf_key_name']}
-        #additional_config = {"nginx_template_dir": "/root/templates/", "service_base_name": service_base_name}
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),
-                   json.dumps(additional_config), os.environ['conf_os_user'], os.environ['ssn_dlab_path'],
+                   json.dumps(additional_config), dlab_ssh_user, os.environ['ssn_dlab_path'],
                    os.environ['conf_tag_resource_id'])
 
         try:
@@ -158,10 +195,10 @@ if __name__ == "__main__":
                              {"name": "tensor", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "emr", "tag": "latest"}]
-        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {}". \
+        params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),
-                   json.dumps(additional_config), os.environ['conf_os_family'], os.environ['conf_os_user'],
-                   os.environ['ssn_dlab_path'], os.environ['conf_cloud_provider'])
+                   json.dumps(additional_config), os.environ['conf_os_family'], dlab_ssh_user,
+                   os.environ['ssn_dlab_path'], os.environ['conf_cloud_provider'], os.environ['aws_region'])
 
         try:
             local("~/scripts/{}.py {}".format('configure_docker', params))
@@ -189,7 +226,7 @@ if __name__ == "__main__":
         print('[CONFIGURE SSN INSTANCE UI]')
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']), os.environ['ssn_dlab_path'],
-                   os.environ['conf_os_user'], os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'], os.environ['aws_region'],
+                   dlab_ssh_user, os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'], os.environ['aws_region'],
                    os.environ['conf_service_base_name'], os.environ['aws_security_groups_ids'], os.environ['aws_vpc_id'],
                    os.environ['aws_subnet_id'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
                    os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],
@@ -232,9 +269,12 @@ if __name__ == "__main__":
         print "SSN instance shape: " + os.environ['aws_ssn_instance_size']
         print "SSN AMI name: " + ssn_ami_name
         print "SSN bucket name: " + user_bucket_name
+        print "Shared bucket name: " + shared_bucket_name
         print "Region: " + region
-        jenkins_url = "http://{}/jenkins".format(get_instance_hostname(instance_name))
+        jenkins_url = "http://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
+        jenkins_url_https = "https://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
         print "Jenkins URL: " + jenkins_url
+        print "Jenkins URL HTTPS: " + jenkins_url_https
         try:
             with open('jenkins_crids.txt') as f:
                 print f.read()
@@ -244,7 +284,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as f:
             res = {"service_base_name": service_base_name,
                    "instance_name": instance_name,
-                   "instance_hostname": get_instance_hostname(instance_name),
+                   "instance_hostname": get_instance_hostname(tag_name, instance_name),
                    "role_name": role_name,
                    "role_profile_name": role_profile_name,
                    "policy_name": policy_name,
@@ -254,13 +294,14 @@ if __name__ == "__main__":
                    "security_id": os.environ['aws_security_groups_ids'],
                    "instance_shape": os.environ['aws_ssn_instance_size'],
                    "bucket_name": user_bucket_name,
+                   "shared_bucket_name": shared_bucket_name,
                    "region": region,
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))
 
         print 'Upload response file'
         params = "--instance_name {} --local_log_filepath {} --os_user {}".format(instance_name, local_log_filepath,
-                                                                                  os.environ['conf_os_user'])
+                                                                                  dlab_ssh_user)
         local("~/scripts/{}.py {}".format('upload_response_file', params))
 
         logging.info('[FINALIZE]')

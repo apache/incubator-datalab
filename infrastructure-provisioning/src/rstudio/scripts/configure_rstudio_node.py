@@ -36,17 +36,24 @@ parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--rstudio_pass', type=str, default='')
 parser.add_argument('--rstudio_version', type=str, default='')
+parser.add_argument('--r_mirror', type=str, default='')
 args = parser.parse_args()
 
 spark_version = os.environ['notebook_spark_version']
 hadoop_version = os.environ['notebook_hadoop_version']
-spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
+if args.region == 'cn-north-1':
+    spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
+                 "-bin-hadoop" + hadoop_version + ".tgz"
+else:
+    spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
 local_spark_path = '/opt/spark/'
 s3_jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2', 'evaluate', 'formatR', 'yaml',
           'Rcpp', 'rmarkdown', 'base64enc', 'tibble']
+gitlab_certfile = os.environ['conf_gitlab_certfile']
+
 
 ##############
 # Run script #
@@ -77,7 +84,7 @@ if __name__ == "__main__":
     ensure_python3_libraries(args.os_user)
 
     print "Installing R"
-    ensure_r(args.os_user, r_libs)
+    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
     print "Install RStudio"
     install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version)
@@ -88,5 +95,8 @@ if __name__ == "__main__":
     print "Install local jars"
     ensure_local_jars(args.os_user, s3_jars_dir, files_dir, args.region, templates_dir)
 
-    print "Install GitWeb"
-    install_gitweb(args.os_user)
+    print "Install Ungit"
+    install_nodejs(args.os_user)
+    install_ungit(args.os_user, gitlab_certfile)
+    if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
+        install_gitlab_cert(args.os_user, gitlab_certfile)

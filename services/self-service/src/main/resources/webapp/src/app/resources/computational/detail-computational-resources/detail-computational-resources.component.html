@@ -1,4 +1,4 @@
-<!------------------------------------------------------------------------------------------------------------
+<!--
 
 Copyright (c) 2016, EPAM SYSTEMS INC
 
@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
------------------------------------------------------------------------------------------------------------ -->
+-->
 
 <modal-dialog #bindDialog  modalClass="detail-dialog modal-sm header-white">
   <modal-header></modal-header>
@@ -57,7 +57,7 @@ limitations under the License.
          <div class="col-xs-6"><span>{{resource.slave_node_shape}}</span></div>
         </div>
         <div class="row">
-          <div class="col-xs-12">
+          <div class="col-xs-12" *ngIf="resource.status === 'running'">
             <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
           </div>
         </div>

@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+   http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,17 +57,87 @@ limitations under the License.
   border-radius: 0;
 }
 
-[hidden] {
-  display: none !important;
+.cdk-overlay-container {
+    z-index: 9999 !important;
 }
 
-button {
-  font-family: 'Open Sans', sans-serif;
+.install-libs .mat-tab-label,
+.manage-ungit .mat-tab-label {
+    width: 50%;
+    font-family: 'Open Sans',sans-serif !important;
+}
+.install-libs .mat-ink-bar,
+.manage-ungit .mat-ink-bar {
+    background-color: #35afd5 !important;
+    width: 50% !important;
+}
+
+.install-libs .mat-tab-labels .mat-tab-label:focus,
+.manage-ungit .mat-tab-labels .mat-tab-label:focus {
+    background-color: rgba(53, 175, 213, 0.11);
+}
+
+.install-libs md-chip.mat-chip {
+    outline: none;
+    color: #758ea8;
+}
+.install-libs md-chip.mat-chip a {
+    display: inline-block;
+    width: 12px;
+    cursor: pointer;
+    text-align: right;
+    text-decoration: none;
+}
+
+.install-libs md-chip.mat-chip strong {
+    font-size: 10px;
+    font-weight: 300;
+}
+
+.mat-option {
+    font-family: 'Open Sans', sans-serif;
+}
+
+.mat-option.mat-selected {
+    color: #35afd5 !important;
+}
+/*.mat-input-placeholder.mat-focused, */
+.mat-input-underline .mat-input-ripple,
+.mat-select-underline
+.mat-input-underline {
+    background-color: #35afd5 !important;
+}
+.mat-input-placeholder.mat-focused,
+.mat-select:focus:not(.mat-select-disabled) .mat-select-trigger,
+.mat-select:focus:not(.mat-select-disabled) .mat-select-arrow,
+.mat-select:focus:not(.mat-select-disabled) .mat-select-underline {
+    color: #35afd5 !important;
+}
+.mat-select:focus:not(.mat-select-disabled) .mat-select-underline {
+    background-color: #35afd5 !important;
+}
+.mat-select-placeholder {
+    font-size: 14px;
+}
+.mat-input-placeholder {
+  font-weight: 400;
+}
+
+
+
+[hidden] {
+  display: none !important;
 }
 
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
+  overflow-x: hidden;
+  font-weight: 300;
+}
+
+button {
+  font-family: 'Open Sans', sans-serif;
 }
 
 .primary_color {
@@ -116,13 +186,17 @@ body {
   margin-right: 15px;
   float: right;
 }
-
+.rotate {
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
 .status {
   text-transform: capitalize;
 }
 
 .running,
-.starting {
+.starting,
+.installed {
   color: #49af38;
 }
 
@@ -132,19 +206,32 @@ body {
 }
 
 .creating,
-.configuring {
+.configuring,
+.installing {
   color: #35afd5;
 }
 
 .terminated,
 .terminating,
-.failed {
-  color: #f1696e;
+.failed,
+.error {
+  color: #f1696e !important;
 }
 
 .not-allowed {
   cursor: not-allowed !important;
+  user-select: none;
   opacity: 0.6;
+}
+
+.message {
+    padding: 40px 20px;
+    text-align: center;
+}
+.info {
+    font-size: 16px;
+    font-weight: 300;
+    color: #35afd5;
 }
 
 @-webkit-keyframes spin {
@@ -266,3 +353,23 @@ input[type=number] {
 .text-center { text-align: center!important; }
 .m-top-10 { margin-top: 10px; }
 .m-top-30 { margin-top: 30px; }
+.m-bott-10 { margin-bottom: 10px; }
+
+
+#scrolling::-webkit-scrollbar {
+  width: 8px;
+}
+
+#scrolling::-webkit-scrollbar-track {
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  border-radius: 5px;
+  background-color: rgb(243, 243, 243);
+}
+
+#scrolling::-webkit-scrollbar-thumb {
+  box-shadow: inset 1px 1px 6px #9a9393;
+  -webkit-box-shadow: inset 1px 1px 6px #9a9393;
+  background-color: #f6fafe;
+  border-radius: 5px;
+}

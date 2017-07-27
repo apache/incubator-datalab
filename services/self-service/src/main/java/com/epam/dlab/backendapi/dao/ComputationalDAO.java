@@ -42,7 +42,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
  */
 public class ComputationalDAO extends BaseDAO {
     protected static final String COMPUTATIONAL_NAME = "computational_name";
-    private static final String COMPUTATIONAL_ID = "computational_id";
+    protected static final String COMPUTATIONAL_ID = "computational_id";
 
     private static String computationalFieldFilter(String fieldName) {
         return COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + fieldName;
@@ -171,7 +171,7 @@ public class ComputationalDAO extends BaseDAO {
         	}
             if (null !=  dto.getErrorMessage()) {
                 values.append(computationalFieldFilter(ERROR_MESSAGE),
-                        DateRemoverUtil.removeDateFormErrorMessage(dto.getErrorMessage(), DateRemoverUtil.ERROR_DATE_FORMAT, DateRemoverUtil.ERROR_WITHOUT_DATE_FORMAT));
+                        DateRemoverUtil.removeDateFormErrorMessage(dto.getErrorMessage()));
             }
         	if (dto.getComputationalId() != null) {
                 values.append(computationalFieldFilter(COMPUTATIONAL_ID), dto.getComputationalId());

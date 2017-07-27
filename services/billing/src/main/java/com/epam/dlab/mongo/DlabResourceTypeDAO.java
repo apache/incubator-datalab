@@ -46,6 +46,7 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.epam.dlab.core.BillingUtils;
 import com.epam.dlab.core.parser.ReportLine;
 import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.exception.ParseException;
@@ -110,6 +111,13 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	return resourceList;
     }
     
+    /** Return the name of bucket.
+     * @param name the name of bucket.
+     */
+    private String getBucketName(String name) {
+    	return name.replace('_', '-').toLowerCase();
+    }
+    
     /** Load and return DLab resources from Mongo DB.
      * @throws InitializationException
      */
@@ -119,15 +127,18 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	// Add SSN
     	String sbName = getServiceBaseName();
     	resourceList.append(sbName + "-ssn", "SSN", DlabResourceType.SSN, null, null);
-    	resourceList.append(sbName.replace('_', '-') + "-ssn-bucket", "SSN bucket", DlabResourceType.SSN_BUCKET, null, null);
+    	resourceList.append(getBucketName(sbName) + "-ssn-bucket", "SSN bucket", DlabResourceType.SSN_BUCKET, null, null);
+
+    	// collaboration bucket
+		resourceList.append(getBucketName(sbName) + "-shared-bucket", "Collaboration bucket", DlabResourceType.COLLABORATION_BUCKET, null, null);
     	
     	// Add EDGE
     	Bson projection = fields(include(FIELD_ID, FIELD_EDGE_BUCKET));
     	Iterable<Document> docs = connection.getCollection(COLLECTION_USER_EDGE).find().projection(projection);
     	for (Document d : docs) {
     		String username = d.getString(FIELD_ID);
-    		resourceList.append(sbName + "-" + username + "-edge", "EDGE Node", DlabResourceType.EDGE, username, null);
-    		resourceList.append(d.getString(FIELD_EDGE_BUCKET), "EDGE bucket", DlabResourceType.EDGE_BUCKET, username, null);
+    		resourceList.append(sbName + "-" + BillingUtils.getSimpleUserName(username) + "-edge", "EDGE Node", DlabResourceType.EDGE, username, null);
+    		resourceList.append(getBucketName(d.getString(FIELD_EDGE_BUCKET)), "EDGE bucket", DlabResourceType.EDGE_BUCKET, username, null);
     	}
     	
     	// Add exploratory
@@ -206,14 +217,6 @@ public class DlabResourceTypeDAO implements MongoConstants {
     		d.put(name, "$" + name);
     	}
 		return d;
-    }
-    
-    private double round(double d) {
-    	return Math.round(d * 100.0) / 100.0;
-    }
-    
-    private String formatDouble(Double d) {
-    	return (d == null ? null : String.format("%,.2f", d));
     }
     
     /** Update monthly total in Mongo DB.
@@ -303,7 +306,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	String currencyCode = null;
     	for(Document d : docs) {
     		Document id = (Document) d.get(FIELD_ID);
-    		double cost = round(d.getDouble(ReportLine.FIELD_COST));
+    		double cost = BillingUtils.round(d.getDouble(ReportLine.FIELD_COST), 2);
     		costTotal = (costTotal == null ? cost : costTotal + cost);
     		if (currencyCode == null) {
     			currencyCode = id.getString(ReportLine.FIELD_CURRENCY_CODE);
@@ -313,7 +316,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
     			.append(FIELD_RESOURCE_NAME, resources.getById(id.getString(FIELD_DLAB_RESOURCE_ID)).getResourceName())
         		.append(ReportLine.FIELD_PRODUCT, id.getString(ReportLine.FIELD_PRODUCT))
         		.append(ReportLine.FIELD_RESOURCE_TYPE, id.getString(ReportLine.FIELD_RESOURCE_TYPE))
-    			.append(ReportLine.FIELD_COST, formatDouble(cost))
+    			.append(ReportLine.FIELD_COST, BillingUtils.formatDouble(cost))
     			.append(ReportLine.FIELD_CURRENCY_CODE, id.getString(ReportLine.FIELD_CURRENCY_CODE))
     			.append(FIELD_USAGE_DATE_START, d.getString(FIELD_USAGE_DATE_START))
     			.append(FIELD_USAGE_DATE_END, d.getString(FIELD_USAGE_DATE_END));
@@ -326,7 +329,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
 
 		MongoCollection<Document> cExploratory = connection.getCollection(COLLECTION_USER_INSTANCES);
     	Bson values = Updates.combine(
-				Updates.set(ReportLine.FIELD_COST, formatDouble(costTotal)),
+				Updates.set(ReportLine.FIELD_COST, BillingUtils.formatDouble(costTotal)),
 				Updates.set(FIELD_CURRENCY_CODE, currencyCode),
 				Updates.set(COLLECTION_BILLING, (billing.size() > 0 ? billing : null)));
 		cExploratory.updateOne(
@@ -352,7 +355,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	for(Document d : docs) {
     		Document id = (Document) d.get(FIELD_ID);
     		Bson values = Updates.combine(
-					Updates.set(ReportLine.FIELD_COST, round(d.getDouble(ReportLine.FIELD_COST))),
+					Updates.set(ReportLine.FIELD_COST, BillingUtils.round(d.getDouble(ReportLine.FIELD_COST), 2)),
 					Updates.set(FIELD_CURRENCY_CODE, id.get(ReportLine.FIELD_CURRENCY_CODE)));
     		cEdge.updateOne(
             	eq(FIELD_ID, user),

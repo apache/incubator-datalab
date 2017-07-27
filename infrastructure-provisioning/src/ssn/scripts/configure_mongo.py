@@ -78,12 +78,6 @@ if __name__ == "__main__":
     mongo_ip = read_yml_conf(path,'net','bindIp')
     mongo_port = read_yml_conf(path,'net','port')
 
-    try:
-        with open(args.dlab_path + 'tmp/ssn_instance_shapes.lst', 'r') as source_shapes:
-            shapes = json.load(source_shapes)
-    except:
-        shapes = []
-
     # Setting up admin's password and enabling security
     client = MongoClient(mongo_ip + ':' + str(mongo_port))
     pass_upd = True
@@ -98,15 +92,14 @@ if __name__ == "__main__":
         client.dlabdb.settings.insert_one({"_id": "aws_subnet_id", "value": args.subnet})
         client.dlabdb.settings.insert_one({"_id": "conf_service_base_name", "value": args.base_name})
         client.dlabdb.settings.insert_one({"_id": "aws_security_groups_ids", "value": args.sg})
-        client.dlabdb.settings.insert_one({"_id": "conf_os_user", "value": args.os_user})
         client.dlabdb.settings.insert_one({"_id": "conf_os_family", "value": args.os_family})
         client.dlabdb.settings.insert_one({"_id": "conf_tag_resource_id", "value": args.tag_resource_id})
         client.dlabdb.settings.insert_one({"_id": "conf_key_dir", "value": "/root/keys"})
-        with open(args.dlab_path + 'tmp/mongo_roles.json') as data:
-            ssn_roles = json.load(data)
-            client.dlabdb.roles.insert(ssn_roles)
+        with open(args.dlab_path + 'tmp/mongo_roles.json', 'r') as data:
+            json_data = json.load(data)
+        for i in json_data:
+            client.dlabdb.roles.insert_one(i)
         client.dlabdb.security.insert({ "expireAt": "1" }, { "expireAfterSeconds": "3600" })
-        client.dlabdb.shapes.insert(shapes)
         if add_2_yml_config(path,'security','authorization','enabled'):
             command = ['service', 'mongod', 'restart']
             subprocess.call(command, shell=False)

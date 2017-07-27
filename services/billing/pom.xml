@@ -26,10 +26,10 @@
         <version>1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
+    
     <artifactId>billing</artifactId>
 
     <properties>
-        <org.apache.commons.version>3.5</org.apache.commons.version>
         <org.apache.jexl3.version>3.0</org.apache.jexl3.version>
         <com.amazonaws.version>1.10.77</com.amazonaws.version>
         <org.freemarker.version>2.3.22</org.freemarker.version>
@@ -41,9 +41,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${org.apache.commons.version}</version>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
@@ -134,10 +134,21 @@
                             </filters>
                             <transformers>
                                 <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                    	implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                                 <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    	implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.epam.dlab.BillingTool</mainClass>
+									<manifestEntries>
+										<Created-By>&lt;EPAM&gt; Systems</Created-By>
+										<Name>com/epam/dlab</Name>
+										<Implementation-Title>DLab Billing Tool</Implementation-Title>
+										<Implementation-Version>${dlab.version}</Implementation-Version>
+										<Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
+										<Build-Time>${maven.build.timestamp}</Build-Time>
+										<Build-OS>${os.name}</Build-OS>
+										<GIT-Branch>${scmBranch}</GIT-Branch>
+										<GIT-Commit>${buildNumber}</GIT-Commit>
+									</manifestEntries>
                                 </transformer>
                             </transformers>
                         </configuration>

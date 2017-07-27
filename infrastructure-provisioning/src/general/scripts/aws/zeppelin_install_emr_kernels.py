@@ -38,6 +38,8 @@ parser.add_argument('--edge_user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--edge_hostname', type=str, default='')
 parser.add_argument('--proxy_port', type=str, default='')
+parser.add_argument('--pip_mirror', type=str, default='')
+parser.add_argument('--application', type=str, default='')
 args = parser.parse_args()
 
 
@@ -76,4 +78,5 @@ if __name__ == "__main__":
          + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user +
          " --edge_hostname " + args.edge_hostname + " --proxy_port " + args.proxy_port + " --scala_version " +
          args.scala_version + " --livy_version " + livy_version + " --multiple_emrs " +
-         os.environ['notebook_multiple_emrs'])
+         os.environ['notebook_multiple_emrs'] + " --pip_mirror " + args.pip_mirror + " --application " +
+         args.application)

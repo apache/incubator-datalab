@@ -18,6 +18,7 @@
 
 package com.epam.dlab.backendapi.dao;
 
+import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_NAME;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.COMPUTATIONAL_RESOURCES;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
@@ -25,6 +26,7 @@ import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
 import static com.epam.dlab.backendapi.dao.KeyDAO.EDGE_STATUS;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.not;
 import static com.mongodb.client.model.Projections.elemMatch;
 import static com.mongodb.client.model.Projections.excludeId;
 import static com.mongodb.client.model.Projections.fields;
@@ -326,20 +328,14 @@ public class EnvStatusDAO extends BaseDAO {
     private boolean terminateComputationalSpot(String user, String exploratoryName, String computationalName) {
     	LOGGER.trace("Check computatation is spot for user {} with exploratory {} and computational {}", user, exploratoryName, computationalName);
 		Document doc = findOne(USER_INSTANCES,
-							and(exploratoryCondition(user, exploratoryName),
-								elemMatch(COMPUTATIONAL_RESOURCES,
-										eq(COMPUTATIONAL_NAME, computationalName))),
-							include(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_SPOT)
+							exploratoryCondition(user, exploratoryName),
+							and(elemMatch(COMPUTATIONAL_RESOURCES,
+                            		and(eq(COMPUTATIONAL_NAME, computationalName),
+                            			eq(COMPUTATIONAL_SPOT, true),
+                            			not(eq(STATUS, TERMINATED.toString())))),
+								include(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_SPOT))
 							).orElse(null);
-		if (doc == null) {
-			return false;
-		}
-		
-		@SuppressWarnings("unchecked")
-		List<Document> compList = (List<Document>) doc.get(COMPUTATIONAL_RESOURCES);
-		if (compList == null ||
-			compList.size() == 0 ||
-			compList.get(0).getBoolean(COMPUTATIONAL_SPOT) != Boolean.TRUE) {
+		if (doc == null || doc.get(COMPUTATIONAL_RESOURCES) == null) {
 			return false;
 		}
     	

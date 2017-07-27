@@ -1,4 +1,4 @@
-<!------------------------------------------------------------------------------------------------------------
+<!--
 
 Copyright (c) 2016, EPAM SYSTEMS INC
 
@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
------------------------------------------------------------------------------------------------------------ -->
+-->
 
 <div class="dropdown-multiselect btn-group" ngClass="{{type || ''}}" click-outside (clickOutside)="onClickOutside($event)">
 
@@ -26,7 +26,7 @@ limitations under the License.
     <span class="caret-btn">&#9663;</span>
   </button>
 
-  <ul class="dropdown-menu" [style.display]="isOpen ? 'block' : 'none'">
+  <ul class="dropdown-menu" id="scrolling" [style.display]="isOpen ? 'block' : 'none'">
     <li class="filter-actions">
       <a class="select_all" (click)="selectAllOptions($event)">
         <i class="glyphicon glyphicon-ok"></i>&nbsp;All
@@ -45,7 +45,7 @@ limitations under the License.
           </a>
         </li>
       </template>
-    <li *ngIf="items.length == 0">
+    <li *ngIf="items?.length == 0">
       <a role="menuitem">
         <span class="glyphicon glyphicon-eye-close"></span>
         No {{type}}

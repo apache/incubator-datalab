@@ -48,6 +48,7 @@ export class ResourcesGridComponent implements OnInit {
   @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('detailDialog') detailDialog;
   @ViewChild('costDetailsDialog') costDetailsDialog;
+  @ViewChild('installLibs') installLibraries;
 
 
   public filteringColumns: Array<any> = [
@@ -162,6 +163,7 @@ export class ResourcesGridComponent implements OnInit {
   }
 
   buildGrid(): void {
+
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result) => {
         this.environments = this.loadEnvironments(result);
@@ -195,10 +197,12 @@ export class ResourcesGridComponent implements OnInit {
           value.exploratory_user,
           value.exploratory_pass,
           value.user_own_bicket_name,
+          value.shared_bucket_name,
           value.error_message,
           value.cost,
           value.currency_code,
-          value.billing);
+          value.billing,
+          value.libs);
       });
     }
   }
@@ -241,7 +245,7 @@ export class ResourcesGridComponent implements OnInit {
   printDetailEnvironmentModal(data): void {
     this.detailDialog.open({ isFooter: false }, data);
   }
-  
+
   printCostDetails(data): void {
     this.costDetailsDialog.open({ isFooter: false }, data);
   }
@@ -262,11 +266,13 @@ export class ResourcesGridComponent implements OnInit {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.StopExploratory);
     } else if (action === 'terminate') {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.TerminateExploratory);
+    } else if (action === 'install') {
+      this.installLibraries.open({ isFooter: false }, data);
     }
   }
 
   dropdownPosition($event): void {
     const contentHeight = document.body.offsetHeight > window.outerHeight ? document.body.offsetHeight : window.outerHeight;
-    this.isOutscreenDropdown = $event.pageY + 215 > contentHeight ? true : false;
+    this.isOutscreenDropdown = $event.pageY + 285 > contentHeight ? true : false;
   }
 }

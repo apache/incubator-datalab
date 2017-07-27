@@ -116,3 +116,54 @@ def configure():
         traceback.print_exc()
         append_result("Failed configuring analytical tool on Notebook node.", str(err))
         sys.exit(1)
+
+
+# Main function for installing additional libraries for notebook
+def install_libs():
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+
+    try:
+        local("~/scripts/{}.py".format('notebook_install_libs'))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed installing additional libs for Notebook node.", str(err))
+        sys.exit(1)
+
+
+# Main function for get available libraries for notebook
+def list_libs():
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+
+    try:
+        local("~/scripts/{}.py".format('notebook_list_libs'))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed get available libraries for notebook node.", str(err))
+        sys.exit(1)
+
+
+# Main function for manage git credentials on notebook
+def git_creds():
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
+    local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
+    logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG,
+                        filename=local_log_filepath)
+
+    try:
+        local("~/scripts/{}.py".format('notebook_git_creds'))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed to manage git credentials for notebook node.", str(err))
+        sys.exit(1)

@@ -30,6 +30,7 @@ import com.epam.dlab.core.parser.ParserBase;
 import com.epam.dlab.exception.AdapterException;
 import com.epam.dlab.exception.InitializationException;
 import com.epam.dlab.exception.ParseException;
+import com.epam.dlab.utils.ServiceUtils;
 
 /** Billing scheduler for loading billing report.
  */
@@ -201,8 +202,11 @@ public class BillingScheduler implements Runnable {
 	 * @throws InitializationException
 	 */
 	public static void main(String[] args) throws InitializationException {
-		String confName = null;
+		if (ServiceUtils.printAppVersion(BillingTool.class, args)) {
+			return;
+		}
 		
+		String confName = null;
 		for(int i = 0; i < args.length; i++) {
 			if (BillingTool.isKey("help", args[i])) {
 				i++;
