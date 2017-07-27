@@ -34,7 +34,7 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from './../../core/util';
 export class ManageUngitComponent implements OnInit {
   model: MangeUngitModel;
   gitCredentials: Array<AccountCredentials> = [];
-  currentEditableItem: AccountCredentials;
+  currentEditableItem: AccountCredentials = null;
 
   mail_validity_pattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,63})$/;
   hostname_validity_pattern = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])+\.[a-z\.]+/;
@@ -174,12 +174,16 @@ export class ManageUngitComponent implements OnInit {
   }
 
   private containsHostname(control) {
-    if (control.value)
-      for (let index = 0; index < this.gitCredentials.length; index++)
-        if (control.value === this.gitCredentials[index].hostname && control.value !== this.currentEditableItem.hostname)
-          return { duplicate: true }
+    let duplication = null;
 
-    return null;
+    if (control.value)
+      for (let index = 0; index < this.gitCredentials.length; index++) {
+        if (control.value === this.gitCredentials[index].hostname)
+          duplication = { duplicate: true };
+        if (this.currentEditableItem && control.value === this.currentEditableItem.hostname)
+          duplication = null;
+      }
+    return duplication;
   }
 }
 
