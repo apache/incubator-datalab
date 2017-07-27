@@ -24,6 +24,7 @@ import logging
 import traceback
 from dlab.fab import *
 from dlab.meta_lib import *
+from dlab.actions_lib import *
 from fabric.api import *
 
 if __name__ == "__main__":
@@ -38,7 +39,6 @@ if __name__ == "__main__":
     try:
         logging.info('[GETTING ALL AVAILABLE PACKAGES]')
         print '[GETTING ALL AVAILABLE PACKAGES]'
-        create_aws_config_files()
         notebook_config = dict()
         try:
             notebook_config['notebook_name'] = os.environ['notebook_instance_name']

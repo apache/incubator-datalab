@@ -67,30 +67,6 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         return "Failed to install {} packages".format(pip_version)
 
 
-def create_aws_config_files(generate_full_config=False):
-    try:
-        aws_user_dir = os.environ['AWS_DIR']
-        logging.info(local("rm -rf " + aws_user_dir+" 2>&1", capture=True))
-        logging.info(local("mkdir -p " + aws_user_dir+" 2>&1", capture=True))
-
-        with open(aws_user_dir + '/config', 'w') as aws_file:
-            aws_file.write("[default]\n")
-            aws_file.write("region = {}\n".format(os.environ['aws_region']))
-
-        if generate_full_config:
-            with open(aws_user_dir + '/credentials', 'w') as aws_file:
-                aws_file.write("[default]\n")
-                aws_file.write("aws_access_key_id = {}\n".format(os.environ['aws_access_key']))
-                aws_file.write("aws_secret_access_key = {}\n".format(os.environ['aws_secret_access_key']))
-
-        logging.info(local("chmod 600 " + aws_user_dir + "/*"+" 2>&1", capture=True))
-        logging.info(local("chmod 550 " + aws_user_dir+" 2>&1", capture=True))
-
-        return True
-    except:
-        return False
-
-
 def id_generator(size=10, chars=string.digits + string.ascii_letters):
     return ''.join(random.choice(chars) for _ in range(size))
 

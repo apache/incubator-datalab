@@ -32,6 +32,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
+    create_aws_config_files()
     env.hosts = "{}".format(args.notebook_ip)
     env['connection_attempts'] = 100
     env.user = args.os_user

@@ -24,6 +24,7 @@ import logging
 import traceback
 from dlab.fab import *
 from dlab.meta_lib import *
+from dlab.actions_lib import *
 from fabric.api import *
 
 
@@ -39,7 +40,6 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]')
         print '[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]'
-        create_aws_config_files()
         notebook_config = dict()
         try:
             notebook_config['notebook_name'] = os.environ['notebook_instance_name']

@@ -24,6 +24,7 @@ import logging
 import traceback
 from dlab.fab import *
 from dlab.meta_lib import *
+from dlab.actions_lib import *
 from fabric.api import *
 
 if __name__ == "__main__":
@@ -38,7 +39,6 @@ if __name__ == "__main__":
     try:
         logging.info('[SETUP USER GIT CREDENTIALS]')
         print '[SETUP USER GIT CREDENTIALS]'
-        create_aws_config_files()
         notebook_config = dict()
         notebook_config['notebook_name'] = os.environ['notebook_instance_name']
         notebook_config['os_user'] = os.environ['conf_os_user']
@@ -50,6 +50,7 @@ if __name__ == "__main__":
             .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
             # Run script to manage git credentials
+            local("~/scripts/{}.py {}".format('common_download_git_certfile', params))
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
         except:
             traceback.print_exc()
