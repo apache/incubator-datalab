@@ -317,6 +317,17 @@ class GCPActions:
                 instance_started = meta_lib.GCPMeta().get_instance_status(instance_name)
             time.sleep(5)
             print('Instance {} created.'.format(instance_name))
+            request = self.service.instances().get(instance=instance_name, project=self.project, zone=zone)
+            res = request.execute()
+            tag = ''
+            if 'ssn' in instance_name or 'edge' in instance_name:
+                tag = instance_name
+            elif 'nb' in instance_name:
+                tag = instance_name[:instance_name.index("nb") + 2].replace('_', '-')
+            instance_tag = {"items": [tag], "fingerprint": res['tags']['fingerprint']}
+            request = self.service.instances().setTags(instance=instance_name, project=self.project, zone=zone,
+                                                        body=instance_tag)
+            res = request.execute()
             return result
         except Exception as err:
             logging.info(
