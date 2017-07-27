@@ -26,9 +26,6 @@ from dlab.meta_lib import *
 from dlab.actions_lib import *
 import os
 import uuid
-from dlab.meta_lib import *
-from dlab.actions_lib import *
-import boto3
 import argparse
 import sys
 
@@ -57,8 +54,9 @@ def stop_notebook(instance_name, zone):
 
     print "Stopping notebook"
     try:
-        GCPAction().stop_instance(instance_name, zone)
-    except:
+        GCPActions().stop_instance(instance_name, zone)
+    except Exception as err:
+        append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
 
 
@@ -84,7 +82,6 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
-
 
     try:
         with open("/root/result.json", 'w') as result:
