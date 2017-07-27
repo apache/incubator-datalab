@@ -326,8 +326,8 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def remove_instance(self, instance_name):
-        request = self.service.instances().delete(project=self.project, zone=os.environ['gcp_zone'],
+    def remove_instance(self, instance_name, zone):
+        request = self.service.instances().delete(project=self.project, zone=zone,
                                                   instance=instance_name)
         try:
             result = request.execute()

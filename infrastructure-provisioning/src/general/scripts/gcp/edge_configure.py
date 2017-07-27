@@ -99,7 +99,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed creating ssh user 'dlab'.", str(err))
-        GCPActions().remove_instance(edge_conf['instance_name'])
+        GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         GCPActions().remove_bucket(edge_conf['bucket_name'])
         GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
@@ -119,7 +119,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing apps: apt & pip.", str(err))
-        GCPActions().remove_instance(edge_conf['instance_name'])
+        GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         GCPActions().remove_bucket(edge_conf['bucket_name'])
         GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
@@ -141,7 +141,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing http proxy.", str(err))
-        GCPActions().remove_instance(edge_conf['instance_name'])
+        GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         GCPActions().remove_bucket(edge_conf['bucket_name'])
         GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])
@@ -164,7 +164,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing users key. Excpeption: " + str(err))
-        GCPActions().remove_instance(edge_conf['instance_name'])
+        GCPActions().remove_instance(edge_conf['instance_name'], edge_conf['zone'])
         GCPActions().remove_static_address(edge_conf['static_address_name'], edge_conf['region'])
         GCPActions().remove_bucket(edge_conf['bucket_name'])
         GCPActions().remove_firewall(edge_conf['notebook_firewall_name'])

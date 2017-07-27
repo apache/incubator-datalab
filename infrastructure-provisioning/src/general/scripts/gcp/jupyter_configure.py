@@ -56,7 +56,7 @@ if __name__ == "__main__":
     edge_instance_hostname = GCPMeta().get_private_ip_address(edge_instance_name)
     keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
-
+    notebook_config['zone'] = os.environ['gcp_zone']
     try:
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -78,7 +78,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed creating ssh user 'dlab'.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'])
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     # configuring proxy on Notebook instance
@@ -96,7 +96,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to configure proxy.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'])
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     # updating repositories & installing python packages
@@ -112,7 +112,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing apps: apt & pip.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'])
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     # installing and configuring jupiter and all dependencies
@@ -130,7 +130,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to configure jupyter.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'])
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     # installing python2 and python3 libs
@@ -146,7 +146,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to install python libs.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'])
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     try:
@@ -163,7 +163,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing users key.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'])
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     try:
@@ -179,7 +179,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to setup git credentials.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'])
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
     #try:
@@ -195,7 +195,7 @@ if __name__ == "__main__":
     #            print "Image {} was successfully created".format(ami_name)
     #except Exception as err:
     #    append_result("Failed to create image from disk.", str(err))
-    #    GCPActions().remove_instance(notebook_config['instance_name'])
+    #    GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
     #    sys.exit(1)
 
     # generating output information
