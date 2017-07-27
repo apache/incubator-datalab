@@ -542,9 +542,5 @@ class GCPActions:
             blob = bucket.blob(certfile)
             blob.download_to_filename(certfile)
             return True
-        except exceptions.NotFound as err:
-            append_result(str({"error": "Unable to download certificate from bucket",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
+        except exceptions.NotFound:
             return False
