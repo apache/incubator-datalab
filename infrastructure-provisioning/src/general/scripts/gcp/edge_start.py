@@ -32,7 +32,6 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    create_aws_config_files()
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']

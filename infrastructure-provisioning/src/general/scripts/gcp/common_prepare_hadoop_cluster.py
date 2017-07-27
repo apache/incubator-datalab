@@ -43,7 +43,6 @@ if __name__ == "__main__":
         os.environ['exploratory_name'] = ''
     if os.path.exists('/response/.emr_creating_' + os.environ['exploratory_name']):
         time.sleep(30)
-    create_aws_config_files()
     edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
         os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-edge')
     if edge_status != 'running':

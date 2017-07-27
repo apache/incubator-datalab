@@ -33,7 +33,6 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    create_aws_config_files()
     print 'Getting statuses of DLAB resources'
     # Base config
 
