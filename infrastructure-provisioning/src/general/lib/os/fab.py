@@ -529,14 +529,14 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             sys.exit(1)
 
 
-
 def install_r_pkg(requisites):
     status = list()
     try:
         for r_pkg in requisites:
             try:
-                sudo('R -e \'install.packages("'+ r_pkg +'", repos="http://cran.us.r-project.org", dep=TRUE)\'')
-                res = sudo('R -e \'installed.packages()[,c(3:4)]\' | grep ' + r_pkg)
+                sudo('R -e \'install.packages("{}", repos="http://cran.us.r-project.org", dep=TRUE)\''.format(r_pkg))
+                sudo('R -e \'installed.packages()[,c(3:4)]\' | grep -w {0} > /tmp/{0}.tmp'.format(r_pkg))
+                res = sudo('cat /tmp/{0}.tmp; rm -f /tmp/{0}.tmp'.format(r_pkg))
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
                 status.append({"group": "r_pkg", "name": r_pkg, "version": version, "status": "installed"})
