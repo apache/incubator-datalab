@@ -137,11 +137,12 @@ if __name__ == "__main__":
         print '[CREATE FIREWALL]'
         firewall = {}
         firewall['name'] = edge_conf['firewall_name']
+        firewall['targetTags'] = [edge_conf['instance_name']]
         firewall['sourceRanges'] = ['0.0.0.0/0']
         rules = [
             {
                 'IPProtocol': 'tcp',
-                'ports': ['22', '80', '8080', '443', '3128']
+                'ports': ['22']
             },
             {
                 'IPProtocol': 'icmp'
@@ -156,6 +157,25 @@ if __name__ == "__main__":
         except:
             traceback.print_exc()
             raise Exception
+
+        firewall['name'] = edge_conf['firewall_name'] + '-internal'
+        firewall['targetTags'] = [edge_conf['instance_name']]
+        firewall['sourceRanges'] = [edge_conf['private_subnet_cidr']]
+        rules = [
+            {
+                'IPProtocol': 'all'
+            }
+        ]
+        firewall['allowed'] = rules
+        firewall['network'] = edge_conf['vpc_selflink']
+
+        params = "--firewall '{}'".format(json.dumps(firewall))
+        try:
+            local("~/scripts/{}.py {}".format('common_create_firewall', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+
     except Exception as err:
         append_result("Failed to create Firewall.", str(err))
         GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
@@ -166,14 +186,10 @@ if __name__ == "__main__":
         print '[CREATE FIREWALL FOR PRIVATE SUBNET]'
         firewall = {}
         firewall['name'] = edge_conf['notebook_firewall_name']
-        firewall['sourceRanges'] = ['0.0.0.0/0']
+        firewall['sourceRanges'] = [edge_conf['private_subnet_cidr']]
         rules = [
             {
-                'IPProtocol': 'tcp',
-                'ports': ['22', '80', '8080', '443']
-            },
-            {
-                'IPProtocol': 'icmp'
+                'IPProtocol': 'all'
             }
         ]
         firewall['allowed'] = rules
