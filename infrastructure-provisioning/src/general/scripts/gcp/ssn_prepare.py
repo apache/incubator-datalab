@@ -122,11 +122,12 @@ if __name__ == "__main__":
             print '[CREATE FIREWALL]'
             firewall = {}
             firewall['name'] = ssn_conf['firewall_name']
+            firewall['targetTags'] = [ssn_conf['instance_name']]
             firewall['sourceRanges'] = ['0.0.0.0/0']
             rules = [
                 {
                     'IPProtocol': 'tcp',
-                    'ports': ['22', '80', '8080', '443']
+                    'ports': ['22', '80', '443']
                 },
                 {
                     'IPProtocol': 'icmp'
