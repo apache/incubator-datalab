@@ -239,7 +239,7 @@ html {
     color: #3C4349;
     opacity: 1; }
 
-.ani, header nav > ul > li.has-children > a::before, header nav > ul > li.has-children > a::after, header nav > ul > li .sub-menu, .controls-slider .controls-nav mark, .controls-slider .mac-wrap .swiper-slide video, .we-solve article div, .we-solve article div svg g[stroke*="#"], .we-solve article div p, .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide, .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide:before, .overlay, .overlay .overlay-wrap .sources div .git-ref, .overlay .overlay-wrap .sources div .apache-ref {
+.ani, header nav > ul > li.has-children > a::before, header nav > ul > li.has-children > a::after, header nav > ul > li .sub-menu, .controls-slider .controls-nav mark, .controls-slider .mac-wrap .swiper-slide video, .we-solve article div, .we-solve article div svg g[stroke*="#"], .we-solve article div p, .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide, .overlay, .overlay .overlay-wrap .sources div .git-ref, .overlay .overlay-wrap .sources div .apache-ref {
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -ms-transition: all 0.5s ease;
@@ -949,12 +949,9 @@ ul.list-points li {
         color: #485F76;
         height: 126px;
         width: 167px; }
-        .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide:before {
-          border: 2px solid #333;
-          margin-bottom: 18px;
-          height: 18px;
-          content: '';
-          width: 40px; }
+        .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide a {
+          width: 50px;
+          margin: 5px; }
         .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide:hover {
           color: #1CBC79; }
         .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide.swiper-slide-active {

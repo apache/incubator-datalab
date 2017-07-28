@@ -81,7 +81,16 @@ $(window).on('load', function() {
         slideToClickedSlide     : true,
         slidesPerView           : 'auto',
         centeredSlides          : true,
-        spaceBetween            : 23
+        spaceBetween            : 0,
+        effect: 'coverflow',
+        grabCursor: true,
+        coverflow: {
+            rotate: 10,
+            stretch: 30,
+            depth: 100,
+            modifier: 1,
+            slideShadows : false
+        }
     });
     screenSliderTop.params.control = screenSliderThumbs;
     screenSliderThumbs.params.control = screenSliderTop;

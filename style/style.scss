@@ -685,13 +685,17 @@ ul.list-points {
                 height: 126px;
                 width: 167px;
                 @extend .ani;
-                &:before {
-                    border: 2px solid #333;
-                    margin-bottom: 18px;
-                    @extend .ani;
-                    height: 18px;
-                    content: '';
-                    width: 40px
+                // &:before {
+                //     border: 2px solid #333;
+                //     margin-bottom: 18px;
+                //     @extend .ani;
+                //     height: 18px;
+                //     content: '';
+                //     width: 40px
+                // }
+                a {
+                    width: 50px;
+                    margin: 5px;
                 }
                 &:hover {
                     color: $primary-green;
