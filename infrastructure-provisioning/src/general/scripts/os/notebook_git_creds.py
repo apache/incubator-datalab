@@ -44,7 +44,8 @@ if __name__ == "__main__":
         notebook_config['os_user'] = os.environ['conf_os_user']
         notebook_config['service_base_name'] = os.environ['conf_service_base_name']
         notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-        notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['tag_name'], notebook_config['notebook_name']).get('Private')
+        notebook_config['notebook_ip'] = get_instance_private_ip_address(
+            notebook_config['tag_name'], notebook_config['notebook_name'])
         notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
