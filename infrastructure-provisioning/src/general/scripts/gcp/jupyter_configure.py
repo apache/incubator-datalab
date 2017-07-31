@@ -51,7 +51,7 @@ if __name__ == "__main__":
     notebook_config['user_keyname'] = os.environ['edge_user_name']
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
-    instance_hostname = GCPMeta().get_instance_public_ip_by_name(notebook_config['instance_name'])
+    instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_instance_hostname = GCPMeta().get_private_ip_address(edge_instance_name)
     keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
