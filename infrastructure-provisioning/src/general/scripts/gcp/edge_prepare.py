@@ -57,7 +57,7 @@ if __name__ == "__main__":
     edge_conf['notebook_service_account_name'] = 'dlabowner' # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
         # 'edge_user_name'] + '-nb-Role'
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['ssn_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-ssn'
+    edge_conf['ssn_instance_name'] = edge_conf['service_base_name'] + '-ssn'
     edge_conf['bucket_name'] = (
     edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
     edge_conf['instance_size'] = os.environ['gcp_edge_instance_size']
