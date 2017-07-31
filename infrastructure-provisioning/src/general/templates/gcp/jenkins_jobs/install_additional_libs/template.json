@@ -7,5 +7,6 @@
     "notebook_instance_name": "NIN",
     "conf_key_name": "CKN",
     "additional_libs": "ADL",
+    "gcp_project_id": "GPI",
     "application": "APP"
 }
