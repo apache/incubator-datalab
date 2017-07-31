@@ -26,6 +26,7 @@ import sys
 import random
 import string
 from dlab.fab import *
+import actions_lib
 
 
 def get_instance_hostname(tag_name, instance_name):
@@ -125,6 +126,7 @@ def get_instance_ip_address(tag_name, instance_name):
 
 def get_instance_private_ip_address(tag_name, instance_name):
     try:
+        actions_lib.create_aws_config_files()
         return get_instance_ip_address(tag_name, instance_name).get('Private')
     except Exception as err:
         logging.error("Error with getting private ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
