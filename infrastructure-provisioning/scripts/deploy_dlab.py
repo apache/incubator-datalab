@@ -132,11 +132,13 @@ def deploy_dlab(args):
 
 def terminate_dlab(args):
     # Dropping Dlab environment with selected infrastructure tag
-    local('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -e "region={2}" -e "conf_service_base_name={3}" '
-          '-e "conf_resource=ssn" -e "aws_access_key={4}" -e "aws_secret_access_key={5}" '
-          'docker.dlab-ssn --action {6}'.
-          format(args.key_path, args.conf_key_name, args.region, args.infrastructure_tag, args.access_key_id,
-                 args.secret_access_key, args.action))
+    docker_command = generate_docker_command()
+    local(docker_command)
+    # local('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -e "region={2}" -e "conf_service_base_name={3}" '
+    #       '-e "conf_resource=ssn" -e "aws_access_key={4}" -e "aws_secret_access_key={5}" '
+    #       'docker.dlab-ssn --action {6}'.
+    #       format(args.key_path, args.conf_key_name, args.region, args.infrastructure_tag, args.access_key_id,
+    #              args.secret_access_key, args.action))
 
 if __name__ == "__main__":
     if not args.workspace_path:
