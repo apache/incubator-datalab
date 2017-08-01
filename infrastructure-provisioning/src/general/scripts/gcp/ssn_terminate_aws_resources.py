@@ -43,7 +43,7 @@ if __name__ == "__main__":
         instances = GCPMeta().get_list_instances(args.zone, args.service_base_name)
         print "INSTANCES-----"
         print str(instances)
-        if instances:
+        if instances['items']:
             for i in instances['items']:
                 GCPActions().remove_instance(i['name'], args.zone)
     except:
