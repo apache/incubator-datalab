@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     print "Removing subnets"
     try:
-        list_subnets = GCPMeta().get_list_subnetworks(args.region, filter_string=args.service_base_name)
+        list_subnets = GCPMeta().get_list_subnetworks(args.region, '', args.service_base_name)
         print str(list_subnets)
         if 'items' in list_subnets:
             vpc_selflink = list_subnets['items'][0]['network']
