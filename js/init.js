@@ -6,7 +6,8 @@ var macSwiper,
     screenSliderTop,
     screenSliderThumbs,
     solverSlider,
-    macNavigation = $('.controls-nav');
+    macNavigation = $('.controls-nav'),
+    screenThumbsNavigation = $('.screen-slider-thumbs');
 
 function stopMacVideos(){
     'use strict';
@@ -19,6 +20,11 @@ $(document).ready(function () {
     'use strict';
     macNavigation.on('click', 'mark', function(){
         macSwiper.slideTo( $(this).data('slide') );
+        return false;
+    });
+
+    screenThumbsNavigation.on('click', 'div', function(){
+        screenSliderTop.slideTo( $(this).data('slide') );
         return false;
     });
 
@@ -75,23 +81,10 @@ $(window).on('load', function() {
         prevButton              : '.screen-slider-top .swiper-button-prev',
         lazyLoadingInPrevNext   : true,
         preloadImages           : false,
-        lazyLoading             : true
-    });
-    screenSliderThumbs = new Swiper('.screen-slider-thumbs', {
-        slideToClickedSlide     : true,
-        slidesPerView           : 'auto',
-        centeredSlides          : true,
-        spaceBetween            : 0,
-        effect: 'coverflow',
-        grabCursor: true,
-        coverflow: {
-            rotate: 10,
-            stretch: 30,
-            depth: 100,
-            modifier: 1,
-            slideShadows : false
+        lazyLoading             : true,
+        onSlideChangeStart      : function(swiper){
+            $('div', screenThumbsNavigation).removeClass('swiper-slide-active');
+            $('[data-slide="'+swiper.activeIndex+'"]', screenThumbsNavigation).addClass('swiper-slide-active');
         }
     });
-    screenSliderTop.params.control = screenSliderThumbs;
-    screenSliderThumbs.params.control = screenSliderTop;
 });

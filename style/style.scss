@@ -510,6 +510,7 @@ ul.list-points {
     li {
         position: relative;
         line-height: 30px;
+        font-size: 16px;
         &::before {
             content: '';
             position: absolute;
@@ -587,19 +588,9 @@ ul.list-points {
     margin-top: 40px;
     text-align: center;
     .mac-screen-wrap {
-        padding-top: 2rem;
+        padding-top: 1rem;
         .screen-slider-top {
             z-index: 1;
-            &:before {
-                background: #F9FAFC;
-                position: absolute;
-                height: 60px;
-                content: '';
-                z-index: -1;
-                bottom: 0;
-                right: 0;
-                left: 0;
-            }
             .mac-browser {
                 @include justify-content(center);
                 @include align-items(center);
@@ -609,7 +600,6 @@ ul.list-points {
                 .fake-browser-ui {
                     padding-top: 25px;
                     border-radius: 3px 3px 0 0;
-                    border-bottom: 2px solid #ccc;
                     background: #F6F8FB;
                     display: inline-block;
                     position: relative;
@@ -651,7 +641,11 @@ ul.list-points {
                 }
                 figcaption {
                     @include flex-basis(280px);
-                    margin-left: 60px
+                    margin-left: 80px;
+                    h3 {
+                        font-size: 24px;
+                        margin: 15px 0 15px -20px
+                    }
                 }
             }
             .swiper-button-black {
@@ -666,9 +660,10 @@ ul.list-points {
             }
         }
         .screen-slider-thumbs {
-            background: #F9FAFC;
-            padding: 40px 0;
+            padding: 30px 0;
             z-index: 0;
+            display: inline-flex;
+            font-size: 12px;
             .swiper-wrapper {
 //                margin-left: calc(-50% + 105.5px);
                 margin-left: calc(-25% + 164.5px);
@@ -682,19 +677,12 @@ ul.list-points {
                 background: $light;
                 cursor: pointer;
                 color: #485F76;
-                height: 126px;
-                width: 167px;
+                height: 100px;
+                width: 130px;
+                margin: 3px;
                 @extend .ani;
-                // &:before {
-                //     border: 2px solid #333;
-                //     margin-bottom: 18px;
-                //     @extend .ani;
-                //     height: 18px;
-                //     content: '';
-                //     width: 40px
-                // }
                 a {
-                    width: 50px;
+                    width: 40px;
                     margin: 5px;
                 }
                 &:hover {
@@ -702,7 +690,7 @@ ul.list-points {
                 }
                 &.swiper-slide-active {
                     box-shadow: 0 4px 16px 0 rgba(208,212,224,0.9);
-                    color: #485F76;
+                    color: $primary-green;
                     &:before {
                         border-color: $primary-green
                     }
@@ -718,6 +706,7 @@ ul.list-points {
 footer {
     background: $dark-grey;
     color: $light;
+    margin-top: 25px;
     article {
         padding: 3.5rem 0 3.2rem;
         text-align: center;

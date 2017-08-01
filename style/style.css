@@ -765,7 +765,8 @@ h2.heading {
 
 ul.list-points li {
   position: relative;
-  line-height: 30px; }
+  line-height: 30px;
+  font-size: 16px; }
   ul.list-points li::before {
     content: '';
     position: absolute;
@@ -825,18 +826,9 @@ ul.list-points li {
   margin-top: 40px;
   text-align: center; }
   .features .mac-screen-wrap {
-    padding-top: 2rem; }
+    padding-top: 1rem; }
     .features .mac-screen-wrap .screen-slider-top {
       z-index: 1; }
-      .features .mac-screen-wrap .screen-slider-top:before {
-        background: #F9FAFC;
-        position: absolute;
-        height: 60px;
-        content: '';
-        z-index: -1;
-        bottom: 0;
-        right: 0;
-        left: 0; }
       .features .mac-screen-wrap .screen-slider-top .mac-browser {
         -webkit-box-pack: center;
         -ms-flex-pack: center;
@@ -858,7 +850,6 @@ ul.list-points li {
         .features .mac-screen-wrap .screen-slider-top .mac-browser .fake-browser-ui {
           padding-top: 25px;
           border-radius: 3px 3px 0 0;
-          border-bottom: 2px solid #ccc;
           background: #F6F8FB;
           display: inline-block;
           position: relative;
@@ -899,7 +890,10 @@ ul.list-points li {
           -moz-flex-basis: 280px;
           -ms-flex-preferred-size: 280px;
           flex-basis: 280px;
-          margin-left: 60px; }
+          margin-left: 80px; }
+          .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption h3 {
+            font-size: 24px;
+            margin: 15px 0 15px -20px; }
       .features .mac-screen-wrap .screen-slider-top .swiper-button-black {
         -webkit-transform-origin: 50% 50% 0;
         -moz-transform-origin: 50% 50% 0;
@@ -916,9 +910,10 @@ ul.list-points li {
         .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-next {
           right: 20px; }
     .features .mac-screen-wrap .screen-slider-thumbs {
-      background: #F9FAFC;
-      padding: 40px 0;
-      z-index: 0; }
+      padding: 30px 0;
+      z-index: 0;
+      display: inline-flex;
+      font-size: 12px; }
       .features .mac-screen-wrap .screen-slider-thumbs .swiper-wrapper {
         margin-left: calc(-25% + 164.5px); }
       .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide {
@@ -947,16 +942,17 @@ ul.list-points li {
         background: #fff;
         cursor: pointer;
         color: #485F76;
-        height: 126px;
-        width: 167px; }
+        height: 100px;
+        width: 130px;
+        margin: 3px; }
         .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide a {
-          width: 50px;
+          width: 40px;
           margin: 5px; }
         .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide:hover {
           color: #1CBC79; }
         .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide.swiper-slide-active {
           box-shadow: 0 4px 16px 0 rgba(208, 212, 224, 0.9);
-          color: #485F76; }
+          color: #1CBC79; }
           .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide.swiper-slide-active:before {
             border-color: #1CBC79; }
   .features .features-nav {
@@ -968,7 +964,8 @@ ul.list-points li {
 
 footer {
   background: #262E36;
-  color: #fff; }
+  color: #fff;
+  margin-top: 25px; }
   footer article {
     padding: 3.5rem 0 3.2rem;
     text-align: center;
