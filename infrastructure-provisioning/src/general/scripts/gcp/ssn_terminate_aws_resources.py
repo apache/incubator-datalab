@@ -41,6 +41,8 @@ if __name__ == "__main__":
     print "Terminating instances"
     try:
         instances = GCPMeta().get_list_instances(args.zone, args.service_base_name)
+        print "INSTANCES-----"
+        print str(instances)
         if instances:
             for i in instances['items']:
                 GCPActions().remove_instance(i['name'], args.zone)
