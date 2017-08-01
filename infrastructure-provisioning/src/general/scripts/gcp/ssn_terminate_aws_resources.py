@@ -41,9 +41,7 @@ if __name__ == "__main__":
     print "Terminating instances"
     try:
         instances = GCPMeta().get_list_instances(args.zone, args.service_base_name)
-        print "INSTANCES-----"
-        print str(instances)
-        if instances['items']:
+        if 'items' in instances:
             for i in instances['items']:
                 GCPActions().remove_instance(i['name'], args.zone)
     except:
@@ -52,7 +50,7 @@ if __name__ == "__main__":
     print "Removing static addresses"
     try:
         static_addresses = GCPMeta().get_list_static_addresses(args.region, args.service_base_name)
-        if static_addresses:
+        if 'items' in static_addresses:
             for i in static_addresses['items']:
                 GCPActions().remove_static_address(i['name'], args.region)
     except:
@@ -60,7 +58,7 @@ if __name__ == "__main__":
     print "Removing firewalls"
     try:
         firewalls = GCPMeta().get_list_firewalls(args.service_base_name)
-        if firewalls:
+        if 'items' in firewalls:
             for i in firewalls['items']:
                 GCPActions().remove_firewall(i['name'])
     except:
@@ -70,7 +68,7 @@ if __name__ == "__main__":
     try:
         list_subnets = GCPMeta().get_list_subnetworks(args.region, filter_string=args.service_base_name)
         print str(list_subnets)
-        if list_subnets:
+        if 'items' in list_subnets:
             vpc_selflink = list_subnets['items'][0]['network']
             print "SELFLINK -> " + vpc_selflink
             vpc_name = vpc_selflink.split('/')[-1]
@@ -84,7 +82,7 @@ if __name__ == "__main__":
     print "Removing s3 buckets"
     try:
         buckets = GCPMeta().get_list_buckets(args.service_base_name)
-        if buckets:
+        if 'items' in buckets:
             for i in buckets['items']:
                 GCPActions().remove_bucket(i['name'])
     except:
