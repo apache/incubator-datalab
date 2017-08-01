@@ -42,10 +42,12 @@ class GCPMeta:
                                        'https://www.googleapis.com/auth/cloud-platform'))
             self.service = build('compute', 'v1', credentials = credentials)
             self.service_iam = build('iam', 'v1', credentials=credentials)
+            self.service_storage = build('storage', 'v1', credentials=credentials)
             self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
         else:
             self.service = build('compute', 'v1')
             self.service_iam = build('iam', 'v1')
+            self.service_storage = build('storage', 'v1')
             self.storage_client = storage.Client()
 
     def get_vpc(self, network_name):
@@ -240,6 +242,102 @@ class GCPMeta:
             logging.info("Error with getting disk by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Error with getting disk by name",
                        "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def get_list_instances(self, zone, filter_string=''):
+        try:
+            if not filter_string:
+                request = self.service.instances().list(project=self.project, zone=zone)
+            else:
+                request = self.service.instances().list(project=self.project, zone=zone, filter='name eq {}-.*'.
+                                                        format(filter_string))
+            result = request.execute()
+            return result
+        except Exception as err:
+            logging.info("Error with getting list instances: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Error with getting list instances",
+                       "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def get_list_firewalls(self, filter_string=''):
+        try:
+            if not filter_string:
+                request = self.service.firewalls().list(project=self.project)
+            else:
+                request = self.service.firewalls().list(project=self.project, filter='name eq {}-.*'.format(
+                    filter_string))
+            result = request.execute()
+            return result
+        except Exception as err:
+            logging.info("Error with getting list firewalls: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Error with getting list firewalls",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def get_list_subnetworks(self, region, vpc_name='', filter_string=''):
+        try:
+            if not filter_string and not vpc_name:
+                request = self.service.subnetworks().list(project=self.project, region=region)
+            elif vpc_name and not filter_string:
+                request = self.service.subnetworks().list(
+                    project=self.project, region=region,
+                    filter=
+                    '(network eq https://www.googleapis.com/compute/v1/projects/{}/global/networks/{}) (name eq .*)'.format(
+                        self.project, vpc_name))
+            elif filter_string and vpc_name:
+                request = self.service.subnetworks().list(
+                    project=self.project, region=region,
+                    filter=
+                    '(network eq https://www.googleapis.com/compute/v1/projects/{}/global/networks/{}) (name eq {}-.*)'.format(
+                        self.project, vpc_name, filter_string))
+            elif filter_string and not vpc_name:
+                request = self.service.subnetworks().list(
+                    project=self.project, region=region,
+                    filter='name eq {}-.*'.format(self.project, filter_string))
+            result = request.execute()
+            return result
+        except Exception as err:
+            logging.info("Error with getting list subnetworks: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Error with getting list subnetworks",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def get_list_buckets(self, prefix=''):
+        try:
+            if not prefix:
+                request = self.service_storage.buckets().list(project=self.project)
+            else:
+                request = self.service_storage.buckets().list(project=self.project, prefix='{}'.format(prefix))
+            result = request.execute()
+            return result
+        except Exception as err:
+            logging.info("Error with getting list buckets: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Error with getting list buckets",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def get_list_static_addresses(self, region, filter_string=''):
+        try:
+            if not filter_string:
+                request = self.service.addresses().list(project=self.project, region=region)
+            else:
+                request = self.service.addresses().list(project=self.project, region=region,
+                                                        filter='name eq {}-.*'.format(filter_string))
+            result = request.execute()
+            return result
+        except Exception as err:
+            logging.info("Error with getting list static addresses: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Error with getting list static addresses",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
 

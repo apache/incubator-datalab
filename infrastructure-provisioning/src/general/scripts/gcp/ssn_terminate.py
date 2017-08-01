@@ -34,15 +34,14 @@ if __name__ == "__main__":
     print 'Generating infrastructure names and tags'
     ssn_conf = dict()
     ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
-    ssn_conf['tag_name'] = ssn_conf['service_base_name'] + '-Tag'
-    ssn_conf['edge_sg'] = ssn_conf['service_base_name'] + "*" + '-edge'
-    ssn_conf['nb_sg'] = ssn_conf['service_base_name'] + "*" + '-nb'
+    ssn_conf['region'] = os.environ['gcp_region']
+    ssn_conf['zone'] = os.environ['gcp_zone']
 
     try:
         logging.info('[TERMINATE SSN]')
         print '[TERMINATE SSN]'
-        params = "--tag_name {} --edge_sg {} --nb_sg {} --service_base_name {}". \
-                 format(ssn_conf['tag_name'], ssn_conf['edge_sg'], ssn_conf['nb_sg'], ssn_conf['service_base_name'])
+        params = "--service_base_name {} --region {} --zone {}".format(ssn_conf['service_base_name'],
+                                                                       ssn_conf['region'], ssn_conf['zone'])
         try:
             local("~/scripts/{}.py {}".format('ssn_terminate_aws_resources', params))
         except:
