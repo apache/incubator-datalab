@@ -298,6 +298,8 @@ class GCPMeta:
                 request = self.service.subnetworks().list(
                     project=self.project, region=region,
                     filter='name eq {}-.*'.format(self.project, filter_string))
+            else:
+                print "CONDITION NOT WORKING---------------"
             result = request.execute()
             return result
         except Exception as err:
