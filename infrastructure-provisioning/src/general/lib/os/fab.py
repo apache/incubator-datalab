@@ -529,19 +529,20 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             sys.exit(1)
 
 
-
 def install_r_pkg(requisites):
     status = list()
     try:
         for r_pkg in requisites:
-            try:
-                sudo('R -e \'install.packages("'+ r_pkg +'", repos="http://cran.us.r-project.org", dep=TRUE)\'')
-                res = sudo('R -e \'installed.packages()[,c(3:4)]\' | grep ' + r_pkg)
+            sudo('R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\'  2>&1 | if ! grep -w -E  "(ERROR:|error:|Cannot|failed|Please run|requires)" >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg))
+            err = sudo('cat /tmp/install_{0}.log'.format(r_pkg)).replace('"', "'")
+            sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(r_pkg))
+            res = sudo('cat /tmp/install_{0}.list'.format(r_pkg))
+            if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 version = ansi_escape.sub('', res).split("\r\n")[0].split('"')[1]
                 status.append({"group": "r_pkg", "name": r_pkg, "version": version, "status": "installed"})
-            except:
-                status.append({"group": "r_pkg", "name": r_pkg, "status": "failed", "error_message": ""})
+            else:
+                status.append({"group": "r_pkg", "name": r_pkg, "status": "failed", "error_message": err})
         return status
     except:
         return "Fail to install R packages"
