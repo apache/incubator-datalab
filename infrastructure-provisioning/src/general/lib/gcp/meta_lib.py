@@ -297,9 +297,7 @@ class GCPMeta:
             elif filter_string and not vpc_name:
                 request = self.service.subnetworks().list(
                     project=self.project, region=region,
-                    filter='name eq {}-.*'.format(self.project, filter_string))
-            else:
-                print "CONDITION NOT WORKING---------------"
+                    filter='name eq {}-.*'.format(filter_string))
             result = request.execute()
             return result
         except Exception as err:
