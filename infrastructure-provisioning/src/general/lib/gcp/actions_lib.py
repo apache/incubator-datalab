@@ -46,13 +46,10 @@ class GCPActions:
             self.service_iam = build('iam', 'v1', credentials=credentials)
             self.service_storage = build('storage', 'v1', credentials=credentials)
             self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
-        elif os.environ['conf_resource'] == 'dataproc':
-            self.service = build('dataproc', 'v1')
-            self.service_iam = build('iam', 'v1')
-            self.storage_client = storage.Client()
         else:
             self.service = build('compute', 'v1')
             self.service_iam = build('iam', 'v1')
+            self.service = build('dataproc', 'v1')
             self.service_storage = build('storage', 'v1')
             self.storage_client = storage.Client()
 
