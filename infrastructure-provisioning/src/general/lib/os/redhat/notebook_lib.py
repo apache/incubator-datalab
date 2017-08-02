@@ -323,10 +323,9 @@ def install_os_pkg(requisites):
         sudo('yum update-minimal --security -y')
         sudo('export LC_ALL=C')
         for os_pkg in requisites:
-            sudo('yum -y install {0} 2>&1 | if ! grep -w -E  "(Could not|No matching|Error:|failed)" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg))
+            sudo('yum -y install {0} --nogpgcheck 2>&1 | if ! grep -w -E  "(Could not|No matching|Error:|failed)" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg))
             err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
-            sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\'][0]" | | if ! grep {0}/ > /tmp/os_install_{0}.list; then  echo "" > /tmp/os_install_{0}.list;fi'.format(os_pkg))
-            res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
+            res = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\'][0]"'.format(os_pkg))
             if res:
                 version = res.split('\r\n')[1].replace("'", "\"")
                 status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
