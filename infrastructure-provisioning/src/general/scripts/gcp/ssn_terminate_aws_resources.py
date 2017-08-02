@@ -90,4 +90,4 @@ if __name__ == "__main__":
     try:
         GCPActions().remove_vpc(args.service_base_name + '-ssn-vpc')
     except:
-        print "There is no pre-defined VPC"
+        print "No such VPC"
