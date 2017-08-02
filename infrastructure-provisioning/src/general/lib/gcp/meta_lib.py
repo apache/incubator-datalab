@@ -48,6 +48,7 @@ class GCPMeta:
             self.service = build('compute', 'v1')
             self.service_iam = build('iam', 'v1')
             self.service_storage = build('storage', 'v1')
+            self.dataproc = build('dataproc', 'v1')
             self.storage_client = storage.Client()
 
     def get_vpc(self, network_name):
@@ -340,6 +341,41 @@ class GCPMeta:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
+
+    def get_list_instance_statuses(self, instance_name_list):
+        data = []
+        for instance_name in instance_name_list:
+            host = {}
+            try:
+                request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
+                                                       instance=instance_name)
+                result = request.execute()
+                host['id'] = instance_name
+                host['status'] = result.get('status').lower().replace("terminated", "stoped")
+                data.append(host)
+            except:
+                host['resource_type'] = 'host'
+                host['id'] = instance_name
+                host['status'] = 'terminated'
+                data.append(host)
+        return data
+
+    def get_list_cluster_statuses(self, cluster_names, data=[]):
+        for cluster in cluster_names:
+            host = {}
+            try:
+                request = self.dataproc.projects().regions().clusters().get(projectId=self.project,
+                                                                            region=os.environ['gcp_region'],
+                                                                            clusterName=cluster)
+                result = request.execute()
+                host['id'] = cluster
+                host['status'] = result.get('status').get('state').lower()
+                data.append(host)
+            except:
+                host['id'] = cluster
+                host['status'] = 'terminated'
+                data.append(host)
+        return data
 
 
 def get_instance_private_ip_address(tag_name, instance_name):
