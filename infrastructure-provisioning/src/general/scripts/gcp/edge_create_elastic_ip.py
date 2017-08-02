@@ -38,7 +38,10 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        print "Creating Elastic IP"
-        GCPActions().create_static_address(args.address_name, args.region)
+        if GCPMeta().get_static_address(args.region, args.address_name):
+            print "REQUESTED STATIC ADDRESS {} ALREADY EXISTS".format(args.address_name)
+        else:
+            print "Creating Elastic IP"
+            GCPActions().create_static_address(args.address_name, args.region)
     except:
         sys.exit(1)

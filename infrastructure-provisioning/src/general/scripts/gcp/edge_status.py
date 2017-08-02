@@ -46,5 +46,5 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to collect necessary information.", str(err))
+        append_result("Failed to collect information about DLAB resources.", str(err))
         sys.exit(1)
