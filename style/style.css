@@ -410,6 +410,9 @@ header {
               color: #fff; }
               header nav > ul > li .sub-menu li a:hover {
                 background: #485F76; }
+            header nav > ul > li .sub-menu li ul {
+              display: flex;
+              justify-content: center; }
 
 .content-desc {
   text-align: center;
