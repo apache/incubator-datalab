@@ -724,10 +724,18 @@ footer {
     }
     .logo-wrap {
         @include flexbox();
+        span {
+            font-size: 14px;
+            align-self: center;
+        }
         div {
             flex: 1;
-            margin-top: 20px;
+            align-self: center;
             a {
+                display: inline-flex;
+                width: 60px;
+                height: 30px;
+                vertical-align: bottom;
                 color: $light;
             }
         }

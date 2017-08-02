@@ -984,10 +984,17 @@ footer {
     display: -moz-flex;
     display: -ms-flexbox;
     display: flex; }
+    footer .logo-wrap span {
+      font-size: 14px;
+      align-self: center; }
     footer .logo-wrap div {
       flex: 1;
-      margin-top: 20px; }
+      align-self: center; }
       footer .logo-wrap div a {
+        display: inline-flex;
+        width: 60px;
+        height: 30px;
+        vertical-align: bottom;
         color: #fff; }
   footer ul {
     display: -webkit-box;
