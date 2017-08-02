@@ -555,14 +555,41 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
             return ''
 
+    def put_to_bucket(self, bucket_name, local_file, dest_file):
+        try:
+            bucket = self.storage_client.get_bucket(bucket_name)
+            blob = bucket.blob(dest_file)
+            blob.upload_from_filename(local_file)
+            return True
+        except:
+            return False
+
+
+    def get_from_bucket(self, bucket_name, dest_file, local_file):
+        try:
+            bucket = self.storage_client.get_bucket(bucket_name)
+            blob = bucket.blob(local_file)
+            if blob.exists():
+                blob.download_to_filename(dest_file)
+                return True
+            else:
+                return False
+        except exceptions.NotFound:
+            return False
+
+
     def get_gitlab_cert(self, bucket_name, certfile):
         try:
             bucket = self.storage_client.get_bucket(bucket_name)
             blob = bucket.blob(certfile)
-            blob.download_to_filename(certfile)
-            return True
+            if blob.exists():
+                blob.download_to_filename(certfile)
+                return True
+            else:
+                return False
         except exceptions.NotFound:
             return False
+
 
     def create_dataproc_cluster(self, cluster_name, region, params):
         request = self.service.projects().regions().clusters().create(projectId=self.project, region=region, body=params)
