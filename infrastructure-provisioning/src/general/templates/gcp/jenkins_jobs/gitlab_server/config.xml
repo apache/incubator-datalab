@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<project>
+  <actions/>
+  <description>Install own GitLab server.</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Region</name>
+          <description>Region where infrastructure was deployed</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>us-west-2</string>
+              <string>us-west-1</string>
+              <string>us-east-2</string>
+              <string>us-east-1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>subnet_id</name>
+          <description>aws subnet id</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>sg_ids</name>
+          <description>aws security groups ids</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>root_password</name>
+          <description>ROOT password for GitLab admin.</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>ldap_host</name>
+          <description>LDAP server hostname</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>ldap_user</name>
+          <description>LDAP bind name</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>ldap_pass</name>
+          <description>LDAP password</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Action</name>
+          <description>For more parameters see gitlab.ini file.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>create</string>
+              <string>terminate</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>DLAB_PATH=&quot;/opt/dlab&quot;
+GITLAB_CONFIG_FILE=&quot;$DLAB_PATH/tmp/gitlab/gitlab.ini&quot;
+if [ ! -f $DLAB_PATH/tmp/gitlab/gitlab.ini.bak ]; then
+        sudo cp $GITLAB_CONFIG_FILE $DLAB_PATH/tmp/gitlab/gitlab.ini.bak
+fi
+sudo cp $DLAB_PATH/tmp/gitlab/gitlab.ini.bak $GITLAB_CONFIG_FILE
+
+sudo sed -i &quot;s/AWS_REGION/$Region/g&quot; $GITLAB_CONFIG_FILE
+sudo sed -i &quot;s/AWS_SUBNET_ID/$subnet_id/g&quot; $GITLAB_CONFIG_FILE
+sudo sed -i &quot;s/AWS_SG_IDS/$sg_ids/g&quot; $GITLAB_CONFIG_FILE
+sudo sed -i &quot;s/LDAP_HOST/$ldap_host/g&quot; $GITLAB_CONFIG_FILE
+sudo sed -i &quot;s/LDAP_USER/$ldap_user/g&quot; $GITLAB_CONFIG_FILE
+sudo sed -i &quot;s/LDAP_PASS/$ldap_pass/g&quot; $GITLAB_CONFIG_FILE
+sudo sed -i &quot;s/GITLAB_ROOT_PASSWORD/$root_password/g&quot; $GITLAB_CONFIG_FILE
+
+sudo /usr/bin/python $DLAB_PATH/tmp/gitlab/gitlab_deploy.py --action $Action</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
