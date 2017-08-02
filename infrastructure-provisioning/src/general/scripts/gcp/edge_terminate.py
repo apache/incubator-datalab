@@ -68,7 +68,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
         if 'items' in list_subnets:
             vpc_selflink = list_subnets['items'][0]['network']
             vpc_name = vpc_selflink.split('/')[-1]
-            subnets = GCPMeta().get_list_subnetworks(region, vpc_name, service_base_name)
+            subnets = GCPMeta().get_list_subnetworks(region, vpc_name, service_base_name + '-' + user_name)
             for i in subnets['items']:
                 GCPActions().remove_subnet(i['name'], region)
     except:

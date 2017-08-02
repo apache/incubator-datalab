@@ -66,7 +66,7 @@ if __name__ == "__main__":
         notebook_config['exploratory_name'] = os.environ['exploratory_name']
     except:
         notebook_config['exploratory_name'] = ''
-    notebook_config['subnet_name'] = notebook_config['service_base_name'] + '-' + os.environ['edge_user_name']
+    notebook_config['subnet_name'] = notebook_config['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
     notebook_config['instance_size'] = os.environ['gcp_notebook_instance_size']
     notebook_config['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
     notebook_config['notebook_service_account_name'] = "dlabowner"
