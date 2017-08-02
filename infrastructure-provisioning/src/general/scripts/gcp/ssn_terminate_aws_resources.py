@@ -55,6 +55,7 @@ if __name__ == "__main__":
                 GCPActions().remove_static_address(i['name'], args.region)
     except:
         sys.exit(1)
+
     print "Removing firewalls"
     try:
         firewalls = GCPMeta().get_list_firewalls(args.service_base_name)
