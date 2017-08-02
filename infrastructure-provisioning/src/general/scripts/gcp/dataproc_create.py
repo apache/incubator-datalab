@@ -18,7 +18,7 @@
 #
 # ******************************************************************************
 
-# v1.3 from 05/10/2016
+
 import boto3
 from botocore.client import Config
 import argparse
@@ -31,40 +31,9 @@ from dlab.actions_lib import *
 import json
 
 parser = argparse.ArgumentParser()
-# parser.add_argument('--id', type=str, default='')
-parser.add_argument('--dry_run', action='store_true', help='Print all variables')
-parser.add_argument('--name', type=str, default='', help='Name to be applied to Cluster ( MANDATORY !!! )')
-parser.add_argument('--applications', type=str, default='',
-                    help='Set of applications to be installed on EMR (Default are: "Hadoop Hive Hue Spark")')
-parser.add_argument('--master_instance_type', type=str, default='', help='EC2 instance size for Master-Node (Default: m3.xlarge)')
-parser.add_argument('--slave_instance_type', type=str, default='', help='EC2 instance size for Worker-Nodes (Default: m3.xlarge)')
-parser.add_argument('--instance_count', type=int, default='',
-                    help='Number of nodes the cluster will consist of (Default: 3)')
-parser.add_argument('--release_label', type=str, default='', help='EMR release version (Default: "emr-4.8.0")')
-parser.add_argument('--steps', type=str, default='')
-parser.add_argument('--tags', type=str, default='')
-parser.add_argument('--auto_terminate', action='store_true')
-parser.add_argument('--service_role', type=str, default='',
-                    help='Role name EMR cluster (Default: "EMR_DefaultRole")')
-parser.add_argument('--ec2_role', type=str, default='',
-                    help='Role name for EC2 instances in cluster (Default: "EMR_EC2_DefaultRole")')
-parser.add_argument('--ssh_key', type=str, default='')
-parser.add_argument('--availability_zone', type=str, default='')
-parser.add_argument('--subnet', type=str, default='', help='Subnet CIDR')
-parser.add_argument('--cp_jars_2_s3', action='store_true',
-                    help='Copy executable JARS to S3 (Need only once per EMR release version)')
-parser.add_argument('--nbs_ip', type=str, default='', help='Notebook server IP cluster should be attached to')
-parser.add_argument('--nbs_user', type=str, default='',
-                    help='Username to be used for connection to Notebook server')
-parser.add_argument('--s3_bucket', type=str, default='', help='S3 bucket name to work with')
-parser.add_argument('--emr_timeout', type=int)
-parser.add_argument('--configurations', type=str, default='')
-parser.add_argument('--region', type=str, default='')
-parser.add_argument('--key_dir', type=str, default='')
-parser.add_argument('--edge_user_name', type=str, default='')
-parser.add_argument('--slave_instance_spot', type=str, default='False')
-parser.add_argument('--bid_price', type=str, default='')
-parser.add_argument('--service_base_name', type=str, default='')
+parser.add_argument('--region', type=str, help='Print all variables')
+parser.add_argument('--params', type=str, help='Name to be applied to Cluster ( MANDATORY !!! )')
+
 args = parser.parse_args()
 
 if args.region == 'us-east-1':

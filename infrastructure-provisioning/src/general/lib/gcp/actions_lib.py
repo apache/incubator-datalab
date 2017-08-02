@@ -25,6 +25,7 @@ from google.cloud import storage
 from googleapiclient import errors
 import meta_lib
 import os
+import json
 import logging
 import traceback
 import sys, time
@@ -44,6 +45,10 @@ class GCPActions:
             self.service = build('compute', 'v1', credentials=credentials)
             self.service_iam = build('iam', 'v1', credentials=credentials)
             self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
+        elif os.environ['conf_resource'] == 'dataproc':
+            self.service = build('dataproc', 'v1')
+            self.service_iam = build('iam', 'v1')
+            self.storage_client = storage.Client()
         else:
             self.service = build('compute', 'v1')
             self.service_iam = build('iam', 'v1')
@@ -53,7 +58,9 @@ class GCPActions:
         network_params = {'name': vpc_name, 'autoCreateSubnetworks': False}
         request = self.service.networks().insert(project=self.project, body=network_params)
         try:
+            print "Create VPC {}".format(vpc_name)
             result = request.execute()
+            time.sleep(5)
             vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
             while not vpc_created:
                 print "VPC {} is still being created".format(vpc_name)
@@ -98,7 +105,9 @@ class GCPActions:
         request = self.service.subnetworks().insert(
             project=self.project, region=region, body=subnetwork_params)
         try:
+            print "Create subnet {}".format(subnet_name)
             result = request.execute()
+            time.sleep(5)
             subnet_created = meta_lib.GCPMeta().get_subnet(subnet_name, region)
             while not subnet_created:
                 print "Subnet {} is still being created".format(subnet_name)
@@ -555,3 +564,19 @@ class GCPActions:
             return True
         except exceptions.NotFound:
             return False
+
+    def create_dataproc_cluster(self, region, params):
+        request = self.service.projects().regions().clusters().create(projectId=self.project, region=region, body=params)
+        try:
+            result = request.execute()
+            pprint(result)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to create image from disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''

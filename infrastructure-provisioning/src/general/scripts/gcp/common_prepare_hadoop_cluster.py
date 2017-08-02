@@ -41,124 +41,97 @@ if __name__ == "__main__":
         os.environ['exploratory_name']
     except:
         os.environ['exploratory_name'] = ''
-    if os.path.exists('/response/.emr_creating_' + os.environ['exploratory_name']):
+    if os.path.exists('/response/.dataproc_creating_' + os.environ['exploratory_name']):
         time.sleep(30)
-    edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
-        os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-edge')
-    if edge_status != 'running':
-        logging.info('ERROR: Edge node is unavailable! Aborting...')
-        print 'ERROR: Edge node is unavailable! Aborting...'
-        put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'])
-        append_result("Edge node is unavailable")
-        sys.exit(1)
+    # edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
+    #     os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-edge')
+    # if edge_status != 'running':
+    #     logging.info('ERROR: Edge node is unavailable! Aborting...')
+    #     print 'ERROR: Edge node is unavailable! Aborting...'
+    #     put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'])
+    #     append_result("Edge node is unavailable")
+    #     sys.exit(1)
     print 'Generating infrastructure names and tags'
-    emr_conf = dict()
-    emr_conf['uuid'] = str(uuid.uuid4())[:5]
+    dataproc_conf = dict()
+    dataproc_conf['uuid'] = str(uuid.uuid4())[:5]
     try:
-        emr_conf['exploratory_name'] = os.environ['exploratory_name']
+        dataproc_conf['exploratory_name'] = os.environ['exploratory_name']
     except:
-        emr_conf['exploratory_name'] = ''
+        dataproc_conf['exploratory_name'] = ''
     try:
-        emr_conf['computational_name'] = os.environ['computational_name']
+        dataproc_conf['computational_name'] = os.environ['computational_name']
     except:
-        emr_conf['computational_name'] = ''
-    emr_conf['apps'] = 'Hadoop Hive Hue Spark'
-    emr_conf['service_base_name'] = os.environ['conf_service_base_name']
-    emr_conf['tag_name'] = emr_conf['service_base_name'] + '-Tag'
-    emr_conf['key_name'] = os.environ['conf_key_name']
-    emr_conf['region'] = os.environ['gcp_region']
-    emr_conf['release_label'] = os.environ['emr_version']
-    emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
-    emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
-    emr_conf['instance_count'] = os.environ['emr_instance_count']
-    emr_conf['notebook_ip'] = get_instance_ip_address(emr_conf['tag_name'], os.environ['notebook_instance_name']).get('Private')
-    emr_conf['role_service_name'] = os.environ['emr_service_role']
-    emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
-    emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + emr_conf['uuid'] + ', ' \
-                       + emr_conf['service_base_name'] + '-Tag=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + emr_conf['uuid']\
-                       + ', Notebook=' + os.environ['notebook_instance_name'] + ', State=not-configured'
-    emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + emr_conf['uuid']
-    emr_conf['bucket_name'] = (emr_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
-
-    tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']), "Value": "{}-{}-subnet".format(emr_conf['service_base_name'], os.environ['edge_user_name'])}
-    emr_conf['subnet_cidr'] = get_subnet_by_tag(tag)
-    emr_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
-    if os.environ['emr_slave_instance_spot'] == 'True':
-        emr_conf['slave_bid_price'] = (float(get_ec2_price(emr_conf['slave_instance_type'], emr_conf['region'])) *
-                                       int(os.environ['emr_slave_instance_spot_pct_price']))/100
-    else:
-        emr_conf['slave_bid_price'] = 0
-
-    try:
-        emr_conf['emr_timeout'] = os.environ['emr_timeout']
-    except:
-        emr_conf['emr_timeout'] = "1200"
+        dataproc_conf['computational_name'] = ''
+    # dataproc_conf['apps'] = 'Hadoop Hive Hue Spark'
+    dataproc_conf['service_base_name'] = os.environ['conf_service_base_name']
+    dataproc_conf['key_name'] = os.environ['conf_key_name']
+    dataproc_conf['key_path'] = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
+    dataproc_conf['region'] = os.environ['gcp_region']
+    dataproc_conf['zone'] = os.environ['gcp_zone']
+    dataproc_conf['cluster_name'] = dataproc_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-dataproc-' + dataproc_conf['exploratory_name'] + '-' + dataproc_conf['computational_name'] + '-' + dataproc_conf['uuid']
+    dataproc_conf['bucket_name'] = (dataproc_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
 
     print "Will create exploratory environment with edge node as access point as following: " + \
-          json.dumps(emr_conf, sort_keys=True, indent=4, separators=(',', ': '))
-    logging.info(json.dumps(emr_conf))
-
-    try:
-        emr_waiter(os.environ['notebook_instance_name'])
-        local('touch /response/.emr_creating_' + os.environ['exploratory_name'])
-    except Exception as err:
-        traceback.print_exc()
-        append_result("EMR waiter fail.", str(err))
-        sys.exit(1)
+          json.dumps(dataproc_conf, sort_keys=True, indent=4, separators=(',', ': '))
+    logging.info(json.dumps(dataproc_conf))
 
     local("echo Waiting for changes to propagate; sleep 10")
 
+    dataproc_cluster = json.loads(open('/root/templates/dataproc_cluster.json').read().decode('utf-8-sig'))
+    dataproc_cluster['projectId'] = os.environ['gcp_project_id']
+    dataproc_cluster['clusterName'] = dataproc_conf['cluster_name']
+    dataproc_cluster['config']['gceClusterConfig']['zoneUri'] = dataproc_conf['zone']
+    dataproc_cluster['config']['gceClusterConfig']['subnetworkUri'] = os.environ['gcp_subnet_name']
+    # dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] =
+    dataproc_cluster['config']['masterConfig']['machineTypeUri'] = os.environ['dataproc_master_instance_type']
+    dataproc_cluster['config']['workerConfig']['machineTypeUri'] = os.environ['dataproc_slave_instance_type']
+    dataproc_cluster['config']['workerConfig']['numInstances'] = int(os.environ['dataproc_instance_count']) - 1
+    ssh_user = os.environ['conf_os_user']
+    ssh_pubkey = open(os.environ['conf_key_dir'] + os.environ['edge_user_name'] + '.pub').read()
+    dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{}:{}'.format(ssh_user, ssh_pubkey)
+
     try:
-        logging.info('[Creating EMR Cluster]')
-        print '[Creating EMR Cluster]'
-        params = "--name {} --applications '{}' --master_instance_type {} --slave_instance_type {} --instance_count {} --ssh_key {} --release_label {} --emr_timeout {} --subnet {} --service_role {} --ec2_role {} --nbs_ip {} --nbs_user {} --s3_bucket {} --region {} --tags '{}' --key_dir {} --edge_user_name {} --slave_instance_spot {} --bid_price {} --service_base_name {}"\
-            .format(emr_conf['cluster_name'], emr_conf['apps'], emr_conf['master_instance_type'],
-                    emr_conf['slave_instance_type'], emr_conf['instance_count'], emr_conf['key_name'],
-                    emr_conf['release_label'], emr_conf['emr_timeout'], emr_conf['subnet_cidr'],
-                    emr_conf['role_service_name'], emr_conf['role_ec2_name'], emr_conf['notebook_ip'],
-                    os.environ['conf_os_user'], emr_conf['bucket_name'], emr_conf['region'], emr_conf['tags'],
-                    os.environ['conf_key_dir'], os.environ['edge_user_name'], os.environ['emr_slave_instance_spot'],
-                    str(emr_conf['slave_bid_price']), emr_conf['service_base_name'])
+        logging.info('[Creating Dataproc Cluster]')
+        print '[Creating Dataproc Cluster]'
+        params = "--region {} --params '{}'".format(dataproc_conf['region'], dataproc_cluster)
+
         try:
-            local("~/scripts/{}.py {}".format('emr_create', params))
+            local("~/scripts/{}.py {}".format('dataproc_create', params))
         except:
             traceback.print_exc()
             raise Exception
 
-        cluster_name = emr_conf['cluster_name']
-        keyfile_name = "/root/keys/{}.pem".format(emr_conf['key_name'])
-        local('rm /response/.emr_creating_' + os.environ['exploratory_name'])
+        keyfile_name = "/root/keys/{}.pem".format(dataproc_conf['key_name'])
+        # local('rm /response/.dataproc_creating_' + os.environ['exploratory_name'])
     except Exception as err:
-        append_result("Failed to create EMR Cluster.", str(err))
-        local('rm /response/.emr_creating_' + os.environ['exploratory_name'])
-        emr_id = get_emr_id_by_name(emr_conf['cluster_name'])
-        terminate_emr(emr_id)
+        append_result("Failed to create Dataproc Cluster.", str(err))
+        local('rm /response/.dataproc_creating_' + os.environ['exploratory_name'])
         sys.exit(1)
 
     try:
         logging.info('[SUMMARY]')
         print '[SUMMARY]'
-        print "Service base name: " + emr_conf['service_base_name']
-        print "Cluster name: " + emr_conf['cluster_name']
-        print "Cluster id: " + get_emr_id_by_name(emr_conf['cluster_name'])
-        print "Key name: " + emr_conf['key_name']
-        print "Region: " + emr_conf['region']
-        print "EMR version: " + emr_conf['release_label']
-        print "EMR master node shape: " + emr_conf['master_instance_type']
-        print "EMR slave node shape: " + emr_conf['slave_instance_type']
-        print "Instance count: " + emr_conf['instance_count']
-        print "Notebook IP address: " + emr_conf['notebook_ip']
-        print "Bucket name: " + emr_conf['bucket_name']
+        print "Service base name: " + dataproc_conf['service_base_name']
+        print "Cluster name: " + dataproc_conf['cluster_name']
+        # print "Cluster id: " + get_emr_id_by_name(emr_conf['cluster_name'])
+        print "Key name: " + dataproc_conf['key_name']
+        print "Region: " + dataproc_conf['region']
+        # print "Dataroc version: " + dataproc_conf['release_label']
+        print "Dataroc master node shape: " + os.environ['dataproc_master_instance_type']
+        print "Dataroc slave node shape: " + os.environ['dataproc_slave_instance_type']
+        print "Instance count: " + os.environ['dataproc_instance_count']
+        # print "Notebook IP address: " + dataproc_conf['notebook_ip']
+        print "Bucket name: " + dataproc_conf['bucket_name']
         with open("/root/result.json", 'w') as result:
-            res = {"hostname": cluster_name,
-                   "instance_id": get_emr_id_by_name(emr_conf['cluster_name']),
-                   "key_name": emr_conf['key_name'],
-                   "user_own_bucket_name": emr_conf['bucket_name'],
-                   "Action": "Create new EMR cluster"}
+            res = {"hostname": dataproc_conf['cluster_name'],
+                   # "instance_id": get_emr_id_by_name(dataproc_conf['cluster_name']),
+                   "key_name": dataproc_conf['key_name'],
+                   "user_own_bucket_name": dataproc_conf['bucket_name'],
+                   "Action": "Create new Dataproc cluster"}
             print json.dumps(res)
             result.write(json.dumps(res))
     except:
         print "Failed writing results."
-        sys.exit(0)
+        sys.exit(1)
 
     sys.exit(0)

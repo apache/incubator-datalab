@@ -43,6 +43,7 @@ RUN mkdir -p /logs/ssn; chmod a+rwx /logs/ssn
 RUN mkdir -p /logs/edge; chmod a+rwx /logs/edge
 RUN mkdir -p /logs/notebook; chmod a+rwx /logs/notebook
 RUN mkdir -p /logs/emr; chmod a+rwx /logs/emr
+RUN mkdir -p /logs/dataproc; chmod a+rwx /logs/dataproc
 
 # Copying all base scripts to docker
 ENV PROVISION_CONFIG_DIR /root/conf/
