@@ -53,15 +53,17 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         sudo('{} install -U pip --no-cache-dir'.format(pip_version))
         sudo('{} install --upgrade pip'.format(pip_version))
         for pip_pkg in requisites:
-            try:
-                sudo('{0} install {1} --no-cache-dir'.format(pip_version, pip_pkg))
-                res = sudo('{0} freeze | grep {1}'.format(pip_version, pip_pkg))
+            sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -E  "(Could not|No matching|ImportError:|failed)" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
+            err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
+            sudo('{0} freeze | if ! grep -w {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
+            res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
+            if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
                 version = [i for i in ver if pip_pkg in i][0].split('==')[1]
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg, "version": version, "status": "installed"})
-            except:
-                status.append({"group": "{}".format(lib_group), "name": pip_pkg, "status": "failed", "error_message": ""})
+            else:
+                status.append({"group": "{}".format(lib_group), "name": pip_pkg, "status": "failed", "error_message": err})
         return status
     except:
         return "Failed to install {} packages".format(pip_version)
