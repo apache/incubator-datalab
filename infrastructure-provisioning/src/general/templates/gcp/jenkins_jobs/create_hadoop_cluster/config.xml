@@ -17,238 +17,95 @@ limitations under the License.
 
 -->
 <project>
-    <actions/>
-    <description>Create new EMR Cluster</description>
-    <keepDependencies>false</keepDependencies>
-    <properties>
-        <hudson.model.ParametersDefinitionProperty>
-            <parameterDefinitions>
-                <hudson.model.StringParameterDefinition>
-                    <name>Service_base_name</name>
-                    <description>unique infrastructure value that previously was used when ssn being provisioned</description>
-                    <defaultValue>SBN</defaultValue>
-                </hudson.model.StringParameterDefinition>
-                <hudson.model.StringParameterDefinition>
-                    <name>Nodes_Count</name>
-                    <description>Number of nodes the new cluster will consist of</description>
-                    <defaultValue></defaultValue>
-                </hudson.model.StringParameterDefinition>
-                <hudson.model.ChoiceParameterDefinition>
-                  <name>slave_spot_instance</name>
-                  <description>instance life cycle for EMR slaves</description>
-                  <choices class="java.util.Arrays$ArrayList">
-                    <a class="string-array">
-                      <string>False</string>
-                      <string>True</string>
-                    </a>
-                  </choices>
-                </hudson.model.ChoiceParameterDefinition>
-                <hudson.model.StringParameterDefinition>
-                    <name>slave_instance_spot_pct_price</name>
-                    <description>The percentage of EC2 instance price which will be used for Spot price. If spot instances is disabled, the value of this parameter can be anything.</description>
-                    <defaultValue>70</defaultValue>
-                </hudson.model.StringParameterDefinition>
-                <hudson.model.ChoiceParameterDefinition>
-                    <name>Master_node_size</name>
-                    <description>
-                        Memory optimized: S: r3.xlarge
-                        Memory optimized: M: r3.4xlarge
-                        Memory optimized: L: r3.8xlarge
-                        GPU optimized: M: g2.2xlarge
-                        Compute optimized: S: c4.large
-                        Compute optimized: M: c4.2xlarge
-                        Compute optimized: L: c4.8xlarge
-                    </description>
-                    <choices class="java.util.Arrays$ArrayList">
-                        <a class="string-array">
-                            <!--<string>m3.xlarge</string>
-                            <string>m3.2xlarge</string>
-                            <string>m4.large</string>
-                            <string>m4.xlarge</string>
-                            <string>m4.2xlarge</string>
-                            <string>m4.4xlarge</string>
-                            <string>m4.10xlarge</string>
-                            <string>m1.small</string>
-                            <string>m1.medium</string>
-                            <string>m1.large</string>
-                            <string>m1.xlarge</string>
-                            <string>c3.xlarge</string>
-                            <string>c3.2xlarge</string>
-                            <string>c3.4xlarge</string>
-                            <string>c3.8xlarge</string>-->
-                            <string>c4.large</string>
-                            <!--<string>c4.xlarge</string>-->
-                            <string>c4.2xlarge</string>
-                            <!--<string>c4.4xlarge</string>-->
-                            <string>c4.8xlarge</string>
-                            <!--<string>c1.medium</string>
-                            <string>c1.xlarge</string>
-                            <string>cc2.8xlarge</string>-->
-                            <string>g2.2xlarge</string>
-                            <!--<string>cg1.4xlarge</string>-->
-                            <string>r3.xlarge</string>
-                           <!-- <string>r3.2xlarge</string>-->
-                            <string>r3.4xlarge</string>
-                            <string>r3.8xlarge</string>
-                            <!--<string>m2.xlarge</string>
-                            <string>m2.2xlarge</string>
-                            <string>m2.4xlarge</string>
-                            <string>cr1.8xlarge</string>
-                            <string>i2.xlarge</string>
-                            <string>i2.2xlarge</string>
-                            <string>i2.4xlarge</string>
-                            <string>i2.8xlarge</string>
-                            <string>d2.xlarge</string>
-                            <string>d2.2xlarge</string>
-                            <string>d2.4xlarge</string>
-                            <string>d2.8xlarge</string>
-                            <string>hi1.4xlarge</string>
-                            <string>hs1.8xlarge</string>-->
-                        </a>
-                    </choices>
-                </hudson.model.ChoiceParameterDefinition>
-                <hudson.model.ChoiceParameterDefinition>
-                    <name>Slave_node_size</name>
-                    <description>
-                        Memory optimized: S: r3.xlarge
-                        Memory optimized: M: r3.4xlarge
-                        Memory optimized: L: r3.8xlarge
-                        GPU optimized: M: g2.2xlarge
-                        Compute optimized: S: c4.large
-                        Compute optimized: M: c4.2xlarge
-                        Compute optimized: L: c4.8xlarge
-                    </description>
-                    <choices class="java.util.Arrays$ArrayList">
-                        <a class="string-array">
-                            <!--<string>m3.xlarge</string>
-                            <string>m3.2xlarge</string>
-                            <string>m4.large</string>
-                            <string>m4.xlarge</string>
-                            <string>m4.2xlarge</string>
-                            <string>m4.4xlarge</string>
-                            <string>m4.10xlarge</string>
-                            <string>m1.small</string>
-                            <string>m1.medium</string>
-                            <string>m1.large</string>
-                            <string>m1.xlarge</string>
-                            <string>c3.xlarge</string>
-                            <string>c3.2xlarge</string>
-                            <string>c3.4xlarge</string>
-                            <string>c3.8xlarge</string>-->
-                            <string>c4.large</string>
-                            <!--<string>c4.xlarge</string>-->
-                            <string>c4.2xlarge</string>
-                            <!--<string>c4.4xlarge</string>-->
-                            <string>c4.8xlarge</string>
-                            <!--<string>c1.medium</string>
-                            <string>c1.xlarge</string>
-                            <string>cc2.8xlarge</string>-->
-                            <string>g2.2xlarge</string>
-                            <!--<string>cg1.4xlarge</string>-->
-                            <string>r3.xlarge</string>
-                           <!-- <string>r3.2xlarge</string>-->
-                            <string>r3.4xlarge</string>
-                            <string>r3.8xlarge</string>
-                            <!--<string>m2.xlarge</string>
-                            <string>m2.2xlarge</string>
-                            <string>m2.4xlarge</string>
-                            <string>cr1.8xlarge</string>
-                            <string>i2.xlarge</string>
-                            <string>i2.2xlarge</string>
-                            <string>i2.4xlarge</string>
-                            <string>i2.8xlarge</string>
-                            <string>d2.xlarge</string>
-                            <string>d2.2xlarge</string>
-                            <string>d2.4xlarge</string>
-                            <string>d2.8xlarge</string>
-                            <string>hi1.4xlarge</string>
-                            <string>hs1.8xlarge</string>-->
-                        </a>
-                    </choices>
-                </hudson.model.ChoiceParameterDefinition>
-                <hudson.model.StringParameterDefinition>
-                    <name>Service_role</name>
-                    <description></description>
-                    <defaultValue>EMR_DefaultRole</defaultValue>
-                </hudson.model.StringParameterDefinition>
-                <hudson.model.StringParameterDefinition>
-                    <name>EMR_EC2_role</name>
-                    <description></description>
-                    <defaultValue>EMR_EC2_DefaultRole</defaultValue>
-                </hudson.model.StringParameterDefinition>
-                <hudson.model.ChoiceParameterDefinition>
-                    <name>Release_label</name>
-                    <description></description>
-                    <choices class="java.util.Arrays$ArrayList">
-                        <a class="string-array">
-                            <string>emr-5.2.0</string>
-                        </a>
-                    </choices>
-                </hudson.model.ChoiceParameterDefinition>
-                <hudson.model.StringParameterDefinition>
-                    <name>Notebook_name</name>
-                    <description>Name of the Notebook server</description>
-                    <defaultValue></defaultValue>
-                </hudson.model.StringParameterDefinition>
-                <hudson.model.StringParameterDefinition>
-                    <name>User_name</name>
-                    <description></description>
-                    <defaultValue></defaultValue>
-                </hudson.model.StringParameterDefinition>
-                <hudson.model.StringParameterDefinition>
-                    <name>SSH_Key_Name</name>
-                    <description></description>
-                    <defaultValue>AKEY</defaultValue>
-                </hudson.model.StringParameterDefinition>
-                <hudson.model.StringParameterDefinition>
-                    <name>Timeout</name>
-                    <description>Timeout for EMR during build. Not mandatory</description>
-                    <defaultValue>1500</defaultValue>
-                </hudson.model.StringParameterDefinition>
-                <hudson.model.ChoiceParameterDefinition>
-                  <name>notebook_app</name>
-                  <description>notebook application to be deployed</description>
-                  <choices class="java.util.Arrays$ArrayList">
-                    <a class="string-array">
-                      <string>jupyter</string>
-                      <string>rstudio</string>
-                      <string>zeppelin</string>
-                      <string>tensor</string>
-                    </a>
-                  </choices>
-                </hudson.model.ChoiceParameterDefinition>
-                <hudson.model.ChoiceParameterDefinition>
-                <hudson.model.ChoiceParameterDefinition>
-                    <name>Region</name>
-                    <description>aws region where infrastructure was deployed</description>
-                    <choices class="java.util.Arrays$ArrayList">
-                        <a class="string-array">
-                            <string>us-west-2</string>
-                            <string>us-west-1</string>
-                            <string>us-east-2</string>
-                            <string>us-east-1</string>
-                        </a>
-                    </choices>
-                </hudson.model.ChoiceParameterDefinition>
-            </parameterDefinitions>
-        </hudson.model.ParametersDefinitionProperty>
-    </properties>
-    <scm class="hudson.scm.NullSCM"/>
-    <canRoam>true</canRoam>
-    <disabled>false</disabled>
-    <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
-    <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-    <triggers/>
-    <concurrentBuild>false</concurrentBuild>
-    <builders>
-        <hudson.tasks.Shell>
-            <command>rand=`openssl rand -hex 10`;
-                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_hadoop_cluster/template_prepare.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/SPI/&apos;${slave_spot_instance}&apos;/g&apos; | sed &apos;s/SISPP/&apos;${slave_instance_spot_pct_price}&apos;/g&apos; | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ESR/&apos;${Service_role}&apos;/g&apos; | sed &apos;s/EE2R/&apos;${EMR_EC2_role}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | sed &apos;s/EMIT/&apos;${Master_node_size}&apos;/g&apos; | sed &apos;s/ESMT/&apos;${Slave_node_size}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/ETIM/&apos;${Timeout}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/emr:/logs/emr  docker.dlab-emr --action create;
-                rand=`openssl rand -hex 10`;
-                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_hadoop_cluster/template_configure.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/emr:/logs/emr  docker.dlab-${notebook_app} --action configure;
-            </command>
-        </hudson.tasks.Shell>
-    </builders>
-    <publishers/>
-    <buildWrappers/>
-</project>
+  <actions/>
+  <description>Create hadoop Server</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>Service_base_name</name>
+          <description>unique infrastructure value that previously was used when ssn being provisioned</description>
+          <defaultValue>om0208</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>gcp_project_id</name>
+          <description>ID of GCP project</description>
+          <defaultValue>GPI</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>gcp_subnet_name</name>
+          <description>name of om0208-ssn-vpc</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Username</name>
+          <description>name of the scientist</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SSH_Key_Name</name>
+          <description>name of the uploaded ssh key file (without &quot;.pem&quot;)</description>
+          <defaultValue>BDCC-DSS-POC</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Region</name>
+          <description>GCP region where infrastructure was deployed</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>us-west1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Zone</name>
+          <description>GCP zone where infrastructure was deployed</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>us-west1-a</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>exploratory_name</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>computational_name</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>instance_count</name>
+          <description></description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Action</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>create</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>rand=`openssl rand -hex 10`;
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_hadoop_cluster/template_prepare.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/GPI/&apos;${gcp_project_id}&apos;/g&apos; | sed &apos;s/GSN/&apos;${gcp_subnet_name}&apos;/g&apos; | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/CZON/&apos;${Zone}&apos;/g&apos; | sed &apos;s/EXN/&apos;${exploratory_name}&apos;/g&apos; | sed &apos;s/CON/&apos;${computational_name}&apos;/g&apos; | sed &apos;s/INC/&apos;${instance_count}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataproc:/logs/dataproc  docker.dlab-dataproc --action create;</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>r

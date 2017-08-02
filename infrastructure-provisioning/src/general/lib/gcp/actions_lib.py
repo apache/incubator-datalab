@@ -567,11 +567,15 @@ class GCPActions:
         except exceptions.NotFound:
             return False
 
-    def create_dataproc_cluster(self, region, params):
+    def create_dataproc_cluster(self, cluster_name, region, params):
         request = self.service.projects().regions().clusters().create(projectId=self.project, region=region, body=params)
         try:
             result = request.execute()
-            pprint(result)
+            cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+            while cluster_status[0]['status'] != 'running':
+                time.sleep(5)
+                print 'The cluster is being created... Please wait'
+                cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             return result
         except Exception as err:
             logging.info(
