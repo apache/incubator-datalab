@@ -318,18 +318,19 @@ def install_nodejs(os_user):
 
 def install_os_pkg(requisites):
     status = list()
+    error_parser = "Could not|No matching|Error:|failed|Requires:"
     try:
         print "Updating repositories and installing requested tools: ", requisites
-        sudo('yum update-minimal --security -y')
+        sudo('yum update-minimal --security -y --skip-broken')
         sudo('export LC_ALL=C')
         for os_pkg in requisites:
-            sudo('yum -y install {0} --nogpgcheck 2>&1 | if ! grep -w -E  "(Could not|No matching|Error:|failed)" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg))
+            sudo('yum -y install {0} --nogpgcheck 2>&1 | if ! grep -w -E  "({1})" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
             err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
-            res = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\'][0]"'.format(os_pkg))
-            if res:
+            try:
+                res = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print [pkg.vr for pkg in pl.installed if pkg.name == \'{0}\'][0]"'.format(os_pkg))
                 version = res.split('\r\n')[1].replace("'", "\"")
                 status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
-            else:
+            except:
                 status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": err})
         return status
     except:
@@ -338,7 +339,7 @@ def install_os_pkg(requisites):
 
 def get_available_os_pkgs():
     try:
-        sudo('yum update-minimal --security -y')
+        sudo('yum update-minimal --security -y --skip-broken')
         yum_raw = sudo('python -c "import os,sys,yum; yb = yum.YumBase(); pl = yb.doPackageLists(); print {pkg.name:pkg.vr for pkg in pl.available}"')
         yum_list = yum_raw.split('\r\n')[1].replace("'","\"")
         os_pkgs = json.loads(yum_list)
