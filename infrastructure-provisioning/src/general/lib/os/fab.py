@@ -45,6 +45,7 @@ def ensure_pip(requisites):
 
 def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
+    error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:"
     try:
         if pip_version == 'pip3':
             if not exists('/bin/pip3'):
@@ -53,14 +54,15 @@ def install_pip_pkg(requisites, pip_version, lib_group):
         sudo('{} install -U pip --no-cache-dir'.format(pip_version))
         sudo('{} install --upgrade pip'.format(pip_version))
         for pip_pkg in requisites:
-            sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -E  "(Could not|No matching|ImportError:|failed)" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg))
+            sudo('{0} install {1} --no-cache-dir 2>&1 | if ! grep -w -E  "({2})" >  /tmp/{0}install_{1}.log; then  echo "" > /tmp/{0}install_{1}.log;fi'.format(pip_version, pip_pkg, error_parser))
             err = sudo('cat /tmp/{0}install_{1}.log'.format(pip_version, pip_pkg)).replace('"', "'")
-            sudo('{0} freeze | if ! grep -w {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, pip_pkg))
-            res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, pip_pkg))
+            replaced_pip_pkg = pip_pkg.replace("_", "-")
+            sudo('{0} freeze | if ! grep -w {1} > /tmp/{0}install_{1}.list; then  echo "" > /tmp/{0}install_{1}.list;fi'.format(pip_version, replaced_pip_pkg))
+            res = sudo('cat /tmp/{0}install_{1}.list'.format(pip_version, replaced_pip_pkg))
             if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
-                version = [i for i in ver if pip_pkg in i][0].split('==')[1]
+                version = [i for i in ver if replaced_pip_pkg in i][0].split('==')[1]
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg, "version": version, "status": "installed"})
             else:
                 status.append({"group": "{}".format(lib_group), "name": pip_pkg, "status": "failed", "error_message": err})
@@ -533,9 +535,10 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
 
 def install_r_pkg(requisites):
     status = list()
+    error_parser = "ERROR:|error:|Cannot|failed|Please run|requires"
     try:
         for r_pkg in requisites:
-            sudo('R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\'  2>&1 | if ! grep -w -E  "(ERROR:|error:|Cannot|failed|Please run|requires)" >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg))
+            sudo('R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\'  2>&1 | if ! grep -w -E  "({1})" >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
             err = sudo('cat /tmp/install_{0}.log'.format(r_pkg)).replace('"', "'")
             sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(r_pkg))
             res = sudo('cat /tmp/install_{0}.list'.format(r_pkg))

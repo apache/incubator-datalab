@@ -312,11 +312,12 @@ def install_nodejs(os_user):
 
 def install_os_pkg(requisites):
     status = list()
+    error_parser = "Could not|No matching|Error:|failed|Requires:"
     try:
         print "Updating repositories and installing requested tools:", requisites
         sudo('apt-get update')
         for os_pkg in requisites:
-            sudo('apt-get -y install {0} 2>&1 | if ! grep -w -E  "(Could not|No matching|Error:|failed)" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg))
+            sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 | if ! grep -w -E  "({1})" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
             err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
             sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{0}.list; then  echo "" > /tmp/os_install_{0}.list;fi'.format(os_pkg))
             res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
