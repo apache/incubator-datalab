@@ -44,14 +44,16 @@ if __name__ == "__main__":
         os.environ['exploratory_name'] = ''
     if os.path.exists('/response/.dataproc_creating_' + os.environ['exploratory_name']):
         time.sleep(30)
-    # edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
-    #     os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-edge')
-    # if edge_status != 'running':
-    #     logging.info('ERROR: Edge node is unavailable! Aborting...')
-    #     print 'ERROR: Edge node is unavailable! Aborting...'
-    #     put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'])
-    #     append_result("Edge node is unavailable")
-    #     sys.exit(1)
+
+    edge_status = GCPMeta().get_instance_status(os.environ['conf_service_base_name'] + "-" +
+                                                os.environ['edge_user_name'] + '-edge')
+    if edge_status != 'RUNNING':
+        logging.info('ERROR: Edge node is unavailable! Aborting...')
+        print 'ERROR: Edge node is unavailable! Aborting...'
+        put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'])
+        append_result("Edge node is unavailable")
+        sys.exit(1)
+
     print 'Generating infrastructure names and tags'
     dataproc_conf = dict()
     dataproc_conf['uuid'] = str(uuid.uuid4())[:5]
@@ -63,12 +65,12 @@ if __name__ == "__main__":
         dataproc_conf['computational_name'] = os.environ['computational_name']
     except:
         dataproc_conf['computational_name'] = ''
-    # dataproc_conf['apps'] = 'Hadoop Hive Hue Spark'
     dataproc_conf['service_base_name'] = os.environ['conf_service_base_name']
     dataproc_conf['key_name'] = os.environ['conf_key_name']
     dataproc_conf['key_path'] = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
     dataproc_conf['region'] = os.environ['gcp_region']
     dataproc_conf['zone'] = os.environ['gcp_zone']
+    dataproc_conf['subnet'] = os.environ['gcp_subnet_name']
     dataproc_conf['cluster_name'] = dataproc_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-dp-' + dataproc_conf['exploratory_name'] + '-' + dataproc_conf['computational_name'] + '-' + dataproc_conf['uuid']
     dataproc_conf['bucket_name'] = (dataproc_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
 
@@ -82,8 +84,7 @@ if __name__ == "__main__":
     dataproc_cluster['projectId'] = os.environ['gcp_project_id']
     dataproc_cluster['clusterName'] = dataproc_conf['cluster_name']
     dataproc_cluster['config']['gceClusterConfig']['zoneUri'] = dataproc_conf['zone']
-    dataproc_cluster['config']['gceClusterConfig']['subnetworkUri'] = os.environ['gcp_subnet_name']
-    # dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] =
+    dataproc_cluster['config']['gceClusterConfig']['subnetworkUri'] = dataproc_conf['subnet']
     dataproc_cluster['config']['masterConfig']['machineTypeUri'] = os.environ['dataproc_master_instance_type']
     dataproc_cluster['config']['workerConfig']['machineTypeUri'] = os.environ['dataproc_slave_instance_type']
     dataproc_cluster['config']['workerConfig']['numInstances'] = int(os.environ['dataproc_instance_count']) - 1
@@ -93,11 +94,10 @@ if __name__ == "__main__":
     ssh_admin_pubkey = key.publickey().exportKey("OpenSSH")
     dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}\n{0}:{2}'.format(ssh_user, ssh_user_pubkey, ssh_admin_pubkey)
 
-
     try:
         logging.info('[Creating Dataproc Cluster]')
         print '[Creating Dataproc Cluster]'
-        params = "--region {} --params '{}'".format(dataproc_conf['region'], dataproc_cluster)
+        params = "--region {} --params '{}'".format(dataproc_conf['region'], json.dumps(dataproc_cluster))
 
         try:
             local("~/scripts/{}.py {}".format('dataproc_create', params))
@@ -117,9 +117,10 @@ if __name__ == "__main__":
         print '[SUMMARY]'
         print "Service base name: " + dataproc_conf['service_base_name']
         print "Cluster name: " + dataproc_conf['cluster_name']
-        # print "Cluster id: " + get_emr_id_by_name(emr_conf['cluster_name'])
         print "Key name: " + dataproc_conf['key_name']
         print "Region: " + dataproc_conf['region']
+        print "Zone: " + dataproc_conf['zone']
+        print "Subnet: " + dataproc_conf['subnet']
         # print "Dataroc version: " + dataproc_conf['release_label']
         print "Dataroc master node shape: " + os.environ['dataproc_master_instance_type']
         print "Dataroc slave node shape: " + os.environ['dataproc_slave_instance_type']
@@ -128,7 +129,6 @@ if __name__ == "__main__":
         print "Bucket name: " + dataproc_conf['bucket_name']
         with open("/root/result.json", 'w') as result:
             res = {"hostname": dataproc_conf['cluster_name'],
-                   # "instance_id": get_emr_id_by_name(dataproc_conf['cluster_name']),
                    "key_name": dataproc_conf['key_name'],
                    "user_own_bucket_name": dataproc_conf['bucket_name'],
                    "Action": "Create new Dataproc cluster"}

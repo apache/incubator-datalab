@@ -564,7 +564,6 @@ class GCPActions:
         except:
             return False
 
-
     def get_from_bucket(self, bucket_name, dest_file, local_file):
         try:
             bucket = self.storage_client.get_bucket(bucket_name)
@@ -576,7 +575,6 @@ class GCPActions:
                 return False
         except exceptions.NotFound:
             return False
-
 
     def get_gitlab_cert(self, bucket_name, certfile):
         try:
@@ -590,7 +588,6 @@ class GCPActions:
         except exceptions.NotFound:
             return False
 
-
     def create_dataproc_cluster(self, cluster_name, region, params):
         request = self.dataproc.projects().regions().clusters().create(projectId=self.project, region=region, body=params)
         try:
@@ -599,6 +596,26 @@ class GCPActions:
             while cluster_status[0]['status'] != 'running':
                 time.sleep(5)
                 print 'The cluster is being created... Please wait'
+                cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to create image from disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def delete_dataproc_cluster(self, cluster_name, region):
+        request = self.dataproc.projects().regions().clusters().delete(projectId=self.project, region=region, clusterName=cluster_name)
+        try:
+            result = request.execute()
+            cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+            while cluster_status[0]['status'] != 'terminated':
+                time.sleep(5)
+                print 'The cluster is being terminated... Please wait'
                 cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             return result
         except Exception as err:
