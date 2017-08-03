@@ -715,9 +715,7 @@ ul.social {
     @include flexbox();
     @include justify-content(flex-end);
     li {
-        width: 25px;
-        height: 30px;
-        margin-left: 20px;
+        margin-left: 15px;
         cursor: pointer;
         @extend .ani;
         background-repeat: no-repeat;
@@ -744,16 +742,21 @@ ul.social {
         a {
             display: block;
             padding: 0 15px;
+            width: 25px;
+            height: 30px;
             text-decoration: none;
             line-height: 90px;
             font-size: 12px;
             color: $light;
+            &:hover {
+                background: none !important
+            }
         }
     }
 }
 ul.community {
     li.social-youtube {
-        background: url(../images/social/youtube_state_light.svg) 50% 50% no-repeat;
+        background-image: url(../images/social/youtube_state_light.svg);
     }
 }
 
@@ -791,58 +794,9 @@ footer {
                 width: 60px;
                 height: 30px;
                 vertical-align: bottom;
-                // color: $light;
             }
         }
     }
-    // ul {
-    //     @include flexbox();
-    //     @include justify-content(flex-end);
-    //     li {
-    //         width: 25px;
-    //         height: 30px;
-    //         margin-left: 20px;
-    //         cursor: pointer;
-    //         @extend .ani;
-    //         &.social-twitter {
-    //             background: url(../images/social/twitter_state.svg) 50% 50% no-repeat;
-    //             &:hover {
-    //                 background: url(../images/social/twitter.svg) 50% 50% no-repeat;
-    //             }
-    //         }
-    //         &.social-slack {
-    //             background: url(../images/social/slack_state.svg) 50% 50% no-repeat;
-    //             &:hover {
-    //                 background: url(../images/social/slack.svg) 50% 50% no-repeat;
-    //             }
-    //         }
-    //         &.social-youtube {
-    //             background: url(../images/social/youtube_state.svg) 50% 50% no-repeat;
-    //             &:hover {
-    //                 background: url(../images/social/youtube.svg) 50% 50% no-repeat;
-    //             }
-    //         }
-    //         &.social-github {
-    //             background: url(../images/social/github_state.svg) 50% 50% no-repeat;
-    //             &:hover {
-    //                 background: url(../images/social/github.svg) 50% 50% no-repeat;
-    //             }
-    //         }
-    //         &:hover {
-    //             color: $primary-green;
-    //         }
-    //         a {
-    //             display: block;
-    //             padding: 0 15px;
-    //             text-decoration: none;
-    //             line-height: 90px;
-    //             font-size: 12px;
-    //             color: $light;
-                
-                
-    //         }
-    //     }
-    // }
 }
 
 

@@ -980,9 +980,7 @@ ul.social {
   -moz-justify-content: flex-end;
   justify-content: flex-end; }
   ul.social li {
-    width: 25px;
-    height: 30px;
-    margin-left: 20px;
+    margin-left: 15px;
     cursor: pointer;
     background-repeat: no-repeat;
     background-position: 50% 50%; }
@@ -1007,13 +1005,17 @@ ul.social {
     ul.social li a {
       display: block;
       padding: 0 15px;
+      width: 25px;
+      height: 30px;
       text-decoration: none;
       line-height: 90px;
       font-size: 12px;
       color: #fff; }
+      ul.social li a:hover {
+        background: none !important; }
 
 ul.community li.social-youtube {
-  background: url(../images/social/youtube_state_light.svg) 50% 50% no-repeat; }
+  background-image: url(../images/social/youtube_state_light.svg); }
 
 footer {
   background: #262E36;
