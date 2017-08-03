@@ -49,7 +49,7 @@ class GCPActions:
         else:
             self.service = build('compute', 'v1')
             self.service_iam = build('iam', 'v1')
-            self.service = build('dataproc', 'v1')
+            self.dataproc = build('dataproc', 'v1')
             self.service_storage = build('storage', 'v1')
             self.storage_client = storage.Client()
 
@@ -592,7 +592,7 @@ class GCPActions:
 
 
     def create_dataproc_cluster(self, cluster_name, region, params):
-        request = self.service.projects().regions().clusters().create(projectId=self.project, region=region, body=params)
+        request = self.dataproc.projects().regions().clusters().create(projectId=self.project, region=region, body=params)
         try:
             result = request.execute()
             cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])

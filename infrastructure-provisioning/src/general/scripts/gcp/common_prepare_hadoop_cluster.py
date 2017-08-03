@@ -28,6 +28,7 @@ import sys
 import os
 import uuid
 import logging
+from Crypto.PublicKey import RSA
 
 
 if __name__ == "__main__":
@@ -87,8 +88,11 @@ if __name__ == "__main__":
     dataproc_cluster['config']['workerConfig']['machineTypeUri'] = os.environ['dataproc_slave_instance_type']
     dataproc_cluster['config']['workerConfig']['numInstances'] = int(os.environ['dataproc_instance_count']) - 1
     ssh_user = os.environ['conf_os_user']
-    ssh_pubkey = open(os.environ['conf_key_dir'] + os.environ['edge_user_name'] + '.pub').read()
-    dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{}:{}'.format(ssh_user, ssh_pubkey)
+    ssh_user_pubkey = open(os.environ['conf_key_dir'] + os.environ['edge_user_name'] + '.pub').read()
+    key = RSA.importKey(open(dataproc_conf['key_path'], 'rb').read())
+    ssh_admin_pubkey = key.publickey().exportKey("OpenSSH")
+    dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}\n{0}:{2}'.format(ssh_user, ssh_user_pubkey, ssh_admin_pubkey)
+
 
     try:
         logging.info('[Creating Dataproc Cluster]')
