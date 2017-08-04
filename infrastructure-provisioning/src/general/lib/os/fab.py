@@ -176,10 +176,9 @@ def append_result(error, exception=''):
     print data
 
 
-def put_resource_status(resource, status, dlab_path, os_user):
+def put_resource_status(resource, status, dlab_path, os_user, hostname):
     env['connection_attempts'] = 100
     keyfile = "/root/keys/" + os.environ['conf_key_name'] + ".pem"
-    hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag', os.environ['conf_service_base_name'] + '-ssn')
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
     sudo('python ' + dlab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))
@@ -504,7 +503,6 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         local('touch /home/' + os_user + '/.ensure_dir/emr_' + cluster_name + '_interpreter_ensured')
     except:
             sys.exit(1)
-
 
 
 def install_r_pkg(requisites):
