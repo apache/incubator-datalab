@@ -45,14 +45,14 @@ if __name__ == "__main__":
     if os.path.exists('/response/.dataproc_creating_' + os.environ['exploratory_name']):
         time.sleep(30)
 
-    edge_status = GCPMeta().get_instance_status(os.environ['conf_service_base_name'] + "-" +
-                                                os.environ['edge_user_name'] + '-edge')
-    if edge_status != 'RUNNING':
-        logging.info('ERROR: Edge node is unavailable! Aborting...')
-        print 'ERROR: Edge node is unavailable! Aborting...'
-        put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'])
-        append_result("Edge node is unavailable")
-        sys.exit(1)
+    # edge_status = GCPMeta().get_instance_status(os.environ['conf_service_base_name'] + "-" +
+    #                                             os.environ['edge_user_name'] + '-edge')
+    # if edge_status != 'RUNNING':
+    #     logging.info('ERROR: Edge node is unavailable! Aborting...')
+    #     print 'ERROR: Edge node is unavailable! Aborting...'
+    #     put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'])
+    #     append_result("Edge node is unavailable")
+    #     sys.exit(1)
 
     print 'Generating infrastructure names and tags'
     dataproc_conf = dict()
@@ -78,7 +78,8 @@ if __name__ == "__main__":
           json.dumps(dataproc_conf, sort_keys=True, indent=4, separators=(',', ': '))
     logging.info(json.dumps(dataproc_conf))
 
-    local("echo Waiting for changes to propagate; sleep 10")
+    print 'Waiting for changes to propagate'
+    time.sleep(5)
 
     dataproc_cluster = json.loads(open('/root/templates/dataproc_cluster.json').read().decode('utf-8-sig'))
     dataproc_cluster['projectId'] = os.environ['gcp_project_id']
@@ -97,7 +98,7 @@ if __name__ == "__main__":
     try:
         logging.info('[Creating Dataproc Cluster]')
         print '[Creating Dataproc Cluster]'
-        params = "--region {} --params '{}'".format(dataproc_conf['region'], json.dumps(dataproc_cluster))
+        params = "--region {0} --bucket {1} --params '{2}'".format(dataproc_conf['region'], dataproc_conf['bucket_name'], json.dumps(dataproc_cluster))
 
         try:
             local("~/scripts/{}.py {}".format('dataproc_create', params))
@@ -109,7 +110,7 @@ if __name__ == "__main__":
         # local('rm /response/.dataproc_creating_' + os.environ['exploratory_name'])
     except Exception as err:
         append_result("Failed to create Dataproc Cluster.", str(err))
-        local('rm /response/.dataproc_creating_' + os.environ['exploratory_name'])
+        # local('rm /response/.dataproc_creating_' + os.environ['exploratory_name'])
         sys.exit(1)
 
     try:

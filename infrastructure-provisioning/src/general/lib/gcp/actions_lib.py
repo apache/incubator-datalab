@@ -592,6 +592,7 @@ class GCPActions:
         request = self.dataproc.projects().regions().clusters().create(projectId=self.project, region=region, body=params)
         try:
             result = request.execute()
+            time.sleep(5)
             cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             while cluster_status[0]['status'] != 'running':
                 time.sleep(5)
@@ -618,6 +619,29 @@ class GCPActions:
                 print 'The cluster is being terminated... Please wait'
                 cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             return result
+        except Exception as err:
+            logging.info(
+                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to create image from disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def submit_dataproc_pyspark_job(self, job_body):
+        request = self.dataproc.projects().regions().jobs().submit(projectId=self.project,
+                                                                   region=os.environ['gcp_region'],
+                                                                   body=job_body)
+        try:
+            res = request.execute()
+            print "Job ID:", res['reference']['jobId']
+            job_status = meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
+            while job_status != 'done':
+                time.sleep(1)
+                print "wait for job"
+                job_status = meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
+            return job_status
         except Exception as err:
             logging.info(
                 "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(

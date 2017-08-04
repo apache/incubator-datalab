@@ -33,41 +33,29 @@ import json
 parser = argparse.ArgumentParser()
 # parser.add_argument('--dry_run', action='store_true', help='Print all variables')
 parser.add_argument('--region', type=str, help='Region for deploy cluster')
+parser.add_argument('--bucket', type=str, help='Bucket for cluster jars')
 parser.add_argument('--params', type=str, help='Params to be applied to Cluster ( MANDATORY !!! )')
 args = parser.parse_args()
 
 
-
 def upload_jars_parser(args):
-    s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
-    s3.meta.client.upload_file('/root/scripts/jars_parser.py', args.s3_bucket, 'jars_parser.py')
+    actions_lib.GCPActions().put_to_bucket(args.bucket, '/root/scripts/jars_parser.py', 'jars_parser.py')
 
 
-def get_instance_by_ip(ip):
-    ec2 = boto3.resource('ec2')
-    check = bool(re.match(r"^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$", ip))
-    if check:
-        instances = ec2.instances.filter(Filters=[{'Name': 'private-ip-address', 'Values': [ip]}])
-    else:
-        instances = ec2.instances.filter(Filters=[{'Name': 'private-dns-name', 'Values': [ip]}])
-    for instance in instances:
-        return instance
+def send_parser_job(args):
+    job_body = json.loads(open('/root/templates/dataproc_job.json').read())
+    job_body['job']['placement']['clusterName'] = args.cluster_name
+    job_body['job']['pysparkJob']['mainPythonFileUri'] = 'gs://{}/jars_parser.py'.format(args.bucket)
+    job_body['job']['pysparkJob']['args'][1] = args.bucket
+    job_body['job']['pysparkJob']['args'][3] = os.environ['edge_user_name']
+    job_body['job']['pysparkJob']['args'][5] = args.cluster_name
+    actions_lib.GCPActions().submit_dataproc_pyspark_job(job_body)
 
 
-def read_json(path):
-    try:
-        with open(path) as json_data:
-            data = json.load(json_data)
-    except:
-        data=[]
-    return data
-
-
-def build_emr_cluster(args):
+def build_dataproc_cluster(args):
     params = json.loads(args.params)
     cluster_name = params['clusterName']
     print "Will be created cluster:" + json.dumps(params, sort_keys=True, indent=4, separators=(',', ': '))
-
     return actions_lib.GCPActions().create_dataproc_cluster(cluster_name, args.region, params)
 
 
@@ -76,11 +64,10 @@ def build_emr_cluster(args):
 ##############
 
 if __name__ == "__main__":
+    parser.print_help()
 
-    if args.name == '':
-        parser.print_help()
-    else:
-
-        pass
+    upload_jars_parser(args)
+    build_dataproc_cluster(args)
+    send_parser_job(args)
 
     sys.exit(0)

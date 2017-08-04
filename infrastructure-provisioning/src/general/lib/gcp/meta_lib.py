@@ -377,6 +377,24 @@ class GCPMeta:
                 data.append(host)
         return data
 
+    def get_dataproc_job_status(self, job_id):
+        request = self.dataproc.projects().regions().jobs().get(projectId=self.project,
+                                                                region=os.environ['gcp_region'],
+                                                                jobId=job_id)
+        try:
+            res = request.execute()
+            print "JOB Status:", res['status']['state'].lower()
+            return res['status']['state'].lower()
+        except Exception as err:
+            logging.info(
+                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to create image from disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
 
 def get_instance_private_ip_address(tag_name, instance_name):
     try:

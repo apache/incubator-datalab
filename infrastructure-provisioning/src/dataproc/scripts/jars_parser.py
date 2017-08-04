@@ -25,8 +25,6 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
-parser.add_argument('--emr_version', type=str, default='')
-parser.add_argument('--region', type=str, default='')
 parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--cluster_name', type=str, default='')
 args = parser.parse_args()
@@ -44,12 +42,7 @@ if __name__ == "__main__":
                                                    shell=True)
     spark_def_path_line1 = spark_def_path_line1.strip('\n')
     spark_def_path_line2 = spark_def_path_line2.strip('\n')
-    if args.region == 'us-east-1':
-        endpoint = "https://s3.amazonaws.com"
-    elif args.region == 'cn-north-1':
-        endpoint = "https://s3.{}.amazonaws.com.cn".format(args.region)
-    else:
-        endpoint = "https://s3-{}.amazonaws.com".format(args.region)
+
     os.system('touch /tmp/python_version')
     python_ver = subprocess.check_output("python3.5 -V 2>/dev/null | awk '{print $2}'", shell=True)
     if python_ver != '':
@@ -67,15 +60,11 @@ if __name__ == "__main__":
     md5sum = subprocess.check_output('md5sum /tmp/spark.tar.gz', shell=True)
     with open('/tmp/spark-checksum.chk', 'w') as outfile:
         outfile.write(md5sum)
-    os.system('aws s3 cp /tmp/jars.tar.gz s3://{}/jars/{}/ --endpoint-url {} --region {}'.
-              format(args.bucket, args.emr_version, endpoint, args.region))
-    os.system('aws s3 cp /tmp/jars-checksum.chk s3://{}/jars/{}/ --endpoint-url {} --region {}'.
-              format(args.bucket, args.emr_version, endpoint, args.region))
-    os.system('aws s3 cp {} s3://{}/{}/{}/ --endpoint-url {} --region {}'.
-              format(spark_def_path, args.bucket, args.user_name, args.cluster_name, endpoint, args.region))
-    os.system('aws s3 cp /tmp/python_version s3://{}/{}/{}/ --endpoint-url {} --region {}'.
-              format(args.bucket, args.user_name, args.cluster_name, endpoint, args.region))
-    os.system('aws s3 cp /tmp/spark.tar.gz s3://{}/{}/{}/ --endpoint-url {} --region {}'.
-              format(args.bucket, args.user_name, args.cluster_name, endpoint, args.region))
-    os.system('aws s3 cp /tmp/spark-checksum.chk s3://{}/{}/{}/ --endpoint-url {} --region {}'.
-              format(args.bucket, args.user_name, args.cluster_name, endpoint, args.region))
+
+    # TEMPORARY HARCODED VERSION OF DATAPROC IMAGE VERSION
+    os.system('gsutil cp /tmp/jars.tar.gz gs://{0}/jars/{1}/'.format(args.bucket, '1.1.37'))
+    os.system('gsutil cp /tmp/jars-checksum.chk gs://{0}/jars/{1}/'.format(args.bucket, '1.1.37'))
+    os.system('gsutil cp {0} gs://{1}/{2}/{3}/'.format(spark_def_path, args.bucket, args.user_name, args.cluster_name))
+    os.system('gsutil cp /tmp/python_version gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
+    os.system('gsutil cp /tmp/spark.tar.gz gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
+    os.system('gsutil cp /tmp/spark-checksum.chk gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
