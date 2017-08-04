@@ -1345,4 +1345,10 @@ footer {
         .solutions .row article.right {
           padding: 0; }
           .solutions .row article.right:last-child {
-            padding-top: 0; } }
+            padding-top: 0; }
+  footer article {
+    padding: 2.5rem 0; }
+    footer article h2 {
+      line-height: 34px;
+      padding: 0px 40px;
+      font-size: 20px; } }

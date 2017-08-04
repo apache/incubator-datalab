@@ -1164,4 +1164,15 @@ footer {
             }
         }
     }
+
+    footer {
+        article {
+            padding: 2.5rem 0;
+            h2 {
+                line-height: 34px;
+                padding: 0px 40px;
+                font-size: 20px;
+            }
+        }
+    }
 }
