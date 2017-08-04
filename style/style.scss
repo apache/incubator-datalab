@@ -200,6 +200,10 @@ header {
                 }
             }
         }
+        #menu-toggle {
+            display: none;
+            .label-toggle { display: none; }
+        }
     }
 }
 
@@ -207,8 +211,8 @@ header {
     text-align: center;
     padding-top: 2.5rem;
     h1 {
-        font-size: 60px;
-        line-height: 64px;
+        font-size: rem(60px);
+        line-height: rem(64px);
         font-weight: normal;
     }
     p {
@@ -716,6 +720,7 @@ ul.social {
     @include justify-content(flex-end);
     li {
         margin-left: 15px;
+        margin-right: 15px;
         cursor: pointer;
         @extend .ani;
         background-repeat: no-repeat;
@@ -964,6 +969,123 @@ footer {
                         padding: 15px;
                     }
                 }
+            }
+        }
+    }
+}
+
+@media (max-width: 700px) {
+    .abstract2 {
+        top: 300px;
+    }
+    .content-desc {
+        h1 {
+            font-size: rem(34px);
+            line-height: rem(38px);
+        }
+        p {
+            font-size: rem(20px);
+        }
+    }
+    header {
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+        }
+        .menu {
+            margin-top: 100px;
+            display: block;
+            height: 0;
+            list-style-type: none;
+            opacity: 0;
+            text-align: center;
+            transition: all 1s ease;
+            width: 100%;
+            visibility: hidden;
+            .get-started-nav {
+                margin-top: 25px;
+                a {
+                    padding: 5px 15px;
+                    text-align: center;
+                }
+            }
+            > li {
+                display: block;
+                font-size: 1.2em;
+                text-align: left;
+                border-top: none;
+                a {
+                    padding: 15px 10px;
+                }
+                &.has-children {
+                    li {
+                        border: none;
+                    }
+                    a::before, a::after {
+                        display: none; 
+                    }
+                }
+                .sub-menu {
+                    visibility: visible;
+                    opacity: 1;
+                    position: static;
+                    background: none;
+                    box-shadow: none;
+                    a {
+                        font-weight: 300;
+                        color: #485F76;
+                        padding-left: 35px;
+                        &:hover {
+                            background: none;
+                            color: #1CBC79;
+                        }
+                    }
+                    &::before {
+                        display: none;
+                    }
+                    &.community {
+                        padding: 20px 0;
+                        .social {
+                            justify-content: flex-start;
+                            li {
+                                margin-left: 0;
+                            }
+                        }
+                    }
+                }
+                & + li {
+                    margin-left: 0;
+                }
+            }
+        }
+        #menu-toggle:checked ~ ul {
+            opacity: 1;
+            height: 100vh;
+            visibility: visible;
+            position: relative
+        }
+        .label-toggle {
+            position: absolute;
+            right: 30px;
+            top: 40px;
+            display: block;
+            height: 35px;
+            width: 35px;
+            cursor: pointer;
+            span {
+                display: block;
+                width: 33px;
+                height: 4px;
+                margin-bottom: 5px;
+                position: relative;
+                background: $primary-green;
+                border-radius: 3px;
+                z-index: 1;
+                transform-origin: 4px 0px;
+                transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+                background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
+                opacity 0.55s ease;
             }
         }
     }
