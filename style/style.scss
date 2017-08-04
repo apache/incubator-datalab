@@ -1103,7 +1103,7 @@ footer {
                 text-align: center;
                 p {
                     font-size: 24px;
-                    color: #1cbc79;
+                    color: $primary-green;
                 }
                 img {
                     margin: 15px;
@@ -1115,6 +1115,50 @@ footer {
                     padding: 0 40px;
                     li {
                         font-size: 20px;
+                    }
+                }
+            }
+        }
+    }
+    .solutions {
+        padding-bottom: 0;
+        h2 {
+            padding-top: 1rem
+        }
+        .row {
+            flex-wrap: wrap;
+            figure {
+                padding: 0;
+                img {
+                    padding: 50px;
+                }
+                &.left {
+                    order: 1;
+                    padding: 0;
+                }
+                &.right {
+                    padding: 0;
+                }
+            }
+            article {
+                flex-basis: 100%;
+                padding: 0 20px;
+                h3 {
+                    font-size: 22px;
+                    font-weight: 400;
+                    color: #1cbc79;
+                    text-align: center;
+                }
+                .list-points {
+                    padding-left: 30px;
+                }
+                &.left {
+                    padding: 0;
+                }
+                &.right {
+                    padding: 0;
+                    &:last-child {
+                        padding-top: 0;
                     }
                 }
             }
