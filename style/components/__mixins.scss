@@ -27,6 +27,18 @@ $blue: #2f2f77;
     @return ($pxval / $base) * 1rem;
 }
 
+@function em($pxval, $context: $font-base) {
+    @if (unitless($pxval)) {
+        $pxval: strip-units($pxval);
+    }
+
+    @if (unitless($context)) {
+        $context: strip-units($context);
+    }
+
+    @return $pxval / $context * 1em;
+}
+
 @mixin add-font($font-family, $font-filename, $font-weight : normal, $font-style :normal) {
     @font-face {
         font-family: '#{$font-family}';
