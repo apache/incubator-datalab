@@ -32,7 +32,7 @@ limitations under the License.
               <div class="lib-status">Status</div>
             </md-list-item>
 
-            <div class="scrollingList" *ngIf="notebookLibs?.length">
+            <div class="scrollingList" id="scrolling" *ngIf="notebookLibs?.length">
               <div *ngIf="notebook?.status !== 'running' && notebookFailedLibs.length > 0" class="info message">
                 <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>
               </div>
@@ -102,7 +102,7 @@ limitations under the License.
                      [formControl]="libSearch" [value]="query"
                      placeholder="Enter library name">
             </md-input-container>
-            <div class="list-container">
+            <div class="list-container" id="scrolling">
               <!--<div class="loader-wrap" *ngIf="isFilteringProc && !model.isEmpty(filteredList)">
                 <div class="loader-lib">Loading...</div>
               </div>-->

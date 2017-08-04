@@ -312,20 +312,22 @@ def install_nodejs(os_user):
 
 def install_os_pkg(requisites):
     status = list()
+    error_parser = "Could not|No matching|Error:|failed|Requires:"
     try:
         print "Updating repositories and installing requested tools:", requisites
         sudo('apt-get update')
-        sudo('apt-get -y install python-pip python3-pip')
         for os_pkg in requisites:
-            try:
-                sudo('apt-get -y install ' + os_pkg)
-                res = sudo('apt list --installed | grep ' + os_pkg)
+            sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 | if ! grep -w -E  "({1})" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
+            err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
+            sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{0}.list; then  echo "" > /tmp/os_install_{0}.list;fi'.format(os_pkg))
+            res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
+            if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
                 version = [i for i in ver if os_pkg in i][0].split(' ')[1]
                 status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
-            except:
-                status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": ""})
+            else:
+                status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": err})
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
         return status
