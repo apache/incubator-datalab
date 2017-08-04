@@ -33,7 +33,7 @@ limitations under the License.
               <div class="actions"></div>
             </md-list-item>
 
-            <div class="scrollingList" *ngIf="gitCredentials?.length">
+            <div class="scrollingList" id="scrolling" *ngIf="gitCredentials?.length">
               <md-list-item *ngFor="let item of gitCredentials">
                 <div class="hostname-field"><strong>{{ item.hostname }}</strong></div>
                 <div class="user-field">{{ item.username }}</div>

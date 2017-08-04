@@ -21,7 +21,7 @@ limitations under the License.
     <span>{{label || 'None'}}</span>
     <span class="caret-btn">&#9663;</span>
   </button>
-  <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+  <ul class="dropdown-menu" id="scrolling" aria-labelledby="dropdownMenu2">
     <template [ngIf]="listStructure === 'array'">
       <template let-item ngFor [ngForOf]="items" let-index="index">
         <li role="presentation">
