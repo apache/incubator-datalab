@@ -506,6 +506,9 @@ h2.heading {
     }
     .problems-slider {
         padding: 0 0 65px;
+        .min-visible {
+            display: none
+        }
         > div {
             padding: 65px 0 0;
             font-size: 22px;
@@ -1086,6 +1089,34 @@ footer {
                 transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
                 background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
                 opacity 0.55s ease;
+            }
+        }
+    }
+
+    .controls-nav, .technologies, .we-solve .row {
+        display: none;
+    }
+    .we-solve {
+        .problems-slider {
+            .min-visible {
+                display: block;
+                text-align: center;
+                p {
+                    font-size: 24px;
+                    color: #1cbc79;
+                }
+                img {
+                    margin: 15px;
+                }
+            }
+            > div {
+                display: block;
+                ul.list-points {
+                    padding: 0 40px;
+                    li {
+                        font-size: 20px;
+                    }
+                }
             }
         }
     }

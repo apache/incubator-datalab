@@ -764,6 +764,8 @@ h2.heading {
         color: rgba(72, 104, 120, 0.5); }
   .we-solve .problems-slider {
     padding: 0 0 65px; }
+    .we-solve .problems-slider .min-visible {
+      display: none; }
     .we-solve .problems-slider > div {
       padding: 65px 0 0;
       font-size: 22px;
@@ -1296,4 +1298,20 @@ footer {
       border-radius: 3px;
       z-index: 1;
       transform-origin: 4px 0px;
-      transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1), background 0.5s cubic-bezier(0.77, 0.2, 0.05, 1), opacity 0.55s ease; } }
+      transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1), background 0.5s cubic-bezier(0.77, 0.2, 0.05, 1), opacity 0.55s ease; }
+  .controls-nav, .technologies, .we-solve .row {
+    display: none; }
+  .we-solve .problems-slider .min-visible {
+    display: block;
+    text-align: center; }
+    .we-solve .problems-slider .min-visible p {
+      font-size: 24px;
+      color: #1cbc79; }
+    .we-solve .problems-slider .min-visible img {
+      margin: 15px; }
+  .we-solve .problems-slider > div {
+    display: block; }
+    .we-solve .problems-slider > div ul.list-points {
+      padding: 0 40px; }
+      .we-solve .problems-slider > div ul.list-points li {
+        font-size: 20px; } }
