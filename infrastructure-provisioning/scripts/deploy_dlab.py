@@ -49,6 +49,7 @@ parser.add_argument('--aws_billing_bucket', type=str, default='', help='The name
 parser.add_argument('--aws_report_path', type=str, default='', help='The path to billing reports directory in S3 bucket')
 parser.add_argument('--gcp_project_id', type=str, default='', help='The project ID in Google Cloud Platform')
 parser.add_argument('--gcp_service_account_path', type=str, default='', help='The project ID in Google Cloud Platform')
+parser.add_argument('--azure_resource_group_name', type=str, default='', help='Name of Resource group in Azure')
 parser.add_argument('--azure_auth_path', type=str, default='', help='Full path to Azure credentials JSON file')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')

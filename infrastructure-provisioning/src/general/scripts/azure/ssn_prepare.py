@@ -40,22 +40,28 @@ if __name__ == "__main__":
     ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
     ssn_conf['region'] = os.environ['azure_region']
 
-    logging.info('[CREATING RESOURCE GROUP]')
-    print "[CREATING RESOURCE GROUP]"
     try:
-        params = "--resource_group_name {} --region {}".format(ssn_conf['service_base_name'], ssn_conf['region'])
+        if os.environ['azure_resource_group_name'] == '':
+            raise KeyError
+    except KeyError:
+        pre_defined_resource_group = True
+        logging.info('[CREATING RESOURCE GROUP]')
+        print "[CREATING RESOURCE GROUP]"
         try:
-            local("~/scripts/{}.py {}".format('ssn_create_resource_group', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        try:
-            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
-        except:
-            print "Resource group hasn't been created."
-        append_result("Failed to create Resource Group. Exception:" + str(err))
-        sys.exit(1)
+            params = "--resource_group_name {} --region {}".format(ssn_conf['service_base_name'], ssn_conf['region'])
+            try:
+                local("~/scripts/{}.py {}".format('ssn_create_resource_group', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+            os.environ['azure_resource_group_name'] = ssn_conf['service_base_name']
+        except Exception as err:
+            try:
+                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            except:
+                print "Resource group hasn't been created."
+            append_result("Failed to create Resource Group. Exception:" + str(err))
+            sys.exit(1)
     # try:
     #     logging.info('[CREATE AWS CONFIG FILE]')
     #     print '[CREATE AWS CONFIG FILE]'
