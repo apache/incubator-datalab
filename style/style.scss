@@ -680,7 +680,6 @@ ul.list-points {
             display: inline-flex;
             font-size: 12px;
             .swiper-wrapper {
-//              margin-left: calc(-50% + 105.5px);
                 margin-left: calc(-25% + 164.5px);
             }
             .swiper-slide {
@@ -722,8 +721,7 @@ ul.social {
     @include flexbox();
     @include justify-content(flex-end);
     li {
-        margin-left: 15px;
-        margin-right: 15px;
+        margin: 5px 15px 0;
         cursor: pointer;
         @extend .ani;
         background-repeat: no-repeat;
@@ -982,6 +980,7 @@ footer {
         top: 300px;
     }
     .content-desc {
+        padding-top: .5rem;
         h1 {
             font-size: rem(34px);
             line-height: rem(38px);
@@ -1111,10 +1110,11 @@ footer {
             }
             > div {
                 display: block;
+                padding: 45px 0 0;
                 ul.list-points {
                     padding: 0 40px;
                     li {
-                        font-size: 20px;
+                        font-size: 18px;
                     }
                 }
             }
@@ -1144,13 +1144,16 @@ footer {
                 flex-basis: 100%;
                 padding: 0 20px;
                 h3 {
-                    font-size: 22px;
-                    font-weight: 400;
-                    color: #1cbc79;
+                    font-size: 24px;
+                    font-weight: 300;
+                    color: $primary-green;
                     text-align: center;
                 }
                 .list-points {
                     padding-left: 30px;
+                    li {
+                        font-size: 18px
+                    }
                 }
                 &.left {
                     padding: 0;
@@ -1164,7 +1167,44 @@ footer {
             }
         }
     }
-
+    .features {
+        .mac-screen-wrap {
+            .screen-slider-thumbs {
+                display: none;
+            }
+            .screen-slider-top {
+                .mac-browser {
+                    flex-wrap: wrap;
+                    margin: 10px;
+                    figcaption {
+                        margin-left: 0;
+                        h3 {
+                            margin: 10px 0;
+                            color: $primary-green;
+                            font-size: 24px;
+                            font-weight: 300;
+                            text-align: center;
+                        }
+                        .list-points {
+                            li {
+                                font-size: 18px
+                            }
+                        }
+                    }
+                }
+                .swiper-button-black {
+                    &.swiper-button-prev {
+                        top: 60%;
+                        left: 0
+                    }
+                    &.swiper-button-next {
+                        top: 60%;
+                        right: 0
+                    }
+                }
+            }
+        }
+    }
     footer {
         article {
             padding: 2.5rem 0;
@@ -1172,6 +1212,22 @@ footer {
                 line-height: 34px;
                 padding: 0px 40px;
                 font-size: 20px;
+            }
+        }
+        .row {
+            flex-wrap: wrap;
+            div {
+                order: 1;
+                flex-basis: 100%;
+                text-align: center;
+            }
+            ul.social {
+                flex-basis: 100%;
+                justify-content: center;
+                margin-bottom: 25px;
+                li:first-child {
+                    display: none;
+                }
             }
         }
     }
