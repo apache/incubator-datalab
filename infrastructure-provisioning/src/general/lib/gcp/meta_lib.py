@@ -384,7 +384,7 @@ class GCPMeta:
                                                                 jobId=job_id)
         try:
             res = request.execute()
-            print "JOB Status:", res['status']['state'].lower()
+            print "Job status:", res['status']['state'].lower()
             return res['status']['state'].lower()
         except Exception as err:
             logging.info(

@@ -51,7 +51,7 @@ def send_parser_job(args, cluster_name, cluster_version):
     job_body['job']['pysparkJob']['args'][5] = cluster_name
     job_body['job']['pysparkJob']['args'][7] = cluster_version
     job_body['job']['pysparkJob']['args'][9] = os.environ['conf_os_user']
-    actions_lib.GCPActions().submit_dataproc_pyspark_job(job_body)
+    actions_lib.GCPActions().submit_dataproc_job(job_body)
 
 
 def build_dataproc_cluster(args, cluster_name):

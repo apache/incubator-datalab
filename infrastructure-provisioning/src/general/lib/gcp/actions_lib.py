@@ -631,7 +631,7 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
             return ''
 
-    def submit_dataproc_pyspark_job(self, job_body):
+    def submit_dataproc_job(self, job_body):
         request = self.dataproc.projects().regions().jobs().submit(projectId=self.project,
                                                                    region=os.environ['gcp_region'],
                                                                    body=job_body)
@@ -641,8 +641,9 @@ class GCPActions:
             job_status = meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
             while job_status != 'done':
                 time.sleep(1)
-                print "wait for job"
                 job_status = meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
+                if job_status == 'failed':
+                    raise Exception
             return job_status
         except Exception as err:
             logging.info(

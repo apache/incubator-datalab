@@ -45,15 +45,15 @@ if __name__ == "__main__":
     if os.path.exists('/response/.dataproc_creating_' + os.environ['exploratory_name']):
         time.sleep(30)
 
-    edge_status = GCPMeta().get_instance_status(os.environ['conf_service_base_name'] + "-" +
-                                                os.environ['edge_user_name'] + '-edge')
-    if edge_status != 'RUNNING':
-        logging.info('ERROR: Edge node is unavailable! Aborting...')
-        print 'ERROR: Edge node is unavailable! Aborting...'
-        ssn_hostname = GCPMeta().get_private_ip_address(os.environ['conf_service_base_name'] + '-ssn')
-        put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'], ssn_hostname)
-        append_result("Edge node is unavailable")
-        sys.exit(1)
+    # edge_status = GCPMeta().get_instance_status(os.environ['conf_service_base_name'] + "-" +
+    #                                             os.environ['edge_user_name'] + '-edge')
+    # if edge_status != 'RUNNING':
+    #     logging.info('ERROR: Edge node is unavailable! Aborting...')
+    #     print 'ERROR: Edge node is unavailable! Aborting...'
+    #     ssn_hostname = GCPMeta().get_private_ip_address(os.environ['conf_service_base_name'] + '-ssn')
+    #     put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'], ssn_hostname)
+    #     append_result("Edge node is unavailable")
+    #     sys.exit(1)
 
     print 'Generating infrastructure names and tags'
     dataproc_conf = dict()
@@ -76,6 +76,7 @@ if __name__ == "__main__":
     dataproc_conf['cluster_tag'] = dataproc_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-dp'
     dataproc_conf['bucket_name'] = (dataproc_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
     dataproc_conf['release_label'] = os.environ['dataproc_version']
+    dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
 
     print "Will create exploratory environment with edge node as access point as following: " + \
           json.dumps(dataproc_conf, sort_keys=True, indent=4, separators=(',', ': '))
@@ -86,6 +87,7 @@ if __name__ == "__main__":
     dataproc_cluster = json.loads(open('/root/templates/dataproc_cluster.json').read().decode('utf-8-sig'))
     dataproc_cluster['projectId'] = os.environ['gcp_project_id']
     dataproc_cluster['clusterName'] = dataproc_conf['cluster_name']
+    dataproc_cluster['labels'] = dataproc_conf['cluster_label']
     dataproc_cluster['config']['gceClusterConfig']['zoneUri'] = dataproc_conf['zone']
     dataproc_cluster['config']['gceClusterConfig']['subnetworkUri'] = dataproc_conf['subnet']
     dataproc_cluster['config']['masterConfig']['machineTypeUri'] = os.environ['dataproc_master_instance_type']

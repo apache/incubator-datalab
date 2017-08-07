@@ -1,6 +1,7 @@
 {
     "projectId": "PROJECT_ID",
     "clusterName": "CLUSTER_NAME",
+    "labels": "CLUSTER_LABEL",
     "config": {
         "configBucket": "",
         "gceClusterConfig": {
