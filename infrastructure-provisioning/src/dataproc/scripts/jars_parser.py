@@ -27,6 +27,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--bucket', type=str, default='')
 parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--cluster_name', type=str, default='')
+parser.add_argument('--dataproc_version', type=str, default='')
+parser.add_argument('--nb_user', type=str, default='')
 args = parser.parse_args()
 
 
@@ -61,9 +63,12 @@ if __name__ == "__main__":
     with open('/tmp/spark-checksum.chk', 'w') as outfile:
         outfile.write(md5sum)
 
-    # TEMPORARY HARCODED VERSION OF DATAPROC IMAGE VERSION
-    os.system('gsutil cp /tmp/jars.tar.gz gs://{0}/jars/{1}/'.format(args.bucket, '1.1.37'))
-    os.system('gsutil cp /tmp/jars-checksum.chk gs://{0}/jars/{1}/'.format(args.bucket, '1.1.37'))
+    os.system('gsutil cp /etc/hive/conf/hive-site.xml gs://{0}/{1}/{2}/config/hive-site.xml'.format(args.bucket, args.user_name, args.cluster_name))
+    os.system('gsutil cp /etc/hadoop/conf/* gs://{0}/{1}/{2}/config/'.format(args.bucket, args.user_name, args.cluster_name))
+    os.system('sudo -u {0} hdfs dfs -mkdir /user/{0}'.format(args.nb_user))
+    os.system('sudo -u {0} hdfs dfs -chown -R {0}:{0} /user/{0}'.format(args.nb_user))
+    os.system('gsutil cp /tmp/jars.tar.gz gs://{0}/jars/{1}/'.format(args.bucket, args.dataproc_version))
+    os.system('gsutil cp /tmp/jars-checksum.chk gs://{0}/jars/{1}/'.format(args.bucket, args.dataproc_version))
     os.system('gsutil cp {0} gs://{1}/{2}/{3}/'.format(spark_def_path, args.bucket, args.user_name, args.cluster_name))
     os.system('gsutil cp /tmp/python_version gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))
     os.system('gsutil cp /tmp/spark.tar.gz gs://{0}/{1}/{2}/'.format(args.bucket, args.user_name, args.cluster_name))

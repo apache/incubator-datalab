@@ -8,7 +8,10 @@
             "subnetworkUri": "CLUSTER_SUBNET",
             "metadata": {
                 "ssh-keys": "SSH_USER:SSH_PUBKEY"
-            }
+            },
+            "tags": [
+                "CLUSTER_TAG"
+            ]
         },
         "masterConfig": {
             "numInstances": 1,
@@ -25,6 +28,9 @@
                 "bootDiskSizeGb": 50,
                 "numLocalSsds": 0
             }
+        },
+        "softwareConfig": {
+            "imageVersion": "IMAGE_VERSION"
         }
     }
 }

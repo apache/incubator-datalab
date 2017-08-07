@@ -42,19 +42,19 @@ def upload_jars_parser(args):
     actions_lib.GCPActions().put_to_bucket(args.bucket, '/root/scripts/jars_parser.py', 'jars_parser.py')
 
 
-def send_parser_job(args):
+def send_parser_job(args, cluster_name, cluster_version):
     job_body = json.loads(open('/root/templates/dataproc_job.json').read())
-    job_body['job']['placement']['clusterName'] = args.cluster_name
+    job_body['job']['placement']['clusterName'] = cluster_name
     job_body['job']['pysparkJob']['mainPythonFileUri'] = 'gs://{}/jars_parser.py'.format(args.bucket)
     job_body['job']['pysparkJob']['args'][1] = args.bucket
     job_body['job']['pysparkJob']['args'][3] = os.environ['edge_user_name']
-    job_body['job']['pysparkJob']['args'][5] = args.cluster_name
+    job_body['job']['pysparkJob']['args'][5] = cluster_name
+    job_body['job']['pysparkJob']['args'][7] = cluster_version
+    job_body['job']['pysparkJob']['args'][9] = os.environ['conf_os_user']
     actions_lib.GCPActions().submit_dataproc_pyspark_job(job_body)
 
 
-def build_dataproc_cluster(args):
-    params = json.loads(args.params)
-    cluster_name = params['clusterName']
+def build_dataproc_cluster(args, cluster_name):
     print "Will be created cluster:" + json.dumps(params, sort_keys=True, indent=4, separators=(',', ': '))
     return actions_lib.GCPActions().create_dataproc_cluster(cluster_name, args.region, params)
 
@@ -66,8 +66,17 @@ def build_dataproc_cluster(args):
 if __name__ == "__main__":
     parser.print_help()
 
+    params = json.loads(args.params)
+    cluster_name = params['clusterName']
+    cluster_version = params['config']['softwareConfig']['imageVersion']
+
+    logfile = '{}_creation.log'.format(cluster_name)
+    logpath = '/response/' + logfile
+    out = open(logpath, 'w')
+    out.close()
+
     upload_jars_parser(args)
-    build_dataproc_cluster(args)
-    send_parser_job(args)
+    build_dataproc_cluster(args, cluster_name)
+    send_parser_job(args, cluster_name, cluster_version)
 
     sys.exit(0)

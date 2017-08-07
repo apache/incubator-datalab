@@ -68,6 +68,7 @@ if __name__ == "__main__":
     edge_conf['fw_edge_ingress_public'] = edge_conf['instance_name'] + '-ingress-public'
     edge_conf['fw_edge_ingress_internal'] = edge_conf['instance_name'] + '-ingress-internal'
     edge_conf['notebook_firewall_target'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
+    edge_conf['dataproc_firewall_target'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-dp'
     edge_conf['fw_nb_ingress'] = edge_conf['notebook_firewall_target'] + '-ingress'
     edge_conf['fw_nb_egress'] = edge_conf['notebook_firewall_target'] + '-egress'
 
@@ -198,7 +199,10 @@ if __name__ == "__main__":
         print '[CREATE INGRESS FIREWALL FOR PRIVATE SUBNET]'
         firewall = {}
         firewall['name'] = edge_conf['fw_nb_ingress']
-        firewall['targetTags'] = [edge_conf['notebook_firewall_target']]
+        firewall['targetTags'] = [
+            edge_conf['notebook_firewall_target'],
+            edge_conf['dataproc_firewall_target']
+        ]
         firewall['sourceRanges'] = [
             edge_conf['private_subnet_cidr']
         ]

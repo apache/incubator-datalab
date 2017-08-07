@@ -73,7 +73,9 @@ if __name__ == "__main__":
     dataproc_conf['zone'] = os.environ['gcp_zone']
     dataproc_conf['subnet'] = os.environ['gcp_subnet_name']
     dataproc_conf['cluster_name'] = dataproc_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-dp-' + dataproc_conf['exploratory_name'] + '-' + dataproc_conf['computational_name'] + '-' + dataproc_conf['uuid']
+    dataproc_conf['cluster_tag'] = dataproc_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-dp'
     dataproc_conf['bucket_name'] = (dataproc_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
+    dataproc_conf['release_label'] = os.environ['dataproc_version']
 
     print "Will create exploratory environment with edge node as access point as following: " + \
           json.dumps(dataproc_conf, sort_keys=True, indent=4, separators=(',', ': '))
@@ -89,16 +91,18 @@ if __name__ == "__main__":
     dataproc_cluster['config']['masterConfig']['machineTypeUri'] = os.environ['dataproc_master_instance_type']
     dataproc_cluster['config']['workerConfig']['machineTypeUri'] = os.environ['dataproc_slave_instance_type']
     dataproc_cluster['config']['workerConfig']['numInstances'] = int(os.environ['dataproc_instance_count']) - 1
+    dataproc_cluster['config']['softwareConfig']['imageVersion'] = dataproc_conf['release_label']
     ssh_user = os.environ['conf_os_user']
     ssh_user_pubkey = open(os.environ['conf_key_dir'] + os.environ['edge_user_name'] + '.pub').read()
     key = RSA.importKey(open(dataproc_conf['key_path'], 'rb').read())
     ssh_admin_pubkey = key.publickey().exportKey("OpenSSH")
     dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}\n{0}:{2}'.format(ssh_user, ssh_user_pubkey, ssh_admin_pubkey)
+    dataproc_cluster['config']['gceClusterConfig']['tags'][0] = dataproc_conf['cluster_tag']
 
     try:
         logging.info('[Creating Dataproc Cluster]')
         print '[Creating Dataproc Cluster]'
-        params = "--region {} --params '{}'".format(dataproc_conf['region'], json.dumps(dataproc_cluster))
+        params = "--region {0} --bucket {1} --params '{2}'".format(dataproc_conf['region'], dataproc_conf['bucket_name'], json.dumps(dataproc_cluster))
 
         try:
             local("~/scripts/{}.py {}".format('dataproc_create', params))
@@ -110,7 +114,7 @@ if __name__ == "__main__":
         # local('rm /response/.dataproc_creating_' + os.environ['exploratory_name'])
     except Exception as err:
         append_result("Failed to create Dataproc Cluster.", str(err))
-        local('rm /response/.dataproc_creating_' + os.environ['exploratory_name'])
+        # local('rm /response/.dataproc_creating_' + os.environ['exploratory_name'])
         sys.exit(1)
 
     try:
@@ -122,9 +126,9 @@ if __name__ == "__main__":
         print "Region: " + dataproc_conf['region']
         print "Zone: " + dataproc_conf['zone']
         print "Subnet: " + dataproc_conf['subnet']
-        # print "Dataroc version: " + dataproc_conf['release_label']
-        print "Dataroc master node shape: " + os.environ['dataproc_master_instance_type']
-        print "Dataroc slave node shape: " + os.environ['dataproc_slave_instance_type']
+        print "Dataproc version: " + dataproc_conf['release_label']
+        print "Dataproc master node shape: " + os.environ['dataproc_master_instance_type']
+        print "Dataproc slave node shape: " + os.environ['dataproc_slave_instance_type']
         print "Instance count: " + os.environ['dataproc_instance_count']
         # print "Notebook IP address: " + dataproc_conf['notebook_ip']
         print "Bucket name: " + dataproc_conf['bucket_name']

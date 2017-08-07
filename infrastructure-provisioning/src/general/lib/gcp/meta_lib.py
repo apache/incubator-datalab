@@ -360,7 +360,8 @@ class GCPMeta:
                 data.append(host)
         return data
 
-    def get_list_cluster_statuses(self, cluster_names, data=[]):
+    def get_list_cluster_statuses(self, cluster_names):
+        data = []
         for cluster in cluster_names:
             host = {}
             try:

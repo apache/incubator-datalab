@@ -598,6 +598,8 @@ class GCPActions:
                 time.sleep(5)
                 print 'The cluster is being created... Please wait'
                 cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+                if cluster_status[0]['status'] == 'terminated':
+                    raise Exception
             return result
         except Exception as err:
             logging.info(
