@@ -80,6 +80,7 @@ $(window).on('load', function() {
         nextButton              : '.screen-slider-top .swiper-button-next',
         prevButton              : '.screen-slider-top .swiper-button-prev',
         lazyLoadingInPrevNext   : true,
+        autoHeight              : true,
         preloadImages           : false,
         lazyLoading             : true,
         onSlideChangeStart      : function(swiper){

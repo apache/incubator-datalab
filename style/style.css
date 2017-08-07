@@ -988,6 +988,7 @@ ul.social {
   ul.social li {
     margin: 5px 15px 0;
     cursor: pointer;
+    align-self: center;
     background-repeat: no-repeat;
     background-position: 50% 50%; }
     ul.social li.social-twitter {
@@ -1006,6 +1007,9 @@ ul.social {
       background-image: url(../images/social/github_state.svg); }
       ul.social li.social-github:hover {
         background-image: url(../images/social/github.svg); }
+    ul.social li:first-child:hover {
+      cursor: default;
+      color: #fff; }
     ul.social li:hover {
       color: #1CBC79; }
     ul.social li a {
@@ -1213,7 +1217,9 @@ footer {
           .overlay .overlay-wrap .contact-us form button:active {
             padding: 15px; }
 
-@media (max-width: 700px) {
+@media (max-width: 767px) {
+  body {
+    overflow-x: hidden; }
   .abstract2 {
     top: 300px; }
   .content-desc {
@@ -1236,7 +1242,9 @@ footer {
     text-align: center;
     transition: all 1s ease;
     width: 100%;
-    visibility: hidden; }
+    visibility: hidden;
+    overflow: hidden;
+    position: relative; }
     header .menu .get-started-nav {
       margin-top: 25px; }
       header .menu .get-started-nav a {
@@ -1248,12 +1256,14 @@ footer {
       text-align: left;
       border-top: none; }
       header .menu > li a {
-        padding: 15px 10px; }
+        padding: 15px 10px;
+        color: #1CBC79; }
       header .menu > li.has-children li {
         border: none; }
       header .menu > li.has-children a::before, header .menu > li.has-children a::after {
         display: none; }
       header .menu > li .sub-menu {
+        width: auto;
         visibility: visible;
         opacity: 1;
         position: static;
@@ -1271,9 +1281,9 @@ footer {
         header .menu > li .sub-menu.community {
           padding: 20px 0; }
           header .menu > li .sub-menu.community .social {
-            justify-content: flex-start; }
+            justify-content: space-between; }
             header .menu > li .sub-menu.community .social li {
-              margin-left: 0; }
+              margin: 0; }
       header .menu > li + li {
         margin-left: 0; }
   header #menu-toggle:checked ~ ul {
@@ -1356,13 +1366,12 @@ footer {
     flex-wrap: wrap;
     margin: 10px; }
     .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption {
-      margin-left: 0; }
+      margin-left: 30px; }
       .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption h3 {
         margin: 10px 0;
         color: #1CBC79;
         font-size: 24px;
-        font-weight: 300;
-        text-align: center; }
+        font-weight: 300; }
       .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption .list-points li {
         font-size: 18px; }
   .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-prev {
@@ -1388,4 +1397,21 @@ footer {
       justify-content: center;
       margin-bottom: 25px; }
       footer .row ul.social li:first-child {
-        display: none; } }
+        display: none; }
+  .content-desc.animatedParent .animated {
+    -webkit-transition-property: none !important;
+    -moz-transition-property: none !important;
+    -ms-transition-property: none !important;
+    -o-transition-property: none !important;
+    transition-property: none !important;
+    -webkit-animation: none !important;
+    -moz-animation: none !important;
+    -ms-animation: none !important;
+    -o-animation: none !important;
+    animation: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+    transform: none !important;
+    opacity: 1; } }

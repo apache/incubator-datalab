@@ -724,6 +724,7 @@ ul.social {
         margin: 5px 15px 0;
         cursor: pointer;
         @extend .ani;
+        align-self: center;
         background-repeat: no-repeat;
         background-position: 50% 50%;
         &.social-twitter {
@@ -741,6 +742,10 @@ ul.social {
         &.social-github {
             background-image: url(../images/social/github_state.svg);
             &:hover { background-image: url(../images/social/github.svg);}
+        }
+        &:first-child:hover {
+            cursor: default;
+            color: #fff;
         }
         &:hover {
             color: $primary-green;
@@ -975,7 +980,10 @@ footer {
     }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 767px) {
+    body {
+        overflow-x: hidden;
+    }
     .abstract2 {
         top: 300px;
     }
@@ -1005,6 +1013,8 @@ footer {
             transition: all 1s ease;
             width: 100%;
             visibility: hidden;
+            overflow: hidden;
+            position: relative;
             .get-started-nav {
                 margin-top: 25px;
                 a {
@@ -1019,6 +1029,7 @@ footer {
                 border-top: none;
                 a {
                     padding: 15px 10px;
+                    color: $primary-green;
                 }
                 &.has-children {
                     li {
@@ -1029,6 +1040,7 @@ footer {
                     }
                 }
                 .sub-menu {
+                    width: auto;
                     visibility: visible;
                     opacity: 1;
                     position: static;
@@ -1049,9 +1061,9 @@ footer {
                     &.community {
                         padding: 20px 0;
                         .social {
-                            justify-content: flex-start;
+                            justify-content: space-between;
                             li {
-                                margin-left: 0;
+                                margin: 0;
                             }
                         }
                     }
@@ -1177,13 +1189,13 @@ footer {
                     flex-wrap: wrap;
                     margin: 10px;
                     figcaption {
-                        margin-left: 0;
+                        margin-left: 30px;
                         h3 {
                             margin: 10px 0;
                             color: $primary-green;
                             font-size: 24px;
                             font-weight: 300;
-                            text-align: center;
+                            // text-align: center;
                         }
                         .list-points {
                             li {
@@ -1230,5 +1242,12 @@ footer {
                 }
             }
         }
+    }
+
+    .content-desc.animatedParent .animated {
+        @include prefixer(transition-property, none !important);
+        @include prefixer(animation, none !important);
+        @include transform(none !important);
+        opacity: 1
     }
 }
