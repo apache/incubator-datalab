@@ -54,11 +54,11 @@ $(document).ready(function () {
 
 
     $('.get-started-nav, .get-started').on('click', function() {
-        $('#details-overlay').css('width', '100%');
+        $('#details-overlay').css({'width':'100%', 'left': 0});
     });
 
     $('.close-butt').on('click', function() {
-        $('#details-overlay').css('width', '0%');
+        $('#details-overlay').css({'width':'0%', 'left': '-1px'});
     });
 });
 

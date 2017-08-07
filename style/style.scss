@@ -567,22 +567,6 @@ ul.list-points {
                 font-weight: 600;
                 line-height: 34px;
             }
-            // ul {
-            //     li {
-            //         position: relative;
-            //         line-height: 30px;
-            //         &::before {
-            //             content: '';
-            //             position: absolute;
-            //             top: 15px;
-            //             height: 5px;
-            //             padding-right: 5px;
-            //             margin-left: -18px;
-            //             background: #1cbc79;
-            //             border-radius: 50%;
-            //         }
-            //     }
-            // }
             &.left {
                 padding-top: 6rem;
                 padding-left: 6rem;
@@ -631,7 +615,6 @@ ul.list-points {
                             width: 9px;
                             border-radius: 8px;
                             background-color: #eee;
-                            // box-shadow: 0 0px 1px 0 #848484;
                             float: left;
                             margin: 0 0 0 5px;
                             &.red-dot {
@@ -1103,9 +1086,14 @@ footer {
             }
         }
     }
-
     .controls-nav, .technologies, .we-solve .row {
         display: none;
+    }
+    .controls-slider {
+        .mac-wrap::before {
+            right: -30px;
+            left: -30px;
+        }
     }
     .we-solve {
         .problems-slider {
@@ -1206,11 +1194,11 @@ footer {
                 }
                 .swiper-button-black {
                     &.swiper-button-prev {
-                        top: 60%;
+                        top: 250px;
                         left: 0
                     }
                     &.swiper-button-next {
-                        top: 60%;
+                        top: 250px;
                         right: 0
                     }
                 }
@@ -1240,6 +1228,24 @@ footer {
                 li:first-child {
                     display: none;
                 }
+            }
+        }
+    }
+
+    .overlay {
+        background-image: url(../images/sources/background_people.png);
+        background-repeat: no-repeat;
+        background-size: cover;
+        .overlay-wrap {
+            .sources {
+                background: none;
+                color: $light;
+                mark {
+                    display: none;
+                }
+            }
+            .contact-us {
+                display: none;
             }
         }
     }

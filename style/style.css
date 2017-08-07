@@ -1312,6 +1312,9 @@ footer {
       transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1), background 0.5s cubic-bezier(0.77, 0.2, 0.05, 1), opacity 0.55s ease; }
   .controls-nav, .technologies, .we-solve .row {
     display: none; }
+  .controls-slider .mac-wrap::before {
+    right: -30px;
+    left: -30px; }
   .we-solve .problems-slider .min-visible {
     display: block;
     text-align: center; }
@@ -1375,10 +1378,10 @@ footer {
       .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption .list-points li {
         font-size: 18px; }
   .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-prev {
-    top: 60%;
+    top: 250px;
     left: 0; }
   .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-next {
-    top: 60%;
+    top: 250px;
     right: 0; }
   footer article {
     padding: 2.5rem 0; }
@@ -1398,6 +1401,17 @@ footer {
       margin-bottom: 25px; }
       footer .row ul.social li:first-child {
         display: none; }
+  .overlay {
+    background-image: url(../images/sources/background_people.png);
+    background-repeat: no-repeat;
+    background-size: cover; }
+    .overlay .overlay-wrap .sources {
+      background: none;
+      color: #fff; }
+      .overlay .overlay-wrap .sources mark {
+        display: none; }
+    .overlay .overlay-wrap .contact-us {
+      display: none; }
   .content-desc.animatedParent .animated {
     -webkit-transition-property: none !important;
     -moz-transition-property: none !important;
