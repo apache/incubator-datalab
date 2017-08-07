@@ -308,14 +308,7 @@ public class BillingDAO extends BaseDAO {
 			}
 			
 			String resourceTypeId = getResourceTypeName(id.getString(DLAB_RESOURCE_TYPE));
-
-			String shapeName = "";
-			if (shape != null) {
-				shapeName = (shape.isExploratory ? shape.shape :
-					"Master: " + shape.shape + "\n" +
-					"Slave:  " + shape.slaveCount + "x" + shape.slaveShape);
-			}
-			
+			String shapeName = generateShapeName(shape);
 			String dateStart = d.getString(USAGE_DATE_START);
 			if (StringUtils.compare(usageDateStart, dateStart, false) > 0) {
 				usageDateStart = dateStart;
@@ -352,4 +345,30 @@ public class BillingDAO extends BaseDAO {
 												reportItems.get(0).getString(FIELD_CURRENCY_CODE)))
 				.append(FULL_REPORT, isFullReport);
     }
+
+    private String generateShapeName(ShapeInfo shape) {
+
+    	String shapeName = "";
+
+		if (shape != null) {
+			if (shape.isExploratory) {
+				return shape.shape;
+			} else {
+				try {
+					// Total number of instances. Slave instances equals total minus one
+					int count = Integer.parseInt(shape.slaveCount);
+
+					return shape.isExploratory
+							? shape.shape
+							: String.format("Master: %s\nSlave:  %dx%s", shape.shape, count - 1, shape.slaveShape);
+
+				} catch (NumberFormatException e) {
+				    LOGGER.error("Cannot parse string {} to integer", shape.slaveCount);
+				    return shapeName;
+				}
+			}
+		}
+
+		return shapeName;
+	}
 }
