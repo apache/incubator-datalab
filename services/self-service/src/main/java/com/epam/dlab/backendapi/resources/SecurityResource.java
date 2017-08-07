@@ -71,7 +71,7 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
      */
     @POST
     @Path("/login")
-    public Response login(@NotNull UserCredentialDTO credential) {
+    public Response login(@Valid @NotNull UserCredentialDTO credential) {
         LOGGER.debug("Try login for user {}", credential.getUsername());
         try {
             dao.writeLoginAttempt(credential);
