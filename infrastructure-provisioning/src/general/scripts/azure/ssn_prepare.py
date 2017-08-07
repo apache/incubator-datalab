@@ -32,6 +32,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     instance = 'ssn'
+    pre_defined_resource_group = False
     pre_defined_vpc = False
     pre_defined_subnet = False
     pre_defined_sg = False
@@ -41,7 +42,20 @@ if __name__ == "__main__":
 
     logging.info('[CREATING RESOURCE GROUP]')
     print "[CREATING RESOURCE GROUP]"
-    AzureActions().create_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+    try:
+        params = "--resource_group_name {} --region {}".format(ssn_conf['service_base_name'], ssn_conf['region'])
+        try:
+            local("~/scripts/{}.py {}".format('ssn_create_resource_group', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        try:
+            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+        except:
+            print "Resource group hasn't been created."
+        append_result("Failed to create Resource Group. Exception:" + str(err))
+        sys.exit(1)
     # try:
     #     logging.info('[CREATE AWS CONFIG FILE]')
     #     print '[CREATE AWS CONFIG FILE]'

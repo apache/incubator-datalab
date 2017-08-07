@@ -22,6 +22,10 @@ from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.storage import CloudStorageAccount
 from azure.storage.blob.models import ContentSettings, PublicAccess
+import azure.common.exceptions as AzureExceptions
+import logging
+import traceback
+import sys, time
 import os
 
 
@@ -31,27 +35,50 @@ class AzureActions:
             os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
             self.compute_client = get_client_from_auth_file(ComputeManagementClient)
             self.resource_client = get_client_from_auth_file(ResourceManagementClient)
-            self.network_client = get_client_from_auth_file(NetworkManagementClient)
 
     def create_resource_group(self, resource_group_name, region):
-        result = self.resource_client.resource_groups.create_or_update(
-            resource_group_name,
-            {
-                'location': region
-            }
-        )
-        return result
+        try:
+            result = self.resource_client.resource_groups.create_or_update(
+                resource_group_name,
+                {
+                    'location': region
+                }
+            )
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create Resource Group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Resource Group",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def remove_resource_group(self, resource_group_name, region):
-        result = self.resource_client.resource_groups.delete(
-            resource_group_name,
-            {
-                'location': region
-            }
-        )
-        return result
+        try:
+            result = self.resource_client.resource_groups.delete(
+                resource_group_name,
+                {
+                    'location': region
+                }
+            )
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to remove Resource Group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove Resource Group",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def create_security_group(self, resource_group_name, network_security_group_name):
-        result = self.network_client.resource_groups.create_or_update(
-            resource_group_name, network_security_group_name)
-        return result
+        try:
+            result = self.network_client.resource_groups.create_or_update(
+                resource_group_name, network_security_group_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create security group",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)

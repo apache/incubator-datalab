@@ -22,8 +22,31 @@ from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.storage import CloudStorageAccount
 from azure.storage.blob.models import ContentSettings, PublicAccess
+import azure.common.exceptions as AzureExceptions
+import logging
+import traceback
+import sys, time
 import os
 
-os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
-client = get_client_from_auth_file(ComputeManagementClient)
-resource_client = get_client_from_auth_file(ResourceManagementClient)
+
+class AzureMeta:
+    def __init__(self):
+        if os.environ['conf_resource'] == 'ssn':
+            os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
+            self.compute_client = get_client_from_auth_file(ComputeManagementClient)
+            self.resource_client = get_client_from_auth_file(ResourceManagementClient)
+
+    def get_resource_group(self, resource_group_name):
+        try:
+            result = self.resource_client.resource_groups.get(resource_group_name)
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get VPC",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
