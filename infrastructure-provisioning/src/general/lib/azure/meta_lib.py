@@ -19,6 +19,7 @@
 from azure.common.client_factory import get_client_from_auth_file
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
+from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.storage import CloudStorageAccount
 from azure.storage.blob.models import ContentSettings, PublicAccess
@@ -35,6 +36,7 @@ class AzureMeta:
             os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
             self.compute_client = get_client_from_auth_file(ComputeManagementClient)
             self.resource_client = get_client_from_auth_file(ResourceManagementClient)
+            self.network_client = get_client_from_auth_file(NetworkManagementClient)
 
     def get_resource_group(self, resource_group_name):
         try:
