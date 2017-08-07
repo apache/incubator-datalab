@@ -29,8 +29,9 @@ class AzureActions:
     def __init__(self):
         if os.environ['conf_resource'] == 'ssn':
             os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
-            self.client = get_client_from_auth_file(ComputeManagementClient)
+            self.compute_client = get_client_from_auth_file(ComputeManagementClient)
             self.resource_client = get_client_from_auth_file(ResourceManagementClient)
+            self.network_client = get_client_from_auth_file(NetworkManagementClient)
 
     def create_resource_group(self, resource_group_name, region):
         result = self.resource_client.resource_groups.create_or_update(
@@ -39,4 +40,18 @@ class AzureActions:
                 'location': region
             }
         )
+        return result
+
+    def remove_resource_group(self, resource_group_name, region):
+        result = self.resource_client.resource_groups.delete(
+            resource_group_name,
+            {
+                'location': region
+            }
+        )
+        return result
+
+    def create_security_group(self, resource_group_name, network_security_group_name):
+        result = self.network_client.resource_groups.create_or_update(
+            resource_group_name, network_security_group_name)
         return result
