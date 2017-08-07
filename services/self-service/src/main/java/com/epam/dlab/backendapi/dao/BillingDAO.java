@@ -357,11 +357,7 @@ public class BillingDAO extends BaseDAO {
 				try {
 					// Total number of instances. Slave instances equals total minus one
 					int count = Integer.parseInt(shape.slaveCount);
-
-					return shape.isExploratory
-							? shape.shape
-							: String.format("Master: %s\nSlave:  %dx%s", shape.shape, count - 1, shape.slaveShape);
-
+					return String.format("Master: %s\nSlave:  %dx%s", shape.shape, count - 1, shape.slaveShape);
 				} catch (NumberFormatException e) {
 				    LOGGER.error("Cannot parse string {} to integer", shape.slaveCount);
 				    return shapeName;
