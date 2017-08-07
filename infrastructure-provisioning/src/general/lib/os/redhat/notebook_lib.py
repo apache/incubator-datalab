@@ -314,7 +314,7 @@ def install_nodejs(os_user):
 
 def install_os_pkg(requisites):
     status = list()
-    error_parser = "Could not|No matching|Error:|failed|Requires:"
+    error_parser = "Could not|No matching|Error:|failed|Requires:|Errno"
     try:
         print "Updating repositories and installing requested tools: ", requisites
         sudo('yum update-minimal --security -y --skip-broken')
