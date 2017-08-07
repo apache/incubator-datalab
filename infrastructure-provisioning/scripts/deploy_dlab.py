@@ -26,6 +26,7 @@ parser.add_argument('--conf_service_base_name', type=str, help='unique name for 
 parser.add_argument('--aws_access_key', type=str, default='', help='AWS Access Key ID')
 parser.add_argument('--aws_secret_access_key', type=str, default='', help='AWS Secret Access Key')
 parser.add_argument('--aws_region', type=str, default='', help='AWS region')
+parser.add_argument('--azure_region', type=str, default='', help='Azure region')
 parser.add_argument('--gcp_region', type=str, default='', help='GCP region')
 parser.add_argument('--gcp_zone', type=str, default='', help='GCP zone')
 parser.add_argument('--conf_os_family', type=str, default='',
@@ -48,6 +49,7 @@ parser.add_argument('--aws_billing_bucket', type=str, default='', help='The name
 parser.add_argument('--aws_report_path', type=str, default='', help='The path to billing reports directory in S3 bucket')
 parser.add_argument('--gcp_project_id', type=str, default='', help='The project ID in Google Cloud Platform')
 parser.add_argument('--gcp_service_account_path', type=str, default='', help='The project ID in Google Cloud Platform')
+parser.add_argument('--azure_auth_path', type=str, default='', help='Full path to Azure credentials JSON file')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()
@@ -60,6 +62,8 @@ def generate_docker_command():
                    format(args.key_path, args.conf_key_name, args.workspace_path))
     if args.conf_cloud_provider == 'gcp':
         command.append('-v {}:/root/service_account.json '.format(args.gcp_service_account_path))
+    elif args.conf_cloud_provider == 'azure':
+        command.append('-v {}:/root/azure_auth.json '.format(args.azure_auth_path))
     attrs = vars(args)
     for i in attrs:
         if attrs[i] and i != 'action' and i != 'key_path' and i != 'workspace_path' and i != 'gcp_service_account_path':
