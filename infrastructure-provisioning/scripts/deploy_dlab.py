@@ -155,8 +155,8 @@ if __name__ == "__main__":
     elif args.action == 'deploy':
         deploy_dlab(args)
     elif args.action == 'create':
-        build_front_end(args)
-        build_services()
+        #build_front_end(args)
+        #build_services()
         build_docker_images(args)
         deploy_dlab(args)
     elif args.action == 'terminate':
