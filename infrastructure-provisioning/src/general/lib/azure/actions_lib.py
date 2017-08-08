@@ -58,7 +58,6 @@ class AzureActions:
     def remove_resource_group(self, resource_group_name, region):
         try:
             result = self.resource_client.resource_groups.delete(
-                resource_group_name,
                 {
                     'location': region
                 }
@@ -72,10 +71,11 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_security_group(self, resource_group_name, network_security_group_name):
+    def create_security_group(self, resource_group_name, network_security_group_name, list_rules):
         try:
-            result = self.network_client.resource_groups.create_or_update(
-                resource_group_name, network_security_group_name)
+
+            result = self.network_client.network_security_groups.create_or_update(
+                resource_group_name, network_security_group_name, list_rules)
             return result
         except Exception as err:
             logging.info(
@@ -87,7 +87,7 @@ class AzureActions:
 
     def remove_security_group(self, resource_group_name, network_security_group_name):
         try:
-            result = self.network_client.resource_groups.delete(
+            result = self.network_client.network_security_groups.delete(
                 resource_group_name, network_security_group_name)
             return result
         except Exception as err:
