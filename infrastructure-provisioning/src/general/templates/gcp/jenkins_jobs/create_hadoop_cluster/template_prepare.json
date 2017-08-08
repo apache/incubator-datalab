@@ -10,6 +10,7 @@
     "gcp_zone": "CZON",
     "exploratory_name": "EXN",
     "computational_name": "CON",
+    "dataproc_version": "DVER",
     "dataproc_instance_count": "INC",
     "dataproc_master_instance_type": "MIT",
     "dataproc_slave_instance_type": "SIT",

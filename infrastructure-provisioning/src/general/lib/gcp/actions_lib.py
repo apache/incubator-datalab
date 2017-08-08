@@ -99,6 +99,7 @@ class GCPActions:
         subnetwork_params = {
             'name': subnet_name,
             'ipCidrRange': subnet_cidr,
+            'privateIpGoogleAccess': 'true',
             'network': vpc_selflink
         }
         request = self.service.subnetworks().insert(
@@ -603,9 +604,9 @@ class GCPActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                "Unable to create dataproc cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
-            append_result(str({"error": "Unable to create image from disk",
+            append_result(str({"error": "Unable to create dataproc cluster",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
@@ -623,9 +624,30 @@ class GCPActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                "Unable to delete dataproc cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
-            append_result(str({"error": "Unable to create image from disk",
+            append_result(str({"error": "Unable to delete dataproc cluster",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def update_dataproc_cluster(self, cluster_name, notebook_instance_name):
+        body = {"labels": {notebook_instance_name: "configured"}}
+        request = self.dataproc.projects().regions().clusters().patch(projectId=self.project,
+                                                                      region=os.environ['gcp_region'],
+                                                                      clusterName=cluster_name,
+                                                                      updateMask='labels',
+                                                                      body=body)
+        try:
+            result = request.execute()
+            time.sleep(15)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to update dataproc cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to update dataproc cluster",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
@@ -647,9 +669,9 @@ class GCPActions:
             return job_status
         except Exception as err:
             logging.info(
-                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                "Unable to submit dataproc job: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
-            append_result(str({"error": "Unable to create image from disk",
+            append_result(str({"error": "Unable to submit dataproc job",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)

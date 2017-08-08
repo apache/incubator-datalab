@@ -388,11 +388,32 @@ class GCPMeta:
             return res['status']['state'].lower()
         except Exception as err:
             logging.info(
-                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                "Unable to get dataproc job status: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
-            append_result(str({"error": "Unable to create image from disk",
+            append_result(str({"error": "Unable to get dataproc job status",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def get_not_configured_dataproc(self, notebook_instance_name):
+        cluster_filter = 'labels.{}:not-configured'.format(notebook_instance_name)
+        request = self.dataproc.projects().regions().clusters().list(projectId=self.project,
+                                                                     region=os.environ['gcp_region'],
+                                                                     filter=cluster_filter)
+        try:
+            res = request.execute()
+            if res != dict():
+                return res['clusters'][0]['clusterName']
+            else:
+                print "No not-configured clusters"
+                return ''
+        except Exception as err:
+            logging.info(
+                "Error with getting not configured cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Error with getting not configured cluster",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
 
