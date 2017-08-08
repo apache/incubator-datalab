@@ -233,7 +233,6 @@ html {
     display: -moz-flex;
     display: -ms-flexbox;
     display: flex;
-    overflow-x: hidden;
     position: relative;
     min-height: 100vh;
     font-size: 15px;
@@ -254,6 +253,7 @@ html {
   -moz-flex: 1 0 auto;
   -ms-flex: 1 0 auto;
   flex: 1 0 auto;
+  transform: translateY(0);
   overflow: hidden;
   width: 100%; }
 
