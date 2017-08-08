@@ -15,6 +15,7 @@ html {
         @include flex-direction(column);
         background: #FDFEFE;
         @include flexbox();
+        overflow-x: hidden;
         position: relative;
         min-height: 100vh;
         font-size: 15px;
@@ -964,22 +965,7 @@ footer {
 }
 
 @media (max-width: 767px) {
-    body {
-        overflow-x: hidden;
-    }
-    .abstract2 {
-        top: 300px;
-    }
-    .content-desc {
-        padding-top: .5rem;
-        h1 {
-            font-size: rem(34px);
-            line-height: rem(38px);
-        }
-        p {
-            font-size: rem(20px);
-        }
-    }
+    .abstract2 { top: 300px; }
     header {
         .logo {
             position: absolute;
@@ -999,17 +985,20 @@ footer {
             overflow: hidden;
             position: relative;
             .get-started-nav {
-                margin-top: 25px;
+                margin-top: 10px;
                 a {
                     padding: 5px 15px;
                     text-align: center;
                 }
             }
             > li {
-                display: block;
+                display: inline-block;
                 font-size: 1.2em;
                 text-align: left;
                 border-top: none;
+                width: 50%;
+                margin: 0;
+                vertical-align: top;
                 a {
                     padding: 15px 10px;
                     color: $primary-green;
@@ -1086,14 +1075,18 @@ footer {
             }
         }
     }
+    .content-desc {
+        padding-top: .5rem;
+        h1 {
+            font-size: rem(34px);
+            line-height: rem(38px);
+        }
+        p {
+            font-size: rem(20px);
+        }
+    }
     .controls-nav, .technologies, .we-solve .row {
         display: none;
-    }
-    .controls-slider {
-        .mac-wrap::before {
-            right: -30px;
-            left: -30px;
-        }
     }
     .we-solve {
         .problems-slider {
@@ -1120,6 +1113,120 @@ footer {
             }
         }
     }
+
+    .solutions {
+        padding-bottom: 0;
+        .row {
+            padding-top: 0;
+            figure {
+                flex-basis: 80%;
+                padding: 1rem;
+                &.left {
+                    padding: 1rem;
+                }
+                &.right {
+                    padding-left: 0;
+                }
+            }
+            article {
+                &.left {
+                    padding: 1rem;
+                }
+                &.right {
+                    padding: 2rem;
+                    &:last-child {
+                        padding-top: 2rem;
+                    }
+                }
+            }
+        }
+    }
+    .features {
+        .mac-screen-wrap {
+            .screen-slider-thumbs {
+                display: none;
+            }
+            .screen-slider-top {
+                .mac-browser {
+                    margin: 15px 20px;
+                    figcaption {
+                        flex-basis: 60%;
+                        margin-left: 35px;
+                        h3 {
+                            font-size: 20px;
+                            margin-bottom: 15px;
+                            font-weight: 400;
+                        }
+                    }
+                }
+                .swiper-button-black {
+                    &.swiper-button-prev {
+                        top: 175px;
+                        left: 0
+                    }
+                    &.swiper-button-next {
+                        top: 175px;
+                        right: 0
+                    }
+                }
+            }
+        }
+    }
+    footer {
+        .row {
+            ul.social {
+                li:first-child {
+                    display: none;
+                }
+            }
+        }
+    }
+    .overlay {
+        background-image: url(../images/sources/background_people.png);
+        background-repeat: no-repeat;
+        background-size: cover;
+        .overlay-wrap {
+            .sources {
+                background: none;
+                color: $light;
+                mark {
+                    display: none;
+                }
+            }
+            .contact-us {
+                display: none;
+            }
+        }
+    }
+    .content-desc.animatedParent .animated {
+        @include prefixer(transition-property, none !important);
+        @include prefixer(animation, none !important);
+        @include transform(none !important);
+        opacity: 1
+    }
+
+}
+@media (max-width: 567px) {
+    header {
+        .menu {
+            .get-started-nav {
+                margin-top: 25px;
+            }
+            > li {
+                display: block;
+                font-size: 1.2em;
+                text-align: left;
+                border-top: none;
+                width: 100%;
+            }
+        }
+    }
+    .controls-slider {
+        .mac-wrap::before {
+            right: -30px;
+            left: -30px;
+        }
+    }
     .solutions {
         padding-bottom: 0;
         h2 {
@@ -1129,6 +1236,7 @@ footer {
             flex-wrap: wrap;
             figure {
                 padding: 0;
+                flex-basis: 100%;
                 img {
                     padding: 50px;
                 }
@@ -1169,21 +1277,18 @@ footer {
     }
     .features {
         .mac-screen-wrap {
-            .screen-slider-thumbs {
-                display: none;
-            }
             .screen-slider-top {
                 .mac-browser {
                     flex-wrap: wrap;
                     margin: 10px;
                     figcaption {
                         margin-left: 30px;
+                        flex-basis: 90%;
                         h3 {
                             margin: 10px 0;
                             color: $primary-green;
                             font-size: 24px;
                             font-weight: 300;
-                            // text-align: center;
                         }
                         .list-points {
                             li {
@@ -1230,30 +1335,5 @@ footer {
                 }
             }
         }
-    }
-
-    .overlay {
-        background-image: url(../images/sources/background_people.png);
-        background-repeat: no-repeat;
-        background-size: cover;
-        .overlay-wrap {
-            .sources {
-                background: none;
-                color: $light;
-                mark {
-                    display: none;
-                }
-            }
-            .contact-us {
-                display: none;
-            }
-        }
-    }
-
-    .content-desc.animatedParent .animated {
-        @include prefixer(transition-property, none !important);
-        @include prefixer(animation, none !important);
-        @include transform(none !important);
-        opacity: 1
     }
 }

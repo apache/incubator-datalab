@@ -233,6 +233,7 @@ html {
     display: -moz-flex;
     display: -ms-flexbox;
     display: flex;
+    overflow-x: hidden;
     position: relative;
     min-height: 100vh;
     font-size: 15px;
@@ -1218,17 +1219,8 @@ footer {
             padding: 15px; }
 
 @media (max-width: 767px) {
-  body {
-    overflow-x: hidden; }
   .abstract2 {
     top: 300px; }
-  .content-desc {
-    padding-top: .5rem; }
-    .content-desc h1 {
-      font-size: 1.41667rem;
-      line-height: 1.58333rem; }
-    .content-desc p {
-      font-size: 0.83333rem; }
   header .logo {
     position: absolute;
     top: 20px;
@@ -1246,15 +1238,18 @@ footer {
     overflow: hidden;
     position: relative; }
     header .menu .get-started-nav {
-      margin-top: 25px; }
+      margin-top: 10px; }
       header .menu .get-started-nav a {
         padding: 5px 15px;
         text-align: center; }
     header .menu > li {
-      display: block;
+      display: inline-block;
       font-size: 1.2em;
       text-align: left;
-      border-top: none; }
+      border-top: none;
+      width: 50%;
+      margin: 0;
+      vertical-align: top; }
       header .menu > li a {
         padding: 15px 10px;
         color: #1CBC79; }
@@ -1310,11 +1305,15 @@ footer {
       z-index: 1;
       transform-origin: 4px 0px;
       transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1), background 0.5s cubic-bezier(0.77, 0.2, 0.05, 1), opacity 0.55s ease; }
+  .content-desc {
+    padding-top: .5rem; }
+    .content-desc h1 {
+      font-size: 1.41667rem;
+      line-height: 1.58333rem; }
+    .content-desc p {
+      font-size: 0.83333rem; }
   .controls-nav, .technologies, .we-solve .row {
     display: none; }
-  .controls-slider .mac-wrap::before {
-    right: -30px;
-    left: -30px; }
   .we-solve .problems-slider .min-visible {
     display: block;
     text-align: center; }
@@ -1332,12 +1331,90 @@ footer {
         font-size: 18px; }
   .solutions {
     padding-bottom: 0; }
+    .solutions .row {
+      padding-top: 0; }
+      .solutions .row figure {
+        flex-basis: 80%;
+        padding: 1rem; }
+        .solutions .row figure.left {
+          padding: 1rem; }
+        .solutions .row figure.right {
+          padding-left: 0; }
+      .solutions .row article.left {
+        padding: 1rem; }
+      .solutions .row article.right {
+        padding: 2rem; }
+        .solutions .row article.right:last-child {
+          padding-top: 2rem; }
+  .features .mac-screen-wrap .screen-slider-thumbs {
+    display: none; }
+  .features .mac-screen-wrap .screen-slider-top .mac-browser {
+    margin: 15px 20px; }
+    .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption {
+      flex-basis: 60%;
+      margin-left: 35px; }
+      .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption h3 {
+        font-size: 20px;
+        margin-bottom: 15px;
+        font-weight: 400; }
+  .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-prev {
+    top: 175px;
+    left: 0; }
+  .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-next {
+    top: 175px;
+    right: 0; }
+  footer .row ul.social li:first-child {
+    display: none; }
+  .overlay {
+    background-image: url(../images/sources/background_people.png);
+    background-repeat: no-repeat;
+    background-size: cover; }
+    .overlay .overlay-wrap .sources {
+      background: none;
+      color: #fff; }
+      .overlay .overlay-wrap .sources mark {
+        display: none; }
+    .overlay .overlay-wrap .contact-us {
+      display: none; }
+  .content-desc.animatedParent .animated {
+    -webkit-transition-property: none !important;
+    -moz-transition-property: none !important;
+    -ms-transition-property: none !important;
+    -o-transition-property: none !important;
+    transition-property: none !important;
+    -webkit-animation: none !important;
+    -moz-animation: none !important;
+    -ms-animation: none !important;
+    -o-animation: none !important;
+    animation: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+    transform: none !important;
+    opacity: 1; } }
+
+@media (max-width: 567px) {
+  header .menu .get-started-nav {
+    margin-top: 25px; }
+  header .menu > li {
+    display: block;
+    font-size: 1.2em;
+    text-align: left;
+    border-top: none;
+    width: 100%; }
+  .controls-slider .mac-wrap::before {
+    right: -30px;
+    left: -30px; }
+  .solutions {
+    padding-bottom: 0; }
     .solutions h2 {
       padding-top: 1rem; }
     .solutions .row {
       flex-wrap: wrap; }
       .solutions .row figure {
-        padding: 0; }
+        padding: 0;
+        flex-basis: 100%; }
         .solutions .row figure img {
           padding: 50px; }
         .solutions .row figure.left {
@@ -1363,13 +1440,12 @@ footer {
           padding: 0; }
           .solutions .row article.right:last-child {
             padding-top: 0; }
-  .features .mac-screen-wrap .screen-slider-thumbs {
-    display: none; }
   .features .mac-screen-wrap .screen-slider-top .mac-browser {
     flex-wrap: wrap;
     margin: 10px; }
     .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption {
-      margin-left: 30px; }
+      margin-left: 30px;
+      flex-basis: 90%; }
       .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption h3 {
         margin: 10px 0;
         color: #1CBC79;
@@ -1400,32 +1476,4 @@ footer {
       justify-content: center;
       margin-bottom: 25px; }
       footer .row ul.social li:first-child {
-        display: none; }
-  .overlay {
-    background-image: url(../images/sources/background_people.png);
-    background-repeat: no-repeat;
-    background-size: cover; }
-    .overlay .overlay-wrap .sources {
-      background: none;
-      color: #fff; }
-      .overlay .overlay-wrap .sources mark {
-        display: none; }
-    .overlay .overlay-wrap .contact-us {
-      display: none; }
-  .content-desc.animatedParent .animated {
-    -webkit-transition-property: none !important;
-    -moz-transition-property: none !important;
-    -ms-transition-property: none !important;
-    -o-transition-property: none !important;
-    transition-property: none !important;
-    -webkit-animation: none !important;
-    -moz-animation: none !important;
-    -ms-animation: none !important;
-    -o-animation: none !important;
-    animation: none !important;
-    -webkit-transform: none !important;
-    -moz-transform: none !important;
-    -ms-transform: none !important;
-    -o-transform: none !important;
-    transform: none !important;
-    opacity: 1; } }
+        display: none; } }
