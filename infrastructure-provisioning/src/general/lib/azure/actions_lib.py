@@ -75,13 +75,15 @@ class AzureActions:
     def create_vpc(self, resource_group_name, vpc_name, region, vpc_cidr):
         try:
             result = self.network_client.virtual_networks.create_or_update(
-                resource_group_name, vpc_name,
+                resource_group_name,
+                vpc_name,
                 {
                     'location': region,
                     'address_space': {
                         'address_prefixes': [vpc_cidr]
                     }
-                })
+                }
+            )
             return result
         except Exception as err:
             logging.info(
@@ -93,7 +95,10 @@ class AzureActions:
 
     def remove_vpc(self, resource_group_name, vpc_name):
         try:
-            result = self.network_client.virtual_networks.delete(resource_group_name, vpc_name)
+            result = self.network_client.virtual_networks.delete(
+                resource_group_name,
+                vpc_name
+            )
             return result
         except Exception as err:
             logging.info(
@@ -106,7 +111,9 @@ class AzureActions:
     def create_subnet(self, resource_group_name, vpc_name, subnet_name, subnet_cidr):
         try:
             result = self.network_client.subnets.create_or_update(
-                resource_group_name, vpc_name, subnet_name,
+                resource_group_name,
+                vpc_name,
+                subnet_name,
                 {
                     'address_prefix': subnet_cidr
                 }
@@ -122,7 +129,11 @@ class AzureActions:
 
     def remove_subnet(self, resource_group_name, vpc_name, subnet_name):
         try:
-            result = self.network_client.subnets.delete(resource_group_name, vpc_name, subnet_name)
+            result = self.network_client.subnets.delete(
+                resource_group_name,
+                vpc_name,
+                subnet_name
+            )
             return result
         except Exception as err:
             logging.info(
@@ -132,11 +143,16 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_security_group(self, resource_group_name, network_security_group_name, list_rules):
+    def create_security_group(self, resource_group_name, network_security_group_name, list_rules, region):
         try:
-
             result = self.network_client.network_security_groups.create_or_update(
-                resource_group_name, network_security_group_name, list_rules)
+                resource_group_name,
+                network_security_group_name,
+                {
+                    'location': region,
+                    'securityRules': list_rules
+                }
+            )
             return result
         except Exception as err:
             logging.info(
@@ -149,7 +165,9 @@ class AzureActions:
     def remove_security_group(self, resource_group_name, network_security_group_name):
         try:
             result = self.network_client.network_security_groups.delete(
-                resource_group_name, network_security_group_name)
+                resource_group_name,
+                network_security_group_name
+            )
             return result
         except Exception as err:
             logging.info(
