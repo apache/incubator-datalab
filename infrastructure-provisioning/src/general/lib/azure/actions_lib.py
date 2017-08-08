@@ -78,7 +78,7 @@ class AzureActions:
                 resource_group_name, vpc_name,
                 {
                     'location': region,
-                    'address_space': [vpc_cidr]
+                    'address_space': {vpc_cidr}
                 })
             return result
         except Exception as err:
