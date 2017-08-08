@@ -23,6 +23,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import exceptions
 from google.cloud import storage
 from googleapiclient import errors
+from dlab.fab import *
 import meta_lib
 import os
 import json
@@ -313,6 +314,8 @@ class GCPActions:
                 }
             ]
         }
+        if instance_class == 'notebook':
+            del instance_params['networkInterfaces'][0]['accessConfigs']
         request = self.service.instances().insert(project=self.project, zone=zone, body=instance_params)
         try:
             result = request.execute()
