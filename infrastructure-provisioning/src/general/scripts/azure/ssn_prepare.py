@@ -38,7 +38,11 @@ if __name__ == "__main__":
     pre_defined_sg = False
     ssn_conf = dict()
     ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
+    ssn_conf['vpc_name'] = os.environ['conf_service_base_name'] + 'ssn-vpc'
+    ssn_conf['subnet_name'] = os.environ['conf_service_base_name'] + 'ssn-subnet'
     ssn_conf['region'] = os.environ['azure_region']
+    ssn_conf['vpc_cidr'] = '10.10.0.0/16'
+    ssn_conf['subnet_prefix'] = '20'
 
     try:
         if os.environ['azure_resource_group_name'] == '':
@@ -61,6 +65,62 @@ if __name__ == "__main__":
             except:
                 print "Resource group hasn't been created."
             append_result("Failed to create Resource Group. Exception:" + str(err))
+            sys.exit(1)
+
+    try:
+        if os.environ['azure_vpc_name'] == '':
+            raise KeyError
+    except KeyError:
+        pre_defined_vpc = True
+        logging.info('[CREATING VIRTUAL NETWORK]')
+        print "[CREATING VIRTUAL NETWORK]"
+        try:
+            params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {}".format(
+                ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'])
+            try:
+                local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+            os.environ['azure_vpc_name'] = ssn_conf['vpc_name']
+        except Exception as err:
+            if pre_defined_resource_group:
+                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            try:
+                AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
+            except:
+                print "Virtual Network hasn't been created."
+            append_result("Failed to create Virtual Network. Exception:" + str(err))
+            sys.exit(1)
+
+    try:
+        if os.environ['azure_subnet_name'] == '':
+            raise KeyError
+    except KeyError:
+        pre_defined_vpc = True
+        logging.info('[CREATING SUBNET]')
+        print "[CREATING SUBNET]"
+        try:
+            params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
+                format(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'],
+                       ssn_conf['subnet_name'], ssn_conf['subnet_prefix'])
+            try:
+                local("~/scripts/{}.py {}".format('common_create_subnet', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+            os.environ['azure_subnet_name'] = ssn_conf['subnet_name']
+        except Exception as err:
+            if pre_defined_resource_group:
+                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            if pre_defined_vpc:
+                AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
+            try:
+                AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'],
+                                             ssn_conf['subnet_name'])
+            except:
+                print "Subnet hasn't been created."
+            append_result("Failed to create Subnet. Exception:" + str(err))
             sys.exit(1)
     # try:
     #     logging.info('[CREATE AWS CONFIG FILE]')

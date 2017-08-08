@@ -22,38 +22,20 @@ import argparse
 from dlab.actions_lib import *
 from dlab.meta_lib import *
 
-
 parser = argparse.ArgumentParser()
-parser.add_argument('--vpc', type=str, default='')
+parser.add_argument('--vpc_name', type=str, default='')
+parser.add_argument('--resource_group_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
-parser.add_argument('--infra_tag_name', type=str, default='')
-parser.add_argument('--infra_tag_value', type=str, default='')
+parser.add_argument('--vpc_cidr', type=str, default='')
 args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    success = False
-    tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
-    if args.vpc != '':
-        try:
-            vpc_id = get_vpc_by_tag(args.infra_tag_name, args.infra_tag_value)
-            if vpc_id == '':
-                print "Creating vpc %s in region %s with tag %s." % (args.vpc, args.region, json.dumps(tag))
-                vpc_id = create_vpc(args.vpc, tag)
-                enable_vpc_dns(vpc_id)
-                rt_id = create_rt(vpc_id, args.infra_tag_name, args.infra_tag_value)
-            else:
-                print "REQUESTED VPC ALREADY EXISTS"
-            print "VPC_ID " + vpc_id
-            args.vpc_id = vpc_id
-            success = True
-        except:
-            success = False
-    else:
-        parser.print_help()
-        sys.exit(2)
-
-    if success:
-        sys.exit(0)
+    if args.vpc_name != '':
+        if AzureMeta().get_vpc(args.resource_group_name, args.vpc_name):
+            print "REQUESTED VIRTUAL NETWORK {} EXISTS".format(args.vpc_name)
+        else:
+            print "Creating Virtual Network {}".format(args.vpc_name)
+            AzureActions().create_vpc(args.resource_group_name, args.vpc_name, args.region, args.vpc_cidr)
     else:
         sys.exit(1)

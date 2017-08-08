@@ -33,7 +33,7 @@ if __name__ == "__main__":
         if AzureMeta().get_resource_group(args.resource_group_name):
             print "REQUESTED RESOURCE GROUP {} EXISTS".format(args.resource_group_name)
         else:
-            print "Creating VPC {}".format(args.resource_group_name)
+            print "Creating Resource Group {}".format(args.resource_group_name)
             AzureActions().create_resource_group(args.resource_group_name, args.region)
     else:
         sys.exit(1)

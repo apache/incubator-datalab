@@ -72,6 +72,64 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def create_vpc(self, resource_group_name, vpc_name, region, vpc_cidr):
+        try:
+            result = self.network_client.virtual_networks.create_or_update(
+                resource_group_name, vpc_name,
+                {
+                    'location': region,
+                    'address_space': [vpc_cidr]
+                })
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create Virtual Network: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Virtual Network",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def remove_vpc(self, resource_group_name, vpc_name):
+        try:
+            result = self.network_client.virtual_networks.delete(resource_group_name, vpc_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to remove Virtual Network: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove Virtual Network",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def create_subnet(self, resource_group_name, vpc_name, subnet_name, subnet_cidr):
+        try:
+            result = self.network_client.subnets.create_or_update(
+                resource_group_name, vpc_name, subnet_name,
+                {
+                    'address_prefix': subnet_cidr
+                }
+            )
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Subnet",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def remove_subnet(self, resource_group_name, vpc_name, subnet_name):
+        try:
+            result = self.network_client.subnets.delete(resource_group_name, vpc_name, subnet_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to remove Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove Subnet",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def create_security_group(self, resource_group_name, network_security_group_name):
         try:
             result = self.network_client.resource_groups.create_or_update(

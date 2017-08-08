@@ -35,6 +35,7 @@ parser.add_argument('--conf_cloud_provider', type=str, default='',
                     help='Where DLab should be deployed. Available options: aws, gcp')
 parser.add_argument('--aws_vpc_id', type=str, default='', help='AWS VPC ID')
 parser.add_argument('--gcp_vpc_name', type=str, default='', help='GCP VPC Name')
+parser.add_argument('--azure_vpc_name', type=str, default='', help='Azure VPC Name')
 parser.add_argument('--aws_subnet_id', type=str, default='', help='AWS Subnet ID')
 parser.add_argument('--gcp_subnet_name', type=str, default='', help='GCP Subnet Name')
 parser.add_argument('--aws_security_groups_ids', type=str, default='', help='One of more comma-separated Security groups IDs for SSN')
