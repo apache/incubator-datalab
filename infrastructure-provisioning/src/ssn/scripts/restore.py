@@ -59,7 +59,8 @@ def restore_prepare():
             head, tail = os.path.split(args.file)
             temp_folder = "/tmp/{}/".format(tail.split(".")[0])
             if os.path.isdir(temp_folder):
-                print "Temporary folder with this backup already exist. Use folder path in --file key."
+                print "Temporary folder with this backup already exist."
+                print "Use folder path '{}' in --file key".format(temp_folder)
                 raise Exception
             local("mkdir {}".format(temp_folder))
             local("tar -xf {0} -C {1}".format(backup_file, temp_folder))
@@ -91,6 +92,8 @@ def restore_prepare():
     except:
         print "Failed to stop all services. Can not continue."
         sys.exit(1)
+
+    return temp_folder
 
 
 def restore_configs():
@@ -279,6 +282,7 @@ def restore_finalize():
     except Exception as err:
         print "Clear temp folder failed.", str(err)
 
+temp_folder = ""
 
 if __name__ == "__main__":
     backup_file = os.path.join(os.path.dirname(__file__), args.file)
@@ -286,10 +290,10 @@ if __name__ == "__main__":
     keys_folder = "/home/{}/keys/".format(os.environ['USER'])
     certs_folder = "/etc/ssl/certs/"
     jars_folder = "webapp/lib/"
-    temp_folder = ""
+
 
     # Backup file section
-    restore_prepare()
+    temp_folder = restore_prepare()
 
     # Restore section
     restore_configs()
