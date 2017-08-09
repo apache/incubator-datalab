@@ -113,3 +113,18 @@ class AzureMeta:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def list_storage_keys(self, resource_group_name, account_name):
+        try:
+            result = []
+            get_keys = self.storage_client.storage_accounts.list_keys(resource_group_name, account_name).keys
+            for key in get_keys:
+                result.append(key.value)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to get Storage account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Storage account",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)

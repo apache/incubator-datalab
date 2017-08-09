@@ -220,3 +220,17 @@ class AzureActions:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def create_blob_container(self, resource_group_name, account_name, container_name):
+        try:
+            secret_key = AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+            block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
+            result = block_blob_service.create_container(container_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create blob container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create blob container",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
