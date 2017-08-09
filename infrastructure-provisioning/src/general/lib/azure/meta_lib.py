@@ -37,6 +37,7 @@ class AzureMeta:
             self.compute_client = get_client_from_auth_file(ComputeManagementClient)
             self.resource_client = get_client_from_auth_file(ResourceManagementClient)
             self.network_client = get_client_from_auth_file(NetworkManagementClient)
+            self.storage_client = get_client_from_auth_file(StorageManagementClient)
 
     def get_resource_group(self, resource_group_name):
         try:
@@ -94,6 +95,21 @@ class AzureMeta:
             logging.info(
                 "Unable to get list of Subnets: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to get list of Subnets",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def get_storage_account(self, resource_group_name, account_name):
+        try:
+            result = self.storage_client.storage_accounts.get_properties(
+                resource_group_name,
+                account_name
+            )
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to get Storage account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Storage account",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)

@@ -22,6 +22,7 @@ from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.storage import CloudStorageAccount
+from azure.storage.blob import BlockBlobService
 from azure.storage.blob.models import ContentSettings, PublicAccess
 import azure.common.exceptions as AzureExceptions
 import logging
@@ -37,6 +38,7 @@ class AzureActions:
             self.compute_client = get_client_from_auth_file(ComputeManagementClient)
             self.resource_client = get_client_from_auth_file(ResourceManagementClient)
             self.network_client = get_client_from_auth_file(NetworkManagementClient)
+            self.storage_client = get_client_from_auth_file(StorageManagementClient)
 
     def create_resource_group(self, resource_group_name, region):
         try:
@@ -179,6 +181,42 @@ class AzureActions:
             logging.info(
                 "Unable to remove security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to remove security group",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def create_storage_account(self, resource_group_name, account_name, region):
+        try:
+            result = self.storage_client.storage_accounts.create(
+                resource_group_name,
+                account_name,
+                {
+                    "sku": {"name": "Standard_LRS"},
+                    "kind": "BlobStorage",
+                    "location":  region,
+                    "access_tier": "Hot"
+                }
+            )
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create Storage account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Storage account",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def remove_storage_account(self, resource_group_name, account_name):
+        try:
+            result = self.storage_client.storage_accounts.delete(
+                resource_group_name,
+                account_name
+            )
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to remove Storage account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove Storage account",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
