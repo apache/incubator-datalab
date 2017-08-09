@@ -64,7 +64,7 @@ if __name__ == "__main__":
                     os.environ['conf_os_user'], edge_instance_hostname, '3128', os.environ['notebook_scala_version'],
                     os.environ['application'], os.environ['conf_pypi_mirror'])
         try:
-            local("~/scripts/{}_{}.py {}".format(application, 'install_dataproc_kernels', params))
+            local("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params))
             actions_lib.GCPActions().update_dataproc_cluster(notebook_config['cluster_name'], notebook_config['notebook_name'])
         except:
             traceback.print_exc()

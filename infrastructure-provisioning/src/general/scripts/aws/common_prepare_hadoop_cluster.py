@@ -126,7 +126,7 @@ if __name__ == "__main__":
                     os.environ['conf_key_dir'], os.environ['edge_user_name'], os.environ['emr_slave_instance_spot'],
                     str(emr_conf['slave_bid_price']), emr_conf['service_base_name'])
         try:
-            local("~/scripts/{}.py {}".format('emr_create', params))
+            local("~/scripts/{}.py {}".format('dataengine-service_create', params))
         except:
             traceback.print_exc()
             raise Exception

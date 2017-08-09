@@ -107,7 +107,7 @@ if __name__ == "__main__":
         params = "--region {0} --bucket {1} --params '{2}'".format(dataproc_conf['region'], dataproc_conf['bucket_name'], json.dumps(dataproc_cluster))
 
         try:
-            local("~/scripts/{}.py {}".format('dataproc_create', params))
+            local("~/scripts/{}.py {}".format('dataengine-service_create', params))
         except:
             traceback.print_exc()
             raise Exception

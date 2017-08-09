@@ -52,7 +52,7 @@ def terminate():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('emr_terminate'))
+        local("~/scripts/{}.py".format('dataengine-service_terminate'))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Notebook node.", str(err))

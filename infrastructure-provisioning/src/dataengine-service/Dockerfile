@@ -21,8 +21,9 @@ FROM docker.dlab-base:latest
 ARG OS
 ARG CLOUD
 
-COPY emr/ /root/
-COPY general/scripts/${CLOUD}/emr_* /root/scripts/
+COPY dataengine-service/fabfile.py /root/
+COPY dataengine-service/${CLOUD} /root/
+COPY general/scripts/${CLOUD}/dataengine-service_* /root/scripts/
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
 

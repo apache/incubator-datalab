@@ -42,8 +42,7 @@ RUN mkdir -p /response; chmod a+rwx /response
 RUN mkdir -p /logs/ssn; chmod a+rwx /logs/ssn
 RUN mkdir -p /logs/edge; chmod a+rwx /logs/edge
 RUN mkdir -p /logs/notebook; chmod a+rwx /logs/notebook
-RUN mkdir -p /logs/emr; chmod a+rwx /logs/emr
-RUN mkdir -p /logs/dataproc; chmod a+rwx /logs/dataproc
+RUN mkdir -p /logs/dataengine-service; chmod a+rwx /logs/dataengine-service
 
 # Copying all base scripts to docker
 ENV PROVISION_CONFIG_DIR /root/conf/
