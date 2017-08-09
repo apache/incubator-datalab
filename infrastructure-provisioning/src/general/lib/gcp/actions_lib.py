@@ -245,9 +245,10 @@ class GCPActions:
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
-        if instance_class == 'ssn' or instance_class == 'notebook':
-            access_configs = [{"type": "ONE_TO_ONE_NAT"}]
-        elif instance_class == 'edge':
+        access_configs = ''
+        # if instance_class == 'ssn' or instance_class == 'notebook':
+        #     access_configs = [{"type": "ONE_TO_ONE_NAT"}]
+        if instance_class == 'ssn' or instance_class == 'edge':
             access_configs = [{
                 "type": "ONE_TO_ONE_NAT",
                 "name": "External NAT",
