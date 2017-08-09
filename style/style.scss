@@ -1045,7 +1045,15 @@ footer {
             }
         }
     }
-
+    footer {
+        .row {
+            ul.social {
+                li:first-child {
+                    display: none;
+                }
+            }
+        }
+    }
 }
 @media (max-width: 767px) {
     .abstract2 { top: 300px; }
@@ -1205,15 +1213,6 @@ footer {
             }
         }
     }
-    footer {
-        .row {
-            ul.social {
-                li:first-child {
-                    display: none;
-                }
-            }
-        }
-    }
     .overlay {
         background-image: url(../images/sources/background_people.png);
         background-repeat: no-repeat;
@@ -1241,7 +1240,6 @@ footer {
         @include transform(none !important);
         opacity: 1
     }
-
 }
 @media (max-width: 567px) {
     header {

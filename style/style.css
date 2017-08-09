@@ -1266,7 +1266,9 @@ footer {
     left: 0; }
   .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-next {
     top: 175px;
-    right: 0; } }
+    right: 0; }
+  footer .row ul.social li:first-child {
+    display: none; } }
 
 @media (max-width: 767px) {
   .abstract2 {
@@ -1384,8 +1386,6 @@ footer {
       padding: 0 40px; }
       .we-solve .problems-slider > div ul.list-points li {
         font-size: 18px; }
-  footer .row ul.social li:first-child {
-    display: none; }
   .overlay {
     background-image: url(../images/sources/background_people.png);
     background-repeat: no-repeat;
