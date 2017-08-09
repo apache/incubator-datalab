@@ -62,6 +62,7 @@ def restore_prepare():
                 print "Temporary folder with this backup already exist."
                 print "Use folder path '{}' in --file key".format(temp_folder)
                 raise Exception
+            print "Backup acrhive will be unpacked to: {}".format(temp_folder)
             local("mkdir {}".format(temp_folder))
             local("tar -xf {0} -C {1}".format(backup_file, temp_folder))
         elif os.path.isdir(backup_file):
@@ -190,7 +191,7 @@ def restore_certs():
                         if not filecmp.cmp("{0}certs/{1}".format(temp_folder, filename), "{0}{1}".format(certs_folder, filename)):
                             if ask("Cert {} was changed, rewrite it?".format(filename)):
                                 local("sudo cp -f {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename))
-                                local("sudo chown {0}:{0} {1}certs/{2}".format("root", certs_folder, filename))
+                                local("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename))
                             else:
                                 print "Cert {} was skipped.".format(filename)
                         else:
@@ -198,7 +199,7 @@ def restore_certs():
                     else:
                         print "Cert {} does not exist. Creating.".format(filename)
                         local("sudo cp {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename))
-                        local("sudo chown {0}:{0} {1}certs/{2}".format("root", certs_folder, filename))
+                        local("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename))
     except:
         print "Restore certs failed."
         pass
@@ -215,7 +216,7 @@ def restore_jars():
             jars = [dirs for root, dirs, files in os.walk("{}jars".format(temp_folder))][0]
         else:
             jars = args.jars.split(",")
-        print "Restore configs: ", jars
+        print "Restore jars: ", jars
 
         if args.jars != "skip":
             for service in jars:
@@ -248,19 +249,10 @@ def restore_database():
             if ask("Do you want to drop existing database and restore another from backup?"):
                 ssn_conf = open(args.dlab_path + conf_folder + 'ssn.yml').read()
                 data = yaml.load("mongo" + ssn_conf.split("mongo")[-1])
-                try:
-                    with settings(hide('running')):
-                        print "Try to drop existing database."
-                        local("mongo --host {0} --port {1} --username {2} --password '{3}' {4} --eval 'db.dropDatabase();'" \
-                            .format(data['mongo']['host'], data['mongo']['port'], data['mongo']['username'],
-                                    data['mongo']['password'], data['mongo']['database']))
-                except:
-                    print "Failed to drop existing database. Restoring is not possible."
-                    print "See: https://docs.mongodb.com/manual/reference/program/mongorestore/"
-                    raise Exception
                 print "Restoring database from backup"
-                local("mongorestore --host {0} --port {1} --archive={2}mongo.db" \
-                      .format(data['mongo']['host'], data['mongo']['port'], temp_folder))
+                local("mongorestore --drop --host {0} --port {1} --archive={2}/mongo.db --username {3} --password '{4}' --authenticationDatabase={5}" \
+                      .format(data['mongo']['host'], data['mongo']['port'], temp_folder,
+                              data['mongo']['username'], data['mongo']['password'], data['mongo']['database']))
             else:
                 print "Restore database was skipped."
     except:
@@ -282,7 +274,6 @@ def restore_finalize():
     except Exception as err:
         print "Clear temp folder failed.", str(err)
 
-temp_folder = ""
 
 if __name__ == "__main__":
     backup_file = os.path.join(os.path.dirname(__file__), args.file)
@@ -290,7 +281,7 @@ if __name__ == "__main__":
     keys_folder = "/home/{}/keys/".format(os.environ['USER'])
     certs_folder = "/etc/ssl/certs/"
     jars_folder = "webapp/lib/"
-
+    temp_folder = ""
 
     # Backup file section
     temp_folder = restore_prepare()
