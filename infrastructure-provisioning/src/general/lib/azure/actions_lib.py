@@ -149,10 +149,16 @@ class AzureActions:
                 resource_group_name,
                 network_security_group_name,
                 {
-                    'location': region,
-                    'securityRules': list_rules
+                    'location': region
                 }
             )
+            for rule in list_rules:
+                self.network_client.security_rules.create_or_update(
+                    resource_group_name,
+                    network_security_group_name,
+                    security_rule_name=rule['name'],
+                    security_rule_parameters=rule
+                )
             return result
         except Exception as err:
             logging.info(
