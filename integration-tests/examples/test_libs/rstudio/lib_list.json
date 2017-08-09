@@ -1,0 +1,10 @@
+[
+  {
+    "group": "os_pkg",
+    "start_with": "py"
+  },
+  {
+    "group": "r_pkg",
+    "start_with": "sp"
+  }
+]
