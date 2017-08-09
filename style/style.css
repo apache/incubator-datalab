@@ -1109,8 +1109,11 @@ footer {
         .overlay .overlay-wrap .sources .close-butt:hover, .overlay .overlay-wrap .sources .close-butt:focus {
           color: #1CBC79; }
       .overlay .overlay-wrap .sources .dlab-logo {
-        padding-top: 30px;
-        margin-bottom: 95px; }
+        padding: 56px;
+        margin-bottom: 120px;
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+        background-image: url(../images/logo_black.svg); }
       .overlay .overlay-wrap .sources h2 {
         line-height: 26px;
         font-weight: 600;
@@ -1218,9 +1221,59 @@ footer {
           .overlay .overlay-wrap .contact-us form button:active {
             padding: 15px; }
 
+@media (max-width: 1024px) {
+  .controls-nav, .technologies {
+    display: none; }
+  .we-solve article div {
+    width: 25%; }
+    .we-solve article div p {
+      padding-bottom: 35px;
+      line-height: 34px; }
+    .we-solve article div span {
+      position: absolute;
+      left: 35%;
+      bottom: 30px; }
+  .solutions {
+    padding-bottom: 0; }
+    .solutions .row {
+      padding-top: 0; }
+      .solutions .row figure {
+        flex-basis: 80%;
+        padding: 1rem; }
+        .solutions .row figure.left {
+          padding: 1rem; }
+        .solutions .row figure.right {
+          padding-left: 0; }
+      .solutions .row article.left {
+        padding: 1rem; }
+      .solutions .row article.right {
+        padding: 2rem; }
+        .solutions .row article.right:last-child {
+          padding-top: 2rem; }
+  .features .mac-screen-wrap .screen-slider-thumbs {
+    display: none; }
+  .features .mac-screen-wrap .screen-slider-top .mac-browser {
+    margin: 15px 20px; }
+    .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption {
+      flex-basis: 60%;
+      margin-left: 35px; }
+      .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption h3 {
+        font-size: 20px;
+        margin-bottom: 15px;
+        font-weight: 400; }
+  .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-prev {
+    top: 175px;
+    left: 0; }
+  .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-next {
+    top: 175px;
+    right: 0; } }
+
 @media (max-width: 767px) {
   .abstract2 {
     top: 300px; }
+  h2.heading {
+    font-size: 26px;
+    line-height: 52px; }
   header .logo {
     position: absolute;
     top: 20px;
@@ -1312,57 +1365,25 @@ footer {
       line-height: 1.58333rem; }
     .content-desc p {
       font-size: 0.83333rem; }
-  .controls-nav, .technologies, .we-solve .row {
+  .we-solve .row {
     display: none; }
+  .controls-slider .mac-wrap {
+    padding-bottom: 45px; }
   .we-solve .problems-slider .min-visible {
     display: block;
     text-align: center; }
     .we-solve .problems-slider .min-visible p {
-      font-size: 24px;
+      font-size: 22px;
       color: #1CBC79; }
     .we-solve .problems-slider .min-visible img {
       margin: 15px; }
   .we-solve .problems-slider > div {
     display: block;
-    padding: 45px 0 0; }
+    padding: 25px 0 0; }
     .we-solve .problems-slider > div ul.list-points {
       padding: 0 40px; }
       .we-solve .problems-slider > div ul.list-points li {
         font-size: 18px; }
-  .solutions {
-    padding-bottom: 0; }
-    .solutions .row {
-      padding-top: 0; }
-      .solutions .row figure {
-        flex-basis: 80%;
-        padding: 1rem; }
-        .solutions .row figure.left {
-          padding: 1rem; }
-        .solutions .row figure.right {
-          padding-left: 0; }
-      .solutions .row article.left {
-        padding: 1rem; }
-      .solutions .row article.right {
-        padding: 2rem; }
-        .solutions .row article.right:last-child {
-          padding-top: 2rem; }
-  .features .mac-screen-wrap .screen-slider-thumbs {
-    display: none; }
-  .features .mac-screen-wrap .screen-slider-top .mac-browser {
-    margin: 15px 20px; }
-    .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption {
-      flex-basis: 60%;
-      margin-left: 35px; }
-      .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption h3 {
-        font-size: 20px;
-        margin-bottom: 15px;
-        font-weight: 400; }
-  .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-prev {
-    top: 175px;
-    left: 0; }
-  .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-next {
-    top: 175px;
-    right: 0; }
   footer .row ul.social li:first-child {
     display: none; }
   .overlay {
@@ -1372,6 +1393,9 @@ footer {
     .overlay .overlay-wrap .sources {
       background: none;
       color: #fff; }
+      .overlay .overlay-wrap .sources .dlab-logo {
+        margin-bottom: 50px;
+        background-image: url(../images/logo_white.svg); }
       .overlay .overlay-wrap .sources mark {
         display: none; }
     .overlay .overlay-wrap .contact-us {
@@ -1403,13 +1427,16 @@ footer {
     text-align: left;
     border-top: none;
     width: 100%; }
-  .controls-slider .mac-wrap::before {
-    right: -30px;
-    left: -30px; }
+  .controls-slider .mac-wrap {
+    padding-bottom: 15px; }
+    .controls-slider .mac-wrap::before {
+      right: -30px;
+      left: -30px; }
   .solutions {
     padding-bottom: 0; }
     .solutions h2 {
-      padding-top: 1rem; }
+      padding-top: 1rem;
+      margin-bottom: 1rem; }
     .solutions .row {
       flex-wrap: wrap; }
       .solutions .row figure {
@@ -1454,10 +1481,10 @@ footer {
       .features .mac-screen-wrap .screen-slider-top .mac-browser figcaption .list-points li {
         font-size: 18px; }
   .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-prev {
-    top: 250px;
+    top: 300px;
     left: 0; }
   .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-next {
-    top: 250px;
+    top: 300px;
     right: 0; }
   footer article {
     padding: 2.5rem 0; }

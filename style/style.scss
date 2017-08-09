@@ -834,8 +834,11 @@ footer {
                 }
             }
             .dlab-logo {
-                padding-top: 30px;
-                margin-bottom: 95px;
+                padding: 56px;
+                margin-bottom: 120px;
+                background-repeat: no-repeat;
+                background-position: 50% 50%;
+                background-image: url(../images/logo_black.svg);
             }
             h2 {
                 line-height: 26px;
@@ -964,8 +967,92 @@ footer {
     }
 }
 
+@media (max-width: 1024px) {
+    .controls-nav, .technologies {
+        display: none;
+    }
+    .we-solve {
+        article {
+            div {
+                width: 25%;
+                p {
+                    padding-bottom: 35px;
+                    line-height: 34px;
+                }
+                span {
+                    position: absolute;
+                    left: 35%;
+                    bottom: 30px;
+                }
+            }
+        }
+    }
+    .solutions {
+        padding-bottom: 0;
+        .row {
+            padding-top: 0;
+            figure {
+                flex-basis: 80%;
+                padding: 1rem;
+                &.left {
+                    padding: 1rem;
+                }
+                &.right {
+                    padding-left: 0;
+                }
+            }
+            article {
+                &.left {
+                    padding: 1rem;
+                }
+                &.right {
+                    padding: 2rem;
+                    &:last-child {
+                        padding-top: 2rem;
+                    }
+                }
+            }
+        }
+    }
+    .features {
+        .mac-screen-wrap {
+            .screen-slider-thumbs {
+                display: none;
+            }
+            .screen-slider-top {
+                .mac-browser {
+                    margin: 15px 20px;
+                    figcaption {
+                        flex-basis: 60%;
+                        margin-left: 35px;
+                        h3 {
+                            font-size: 20px;
+                            margin-bottom: 15px;
+                            font-weight: 400;
+                        }
+                    }
+                }
+                .swiper-button-black {
+                    &.swiper-button-prev {
+                        top: 175px;
+                        left: 0
+                    }
+                    &.swiper-button-next {
+                        top: 175px;
+                        right: 0
+                    }
+                }
+            }
+        }
+    }
+
+}
 @media (max-width: 767px) {
     .abstract2 { top: 300px; }
+    h2.heading {
+        font-size: 26px;
+        line-height: 52px;
+    }
     header {
         .logo {
             position: absolute;
@@ -1085,8 +1172,13 @@ footer {
             font-size: rem(20px);
         }
     }
-    .controls-nav, .technologies, .we-solve .row {
+    .we-solve .row {
         display: none;
+    }
+    .controls-slider {
+        .mac-wrap {
+            padding-bottom: 45px;
+        }
     }
     .we-solve {
         .problems-slider {
@@ -1094,7 +1186,7 @@ footer {
                 display: block;
                 text-align: center;
                 p {
-                    font-size: 24px;
+                    font-size: 22px;
                     color: $primary-green;
                 }
                 img {
@@ -1103,70 +1195,11 @@ footer {
             }
             > div {
                 display: block;
-                padding: 45px 0 0;
+                padding: 25px 0 0;
                 ul.list-points {
                     padding: 0 40px;
                     li {
                         font-size: 18px;
-                    }
-                }
-            }
-        }
-    }
-
-    .solutions {
-        padding-bottom: 0;
-        .row {
-            padding-top: 0;
-            figure {
-                flex-basis: 80%;
-                padding: 1rem;
-                &.left {
-                    padding: 1rem;
-                }
-                &.right {
-                    padding-left: 0;
-                }
-            }
-            article {
-                &.left {
-                    padding: 1rem;
-                }
-                &.right {
-                    padding: 2rem;
-                    &:last-child {
-                        padding-top: 2rem;
-                    }
-                }
-            }
-        }
-    }
-    .features {
-        .mac-screen-wrap {
-            .screen-slider-thumbs {
-                display: none;
-            }
-            .screen-slider-top {
-                .mac-browser {
-                    margin: 15px 20px;
-                    figcaption {
-                        flex-basis: 60%;
-                        margin-left: 35px;
-                        h3 {
-                            font-size: 20px;
-                            margin-bottom: 15px;
-                            font-weight: 400;
-                        }
-                    }
-                }
-                .swiper-button-black {
-                    &.swiper-button-prev {
-                        top: 175px;
-                        left: 0
-                    }
-                    &.swiper-button-next {
-                        top: 175px;
-                        right: 0
                     }
                 }
             }
@@ -1189,6 +1222,10 @@ footer {
             .sources {
                 background: none;
                 color: $light;
+                .dlab-logo {
+                    margin-bottom: 50px;
+                    background-image: url(../images/logo_white.svg);
+                }
                 mark {
                     display: none;
                 }
@@ -1222,15 +1259,19 @@ footer {
         }
     }
     .controls-slider {
-        .mac-wrap::before {
-            right: -30px;
-            left: -30px;
+        .mac-wrap {
+            padding-bottom: 15px;
+            &::before {
+                right: -30px;
+                left: -30px;
+            }
         }
     }
     .solutions {
         padding-bottom: 0;
         h2 {
-            padding-top: 1rem
+            padding-top: 1rem;
+            margin-bottom: 1rem;
         }
         .row {
             flex-wrap: wrap;
@@ -1299,11 +1340,11 @@ footer {
                 }
                 .swiper-button-black {
                     &.swiper-button-prev {
-                        top: 250px;
+                        top: 300px;
                         left: 0
                     }
                     &.swiper-button-next {
-                        top: 250px;
+                        top: 300px;
                         right: 0
                     }
                 }
