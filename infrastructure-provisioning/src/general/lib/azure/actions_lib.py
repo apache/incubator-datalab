@@ -265,3 +265,23 @@ class AzureActions:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def create_static_ip(self, resource_group_name, ip_name, region):
+        try:
+            result = self.network_client.public_ip_addresses.create_or_update(
+                resource_group_name,
+                ip_name,
+                {
+                    "location": region,
+                    "public_ip_allocation_method": "static",
+                    "public_ip_address_version": "IPv4"
+                }
+            )
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create static IP address",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
