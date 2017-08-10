@@ -247,15 +247,19 @@ def restore_database():
     try:
         print "Restore database: ", args.db
         if args.db:
-            if ask("Do you want to drop existing database and restore another from backup?"):
-                ssn_conf = open(args.dlab_path + conf_folder + 'ssn.yml').read()
-                data = yaml.load("mongo" + ssn_conf.split("mongo")[-1])
-                print "Restoring database from backup"
-                local("mongorestore --drop --host {0} --port {1} --archive={2}/mongo.db --username {3} --password '{4}' --authenticationDatabase={5}" \
-                      .format(data['mongo']['host'], data['mongo']['port'], temp_folder,
-                              data['mongo']['username'], data['mongo']['password'], data['mongo']['database']))
+            if not os.path.isfile("{0}{1}".format(temp_folder, "mongo.db")):
+                print "File {} are not available in this backup.".format("mongo.db")
+                raise Exception
             else:
-                print "Restore database was skipped."
+                if ask("Do you want to drop existing database and restore another from backup?"):
+                    ssn_conf = open(args.dlab_path + conf_folder + 'ssn.yml').read()
+                    data = yaml.load("mongo" + ssn_conf.split("mongo")[-1])
+                    print "Restoring database from backup"
+                    local("mongorestore --drop --host {0} --port {1} --archive={2}/mongo.db --username {3} --password '{4}' --authenticationDatabase={5}" \
+                            .format(data['mongo']['host'], data['mongo']['port'], temp_folder,
+                                    data['mongo']['username'], data['mongo']['password'], data['mongo']['database']))
+        else:
+            print "Restore database was skipped."
     except:
         print "Restore database failed."
         pass
