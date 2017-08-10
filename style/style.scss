@@ -1221,6 +1221,21 @@ footer {
             @include transform(none !important);
         }
     }
+
+    footer {
+        article {
+            padding: .5rem;
+            h2 {
+                font-size: 16px;
+                line-height: 26px;
+            }
+            .get-started {
+                width: 160px;
+                height: 46px;
+                margin-top: 10px;
+            }
+        }
+    }
     .overlay {
         background-image: url(../images/sources/background_people.png);
         background-repeat: no-repeat;
@@ -1358,14 +1373,6 @@ footer {
         }
     }
     footer {
-        article {
-            padding: 2.5rem 0;
-            h2 {
-                line-height: 34px;
-                padding: 0px 40px;
-                font-size: 20px;
-            }
-        }
         .row {
             flex-wrap: wrap;
             div {

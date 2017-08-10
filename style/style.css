@@ -1394,6 +1394,15 @@ footer {
     -ms-transform: none !important;
     -o-transform: none !important;
     transform: none !important; }
+  footer article {
+    padding: .5rem; }
+    footer article h2 {
+      font-size: 16px;
+      line-height: 26px; }
+    footer article .get-started {
+      width: 160px;
+      height: 46px;
+      margin-top: 10px; }
   .overlay {
     background-image: url(../images/sources/background_people.png);
     background-repeat: no-repeat;
@@ -1494,12 +1503,6 @@ footer {
   .features .mac-screen-wrap .screen-slider-top .swiper-button-black.swiper-button-next {
     top: 300px;
     right: 0; }
-  footer article {
-    padding: 2.5rem 0; }
-    footer article h2 {
-      line-height: 34px;
-      padding: 0px 40px;
-      font-size: 20px; }
   footer .row {
     flex-wrap: wrap; }
     footer .row div {
