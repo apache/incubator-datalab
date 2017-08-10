@@ -10,8 +10,8 @@
     "PYTHON_EXEC": "python",
     "CAPTURE_STANDARD_OUT": "true",
     "CAPTURE_STANDARD_ERR": "true",
-    "HADOOP_CONF_DIR" : "/opt/EMR_VERSION/CLUSTER_NAME/conf/",
-    "YARN_CONF_DIR": "/opt/EMR_VERSION/CLUSTER_NAME/conf/"
+    "HADOOP_CONF_DIR" : "/opt/DATAENGINE-SERVICE_VERSION/CLUSTER_NAME/conf/",
+    "YARN_CONF_DIR": "/opt/DATAENGINE-SERVICE_VERSION/CLUSTER_NAME/conf/"
   },
   "argv": [
     "/usr/local/share/jupyter/kernels/apache_toree_scala/bin/run.sh",

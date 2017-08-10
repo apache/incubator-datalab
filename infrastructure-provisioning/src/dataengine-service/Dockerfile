@@ -24,6 +24,7 @@ ARG CLOUD
 COPY dataengine-service/fabfile.py /root/
 COPY dataengine-service/${CLOUD} /root/
 COPY general/scripts/${CLOUD}/dataengine-service_* /root/scripts/
+
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
 

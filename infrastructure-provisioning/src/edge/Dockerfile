@@ -25,7 +25,7 @@ ARG CLOUD
 COPY edge/ /root/
 COPY general/scripts/${CLOUD}/edge_* /root/scripts/
 COPY general/lib/os/${OS}/edge_lib.py /usr/lib/python2.7/dlab/edge_lib.py
-COPY general/templates/${CLOUD}/edge_s3_policy.json /root/templates/
+COPY general/templates/${CLOUD}/edge_* /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

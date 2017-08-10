@@ -122,41 +122,16 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sys.exit(1)
 
 
-def prepare(emr_dir, yarn_dir):
-    local('mkdir -p ' + emr_dir)
+def prepare(dataengine_service_dir, yarn_dir):
+    local('mkdir -p ' + dataengine_service_dir)
     local('mkdir -p ' + yarn_dir)
     local('sudo mkdir -p /opt/python/')
-    result = os.path.exists(emr_dir + 'usr/')
+    result = os.path.exists(dataengine_service_dir + 'usr/')
     return result
 
 
-def spark_defaults(args):
-    spark_def_path = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/conf/spark-defaults.conf'
-    for i in eval(args.excluded_lines):
-        local(""" sudo bash -c " sed -i '/""" + i + """/d' """ + spark_def_path + """ " """)
-    local(""" sudo bash -c " sed -i '/#/d' """ + spark_def_path + """ " """)
-    local(""" sudo bash -c " sed -i '/^\s*$/d' """ + spark_def_path + """ " """)
-    local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/,/spark.driver.extraLibraryPath/s|/usr|/opt/EMRVERSION/jars/usr|g' """ + spark_def_path + """ " """)
-    local(""" sudo bash -c "sed -i '/spark.yarn.dist.files/s/\/etc\/spark\/conf/\/opt\/EMRVERSION\/CLUSTER\/conf/g' """
-          + spark_def_path + """ " """)
-    template_file = spark_def_path
-    with open(template_file, 'r') as f:
-        text = f.read()
-    text = text.replace('EMRVERSION', args.emr_version)
-    text = text.replace('CLUSTER', args.cluster_name)
-    with open(spark_def_path, 'w') as f:
-        f.write(text)
-    if args.region == 'us-east-1':
-        endpoint_url = 'https://s3.amazonaws.com'
-    elif args.region == 'cn-north-1':
-        endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
-    else:
-        endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
-    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> """ + spark_def_path + """'""")
-
-
-def configuring_notebook(emr_version):
-    jars_path = '/opt/' + emr_version + '/jars/'
+def configuring_notebook(dataengine_service_version):
+    jars_path = '/opt/' + dataengine_service_version + '/jars/'
     local("""sudo bash -c "find """ + jars_path + """ -name '*netty*' | xargs rm -f" """)
 
 
@@ -276,120 +251,6 @@ def ensure_ciphers():
         sudo('service ssh restart')
     except:
         sudo('service sshd restart')
-
-
-def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror=''):
-    get_cluster_python_version(region, bucket, user_name, cluster_name)
-    with file('/tmp/python_version') as f:
-        python_version = f.read()
-    python_version = python_version[0:5]
-    if not os.path.exists('/opt/python/python' + python_version):
-        local('wget https://www.python.org/ftp/python/' + python_version +
-              '/Python-' + python_version + '.tgz -O /tmp/Python-' + python_version + '.tgz' )
-        local('tar zxvf /tmp/Python-' + python_version + '.tgz -C /tmp/')
-        with lcd('/tmp/Python-' + python_version):
-            local('./configure --prefix=/opt/python/python' + python_version +
-                  ' --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install')
-            local('sudo make altinstall')
-        with lcd('/tmp/'):
-            local('sudo rm -rf Python-' + python_version + '/')
-        if region == 'cn-north-1':
-            local('sudo -i /opt/python/python{}/bin/python{} -m pip install -U pip --no-cache-dir'.format(
-                python_version, python_version[0:3]))
-            local('sudo mv /etc/pip.conf /etc/back_pip.conf')
-            local('sudo touch /etc/pip.conf')
-            local('sudo echo "[global]" >> /etc/pip.conf')
-            local('sudo echo "timeout = 600" >> /etc/pip.conf')
-        local('sudo -i virtualenv /opt/python/python' + python_version)
-        venv_command = '/bin/bash /opt/python/python' + python_version + '/bin/activate'
-        pip_command = '/opt/python/python' + python_version + '/bin/pip' + python_version[:3]
-        if region == 'cn-north-1':
-            try:
-                local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 -U pip --no-cache-dir'.format(pip_mirror))
-                local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel --no-cache-dir'.
-                      format(pip_mirror))
-                local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
-                      format(pip_mirror))
-                if application == 'deeplearning':
-                    local(venv_command + ' && sudo -i ' + pip_command +
-                          ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(pip_mirror))
-                    python_without_dots = python_version.replace('.', '')
-                    local(venv_command + ' && sudo -i ' + pip_command +
-                          ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
-                          format(python_without_dots[:2]))
-                local('sudo rm /etc/pip.conf')
-                local('sudo mv /etc/back_pip.conf /etc/pip.conf')
-            except:
-                local('sudo rm /etc/pip.conf')
-                local('sudo mv /etc/back_pip.conf /etc/pip.conf')
-                local('sudo rm -rf /opt/python/python{}/'.format(python_version))
-                sys.exit(1)
-        else:
-            local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
-            local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
-            local(venv_command + ' && sudo -i ' + pip_command +
-                  ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
-            if application == 'deeplearning':
-                local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install mxnet-cu80 opencv-python keras Theano --no-cache-dir')
-                python_without_dots = python_version.replace('.', '')
-                local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{0}-cp{0}m-linux_x86_64.whl --no-cache-dir'.
-                      format(python_without_dots[:2]))
-        local('sudo rm -rf /usr/bin/python' + python_version[0:3])
-        local('sudo ln -fs /opt/python/python' + python_version + '/bin/python' + python_version[0:3] +
-              ' /usr/bin/python' + python_version[0:3])
-
-
-def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket, user_name, region, os_user='',
-                   application='', pip_mirror=''):
-    spark_path = '/opt/' + emr_version + '/' + cluster_name + '/spark/'
-    local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
-    kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
-    template_file = "/tmp/pyspark_emr_template.json"
-    with open(template_file, 'r') as f:
-        text = f.read()
-    text = text.replace('CLUSTER_NAME', cluster_name)
-    text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
-    text = text.replace('SPARK_PATH', spark_path)
-    text = text.replace('PYTHON_SHORT_VERSION', '2.7')
-    text = text.replace('PYTHON_FULL_VERSION', '2.7')
-    text = text.replace('PYTHON_PATH', '/usr/bin/python2.7')
-    text = text.replace('EMR_VERSION', emr_version)
-    with open(kernel_path, 'w') as f:
-        f.write(text)
-    local('touch /tmp/kernel_var.json')
-    local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/caffe2/build:\"|\' > /tmp/kernel_var.json".
-          format(emr_version, cluster_name, kernel_path, os_user))
-    local('sudo mv /tmp/kernel_var.json ' + kernel_path)
-    get_cluster_python_version(region, bucket, user_name, cluster_name)
-    with file('/tmp/python_version') as f:
-        python_version = f.read()
-    # python_version = python_version[0:3]
-    if python_version != '\n':
-        installing_python(region, bucket, user_name, cluster_name, application, pip_mirror)
-        local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
-        kernel_path = kernels_dir + "py3spark_" + cluster_name + "/kernel.json"
-        template_file = "/tmp/pyspark_emr_template.json"
-        with open(template_file, 'r') as f:
-            text = f.read()
-        text = text.replace('CLUSTER_NAME', cluster_name)
-        text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
-        text = text.replace('SPARK_PATH', spark_path)
-        text = text.replace('PYTHON_SHORT_VERSION', python_version[0:3])
-        text = text.replace('PYTHON_FULL_VERSION', python_version[0:3])
-        text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' +
-                            python_version[:3])
-        text = text.replace('EMR_VERSION', emr_version)
-        with open(kernel_path, 'w') as f:
-            f.write(text)
-        local('touch /tmp/kernel_var.json')
-        local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/caffe2/build:\"|\' > /tmp/kernel_var.json".
-              format(emr_version, cluster_name, kernel_path, os_user))
-        local('sudo mv /tmp/kernel_var.json ' + kernel_path)
 
 
 def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_dir, os_user, yarn_dir, bucket,
