@@ -107,7 +107,7 @@ def restore_configs():
         if args.configs == "all":
             configs = [files for root, dirs, files in os.walk("{0}{1}".format(temp_folder, conf_folder))][0]
         else:
-            configs = args.config.split(",")
+            configs = args.configs.split(",")
         print "Restore configs: ", configs
 
         if args.configs != "skip":
@@ -230,13 +230,14 @@ def restore_jars():
                                 destfile = "{0}{1}{2}/{3}".format(args.dlab_path, jars_folder, service, filename)
                                 if not filecmp.cmp(backupfile, destfile):
                                     if ask("Jar {} was changed, rewrite it?".format(filename)):
-                                        local("cp -f {0} {1}".format(backupfile, destfile))
+                                        local("cp -fP {0} {1}".format(backupfile, destfile))
                                     else:
                                         print "Jar {} was skipped.".format(destfile)
                                 else:
                                     print "Jar {} was not changed. Skipped.".format(filename)
                             else:
-                                local("cp {0}jars/{1}/{2} {3}{4}{1}".format(temp_folder, service, filename, args.dlab_path, jars_folder))
+                                print "Jar {} does not exist. Creating.".format(filename)
+                                local("cp -P {0}jars/{1}/{2} {3}{4}{1}".format(temp_folder, service, filename, args.dlab_path, jars_folder))
     except:
         print "Restore jars failed."
         pass

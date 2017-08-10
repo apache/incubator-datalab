@@ -105,10 +105,10 @@ def backup_jars():
         elif args.jars == "all":
             for root, dirs, files in os.walk("{0}{1}".format(args.dlab_path, jars_folder)):
                 for service in dirs:
-                    local("cp -R {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
+                    local("cp -RP {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
         else:
             for service in args.jars.split(","):
-                local("cp -R {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
+                local("cp -RP {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
     except:
         print "Backup jars failed."
         pass
