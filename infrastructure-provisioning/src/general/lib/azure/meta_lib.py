@@ -85,6 +85,24 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_security_group(self, resource_group_name, network_security_group_name):
+        try:
+            result = self.network_client.network_security_groups.get(
+                resource_group_name,
+                network_security_group_name
+            )
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get security group",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def list_subnets(self, resource_group_name, vpc_name):
         try:
             result = self.network_client.subnets.list(resource_group_name, vpc_name)
@@ -124,8 +142,8 @@ class AzureMeta:
             return result
         except Exception as err:
             logging.info(
-                "Unable to get Storage account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to get Storage account",
+                "Unable to list storage account keys: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to list storage account keys",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
@@ -141,8 +159,8 @@ class AzureMeta:
             return result
         except Exception as err:
             logging.info(
-                "Unable to create blob container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to create blob container",
+                "Unable to list container content: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to list container content",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
