@@ -48,7 +48,7 @@ function load_defer_img(source) {
 
 (window.loadlater = function() {
     'use strict';
-    $('[data-defer]').each(function(){
+    $('[data-defer]').each(function() {
         var t = $(this),
             pre = t.data('pre'),
             img = t.data('defer');

@@ -1180,37 +1180,45 @@ footer {
             font-size: rem(20px);
         }
     }
-    .we-solve .row {
-        display: none;
-    }
     .controls-slider {
         .mac-wrap {
             padding-bottom: 45px;
         }
     }
     .we-solve {
-        .problems-slider {
-            .min-visible {
-                display: block;
-                text-align: center;
-                p {
-                    font-size: 22px;
-                    color: $primary-green;
+        .row {
+            display: none;
+            .problems-slider {
+                .min-visible {
+                    display: block;
+                    text-align: center;
+                    p {
+                        font-size: 22px;
+                        color: $primary-green;
+                    }
+                    img {
+                        margin: 15px;
+                    }
                 }
-                img {
-                    margin: 15px;
-                }
-            }
-            > div {
-                display: block;
-                padding: 25px 0 0;
-                ul.list-points {
-                    padding: 0 40px;
-                    li {
-                        font-size: 18px;
+                > div {
+                    display: block;
+                    padding: 25px 0 0;
+                    ul.list-points {
+                        padding: 0 40px;
+                        li {
+                            font-size: 18px;
+                        }
                     }
                 }
             }
+        }
+    }
+
+    .features {
+        .screen-slider-top div[class^="swiper-"] {
+            height: auto !important;
+            display: block !important;
+            @include transform(none !important);
         }
     }
     .overlay {

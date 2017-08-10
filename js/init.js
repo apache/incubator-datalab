@@ -79,13 +79,18 @@ $(window).on('load', function() {
     screenSliderTop = new Swiper('.screen-slider-top', {
         nextButton              : '.screen-slider-top .swiper-button-next',
         prevButton              : '.screen-slider-top .swiper-button-prev',
-        lazyLoadingInPrevNext   : true,
         autoHeight              : true,
-        preloadImages           : false,
-        lazyLoading             : true,
         onSlideChangeStart      : function(swiper){
             $('div', screenThumbsNavigation).removeClass('swiper-slide-active');
             $('[data-slide="'+swiper.activeIndex+'"]', screenThumbsNavigation).addClass('swiper-slide-active');
+        }
+    });
+
+    $(this).on('resize', function() {
+        if(screen('width') > 767) {
+            screenSliderTop.enableTouchControl();
+        } else {
+            screenSliderTop.disableTouchControl();
         }
     });
 });

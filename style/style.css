@@ -1367,25 +1367,33 @@ footer {
       line-height: 1.58333rem; }
     .content-desc p {
       font-size: 0.83333rem; }
-  .we-solve .row {
-    display: none; }
   .controls-slider .mac-wrap {
     padding-bottom: 45px; }
-  .we-solve .problems-slider .min-visible {
-    display: block;
-    text-align: center; }
-    .we-solve .problems-slider .min-visible p {
-      font-size: 22px;
-      color: #1CBC79; }
-    .we-solve .problems-slider .min-visible img {
-      margin: 15px; }
-  .we-solve .problems-slider > div {
-    display: block;
-    padding: 25px 0 0; }
-    .we-solve .problems-slider > div ul.list-points {
-      padding: 0 40px; }
-      .we-solve .problems-slider > div ul.list-points li {
-        font-size: 18px; }
+  .we-solve .row {
+    display: none; }
+    .we-solve .row .problems-slider .min-visible {
+      display: block;
+      text-align: center; }
+      .we-solve .row .problems-slider .min-visible p {
+        font-size: 22px;
+        color: #1CBC79; }
+      .we-solve .row .problems-slider .min-visible img {
+        margin: 15px; }
+    .we-solve .row .problems-slider > div {
+      display: block;
+      padding: 25px 0 0; }
+      .we-solve .row .problems-slider > div ul.list-points {
+        padding: 0 40px; }
+        .we-solve .row .problems-slider > div ul.list-points li {
+          font-size: 18px; }
+  .features .screen-slider-top div[class^="swiper-"] {
+    height: auto !important;
+    display: block !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    -ms-transform: none !important;
+    -o-transform: none !important;
+    transform: none !important; }
   .overlay {
     background-image: url(../images/sources/background_people.png);
     background-repeat: no-repeat;
