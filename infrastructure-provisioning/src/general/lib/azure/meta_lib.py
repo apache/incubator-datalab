@@ -21,6 +21,7 @@ from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
+from azure.storage.blob import BlockBlobService
 from azure.storage import CloudStorageAccount
 from azure.storage.blob.models import ContentSettings, PublicAccess
 import azure.common.exceptions as AzureExceptions
@@ -125,6 +126,23 @@ class AzureMeta:
             logging.info(
                 "Unable to get Storage account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to get Storage account",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def list_container_content(self, resource_group_name, account_name, container_name):
+        try:
+            result = []
+            secret_key = AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+            block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
+            content = block_blob_service.list_blobs(container_name)
+            for blob in content:
+                result.append(blob.name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create blob container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create blob container",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
