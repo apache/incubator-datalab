@@ -1188,26 +1188,26 @@ footer {
     .we-solve {
         .row {
             display: none;
-            .problems-slider {
-                .min-visible {
-                    display: block;
-                    text-align: center;
-                    p {
-                        font-size: 22px;
-                        color: $primary-green;
-                    }
-                    img {
-                        margin: 15px;
-                    }
+        }
+        .problems-slider {
+            .min-visible {
+                display: block;
+                text-align: center;
+                p {
+                    font-size: 22px;
+                    color: $primary-green;
                 }
-                > div {
-                    display: block;
-                    padding: 25px 0 0;
-                    ul.list-points {
-                        padding: 0 40px;
-                        li {
-                            font-size: 18px;
-                        }
+                img {
+                    margin: 15px;
+                }
+            }
+            > div {
+                display: block;
+                padding: 25px 0 0;
+                ul.list-points {
+                    padding: 0 40px;
+                    li {
+                        font-size: 18px;
                     }
                 }
             }
