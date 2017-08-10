@@ -23,6 +23,7 @@ from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.storage import CloudStorageAccount
 from azure.storage.blob import BlockBlobService
+from azure.storage.blob import ContentSettings
 from azure.storage.blob.models import ContentSettings, PublicAccess
 import azure.common.exceptions as AzureExceptions
 import logging
@@ -231,6 +232,21 @@ class AzureActions:
             logging.info(
                 "Unable to create blob container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to create blob container",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def upload_to_container(self, resource_group_name, account_name, container_name, files):
+        try:
+            secret_key = AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+            block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
+            for filename in files:
+                block_blob_service.create_blob_from_path(container_name, filename, filename)
+            return ''
+        except Exception as err:
+            logging.info(
+                "Unable to upload files to container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to upload files to container",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
