@@ -250,3 +250,18 @@ class AzureActions:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def download_from_container(self, resource_group_name, account_name, container_name, files):
+        try:
+            secret_key = AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+            block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
+            for filename in files:
+                block_blob_service.get_blob_to_path(container_name, filename, filename)
+            return ''
+        except Exception as err:
+            logging.info(
+                "Unable to download files from container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to download files from container",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
