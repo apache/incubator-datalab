@@ -29,7 +29,6 @@ html {
 
 #wrap {
     @include flex(1, 0, auto);
-    // transform: translateY(0);
     overflow: hidden;
     width: 100%
 }
@@ -53,7 +52,7 @@ html {
 
 .abstract1 {
     background-image: url(../images/background/abstract_1.svg);
-    width: 380px;
+    width: 256px;
     height: 120px;
     top: 0;
     left: 20%;
@@ -485,9 +484,6 @@ h2.heading {
                 height: 39px;
                 width: 39px;
             }
-            // &:hover:not(.is-opened) {
-            //     // @include transform(translateY(-15px))
-            // }
             &.is-opened {
                 svg g[stroke*="#"] {
                     stroke: $primary-green
@@ -797,8 +793,8 @@ footer {
 
 .overlay {
     @include transition(all, .2s);
-    background-color: rgb(0,0,0); /* Black fallback color */
-    background-color: rgba(0,0,0, 0.9); /* Black w/opacity */
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0, 0.9);
     overflow-x: hidden;
     position: fixed;
     height: 100%;
@@ -815,7 +811,7 @@ footer {
             font-size: 36px;
             color: #818181;
             display: block;
-            transition: 0.3s; 
+            transition: 0.3s;
         }
         .sources {
             background-color: $light;

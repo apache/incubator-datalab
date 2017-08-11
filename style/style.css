@@ -272,7 +272,7 @@ html {
 
 .abstract1 {
   background-image: url(../images/background/abstract_1.svg);
-  width: 380px;
+  width: 256px;
   height: 120px;
   top: 0;
   left: 20%; }
@@ -1069,9 +1069,7 @@ footer {
   -o-transition: all 0.2s ease;
   transition: all 0.2s ease;
   background-color: black;
-  /* Black fallback color */
   background-color: rgba(0, 0, 0, 0.9);
-  /* Black w/opacity */
   overflow-x: hidden;
   position: fixed;
   height: 100%;
