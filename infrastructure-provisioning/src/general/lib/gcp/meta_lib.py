@@ -423,9 +423,9 @@ def get_instance_private_ip_address(tag_name, instance_name):
     try:
         return GCPMeta().get_private_ip_address(instance_name)
     except Exception as err:
-            logging.info("Error with getting private ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Error with getting private ip address by name",
+        logging.info("Error with getting private ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with getting private ip address by name",
                        "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
-            return ''
+        traceback.print_exc(file=sys.stdout)
+        return ''
 

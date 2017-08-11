@@ -100,7 +100,7 @@ limitations under the License.
           <name>notebook_instance_name</name>
           <description></description>
           <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinitio>
+        </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>notebook_app</name>
           <description>notebook application to be configured</description>
