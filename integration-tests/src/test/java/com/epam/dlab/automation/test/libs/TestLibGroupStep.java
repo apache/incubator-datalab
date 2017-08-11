@@ -82,6 +82,10 @@ public class TestLibGroupStep extends TestLibStep {
             for (String lib : expectedGroups) {
                 Assert.assertTrue(availableGroups.contains(lib), String.format("%s lib groups is not available for %s", lib, notebookName));
             }
+
+            Assert.assertTrue(availableGroups.size() == expectedGroups.size(),
+                    String.format("%s Expected groups %s are different from actual %s", notebookName, expectedGroups, availableGroups));
+
         } else {
             LOGGER.error("Response status {}, body {}", response.getStatusCode(), response.getBody().print());
             Assert.fail("Lib group request failed for " + notebookName);
