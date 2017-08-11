@@ -52,7 +52,7 @@ html {
 
 .abstract1 {
     background-image: url(../images/background/abstract_1.svg);
-    width: 256px;
+    width: 370px;
     height: 120px;
     top: 0;
     left: 20%;
@@ -1054,9 +1054,9 @@ footer {
 @media (max-width: 767px) {
     #wrap > section {
         position: relative;
-        padding-top: 110px;
+        padding-top: 60px;
         > h2 {
-            -webkit-backface-visibility: hidden;
+            // -webkit-backface-visibility: hidden;
             position: absolute;
             right: 0;
             left: 0;
@@ -1231,8 +1231,16 @@ footer {
             }
         }
     }
+    .solutions {
+        .row {
+            &:first-of-type {
+                padding-top: 40px;
+            }
+        }
+    }
 
     .features {
+        margin-top: 10px;
         .screen-slider-top div[class^="swiper-"] {
             height: auto !important;
             display: block !important;
@@ -1283,6 +1291,7 @@ footer {
     }
 }
 @media (max-width: 567px) {
+    .abstract1 { left: 0 }
     header {
         .menu {
             .get-started-nav {
@@ -1314,6 +1323,9 @@ footer {
         }
         .row {
             flex-wrap: wrap;
+            &:first-child {
+                background: pink;
+            }
             figure {
                 padding: 0;
                 flex-basis: 100%;
@@ -1330,7 +1342,6 @@ footer {
             }
             article {
                 flex-basis: 100%;
-                padding: 0 20px;
                 h3 {
                     font-size: 24px;
                     font-weight: 300;

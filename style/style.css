@@ -272,7 +272,7 @@ html {
 
 .abstract1 {
   background-image: url(../images/background/abstract_1.svg);
-  width: 256px;
+  width: 370px;
   height: 120px;
   top: 0;
   left: 20%; }
@@ -1275,9 +1275,8 @@ footer {
 @media (max-width: 767px) {
   #wrap > section {
     position: relative;
-    padding-top: 110px; }
+    padding-top: 60px; }
     #wrap > section > h2 {
-      -webkit-backface-visibility: hidden;
       position: absolute;
       right: 0;
       left: 0;
@@ -1409,14 +1408,18 @@ footer {
       padding: 0 40px; }
       .we-solve .problems-slider > div ul.list-points li {
         font-size: 18px; }
-  .features .screen-slider-top div[class^="swiper-"] {
-    height: auto !important;
-    display: block !important;
-    -webkit-transform: none !important;
-    -moz-transform: none !important;
-    -ms-transform: none !important;
-    -o-transform: none !important;
-    transform: none !important; }
+  .solutions .row:first-of-type {
+    padding-top: 40px; }
+  .features {
+    margin-top: 10px; }
+    .features .screen-slider-top div[class^="swiper-"] {
+      height: auto !important;
+      display: block !important;
+      -webkit-transform: none !important;
+      -moz-transform: none !important;
+      -ms-transform: none !important;
+      -o-transform: none !important;
+      transform: none !important; }
   footer article {
     padding: .5rem; }
     footer article h2 {
@@ -1459,6 +1462,8 @@ footer {
     opacity: 1; } }
 
 @media (max-width: 567px) {
+  .abstract1 {
+    left: 0; }
   header .menu .get-started-nav {
     margin-top: 25px; }
   header .menu > li {
@@ -1479,6 +1484,8 @@ footer {
       margin-bottom: 1rem; }
     .solutions .row {
       flex-wrap: wrap; }
+      .solutions .row:first-child {
+        background: pink; }
       .solutions .row figure {
         padding: 0;
         flex-basis: 100%; }
@@ -1490,8 +1497,7 @@ footer {
         .solutions .row figure.right {
           padding: 0; }
       .solutions .row article {
-        flex-basis: 100%;
-        padding: 0 20px; }
+        flex-basis: 100%; }
         .solutions .row article h3 {
           font-size: 24px;
           font-weight: 300;
