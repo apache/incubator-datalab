@@ -239,7 +239,7 @@ html {
     color: #3C4349;
     opacity: 1; }
 
-.ani, header nav > ul > li.has-children > a::before, header nav > ul > li.has-children > a::after, header nav > ul > li .sub-menu, .controls-slider .controls-nav mark, .controls-slider .mac-wrap .swiper-slide video, .we-solve article div, .we-solve article div svg g[stroke*="#"], .we-solve article div p, .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide, ul.social li, .overlay .overlay-wrap .sources div .git-ref, .overlay .overlay-wrap .sources div .apache-ref {
+.ani, header nav > ul > li.has-children > a::before, header nav > ul > li.has-children > a::after, header nav > ul > li .sub-menu, .controls-slider .controls-nav mark, .controls-slider .mac-wrap .swiper-slide video, h2.heading, .we-solve article div, .we-solve article div svg g[stroke*="#"], .we-solve article div p, .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide, ul.social li, .overlay .overlay-wrap .sources div .git-ref, .overlay .overlay-wrap .sources div .apache-ref {
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -ms-transition: all 0.5s ease;
@@ -1293,7 +1293,8 @@ footer {
     top: 300px; }
   h2.heading {
     font-size: 26px;
-    line-height: 52px; }
+    line-height: 52px;
+    padding-top: .5rem; }
   header .logo {
     position: absolute;
     top: 20px;
@@ -1408,8 +1409,6 @@ footer {
       padding: 0 40px; }
       .we-solve .problems-slider > div ul.list-points li {
         font-size: 18px; }
-  .solutions .row:first-of-type {
-    padding-top: 40px; }
   .features {
     margin-top: 10px; }
     .features .screen-slider-top div[class^="swiper-"] {
@@ -1484,8 +1483,8 @@ footer {
       margin-bottom: 1rem; }
     .solutions .row {
       flex-wrap: wrap; }
-      .solutions .row:first-child {
-        background: pink; }
+      .solutions .row:first-of-type {
+        padding-top: 40px; }
       .solutions .row figure {
         padding: 0;
         flex-basis: 100%; }

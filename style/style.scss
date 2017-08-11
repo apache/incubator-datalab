@@ -404,6 +404,7 @@ h2.heading {
     font-size: 32px;
     line-height: 56px;
     position: relative;
+    @extend .ani;
     &::after {
         content: ' ';
         position: absolute;
@@ -1078,6 +1079,7 @@ footer {
     h2.heading {
         font-size: 26px;
         line-height: 52px;
+        padding-top: .5rem;
     }
     header {
         .logo {
@@ -1231,14 +1233,6 @@ footer {
             }
         }
     }
-    .solutions {
-        .row {
-            &:first-of-type {
-                padding-top: 40px;
-            }
-        }
-    }
-
     .features {
         margin-top: 10px;
         .screen-slider-top div[class^="swiper-"] {
@@ -1323,8 +1317,8 @@ footer {
         }
         .row {
             flex-wrap: wrap;
-            &:first-child {
-                background: pink;
+            &:first-of-type {
+                padding-top: 40px;
             }
             figure {
                 padding: 0;
