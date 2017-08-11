@@ -29,7 +29,7 @@ html {
 
 #wrap {
     @include flex(1, 0, auto);
-    transform: translateY(0);
+    // transform: translateY(0);
     overflow: hidden;
     width: 100%
 }
@@ -796,7 +796,6 @@ footer {
 
 
 .overlay {
-    // @extend .ani;
     @include transition(all, .2s);
     background-color: rgb(0,0,0); /* Black fallback color */
     background-color: rgba(0,0,0, 0.9); /* Black w/opacity */
@@ -934,7 +933,7 @@ footer {
                         z-index: 20;
                         background-image: url(../images/login-icons.png);  
                         &.user-icon {
-                            background-position: 0 0;                           
+                            background-position: 0 0;
                         }
                         &.email-icon {
                             background-position: 30px 0;
@@ -1057,6 +1056,28 @@ footer {
     }
 }
 @media (max-width: 767px) {
+    #wrap > section {
+        position: relative;
+        padding-top: 110px;
+        > h2 {
+            -webkit-backface-visibility: hidden;
+            position: absolute;
+            right: 0;
+            left: 0;
+            top: 0;
+        }
+        &.scroll-active {
+            > h2 {
+                position: fixed;
+                background: #fff;
+                z-index: 3;
+                box-shadow: 0 0 1px 4px #fff;
+                font-size: 16px;
+                line-height: 36px;
+                padding-top: 0;
+            }
+        }
+    }
     .abstract2 { top: 300px; }
     h2.heading {
         font-size: 26px;
@@ -1075,7 +1096,7 @@ footer {
             list-style-type: none;
             opacity: 0;
             text-align: center;
-            transition: all 1s ease;
+            @include transition(all, .5s);
             width: 100%;
             visibility: hidden;
             overflow: hidden;

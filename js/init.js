@@ -92,5 +92,16 @@ $(window).on('load', function() {
         } else {
             screenSliderTop.disableTouchControl();
         }
+    })
+
+    .on('scroll', function(){
+        var el      = $('#wrap > section'),
+            curr    = el.filter(function(i, e) {
+                var tscroll = $(e).offset().top; 
+                return ( (screen() >= tscroll) && (screen() <= tscroll + $(e).outerHeight(true) ) );
+            });
+
+            el.removeClass('scroll-active');
+            curr.addClass('scroll-active');
     });
 });

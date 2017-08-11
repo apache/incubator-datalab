@@ -253,7 +253,6 @@ html {
   -moz-flex: 1 0 auto;
   -ms-flex: 1 0 auto;
   flex: 1 0 auto;
-  transform: translateY(0);
   overflow: hidden;
   width: 100%; }
 
@@ -1276,6 +1275,23 @@ footer {
     display: none; } }
 
 @media (max-width: 767px) {
+  #wrap > section {
+    position: relative;
+    padding-top: 110px; }
+    #wrap > section > h2 {
+      -webkit-backface-visibility: hidden;
+      position: absolute;
+      right: 0;
+      left: 0;
+      top: 0; }
+    #wrap > section.scroll-active > h2 {
+      position: fixed;
+      background: #fff;
+      z-index: 3;
+      box-shadow: 0 0 1px 4px #fff;
+      font-size: 16px;
+      line-height: 36px;
+      padding-top: 0; }
   .abstract2 {
     top: 300px; }
   h2.heading {
@@ -1292,7 +1308,11 @@ footer {
     list-style-type: none;
     opacity: 0;
     text-align: center;
-    transition: all 1s ease;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -ms-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
     width: 100%;
     visibility: hidden;
     overflow: hidden;
