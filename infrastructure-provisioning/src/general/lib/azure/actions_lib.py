@@ -287,3 +287,18 @@ class AzureActions:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def delete_static_ip(self, resource_group_name, ip_name):
+        try:
+            result = self.network_client.public_ip_addresses.delete(
+                resource_group_name,
+                ip_name
+            )
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to delete static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to delete static IP address",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)

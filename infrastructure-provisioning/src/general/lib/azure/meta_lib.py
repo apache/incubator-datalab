@@ -167,3 +167,18 @@ class AzureMeta:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def get_static_ip(self, resource_group_name, ip_name):
+        try:
+            result = self.network_client.public_ip_addresses.get(
+                resource_group_name,
+                ip_name
+            ).ip_address
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to get static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get static IP address",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
