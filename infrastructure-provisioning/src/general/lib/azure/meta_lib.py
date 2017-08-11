@@ -182,3 +182,19 @@ class AzureMeta:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def check_free_ip(self, resource_group_name, vpc_name, ip_address):
+        try:
+            result = self.network_client.virtual_networks.check_ip_address_availability(
+                resource_group_name,
+                vpc_name,
+                ip_address
+            )
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to check private ip: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to check private ip",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)

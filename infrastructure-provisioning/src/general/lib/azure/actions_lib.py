@@ -279,7 +279,7 @@ class AzureActions:
                     "public_ip_address_version": "IPv4"
                 }
             )
-            return result
+            return result._operation.resource.ip_address
         except Exception as err:
             logging.info(
                 "Unable to create static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -299,6 +299,39 @@ class AzureActions:
             logging.info(
                 "Unable to delete static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to delete static IP address",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def create_network_if(self, resource_group_name, subnet_name, vpc_name, interface_name, region):
+        try:
+            ip_address = AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
+            if not AzureMeta().check_free_ip(resource_group_name, vpc_name, ip_address).available:
+                private_ip = AzureMeta().check_free_ip(resource_group_name, vpc_name, ip_address).available_ip_addresses[0]
+            else:
+                private_ip = ip_address
+            subnet_id = AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).id
+            result = self.network_client.network_interfaces.create_or_update(
+                resource_group_name,
+                interface_name,
+                {
+                    "location": region,
+                    "ip_configurations": [{
+                        "name": interface_name,
+                        "private_ip_allocation_method": "Static",
+                        "private_ip_address": private_ip,
+                        "private_ip_address_version": "IPv4",
+                        "subnet": {
+                            "id": subnet_id
+                        }
+                    }]
+                }
+            )
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create network interface: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create network interface",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
