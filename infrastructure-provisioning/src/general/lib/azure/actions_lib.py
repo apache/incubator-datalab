@@ -303,6 +303,101 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def create_instance(self, region, instance_size, service_base_name, instance_name, user_name, public_key,
+                        network_interface_resource_id, resource_group_name, primary_disk_size):
+        try:
+            parameters = {
+                'location': region,
+                'hardware_profile': {
+                    'vm_size': instance_size
+                },
+                'storage_profile': {
+                    'image_reference': {
+                        'publisher': 'Canonical',
+                        'offer': 'UbuntuServer',
+                        'sku': '16.04-LTS',
+                        'version': 'latest'
+                    },
+                    'os_disk': {
+                        'os_type': 'Linux',
+                        'name': '{}-primary-disk'.format(service_base_name),
+                        'create_option': 'fromImage',
+                        'disk_size_gb': primary_disk_size,
+                        'managed_disk': {
+                            'storage_account_type': 'Premium_LRS'
+                        }
+                    }
+                },
+                'os_profile': {
+                    'computer_name': instance_name,
+                    'admin_username': user_name,
+                    'linux_configuration': {
+                        'disable_password_authentication': True,
+                        'ssh': {
+                            'public_keys': [{
+                                'path': '/home/{}/.ssh/authorized_keys'.format(user_name),
+                                'key_data': public_key
+                            }]
+                        }
+                    }
+                },
+                'network_profile': {
+                    'network_interfaces': [
+                        {
+                            'id': network_interface_resource_id
+                        }
+                    ]
+                }
+            }
+            result = self.compute_client.virtual_machines.create_or_update(
+                resource_group_name, instance_name, parameters
+            )
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def stop_instance(self, resource_group_name, instance_name):
+        try:
+            result = self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to stop instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to stop instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def start_instance(self, resource_group_name, instance_name):
+        try:
+            result = self.compute_client.virtual_machines.start(resource_group_name, instance_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to start instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to start instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def remove_instance(self, resource_group_name, instance_name):
+        try:
+            result = self.compute_client.virtual_machines.delete(resource_group_name, instance_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to remove instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+
     def create_network_if(self, resource_group_name, subnet_name, vpc_name, interface_name, region):
         try:
             ip_address = AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]

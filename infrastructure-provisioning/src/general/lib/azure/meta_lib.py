@@ -121,6 +121,21 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_instance(self, resource_group_name, instance_name):
+        try:
+            result = self.compute_client.virtual_machines.get(resource_group_name, instance_name)
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_storage_account(self, resource_group_name, account_name):
         try:
             result = self.storage_client.storage_accounts.get_properties(
