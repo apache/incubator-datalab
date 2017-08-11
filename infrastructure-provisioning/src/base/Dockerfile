@@ -28,7 +28,7 @@ RUN	apt-get update && \
 
 # Install any python dependencies
 RUN pip install -U pip
-RUN pip install boto3 fabric fabvenv awscli argparse ujson jupyter google-api-python-client google-cloud-storage pycrypto azure
+RUN pip install boto3 fabric fabvenv awscli argparse ujson jupyter google-api-python-client google-cloud-storage pycrypto azure azure-mgmt-authorization
 
 # Configuring ssh for user
 RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \

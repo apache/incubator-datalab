@@ -17,9 +17,11 @@
 # ******************************************************************************
 
 from azure.common.client_factory import get_client_from_auth_file
+from azure.common.client_factory import ge
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
+from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.storage.blob import BlockBlobService
 from azure.storage import CloudStorageAccount
@@ -39,6 +41,7 @@ class AzureMeta:
             self.resource_client = get_client_from_auth_file(ResourceManagementClient)
             self.network_client = get_client_from_auth_file(NetworkManagementClient)
             self.storage_client = get_client_from_auth_file(StorageManagementClient)
+            self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
 
     def get_resource_group(self, resource_group_name):
         try:

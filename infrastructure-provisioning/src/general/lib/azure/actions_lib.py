@@ -21,6 +21,7 @@ from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
+from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.storage import CloudStorageAccount
 from azure.storage.blob import BlockBlobService
 from azure.storage.blob import ContentSettings
@@ -40,6 +41,7 @@ class AzureActions:
             self.resource_client = get_client_from_auth_file(ResourceManagementClient)
             self.network_client = get_client_from_auth_file(NetworkManagementClient)
             self.storage_client = get_client_from_auth_file(StorageManagementClient)
+            self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
 
     def create_resource_group(self, resource_group_name, region):
         try:
