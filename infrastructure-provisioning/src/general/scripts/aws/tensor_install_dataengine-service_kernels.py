@@ -45,7 +45,9 @@ args = parser.parse_args()
 
 def configure_notebook(args):
     scripts_dir = '/root/scripts/'
-    put(scripts_dir + 'create_configs.py', '/tmp/create_configs.py')
+    templates_dir = '/root/templates/'
+    put(templates_dir + 'pyspark_dataengine-service_template.json', '/tmp/pyspark_dataengine-service_template.json')
+    put(scripts_dir + '{}_create_configs.py'.format(args.application), '/tmp/create_configs.py')
     sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
     sudo('chmod 755 /usr/local/bin/create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')
@@ -68,4 +70,5 @@ if __name__ == "__main__":
     sudo("/usr/bin/python /usr/local/bin/create_configs.py --bucket " + args.bucket + " --cluster_name "
          + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " + spark_version
          + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
-         + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user)
+         + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user
+         + " --pip_mirror " + args.pip_mirror + " --application " + args.application)

@@ -47,7 +47,7 @@ parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
-kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
+# kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
 spark_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/'
 yarn_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/conf/'
 
