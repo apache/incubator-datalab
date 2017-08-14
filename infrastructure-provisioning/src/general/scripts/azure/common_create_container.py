@@ -39,7 +39,10 @@ if __name__ == "__main__":
     if args.account_name != '':
         try:
             storage_account = AzureMeta().get_storage_account(args.resource_group_name, args.account_name)
-            if storage_account == '':
+            print "{} STORAGE ACCOUNT ALREADY EXISTS".format(storage_account)
+            success = True
+        except:
+            try:
                 print "Creating bucket {}.".format(args.bucket_name)
                 storage_account = AzureActions().create_storage_account(args.resource_group_name, args.account_name,
                                                                         args.region)
@@ -52,11 +55,9 @@ if __name__ == "__main__":
                                                                                  args.account_name,
                                                                                  args.shared_container_name)
                 print "SHARED CONTAINER {} HAS BEEN CREATED".format(shared_blob_container)
-            else:
-                print "{} STORAGE ACCOUNT ALREADY EXISTS".format(storage_account)
-            success = True
-        except:
-            success = False
+                success = True
+            except:
+                success = False
     else:
         parser.print_help()
         sys.exit(2)
