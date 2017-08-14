@@ -690,7 +690,6 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                  .format('gcs-connector-latest-hadoop2.jar'))
             sudo('mv /tmp/{0} /opt/jars/'.format('gcs-connector-latest-hadoop2.jar'))
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
-            sudo('sed -i "/fs.s3a.endpoint/d" /tmp/notebook_spark-defaults_local.conf')
             if os.environ['application'] == 'zeppelin':
                 sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
