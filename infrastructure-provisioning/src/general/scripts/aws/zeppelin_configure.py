@@ -54,7 +54,7 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
     if os.environ['application'] == 'zeppelin':
-        if os.environ['notebook_multiple_emrs'] == 'true':
+        if os.environ['notebook_multiple_dataengine_services'] == 'true':
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
                 'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
         else:
@@ -69,6 +69,14 @@ if __name__ == "__main__":
         'edge_user_name'] + "-nb-SG"
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+
+    region = os.environ['aws_region']
+    if region == 'us-east-1':
+        endpoint_url = 'https://s3.amazonaws.com'
+    elif region == 'cn-north-1':
+        endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
+    else:
+        endpoint_url = 'https://s3-{}.amazonaws.com'.format(region)
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
@@ -142,13 +150,13 @@ if __name__ == "__main__":
                              "backend_hostname": get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name']),
                              "backend_port": "8080",
                              "nginx_template_dir": "/root/templates/"}
-        params = "--hostname {} --instance_name {} --keyfile {} --region {} --additional_config '{}' --os_user {} --spark_version {} --hadoop_version {} --edge_hostname {} --proxy_port {} --zeppelin_version {} --scala_version {} --livy_version {} --multiple_emrs {} --r_mirror {}" \
+        params = "--hostname {} --instance_name {} --keyfile {} --region {} --additional_config '{}' --os_user {} --spark_version {} --hadoop_version {} --edge_hostname {} --proxy_port {} --zeppelin_version {} --scala_version {} --livy_version {} --multiple_dataengine_services {} --r_mirror {} --endpoint_url {}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['aws_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
-                    os.environ['notebook_livy_version'], os.environ['notebook_multiple_emrs'],
-                    os.environ['notebook_r_mirror'])
+                    os.environ['notebook_livy_version'], os.environ['notebook_multiple_dataengine_services'],
+                    os.environ['notebook_r_mirror'], endpoint_url)
         try:
             local("~/scripts/{}.py {}".format('configure_zeppelin_node', params))
         except:

@@ -44,8 +44,9 @@ parser.add_argument('--edge_hostname', type=str, default='')
 parser.add_argument('--proxy_port', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--livy_version', type=str, default='')
-parser.add_argument('--multiple_emrs', type=str, default='')
+parser.add_argument('--multiple_dataengine_services', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
+parser.add_argument('--endpoint_url', type=str, default='')
 args = parser.parse_args()
 
 spark_version = args.spark_version
@@ -65,12 +66,6 @@ local_spark_path = '/opt/spark/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 jars_dir = '/opt/jars/'
-if args.region == 'us-east-1':
-    endpoint_url = 'https://s3.amazonaws.com'
-elif args.region == 'cn-north-1':
-    endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
-else:
-    endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
@@ -119,7 +114,7 @@ def configure_local_livy_kernels(args):
         default_port = 8998
         livy_port = ''
         put(templates_dir + 'interpreter_livy.json', '/tmp/interpreter.json')
-        sudo('sed -i "s|ENDPOINTURL|' + endpoint_url + '|g" /tmp/interpreter.json')
+        sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
         while not port_number_found:
             port_free = sudo('nmap -p ' + str(default_port) + ' localhost | grep "closed" > /dev/null; echo $?')
@@ -130,7 +125,7 @@ def configure_local_livy_kernels(args):
             else:
                 default_port += 1
         sudo('sed -i "s|LIVY_PORT|' + str(livy_port) + '|g" /tmp/interpreter.json')
-        sudo('cp /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
+        sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
         sudo('echo "livy.server.port = ' + str(livy_port) + '" >> /opt/livy/conf/livy.conf')
         sudo('''echo "SPARK_HOME='/opt/spark/'" >> /opt/livy/conf/livy-env.sh''')
         if exists('/opt/livy/conf/spark-blacklist.conf'):
@@ -142,7 +137,7 @@ def configure_local_livy_kernels(args):
 def configure_local_spark_kernels(args):
     if not exists('/home/' + args.os_user + '/.ensure_dir/local_spark_kernel_ensured'):
         put(templates_dir + 'interpreter_spark.json', '/tmp/interpreter.json')
-        sudo('sed -i "s|ENDPOINTURL|' + endpoint_url + '|g" /tmp/interpreter.json')
+        sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
         sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
         sudo('touch /home/' + args.os_user + '/.ensure_dir/local_spark_kernel_ensured')

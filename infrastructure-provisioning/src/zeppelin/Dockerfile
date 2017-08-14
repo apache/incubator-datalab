@@ -27,6 +27,7 @@ COPY general/scripts/os/* /root/scripts/
 COPY general/scripts/${CLOUD}/zeppelin_* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
 COPY general/templates/${CLOUD}/dataengine-service_interpreter_* /root/templates/
+COPY general/templates/${CLOUD}/interpreter_* /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 

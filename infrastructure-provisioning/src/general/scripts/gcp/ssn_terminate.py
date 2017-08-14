@@ -43,7 +43,7 @@ if __name__ == "__main__":
         params = "--service_base_name {} --region {} --zone {}".format(ssn_conf['service_base_name'],
                                                                        ssn_conf['region'], ssn_conf['zone'])
         try:
-            local("~/scripts/{}.py {}".format('ssn_terminate_aws_resources', params))
+            local("~/scripts/{}.py {}".format('ssn_terminate_gcp_resources', params))
         except:
             traceback.print_exc()
             raise Exception
