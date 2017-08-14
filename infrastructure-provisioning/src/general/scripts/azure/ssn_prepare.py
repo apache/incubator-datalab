@@ -23,6 +23,7 @@ from dlab.actions_lib import *
 import sys, os
 from fabric.api import *
 from dlab.ssn_lib import *
+from Crypto.PublicKey import RSA
 
 
 if __name__ == "__main__":

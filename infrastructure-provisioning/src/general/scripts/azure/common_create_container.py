@@ -49,8 +49,8 @@ if __name__ == "__main__":
                 shared_blob_container = AzureActions().create_blob_container(args.resource_group_name,
                                                                              args.account_name,
                                                                              args.shared_container_name)
-            print "SHARED CONTAINER {} has been created".format(shared_blob_container)
+                print "SHARED CONTAINER {} has been created".format(shared_blob_container)
         else:
-            print "STORAGE ACCOUNT with name {} could not be created ".format(args.account_name) + check.message
+            print "STORAGE ACCOUNT with name {} could not be created. ".format(args.account_name) + check.message
     except:
         sys.exit(1)
