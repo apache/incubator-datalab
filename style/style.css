@@ -239,7 +239,7 @@ html {
     color: #3C4349;
     opacity: 1; }
 
-.ani, header nav > ul > li.has-children > a::before, header nav > ul > li.has-children > a::after, header nav > ul > li .sub-menu, .controls-slider .controls-nav mark, .controls-slider .mac-wrap .swiper-slide video, h2.heading, .we-solve article div, .we-solve article div svg g[stroke*="#"], .we-solve article div p, .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide, ul.social li, .overlay .overlay-wrap .sources div .git-ref, .overlay .overlay-wrap .sources div .apache-ref {
+.ani, header nav > ul > li.has-children > a::before, header nav > ul > li.has-children > a::after, header nav > ul > li .sub-menu, .controls-slider .controls-nav mark, .controls-slider .mac-wrap .swiper-slide video, h2.heading, .we-solve article div, .we-solve article div svg g[stroke*="#"], .we-solve article div p, .features .mac-screen-wrap .screen-slider-thumbs .swiper-slide, .social li, .overlay .overlay-wrap .sources div .git-ref, .overlay .overlay-wrap .sources div .apache-ref {
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   -ms-transition: all 0.5s ease;
@@ -974,7 +974,7 @@ ul.list-points li {
     display: -ms-flexbox;
     display: flex; }
 
-ul.social {
+.social {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -985,34 +985,26 @@ ul.social {
   -webkit-justify-content: flex-end;
   -moz-justify-content: flex-end;
   justify-content: flex-end; }
-  ul.social li {
+  .social li {
     margin: 5px 15px 0;
     cursor: pointer;
     align-self: center;
     background-repeat: no-repeat;
     background-position: 50% 50%; }
-    ul.social li.social-twitter {
+    .social li.social-twitter {
       background-image: url(../images/social/twitter_state.svg); }
-      ul.social li.social-twitter:hover {
-        background-image: url(../images/social/twitter.svg); }
-    ul.social li.social-slack {
+    .social li.social-slack {
       background-image: url(../images/social/slack_state.svg); }
-      ul.social li.social-slack:hover {
-        background-image: url(../images/social/slack.svg); }
-    ul.social li.social-youtube {
+    .social li.social-youtube {
       background-image: url(../images/social/youtube_state.svg); }
-      ul.social li.social-youtube:hover {
-        background-image: url(../images/social/youtube.svg); }
-    ul.social li.social-github {
+    .social li.social-github {
       background-image: url(../images/social/github_state.svg); }
-      ul.social li.social-github:hover {
-        background-image: url(../images/social/github.svg); }
-    ul.social li:first-child:hover {
+    .social li:first-child:hover {
       cursor: default;
       color: #fff; }
-    ul.social li:hover {
+    .social li:hover {
       color: #1CBC79; }
-    ul.social li a {
+    .social li a {
       display: block;
       padding: 0 15px;
       width: 25px;
@@ -1021,7 +1013,7 @@ ul.social {
       line-height: 90px;
       font-size: 12px;
       color: #fff; }
-      ul.social li a:hover {
+      .social li a:hover {
         background: none !important; }
 
 ul.community li.social-youtube {
@@ -1073,7 +1065,7 @@ footer {
   overflow-x: hidden;
   position: fixed;
   height: 100%;
-  z-index: 1;
+  z-index: 5;
   width: 0;
   left: -1px;
   top: 0; }
@@ -1137,15 +1129,9 @@ footer {
           .overlay .overlay-wrap .sources div .git-ref.git-ref, .overlay .overlay-wrap .sources div .apache-ref.git-ref {
             border: 1px solid #0366D6;
             background-image: url(../images/sources/git_logo.png); }
-            .overlay .overlay-wrap .sources div .git-ref.git-ref:hover, .overlay .overlay-wrap .sources div .apache-ref.git-ref:hover {
-              background-color: #0366D6;
-              background-image: url(../images/sources/git_logo_hover.png); }
           .overlay .overlay-wrap .sources div .git-ref.apache-ref, .overlay .overlay-wrap .sources div .apache-ref.apache-ref {
             border: 1px solid #C41742;
             background-image: url(../images/sources/apache_logo.png); }
-            .overlay .overlay-wrap .sources div .git-ref.apache-ref:hover, .overlay .overlay-wrap .sources div .apache-ref.apache-ref:hover {
-              background-image: url(../images/sources/apache_logo_hover.png);
-              background-color: #C41742; }
       .overlay .overlay-wrap .sources mark {
         box-shadow: 5px 5px 20px 5px rgba(33, 33, 35, 0.2);
         background-color: #FDFDFE;
@@ -1222,6 +1208,22 @@ footer {
             color: #1CBC79; }
           .overlay .overlay-wrap .contact-us form button:active {
             padding: 15px; }
+
+@media only screen and (min-width: 767px) {
+  .social li.social-twitter:hover {
+    background-image: url(../images/social/twitter.svg); }
+  .social li.social-slack:hover {
+    background-image: url(../images/social/slack.svg); }
+  .social li.social-youtube:hover {
+    background-image: url(../images/social/youtube.svg); }
+  .social li.social-github:hover {
+    background-image: url(../images/social/github.svg); }
+  .overlay .sources .git-ref:hover {
+    background-color: #0366D6;
+    background-image: url(../images/sources/git_logo_hover.png) !important; }
+  .overlay .sources .apache-ref:hover {
+    background-image: url(../images/sources/apache_logo_hover.png) !important;
+    background-color: #C41742; } }
 
 @media (max-width: 1024px) {
   .controls-nav, .technologies {
@@ -1344,11 +1346,10 @@ footer {
         box-shadow: none; }
         header .menu > li .sub-menu a {
           font-weight: 300;
-          color: #485F76;
+          color: #1CBC79;
           padding-left: 35px; }
           header .menu > li .sub-menu a:hover {
-            background: none;
-            color: #1CBC79; }
+            background: none; }
         header .menu > li .sub-menu::before {
           display: none; }
         header .menu > li .sub-menu.community {
