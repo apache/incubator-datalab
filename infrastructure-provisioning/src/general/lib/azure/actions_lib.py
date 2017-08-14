@@ -322,7 +322,7 @@ class AzureActions:
                         'os_type': 'Linux',
                         'name': '{}-primary-disk'.format(service_base_name),
                         'create_option': 'fromImage',
-                        'disk_size_gb': primary_disk_size,
+                        'disk_size_gb': int(primary_disk_size),
                         'managed_disk': {
                             'storage_account_type': 'Premium_LRS'
                         }
