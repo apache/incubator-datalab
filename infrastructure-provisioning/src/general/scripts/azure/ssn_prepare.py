@@ -46,6 +46,12 @@ if __name__ == "__main__":
     ssn_conf['storage_account_name'] = (ssn_conf['service_base_name'] + 'ssn').lower().replace('_', '').replace('-', '')
     ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn').lower().replace('_', '-')
     ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared').lower().replace('_', '')
+    ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
+    ssn_conf['network_interface_name'] = ssn_conf['service_base_name'] + '-ssn-nif'
+    ssn_conf['static_public_ip_name'] = ssn_conf['service_base_name'] + '-ssn-pub'
+    ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+    key = RSA.importKey(open(ssh_key_path, 'rb').read())
+    ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
 
     try:
         if os.environ['azure_resource_group_name'] == '':
@@ -150,261 +156,37 @@ if __name__ == "__main__":
         append_result("Failed to create storage account and containers. Exception:" + str(err))
         sys.exit(1)
 
-    # try:
-    #     logging.info('[CREATE AWS CONFIG FILE]')
-    #     print '[CREATE AWS CONFIG FILE]'
-    #     if not create_aws_config_files(generate_full_config=True):
-    #         logging.info('Unable to create configuration')
-    #         append_result("Unable to create configuration")
-    #         traceback.print_exc()
-    #         sys.exit(1)
-    # except:
-    #     sys.exit(1)
-    #
-    # try:
-    #     logging.info('[DERIVING NAMES]')
-    #     print '[DERIVING NAMES]'
-    #     service_base_name = os.environ['conf_service_base_name']
-    #     role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
-    #     role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
-    #     policy_name = service_base_name.lower().replace('-', '_') + '-ssn-Policy'
-    #     user_bucket_name = (service_base_name + '-ssn-bucket').lower().replace('_', '-')
-    #     shared_bucket_name = (service_base_name + '-shared-bucket').lower().replace('_', '-')
-    #     tag_name = service_base_name + '-Tag'
-    #     instance_name = service_base_name + '-ssn'
-    #     region = os.environ['aws_region']
-    #     ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
-    #     ssn_ami_id = get_ami_id(ssn_ami_name)
-    #     policy_path = '/root/files/ssn_policy.json'
-    #     vpc_cidr = '172.31.0.0/16'
-    #     sg_name = instance_name + '-SG'
-    #
-    #     try:
-    #         if os.environ['aws_vpc_id'] == '':
-    #             raise KeyError
-    #     except KeyError:
-    #         try:
-    #             pre_defined_vpc = True
-    #             logging.info('[CREATE VPC AND ROUTE TABLE]')
-    #             print '[CREATE VPC AND ROUTE TABLE]'
-    #             params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {}".format(vpc_cidr, region, tag_name, service_base_name)
-    #             try:
-    #                 local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
-    #             except:
-    #                 traceback.print_exc()
-    #                 raise Exception
-    #             os.environ['aws_vpc_id'] = get_vpc_by_tag(tag_name, service_base_name)
-    #         except Exception as err:
-    #             append_result("Failed to create VPC. Exception:" + str(err))
-    #             sys.exit(1)
-    #
-    #     try:
-    #         if os.environ['aws_subnet_id'] == '':
-    #             raise KeyError
-    #     except KeyError:
-    #         try:
-    #             pre_defined_subnet = True
-    #             logging.info('[CREATE SUBNET]')
-    #             print '[CREATE SUBNET]'
-    #             params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc_id'], 'ssn', tag_name, service_base_name, '20', True)
-    #             try:
-    #                 local("~/scripts/{}.py {}".format('common_create_subnet', params))
-    #             except:
-    #                 traceback.print_exc()
-    #                 raise Exception
-    #             with open('/tmp/ssn_subnet_id', 'r') as f:
-    #                 os.environ['aws_subnet_id'] = f.read()
-    #             enable_auto_assign_ip(os.environ['aws_subnet_id'])
-    #         except Exception as err:
-    #             append_result("Failed to create Subnet.", str(err))
-    #             if pre_defined_vpc:
-    #                 remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-    #                 remove_route_tables(tag_name, True)
-    #                 try:
-    #                     remove_subnets(service_base_name + "-subnet")
-    #                 except:
-    #                     print "Subnet hasn't been created."
-    #                 remove_vpc(os.environ['aws_vpc_id'])
-    #             sys.exit(1)
-    #
-    #     try:
-    #         if os.environ['aws_security_groups_ids'] == '':
-    #             raise KeyError
-    #     except KeyError:
-    #         try:
-    #             pre_defined_sg = True
-    #             logging.info('[CREATE SG FOR SSN]')
-    #             print '[CREATE SG FOR SSN]'
-    #             ingress_sg_rules_template = [
-    #                 {
-    #                     "PrefixListIds": [],
-    #                     "FromPort": 80,
-    #                     "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-    #                     "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
-    #                 },
-    #                 {
-    #                     "PrefixListIds": [],
-    #                     "FromPort": 8080,
-    #                     "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-    #                     "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
-    #                 },
-    #                 {
-    #                     "PrefixListIds": [],
-    #                     "FromPort": 22,
-    #                     "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-    #                     "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
-    #                 },
-    #                 {
-    #                     "PrefixListIds": [],
-    #                     "FromPort": 3128,
-    #                     "IpRanges": [{"CidrIp": vpc_cidr}],
-    #                     "ToPort": 3128, "IpProtocol": "tcp", "UserIdGroupPairs": []
-    #                 },
-    #                 {
-    #                     "PrefixListIds": [],
-    #                     "FromPort": 443,
-    #                     "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-    #                     "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
-    #                 },
-    #                 {
-    #                     "PrefixListIds": [],
-    #                     "FromPort": -1,
-    #                     "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-    #                     "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
-    #                 },
-    #                 {
-    #                     "PrefixListIds": [],
-    #                     "FromPort": 80,
-    #                     "IpRanges": [{"CidrIp": vpc_cidr}],
-    #                     "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
-    #                 },
-    #                 {
-    #                     "PrefixListIds": [],
-    #                     "FromPort": 443,
-    #                     "IpRanges": [{"CidrIp": vpc_cidr}],
-    #                     "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
-    #                 }
-    #             ]
-    #             egress_sg_rules_template = [
-    #                 {"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}
-    #             ]
-    #             params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {} --ssn {}". \
-    #                 format(sg_name, os.environ['aws_vpc_id'], json.dumps(ingress_sg_rules_template), json.dumps(egress_sg_rules_template), service_base_name, tag_name, False, True)
-    #             try:
-    #                 local("~/scripts/{}.py {}".format('common_create_security_group', params))
-    #             except:
-    #                 traceback.print_exc()
-    #                 raise Exception
-    #             with open('/tmp/ssn_sg_id', 'r') as f:
-    #                 os.environ['aws_security_groups_ids'] = f.read()
-    #         except Exception as err:
-    #             append_result("Failed creating security group for SSN.", str(err))
-    #             if pre_defined_vpc:
-    #                 remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-    #                 remove_subnets(service_base_name + "-subnet")
-    #                 remove_route_tables(tag_name, True)
-    #                 remove_vpc(os.environ['aws_vpc_id'])
-    #             sys.exit(1)
-    #     logging.info('[CREATE ROLES]')
-    #     print('[CREATE ROLES]')
-    #     params = "--role_name {} --role_profile_name {} --policy_name {} --policy_file_name {} --region {}".\
-    #         format(role_name, role_profile_name, policy_name, policy_path, os.environ['aws_region'])
-    #     try:
-    #         local("~/scripts/{}.py {}".format('common_create_role_policy', params))
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    # except Exception as err:
-    #     append_result("Unable to create roles.", str(err))
-    #     if pre_defined_sg:
-    #         remove_sgroups(tag_name)
-    #     if pre_defined_subnet:
-    #         remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-    #         remove_subnets(service_base_name + "-subnet")
-    #     if pre_defined_vpc:
-    #         remove_route_tables(tag_name, True)
-    #         remove_vpc(os.environ['aws_vpc_id'])
-    #     sys.exit(1)
-    #
-    # try:
-    #     logging.info('[CREATE ENDPOINT AND ROUTE-TABLE]')
-    #     print('[CREATE ENDPOINT AND ROUTE-TABLE]')
-    #     params = "--vpc_id {} --region {} --infra_tag_name {} --infra_tag_value {}".format(
-    #         os.environ['aws_vpc_id'], os.environ['aws_region'], tag_name, service_base_name)
-    #     try:
-    #         local("~/scripts/{}.py {}".format('ssn_create_endpoint', params))
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    # except Exception as err:
-    #     append_result("Unable to create an endpoint.", str(err))
-    #     remove_all_iam_resources(instance)
-    #     if pre_defined_sg:
-    #         remove_sgroups(tag_name)
-    #     if pre_defined_subnet:
-    #         remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-    #         remove_subnets(service_base_name + "-subnet")
-    #     if pre_defined_vpc:
-    #         remove_route_tables(tag_name, True)
-    #         remove_vpc(os.environ['aws_vpc_id'])
-    #     sys.exit(1)
-    #
+    if os.environ['conf_os_family'] == 'debian':
+        initial_user = 'ubuntu'
+        sudo_group = 'sudo'
+    if os.environ['conf_os_family'] == 'redhat':
+        initial_user = 'ec2-user'
+        sudo_group = 'wheel'
 
-    #
-    # try:
-    #     logging.info('[CREATE SSN INSTANCE]')
-    #     print('[CREATE SSN INSTANCE]')
-    #     params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}".\
-    #         format(instance_name, ssn_ami_id, os.environ['ssn_instance_size'], os.environ['conf_key_name'],
-    #                os.environ['aws_security_groups_ids'], os.environ['aws_subnet_id'],
-    #                role_profile_name, tag_name, instance_name)
-    #
-    #     try:
-    #         local("~/scripts/{}.py {}".format('common_create_instance', params))
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    # except Exception as err:
-    #     append_result("Unable to create ssn instance.", str(err))
-    #     remove_all_iam_resources(instance)
-    #     remove_s3(instance)
-    #     if pre_defined_sg:
-    #         remove_sgroups(tag_name)
-    #     if pre_defined_subnet:
-    #         remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-    #         remove_subnets(service_base_name + "-subnet")
-    #     if pre_defined_vpc:
-    #         remove_vpc_endpoints(os.environ['aws_vpc_id'])
-    #         remove_route_tables(tag_name, True)
-    #         remove_vpc(os.environ['aws_vpc_id'])
-    #     sys.exit(1)
-    #
-    # try:
-    #     logging.info('[ASSOCIATING ELASTIC IP]')
-    #     print '[ASSOCIATING ELASTIC IP]'
-    #     ssn_id = get_instance_by_name(tag_name, instance_name)
-    #     try:
-    #         elastic_ip = os.environ['ssn_elastic_ip']
-    #     except:
-    #         elastic_ip = 'None'
-    #     params = "--elastic_ip {} --ssn_id {}".format(elastic_ip, ssn_id)
-    #     try:
-    #         local("~/scripts/{}.py {}".format('ssn_associate_elastic_ip', params))
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    # except Exception as err:
-    #     append_result("Failed to associate elastic ip.", str(err))
-    #     remove_ec2(tag_name, instance_name)
-    #     remove_all_iam_resources(instance)
-    #     remove_s3(instance)
-    #     if pre_defined_sg:
-    #         remove_sgroups(tag_name)
-    #     if pre_defined_subnet:
-    #         remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-    #         remove_subnets(service_base_name + "-subnet")
-    #     if pre_defined_vpc:
-    #         remove_vpc_endpoints(os.environ['aws_vpc_id'])
-    #         remove_route_tables(tag_name, True)
-    #         remove_vpc(os.environ['aws_vpc_id'])
-    #     sys.exit(1)
+    try:
+        logging.info('[CREATE SSN INSTANCE]')
+        print('[CREATE SSN INSTANCE]')
+        params = "--instance_name {} --region {} --vpc_name {} --network_interface_name {} --subnet_name {} --service_base_name {} --user_name {} --public_ip_name {} --public_key {} --primary_disk_size {}".\
+            format(ssn_conf['instance_name'], ssn_conf['region'], os.environ['azure_vpc_name'],
+                   ssn_conf['network_interface_name'], os.environ['azure_subnet_name'], ssn_conf['service_base_name'],
+                   initial_user, ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '30')
+        try:
+            local("~/scripts/{}.py {}".format('common_create_instance', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        if pre_defined_resource_group:
+            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
+        AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+        AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
+        try:
+            AzureActions().remove_instance(ssn_conf['service_base_name'], ssn_conf['instance_name'])
+            AzureActions().delete_static_public_ip(ssn_conf['service_base_name'], ssn_conf['static_public_ip_name'])
+            AzureActions().delete_network_if(ssn_conf['service_base_name'], ssn_conf['network_interface_name'])
+        except:
+            print "The instance {} hasn't been created".format(ssn_conf['instance_name'])
+        append_result("Failed to create instance. Exception:" + str(err))
+        sys.exit(1)

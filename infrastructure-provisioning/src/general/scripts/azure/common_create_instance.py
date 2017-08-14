@@ -26,13 +26,15 @@ import sys
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--resource_group_name', type=str, default='')
 parser.add_argument('--instance_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
+parser.add_argument('--vpc_name', type=str, default='')
+parser.add_argument('--network_interface_name', type=str, default='')
+parser.add_argument('--subnet_name', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
 parser.add_argument('--user_name', type=str, default='')
+parser.add_argument('--public_ip_name', type=str, default='')
 parser.add_argument('--public_key', type=str, default='')
-parser.add_argument('--network_interface_resource_id', type=str, default='')
 parser.add_argument('--primary_disk_size', type=str, default='')
 args = parser.parse_args()
 
@@ -40,14 +42,19 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if args.instance_name != '':
         try:
-            if AzureMeta().get_instance(args.resource_group_name, args.instance_name):
+            if AzureMeta().get_instance(args.service_base_name, args.instance_name):
                 print "REQUESTED INSTANCE {} ALREADY EXISTS".format(args.instance_name)
             else:
                 print "Creating instance {}".format(args.instance_name)
+                static_public_ip_address = \
+                    AzureActions().create_static_public_ip(args.service_base_name, args.public_ip_name, args.region)
+                network_interface_id = AzureActions().create_network_if(args.service_base_name, args.vpc_name,
+                                                                        args.subnet_name, args.network_interface_name,
+                                                                        args.region, args.public_ip_name)
                 AzureActions().create_instance(args.region, args.instance_size, args.service_base_name,
                                                args.instance_name, args.user_name, args.public_key,
-                                               args.network_interface_resource_id, args.resource_group_name,
-                                               args.primary_disk_size)
+                                               network_interface_id, args.service_base_name, args.primary_disk_size)
+                print "Public IP address of this instance - {}".format(static_public_ip_address)
         except:
             sys.exit(1)
     else:

@@ -434,7 +434,7 @@ class AzureActions:
                     "ip_configurations": ip_params
                 }
             )
-            return result
+            return result._operation.resource.id
         except Exception as err:
             logging.info(
                 "Unable to create network interface: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
