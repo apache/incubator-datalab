@@ -36,7 +36,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     success = False
-    if args.bucket_name != '':
+    if args.account_name != '':
         try:
             storage_account = AzureMeta().get_storage_account(args.resource_group_name, args.account_name)
             if storage_account == '':
