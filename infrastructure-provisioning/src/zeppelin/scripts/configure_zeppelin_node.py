@@ -64,7 +64,7 @@ python3_version = "3.4"
 local_spark_path = '/opt/spark/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
-s3_jars_dir = '/opt/jars/'
+jars_dir = '/opt/jars/'
 if args.region == 'us-east-1':
     endpoint_url = 'https://s3.amazonaws.com'
 elif args.region == 'cn-north-1':
@@ -144,7 +144,7 @@ def configure_local_spark_kernels(args):
         put(templates_dir + 'interpreter_spark.json', '/tmp/interpreter.json')
         sudo('sed -i "s|ENDPOINTURL|' + endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
-        sudo('cp /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
+        sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
         sudo('touch /home/' + args.os_user + '/.ensure_dir/local_spark_kernel_ensured')
 
 
@@ -206,7 +206,7 @@ if __name__ == "__main__":
     ensure_local_spark(args.os_user, spark_link, args.spark_version, args.hadoop_version, local_spark_path)
 
     print "Install local jars"
-    ensure_local_jars(args.os_user, s3_jars_dir, files_dir, args.region, templates_dir)
+    ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
     print "Installing scala"
     ensure_scala(scala_link, args.scala_version, args.os_user)

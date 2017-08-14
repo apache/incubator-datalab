@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     try:
         with open("/root/result.json", 'w') as result:
-            res = {"EMR_name": emr_conf['emr_name'],
+            res = {"dataengine-service_name": emr_conf['emr_name'],
                    "notebook_name": emr_conf['notebook_name'],
                    "user_own_bucket_name": emr_conf['bucket_name'],
                    "Action": "Terminate EMR cluster"}

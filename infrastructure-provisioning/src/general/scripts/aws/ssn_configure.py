@@ -194,10 +194,10 @@ if __name__ == "__main__":
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
-                             # {"name": "rstudio", "tag": "latest"},
-                             # {"name": "zeppelin", "tag": "latest"},
-                             # {"name": "tensor", "tag": "latest"},
-                             # {"name": "deeplearning", "tag": "latest"},
+                             {"name": "rstudio", "tag": "latest"},
+                             {"name": "zeppelin", "tag": "latest"},
+                             {"name": "tensor", "tag": "latest"},
+                             {"name": "deeplearning", "tag": "latest"},
                              {"name": "dataengine-service", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),

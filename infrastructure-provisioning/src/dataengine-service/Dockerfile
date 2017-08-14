@@ -22,6 +22,7 @@ ARG OS
 ARG CLOUD
 
 COPY dataengine-service/fabfile.py /root/
+COPY dataengine-service/description.json /root/
 COPY dataengine-service/${CLOUD} /root/
 COPY general/scripts/${CLOUD}/dataengine-service_* /root/scripts/
 
