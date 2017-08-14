@@ -36,7 +36,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     try:
-        check = AzureMeta().check_availability(args.account_name)
+        check = AzureMeta().check_account_availability(args.account_name)
         if check.name_available == "True":
             print "Creating storage account {}.".format(args.account_name)
             storage_account = AzureActions().create_storage_account(args.resource_group_name, args.account_name,

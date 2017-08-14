@@ -150,6 +150,18 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def check_account_availability(self, account_name):
+        try:
+            result = self.storage_client.storage_accounts.check_name_availability(account_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to check Storage account name availability: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to check Storage account name availability",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def list_storage_keys(self, resource_group_name, account_name):
         try:
             result = []
