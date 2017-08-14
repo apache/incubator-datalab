@@ -17,12 +17,11 @@
 # ******************************************************************************
 
 from azure.common.client_factory import get_client_from_auth_file
-from azure.common.client_factory import ge
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
-from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.storage import StorageManagementClient
+from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.storage.blob import BlockBlobService
 from azure.storage import CloudStorageAccount
 from azure.storage.blob.models import ContentSettings, PublicAccess
