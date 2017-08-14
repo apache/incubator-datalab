@@ -188,5 +188,5 @@ if __name__ == "__main__":
             AzureActions().delete_network_if(ssn_conf['service_base_name'], ssn_conf['network_interface_name'])
         except:
             print "The instance {} hasn't been created".format(ssn_conf['instance_name'])
-        append_result("Failed to create storage account and containers. Exception:" + str(err))
+        append_result("Failed to create instance. Exception:" + str(err))
         sys.exit(1)
