@@ -188,7 +188,7 @@ class AzureMeta:
             result = self.network_client.public_ip_addresses.get(
                 resource_group_name,
                 ip_name
-            ).ip_address
+            )
             return result
         except Exception as err:
             logging.info(

@@ -268,7 +268,7 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_static_ip(self, resource_group_name, ip_name, region):
+    def create_static_public_ip(self, resource_group_name, ip_name, region):
         try:
             result = self.network_client.public_ip_addresses.create_or_update(
                 resource_group_name,
@@ -288,7 +288,7 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def delete_static_ip(self, resource_group_name, ip_name):
+    def delete_static_public_ip(self, resource_group_name, ip_name):
         try:
             result = self.network_client.public_ip_addresses.delete(
                 resource_group_name,
@@ -397,29 +397,41 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-
-    def create_network_if(self, resource_group_name, subnet_name, vpc_name, interface_name, region):
+    def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, public_ip_name="None"):
         try:
-            ip_address = AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
-            if not AzureMeta().check_free_ip(resource_group_name, vpc_name, ip_address).available:
-                private_ip = AzureMeta().check_free_ip(resource_group_name, vpc_name, ip_address).available_ip_addresses[0]
-            else:
-                private_ip = ip_address
+            subnet_cidr = AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
+            private_ip = AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr).available_ip_addresses[0]
             subnet_id = AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).id
+            if public_ip_name == "None":
+                ip_params = [{
+                    "name": interface_name,
+                    "private_ip_allocation_method": "Static",
+                    "private_ip_address": private_ip,
+                    "private_ip_address_version": "IPv4",
+                    "subnet": {
+                        "id": subnet_id
+                    }
+                }]
+            else:
+                public_ip_id = AzureMeta().get_static_ip(resource_group_name, public_ip_name).id
+                ip_params = [{
+                    "name": interface_name,
+                    "private_ip_allocation_method": "Static",
+                    "private_ip_address": private_ip,
+                    "private_ip_address_version": "IPv4",
+                    "public_ip_address": {
+                        "id": public_ip_id
+                    },
+                    "subnet": {
+                        "id": subnet_id
+                    }
+                }]
             result = self.network_client.network_interfaces.create_or_update(
                 resource_group_name,
                 interface_name,
                 {
                     "location": region,
-                    "ip_configurations": [{
-                        "name": interface_name,
-                        "private_ip_allocation_method": "Static",
-                        "private_ip_address": private_ip,
-                        "private_ip_address_version": "IPv4",
-                        "subnet": {
-                            "id": subnet_id
-                        }
-                    }]
+                    "ip_configurations": ip_params
                 }
             )
             return result
@@ -427,6 +439,18 @@ class AzureActions:
             logging.info(
                 "Unable to create network interface: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to create network interface",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def delete_network_if(self, resource_group_name, interface_name):
+        try:
+            result = self.network_client.network_interfaces.delete(resource_group_name, interface_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to delete network interface: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to delete network interface",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
