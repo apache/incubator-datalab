@@ -43,6 +43,9 @@ if __name__ == "__main__":
     ssn_conf['region'] = os.environ['azure_region']
     ssn_conf['vpc_cidr'] = '10.10.0.0/16'
     ssn_conf['subnet_prefix'] = '20'
+    ssn_conf['storage_account_name'] = (ssn_conf['service_base_name'] + 'ssn').lower()
+    ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn').lower()
+    ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared').lower()
 
     try:
         if os.environ['azure_resource_group_name'] == '':
@@ -122,6 +125,33 @@ if __name__ == "__main__":
                 print "Subnet hasn't been created."
             append_result("Failed to create Subnet. Exception:" + str(err))
             sys.exit(1)
+
+    try:
+        logging.info('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
+        print('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
+        params = "--container_name {} --shared_container_name {} --account_name {} --resource_group_name {} --region {}". \
+                 format(ssn_conf['ssn_container_name'], ssn_conf['shared_container_name'],
+                        ssn_conf['storage_account_name'], ssn_conf['service_base_name'], ssn_conf['region'])
+        try:
+            local("~/scripts/{}.py {}".format('common_create_container', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        if pre_defined_resource_group:
+            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
+        try:
+            AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'],
+                                         ssn_conf['subnet_name'])
+        try:
+            AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
+        except:
+            print "Storage account and containers haven't been created."
+        append_result("Failed to create storage account and containers. Exception:" + str(err))
+        sys.exit(1)
+
     # try:
     #     logging.info('[CREATE AWS CONFIG FILE]')
     #     print '[CREATE AWS CONFIG FILE]'
@@ -321,39 +351,7 @@ if __name__ == "__main__":
     #         remove_vpc(os.environ['aws_vpc_id'])
     #     sys.exit(1)
     #
-    # try:
-    #     logging.info('[CREATE BUCKETS]')
-    #     print('[CREATE BUCKETS]')
-    #     params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {}". \
-    #              format(user_bucket_name, tag_name, user_bucket_name, region)
-    #
-    #     try:
-    #         local("~/scripts/{}.py {}".format('common_create_bucket', params))
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    #
-    #     params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {}". \
-    #              format(shared_bucket_name, tag_name, shared_bucket_name, region)
-    #
-    #     try:
-    #         local("~/scripts/{}.py {}".format('common_create_bucket', params))
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    # except Exception as err:
-    #     append_result("Unable to create bucket.", str(err))
-    #     remove_all_iam_resources(instance)
-    #     if pre_defined_sg:
-    #         remove_sgroups(tag_name)
-    #     if pre_defined_subnet:
-    #         remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-    #         remove_subnets(service_base_name + "-subnet")
-    #     if pre_defined_vpc:
-    #         remove_vpc_endpoints(os.environ['aws_vpc_id'])
-    #         remove_route_tables(tag_name, True)
-    #         remove_vpc(os.environ['aws_vpc_id'])
-    #     sys.exit(1)
+
     #
     # try:
     #     logging.info('[CREATE SSN INSTANCE]')
