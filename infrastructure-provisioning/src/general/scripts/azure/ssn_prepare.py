@@ -44,8 +44,8 @@ if __name__ == "__main__":
     ssn_conf['vpc_cidr'] = '10.10.0.0/16'
     ssn_conf['subnet_prefix'] = '20'
     ssn_conf['storage_account_name'] = (ssn_conf['service_base_name'] + 'ssn').lower().replace('_', '').replace('-', '')
-    ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn').lower()('_', '-')
-    ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared').lower()('_', '')
+    ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn').lower().replace('_', '-')
+    ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared').lower().replace('_', '')
 
     try:
         if os.environ['azure_resource_group_name'] == '':
