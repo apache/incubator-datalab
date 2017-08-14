@@ -142,13 +142,11 @@ if __name__ == "__main__":
             AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
         if pre_defined_vpc:
             AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
-        try:
-            AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
+        AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
         try:
             AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
         except:
-            print "Storage account and containers haven't been created."
+            print "Storage account hasn't been created."
         append_result("Failed to create storage account and containers. Exception:" + str(err))
         sys.exit(1)
 
