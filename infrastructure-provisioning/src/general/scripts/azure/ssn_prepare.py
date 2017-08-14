@@ -46,6 +46,12 @@ if __name__ == "__main__":
     ssn_conf['storage_account_name'] = (ssn_conf['service_base_name'] + 'ssn').lower().replace('_', '').replace('-', '')
     ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn').lower()('_', '-')
     ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared').lower()('_', '')
+    ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
+    ssn_conf['network_interface_name'] = ssn_conf['service_base_name'] + '-ssn-nif'
+    ssn_conf['static_public_ip_name'] = ssn_conf['service_base_name'] + '-ssn-pub'
+    ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+    key = RSA.importKey(open(ssh_key_path, 'rb').read())
+    ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
 
     try:
         if os.environ['azure_resource_group_name'] == '':
@@ -147,6 +153,41 @@ if __name__ == "__main__":
             AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
         except:
             print "Storage account hasn't been created."
+        append_result("Failed to create storage account and containers. Exception:" + str(err))
+        sys.exit(1)
+
+    if os.environ['conf_os_family'] == 'debian':
+        initial_user = 'ubuntu'
+        sudo_group = 'sudo'
+    if os.environ['conf_os_family'] == 'redhat':
+        initial_user = 'ec2-user'
+        sudo_group = 'wheel'
+
+    try:
+        logging.info('[CREATE SSN INSTANCE]')
+        print('[CREATE SSN INSTANCE]')
+        params = "--instance_name {} --region {} --vpc_name {} --network_interface_name {} --subnet_name {} --service_base_name {} --user_name {} --public_ip_name {} --public_key {} --primary_disk_size {}".\
+            format(ssn_conf['instance_name'], ssn_conf['region'], os.environ['azure_vpc_name'],
+                   ssn_conf['network_interface_name'], os.environ['azure_subnet_name'], ssn_conf['service_base_name'],
+                   initial_user, ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '30')
+        try:
+            local("~/scripts/{}.py {}".format('common_create_instance', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        if pre_defined_resource_group:
+            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
+        AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+        AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
+        try:
+            AzureActions().remove_instance(ssn_conf['service_base_name'], ssn_conf['instance_name'])
+            AzureActions().delete_static_public_ip(ssn_conf['service_base_name'], ssn_conf['static_public_ip_name'])
+            AzureActions().delete_network_if(ssn_conf['service_base_name'], ssn_conf['network_interface_name'])
+        except:
+            print "The instance {} hasn't been created".format(ssn_conf['instance_name'])
         append_result("Failed to create storage account and containers. Exception:" + str(err))
         sys.exit(1)
 
