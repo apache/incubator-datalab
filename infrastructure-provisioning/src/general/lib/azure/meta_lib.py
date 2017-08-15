@@ -224,3 +224,35 @@ class AzureMeta:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def get_instance_public_ip_address(self, resource_group_name, instance_name):
+        try:
+            instance = self.compute_client.virtual_machines.get(resource_group_name, instance_name)
+            for i in instance.network_profile.network_interfaces:
+                network_interface = self.network_client.network_interfaces.get(resource_group_name, i.id.split('/')[-1])
+                for j in network_interface.ip_configurations:
+                    public_ip_address = self.network_client.public_ip_addresses.get(resource_group_name,
+                                                                          j.public_ip_address.id.split('/')[-1])
+                    return public_ip_address.ip_address
+        except Exception as err:
+            logging.info(
+                "Unable to get instance public IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get instance public IP address",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def get_instance_private_ip_address(self, resource_group_name, instance_name):
+        try:
+            instance = self.compute_client.virtual_machines.get(resource_group_name, instance_name)
+            for i in instance.network_profile.network_interfaces:
+                network_interface = self.network_client.network_interfaces.get(resource_group_name, i.id.split('/')[-1])
+                for j in network_interface.ip_configurations:
+                    return j.private_ip_address
+        except Exception as err:
+            logging.info(
+                "Unable to get instance private IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get instance private IP address",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
