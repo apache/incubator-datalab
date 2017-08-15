@@ -134,6 +134,7 @@ body {
   font-size: 16px;
   overflow-x: hidden;
   font-weight: 300;
+  display: flex;
 }
 
 button {
