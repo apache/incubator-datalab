@@ -44,12 +44,14 @@ if __name__ == "__main__":
     ssn_conf['region'] = os.environ['azure_region']
     ssn_conf['vpc_cidr'] = '10.10.0.0/16'
     ssn_conf['subnet_prefix'] = '20'
+    ssn_conf['subnet_prefix'] = '20'
     ssn_conf['storage_account_name'] = (ssn_conf['service_base_name'] + 'ssn').lower().replace('_', '').replace('-', '')
     ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn').lower().replace('_', '-')
     ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared').lower().replace('_', '')
     ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
     ssn_conf['network_interface_name'] = ssn_conf['service_base_name'] + '-ssn-nif'
     ssn_conf['static_public_ip_name'] = ssn_conf['service_base_name'] + '-ssn-pub'
+    ssn_conf['security_groups_name'] = ssn_conf['instance_name'] + '-SG'
     ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
     key = RSA.importKey(open(ssh_key_path, 'rb').read())
     ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
@@ -134,6 +136,77 @@ if __name__ == "__main__":
             sys.exit(1)
 
     try:
+        if os.environ['azure_security_groups_name'] == '':
+            raise KeyError
+    except KeyError:
+        pre_defined_sg = True
+        logging.info('[CREATING SECURITY GROUPS]')
+        print "[CREATING SECURITY GROUPS]"
+        try:
+            list_rules = [
+                {
+                    "name": "in-1",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "80",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 100,
+                    "direction": "Inbound"
+                },
+                {
+                    "name": "in-2",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "443",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 101,
+                    "direction": "Inbound"
+                },
+                {
+                    "name": "in-3",
+                    "protocol": "Tcp",
+                    "source_port_range": "*",
+                    "destination_port_range": "22",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 102,
+                    "direction": "Inbound"
+                },
+                {
+                    "name": "out-1",
+                    "protocol": "*",
+                    "source_port_range": "*",
+                    "destination_port_range": "*",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": "*",
+                    "access": "Allow",
+                    "priority": 100,
+                    "direction": "Outbound"
+                }
+            ]
+            params = "--resource_group_name {} --security_group_name {} --region {} --list_rules {}".\
+                format(ssn_conf['service_base_name'], ssn_conf['security_groups_name'], ssn_conf['region'], list_rules)
+            try:
+                local("~/scripts/{}.py {}".format('common_create_security_group', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+            os.environ['azure_security_groups_name'] = ssn_conf['security_groups_name']
+        except Exception as err:
+            if pre_defined_resource_group:
+                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            if pre_defined_vpc:
+                AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
+                AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+            append_result("Failed to create Security groups. Exception:" + str(err))
+            sys.exit(1)
+
+    try:
         logging.info('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
         print('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
         params = "--container_name {} --shared_container_name {} --account_name {} --resource_group_name {} --region {}". \
@@ -149,7 +222,9 @@ if __name__ == "__main__":
             AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
         if pre_defined_vpc:
             AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
-        AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+            AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+        if pre_defined_sg:
+            AzureActions().remove_security_group(ssn_conf['service_base_name'], ssn_conf['security_groups_name'])
         try:
             AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
         except:
@@ -181,7 +256,9 @@ if __name__ == "__main__":
             AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
         if pre_defined_vpc:
             AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
-        AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+            AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+        if pre_defined_sg:
+            AzureActions().remove_security_group(ssn_conf['service_base_name'], ssn_conf['security_groups_name'])
         AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
         try:
             AzureActions().remove_instance(ssn_conf['service_base_name'], ssn_conf['instance_name'])

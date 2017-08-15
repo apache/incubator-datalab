@@ -149,7 +149,7 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_security_group(self, resource_group_name, network_security_group_name, list_rules, region):
+    def create_security_group(self, resource_group_name, network_security_group_name, region, list_rules):
         try:
             result = self.network_client.network_security_groups.create_or_update(
                 resource_group_name,

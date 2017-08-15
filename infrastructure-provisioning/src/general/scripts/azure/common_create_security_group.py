@@ -23,64 +23,27 @@ import argparse
 from dlab.actions_lib import *
 from dlab.meta_lib import *
 import sys
-from botocore.exceptions import ClientError
-
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--name', type=str, default='')
-parser.add_argument('--vpc_id', type=str, default='')
-parser.add_argument('--security_group_rules', type=str, default='[]')
-parser.add_argument('--egress', type=str, default='[]')
-parser.add_argument('--infra_tag_name', type=str, default='')
-parser.add_argument('--infra_tag_value', type=str, default='')
-parser.add_argument('--force', type=bool, default=False)
-parser.add_argument('--nb_sg_name', type=str, default='')
-parser.add_argument('--resource', type=str, default='')
-parser.add_argument('--ssn', type=bool, default=False)
+parser.add_argument('--resource_group_name', type=str, default='')
+parser.add_argument('--security_group_name', type=str, default='')
+parser.add_argument('--region', type=str, default='')
+parser.add_argument('--list_rules', default='[]')
 args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    success = False
     try:
-        rules = json.loads(args.security_group_rules)
-        egress = json.loads(args.egress)
+        if AzureMeta().get_security_group(args.resource_group_name, args.security_group_name):
+            print "REQUESTED SECURITY GROUP {} ALREADY EXISTS".format(args.security_group_name)
+        else:
+            print "Creating security group {}.".format(args.security_group_name)
+            security_group = AzureActions().create_security_group(args.resource_group_name, args.security_group_name,
+                                                                    args.region, args.list_rules)
+            while AzureMeta().get_security_group(args.resource_group_name,
+                                                 args.security_group_name).provisioning_state != "Succeeded":
+                time.sleep(5)
+            print "SECURITY GROUP {} has been created".format(args.security_group_name)
     except:
         sys.exit(1)
-    tag = {"Key": args.infra_tag_name, "Value": args.infra_tag_value}
-    nb_sg_id = get_security_group_by_name(args.nb_sg_name + '-SG')
-    if args.name != '':
-        try:
-            security_group_id = get_security_group_by_name(args.name)
-            if security_group_id == '':
-                print "Creating security group %s for vpc %s with tag %s." % (args.name, args.vpc_id, json.dumps(tag))
-                security_group_id = create_security_group(args.name, args.vpc_id, rules, egress, tag)
-                if nb_sg_id != '' and args.resource == 'edge':
-                    print "Updating Notebook security group " + nb_sg_id
-                    rule = {'IpProtocol': '-1', 'FromPort': -1, 'ToPort': -1,
-                            'UserIdGroupPairs': [{'GroupId': security_group_id}]}
-                    add_inbound_sg_rule(nb_sg_id, rule)
-                    add_outbound_sg_rule(nb_sg_id, rule)
-            else:
-                if nb_sg_id != '' and args.resource == 'edge':
-                    print "Updating Notebook security group " + nb_sg_id
-                    rule = {'IpProtocol': '-1', 'FromPort': -1, 'ToPort': -1,
-                            'UserIdGroupPairs': [{'GroupId': security_group_id}]}
-                    add_inbound_sg_rule(nb_sg_id, rule)
-                    add_outbound_sg_rule(nb_sg_id, rule)
-                print "REQUESTED SECURITY GROUP WITH NAME %s ALREADY EXISTS" % args.name
-            print "SECURITY_GROUP_ID " + security_group_id
-            if args.ssn:
-                with open('/tmp/ssn_sg_id', 'w') as f:
-                    f.write(security_group_id)
-            success = True
-        except:
-            success = False
-    else:
-        parser.print_help()
-        sys.exit(2)
 
-    if success:
-        sys.exit(0)
-    else:
-        sys.exit(1)
