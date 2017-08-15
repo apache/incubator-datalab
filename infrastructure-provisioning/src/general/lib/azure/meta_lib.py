@@ -26,6 +26,7 @@ from azure.storage.blob import BlockBlobService
 from azure.storage import CloudStorageAccount
 from azure.storage.blob.models import ContentSettings, PublicAccess
 import azure.common.exceptions as AzureExceptions
+import meta_lib
 import logging
 import traceback
 import sys, time
@@ -180,7 +181,7 @@ class AzureMeta:
     def list_container_content(self, resource_group_name, account_name, container_name):
         try:
             result = []
-            secret_key = list_storage_keys(resource_group_name, account_name)[0]
+            secret_key = meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
             block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
             content = block_blob_service.list_blobs(container_name)
             for blob in content:
