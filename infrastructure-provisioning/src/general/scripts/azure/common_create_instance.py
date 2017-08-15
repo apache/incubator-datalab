@@ -58,8 +58,7 @@ if __name__ == "__main__":
                                                args.instance_name, args.user_name, args.public_key,
                                                network_interface_id, args.service_base_name, args.primary_disk_size)
                 print "Public IP address of this instance - {}".format(static_public_ip_address)
-        except Exception as err:
-            print "Error --->>>>" + str(err)
+        except:
             sys.exit(1)
     else:
         sys.exit(1)
