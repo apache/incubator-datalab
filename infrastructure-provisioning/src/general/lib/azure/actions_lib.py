@@ -158,7 +158,7 @@ class AzureActions:
                     'location': region
                 }
             )
-            for rule in list_rules:
+            for rule in dict(list_rules):
                 self.network_client.security_rules.create_or_update(
                     resource_group_name,
                     network_security_group_name,
