@@ -180,7 +180,7 @@ class AzureMeta:
     def list_container_content(self, resource_group_name, account_name, container_name):
         try:
             result = []
-            secret_key = AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+            secret_key = list_storage_keys(resource_group_name, account_name)[0]
             block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
             content = block_blob_service.list_blobs(container_name)
             for blob in content:
