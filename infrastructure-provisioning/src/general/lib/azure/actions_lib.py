@@ -27,6 +27,7 @@ from azure.storage.blob import BlockBlobService
 from azure.storage.blob import ContentSettings
 from azure.storage.blob.models import ContentSettings, PublicAccess
 import azure.common.exceptions as AzureExceptions
+import meta_lib
 import logging
 import traceback
 import sys, time
@@ -226,7 +227,7 @@ class AzureActions:
 
     def create_blob_container(self, resource_group_name, account_name, container_name):
         try:
-            secret_key = list_storage_keys(resource_group_name, account_name)[0]
+            secret_key = meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
             block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
             result = block_blob_service.create_container(container_name)
             return result
@@ -240,7 +241,7 @@ class AzureActions:
 
     def upload_to_container(self, resource_group_name, account_name, container_name, files):
         try:
-            secret_key = AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+            secret_key = meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
             block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
             for filename in files:
                 block_blob_service.create_blob_from_path(container_name, filename, filename)
@@ -255,7 +256,7 @@ class AzureActions:
 
     def download_from_container(self, resource_group_name, account_name, container_name, files):
         try:
-            secret_key = AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+            secret_key = meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
             block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
             for filename in files:
                 block_blob_service.get_blob_to_path(container_name, filename, filename)
@@ -399,9 +400,9 @@ class AzureActions:
 
     def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, public_ip_name="None"):
         try:
-            subnet_cidr = AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
-            private_ip = AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr).available_ip_addresses[0]
-            subnet_id = AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).id
+            subnet_cidr = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
+            private_ip = meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr).available_ip_addresses[0]
+            subnet_id = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).id
             if public_ip_name == "None":
                 ip_params = [{
                     "name": interface_name,
@@ -413,7 +414,7 @@ class AzureActions:
                     }
                 }]
             else:
-                public_ip_id = AzureMeta().get_static_ip(resource_group_name, public_ip_name).id
+                public_ip_id = meta_lib.AzureMeta().get_static_ip(resource_group_name, public_ip_name).id
                 ip_params = [{
                     "name": interface_name,
                     "private_ip_allocation_method": "Static",
