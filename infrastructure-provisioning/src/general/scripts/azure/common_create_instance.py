@@ -27,6 +27,7 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--instance_name', type=str, default='')
+parser.add_argument('--instance_size', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--vpc_name', type=str, default='')
 parser.add_argument('--network_interface_name', type=str, default='')

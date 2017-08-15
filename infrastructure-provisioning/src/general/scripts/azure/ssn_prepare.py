@@ -167,8 +167,8 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --region {} --vpc_name {} --network_interface_name {} --subnet_name {} --service_base_name {} --user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {}".\
-            format(ssn_conf['instance_name'], ssn_conf['region'], os.environ['azure_vpc_name'],
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --subnet_name {} --service_base_name {} --user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {}".\
+            format(ssn_conf['instance_name'], os.environ['azure_ssn_instance_size'], ssn_conf['region'], os.environ['azure_vpc_name'],
                    ssn_conf['network_interface_name'], os.environ['azure_subnet_name'], ssn_conf['service_base_name'],
                    initial_user, ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '30')
         try:
