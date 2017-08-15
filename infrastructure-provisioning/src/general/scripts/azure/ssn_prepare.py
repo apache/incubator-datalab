@@ -20,7 +20,7 @@
 
 from dlab.fab import *
 from dlab.actions_lib import *
-import sys, os
+import sys, os, json
 from fabric.api import *
 from dlab.ssn_lib import *
 from Crypto.PublicKey import RSA
@@ -188,8 +188,9 @@ if __name__ == "__main__":
                     "direction": "Outbound"
                 }
             ]
-            params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '''{}'''".\
-                format(ssn_conf['service_base_name'], ssn_conf['security_groups_name'], ssn_conf['region'], list_rules)
+            params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".\
+                format(ssn_conf['service_base_name'], ssn_conf['security_groups_name'], ssn_conf['region'],
+                       json.dumps(list_rules))
             try:
                 local("~/scripts/{}.py {}".format('common_create_security_group', params))
             except:

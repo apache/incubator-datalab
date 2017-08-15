@@ -34,12 +34,13 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     try:
+        list_rules = json.loads(args.list_rules)
         if AzureMeta().get_security_group(args.resource_group_name, args.security_group_name):
             print "REQUESTED SECURITY GROUP {} ALREADY EXISTS".format(args.security_group_name)
         else:
             print "Creating security group {}.".format(args.security_group_name)
             security_group = AzureActions().create_security_group(args.resource_group_name, args.security_group_name,
-                                                                    args.region, args.list_rules)
+                                                                    args.region, list_rules)
             while AzureMeta().get_security_group(args.resource_group_name,
                                                  args.security_group_name).provisioning_state != "Succeeded":
                 time.sleep(5)
