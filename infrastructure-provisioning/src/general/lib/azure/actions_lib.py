@@ -271,7 +271,7 @@ class AzureActions:
 
     def create_static_public_ip(self, resource_group_name, ip_name, region):
         try:
-            result = self.network_client.public_ip_addresses.create_or_update(
+            self.network_client.public_ip_addresses.create_or_update(
                 resource_group_name,
                 ip_name,
                 {
@@ -280,7 +280,9 @@ class AzureActions:
                     "public_ip_address_version": "IPv4"
                 }
             )
-            return result._operation.resource.ip_address
+            while meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).provisioning_state != 'Succeeded':
+                time.sleep(5)
+            return meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).ip_address
         except Exception as err:
             logging.info(
                 "Unable to create static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))

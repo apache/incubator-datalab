@@ -103,24 +103,24 @@ def build_docker_images(args):
 
 def deploy_dlab(args):
     # Preparing files for deployment
-    # local('mkdir -p {}/web_app'.format(args.workspace_path))
-    # local('mkdir -p {}/web_app/provisioning-service/'.format(args.workspace_path))
-    # local('mkdir -p {}/web_app/security-service/'.format(args.workspace_path))
-    # local('mkdir -p {}/web_app/self-service/'.format(args.workspace_path))
-    # local('mkdir -p {}/web_app/billing/'.format(args.workspace_path))
-    # local('cp {0}/services/self-service/self-service.yml {0}/web_app/self-service/'.format(args.workspace_path))
-    # local('cp {0}/services/self-service/target/self-service-*.jar {0}/web_app/self-service/'.
-    #       format(args.workspace_path))
-    # local('cp {0}/services/provisioning-service/provisioning.yml {0}/web_app/provisioning-service/'.
-    #       format(args.workspace_path))
-    # local('cp {0}/services/provisioning-service/target/provisioning-service-*.jar {0}/web_app/provisioning-service/'.
-    #       format(args.workspace_path))
-    # local('cp {0}/services/security-service/security.yml {0}/web_app/security-service/'.format(args.workspace_path))
-    # local('cp {0}/services/security-service/target/security-service-*.jar {0}/web_app/security-service/'.
-    #       format(args.workspace_path))
-    # local('cp {0}/services/billing/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
-    # local('cp {0}/services/billing/target/billing-*.jar {0}/web_app/billing/'.
-    #       format(args.workspace_path))
+    local('mkdir -p {}/web_app'.format(args.workspace_path))
+    local('mkdir -p {}/web_app/provisioning-service/'.format(args.workspace_path))
+    local('mkdir -p {}/web_app/security-service/'.format(args.workspace_path))
+    local('mkdir -p {}/web_app/self-service/'.format(args.workspace_path))
+    local('mkdir -p {}/web_app/billing/'.format(args.workspace_path))
+    local('cp {0}/services/self-service/self-service.yml {0}/web_app/self-service/'.format(args.workspace_path))
+    local('cp {0}/services/self-service/target/self-service-*.jar {0}/web_app/self-service/'.
+          format(args.workspace_path))
+    local('cp {0}/services/provisioning-service/provisioning.yml {0}/web_app/provisioning-service/'.
+          format(args.workspace_path))
+    local('cp {0}/services/provisioning-service/target/provisioning-service-*.jar {0}/web_app/provisioning-service/'.
+          format(args.workspace_path))
+    local('cp {0}/services/security-service/security.yml {0}/web_app/security-service/'.format(args.workspace_path))
+    local('cp {0}/services/security-service/target/security-service-*.jar {0}/web_app/security-service/'.
+          format(args.workspace_path))
+    local('cp {0}/services/billing/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
+    local('cp {0}/services/billing/target/billing-*.jar {0}/web_app/billing/'.
+          format(args.workspace_path))
     # Creating SSN node
     docker_command = generate_docker_command()
     local(docker_command)
@@ -159,8 +159,8 @@ if __name__ == "__main__":
     elif args.action == 'deploy':
         deploy_dlab(args)
     elif args.action == 'create':
-        # build_front_end(args)
-        # build_services()
+        build_front_end(args)
+        build_services()
         build_docker_images(args)
         deploy_dlab(args)
     elif args.action == 'terminate':
