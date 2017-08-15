@@ -188,7 +188,7 @@ if __name__ == "__main__":
                     "direction": "Outbound"
                 }
             ]
-            params = "--resource_group_name {} --security_group_name {} --region {} --list_rules {}".\
+            params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".\
                 format(ssn_conf['service_base_name'], ssn_conf['security_groups_name'], ssn_conf['region'], list_rules)
             try:
                 local("~/scripts/{}.py {}".format('common_create_security_group', params))
