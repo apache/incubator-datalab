@@ -81,7 +81,8 @@ limitations under the License.
 .modal {
   color: #718ba6;
   font-size: 14px;
-  overflow: auto !important;
+  display: flex;
+  visibility: hidden;
 }
 
 .modal .control-label {
@@ -115,11 +116,6 @@ limitations under the License.
   margin-top: 3px;
 }
 
-.modal {
-  display: block;
-  visibility: hidden;
-}
-
 .modal.in {
   visibility: visible;
 }
@@ -127,6 +123,7 @@ limitations under the License.
 .modal .modal-dialog {
   transition: .3s ease-in-out;
   opacity: 0;
+  align-self: center;
   -webkit-transform: translateY(-20px);
   transform: translateY(-20px);
 }
@@ -195,10 +192,6 @@ limitations under the License.
   background: #fff;
   cursor: inherit;
   display: block;
-}
-
-.modal-dialog {
-  margin: 10% auto;
 }
 
 .modal-content {
