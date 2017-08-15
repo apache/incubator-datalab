@@ -31,7 +31,7 @@ import meta_lib
 import logging
 import traceback
 import sys, time
-import os
+import os, json
 
 
 class AzureActions:
@@ -158,7 +158,7 @@ class AzureActions:
                     'location': region
                 }
             )
-            for rule in dict(list_rules):
+            for rule in json.loads(list_rules):
                 self.network_client.security_rules.create_or_update(
                     resource_group_name,
                     network_security_group_name,
