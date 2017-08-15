@@ -134,14 +134,6 @@ limitations under the License.
   text-transform: capitalize;
 }
 
-.dashboard_table .glyphicon-cog {
-  font-size: 16px;
-}
-
-.dashboard_table .glyphicon {
-  cursor: pointer;
-}
-
 .dashboard_table .dropdown-menu {
   left: auto;
   margin-left: 0;

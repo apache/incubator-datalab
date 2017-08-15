@@ -29,25 +29,25 @@ limitations under the License.
   <ul class="dropdown-menu" id="scrolling" [style.display]="isOpen ? 'block' : 'none'">
     <li class="filter-actions">
       <a class="select_all" (click)="selectAllOptions($event)">
-        <i class="glyphicon glyphicon-ok"></i>&nbsp;All
+        <i class="material-icons">playlist_add_check</i>&nbsp;All
       </a>
     </li>
     <li class="filter-actions">
       <a class="deselect_all" (click)="deselectAllOptions($event)">
-        <i class="glyphicon glyphicon-remove"></i>&nbsp;None
+        <i class="material-icons">clear</i>&nbsp;None
       </a>
     </li>
       <template let-item ngFor [ngForOf]="items">
         <li role="presentation">
           <a href="#" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
-            <span class="glyphicon" [class.glyphicon-ok]="model.indexOf(item) >= 0"></span>
+            <span class="material-icons" *ngIf="model.indexOf(item) >= 0">done</span>
             {{item}}
           </a>
         </li>
       </template>
     <li *ngIf="items?.length == 0">
       <a role="menuitem">
-        <span class="glyphicon glyphicon-eye-close"></span>
+        <i class="material-icons">visibility_off</i>
         No {{type}}
       </a>
     </li>
