@@ -226,7 +226,7 @@ class AzureActions:
 
     def create_blob_container(self, resource_group_name, account_name, container_name):
         try:
-            secret_key = AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+            secret_key = list_storage_keys(resource_group_name, account_name)[0]
             block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
             result = block_blob_service.create_container(container_name)
             return result
