@@ -56,5 +56,6 @@ if __name__ == "__main__":
                 print "SHARED CONTAINER {} has been created".format(shared_blob_container)
         else:
             print "STORAGE ACCOUNT with name {} could not be created. ".format(args.account_name), check.message
+            sys.exit(1)
     except:
         sys.exit(1)

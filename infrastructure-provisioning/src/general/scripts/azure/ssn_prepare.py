@@ -177,17 +177,17 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        if pre_defined_resource_group:
-            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
-        AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
-        AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
-        try:
-            AzureActions().remove_instance(ssn_conf['service_base_name'], ssn_conf['instance_name'])
-            AzureActions().delete_static_public_ip(ssn_conf['service_base_name'], ssn_conf['static_public_ip_name'])
-            AzureActions().delete_network_if(ssn_conf['service_base_name'], ssn_conf['network_interface_name'])
-        except:
-            print "The instance {} hasn't been created".format(ssn_conf['instance_name'])
+        # if pre_defined_resource_group:
+        #     AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+        # if pre_defined_vpc:
+        #     AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
+        # AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+        # AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
+        # try:
+        #     AzureActions().remove_instance(ssn_conf['service_base_name'], ssn_conf['instance_name'])
+        #     AzureActions().delete_static_public_ip(ssn_conf['service_base_name'], ssn_conf['static_public_ip_name'])
+        #     AzureActions().delete_network_if(ssn_conf['service_base_name'], ssn_conf['network_interface_name'])
+        # except:
+        #     print "The instance {} hasn't been created".format(ssn_conf['instance_name'])
         append_result("Failed to create instance. Exception:" + str(err))
         sys.exit(1)
