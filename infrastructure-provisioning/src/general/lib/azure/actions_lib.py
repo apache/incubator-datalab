@@ -280,8 +280,9 @@ class AzureActions:
                     "public_ip_address_version": "IPv4"
                 }
             )
-            ip_address = meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).ip_address
-            return ip_address
+            while meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).provisioning_state != 'Succeeded':
+                time.sleep(5)
+            return meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).ip_address
         except Exception as err:
             logging.info(
                 "Unable to create static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
