@@ -82,6 +82,7 @@ if __name__ == "__main__":
           json.dumps(dataproc_conf, sort_keys=True, indent=4, separators=(',', ': '))
     logging.info(json.dumps(dataproc_conf))
 
+    local('touch /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
     local("echo Waiting for changes to propagate; sleep 10")
 
     dataproc_cluster = json.loads(open('/root/templates/dataproc_cluster.json').read().decode('utf-8-sig'))
@@ -113,26 +114,26 @@ if __name__ == "__main__":
             raise Exception
 
         keyfile_name = "/root/keys/{}.pem".format(dataproc_conf['key_name'])
-        # local('rm /response/.dataproc_creating_' + os.environ['exploratory_name'])
+        local('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
         append_result("Failed to create Dataproc Cluster.", str(err))
-        # local('rm /response/.dataproc_creating_' + os.environ['exploratory_name'])
+        local('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
         sys.exit(1)
 
     try:
         logging.info('[SUMMARY]')
         print '[SUMMARY]'
-        print "Service base name: " + dataproc_conf['service_base_name']
-        print "Cluster name: " + dataproc_conf['cluster_name']
-        print "Key name: " + dataproc_conf['key_name']
-        print "Region: " + dataproc_conf['region']
-        print "Zone: " + dataproc_conf['zone']
-        print "Subnet: " + dataproc_conf['subnet']
-        print "Dataproc version: " + dataproc_conf['release_label']
-        print "Dataproc master node shape: " + os.environ['dataproc_master_instance_type']
-        print "Dataproc slave node shape: " + os.environ['dataproc_slave_instance_type']
-        print "Instance count: " + os.environ['dataproc_instance_count']
-        # print "Notebook IP address: " + dataproc_conf['notebook_ip']
+        print "Service base name: {}".format(dataproc_conf['service_base_name'])
+        print "Cluster name: {}".format(dataproc_conf['cluster_name'])
+        print "Key name: {}".format(dataproc_conf['key_name'])
+        print "Region: {}".format(dataproc_conf['region'])
+        print "Zone: {}".format(dataproc_conf['zone'])
+        print "Subnet: {}".format(dataproc_conf['subnet'])
+        print "Dataproc version: {}".format(dataproc_conf['release_label'])
+        print "Dataproc master node shape: {}".format(os.environ['dataproc_master_instance_type'])
+        print "Dataproc slave node shape: {}".format(os.environ['dataproc_slave_instance_type'])
+        print "Instance count: {}".format(os.environ['dataproc_instance_count'])
+        print "Notebook hostname: {}".format(os.environ['notebook_instance_name'])
         print "Bucket name: " + dataproc_conf['bucket_name']
         with open("/root/result.json", 'w') as result:
             res = {"hostname": dataproc_conf['cluster_name'],

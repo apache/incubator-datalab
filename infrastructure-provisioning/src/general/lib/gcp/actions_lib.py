@@ -689,6 +689,9 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
             sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/{0} -O /tmp/{0}'
                  .format('gcs-connector-latest-hadoop2.jar'))
             sudo('mv /tmp/{0} /opt/jars/'.format('gcs-connector-latest-hadoop2.jar'))
+            put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
+            sudo('sed -i "s|GCP_PROJECT_ID|{}|g" /tmp/core-site.xml'.format(os.environ['gcp_project_id']))
+            sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             if os.environ['application'] == 'zeppelin':
                 sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')

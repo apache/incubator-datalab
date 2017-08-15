@@ -219,7 +219,7 @@ if __name__ == "__main__":
     ensure_python3_libraries(args.os_user)
     ensure_python3_specific_version(python3_version, args.os_user)
 
-    if args.multiple_emrs == 'true':
+    if args.multiple_dataengine_services == 'true':
         print "Installing Livy for local kernels"
         install_local_livy(args)
         print "Configuring local kernels"
