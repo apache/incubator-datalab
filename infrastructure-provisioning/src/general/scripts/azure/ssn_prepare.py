@@ -39,8 +39,8 @@ if __name__ == "__main__":
     pre_defined_sg = False
     ssn_conf = dict()
     ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
-    ssn_conf['vpc_name'] = os.environ['conf_service_base_name'] + 'ssn-vpc'
-    ssn_conf['subnet_name'] = os.environ['conf_service_base_name'] + 'ssn-subnet'
+    ssn_conf['vpc_name'] = os.environ['conf_service_base_name'] + '-ssn-vpc'
+    ssn_conf['subnet_name'] = os.environ['conf_service_base_name'] + '-ssn-subnet'
     ssn_conf['region'] = os.environ['azure_region']
     ssn_conf['vpc_cidr'] = '10.10.0.0/16'
     ssn_conf['subnet_prefix'] = '20'
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --region {} --vpc_name {} --network_interface_name {} --subnet_name {} --service_base_name {} --user_name {} --public_ip_name {} --public_key '{}' --primary_disk_size {}".\
+        params = "--instance_name {} --region {} --vpc_name {} --network_interface_name {} --subnet_name {} --service_base_name {} --user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {}".\
             format(ssn_conf['instance_name'], ssn_conf['region'], os.environ['azure_vpc_name'],
                    ssn_conf['network_interface_name'], os.environ['azure_subnet_name'], ssn_conf['service_base_name'],
                    initial_user, ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '30')
