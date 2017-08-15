@@ -41,7 +41,7 @@ if __name__ == "__main__":
         os.environ['exploratory_name']
     except:
         os.environ['exploratory_name'] = ''
-    if os.path.exists('/response/.emr_creating_' + os.environ['exploratory_name']):
+    if os.path.exists('/response/.emr_creating_{}'.format(os.environ['exploratory_name'])):
         time.sleep(30)
     create_aws_config_files()
     edge_status = get_instance_status(os.environ['conf_service_base_name'] + '-Tag',
@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     try:
         emr_waiter(os.environ['notebook_instance_name'])
-        local('touch /response/.emr_creating_' + os.environ['exploratory_name'])
+        local('touch /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
         traceback.print_exc()
         append_result("EMR waiter fail.", str(err))
@@ -133,10 +133,10 @@ if __name__ == "__main__":
 
         cluster_name = emr_conf['cluster_name']
         keyfile_name = "/root/keys/{}.pem".format(emr_conf['key_name'])
-        local('rm /response/.emr_creating_' + os.environ['exploratory_name'])
+        local('rm /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
         append_result("Failed to create EMR Cluster.", str(err))
-        local('rm /response/.emr_creating_' + os.environ['exploratory_name'])
+        local('rm /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
         emr_id = get_emr_id_by_name(emr_conf['cluster_name'])
         terminate_emr(emr_id)
         sys.exit(1)
