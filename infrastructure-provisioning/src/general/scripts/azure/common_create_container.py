@@ -41,19 +41,19 @@ if __name__ == "__main__":
             print "Creating storage account {}.".format(args.account_name)
             storage_account = AzureActions().create_storage_account(args.resource_group_name, args.account_name,
                                                                     args.region)
-            # while AzureMeta().get_storage_account(args.resource_group_name,
-            #                                      args.account_name).provisioning_state._value_ != "Succeeded":
-            time.sleep(50)
+            while AzureMeta().get_storage_account(args.resource_group_name,
+                                                args.account_name).provisioning_state._value_ != "Succeeded":
+                time.sleep(5)
 
             blob_container = AzureActions().create_blob_container(args.resource_group_name, args.account_name,
                                                                   args.container_name)
-            print "STORAGE ACCOUNT {} has been created".format(storage_account)
-            print "CONTAINER {} has been created".format(blob_container)
+            print "STORAGE ACCOUNT {} has been created".format(args.account_name)
+            print "CONTAINER {} has been created".format(args.container_name)
             if args.shared_container_name != '':
                 shared_blob_container = AzureActions().create_blob_container(args.resource_group_name,
                                                                              args.account_name,
                                                                              args.shared_container_name)
-                print "SHARED CONTAINER {} has been created".format(shared_blob_container)
+                print "SHARED CONTAINER {} has been created".format(args.shared_container_name)
         else:
             print "STORAGE ACCOUNT with name {} could not be created. ".format(args.account_name), check.message
             sys.exit(1)
