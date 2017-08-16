@@ -36,6 +36,7 @@ COPY general/templates/os/r_dataengine-service_template.json /root/templates/
 COPY general/templates/os/r_template.json /root/templates/
 COPY general/templates/os/run_template.sh /root/templates/
 COPY general/templates/os/toree_dataengine-service_* /root/templates/
+COPY general/templates/os/core-site.xml /root/templates/
 COPY general/files/os/toree-assembly-0.2.0.jar /root/files/
 COPY general/files/os/toree_kernel.tar.gz /root/files/
 

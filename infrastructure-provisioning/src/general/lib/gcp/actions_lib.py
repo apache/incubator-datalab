@@ -31,6 +31,7 @@ import logging
 import traceback
 import sys, time
 from Crypto.PublicKey import RSA
+from fabric.api import *
 
 
 class GCPActions:
@@ -572,9 +573,9 @@ class GCPActions:
     def get_from_bucket(self, bucket_name, dest_file, local_file):
         try:
             bucket = self.storage_client.get_bucket(bucket_name)
-            blob = bucket.blob(local_file)
+            blob = bucket.blob(dest_file)
             if blob.exists():
-                blob.download_to_filename(dest_file)
+                blob.download_to_filename(local_file)
                 return True
             else:
                 return False
@@ -681,14 +682,80 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
             return ''
 
+    def get_cluster_app_version(self, bucket, user_name, cluster_name, application):
+        try:
+            version_file = '{0}/{1}/{2}_version'.format(user_name, cluster_name, application)
+            if GCPActions().get_from_bucket(bucket, version_file, '/tmp/{}_version'.format(application)):
+                version = local('cat /tmp/{}_version'.format(application))
+                return version
+            else:
+                raise Exception
+        except Exception as err:
+            logging.info(
+                "Unable to get software version: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to get software version",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def jars(self, args, dataproc_dir):
+        print "Downloading jars..."
+        GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars.tar.gz'.format(args.cluster_name), '/tmp/jars.tar.gz')
+        GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars-checksum.chk'.format(args.cluster_name), '/tmp/jars-checksum.chk')
+        if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
+            local('rm -f /tmp/jars.tar.gz')
+            GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars.tar.gz'.format(args.cluster_name), '/tmp/jars.tar.gz')
+            if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
+                print "The checksum of jars.tar.gz is mismatched. It could be caused by gcp network issue."
+                sys.exit(1)
+        local('tar -zhxvf /tmp/jars.tar.gz -C {}'.format(dataproc_dir))
+
+    def yarn(self, args, yarn_dir):
+        bucket = self.storage_client.get_bucket(args.bucket)
+        list_files = bucket.list_blobs()
+        for item in list_files:
+            GCPActions().get_from_bucket(args.bucket, '{0}/{1}/config/{2}'.format(args.user_name, args.cluster_name, item.name))
+        local('sudo mv {0}{1}/{2}/config/* {0}'.format(yarn_dir, args.user_name, args.cluster_name ))
+        local('sudo rm -rf {0}{1}/'.format(yarn_dir, args.user_name))
+
+    def install_dataproc_spark(self, args):
+        print "Downloading jars..."
+        GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark.tar.gz'.format(args.user_name, args.cluster_name), '/tmp/spark.tar.gz')
+        GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark-checksum.chk'.format(args.user_name, args.cluster_name), '/tmp/spark-checksum.chk')
+        if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
+            local('rm -f /tmp/spark.tar.gz')
+            GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark.tar.gz'.format(args.user_name, args.cluster_name), '/tmp/spark.tar.gz')
+            if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
+                print "The checksum of spark.tar.gz is mismatched. It could be caused by gcp network issue."
+                sys.exit(1)
+        local('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/{0}/{1}/'.format(args.cluster_version, args.cluster_name))
+
+    def spark_defaults(self, args):
+        spark_def_path = '/opt/{0}/{1}/spark/conf/spark-defaults.conf'.format(args.dataproc_version, args.cluster_name)
+        for i in eval(args.excluded_lines):
+            local(""" sudo bash -c " sed -i '/""" + i + """/d' """ + spark_def_path + """ " """)
+        local(""" sudo bash -c " sed -i '/#/d' """ + spark_def_path + """ " """)
+        local(""" sudo bash -c " sed -i '/^\s*$/d' """ + spark_def_path + """ " """)
+        local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/,/spark.driver.extraLibraryPath/s|/usr|/opt/DATAENGINE-SERVICE_VERSION/jars/usr|g' """ + spark_def_path + """ " """)
+        local(""" sudo bash -c "sed -i '/spark.yarn.dist.files/s/\/etc\/spark\/conf/\/opt\/DATAENGINE-SERVICE_VERSION\/CLUSTER\/conf/g' """
+            + spark_def_path + """ " """)
+        template_file = spark_def_path
+        with open(template_file, 'r') as f:
+            text = f.read()
+        text = text.replace('DATAENGINE-SERVICE_VERSION', args.dataproc_version)
+        text = text.replace('CLUSTER', args.cluster_name)
+        with open(spark_def_path, 'w') as f:
+            f.write(text)
+
 
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user)):
         try:
             sudo('mkdir -p {}'.format(jars_dir))
-            sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/{0} -O /tmp/{0}'
-                 .format('gcs-connector-latest-hadoop2.jar'))
-            sudo('mv /tmp/{0} /opt/jars/'.format('gcs-connector-latest-hadoop2.jar'))
+            sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/{0} -O {1}{0}'
+                 .format('gcs-connector-latest-hadoop2.jar', jars_dir))
             put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
             sudo('sed -i "s|GCP_PROJECT_ID|{}|g" /tmp/core-site.xml'.format(os.environ['gcp_project_id']))
             sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
@@ -699,3 +766,9 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
             sudo('touch /home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user))
         except:
             sys.exit(1)
+
+def get_cluster_python_version(region, bucket, user_name, cluster_name):
+    try:
+        return GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
+    except:
+        sys.exit(1)

@@ -1060,54 +1060,6 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
               ' /usr/bin/python' + python_version[0:3])
 
 
-def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_version, bucket, user_name, region, os_user='',
-                   application='', pip_mirror=''):
-    spark_path = '/opt/' + dataengine_service_version + '/' + cluster_name + '/spark/'
-    local('mkdir -p ' + kernels_dir + 'pyspark_' + cluster_name + '/')
-    kernel_path = kernels_dir + "pyspark_" + cluster_name + "/kernel.json"
-    template_file = "/tmp/pyspark_dataengine-service_template.json"
-    with open(template_file, 'r') as f:
-        text = f.read()
-    text = text.replace('CLUSTER_NAME', cluster_name)
-    text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
-    text = text.replace('SPARK_PATH', spark_path)
-    text = text.replace('PYTHON_SHORT_VERSION', '2.7')
-    text = text.replace('PYTHON_FULL_VERSION', '2.7')
-    text = text.replace('PYTHON_PATH', '/usr/bin/python2.7')
-    text = text.replace('DATAENGINE-SERVICE_VERSION', dataengine_service_version)
-    with open(kernel_path, 'w') as f:
-        f.write(text)
-    local('touch /tmp/kernel_var.json')
-    local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/caffe2/build:\"|\' > /tmp/kernel_var.json".
-          format(dataengine_service_version, cluster_name, kernel_path, os_user))
-    local('sudo mv /tmp/kernel_var.json ' + kernel_path)
-    get_cluster_python_version(region, bucket, user_name, cluster_name)
-    with file('/tmp/python_version') as f:
-        python_version = f.read()
-    # python_version = python_version[0:3]
-    if python_version != '\n':
-        installing_python(region, bucket, user_name, cluster_name, application, pip_mirror)
-        local('mkdir -p ' + kernels_dir + 'py3spark_' + cluster_name + '/')
-        kernel_path = kernels_dir + "py3spark_" + cluster_name + "/kernel.json"
-        template_file = "/tmp/pyspark_dataengine-service_template.json"
-        with open(template_file, 'r') as f:
-            text = f.read()
-        text = text.replace('CLUSTER_NAME', cluster_name)
-        text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
-        text = text.replace('SPARK_PATH', spark_path)
-        text = text.replace('PYTHON_SHORT_VERSION', python_version[0:3])
-        text = text.replace('PYTHON_FULL_VERSION', python_version[0:3])
-        text = text.replace('PYTHON_PATH', '/opt/python/python' + python_version[:5] + '/bin/python' +
-                            python_version[:3])
-        text = text.replace('DATAENGINE-SERVICE_VERSION', dataengine_service_version)
-        with open(kernel_path, 'w') as f:
-            f.write(text)
-        local('touch /tmp/kernel_var.json')
-        local("PYJ=`find /opt/{0}/{1}/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat {2} | sed 's|PY4J|'$PYJ'|g' | sed \'/PYTHONPATH\"\:/s|\(.*\)\"|\\1/home/{3}/caffe/python:/home/{3}/caffe2/build:\"|\' > /tmp/kernel_var.json".
-              format(dataengine_service_version, cluster_name, kernel_path, os_user))
-        local('sudo mv /tmp/kernel_var.json ' + kernel_path)
-
-
 def spark_defaults(args):
     spark_def_path = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/conf/spark-defaults.conf'
     for i in eval(args.excluded_lines):
