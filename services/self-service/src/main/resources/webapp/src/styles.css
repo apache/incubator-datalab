@@ -216,7 +216,7 @@ button {
 .terminating,
 .failed,
 .error {
-  color: #f1696e !important;
+  color: #f1696e;
 }
 
 .not-allowed {

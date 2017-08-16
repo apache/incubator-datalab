@@ -74,8 +74,8 @@ limitations under the License.
   color: #455c74;
   font-size: 18px;
 }
-.modal-header .glyphicon-warning-sign {
-  margin: 0 5px 0;
+.modal-header .modal-title i {
+  vertical-align: bottom;
 }
 
 .modal {
@@ -171,10 +171,6 @@ limitations under the License.
   margin-right: 8px;
   position: relative;
   top: 2px;
-}
-
-.glyphicon-question-sign {
-  font-size: 12px;
 }
 
 .modal .butt-file input[type=file] {
@@ -326,10 +322,6 @@ limitations under the License.
 
 .modal a {
   color: #35afd5;
-}
-
-.detail-dialog .glyphicon-question-sign {
-  margin-right: 5px;
 }
 
 .modal-content .danger_color {
