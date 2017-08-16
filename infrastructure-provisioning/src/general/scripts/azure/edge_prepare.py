@@ -33,33 +33,29 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    create_aws_config_files()
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['key_name'] = os.environ['conf_key_name']
     edge_conf['user_keyname'] = os.environ['edge_user_name']
-    edge_conf['public_subnet_id'] = os.environ['aws_subnet_id']
-    edge_conf['vpc_id'] = os.environ['aws_vpc_id']
-    edge_conf['region'] = os.environ['aws_region']
-    edge_conf['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
-    edge_conf['instance_size'] = os.environ['aws_edge_instance_size']
-    edge_conf['sg_ids'] = os.environ['aws_security_groups_ids']
+    edge_conf['vpc_name'] = os.environ['azure_vpc_name']
+    edge_conf['subnet_name'] = os.environ['azure_subnet_name']
+    edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nif'
+    edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-pub'
+    edge_conf['region'] = os.environ['azure_region']
+    edge_conf['vpc_cidr'] = '10.10.0.0/16'
+    edge_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
-    edge_conf['bucket_name'] = (edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
-    edge_conf['ssn_bucket_name'] = (edge_conf['service_base_name'] + "-ssn-bucket").lower().replace('_', '-')
-    edge_conf['shared_bucket_name'] = (edge_conf['service_base_name'] + "-shared-bucket").lower().replace('_', '-')
-    edge_conf['role_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Role'
-    edge_conf['role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Profile'
-    edge_conf['policy_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Policy'
-    edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-SG'
-    edge_conf['notebook_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
-    edge_conf['notebook_role_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Role'
-    edge_conf['notebook_policy_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Policy'
-    edge_conf['notebook_role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Profile'
-    edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb-SG'
-    edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
+    edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
+    edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ[
+        'edge_user_name'] + '-nb-sg'
+    edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name']).lower().\
+        replace('_', '-')
+    edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower().\
+        replace('_', '').replace('-', '')
+    ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+    key = RSA.importKey(open(ssh_key_path, 'rb').read())
+    edge_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
 
     # FUSE in case of absence of user's key
     fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
@@ -74,293 +70,382 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SUBNET]')
         print '[CREATE SUBNET]'
-        params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {}" \
-                 .format(edge_conf['vpc_id'], edge_conf['tag_name'], edge_conf['service_base_name'],
-                         os.environ['edge_user_name'], edge_conf['private_subnet_prefix'])
+        params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
+            format(edge_conf['service_base_name'], edge_conf['vpc_name'], edge_conf['region'], edge_conf['vpc_cidr'],
+                   edge_conf['subnet_name'], edge_conf['private_subnet_prefix'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        try:
+            AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+                                         edge_conf['subnet_name'])
+        except:
+            print "Subnet hasn't been created."
         append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
-    tag = {"Key": edge_conf['tag_name'], "Value": "{}-{}-subnet".format(edge_conf['service_base_name'], os.environ['edge_user_name'])}
-    edge_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
+    edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+                                                              edge_conf['subnet_name']).address_prefix
     print 'NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr'])
 
-    try:
-        logging.info('[CREATE EDGE ROLES]')
-        print '[CREATE EDGE ROLES]'
-        params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
-                 .format(edge_conf['role_name'], edge_conf['role_profile_name'],
-                         edge_conf['policy_name'], os.environ['aws_region'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_role_policy', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed to creating roles.", str(err))
-        sys.exit(1)
-
-    try:
-        logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
-        print '[CREATE BACKEND (NOTEBOOK) ROLES]'
-        params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
-                 .format(edge_conf['notebook_role_name'], edge_conf['notebook_role_profile_name'],
-                         edge_conf['notebook_policy_name'], os.environ['aws_region'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_role_policy', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed to creating roles.", str(err))
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        sys.exit(1)
+    # try:
+    #     logging.info('[CREATE EDGE ROLES]')
+    #     print '[CREATE EDGE ROLES]'
+    #     params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
+    #              .format(edge_conf['role_name'], edge_conf['role_profile_name'],
+    #                      edge_conf['policy_name'], os.environ['aws_region'])
+    #     try:
+    #         local("~/scripts/{}.py {}".format('common_create_role_policy', params))
+    #     except:
+    #         traceback.print_exc()
+    #         raise Exception
+    # except Exception as err:
+    #     append_result("Failed to creating roles.", str(err))
+    #     sys.exit(1)
+    #
+    # try:
+    #     logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
+    #     print '[CREATE BACKEND (NOTEBOOK) ROLES]'
+    #     params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
+    #              .format(edge_conf['notebook_role_name'], edge_conf['notebook_role_profile_name'],
+    #                      edge_conf['notebook_policy_name'], os.environ['aws_region'])
+    #     try:
+    #         local("~/scripts/{}.py {}".format('common_create_role_policy', params))
+    #     except:
+    #         traceback.print_exc()
+    #         raise Exception
+    # except Exception as err:
+    #     append_result("Failed to creating roles.", str(err))
+    #     remove_all_iam_resources('edge', os.environ['edge_user_name'])
+    #     sys.exit(1)
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
         print '[CREATE SECURITY GROUPS FOR EDGE]'
-        sg_rules_template = [
+        list_rules = [
             {
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "UserIdGroupPairs": [], "PrefixListIds": []
+                "name": "in-1",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound"
             },
             {
-                "PrefixListIds": [],
-                "FromPort": 22,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-                "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
+                "name": "in-2",
+                "protocol": "Tcp",
+                "source_port_range": "22",
+                "destination_port_range": "*",
+                "source_address_prefix": "0.0.0.0/0",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 101,
+                "direction": "Inbound"
+            },
+            {
+                "name": "out-1",
+                "protocol": "Tcp",
+                "source_port_range": "22",
+                "destination_port_range": "*",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-2",
+                "protocol": "Tcp",
+                "source_port_range": "8888",
+                "destination_port_range": "8888",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 101,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-3",
+                "protocol": "Tcp",
+                "source_port_range": "8080",
+                "destination_port_range": "8080",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 102,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-4",
+                "protocol": "Tcp",
+                "source_port_range": "8787",
+                "destination_port_range": "8787",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 103,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-5",
+                "protocol": "Tcp",
+                "source_port_range": "6006",
+                "destination_port_range": "6006",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 104,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-6",
+                "protocol": "Tcp",
+                "source_port_range": "20888",
+                "destination_port_range": "20888",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 105,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-7",
+                "protocol": "Tcp",
+                "source_port_range": "8088",
+                "destination_port_range": "8088",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 106,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-8",
+                "protocol": "Tcp",
+                "source_port_range": "18080",
+                "destination_port_range": "18080",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 107,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-9",
+                "protocol": "Tcp",
+                "source_port_range": "50070",
+                "destination_port_range": "50070",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 108,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-10",
+                "protocol": "Udp",
+                "source_port_range": "53",
+                "destination_port_range": "53",
+                "source_address_prefix": '0.0.0.0/0',
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 109,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-11",
+                "protocol": "Tcp",
+                "source_port_range": "80",
+                "destination_port_range": "80",
+                "source_address_prefix": '0.0.0.0/0',
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-12",
+                "protocol": "Tcp",
+                "source_port_range": "443",
+                "destination_port_range": "443",
+                "source_address_prefix": '0.0.0.0/0',
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 111,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-13",
+                "protocol": "Tcp",
+                "source_port_range": "8085",
+                "destination_port_range": "8085",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 112,
+                "direction": "Outbound"
             }
         ]
-        sg_rules_template_egress = [
-            {
-                "PrefixListIds": [],
-                "FromPort": 22,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8888,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 8888, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8080,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8787,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 8787, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 6006,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 6006, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 20888,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 20888, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8088,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 8088, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 18080,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 18080, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 50070,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 50070, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 53,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-                "ToPort": 53, "IpProtocol": "udp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 80,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-                "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 443,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 8085,
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "ToPort": 8085, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            }
-        ]
-        params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} --egress '{}' --force {} --nb_sg_name {} --resource {}".\
-            format(edge_conf['edge_security_group_name'], edge_conf['vpc_id'], json.dumps(sg_rules_template),
-                   edge_conf['service_base_name'], edge_conf['instance_name'], json.dumps(sg_rules_template_egress),
-                   True, edge_conf['notebook_instance_name'], 'edge')
+        params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'". \
+            format(edge_conf['service_base_name'], edge_conf['edge_security_group_name'], edge_conf['region'],
+                   json.dumps(list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except Exception as err:
+            AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+                                         edge_conf['subnet_name'])
+            try:
+                AzureActions().remove_security_group(edge_conf['service_base_name'],
+                                                     edge_conf['edge_security_group_name'])
+            except:
+                print "Edge Security group hasn't been created."
             traceback.print_exc()
             append_result("Failed creating security group for edge node.", str(err))
             raise Exception
-
-        with hide('stderr', 'running', 'warnings'):
-            print 'Waiting for changes to propagate'
-            time.sleep(10)
     except:
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
         sys.exit(1)
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
         print '[CREATE SECURITY GROUP FOR PRIVATE SUBNET]'
-        edge_group_id = check_security_group(edge_conf['edge_security_group_name'])
-        sg_list = edge_conf['sg_ids'].replace(" ", "").split(',')
-        rules_list = []
-        for i in sg_list:
-            rules_list.append({"GroupId": i})
-        ingress_sg_rules_template = [
-            {"IpProtocol": "-1", "IpRanges": [], "UserIdGroupPairs": [{"GroupId": edge_group_id}], "PrefixListIds": []},
-            #{"IpProtocol": "-1", "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['instance_name']).get('Private') + "/32"}], "UserIdGroupPairs": [], "PrefixListIds": []},
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}], "UserIdGroupPairs": [], "PrefixListIds": []},
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(edge_conf['service_base_name'])).get('Private') + "/32"}], "UserIdGroupPairs": [], "PrefixListIds": []}
-        ]
-        egress_sg_rules_template = [
-            {"IpProtocol": "-1", "IpRanges": [], "UserIdGroupPairs": [{"GroupId": edge_group_id}], "PrefixListIds": []},
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "PrefixListIds": []}
-        ]
-        params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}".\
-            format(edge_conf['notebook_security_group_name'], edge_conf['vpc_id'], json.dumps(ingress_sg_rules_template),
-                   json.dumps(egress_sg_rules_template), edge_conf['service_base_name'], edge_conf['notebook_instance_name'], True)
+        list_rules = [
+            {
+                "name": "in-1",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound"
+            },
+            {
+                "name": "in-2",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": '{}/32'.format(AzureMeta().get_instance_private_ip_address(
+                    edge_conf['service_base_name'], edge_conf['service_base_name'] + '-ssn')),
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 101,
+                "direction": "Inbound"
+            },
+            {
+                "name": "out-1",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-2",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "0.0.0.0/0",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 101,
+                "direction": "Outbound"
+            },
+            ]
+        params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'". \
+            format(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'], edge_conf['region'],
+                   json.dumps(list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
             traceback.print_exc()
             raise Exception
-
-        with hide('stderr', 'running', 'warnings'):
-            print 'Waiting for changes to propagate'
-            time.sleep(10)
     except Exception as err:
-        append_result("Failed creating security group for private subnet.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
+        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'], edge_conf['subnet_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
+        try:
+            AzureActions().remove_security_group(edge_conf['service_base_name'],
+                                                 edge_conf['notebook_security_group_name'])
+        except:
+            print "Notebook Security group hasn't been created."
         sys.exit(1)
 
     try:
-        logging.info('[CREATE BUCKETS]')
-        print('[CREATE BUCKETS]')
-        params = "--bucket_name {} --infra_tag_name {} --infra_tag_value {} --region {}" \
-                 .format(edge_conf['bucket_name'], edge_conf['tag_name'], edge_conf['bucket_name'],
-                  edge_conf['region'])
+        logging.info('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
+        print('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
+
+        params = "--container_name {} --account_name {} --resource_group_name {} --region {}". \
+            format(edge_conf['edge_container_name'], edge_conf['storage_account_name'], edge_conf['service_base_name'],
+                   edge_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+            local("~/scripts/{}.py {}".format('common_create_container', params))
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
         append_result("Failed to create bucket.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
+        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'], edge_conf['subnet_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
+        try:
+            AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
+        except:
+            print "Storage account hasn't been created."
         sys.exit(1)
 
-    try:
-        logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-        print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-        params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {}'.format(
-            edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], edge_conf['shared_bucket_name'], os.environ['edge_user_name'],
-            edge_conf['role_name'], edge_conf['notebook_role_name'],  edge_conf['service_base_name'], edge_conf['region'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_policy', params))
-        except:
-            traceback.print_exc()
-    except Exception as err:
-        append_result("Failed to create bucket policy.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
-        sys.exit(1)
+    # try:
+    #     logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
+    #     print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
+    #     params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {}'.format(
+    #         edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], edge_conf['shared_bucket_name'], os.environ['edge_user_name'],
+    #         edge_conf['role_name'], edge_conf['notebook_role_name'],  edge_conf['service_base_name'], edge_conf['region'])
+    #     try:
+    #         local("~/scripts/{}.py {}".format('common_create_policy', params))
+    #     except:
+    #         traceback.print_exc()
+    # except Exception as err:
+    #     append_result("Failed to create bucket policy.", str(err))
+    #     remove_all_iam_resources('notebook', os.environ['edge_user_name'])
+    #     remove_all_iam_resources('edge', os.environ['edge_user_name'])
+    #     remove_sgroups(edge_conf['notebook_instance_name'])
+    #     remove_sgroups(edge_conf['instance_name'])
+    #     remove_s3('edge', os.environ['edge_user_name'])
+    #     sys.exit(1)
+
+    if os.environ['conf_os_family'] == 'debian':
+        initial_user = 'ubuntu'
+        sudo_group = 'sudo'
+    if os.environ['conf_os_family'] == 'redhat':
+        initial_user = 'ec2-user'
+        sudo_group = 'wheel'
 
     try:
         logging.info('[CREATE EDGE INSTANCE]')
-        print '[CREATE EDGE INSTANCE]'
-        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} " \
-                 "--subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
-            .format(edge_conf['instance_name'], edge_conf['ami_id'], edge_conf['instance_size'], edge_conf['key_name'],
-                    edge_group_id, edge_conf['public_subnet_id'], edge_conf['role_profile_name'],
-                    edge_conf['tag_name'], edge_conf['instance_name'])
+        print('[CREATE EDGE INSTANCE]')
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {}".\
+            format(edge_conf['instance_name'], os.environ['azure_edge_instance_size'], edge_conf['region'],
+                   edge_conf['vpc_name'], edge_conf['network_interface_name'], edge_conf['edge_security_group_name'],
+                   edge_conf['subnet_name'], edge_conf['service_base_name'], initial_user,
+                   edge_conf['static_public_ip_name'], edge_conf['public_ssh_key'], '30')
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
             traceback.print_exc()
             raise Exception
-
     except Exception as err:
-        append_result("Failed to create instance.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
-        sys.exit(1)
-
-
-    try:
-        logging.info('[ASSOCIATING ELASTIC IP]')
-        print '[ASSOCIATING ELASTIC IP]'
-        edge_conf['edge_id'] = get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name'])
-        try:
-            edge_conf['elastic_ip'] = os.environ['edge_elastic_ip']
-        except:
-            edge_conf['elastic_ip'] = 'None'
-        params = "--elastic_ip {} --edge_id {}".format(edge_conf['elastic_ip'], edge_conf['edge_id'])
-        try:
-            local("~/scripts/{}.py {}".format('edge_associate_elastic_ip', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed to associate elastic ip.", str(err))
-        try:
-            edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
-            edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
-        except:
-            print "No Elastic IPs to release!"
-        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
+        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'], edge_conf['subnet_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
+        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        append_result("Failed to create instance. Exception:" + str(err))
         sys.exit(1)

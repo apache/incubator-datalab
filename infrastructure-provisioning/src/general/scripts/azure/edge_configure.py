@@ -34,27 +34,27 @@ if __name__ == "__main__":
 
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
+
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['key_name'] = os.environ['conf_key_name']
     edge_conf['user_keyname'] = os.environ['edge_user_name']
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
-    edge_conf['bucket_name'] = (edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
-    edge_conf['shared_bucket_name'] = (edge_conf['service_base_name'] + '-shared-bucket').lower().replace('_', '-')
-    edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-SG'
-    edge_conf['notebook_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
-    edge_conf['notebook_role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + \
-                                              os.environ['edge_user_name'] + '-nb-Profile'
-    edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + '-nb-SG'
-    tag = {"Key": edge_conf['tag_name'], "Value": "{}-{}-subnet".format(edge_conf['service_base_name'], os.environ['edge_user_name'])}
-    edge_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
-    edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
-    edge_conf['edge_private_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Private')
-    edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
+    edge_conf['container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name']).lower().\
+        replace('_', '-')
+    edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared').lower().replace('_', '')
+    edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
+    edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                                '-nb-sg'
+    edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+                                                              edge_conf['subnet_name']).address_prefix
+    edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['service_base_name'],
+                                                                   edge_conf['instance_name'])
+    edge_conf['edge_private_ip'] = AzureMeta().get_instance_private_ip_address(edge_conf['service_base_name'],
+                                                                               edge_conf['instance_name'])
     edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
 
-    instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
+    instance_hostname = AzureMeta().get_instance_public_ip_address(edge_conf['service_base_name'],
+                                                                   edge_conf['instance_name'])
     keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
 
     try:
@@ -78,19 +78,18 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed creating ssh user 'dlab'.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
+        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'], edge_conf['subnet_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
+        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
         sys.exit(1)
 
     try:
         print '[INSTALLING PREREQUISITES]'
         logging.info('[INSTALLING PREREQUISITES]')
         params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], os.environ['aws_region'])
+            format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], os.environ['azure_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -98,12 +97,11 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing apps: apt & pip.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
+        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'], edge_conf['subnet_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
+        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
         sys.exit(1)
 
     try:
@@ -120,12 +118,11 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing http proxy.", str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
+        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'], edge_conf['subnet_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
+        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
         sys.exit(1)
 
 
@@ -143,12 +140,11 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing users key. Excpeption: " + str(err))
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
+        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'], edge_conf['subnet_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
+        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
         sys.exit(1)
 
     try:
@@ -158,26 +154,22 @@ if __name__ == "__main__":
         print "Hostname: " + instance_hostname
         print "Public IP: " + edge_conf['edge_public_ip']
         print "Private IP: " + edge_conf['edge_private_ip']
-        print "Instance ID: " + get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name'])
         print "Key name: " + edge_conf['key_name']
-        print "Bucket name: " + edge_conf['bucket_name']
-        print "Shared bucket name: " + edge_conf['shared_bucket_name']
+        print "Container name: " + edge_conf['bucketcontainer_name_name']
+        print "Shared bucket name: " + edge_conf['shared_container_name']
         print "Notebook SG: " + edge_conf['notebook_security_group_name']
-        print "Notebook profiles: " + edge_conf['notebook_role_profile_name']
         print "Edge SG: " + edge_conf['edge_security_group_name']
         print "Notebook subnet: " + edge_conf['private_subnet_cidr']
         with open("/root/result.json", 'w') as result:
             res = {"hostname": instance_hostname,
                    "public_ip": edge_conf['edge_public_ip'],
                    "ip": edge_conf['edge_private_ip'],
-                   "instance_id": get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name']),
                    "key_name": edge_conf['key_name'],
-                   "user_own_bicket_name": edge_conf['bucket_name'],
-                   "shared_bucket_name": edge_conf['shared_bucket_name'],
+                   "user_own_bicket_name": edge_conf['container_name'],
+                   "shared_bucket_name": edge_conf['shared_container_name'],
                    "tunnel_port": "22",
                    "socks_port": "1080",
                    "notebook_sg": edge_conf['notebook_security_group_name'],
-                   "notebook_profile": edge_conf['notebook_role_profile_name'],
                    "edge_sg": edge_conf['edge_security_group_name'],
                    "notebook_subnet": edge_conf['private_subnet_cidr'],
                    "full_edge_conf": edge_conf,
