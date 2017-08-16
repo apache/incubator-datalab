@@ -436,7 +436,9 @@ class AzureActions:
                 interface_name,
                 {
                     "location": region,
-                    "network_security_group": security_group_id,
+                    "network_security_group": {
+                        "id": security_group_id
+                    },
                     "ip_configurations": ip_params
                 }
             )
