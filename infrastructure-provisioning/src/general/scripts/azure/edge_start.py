@@ -31,18 +31,15 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    # generating variables dictionary
-    create_aws_config_files()
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
 
     logging.info('[START EDGE]')
     print '[START EDGE]'
     try:
-        start_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+        AzureActions().start_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
     except Exception as err:
         append_result("Failed to start edge.", str(err))
         sys.exit(1)
@@ -51,21 +48,21 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
-        addresses = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name'])
-        ip_address = addresses.get('Private')
-        public_ip_address = addresses.get('Public')
+        public_ip_address = AzureMeta().get_instance_public_ip_address(edge_conf['service_base_name'],
+                                                                       edge_conf['instance_name'])
+        private_ip_address = AzureMeta().get_instance_private_ip_address(edge_conf['service_base_name'],
+                                                                         edge_conf['instance_name'])
         print '[SUMMARY]'
         logging.info('[SUMMARY]')
         print "Instance name: " + edge_conf['instance_name']
-        print "Hostname: " + instance_hostname
+        print "Hostname: " + public_ip_address
         print "Public IP: " + public_ip_address
-        print "Private IP: " + ip_address
+        print "Private IP: " + private_ip_address
         with open("/root/result.json", 'w') as result:
             res = {"instance_name": edge_conf['instance_name'],
-                   "hostname": instance_hostname,
+                   "hostname": public_ip_address,
                    "public_ip": public_ip_address,
-                   "ip": ip_address,
+                   "ip": private_ip_address,
                    "Action": "Start up notebook server"}
             print json.dumps(res)
             result.write(json.dumps(res))

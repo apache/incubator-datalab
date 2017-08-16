@@ -2,6 +2,5 @@
     "conf_resource": "edge",
     "request_id":"RID",
     "conf_service_base_name":"SBN",
-    "edge_user_name":"NUN",
-    "aws_region":"CREG"
+    "edge_user_name":"NUN"
 }
