@@ -49,7 +49,7 @@ if __name__ == "__main__":
     ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared').lower().replace('_', '')
     ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
     ssn_conf['network_interface_name'] = ssn_conf['service_base_name'] + '-ssn-nif'
-    ssn_conf['static_public_ip_name'] = ssn_conf['service_base_name'] + '-ssn-pub'
+    ssn_conf['static_public_ip_name'] = ssn_conf['service_base_name'] + '-ssn-ip'
     ssn_conf['security_group_name'] = ssn_conf['instance_name'] + '-SG'
     ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
     key = RSA.importKey(open(ssh_key_path, 'rb').read())
