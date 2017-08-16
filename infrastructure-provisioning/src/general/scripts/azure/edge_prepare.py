@@ -24,6 +24,7 @@ from dlab.meta_lib import *
 import sys, time, os
 from dlab.actions_lib import *
 import traceback
+from Crypto.PublicKey import RSA
 
 
 if __name__ == "__main__":
@@ -40,8 +41,9 @@ if __name__ == "__main__":
     edge_conf['user_keyname'] = os.environ['edge_user_name']
     edge_conf['vpc_name'] = os.environ['azure_vpc_name']
     edge_conf['subnet_name'] = os.environ['azure_subnet_name']
+    edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
     edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nif'
-    edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-pub'
+    edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-ip'
     edge_conf['region'] = os.environ['azure_region']
     edge_conf['vpc_cidr'] = '10.10.0.0/16'
     edge_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
@@ -72,7 +74,7 @@ if __name__ == "__main__":
         print '[CREATE SUBNET]'
         params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
             format(edge_conf['service_base_name'], edge_conf['vpc_name'], edge_conf['region'], edge_conf['vpc_cidr'],
-                   edge_conf['subnet_name'], edge_conf['private_subnet_prefix'])
+                   edge_conf['private_subnet_name'], edge_conf['private_subnet_prefix'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:
@@ -81,7 +83,7 @@ if __name__ == "__main__":
     except Exception as err:
         try:
             AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
-                                         edge_conf['subnet_name'])
+                                         edge_conf['private_subnet_name'])
         except:
             print "Subnet hasn't been created."
         append_result("Failed to create subnet.", str(err))
@@ -124,7 +126,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
-        print '[CREATE SECURITY GROUPS FOR EDGE]'
+        print '[CREATE SECURITY GROUP FOR EDGE]'
         list_rules = [
             {
                 "name": "in-1",
@@ -299,7 +301,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except Exception as err:
             AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
-                                         edge_conf['subnet_name'])
+                                         edge_conf['private_subnet_name'])
             try:
                 AzureActions().remove_security_group(edge_conf['service_base_name'],
                                                      edge_conf['edge_security_group_name'])
@@ -370,7 +372,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'], edge_conf['subnet_name'])
+        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+                                     edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
         try:
             AzureActions().remove_security_group(edge_conf['service_base_name'],
@@ -393,7 +396,8 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to create bucket.", str(err))
-        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'], edge_conf['subnet_name'])
+        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+                                     edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
         try:
@@ -442,7 +446,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'], edge_conf['subnet_name'])
+        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+                                     edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])

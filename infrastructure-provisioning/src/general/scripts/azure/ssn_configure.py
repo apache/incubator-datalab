@@ -52,7 +52,7 @@ if __name__ == "__main__":
         ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
         # ssn_conf['subnet_cidr'] = '10.10.1.0/24'
-        ssn_conf['security_group_name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
+        ssn_conf['security_group_name'] = ssn_conf['service_base_name'] + '-ssn-sg'
         ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         # ssn_conf['service_account_name'] = ssn_conf['service_base_name'] + '-ssn-sa'
