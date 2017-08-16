@@ -367,6 +367,9 @@ class AzureActions:
     def stop_instance(self, resource_group_name, instance_name):
         try:
             result = self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name)
+            while meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).provisioning_state != "Succeeded":
+                time.sleep(5)
+                print "Instance {} is being deallocated...".format(instance_name)
             return result
         except Exception as err:
             logging.info(
@@ -379,6 +382,9 @@ class AzureActions:
     def start_instance(self, resource_group_name, instance_name):
         try:
             result = self.compute_client.virtual_machines.start(resource_group_name, instance_name)
+            while meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).provisioning_state != "Succeeded":
+                time.sleep(5)
+                print "Instance {} is being started...".format(instance_name)
             return result
         except Exception as err:
             logging.info(
@@ -391,6 +397,9 @@ class AzureActions:
     def remove_instance(self, resource_group_name, instance_name):
         try:
             result = self.compute_client.virtual_machines.delete(resource_group_name, instance_name)
+            while meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).provisioning_state != "Succeeded":
+                time.sleep(5)
+                print "Instance {} is being terminated...".format(instance_name)
             return result
         except Exception as err:
             logging.info(

@@ -31,18 +31,15 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    # generating variables dictionary
-    create_aws_config_files()
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
 
     logging.info('[STOP EDGE]')
     print '[STOP EDGE]'
     try:
-        stop_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+        AzureActions().stop_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
     except Exception as err:
         append_result("Failed to stop edge.", str(err))
         sys.exit(1)
