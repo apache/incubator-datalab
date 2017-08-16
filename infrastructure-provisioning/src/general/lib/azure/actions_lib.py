@@ -400,11 +400,13 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, public_ip_name="None"):
+    def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, security_group_name,
+                          public_ip_name="None"):
         try:
             subnet_cidr = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
             private_ip = meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr).available_ip_addresses[0]
             subnet_id = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).id
+            security_group_id = meta_lib.AzureMeta().get_security_group(resource_group_name, security_group_name).id
             if public_ip_name == "None":
                 ip_params = [{
                     "name": interface_name,
@@ -434,6 +436,7 @@ class AzureActions:
                 interface_name,
                 {
                     "location": region,
+                    "network_security_group": security_group_id,
                     "ip_configurations": ip_params
                 }
             )

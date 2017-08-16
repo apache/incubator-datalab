@@ -50,7 +50,7 @@ if __name__ == "__main__":
     ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
     ssn_conf['network_interface_name'] = ssn_conf['service_base_name'] + '-ssn-nif'
     ssn_conf['static_public_ip_name'] = ssn_conf['service_base_name'] + '-ssn-pub'
-    ssn_conf['security_groups_name'] = ssn_conf['instance_name'] + '-SG'
+    ssn_conf['security_group_name'] = ssn_conf['instance_name'] + '-SG'
     ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
     key = RSA.importKey(open(ssh_key_path, 'rb').read())
     ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
@@ -135,7 +135,7 @@ if __name__ == "__main__":
             sys.exit(1)
 
     try:
-        if os.environ['azure_security_groups_name'] == '':
+        if os.environ['azure_security_group_name'] == '':
             raise KeyError
     except KeyError:
         pre_defined_sg = True
@@ -189,14 +189,14 @@ if __name__ == "__main__":
                 }
             ]
             params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".\
-                format(ssn_conf['service_base_name'], ssn_conf['security_groups_name'], ssn_conf['region'],
+                format(ssn_conf['service_base_name'], ssn_conf['security_group_name'], ssn_conf['region'],
                        json.dumps(list_rules))
             try:
                 local("~/scripts/{}.py {}".format('common_create_security_group', params))
             except:
                 traceback.print_exc()
                 raise Exception
-            os.environ['azure_security_groups_name'] = ssn_conf['security_groups_name']
+            os.environ['azure_security_group_name'] = ssn_conf['security_group_name']
         except Exception as err:
             if pre_defined_resource_group:
                 AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
@@ -224,7 +224,7 @@ if __name__ == "__main__":
             AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
         if pre_defined_sg:
-            AzureActions().remove_security_group(ssn_conf['service_base_name'], ssn_conf['security_groups_name'])
+            AzureActions().remove_security_group(ssn_conf['service_base_name'], ssn_conf['security_group_name'])
         try:
             AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
         except:
@@ -242,10 +242,10 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --subnet_name {} --service_base_name {} --user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {}".\
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {}".\
             format(ssn_conf['instance_name'], os.environ['azure_ssn_instance_size'], ssn_conf['region'], os.environ['azure_vpc_name'],
-                   ssn_conf['network_interface_name'], os.environ['azure_subnet_name'], ssn_conf['service_base_name'],
-                   initial_user, ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '30')
+                   ssn_conf['network_interface_name'], os.environ['azure_security_group_name'], os.environ['azure_subnet_name'],
+                   ssn_conf['service_base_name'], initial_user, ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '30')
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -258,7 +258,7 @@ if __name__ == "__main__":
             AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
         if pre_defined_sg:
-            AzureActions().remove_security_group(ssn_conf['service_base_name'], ssn_conf['security_groups_name'])
+            AzureActions().remove_security_group(ssn_conf['service_base_name'], ssn_conf['security_group_name'])
         AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
         try:
             AzureActions().remove_instance(ssn_conf['service_base_name'], ssn_conf['instance_name'])
