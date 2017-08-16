@@ -74,7 +74,7 @@ limitations under the License.
 
 .dropdown-multiselect .dropdown-menu a {
   padding: 10px;
-  padding-left: 40px;
+  padding-left: 45px;
   position: relative;
   font-weight: 300;
 }
@@ -112,7 +112,7 @@ limitations under the License.
 
 .dropdown-multiselect .dropdown-menu a span {
   position: absolute;
-  top: 10px;
+  top: 8px;
   left: 12px;
   color: #35afd5;
 }
