@@ -49,14 +49,14 @@ if __name__ == "__main__":
     edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
                                                 '-nb-sg'
     edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
-                                                              edge_conf['subnet_name']).address_prefix
+                                                              edge_conf['private_subnet_name']).address_prefix
     edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['service_base_name'],
                                                                    edge_conf['instance_name'])
     edge_conf['edge_private_ip'] = AzureMeta().get_instance_private_ip_address(edge_conf['service_base_name'],
                                                                                edge_conf['instance_name'])
     edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
 
-    instance_hostname = AzureMeta().get_instance_public_ip_address(edge_conf['service_base_name'],
+    instance_hostname = AzureMeta().get_instance_private_ip_address(edge_conf['service_base_name'],
                                                                    edge_conf['instance_name'])
     keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
 
