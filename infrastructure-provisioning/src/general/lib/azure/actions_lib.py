@@ -167,7 +167,7 @@ class AzureActions:
                 )
                 while meta_lib.AzureMeta().get_security_group_rule(resource_group_name, network_security_group_name,
                                                                    rule['name']).provisioning_state != 'Succeeded':
-                    time.sleep(5)
+                    time.sleep(2)
             return result
         except Exception as err:
             logging.info(
