@@ -274,8 +274,8 @@ if __name__ == "__main__":
             {
                 "name": "out-12",
                 "protocol": "Tcp",
-                "source_port_range": "443",
-                "destination_port_range": "443",
+                "source_port_range": "22",
+                "destination_port_range": "22",
                 "source_address_prefix": '0.0.0.0/0',
                 "destination_address_prefix": "*",
                 "access": "Allow",
@@ -285,12 +285,23 @@ if __name__ == "__main__":
             {
                 "name": "out-13",
                 "protocol": "Tcp",
+                "source_port_range": "443",
+                "destination_port_range": "443",
+                "source_address_prefix": '0.0.0.0/0',
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 112,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-14",
+                "protocol": "Tcp",
                 "source_port_range": "8085",
                 "destination_port_range": "8085",
                 "source_address_prefix": edge_conf['private_subnet_cidr'],
                 "destination_address_prefix": "*",
                 "access": "Allow",
-                "priority": 112,
+                "priority": 113,
                 "direction": "Outbound"
             }
         ]
