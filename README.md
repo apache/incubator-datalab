@@ -821,6 +821,7 @@ Self-Service provides REST based API’s. It tightly interacts with Provisioning
 | InfrastructureProvisionResource | Get user provisioning resources<br>Get computation resources templates<br>Get exploratory environment templates | Used for propagating the list of provisioned resources per user. |
 | ExploratoryResource             | Create<br>Status<br>Start<br>Stop<br>Terminate      | Used for exploratory environment management. |
 | ComputationalResource           | Limits<br>Create<br>Status<br>Terminate             | Used for computational resources management. |
+| BillingResource                 | Get billing invoice<br>Export billing invoice in CSV file  | Provides billing information. |
 
 #### Provisioning Service
 

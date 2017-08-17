@@ -294,7 +294,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.GIT_CREDS, '/api/user/git_creds');
 
     // billing report
-    this.requestRegistry.Add(ApplicationServiceFacade.BILLING, '/api/infrastructure_provision/billing');
+    this.requestRegistry.Add(ApplicationServiceFacade.BILLING, '/api/billing/report');
   }
 
   private buildRequest(method: RequestMethod, url: string, body: any, opt: RequestOptions): Observable<Response> {
