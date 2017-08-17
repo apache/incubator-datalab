@@ -106,6 +106,22 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_security_group_rule(self, resource_group_name, network_security_group_name, rule_name):
+        try:
+            result = self.network_client.security_rules.get(resource_group_name, network_security_group_name,
+                                                            rule_name)
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get Security Group rule: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Security Group rule",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def list_subnets(self, resource_group_name, vpc_name):
         try:
             result = self.network_client.subnets.list(resource_group_name, vpc_name)
