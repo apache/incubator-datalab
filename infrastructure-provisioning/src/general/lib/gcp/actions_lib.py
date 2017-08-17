@@ -686,8 +686,9 @@ class GCPActions:
         try:
             version_file = '{0}/{1}/{2}_version'.format(user_name, cluster_name, application)
             if GCPActions().get_from_bucket(bucket, version_file, '/tmp/{}_version'.format(application)):
-                version = local('cat /tmp/{}_version'.format(application))
-                return version
+                with file('/tmp/{}_version'.format(application)) as f:
+                    version = f.read()
+                return version[0:5]
             else:
                 raise Exception
         except Exception as err:
@@ -702,8 +703,8 @@ class GCPActions:
 
     def jars(self, args, dataproc_dir):
         print "Downloading jars..."
-        GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars.tar.gz'.format(args.cluster_name), '/tmp/jars.tar.gz')
-        GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars-checksum.chk'.format(args.cluster_name), '/tmp/jars-checksum.chk')
+        GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars.tar.gz'.format(args.dataproc_version), '/tmp/jars.tar.gz')
+        GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars-checksum.chk'.format(args.dataproc_version), '/tmp/jars-checksum.chk')
         if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
             local('rm -f /tmp/jars.tar.gz')
             GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars.tar.gz'.format(args.cluster_name), '/tmp/jars.tar.gz')
@@ -713,15 +714,18 @@ class GCPActions:
         local('tar -zhxvf /tmp/jars.tar.gz -C {}'.format(dataproc_dir))
 
     def yarn(self, args, yarn_dir):
+        print "Downloading yarn configuration..."
         bucket = self.storage_client.get_bucket(args.bucket)
-        list_files = bucket.list_blobs()
+        list_files = bucket.list_blobs(prefix='{0}/{1}/config/'.format(args.user_name, args.cluster_name))
+        local('mkdir -p /tmp/{0}/{1}/config/'.format(args.user_name, args.cluster_name))
         for item in list_files:
-            GCPActions().get_from_bucket(args.bucket, '{0}/{1}/config/{2}'.format(args.user_name, args.cluster_name, item.name))
-        local('sudo mv {0}{1}/{2}/config/* {0}'.format(yarn_dir, args.user_name, args.cluster_name ))
-        local('sudo rm -rf {0}{1}/'.format(yarn_dir, args.user_name))
+            local_file = '/tmp/{0}/{1}/config/{2}'.format(args.user_name, args.cluster_name, item.name.split("/")[-1:][0])
+            GCPActions().get_from_bucket(args.bucket, item.name, local_file)
+        local('sudo mv /tmp/{0}/{1}/config/* {2}'.format(args.user_name, args.cluster_name, yarn_dir))
+        local('sudo rm -rf /tmp/{}'.format(args.user_name))
 
     def install_dataproc_spark(self, args):
-        print "Downloading jars..."
+        print "Installing spark..."
         GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark.tar.gz'.format(args.user_name, args.cluster_name), '/tmp/spark.tar.gz')
         GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark-checksum.chk'.format(args.user_name, args.cluster_name), '/tmp/spark-checksum.chk')
         if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
@@ -749,6 +753,44 @@ class GCPActions:
         with open(spark_def_path, 'w') as f:
             f.write(text)
 
+    def install_python(self, bucket, user_name, cluster_name, application):
+        try:
+            GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
+            with file('/tmp/python_version') as f:
+                python_version = f.read()
+            python_version = python_version[0:5]
+            if not os.path.exists('/opt/python/python{}'.format(python_version)):
+                local('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz -O /tmp/Python-{0}.tgz'.format(python_version))
+                local('tar zxvf /tmp/Python-{}.tgz -C /tmp/'.format(python_version))
+                with lcd('/tmp/Python-{}'.format(python_version)):
+                    local('./configure --prefix=/opt/python/python{} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install'.format(python_version))
+                    local('sudo make altinstall')
+                with lcd('/tmp/'):
+                    local('sudo rm -rf Python-{}/'.format(python_version))
+                local('sudo -i virtualenv /opt/python/python{}'.format(python_version))
+                venv_command = '/bin/bash /opt/python/python{}/bin/activate'.format(python_version)
+                pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
+                local('{0} && sudo -i {1} install -U pip --no-cache-dir'.format(venv_command, pip_command))
+                local('{0} && sudo -i {1} install ipython ipykernel --no-cache-dir'.format(venv_command, pip_command))
+                local('{0} && sudo -i {1} install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'
+                      .format(venv_command, pip_command))
+                if application == 'deeplearning':
+                    local('{0} && sudo -i {1} install mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(venv_command, pip_command))
+                    python_without_dots = python_version.replace('.', '')
+                    local('{0} && sudo -i {1} install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{2}-cp{2}m-linux_x86_64.whl --no-cache-dir'
+                          .format(venv_command, pip_command, python_without_dots[:2]))
+                local('sudo rm -rf /usr/bin/python{}'.format(python_version[0:3]))
+                local('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}'.format(python_version, python_version[0:3]))
+        except Exception as err:
+            logging.info(
+                "Unable to install python: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to install python",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
 
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user)):
@@ -769,6 +811,12 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
 
 def get_cluster_python_version(region, bucket, user_name, cluster_name):
     try:
-        return GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
+        GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
+    except:
+        sys.exit(1)
+
+def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror=''):
+    try:
+        GCPActions.install_python(bucket, user_name, cluster_name, application)
     except:
         sys.exit(1)
