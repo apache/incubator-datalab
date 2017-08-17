@@ -306,9 +306,30 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_instance(self, region, instance_size, service_base_name, instance_name, user_name, public_key,
-                        network_interface_resource_id, resource_group_name, primary_disk_size):
+    def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
+                        network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
+                        user_name=''):
         try:
+            if instance_type == 'ssn':
+                os_disk = {
+                    'os_type': 'Linux',
+                    'name': '{}-primary-disk'.format(service_base_name),
+                    'create_option': 'fromImage',
+                    'disk_size_gb': int(primary_disk_size),
+                    'managed_disk': {
+                        'storage_account_type': 'Premium_LRS'
+                    }
+                }
+            elif instance_type == 'edge':
+                os_disk = {
+                    'os_type': 'Linux',
+                    'name': '{}-{}-primary-disk'.format(service_base_name, user_name),
+                    'create_option': 'fromImage',
+                    'disk_size_gb': int(primary_disk_size),
+                    'managed_disk': {
+                        'storage_account_type': 'Premium_LRS'
+                    }
+                }
             parameters = {
                 'location': region,
                 'hardware_profile': {
@@ -321,24 +342,16 @@ class AzureActions:
                         'sku': '16.04-LTS',
                         'version': 'latest'
                     },
-                    'os_disk': {
-                        'os_type': 'Linux',
-                        'name': '{}-primary-disk'.format(service_base_name),
-                        'create_option': 'fromImage',
-                        'disk_size_gb': int(primary_disk_size),
-                        'managed_disk': {
-                            'storage_account_type': 'Premium_LRS'
-                        }
-                    }
+                    'os_disk': os_disk
                 },
                 'os_profile': {
                     'computer_name': instance_name,
-                    'admin_username': user_name,
+                    'admin_username': dlab_ssh_user_name,
                     'linux_configuration': {
                         'disable_password_authentication': True,
                         'ssh': {
                             'public_keys': [{
-                                'path': '/home/{}/.ssh/authorized_keys'.format(user_name),
+                                'path': '/home/{}/.ssh/authorized_keys'.format(dlab_ssh_user_name),
                                 'key_data': public_key
                             }]
                         }

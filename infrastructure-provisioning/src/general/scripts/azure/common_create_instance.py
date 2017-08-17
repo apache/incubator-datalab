@@ -33,11 +33,13 @@ parser.add_argument('--vpc_name', type=str, default='')
 parser.add_argument('--network_interface_name', type=str, default='')
 parser.add_argument('--subnet_name', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
-parser.add_argument('--user_name', type=str, default='')
+parser.add_argument('--dlab_ssh_user_name', type=str, default='')
 parser.add_argument('--public_ip_name', type=str, default='')
 parser.add_argument('--public_key', type=str, default='')
 parser.add_argument('--primary_disk_size', type=str, default='')
 parser.add_argument('--security_group_name', type=str, default='')
+parser.add_argument('--instance_type', type=str, default='')
+parser.add_argument('--user_name', type=str, default='')
 args = parser.parse_args()
 
 
@@ -57,8 +59,9 @@ if __name__ == "__main__":
                                                                         args.public_ip_name)
                 print "Network Interface {} has been created".format(network_interface_id)
                 AzureActions().create_instance(args.region, args.instance_size, args.service_base_name,
-                                               args.instance_name, args.user_name, args.public_key,
-                                               network_interface_id, args.service_base_name, args.primary_disk_size)
+                                               args.instance_name, args.dlab_ssh_user_name, args.public_key,
+                                               network_interface_id, args.service_base_name, args.primary_disk_size,
+                                               args.instance_type, args.user_name)
                 print "Public IP address of this instance - {}".format(static_public_ip_address)
         except:
             sys.exit(1)

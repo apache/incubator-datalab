@@ -79,7 +79,7 @@ limitations under the License.
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>Region</name>
-          <description>aws region where infrastructure was deployed</description>
+          <description>Azure region where infrastructure was deployed</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>westus</string>

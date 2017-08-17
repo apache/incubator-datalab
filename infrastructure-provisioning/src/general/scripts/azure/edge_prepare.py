@@ -435,11 +435,12 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE EDGE INSTANCE]')
         print('[CREATE EDGE INSTANCE]')
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {}".\
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {}".\
             format(edge_conf['instance_name'], os.environ['azure_edge_instance_size'], edge_conf['region'],
                    edge_conf['vpc_name'], edge_conf['network_interface_name'], edge_conf['edge_security_group_name'],
                    edge_conf['subnet_name'], edge_conf['service_base_name'], initial_user,
-                   edge_conf['static_public_ip_name'], edge_conf['public_ssh_key'], '30')
+                   edge_conf['static_public_ip_name'], edge_conf['public_ssh_key'], '30', 'edge',
+                   os.environ['edge_user_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -451,6 +452,10 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
-        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        try:
+            AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+            AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['static_public_ip_name'])
+        except:
+            print "The instance hasn't been created."
         append_result("Failed to create instance. Exception:" + str(err))
         sys.exit(1)

@@ -37,6 +37,8 @@ if __name__ == "__main__":
 
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['key_name'] = os.environ['conf_key_name']
+    edge_conf['vpc_name'] = os.environ['azure_vpc_name']
+    edge_conf['subnet_name'] = os.environ['azure_subnet_name']
     edge_conf['user_keyname'] = os.environ['edge_user_name']
     edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
@@ -85,6 +87,7 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
         AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['static_public_ip_name'])
         sys.exit(1)
 
     try:
@@ -105,6 +108,7 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
         AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['static_public_ip_name'])
         sys.exit(1)
 
     try:
@@ -127,6 +131,7 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
         AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['static_public_ip_name'])
         sys.exit(1)
 
 
@@ -150,6 +155,7 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
         AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['static_public_ip_name'])
         sys.exit(1)
 
     try:
