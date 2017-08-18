@@ -107,17 +107,30 @@ export class ReportingComponent implements OnInit, OnDestroy {
   }
 
   exportBillingReport($event): void {
-    console.log('GET REPORT');
-
     this.billingReportService.downloadReport(this.reportData)
-      .subscribe(data => {
-        console.log(data);
+      .subscribe(data => this.downloadFile(data));
+  }
 
-        // let parsedResponse = data.text();
-        // let blob = new Blob([parsedResponse], { type: 'text/csv' });
-        // let url = window.URL.revokeObjectURL(blob);
-        // window.open(url);
-      });
+  downloadFile(data: any) {
+    const fileName = data.headers.get('content-disposition').match(/filename="(.+)"/)[1];
+
+    let parsedResponse = data.text();
+    let blob = new Blob([parsedResponse], { type: 'text/csv' });
+    let url = window.URL.createObjectURL(blob);
+
+    console.log(fileName + ' ::data file name');
+
+    if (navigator.msSaveOrOpenBlob) {
+        navigator.msSaveBlob(blob, fileName);
+    } else {
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+    window.URL.revokeObjectURL(url);
   }
 
   getDefaultFilterConfiguration(data): void {
