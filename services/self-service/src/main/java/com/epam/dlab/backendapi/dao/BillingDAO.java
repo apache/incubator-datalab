@@ -21,12 +21,7 @@ package com.epam.dlab.backendapi.dao;
 import static com.epam.dlab.backendapi.dao.ComputationalDAO.COMPUTATIONAL_ID;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.COMPUTATIONAL_RESOURCES;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_ID;
-import static com.epam.dlab.core.parser.ReportLine.FIELD_COST;
-import static com.epam.dlab.core.parser.ReportLine.FIELD_CURRENCY_CODE;
-import static com.epam.dlab.core.parser.ReportLine.FIELD_DLAB_ID;
-import static com.epam.dlab.core.parser.ReportLine.FIELD_PRODUCT;
-import static com.epam.dlab.core.parser.ReportLine.FIELD_RESOURCE_TYPE;
-import static com.epam.dlab.core.parser.ReportLine.FIELD_USAGE_DATE;
+import static com.epam.dlab.core.parser.ReportLine.*;
 import static com.mongodb.client.model.Accumulators.max;
 import static com.mongodb.client.model.Accumulators.min;
 import static com.mongodb.client.model.Accumulators.sum;
@@ -69,15 +64,20 @@ import com.mongodb.client.FindIterable;
  */
 public class BillingDAO extends BaseDAO {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BillingDAO.class);
-	
-    private static final String SHAPE = "shape";
+
     private static final String MASTER_NODE_SHAPE = "master_node_shape";
     private static final String SLAVE_NODE_SHAPE = "slave_node_shape";
     private static final String TOTAL_INSTANCE_NUMBER = "total_instance_number";
-    private static final String DLAB_RESOURCE_TYPE = "dlab_resource_type";
-	private static final String USAGE_DATE_START = "usage_date_start";
-	private static final String USAGE_DATE_END = "usage_date_end";
-	private static final String FULL_REPORT = "full_report";
+
+	public static final String SHAPE = "shape";
+    public static final String DLAB_RESOURCE_TYPE = "dlab_resource_type";
+    public static final String FULL_REPORT = "full_report";
+	public static final String USAGE_DATE_START = "usage_date_start";
+	public static final String USAGE_DATE_END = "usage_date_end";
+	public static final String SERVICE_BASE_NAME = "service_base_name";
+	public static final String TAG_RESOURCE_ID = "tag_resource_id";
+	public static final String ITEMS = "lines";
+	public static final String COST_TOTAL = "cost_total";
 	
 	@Inject
 	private SettingsDAO settings;
@@ -321,7 +321,7 @@ public class BillingDAO extends BaseDAO {
 			costTotal += cost;
 			
 			Document item = new Document()
-					.append(USER, id.getString(USER))
+					.append(FIELD_USER_ID, id.getString(USER))
 					.append(FIELD_DLAB_ID, resourceId)
 					.append(DLAB_RESOURCE_TYPE, resourceTypeId)
 					.append(SHAPE, shapeName)
@@ -335,12 +335,12 @@ public class BillingDAO extends BaseDAO {
 		}
 		
 		return new Document()
-				.append("service_base_name", settings.getServiceBaseName())
-				.append("tag_resource_id", settings.getConfTagResourceId())
+				.append(SERVICE_BASE_NAME, settings.getServiceBaseName())
+				.append(TAG_RESOURCE_ID, settings.getConfTagResourceId())
 				.append(USAGE_DATE_START, usageDateStart)
 				.append(USAGE_DATE_END, usageDateEnd)
-				.append("lines", reportItems)
-				.append("cost_total", BillingUtils.formatDouble(BillingUtils.round(costTotal, 2)))
+				.append(ITEMS, reportItems)
+				.append(COST_TOTAL, BillingUtils.formatDouble(BillingUtils.round(costTotal, 2)))
 				.append(FIELD_CURRENCY_CODE, (reportItems.isEmpty() ? null :
 												reportItems.get(0).getString(FIELD_CURRENCY_CODE)))
 				.append(FULL_REPORT, isFullReport);
@@ -357,7 +357,8 @@ public class BillingDAO extends BaseDAO {
 				try {
 					// Total number of instances. Slave instances equals total minus one
 					int count = Integer.parseInt(shape.slaveCount);
-					return String.format("Master: %s\nSlave:  %dx%s", shape.shape, count - 1, shape.slaveShape);
+					return String.format("Master: %s%sSlave:  %dx%s", shape.shape, System.lineSeparator(),
+							count - 1, shape.slaveShape);
 				} catch (NumberFormatException e) {
 				    LOGGER.error("Cannot parse string {} to integer", shape.slaveCount);
 				    return shapeName;

@@ -75,7 +75,9 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
         environment.lifecycle().manage(injector.getInstance(BillingSchedulerManager.class));
         injector.getInstance(SecurityFactory.class).configure(injector, environment);
-        
+
+        Injector childInjector = injector.createChildInjector(ModuleFactory.getCloudProviderModule(configuration, environment));
+
         JerseyEnvironment jersey = environment.jersey();
         jersey.register(new RuntimeExceptionMapper());
         jersey.register(new JsonProcessingExceptionMapper());
@@ -89,5 +91,6 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         jersey.register(injector.getInstance(InfrastructureResource.class));
         jersey.register(injector.getInstance(UserSettingsResource.class));
         jersey.register(injector.getInstance(GitCredsResource.class));
+        jersey.register(childInjector.getInstance(BillingResource.class));
     }
 }
