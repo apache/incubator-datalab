@@ -39,7 +39,7 @@ limitations under the License.
     </li>
       <template let-item ngFor [ngForOf]="items">
         <li role="presentation">
-          <a href="#" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
+          <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
             <span class="material-icons" *ngIf="model.indexOf(item) >= 0">done</span>
             {{item}}
           </a>
