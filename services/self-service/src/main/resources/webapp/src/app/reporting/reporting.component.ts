@@ -29,7 +29,7 @@ import * as moment from 'moment';
   selector: 'dlab-reporting',
   template: `
   <dlab-navbar [healthStatus]="healthStatus"></dlab-navbar>
-  <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
+  <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)" (exportReport)="exportBillingReport()" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
   <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
   <footer>
     Total {{data?.cost_total}} {{data?.currency_code}}
@@ -104,6 +104,20 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
     this.getEnvironmentHealthStatus();
     this.getGeneralBillingData();
+  }
+
+  exportBillingReport($event): void {
+    console.log('GET REPORT');
+
+    this.billingReportService.downloadReport(this.reportData)
+      .subscribe(data => {
+        console.log(data);
+
+        // let parsedResponse = data.text();
+        // let blob = new Blob([parsedResponse], { type: 'text/csv' });
+        // let url = window.URL.revokeObjectURL(blob);
+        // window.open(url);
+      });
   }
 
   getDefaultFilterConfiguration(data): void {

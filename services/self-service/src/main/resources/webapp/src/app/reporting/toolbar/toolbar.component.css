@@ -35,6 +35,9 @@ section > div:nth-child(3) {
 .action-butt {
     align-self: center;
 }
+.action-butt button:first-child{
+    margin-right: 10px;
+}
 
 .action-butt .butt-report-range {
     width: 240px;
