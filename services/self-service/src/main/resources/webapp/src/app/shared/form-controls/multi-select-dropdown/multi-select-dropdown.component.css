@@ -67,8 +67,8 @@ limitations under the License.
   margin: 0;
 }
 
-.dropdown-multiselect.statuses .dropdown-menu li a,
-.dropdown-multiselect.resources .dropdown-menu li a {
+.dropdown-multiselect.statuses .dropdown-menu .list-item,
+.dropdown-multiselect.resources .dropdown-menu .list-item {
   text-transform: capitalize;
 }
 
