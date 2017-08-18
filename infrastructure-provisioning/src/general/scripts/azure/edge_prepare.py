@@ -372,7 +372,30 @@ if __name__ == "__main__":
                     edge_conf['service_base_name'], edge_conf['service_base_name'] + '-ssn')),
                 "destination_address_prefix": "*",
                 "access": "Allow",
-                "priority": 101,
+                "priority": 110,
+                "direction": "Inbound"
+            },
+            {
+                "name": "in-3",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": '{}/32'.format(AzureMeta().get_instance_private_ip_address(
+                    edge_conf['service_base_name'], edge_conf['instance_name'])),
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Inbound"
+            },
+            {
+                "name": "in-4",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Deny",
+                "priority": 200,
                 "direction": "Inbound"
             },
             {
@@ -380,8 +403,8 @@ if __name__ == "__main__":
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",
-                "source_address_prefix": edge_conf['private_subnet_cidr'],
-                "destination_address_prefix": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
                 "access": "Allow",
                 "priority": 100,
                 "direction": "Outbound"
@@ -391,12 +414,24 @@ if __name__ == "__main__":
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",
-                "source_address_prefix": "0.0.0.0/0",
-                "destination_address_prefix": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": '{}/32'.format(AzureMeta().get_instance_private_ip_address(
+                    edge_conf['service_base_name'], edge_conf['instance_name'])),
                 "access": "Allow",
-                "priority": 101,
+                "priority": 110,
                 "direction": "Outbound"
             },
+            {
+                "name": "out-3",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Deny",
+                "priority": 200,
+                "direction": "Outbound"
+            }
             ]
         params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'". \
             format(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'], edge_conf['region'],
