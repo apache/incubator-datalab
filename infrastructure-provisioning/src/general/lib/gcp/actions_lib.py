@@ -734,7 +734,7 @@ class GCPActions:
             if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
                 print "The checksum of spark.tar.gz is mismatched. It could be caused by gcp network issue."
                 sys.exit(1)
-        local('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/{0}/{1}/'.format(args.cluster_version, args.cluster_name))
+        local('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/{0}/{1}/'.format(args.dataproc_version, args.cluster_name))
 
     def spark_defaults(self, args):
         spark_def_path = '/opt/{0}/{1}/spark/conf/spark-defaults.conf'.format(args.dataproc_version, args.cluster_name)
@@ -770,7 +770,7 @@ class GCPActions:
                 local('sudo -i virtualenv /opt/python/python{}'.format(python_version))
                 venv_command = '/bin/bash /opt/python/python{}/bin/activate'.format(python_version)
                 pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
-                local('{0} && sudo -i {1} install -U pip --no-cache-dir'.format(venv_command, pip_command))
+                local('{0} && sudo -i {1} install -U pip'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install ipython ipykernel --no-cache-dir'.format(venv_command, pip_command))
                 local('{0} && sudo -i {1} install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'
                       .format(venv_command, pip_command))
@@ -817,6 +817,6 @@ def get_cluster_python_version(region, bucket, user_name, cluster_name):
 
 def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror=''):
     try:
-        GCPActions.install_python(bucket, user_name, cluster_name, application)
+        GCPActions().install_python(bucket, user_name, cluster_name, application)
     except:
         sys.exit(1)

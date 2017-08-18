@@ -75,7 +75,7 @@ def r_kernel(args):
 
 
 def toree_kernel(args):
-    spark_path = '/opt/' + args.dataproc_version + '/' + args.cluster_name + '/spark/'
+    spark_path = '/opt/{0}/{1}/spark/'.format(args.dataproc_version, args.cluster_name)
     scala_version = local("dpkg -l scala | grep scala | awk '{print $3}'", capture=True)
     local('mkdir -p {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
     local('tar zxvf /tmp/toree_kernel.tar.gz -C {0}toree_{1}/'.format(kernels_dir, args.cluster_name))
@@ -87,7 +87,7 @@ def toree_kernel(args):
     text = text.replace('SPARK_VERSION', 'Spark-' + args.spark_version)
     text = text.replace('SPARK_PATH', spark_path)
     text = text.replace('OS_USER', args.os_user)
-    text = text.replace('DATAENGINE-SERVICE_VERSION', args.emr_version)
+    text = text.replace('DATAENGINE-SERVICE_VERSION', args.dataproc_version)
     text = text.replace('SCALA_VERSION', scala_version)
     with open(kernel_path, 'w') as f:
         f.write(text)
@@ -110,25 +110,25 @@ def toree_kernel(args):
 def add_breeze_library_dataproc(args):
     spark_defaults_path = '/opt/{0}/{1}/spark/conf/spark-defaults.conf'.format(args.dataproc_version, args.cluster_name)
     new_jars_directory_path = '/opt/{}/jars/usr/other/'.format(args.dataproc_version)
-    breeze_tmp_dir = '/tmp/breeze_tmp_emr/'
+    breeze_tmp_dir = '/tmp/breeze_tmp_dapaproc/'
     local('sudo mkdir -p {}'.format(new_jars_directory_path))
     local('mkdir -p {}'.format(breeze_tmp_dir))
     local('wget http://central.maven.org/maven2/org/scalanlp/breeze_2.11/0.12/{0} -O {1}{0}'
-          .format(breeze_tmp_dir, 'breeze_2.11-0.12.jar'))
+          .format('breeze_2.11-0.12.jar', breeze_tmp_dir))
     local('wget http://central.maven.org/maven2/org/scalanlp/breeze-natives_2.11/0.12/{0} -O {1}{0}'
-          .format(breeze_tmp_dir, 'breeze-natives_2.11-0.12.jar'))
+          .format('breeze-natives_2.11-0.12.jar', breeze_tmp_dir))
     local('wget http://central.maven.org/maven2/org/scalanlp/breeze-viz_2.11/0.12/{0} -O {1}{0}'
-          .format(breeze_tmp_dir, 'breeze-viz_2.11-0.12.jar'))
+          .format('breeze-viz_2.11-0.12.jar', breeze_tmp_dir))
     local('wget http://central.maven.org/maven2/org/scalanlp/breeze-macros_2.11/0.12/{0} -O {1}{0}'
-          .format(breeze_tmp_dir, 'breeze-macros_2.11-0.12.jar'))
+          .format('breeze-macros_2.11-0.12.jar', breeze_tmp_dir))
     local('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_2.11/0.12/{0} -O {1}{0}'
-          .format(breeze_tmp_dir, 'breeze-parent_2.11-0.12.jar'))
+          .format('breeze-parent_2.11-0.12.jar', breeze_tmp_dir))
     local('wget http://central.maven.org/maven2/org/jfree/jfreechart/1.0.19/{0} -O {1}{0}'
-          .format(breeze_tmp_dir, 'jfreechart-1.0.19.jar'))
+          .format('jfreechart-1.0.19.jar', breeze_tmp_dir))
     local('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/{0} -O {1}{0}'
-          .format(breeze_tmp_dir, 'jcommon-1.0.24.jar'))
+          .format('jcommon-1.0.24.jar', breeze_tmp_dir))
     local('wget https://brunelvis.org/jar/{0} -O {1}{0}'
-          .format(breeze_tmp_dir, 'spark-kernel-brunel-all-2.3.jar'))
+          .format('spark-kernel-brunel-all-2.3.jar', breeze_tmp_dir))
     local('sudo mv {0}* {1}'.format(breeze_tmp_dir, new_jars_directory_path))
     local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/s/$/:\/opt\/""" + args.dataproc_version +
           """\/jars\/usr\/other\/*/' """ + spark_defaults_path + """" """)
@@ -143,7 +143,7 @@ if __name__ == "__main__":
             actions_lib.GCPActions().jars(args, dataproc_dir)
         actions_lib.GCPActions().yarn(args, yarn_dir)
         actions_lib.GCPActions().install_dataproc_spark(args)
-        pyspark_kernel(kernels_dir, args.emr_version, args.cluster_name, args.spark_version, args.bucket,
+        pyspark_kernel(kernels_dir, args.dataproc_version, args.cluster_name, args.spark_version, args.bucket,
                        args.user_name, args.region, args.os_user, args.application, args.pip_mirror)
         toree_kernel(args)
         actions_lib.GCPActions().spark_defaults(args)

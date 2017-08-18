@@ -79,6 +79,8 @@ if __name__ == "__main__":
     #      + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
     #      + args.dataproc_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user +
     #      " --pip_mirror " + args.pip_mirror + " --application " + args.application)
-    sudo('unset http_proxy; unset https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; /usr/bin/python /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4} --spark_version {5} --hadoop_version {6} --region {7} --excluded_lines \'{8}\' --user_name {9} --os_user {10} --pip_mirror {11} --application {12}'
+    sudo('echo "[global]" > /etc/pip.conf; echo "proxy = $(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> /etc/pip.conf')
+    sudo('echo "use_proxy=yes" > ~/.wgetrc; echo "https_proxy=$(cat /etc/profile | grep proxy | head -n1 | cut -f2 -d=)" >> ~/.wgetrc')
+    sudo('unset http_proxy https_proxy; export gcp_project_id="{0}"; export conf_resource="{1}"; /usr/bin/python /usr/local/bin/create_configs.py --bucket {2} --cluster_name {3} --dataproc_version {4} --spark_version {5} --hadoop_version {6} --region {7} --excluded_lines \'{8}\' --user_name {9} --os_user {10} --pip_mirror {11} --application {12}'
          .format(os.environ['gcp_project_id'], os.environ['conf_resource'], args.bucket, args.cluster_name, args.dataproc_version, spark_version, hadoop_version,
                  args.region, args.dataproc_excluded_spark_properties, args.edge_user_name, args.os_user, args.pip_mirror, args.application))
