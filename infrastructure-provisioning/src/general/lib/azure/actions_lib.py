@@ -316,7 +316,7 @@ class AzureActions:
             if instance_type == 'ssn':
                 os_disk = {
                     'os_type': 'Linux',
-                    'name': '{}-primary-disk'.format(service_base_name),
+                    'name': '{}-ssn-primary-disk'.format(service_base_name),
                     'create_option': 'fromImage',
                     'disk_size_gb': int(primary_disk_size),
                     'managed_disk': {
@@ -326,7 +326,7 @@ class AzureActions:
             elif instance_type == 'edge':
                 os_disk = {
                     'os_type': 'Linux',
-                    'name': '{}-{}-primary-disk'.format(service_base_name, user_name),
+                    'name': '{}-{}-edge-primary-disk'.format(service_base_name, user_name),
                     'create_option': 'fromImage',
                     'disk_size_gb': int(primary_disk_size),
                     'managed_disk': {

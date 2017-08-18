@@ -42,8 +42,10 @@ if __name__ == "__main__":
     edge_conf['vpc_name'] = os.environ['azure_vpc_name']
     edge_conf['subnet_name'] = os.environ['azure_subnet_name']
     edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
-    edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nif'
-    edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-ip'
+    edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                          '-edge-nif'
+    edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                         '-edge-ip'
     edge_conf['region'] = os.environ['azure_region']
     edge_conf['vpc_cidr'] = '10.10.0.0/16'
     edge_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']

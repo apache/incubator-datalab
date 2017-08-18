@@ -48,6 +48,8 @@ def add_china_repository(dlab_path):
 def build_docker_images(image_list, region, dlab_path):
     try:
         local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, env.host_string, args.dlab_path))
+        local('scp -i {} /root/azure_auth.json {}:{}sources/base/azure_auth.json'.format(args.keyfile, env.host_string,
+                                                                                         args.dlab_path))
         if region == 'cn-north-1':
             add_china_repository(dlab_path)
         for image in image_list:
