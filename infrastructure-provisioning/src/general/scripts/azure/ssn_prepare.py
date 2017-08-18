@@ -162,7 +162,7 @@ if __name__ == "__main__":
                     "source_address_prefix": "*",
                     "destination_address_prefix": "*",
                     "access": "Allow",
-                    "priority": 101,
+                    "priority": 110,
                     "direction": "Inbound"
                 },
                 {
@@ -173,7 +173,18 @@ if __name__ == "__main__":
                     "source_address_prefix": "*",
                     "destination_address_prefix": "*",
                     "access": "Allow",
-                    "priority": 102,
+                    "priority": 120,
+                    "direction": "Inbound"
+                },
+                {
+                    "name": "in-4",
+                    "protocol": "*",
+                    "source_port_range": "*",
+                    "destination_port_range": "*",
+                    "source_address_prefix": "*",
+                    "destination_address_prefix": "*",
+                    "access": "Deny",
+                    "priority": 200,
                     "direction": "Inbound"
                 },
                 {

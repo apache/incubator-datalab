@@ -92,7 +92,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
-                                                              edge_conf['subnet_name']).address_prefix
+                                                              edge_conf['private_subnet_name']).address_prefix
     print 'NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr'])
 
     # try:
@@ -144,21 +144,32 @@ if __name__ == "__main__":
             {
                 "name": "in-2",
                 "protocol": "Tcp",
-                "source_port_range": "22",
+                "source_port_range": "*",
                 "destination_port_range": "*",
-                "source_address_prefix": "0.0.0.0/0",
+                "source_address_prefix": "22",
                 "destination_address_prefix": "*",
                 "access": "Allow",
-                "priority": 101,
+                "priority": 110,
+                "direction": "Inbound"
+            },
+            {
+                "name": "in-3",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Deny",
+                "priority": 200,
                 "direction": "Inbound"
             },
             {
                 "name": "out-1",
                 "protocol": "Tcp",
-                "source_port_range": "22",
-                "destination_port_range": "*",
-                "source_address_prefix": edge_conf['private_subnet_cidr'],
-                "destination_address_prefix": "*",
+                "source_port_range": "*",
+                "destination_port_range": "22",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
                 "access": "Allow",
                 "priority": 100,
                 "direction": "Outbound"
@@ -166,144 +177,155 @@ if __name__ == "__main__":
             {
                 "name": "out-2",
                 "protocol": "Tcp",
-                "source_port_range": "8888",
+                "source_port_range": "*",
                 "destination_port_range": "8888",
-                "source_address_prefix": edge_conf['private_subnet_cidr'],
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 101,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-3",
-                "protocol": "Tcp",
-                "source_port_range": "8080",
-                "destination_port_range": "8080",
-                "source_address_prefix": edge_conf['private_subnet_cidr'],
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 102,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-4",
-                "protocol": "Tcp",
-                "source_port_range": "8787",
-                "destination_port_range": "8787",
-                "source_address_prefix": edge_conf['private_subnet_cidr'],
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 103,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-5",
-                "protocol": "Tcp",
-                "source_port_range": "6006",
-                "destination_port_range": "6006",
-                "source_address_prefix": edge_conf['private_subnet_cidr'],
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 104,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-6",
-                "protocol": "Tcp",
-                "source_port_range": "20888",
-                "destination_port_range": "20888",
-                "source_address_prefix": edge_conf['private_subnet_cidr'],
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 105,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-7",
-                "protocol": "Tcp",
-                "source_port_range": "8088",
-                "destination_port_range": "8088",
-                "source_address_prefix": edge_conf['private_subnet_cidr'],
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 106,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-8",
-                "protocol": "Tcp",
-                "source_port_range": "18080",
-                "destination_port_range": "18080",
-                "source_address_prefix": edge_conf['private_subnet_cidr'],
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 107,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-9",
-                "protocol": "Tcp",
-                "source_port_range": "50070",
-                "destination_port_range": "50070",
-                "source_address_prefix": edge_conf['private_subnet_cidr'],
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 108,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-10",
-                "protocol": "Udp",
-                "source_port_range": "53",
-                "destination_port_range": "53",
-                "source_address_prefix": '0.0.0.0/0',
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 109,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-11",
-                "protocol": "Tcp",
-                "source_port_range": "80",
-                "destination_port_range": "80",
-                "source_address_prefix": '0.0.0.0/0',
-                "destination_address_prefix": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
                 "access": "Allow",
                 "priority": 110,
                 "direction": "Outbound"
             },
             {
-                "name": "out-12",
+                "name": "out-3",
                 "protocol": "Tcp",
-                "source_port_range": "22",
+                "source_port_range": "*",
+                "destination_port_range": "8080",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-4",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "8787",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 130,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-5",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "6006",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 140,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-6",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "20888",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 150,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-7",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "8088",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 160,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-8",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "18080",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 170,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-9",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "50070",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 180,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-10",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "8085",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 190,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-11",
+                "protocol": "Tcp",
+                "source_port_range": "*",
                 "destination_port_range": "22",
-                "source_address_prefix": '0.0.0.0/0',
+                "source_address_prefix": '*',
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 200,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-12",
+                "protocol": "Udp",
+                "source_port_range": "*",
+                "destination_port_range": "53",
+                "source_address_prefix": '*',
                 "destination_address_prefix": "*",
                 "access": "Allow",
-                "priority": 111,
+                "priority": 210,
                 "direction": "Outbound"
             },
             {
                 "name": "out-13",
                 "protocol": "Tcp",
-                "source_port_range": "443",
-                "destination_port_range": "443",
-                "source_address_prefix": '0.0.0.0/0',
+                "source_port_range": "*",
+                "destination_port_range": "80",
+                "source_address_prefix": '*',
                 "destination_address_prefix": "*",
                 "access": "Allow",
-                "priority": 112,
+                "priority": 220,
+                "direction": "Outbound"
+            },
+             {
+                "name": "out-14",
+                "protocol": "Tcp",
+                "source_port_range": "*",
+                "destination_port_range": "443",
+                "source_address_prefix": '*',
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 230,
                 "direction": "Outbound"
             },
             {
-                "name": "out-14",
+                "name": "out-15",
                 "protocol": "Tcp",
-                "source_port_range": "8085",
-                "destination_port_range": "8085",
-                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "*",
                 "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 113,
+                "access": "Deny",
+                "priority": 300,
                 "direction": "Outbound"
             }
         ]
