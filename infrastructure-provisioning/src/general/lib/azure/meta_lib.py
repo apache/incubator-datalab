@@ -158,6 +158,9 @@ class AzureMeta:
                 account_name
             )
             return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
         except Exception as err:
             logging.info(
                 "Unable to get Storage account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
