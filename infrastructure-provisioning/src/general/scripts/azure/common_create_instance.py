@@ -51,7 +51,8 @@ if __name__ == "__main__":
             else:
                 print "Creating instance {}".format(args.instance_name)
                 static_public_ip_address = \
-                    AzureActions().create_static_public_ip(args.service_base_name, args.public_ip_name, args.region)
+                    AzureActions().create_static_public_ip(args.service_base_name, args.public_ip_name, args.region,
+                                                           args.instance_name)
                 print "Static IP address {} has been created".format(static_public_ip_address)
                 network_interface_id = AzureActions().create_network_if(args.service_base_name, args.vpc_name,
                                                                         args.subnet_name, args.network_interface_name,

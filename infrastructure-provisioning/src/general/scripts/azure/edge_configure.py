@@ -38,10 +38,12 @@ if __name__ == "__main__":
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['key_name'] = os.environ['conf_key_name']
     edge_conf['vpc_name'] = os.environ['azure_vpc_name']
+    edge_conf['region'] = os.environ['azure_region']
     edge_conf['subnet_name'] = os.environ['azure_subnet_name']
     edge_conf['user_keyname'] = os.environ['edge_user_name']
     edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    edge_conf['instance_dns_name'] = edge_conf['instance_name'] + '.' + edge_conf['region'] + '.cloudapp.azure.com'
     edge_conf['container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name']).lower().\
         replace('_', '-')
     edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared').lower().replace('_', '')
@@ -162,7 +164,7 @@ if __name__ == "__main__":
         print '[SUMMARY]'
         logging.info('[SUMMARY]')
         print "Instance name: " + edge_conf['instance_name']
-        print "Hostname: " + instance_hostname
+        print "Hostname: " + edge_conf['instance_dns_name']
         print "Public IP: " + edge_conf['edge_public_ip']
         print "Private IP: " + edge_conf['edge_private_ip']
         print "Key name: " + edge_conf['key_name']
@@ -172,7 +174,7 @@ if __name__ == "__main__":
         print "Edge SG: " + edge_conf['edge_security_group_name']
         print "Notebook subnet: " + edge_conf['private_subnet_cidr']
         with open("/root/result.json", 'w') as result:
-            res = {"hostname": instance_hostname,
+            res = {"hostname": edge_conf['instance_dns_name'],
                    "public_ip": edge_conf['edge_public_ip'],
                    "ip": edge_conf['edge_private_ip'],
                    "key_name": edge_conf['key_name'],

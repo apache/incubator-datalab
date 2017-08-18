@@ -55,6 +55,7 @@ if __name__ == "__main__":
         ssn_conf['security_group_name'] = ssn_conf['service_base_name'] + '-ssn-sg'
         ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+        ssn_conf['instance_dns_name'] = ssn_conf['instance_name'] + '.' + ssn_conf['region'] + '.cloudapp.azure.com'
         # ssn_conf['service_account_name'] = ssn_conf['service_base_name'] + '-ssn-sa'
         # ssn_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
         # ssn_conf['role_name'] = 'dlab_ssn_role'
@@ -197,7 +198,8 @@ if __name__ == "__main__":
         print('[SUMMARY]')
         print "Service base name: " + ssn_conf['service_base_name']
         print "SSN Name: " + ssn_conf['instance_name']
-        print "SSN Hostname: " + instance_hostname
+        print "SSN Public IP address: " + instance_hostname
+        print "SSN Hostname: " + ssn_conf['instance_dns_name']
         print "Key name: " + os.environ['conf_key_name']
         print "VPC Name: " + ssn_conf['vpc_name']
         print "Subnet Name: " + ssn_conf['subnet_name']
@@ -206,8 +208,8 @@ if __name__ == "__main__":
         # print "SSN AMI name: " + ssn_conf['ami_name']
         print "SSN bucket name: " + ssn_conf['ssn_bucket_name']
         print "Region: " + ssn_conf['region']
-        jenkins_url = "http://{}/jenkins".format(instance_hostname)
-        jenkins_url_https = "https://{}/jenkins".format(instance_hostname)
+        jenkins_url = "http://{}/jenkins".format(ssn_conf['instance_dns_name'])
+        jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_dns_name'])
         print "Jenkins URL: " + jenkins_url
         print "Jenkins URL HTTPS: " + jenkins_url_https
         try:
@@ -219,7 +221,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as f:
             res = {"service_base_name": ssn_conf['service_base_name'],
                    "instance_name": ssn_conf['instance_name'],
-                   "instance_hostname": instance_hostname,
+                   "instance_hostname": ssn_conf['instance_dns_name'],
                    "master_keyname": os.environ['conf_key_name'],
                    "vpc_id": ssn_conf['vpc_name'],
                    "subnet_id": ssn_conf['subnet_name'],

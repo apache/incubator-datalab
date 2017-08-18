@@ -271,7 +271,7 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_static_public_ip(self, resource_group_name, ip_name, region):
+    def create_static_public_ip(self, resource_group_name, ip_name, region, instance_name):
         try:
             self.network_client.public_ip_addresses.create_or_update(
                 resource_group_name,
@@ -279,7 +279,10 @@ class AzureActions:
                 {
                     "location": region,
                     "public_ip_allocation_method": "static",
-                    "public_ip_address_version": "IPv4"
+                    "public_ip_address_version": "IPv4",
+                    "dns_settings": {
+                        "domain_name_label": instance_name
+                    }
                 }
             )
             while meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).provisioning_state != 'Succeeded':
