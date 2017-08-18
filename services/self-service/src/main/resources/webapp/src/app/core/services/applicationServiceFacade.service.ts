@@ -46,6 +46,7 @@ export class ApplicationServiceFacade {
   private static readonly INSTALLED_LIBS = 'installed_libs';
   private static readonly GIT_CREDS = 'git_creds';
   private static readonly BILLING = 'billing';
+  private static readonly DOWNLOAD_REPORT = 'download_report';
   private accessTokenKey: string = 'access_token';
   private requestRegistry: Dictionary<string>;
 
@@ -249,6 +250,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildDownloadReportData(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.DOWNLOAD_REPORT),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -295,6 +303,7 @@ export class ApplicationServiceFacade {
 
     // billing report
     this.requestRegistry.Add(ApplicationServiceFacade.BILLING, '/api/billing/report');
+    this.requestRegistry.Add(ApplicationServiceFacade.DOWNLOAD_REPORT, '/api/billing/report/download');
   }
 
   private buildRequest(method: RequestMethod, url: string, body: any, opt: RequestOptions): Observable<Response> {

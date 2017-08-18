@@ -37,6 +37,7 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
   rangeLabels: any;
 
   @Output() rebuildReport: EventEmitter<{}> = new EventEmitter();
+  @Output() exportReport: EventEmitter<{}> = new EventEmitter();
   @Output() setRangeOption: EventEmitter<{}> = new EventEmitter();
 
   constructor() {
@@ -92,6 +93,10 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
 
   rebuild($event): void {
     this.rebuildReport.emit($event);
+  }
+
+  export($event): void {
+    this.exportReport.emit($event);
   }
 
   calculateRange(option: string): void {
