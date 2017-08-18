@@ -36,13 +36,12 @@ import os, json
 
 class AzureActions:
     def __init__(self):
-        if os.environ['conf_resource'] == 'ssn':
-            os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
-            self.compute_client = get_client_from_auth_file(ComputeManagementClient)
-            self.resource_client = get_client_from_auth_file(ResourceManagementClient)
-            self.network_client = get_client_from_auth_file(NetworkManagementClient)
-            self.storage_client = get_client_from_auth_file(StorageManagementClient)
-            self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
+        os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
+        self.compute_client = get_client_from_auth_file(ComputeManagementClient)
+        self.resource_client = get_client_from_auth_file(ResourceManagementClient)
+        self.network_client = get_client_from_auth_file(NetworkManagementClient)
+        self.storage_client = get_client_from_auth_file(StorageManagementClient)
+        self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
 
     def create_resource_group(self, resource_group_name, region):
         try:
