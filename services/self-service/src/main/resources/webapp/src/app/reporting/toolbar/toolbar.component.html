@@ -39,7 +39,7 @@ limitations under the License.
     <!--<md-menu #dateRange="mdMenu">
       <button md-menu-item *ngFor="let item of rangeOptions | keys" (click)="calculateRange(item.key)">{{item.value}}</button>
     </md-menu>-->
-    <button md-raised-button class="butt" (click)="export($event)">
+    <button md-raised-button class="butt" (click)="export($event)" [disabled]="!reportData?.lines.length">
       <i class="material-icons">file_download</i>Export
     </button>
     <button md-raised-button class="butt" (click)="rebuild($event)">
