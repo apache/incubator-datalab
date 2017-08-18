@@ -368,8 +368,8 @@ if __name__ == "__main__":
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",
-                "source_address_prefix": '{}/32'.format(AzureMeta().get_instance_private_ip_address(
-                    edge_conf['service_base_name'], edge_conf['service_base_name'] + '-ssn')),
+                "source_address_prefix": AzureMeta().get_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+                                                              edge_conf['subnet_name']).address_prefix,
                 "destination_address_prefix": "*",
                 "access": "Allow",
                 "priority": 110,
@@ -377,18 +377,6 @@ if __name__ == "__main__":
             },
             {
                 "name": "in-3",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "*",
-                "source_address_prefix": '{}/32'.format(AzureMeta().get_instance_private_ip_address(
-                    edge_conf['service_base_name'], edge_conf['instance_name'])),
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 120,
-                "direction": "Inbound"
-            },
-            {
-                "name": "in-4",
                 "protocol": "*",
                 "source_port_range": "*",
                 "destination_port_range": "*",
@@ -415,8 +403,8 @@ if __name__ == "__main__":
                 "source_port_range": "*",
                 "destination_port_range": "*",
                 "source_address_prefix": "*",
-                "destination_address_prefix": '{}/32'.format(AzureMeta().get_instance_private_ip_address(
-                    edge_conf['service_base_name'], edge_conf['instance_name'])),
+                "destination_address_prefix": AzureMeta().get_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+                                                              edge_conf['subnet_name']).address_prefix,
                 "access": "Allow",
                 "priority": 110,
                 "direction": "Outbound"
