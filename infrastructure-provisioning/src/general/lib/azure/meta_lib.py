@@ -293,3 +293,18 @@ class AzureMeta:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def get_disk(self, resource_group_name, disk_name):
+        try:
+            result = self.compute_client.disks.get(resource_group_name, disk_name)
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get instance Disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get instance Disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)

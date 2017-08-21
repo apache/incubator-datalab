@@ -44,6 +44,8 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
+    disk_id = ''
+    create_option = 'fromImage'
     if args.instance_name != '':
         try:
             if AzureMeta().get_instance(args.service_base_name, args.instance_name):
@@ -69,11 +71,16 @@ if __name__ == "__main__":
                                                                             args.network_interface_name, args.region,
                                                                             args.security_group_name,
                                                                             args.public_ip_name)
+                disk = AzureMeta().get_disk(args.service_base_name, '{}-{}-edge-primary-disk'.format(
+                    args.service_base_name, args.user_name))
+                if disk:
+                    create_option = 'attach'
+                    disk_id = disk.id
                 print "Creating instance {}".format(args.instance_name)
                 AzureActions().create_instance(args.region, args.instance_size, args.service_base_name,
                                                args.instance_name, args.dlab_ssh_user_name, args.public_key,
                                                network_interface_id, args.service_base_name, args.primary_disk_size,
-                                               args.instance_type, args.user_name)
+                                               args.instance_type, args.user_name, create_option, disk_id)
                 print "Public IP address of this instance - {}".format(static_public_ip_address)
         except:
             sys.exit(1)
