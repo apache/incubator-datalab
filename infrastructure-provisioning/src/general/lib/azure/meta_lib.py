@@ -308,3 +308,25 @@ class AzureMeta:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+    def get_list_instance_statuses(self, resource_group_name, instance_name_list):
+        data = []
+        for instance_name in instance_name_list:
+            host = {}
+            try:
+                request = self.compute_client.virtual_machines.get(resource_group_name, instance_name,
+                                                                   expand='instanceView')
+                host['id'] = instance_name
+                try:
+                    host['status'] = request.instance_view.statuses[1].display_status.split(' ')[1].replace("deallocat",
+                                                                                                            "stopp")
+                    data.append(host)
+                except:
+                    host['status'] = request.instance_view.statuses[0].display_status.lower()
+                    data.append(host)
+            except:
+                host['resource_type'] = 'host'
+                host['id'] = instance_name
+                host['status'] = 'terminated'
+                data.append(host)
+        return data

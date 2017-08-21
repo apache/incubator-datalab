@@ -34,6 +34,16 @@ limitations under the License.
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
+          <name>Region</name>
+          <description>Azure region where infrastructure was deployed</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>westus</string>
+              <string>westus2</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
           <name>Action</name>
           <description></description>
           <choices class="java.util.Arrays$ArrayList">
@@ -55,7 +65,7 @@ limitations under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/start_edge_node/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response  docker.dlab-edge --action $Action</command>
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/start_edge_node/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/AZR/&apos;${Region}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response  docker.dlab-edge --action $Action</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

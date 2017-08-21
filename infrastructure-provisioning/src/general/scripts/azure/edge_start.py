@@ -35,6 +35,7 @@ if __name__ == "__main__":
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    edge_conf['instance_dns_name'] = edge_conf['instance_name'] + '.' + os.environ['azure_region'] + '.cloudapp.azure.com'
 
     logging.info('[START EDGE]')
     print '[START EDGE]'
@@ -55,12 +56,12 @@ if __name__ == "__main__":
         print '[SUMMARY]'
         logging.info('[SUMMARY]')
         print "Instance name: " + edge_conf['instance_name']
-        print "Hostname: " + public_ip_address
+        print "Hostname: " + edge_conf['instance_dns_name']
         print "Public IP: " + public_ip_address
         print "Private IP: " + private_ip_address
         with open("/root/result.json", 'w') as result:
             res = {"instance_name": edge_conf['instance_name'],
-                   "hostname": public_ip_address,
+                   "hostname": edge_conf['instance_dns_name'],
                    "public_ip": public_ip_address,
                    "ip": private_ip_address,
                    "Action": "Start up notebook server"}

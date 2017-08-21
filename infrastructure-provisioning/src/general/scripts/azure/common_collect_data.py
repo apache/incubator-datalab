@@ -31,6 +31,7 @@ import ast
 
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--resource_group_name', type=str, default='')
 parser.add_argument('--list_resources', type=str, default='')
 args = parser.parse_args()
 
@@ -40,15 +41,15 @@ if __name__ == "__main__":
     statuses = {}
     try:
         try:
-            data_instances = GCPMeta().get_list_instance_statuses(data.get('host'))
+            data_instances = AzureMeta().get_list_instance_statuses(args.resource_group_name, data.get('host'))
             statuses['host'] = data_instances
         except:
             print "Hosts JSON wasn't been provided"
-        try:
-            data_clusters = GCPMeta().get_list_cluster_statuses(data.get('cluster'))
-            statuses['cluster'] = data_clusters
-        except:
-            print "Clusters JSON wasn't been provided"
+        # try:
+        #     data_clusters = AzureMeta().get_list_cluster_statuses(args.resource_group_name, data.get('cluster'))
+        #     statuses['cluster'] = data_clusters
+        # except:
+        #    print "Clusters JSON wasn't been provided"
         with open('/root/result.json', 'w') as outfile:
             json.dump(statuses, outfile)
     except Exception as err:
