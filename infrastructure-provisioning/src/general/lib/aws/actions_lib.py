@@ -763,7 +763,7 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                 env.key_filename = "{}".format(key_path)
                 env.host_string = env.user + "@" + env.hosts
                 sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, emr_name))
-                if exists('/home/{}/.ensure_dir/emr_{}_interpreter_ensured'.format(ssh_user, emr_name)):
+                if exists('/home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, emr_name)):
                     if os.environ['notebook_multiple_dataengine_services'] == 'true':
                         try:
                             livy_port = sudo("cat /opt/" + emr_version + "/" + emr_name
@@ -775,7 +775,7 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                         except:
                             print "Wasn't able to find Livy server for this EMR!"
                     sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
-                    sudo("rm -rf /home/{}/.ensure_dir/emr_interpreter_ensure".format(ssh_user))
+                    sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
                     zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
                     opener = urllib2.build_opener(urllib2.ProxyHandler({}))
                     req = opener.open(urllib2.Request(zeppelin_url))
@@ -802,8 +802,8 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                         if result == '1':
                             zeppelin_restarted = True
                     sudo('sleep 5')
-                    sudo('rm -rf /home/{}/.ensure_dir/emr_{}_interpreter_ensured'.format(ssh_user, emr_name))
-                if exists('/home/{}/.ensure_dir/rstudio_emr_ensured'.format(ssh_user)):
+                    sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, emr_name))
+                if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
                     sudo("sed -i '/" + emr_name + "/d' /home/{}/.Renviron".format(ssh_user))
                     if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(ssh_user)):
                         sudo("sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".format(ssh_user))
@@ -1225,6 +1225,6 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                     except:
                         local('sleep 5')
                         pass
-        local('touch /home/' + os_user + '/.ensure_dir/emr_' + cluster_name + '_interpreter_ensured')
+        local('touch /home/' + os_user + '/.ensure_dir/dataengine-service_' + cluster_name + '_interpreter_ensured')
     except:
             sys.exit(1)

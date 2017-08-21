@@ -57,12 +57,11 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         print '[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]'
-        params = "--bucket {} --cluster_name {} --dataproc_version {} --keyfile {} --notebook_ip {} --region {} --dataproc_excluded_spark_properties {} --edge_user_name {} --os_user {}  --edge_hostname {} --proxy_port {} --scala_version {} --application {} --pip_mirror {}" \
+        params = "--bucket {} --cluster_name {} --dataproc_version {} --keyfile {} --notebook_ip {} --region {} --edge_user_name {} --os_user {}  --edge_hostname {} --proxy_port {} --scala_version {} --application {} --pip_mirror {}" \
             .format(notebook_config['bucket_name'], notebook_config['cluster_name'], os.environ['dataproc_version'],
                     notebook_config['key_path'], notebook_config['notebook_ip'], os.environ['gcp_region'],
-                    os.environ['dataproc_excluded_spark_properties'], os.environ['edge_user_name'],
-                    os.environ['conf_os_user'], edge_instance_hostname, '3128', os.environ['notebook_scala_version'],
-                    os.environ['application'], os.environ['conf_pypi_mirror'])
+                    os.environ['edge_user_name'], os.environ['conf_os_user'], edge_instance_hostname, '3128',
+                    os.environ['notebook_scala_version'], os.environ['application'], os.environ['conf_pypi_mirror'])
         try:
             local("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params))
             actions_lib.GCPActions().update_dataproc_cluster(notebook_config['cluster_name'], notebook_config['notebook_name'])

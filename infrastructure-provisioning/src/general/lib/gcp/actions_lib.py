@@ -738,20 +738,22 @@ class GCPActions:
 
     def spark_defaults(self, args):
         spark_def_path = '/opt/{0}/{1}/spark/conf/spark-defaults.conf'.format(args.dataproc_version, args.cluster_name)
-        for i in eval(args.excluded_lines):
-            local(""" sudo bash -c " sed -i '/""" + i + """/d' """ + spark_def_path + """ " """)
+        spark_def_path = '/opt/{0}/{1}/spark/conf/spark-env.sh'.format(args.dataproc_version, args.cluster_name)
         local(""" sudo bash -c " sed -i '/#/d' """ + spark_def_path + """ " """)
         local(""" sudo bash -c " sed -i '/^\s*$/d' """ + spark_def_path + """ " """)
-        local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/,/spark.driver.extraLibraryPath/s|/usr|/opt/DATAENGINE-SERVICE_VERSION/jars/usr|g' """ + spark_def_path + """ " """)
-        local(""" sudo bash -c "sed -i '/spark.yarn.dist.files/s/\/etc\/spark\/conf/\/opt\/DATAENGINE-SERVICE_VERSION\/CLUSTER\/conf/g' """
-            + spark_def_path + """ " """)
-        template_file = spark_def_path
-        with open(template_file, 'r') as f:
-            text = f.read()
-        text = text.replace('DATAENGINE-SERVICE_VERSION', args.dataproc_version)
-        text = text.replace('CLUSTER', args.cluster_name)
-        with open(spark_def_path, 'w') as f:
-            f.write(text)
+        local(""" sudo bash -c " sed -i 's|/usr/lib/hadoop|/opt/{}/jars/usr/lib/hadoop|g' " """.format(args.dataproc_version))
+        local(""" sudo bash -c " sed -i 's|/etc/hadoop/conf|/opt/{0}/{1}/conf|g' " """.format(args.dataproc_version, args.cluster_name))
+        local(""" sudo bash -c " sed -i '/\$HADOOP\_HOME\/\*/a SPARK_DIST_CLASSPATH=\"\$SPARK_DIST_CLASSPATH:\$HADOOP_HOME\/client\/*\" " """)
+        # local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/,/spark.driver.extraLibraryPath/s|/usr|/opt/DATAENGINE-SERVICE_VERSION/jars/usr|g' """ + spark_def_path + """ " """)
+        # local(""" sudo bash -c "sed -i '/spark.yarn.dist.files/s/\/etc\/spark\/conf/\/opt\/DATAENGINE-SERVICE_VERSION\/CLUSTER\/conf/g' """
+        #     + spark_def_path + """ " """)
+        # template_file = spark_def_path
+        # with open(template_file, 'r') as f:
+        #     text = f.read()
+        # text = text.replace('DATAENGINE-SERVICE_VERSION', args.dataproc_version)
+        # text = text.replace('CLUSTER', args.cluster_name)
+        # with open(spark_def_path, 'w') as f:
+        #     f.write(text)
 
     def install_python(self, bucket, user_name, cluster_name, application):
         try:

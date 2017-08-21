@@ -34,16 +34,6 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     spark_def_path = "/usr/lib/spark/conf/spark-defaults.conf"
-    spark_def_path_line1 = subprocess.check_output("cat " + spark_def_path +
-                                                   " | grep spark.driver.extraClassPath | awk '{print $2}' | "
-                                                   "sed 's/^:// ; s~jar:~jar ~g; s~/\*:~/\* ~g; s~:~/\* ~g'",
-                                                   shell=True)
-    spark_def_path_line2 = subprocess.check_output("cat " + spark_def_path +
-                                                   " | grep spark.driver.extraLibraryPath | awk '{print $2}' | "
-                                                   "sed 's/^:// ; s~jar:~jar ~g; s~/\*:~/\* ~g; s~:\|$~/\* ~g'",
-                                                   shell=True)
-    spark_def_path_line1 = spark_def_path_line1.strip('\n')
-    spark_def_path_line2 = spark_def_path_line2.strip('\n')
 
     os.system('touch /tmp/python_version')
     python_ver = subprocess.check_output("python3.5 -V 2>/dev/null | awk '{print $2}'", shell=True)
@@ -63,7 +53,7 @@ if __name__ == "__main__":
     with open('/tmp/hadoop_version', 'w') as outfile:
         outfile.write(hadoop_ver)
 
-    os.system('/bin/tar -zhcvf /tmp/jars.tar.gz --no-recursion --absolute-names --ignore-failed-read /usr/lib/hadoop/* {} {} /usr/lib/hadoop/client/*'.format(spark_def_path_line1, spark_def_path_line2))
+    os.system('/bin/tar -zhcvf /tmp/jars.tar.gz --no-recursion --absolute-names --ignore-failed-read /usr/lib/hadoop/* /usr/lib/hadoop/client/*')
     os.system('/bin/tar -zhcvf /tmp/spark.tar.gz -C /usr/lib/ spark')
     md5sum = subprocess.check_output('md5sum /tmp/jars.tar.gz', shell=True)
     with open('/tmp/jars-checksum.chk', 'w') as outfile:
