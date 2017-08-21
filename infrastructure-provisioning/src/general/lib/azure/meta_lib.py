@@ -220,6 +220,9 @@ class AzureMeta:
                 ip_name
             )
             return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
         except Exception as err:
             logging.info(
                 "Unable to get static IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -272,6 +275,21 @@ class AzureMeta:
             logging.info(
                 "Unable to get instance private IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to get instance private IP address",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def get_network_interface(self, resource_group_name, network_interface_name):
+        try:
+            result = self.network_client.network_interfaces.get(resource_group_name, network_interface_name)
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get Network interface: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Network interface",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
