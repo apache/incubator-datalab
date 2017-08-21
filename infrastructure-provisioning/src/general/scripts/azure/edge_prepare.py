@@ -145,9 +145,9 @@ if __name__ == "__main__":
                 "name": "in-2",
                 "protocol": "Tcp",
                 "source_port_range": "*",
-                "destination_port_range": "*",
+                "destination_port_range": "22",
                 "source_address_prefix": "*",
-                "destination_address_prefix": "22",
+                "destination_address_prefix": "*",
                 "access": "Allow",
                 "priority": 110,
                 "direction": "Inbound"
