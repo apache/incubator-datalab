@@ -33,10 +33,14 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
+    edge_conf = dict()
+    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+
     try:
         logging.info('[COLLECT DATA]')
         print '[COLLECTING DATA]'
-        params = '--list_resources "{}"'.format(os.environ['edge_list_resources'])
+        params = '--resource_group_name --list_resources "{}"'.format(edge_conf['service_base_name'],
+                                                                      os.environ['edge_list_resources'])
         try:
             local("~/scripts/{}.py {}".format('common_collect_data', params))
         except:

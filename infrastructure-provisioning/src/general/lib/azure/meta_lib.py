@@ -316,19 +316,3 @@ class AzureMeta:
                 data.append(host)
         return data
 
-    def get_list_cluster_statuses(self, cluster_names, data=[]):
-        for cluster in cluster_names:
-            host = {}
-            try:
-                request = self.dataproc.projects().regions().clusters().get(projectId=self.project,
-                                                                            region=os.environ['gcp_region'],
-                                                                            clusterName=cluster)
-                result = request.execute()
-                host['id'] = cluster
-                host['status'] = result.get('status').get('state').lower()
-                data.append(host)
-            except:
-                host['id'] = cluster
-                host['status'] = 'terminated'
-                data.append(host)
-        return data
