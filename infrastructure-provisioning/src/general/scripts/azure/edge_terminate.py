@@ -48,14 +48,21 @@ def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_na
     # except:
     #     sys.exit(1)
 
-    print "Terminating EDGE and notebook instances, network interfaces"
+    print "Terminating EDGE and notebook instances"
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
             if user_env_prefix in vm.name:
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print "Instance {} has been terminated".format(vm.name)
+                AzureActions().delete_disk(resource_group_name, vm.name + '-primary-disk')
+                print "Primary Disk {} has been terminated".format(vm.name + '-primary-disk')
                 AzureActions().delete_network_if(resource_group_name, vm.name + '-nif')
                 print "Network interface {} has been terminated".format(vm.name + '-nif')
+                AzureActions().delete_static_public_ip(resource_group_name, vm.name + '-ip')
+                print "Public IP {} has been released".format(vm.name + '-ip')
+            if '-nb-' in vm.name:
+                AzureActions().delete_disk(resource_group_name, vm.name + '-secondary-disk')
+                print "Secondaty Disk {} has been terminated".format(vm.name + '-secondary-disk')
     except:
         sys.exit(1)
 
@@ -118,7 +125,7 @@ if __name__ == "__main__":
 
     try:
         with open("/root/result.json", 'w') as result:
-            res = {"service_base_name": edge_conf['service_base_name'],
+            res = {"service_base_name": os.environ['conf_service_base_name'],
                    "user_name": edge_conf['user_name'],
                    "Action": "Terminate edge node"}
             print json.dumps(res)
