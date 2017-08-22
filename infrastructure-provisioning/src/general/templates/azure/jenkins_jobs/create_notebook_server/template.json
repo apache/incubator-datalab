@@ -3,7 +3,7 @@
     "conf_os_family":"COF",
     "request_id":"RID",
     "conf_service_base_name":"SBN",
-    "azure_vpc_name": "AVN",
+    "azure_vpc_name": "VPC",
     "azure_region":"CREG",
     "conf_key_name":"CKN",
     "azure_notebook_instance_size":"NIT",

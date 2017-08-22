@@ -64,7 +64,7 @@ if __name__ == "__main__":
     instance_hostname = AzureMeta().get_instance_private_ip_address(notebook_config['service_base_name'],
                                                                     notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_instance_hostname = AzureMeta().get_instance_public_ip_address(notebook_config['service_base_name'],
+    edge_instance_hostname = AzureMeta().get_instance_private_ip_address(notebook_config['service_base_name'],
                                                                         edge_instance_name)
     keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
 
