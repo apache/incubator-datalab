@@ -28,32 +28,32 @@ import os
 import uuid
 
 
-def terminate_nb(nb_tag_value, bucket_name, tag_name):
-    print 'Terminating EMR cluster and cleaning EMR config from S3 bucket'
-    try:
-        clusters_list = get_emr_list(nb_tag_value, 'Value')
-        if clusters_list:
-            for cluster_id in clusters_list:
-                client = boto3.client('emr')
-                cluster = client.describe_cluster(ClusterId=cluster_id)
-                cluster = cluster.get("Cluster")
-                emr_name = cluster.get('Name')
-                print 'Cleaning bucket from configs for cluster {}'.format(emr_name)
-                s3_cleanup(bucket_name, emr_name, os.environ['edge_user_name'])
-                print "The bucket " + bucket_name + " has been cleaned successfully"
-                print 'Terminating cluster {}'.format(emr_name)
-                terminate_emr(cluster_id)
-                print "The EMR cluster " + emr_name + " has been terminated successfully"
-        else:
-            print "There are no EMR clusters to terminate."
-    except:
-        sys.exit(1)
-
-    print "Terminating notebook"
-    try:
-        remove_ec2(tag_name, nb_tag_value)
-    except:
-        sys.exit(1)
+# def terminate_nb(nb_tag_value, bucket_name, tag_name):
+#     print 'Terminating EMR cluster and cleaning EMR config from S3 bucket'
+#     try:
+#         clusters_list = get_emr_list(nb_tag_value, 'Value')
+#         if clusters_list:
+#             for cluster_id in clusters_list:
+#                 client = boto3.client('emr')
+#                 cluster = client.describe_cluster(ClusterId=cluster_id)
+#                 cluster = cluster.get("Cluster")
+#                 emr_name = cluster.get('Name')
+#                 print 'Cleaning bucket from configs for cluster {}'.format(emr_name)
+#                 s3_cleanup(bucket_name, emr_name, os.environ['edge_user_name'])
+#                 print "The bucket " + bucket_name + " has been cleaned successfully"
+#                 print 'Terminating cluster {}'.format(emr_name)
+#                 terminate_emr(cluster_id)
+#                 print "The EMR cluster " + emr_name + " has been terminated successfully"
+#         else:
+#             print "There are no EMR clusters to terminate."
+#     except:
+#         sys.exit(1)
+#
+#     print "Terminating notebook"
+#     try:
+#         remove_ec2(tag_name, nb_tag_value)
+#     except:
+#         sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -70,13 +70,12 @@ if __name__ == "__main__":
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['bucket_name'] = (notebook_config['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
-    notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
 
     try:
         logging.info('[TERMINATE NOTEBOOK]')
         print '[TERMINATE NOTEBOOK]'
         try:
-            terminate_nb(notebook_config['notebook_name'], notebook_config['bucket_name'], notebook_config['tag_name'])
+            AzureActions().remove_instance(notebook_config['service_base_name'], notebook_config['notebook_name'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate notebook.", str(err))
@@ -87,7 +86,6 @@ if __name__ == "__main__":
     try:
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
-                   "Tag_name": notebook_config['tag_name'],
                    "user_own_bucket_name": notebook_config['bucket_name'],
                    "Action": "Terminate notebook server"}
             print json.dumps(res)

@@ -60,10 +60,8 @@ limitations under the License.
           <description>aws region where infrastructure was deployed</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>us-west-2</string>
-              <string>us-west-1</string>
-              <string>us-east-2</string>
-              <string>us-east-1</string>
+              <string>westus</string>
+              <string>westus2</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
