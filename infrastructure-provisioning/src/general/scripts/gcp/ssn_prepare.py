@@ -44,6 +44,7 @@ if __name__ == "__main__":
     ssn_conf['region'] = os.environ['gcp_region']
     ssn_conf['zone'] = os.environ['gcp_zone']
     ssn_conf['ssn_bucket_name'] = (ssn_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
+    ssn_conf['shared_bucket_name'] = (ssn_conf['service_base_name'] + '-shared-bucket').lower().replace('_', '-')
     ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
     ssn_conf['instance_size'] = os.environ['ssn_instance_size']
     ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
@@ -155,7 +156,13 @@ if __name__ == "__main__":
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
         params = "--bucket_name {}".format(ssn_conf['ssn_bucket_name'])
+        try:
+            local("~/scripts/{}.py {}".format('common_create_bucket', params))
+        except:
+            traceback.print_exc()
+            raise Exception
 
+        params = "--bucket_name {}".format(ssn_conf['shared_bucket_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_bucket', params))
         except:
