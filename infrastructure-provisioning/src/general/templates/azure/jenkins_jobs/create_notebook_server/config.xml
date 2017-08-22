@@ -29,6 +29,11 @@ limitations under the License.
           <defaultValue>SBN</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
+          <name>Vpc_name</name>
+          <description>Azure Vpc name</description>
+          <defaultValue>VPC</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
           <name>Username</name>
           <description>name of the scientist</description>
           <defaultValue></defaultValue>
@@ -37,11 +42,6 @@ limitations under the License.
           <name>SSH_Key_Name</name>
           <description>name of the uploaded ssh key file (without &quot;.pem&quot;)</description>
           <defaultValue>AKEY</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>SSN_SG_ids</name>
-          <description>The ID of the SSN Security Group to be accessible</description>
-          <defaultValue>SGI</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>notebook_app</name>
@@ -68,38 +68,19 @@ limitations under the License.
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>instance_shape</name>
-          <description>
-            Test purpose: XS: t2.medium
-            Memory optimized: S: r3.xlarge
-            Memory optimized: M: r3.4xlarge
-            Memory optimized: L: r3.8xlarge
-            GPU optimized: M: g2.2xlarge
-            Compute optimized: S: c4.large
-            Compute optimized: M: c4.2xlarge
-            Compute optimized: L: c4.8xlarge
-          </description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>t2.medium</string>
-              <string>r3.xlarge</string>
-              <string>r3.4xlarge</string>
-              <string>r3.8xlarge</string>
-              <string>g2.2xlarge</string>
-              <string>c4.large</string>
-              <string>c4.2xlarge</string>
-              <string>c4.8xlarge</string>
+              <string>Standard_DS1_v2</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>Region</name>
-          <description>aws region where infrastructure was deployed</description>
+          <description>Azure region where infrastructure was deployed</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>us-west-2</string>
-              <string>us-west-1</string>
-              <string>us-east-2</string>
-              <string>us-east-1</string>
+              <string>westus</string>
+              <string>westus2</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -141,7 +122,7 @@ limitations under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`; creds=$git_creds;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_notebook_server/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/NIT/&apos;${instance_shape}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/SGI/&apos;${SSN_SG_ids}&apos;/g&apos; | sed &quot;s/GIT/${creds}/g&quot; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/notebook:/logs/notebook  docker.dlab-${notebook_app} --action $Action</command>
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_notebook_server/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/NIT/&apos;${instance_shape}&apos;/g&apos; | sed &apos;s/VPC/&apos;${VPC_name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &quot;s/GIT/${creds}/g&quot; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/notebook:/logs/notebook  docker.dlab-${notebook_app} --action $Action</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

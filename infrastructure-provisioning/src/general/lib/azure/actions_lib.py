@@ -313,63 +313,180 @@ class AzureActions:
 
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
-                        user_name=''):
+                        user_name='', create_option='fromImage', disk_id=''):
         try:
             if instance_type == 'ssn':
-                os_disk = {
-                    'os_type': 'Linux',
-                    'name': '{}-ssn-primary-disk'.format(service_base_name),
-                    'create_option': 'fromImage',
-                    'disk_size_gb': int(primary_disk_size),
-                    'managed_disk': {
-                        'storage_account_type': 'Premium_LRS'
+                parameters = {
+                    'location': region,
+                    'hardware_profile': {
+                        'vm_size': instance_size
+                    },
+                    'storage_profile': {
+                        'image_reference': {
+                            'publisher': 'Canonical',
+                            'offer': 'UbuntuServer',
+                            'sku': '16.04-LTS',
+                            'version': 'latest'
+                        },
+                        'os_disk': {
+                            'os_type': 'Linux',
+                            'name': '{}-ssn-primary-disk'.format(service_base_name),
+                            'create_option': 'fromImage',
+                            'disk_size_gb': int(primary_disk_size),
+                            'managed_disk': {
+                                'storage_account_type': 'Premium_LRS'
+                            }
+                        }
+                    },
+                    'os_profile': {
+                        'computer_name': instance_name,
+                        'admin_username': dlab_ssh_user_name,
+                        'linux_configuration': {
+                            'disable_password_authentication': True,
+                            'ssh': {
+                                'public_keys': [{
+                                    'path': '/home/{}/.ssh/authorized_keys'.format(dlab_ssh_user_name),
+                                    'key_data': public_key
+                                }]
+                            }
+                        }
+                    },
+                    'network_profile': {
+                        'network_interfaces': [
+                            {
+                                'id': network_interface_resource_id
+                            }
+                        ]
                     }
                 }
             elif instance_type == 'edge':
-                os_disk = {
-                    'os_type': 'Linux',
-                    'name': '{}-{}-edge-primary-disk'.format(service_base_name, user_name),
-                    'create_option': 'fromImage',
-                    'disk_size_gb': int(primary_disk_size),
-                    'managed_disk': {
-                        'storage_account_type': 'Premium_LRS'
+                if create_option == 'fromImage':
+                    parameters = {
+                        'location': region,
+                        'hardware_profile': {
+                            'vm_size': instance_size
+                        },
+                        'storage_profile': {
+                            'image_reference': {
+                                'publisher': 'Canonical',
+                                'offer': 'UbuntuServer',
+                                'sku': '16.04-LTS',
+                                'version': 'latest'
+                            },
+                            'os_disk': {
+                                'os_type': 'Linux',
+                                'name': '{}-{}-edge-primary-disk'.format(service_base_name, user_name),
+                                'create_option': create_option,
+                                'disk_size_gb': int(primary_disk_size),
+                                'managed_disk': {
+                                    'storage_account_type': 'Premium_LRS'
+                                }
+                            }
+                        },
+                        'os_profile': {
+                            'computer_name': instance_name,
+                            'admin_username': dlab_ssh_user_name,
+                            'linux_configuration': {
+                                'disable_password_authentication': True,
+                                'ssh': {
+                                    'public_keys': [{
+                                        'path': '/home/{}/.ssh/authorized_keys'.format(dlab_ssh_user_name),
+                                        'key_data': public_key
+                                    }]
+                                }
+                            }
+                        },
+                        'network_profile': {
+                            'network_interfaces': [
+                                {
+                                    'id': network_interface_resource_id
+                                }
+                            ]
+                        }
                     }
-                }
-            parameters = {
-                'location': region,
-                'hardware_profile': {
-                    'vm_size': instance_size
-                },
-                'storage_profile': {
-                    'image_reference': {
-                        'publisher': 'Canonical',
-                        'offer': 'UbuntuServer',
-                        'sku': '16.04-LTS',
-                        'version': 'latest'
+                elif create_option == 'attach':
+                    parameters = {
+                        'location': region,
+                        'hardware_profile': {
+                            'vm_size': instance_size
+                        },
+                        'storage_profile': {
+                            'os_disk': {
+                                'os_type': 'Linux',
+                                'name': '{}-{}-edge-primary-disk'.format(service_base_name, user_name),
+                                'create_option': create_option,
+                                'disk_size_gb': int(primary_disk_size),
+                                'managed_disk': {
+                                    'id': disk_id,
+                                    'storage_account_type': 'Premium_LRS'
+                                }
+                            }
+                        },
+                        'network_profile': {
+                            'network_interfaces': [
+                                {
+                                    'id': network_interface_resource_id
+                                }
+                            ]
+                        }
+                    }
+            elif instance_type == 'notebook':
+                parameters = {
+                    'location': region,
+                    'hardware_profile': {
+                        'vm_size': instance_size
                     },
-                    'os_disk': os_disk
-                },
-                'os_profile': {
-                    'computer_name': instance_name,
-                    'admin_username': dlab_ssh_user_name,
-                    'linux_configuration': {
-                        'disable_password_authentication': True,
-                        'ssh': {
-                            'public_keys': [{
-                                'path': '/home/{}/.ssh/authorized_keys'.format(dlab_ssh_user_name),
-                                'key_data': public_key
-                            }]
+                    'storage_profile': {
+                        'image_reference': {
+                            'publisher': 'Canonical',
+                            'offer': 'UbuntuServer',
+                            'sku': '16.04-LTS',
+                            'version': 'latest'
+                        },
+                        'os_disk': {
+                            'os_type': 'Linux',
+                            'name': '{}-primary-disk'.format(instance_name),
+                            'create_option': 'fromImage',
+                            'disk_size_gb': int(primary_disk_size),
+                            'managed_disk': {
+                                'storage_account_type': 'Premium_LRS'
+                            }
+                        },
+                        'data_disks': [
+                            {
+                                'lun': 1,
+                                'name': '{}-secondary-disk'.format(instance_name),
+                                'create_option': 'empty',
+                                'disk_size_gb': 32,
+                                'managed_disk': {
+                                    'storage_account_type': 'Premium_LRS'
+                                }
+                            }
+                        ]
+                    },
+                    'os_profile': {
+                        'computer_name': instance_name,
+                        'admin_username': dlab_ssh_user_name,
+                        'linux_configuration': {
+                            'disable_password_authentication': True,
+                            'ssh': {
+                                'public_keys': [{
+                                    'path': '/home/{}/.ssh/authorized_keys'.format(dlab_ssh_user_name),
+                                    'key_data': public_key
+                                }]
+                            }
                         }
+                    },
+                    'network_profile': {
+                        'network_interfaces': [
+                            {
+                                'id': network_interface_resource_id
+                            }
+                        ]
                     }
-                },
-                'network_profile': {
-                    'network_interfaces': [
-                        {
-                            'id': network_interface_resource_id
-                        }
-                    ]
                 }
-            }
+            else:
+                parameters = {}
             result = self.compute_client.virtual_machines.create_or_update(
                 resource_group_name, instance_name, parameters
             )
