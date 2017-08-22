@@ -451,7 +451,18 @@ class AzureActions:
                             'managed_disk': {
                                 'storage_account_type': 'Premium_LRS'
                             }
-                        }
+                        },
+                        'data_disks': [
+                            {
+                                'lun': 1,
+                                'name': '{}-secondary-disk'.format(instance_name),
+                                'create_option': 'empty',
+                                'disk_size_gb': 32,
+                                'managed_disk': {
+                                    'storage_account_type': 'Premium_LRS'
+                                }
+                            }
+                        ]
                     },
                     'os_profile': {
                         'computer_name': instance_name,
