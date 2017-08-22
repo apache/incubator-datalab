@@ -371,6 +371,7 @@ class GCPMeta:
                                                                             clusterName=cluster)
                 result = request.execute()
                 host['id'] = cluster
+                host['version'] = result.get('config').get('softwareConfig').get('imageVersion')[:3]
                 host['status'] = result.get('status').get('state').lower()
                 data.append(host)
             except:

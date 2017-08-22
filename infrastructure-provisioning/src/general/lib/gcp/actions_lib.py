@@ -32,6 +32,7 @@ import traceback
 import sys, time
 from Crypto.PublicKey import RSA
 from fabric.api import *
+import urllib2
 
 
 class GCPActions:
@@ -204,6 +205,22 @@ class GCPActions:
             logging.info(
                 "Unable to remove Bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to remove Bucket",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def bucket_cleanup(self, bucket_name, user_name, cluster_name):
+        try:
+            bucket = self.storage_client.get_bucket(bucket_name)
+            list_files = bucket.list_blobs(prefix='{0}/{1}'.format(user_name, cluster_name))
+            for item in list_files:
+                print "Deleting:", item.name
+                blob = bucket.blob(item.name)
+                blob.delete()
+        except Exception as err:
+            logging.info(
+                "Unable to remove files from bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove files from bucket",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
@@ -737,23 +754,82 @@ class GCPActions:
         local('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/{0}/{1}/'.format(args.dataproc_version, args.cluster_name))
 
     def spark_defaults(self, args):
-        spark_def_path = '/opt/{0}/{1}/spark/conf/spark-defaults.conf'.format(args.dataproc_version, args.cluster_name)
         spark_def_path = '/opt/{0}/{1}/spark/conf/spark-env.sh'.format(args.dataproc_version, args.cluster_name)
-        local(""" sudo bash -c " sed -i '/#/d' """ + spark_def_path + """ " """)
-        local(""" sudo bash -c " sed -i '/^\s*$/d' """ + spark_def_path + """ " """)
-        local(""" sudo bash -c " sed -i 's|/usr/lib/hadoop|/opt/{}/jars/usr/lib/hadoop|g' " """.format(args.dataproc_version))
-        local(""" sudo bash -c " sed -i 's|/etc/hadoop/conf|/opt/{0}/{1}/conf|g' " """.format(args.dataproc_version, args.cluster_name))
-        local(""" sudo bash -c " sed -i '/\$HADOOP\_HOME\/\*/a SPARK_DIST_CLASSPATH=\"\$SPARK_DIST_CLASSPATH:\$HADOOP_HOME\/client\/*\" " """)
-        # local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/,/spark.driver.extraLibraryPath/s|/usr|/opt/DATAENGINE-SERVICE_VERSION/jars/usr|g' """ + spark_def_path + """ " """)
-        # local(""" sudo bash -c "sed -i '/spark.yarn.dist.files/s/\/etc\/spark\/conf/\/opt\/DATAENGINE-SERVICE_VERSION\/CLUSTER\/conf/g' """
-        #     + spark_def_path + """ " """)
-        # template_file = spark_def_path
-        # with open(template_file, 'r') as f:
-        #     text = f.read()
-        # text = text.replace('DATAENGINE-SERVICE_VERSION', args.dataproc_version)
-        # text = text.replace('CLUSTER', args.cluster_name)
-        # with open(spark_def_path, 'w') as f:
-        #     f.write(text)
+        local(""" sudo bash -c " sed -i '/#/d' {}" """.format(spark_def_path))
+        local(""" sudo bash -c " sed -i '/^\s*$/d' {}" """.format(spark_def_path))
+        local(""" sudo bash -c " sed -i 's|/usr/lib/hadoop|/opt/{0}/jars/usr/lib/hadoop|g' {1}" """.format(args.dataproc_version, spark_def_path))
+        local(""" sudo bash -c " sed -i 's|/etc/hadoop/conf|/opt/{0}/{1}/conf|g' {2}" """.format(args.dataproc_version, args.cluster_name, spark_def_path))
+        local(""" sudo bash -c " sed -i '/\$HADOOP_HOME\/\*/a SPARK_DIST_CLASSPATH=\\"\$SPARK_DIST_CLASSPATH:\$HADOOP_HOME\/client\/*\\"' {}" """.format(spark_def_path))
+        local(""" sudo bash -c " sed -i '/\$HADOOP_YARN_HOME\/\*/a SPARK_DIST_CLASSPATH=\\"\$SPARK_DIST_CLASSPATH:\/opt\/jars\/\*\\"' {}" """.format(spark_def_path))
+        local(""" sudo bash -c " sed -i 's|/hadoop/spark/work|/tmp/hadoop/spark/work|g' {}" """.format(spark_def_path))
+        local(""" sudo bash -c " sed -i 's|/hadoop/spark/tmp|/tmp/hadoop/spark/tmp|g' {}" """.format(spark_def_path))
+        local(""" sudo bash -c " sed -i 's/STANDALONE_SPARK_MASTER_HOST.*/STANDALONE_SPARK_MASTER_HOST={0}-m/g' {1}" """.format(args.cluster_name, spark_def_path))
+
+    def remove_kernels(self, notebook_name, dataproc_name, dataproc_version, ssh_user, key_path):
+        try:
+            notebook_ip = meta_lib.GCPMeta().get_private_ip_address(notebook_name)
+            env.hosts = "{}".format(notebook_ip)
+            env.user = "{}".format(ssh_user)
+            env.key_filename = "{}".format(key_path)
+            env.host_string = env.user + "@" + env.hosts
+            sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, dataproc_name))
+            if exists('/home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name)):
+                if os.environ['notebook_multiple_dataengine_services'] == 'true':
+                    try:
+                        livy_port = sudo("cat /opt/" + dataproc_version + "/" + dataproc_name
+                                         + "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
+                        process_number = sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                                              "' | awk '{print $7}' | sed 's|/.*||g'")
+                        sudo('kill -9 ' + process_number)
+                        sudo('systemctl disable livy-server-' + livy_port)
+                    except:
+                        print "Wasn't able to find Livy server for this EMR!"
+                sudo(
+                    'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+                sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
+                zeppelin_url = 'http://' + notebook_ip + ':8080/api/interpreter/setting/'
+                opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+                req = opener.open(urllib2.Request(zeppelin_url))
+                r_text = req.read()
+                interpreter_json = json.loads(r_text)
+                interpreter_prefix = dataproc_name
+                for interpreter in interpreter_json['body']:
+                    if interpreter_prefix in interpreter['name']:
+                        print "Interpreter with ID:", interpreter['id'], "and name:", interpreter['name'], \
+                            "will be removed from zeppelin!"
+                        request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
+                        request.get_method = lambda: 'DELETE'
+                        url = opener.open(request)
+                        print url.read()
+                sudo('chown ' + ssh_user + ':' + ssh_user + ' -R /opt/zeppelin/')
+                sudo('systemctl daemon-reload')
+                sudo("service zeppelin-notebook stop")
+                sudo("service zeppelin-notebook start")
+                zeppelin_restarted = False
+                while not zeppelin_restarted:
+                    sudo('sleep 5')
+                    result = sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                    result = result[:1]
+                    if result == '1':
+                        zeppelin_restarted = True
+                sudo('sleep 5')
+                sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
+                if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
+                    sudo("sed -i '/{0}/d' /home/{1}/.Renviron".format(dataproc_name, ssh_user))
+                    if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(ssh_user)):
+                        sudo("sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".format(ssh_user))
+                    sudo("sed -i 's|/opt/{0}/{1}/spark//R/lib:||g' /home/{2}/.bashrc".format(dataproc_version, dataproc_name, ssh_user))
+                sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
+                print "Notebook's " + env.hosts + " kernels were removed"
+        except Exception as err:
+            logging.info(
+                "Unable to delete dataproc kernels from notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to delete dataproc kernels from notebook",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
 
     def install_python(self, bucket, user_name, cluster_name, application):
         try:

@@ -18,6 +18,7 @@
 #
 # ******************************************************************************
 
+from dlab.fab import *
 from dlab.meta_lib import *
 from dlab.actions_lib import *
 import boto3
@@ -26,24 +27,16 @@ import sys
 import os
 
 
-def terminate_emr_cluster(emr_name, bucket_name, tag_name, nb_tag_value, ssh_user, key_path):
-    print 'Terminating EMR cluster and cleaning EMR config from S3 bucket'
+def terminate_dataproc_cluster(notebook_name, dataproc_name, dataproc_version, bucket_name, ssh_user, key_path):
+    print 'Terminating Dataproc cluster and cleaning Dataproc config from bucket'
     try:
-        clusters_list = get_emr_list(emr_name, 'Value')
-        if clusters_list:
-            for cluster_id in clusters_list:
-                client = boto3.client('emr')
-                cluster = client.describe_cluster(ClusterId=cluster_id)
-                cluster = cluster.get("Cluster")
-                emr_name = cluster.get('Name')
-                emr_version = cluster.get('ReleaseLabel')
-                s3_cleanup(bucket_name, emr_name, os.environ['edge_user_name'])
-                print "The bucket " + bucket_name + " has been cleaned successfully"
-                terminate_emr(cluster_id)
-                print "The EMR cluster " + emr_name + " has been terminated successfully"
-                print "Removing EMR kernels from notebook"
-                remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path,
-                               emr_version)
+        cluster = meta_lib.GCPMeta().get_list_cluster_statuses([dataproc_name])
+        if cluster[0]['status'] == 'running':
+            actions_lib.GCPActions().bucket_cleanup(bucket_name, os.environ['edge_user_name'], dataproc_name)
+            print 'The bucket {} has been cleaned successfully'.format(bucket_name)
+            actions_lib.GCPActions().delete_dataproc_cluster(dataproc_name, os.environ['gcp_region'])
+            print 'The Dataproc cluster {} has been terminated successfully'.format(dataproc_name)
+            actions_lib.GCPActions().remove_kernels(notebook_name, dataproc_name, cluster[0]['version'], ssh_user, key_path)
         else:
             print "There are no EMR clusters to terminate."
     except:
@@ -60,33 +53,32 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     print 'Generating infrastructure names and tags'
-    emr_conf = dict()
-    emr_conf['service_base_name'] = os.environ['conf_service_base_name']
-    emr_conf['emr_name'] = os.environ['emr_cluster_name']
-    emr_conf['notebook_name'] = os.environ['notebook_instance_name']
-    emr_conf['bucket_name'] = (emr_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
-    emr_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
-    emr_conf['tag_name'] = emr_conf['service_base_name'] + '-Tag'
+    dataproc_conf = dict()
+    dataproc_conf['service_base_name'] = os.environ['conf_service_base_name']
+    dataproc_conf['dataproc_name'] = os.environ['dataproc_cluster_name']
+    dataproc_conf['notebook_name'] = os.environ['notebook_instance_name']
+    dataproc_conf['bucket_name'] = (dataproc_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
+    dataproc_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
 
     try:
-        logging.info('[TERMINATE EMR CLUSTER]')
-        print '[TERMINATE EMR CLUSTER]'
+        logging.info('[TERMINATE DATAPROC CLUSTER]')
+        print '[TERMINATE DATAPROC CLUSTER]'
         try:
-            terminate_emr_cluster(emr_conf['emr_name'], emr_conf['bucket_name'], emr_conf['tag_name'],
-                                  emr_conf['notebook_name'], os.environ['conf_os_user'], emr_conf['key_path'])
+            terminate_dataproc_cluster(dataproc_conf['notebook_name'], dataproc_conf['dataproc_name'], dataproc_conf['dataproc_version'],
+                                       dataproc_conf['bucket_name'], os.environ['conf_os_user'], dataproc_conf['key_path'])
         except Exception as err:
             traceback.print_exc()
-            append_result("Failed to terminate EMR cluster.", str(err))
+            append_result("Failed to terminate Dataproc cluster.", str(err))
             raise Exception
     except:
         sys.exit(1)
 
     try:
         with open("/root/result.json", 'w') as result:
-            res = {"EMR_name": emr_conf['emr_name'],
-                   "notebook_name": emr_conf['notebook_name'],
-                   "user_own_bucket_name": emr_conf['bucket_name'],
-                   "Action": "Terminate EMR cluster"}
+            res = {"dataengine-service_name": dataproc_conf['dataproc_name'],
+                   "notebook_name": dataproc_conf['notebook_name'],
+                   "user_own_bucket_name": dataproc_conf['bucket_name'],
+                   "Action": "Terminate Dataproc cluster"}
             print json.dumps(res)
             result.write(json.dumps(res))
     except:

@@ -71,8 +71,8 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Failed installing Dataproc kernels.", str(err))
         actions_lib.GCPActions().delete_dataproc_cluster(notebook_config['cluster_name'], os.environ['gcp_region'])
-        # remove_kernels(notebook_config['cluster_name'], notebook_config['tag_name'], os.environ['notebook_instance_name'],
-        #                os.environ['conf_os_user'], notebook_config['key_path'], os.environ['emr_version'])
+        actions_lib.GCPActions().remove_kernels(notebook_config['notebook_name'], notebook_config['cluster_name'],
+                                                os.environ['dataproc_version'], os.environ['conf_os_user'], notebook_config['key_path'])
         sys.exit(1)
 
     try:

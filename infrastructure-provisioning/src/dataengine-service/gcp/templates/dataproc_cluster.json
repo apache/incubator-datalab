@@ -19,7 +19,7 @@
             "numInstances": 1,
             "machineTypeUri": "MASTER_INSTANCE",
             "diskConfig": {
-                "bootDiskSizeGb": 50,
+                "bootDiskSizeGb": 30,
                 "numLocalSsds": 0
             }
         },
@@ -27,7 +27,7 @@
             "numInstances": "NUM_SLAVES",
             "machineTypeUri": "SLAVE_INSTANCE",
             "diskConfig": {
-                "bootDiskSizeGb": 50,
+                "bootDiskSizeGb": 30,
                 "numLocalSsds": 0
             }
         },

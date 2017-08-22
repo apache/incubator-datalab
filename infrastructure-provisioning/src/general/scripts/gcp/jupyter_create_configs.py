@@ -106,33 +106,6 @@ def toree_kernel(args):
         f.write(text)
 
 
-def add_breeze_library_dataproc(args):
-    spark_defaults_path = '/opt/{0}/{1}/spark/conf/spark-defaults.conf'.format(args.dataproc_version, args.cluster_name)
-    new_jars_directory_path = '/opt/{}/jars/usr/other/'.format(args.dataproc_version)
-    breeze_tmp_dir = '/tmp/breeze_tmp_dapaproc/'
-    local('sudo mkdir -p {}'.format(new_jars_directory_path))
-    local('mkdir -p {}'.format(breeze_tmp_dir))
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze_2.11/0.12/{0} -O {1}{0}'
-          .format('breeze_2.11-0.12.jar', breeze_tmp_dir))
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze-natives_2.11/0.12/{0} -O {1}{0}'
-          .format('breeze-natives_2.11-0.12.jar', breeze_tmp_dir))
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze-viz_2.11/0.12/{0} -O {1}{0}'
-          .format('breeze-viz_2.11-0.12.jar', breeze_tmp_dir))
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze-macros_2.11/0.12/{0} -O {1}{0}'
-          .format('breeze-macros_2.11-0.12.jar', breeze_tmp_dir))
-    local('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_2.11/0.12/{0} -O {1}{0}'
-          .format('breeze-parent_2.11-0.12.jar', breeze_tmp_dir))
-    local('wget http://central.maven.org/maven2/org/jfree/jfreechart/1.0.19/{0} -O {1}{0}'
-          .format('jfreechart-1.0.19.jar', breeze_tmp_dir))
-    local('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/{0} -O {1}{0}'
-          .format('jcommon-1.0.24.jar', breeze_tmp_dir))
-    local('wget https://brunelvis.org/jar/{0} -O {1}{0}'
-          .format('spark-kernel-brunel-all-2.3.jar', breeze_tmp_dir))
-    local('sudo mv {0}* {1}'.format(breeze_tmp_dir, new_jars_directory_path))
-    local(""" sudo bash -c "sed -i '/spark.driver.extraClassPath/s/$/:\/opt\/""" + args.dataproc_version +
-          """\/jars\/usr\/other\/*/' """ + spark_defaults_path + """" """)
-
-
 if __name__ == "__main__":
     if args.dry_run == 'true':
         parser.print_help()
@@ -148,4 +121,3 @@ if __name__ == "__main__":
         actions_lib.GCPActions().spark_defaults(args)
         r_kernel(args)
         configuring_notebook(args.dataproc_version)
-        add_breeze_library_dataproc(args)
