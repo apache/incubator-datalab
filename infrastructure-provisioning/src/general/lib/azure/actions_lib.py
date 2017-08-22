@@ -415,7 +415,7 @@ class AzureActions:
     def remove_instance(self, resource_group_name, instance_name):
         try:
             result = self.compute_client.virtual_machines.delete(resource_group_name, instance_name)
-            while meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).provisioning_state != "Succeeded":
+            while not meta_lib.AzureMeta().get_instance(resource_group_name, instance_name):
                 time.sleep(5)
                 print "Instance {} is being terminated...".format(instance_name)
             return result

@@ -19,67 +19,73 @@
 # ******************************************************************************
 
 import json
+import sys, time, os
 from dlab.fab import *
 from dlab.meta_lib import *
-import sys, time, os
 from dlab.actions_lib import *
 
 
-def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, allocation_id):
-    print 'Terminating EMR cluster'
+def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_name, subnet_name):
+    # print 'Terminating EMR cluster'
+    # try:
+    #     clusters_list = get_emr_list(tag_name)
+    #     if clusters_list:
+    #         for cluster_id in clusters_list:
+    #             client = boto3.client('emr')
+    #             cluster = client.describe_cluster(ClusterId=cluster_id)
+    #             cluster = cluster.get("Cluster")
+    #             emr_name = cluster.get('Name')
+    #             terminate_emr(cluster_id)
+    #             print "The EMR cluster " + emr_name + " has been terminated successfully"
+    #     else:
+    #         print "There are no EMR clusters to terminate."
+    # except:
+    #     sys.exit(1)
+
+    # print "Deregistering notebook's AMI"
+    # try:
+    #     deregister_image(user_name)
+    # except:
+    #     sys.exit(1)
+
+    print "Terminating EDGE and notebook instances, network interfaces"
     try:
-        clusters_list = get_emr_list(tag_name)
-        if clusters_list:
-            for cluster_id in clusters_list:
-                client = boto3.client('emr')
-                cluster = client.describe_cluster(ClusterId=cluster_id)
-                cluster = cluster.get("Cluster")
-                emr_name = cluster.get('Name')
-                terminate_emr(cluster_id)
-                print "The EMR cluster " + emr_name + " has been terminated successfully"
-        else:
-            print "There are no EMR clusters to terminate."
+        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+            if user_env_prefix in vm.name:
+                AzureActions().remove_instance(resource_group_name, vm.name)
+                print "Instance {} has been terminated".format(vm.name)
+                AzureActions().delete_network_if(resource_group_name, vm.name + '-nif')
+                print "Network interface {} has been terminated".format(vm.name + '-nif')
     except:
         sys.exit(1)
 
-    print "Deregistering notebook's AMI"
+    print "Removing storage account"
     try:
-        deregister_image(user_name)
+        AzureActions().remove_storage_account(resource_group_name, storage_account_name)
     except:
         sys.exit(1)
 
-    print "Terminating EDGE and notebook instances"
-    try:
-        remove_ec2(tag_name, tag_value)
-    except:
-        sys.exit(1)
-
-    print "Removing s3 bucket"
-    try:
-        remove_s3('edge', user_name)
-    except:
-        sys.exit(1)
-
-    print "Removing IAM roles and profiles"
-    try:
-        remove_all_iam_resources('notebook', user_name)
-        remove_all_iam_resources('edge', user_name)
-    except:
-        sys.exit(1)
+    # print "Removing IAM roles and profiles"
+    # try:
+    #     remove_all_iam_resources('notebook', user_name)
+    #     remove_all_iam_resources('edge', user_name)
+    # except:
+    #     sys.exit(1)
 
     print "Removing security groups"
     try:
-        remove_sgroups(nb_sg)
-        remove_sgroups(edge_sg)
+        for sg in AzureMeta().network_client.network_security_groups.list(resource_group_name):
+            if user_env_prefix in sg.name:
+                AzureActions().remove_security_group(resource_group_name, sg.name)
     except:
         sys.exit(1)
 
     print "Removing private subnet"
     try:
-        remove_subnets(tag_value)
+        for vpc in AzureActions().network_client.virtual_networks.list("dlab-1808"):
+            AzureActions().remove_subnet(resource_group_name, vpc.name, subnet_name)
     except:
         sys.exit(1)
-
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
@@ -88,27 +94,22 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    # generating variables dictionary
-    create_aws_config_files()
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+    edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
     edge_conf['user_name'] = os.environ['edge_user_name']
-    edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
-    edge_conf['tag_value'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '*'
-    edge_conf['edge_sg'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['nb_sg'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
-    edge_conf['edge_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'],
-                                                          edge_conf['edge_instance_name']).get('Public')
-    edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
+    edge_conf['user_env_prefix'] = os.environ['conf_service_base_name'] + "-" + edge_conf['user_name']
+    edge_conf['storage_account_name'] = (os.environ['conf_service_base_name'] + edge_conf['user_name']).lower().\
+        replace('_', '').replace('-', '')
+    edge_conf['private_subnet_name'] = os.environ['conf_service_base_name'] + "-" + edge_conf['user_name'] + '-subnet'
+
 
     try:
         logging.info('[TERMINATE EDGE]')
         print '[TERMINATE EDGE]'
         try:
-            terminate_edge_node(edge_conf['tag_name'], edge_conf['user_name'], edge_conf['tag_value'],
-                                edge_conf['nb_sg'], edge_conf['edge_sg'], edge_conf['allocation_id'])
+            terminate_edge_node(edge_conf['resource_group_name'], edge_conf['user_env_prefix'],
+                                edge_conf['storage_account_name'], edge_conf['private_subnet_name'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate edge.", str(err))
