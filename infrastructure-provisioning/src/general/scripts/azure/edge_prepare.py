@@ -502,9 +502,6 @@ if __name__ == "__main__":
         AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
         try:
             AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
-            AzureActions().remove_disk(edge_conf['service_base_name'], edge_conf['primary_disk_name'])
-            AzureActions().delete_network_if(edge_conf['service_base_name'], edge_conf['network_interface_name'])
-            AzureActions().delete_static_public_ip(edge_conf['service_base_name'], edge_conf['static_public_ip_name'])
         except:
             print "The instance hasn't been created."
         append_result("Failed to create instance. Exception:" + str(err))

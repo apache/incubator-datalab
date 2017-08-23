@@ -75,9 +75,6 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
         AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
-        AzureActions().remove_disk(edge_conf['service_base_name'], edge_conf['primary_disk_name'])
-        AzureActions().delete_network_if(edge_conf['service_base_name'], edge_conf['network_interface_name'])
-        AzureActions().delete_static_public_ip(edge_conf['service_base_name'], edge_conf['static_public_ip_name'])
         sys.exit(1)
 
     try:
@@ -107,9 +104,6 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
         AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
-        AzureActions().remove_disk(edge_conf['service_base_name'], edge_conf['primary_disk_name'])
-        AzureActions().delete_network_if(edge_conf['service_base_name'], edge_conf['network_interface_name'])
-        AzureActions().delete_static_public_ip(edge_conf['service_base_name'], edge_conf['static_public_ip_name'])
         sys.exit(1)
 
     try:
@@ -130,9 +124,6 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
         AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
-        AzureActions().remove_disk(edge_conf['service_base_name'], edge_conf['primary_disk_name'])
-        AzureActions().delete_network_if(edge_conf['service_base_name'], edge_conf['network_interface_name'])
-        AzureActions().delete_static_public_ip(edge_conf['service_base_name'], edge_conf['static_public_ip_name'])
         sys.exit(1)
 
     try:
@@ -155,9 +146,6 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
         AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
-        AzureActions().remove_disk(edge_conf['service_base_name'], edge_conf['primary_disk_name'])
-        AzureActions().delete_network_if(edge_conf['service_base_name'], edge_conf['network_interface_name'])
-        AzureActions().delete_static_public_ip(edge_conf['service_base_name'], edge_conf['static_public_ip_name'])
         sys.exit(1)
 
 
@@ -181,9 +169,6 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
         AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
-        AzureActions().remove_disk(edge_conf['service_base_name'], edge_conf['primary_disk_name'])
-        AzureActions().delete_network_if(edge_conf['service_base_name'], edge_conf['network_interface_name'])
-        AzureActions().delete_static_public_ip(edge_conf['service_base_name'], edge_conf['static_public_ip_name'])
         sys.exit(1)
 
     try:

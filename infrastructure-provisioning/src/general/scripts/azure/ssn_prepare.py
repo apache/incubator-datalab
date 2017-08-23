@@ -274,8 +274,6 @@ if __name__ == "__main__":
         AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
         try:
             AzureActions().remove_instance(ssn_conf['service_base_name'], ssn_conf['instance_name'])
-            AzureActions().delete_static_public_ip(ssn_conf['service_base_name'], ssn_conf['static_public_ip_name'])
-            AzureActions().delete_network_if(ssn_conf['service_base_name'], ssn_conf['network_interface_name'])
         except:
             print "The instance {} hasn't been created".format(ssn_conf['instance_name'])
         append_result("Failed to create instance. Exception:" + str(err))

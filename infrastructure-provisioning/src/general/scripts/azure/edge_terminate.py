@@ -54,12 +54,6 @@ def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_na
             if user_env_prefix in vm.name:
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print "Instance {} has been terminated".format(vm.name)
-                AzureActions().remove_disk(resource_group_name, vm.name + '-primary-disk')
-                print "Primary Disk {} has been terminated".format(vm.name + '-primary-disk')
-                AzureActions().delete_network_if(resource_group_name, vm.name + '-nif')
-                print "Network interface {} has been terminated".format(vm.name + '-nif')
-                AzureActions().delete_static_public_ip(resource_group_name, vm.name + '-ip')
-                print "Public IP {} has been released".format(vm.name + '-ip')
             if '-nb-' in vm.name:
                 AzureActions().remove_disk(resource_group_name, vm.name + '-secondary-disk')
                 print "Secondaty Disk {} has been terminated".format(vm.name + '-secondary-disk')
