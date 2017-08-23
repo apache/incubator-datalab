@@ -229,8 +229,7 @@ if __name__ == "__main__":
         'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
 
     with open("/root/result.json", 'w') as result:
-        res = {"hostname": dns_name,
-               "ip": ip_address,
+        res = {"ip": ip_address,
                "master_keyname": os.environ['conf_key_name'],
                "notebook_name": notebook_config['instance_name'],
                "Action": "Create new notebook server",
