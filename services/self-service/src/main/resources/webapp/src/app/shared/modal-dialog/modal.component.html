@@ -16,9 +16,9 @@ limitations under the License.
 
 -->
 
-<div #modalRoot id="modalRoot" class="modal" role="dialog"
+<div #modalRoot id="modalRoot" class="dialog" role="dialog"
      (keydown.esc)="closeOnEscape ? close() : 0"
-     [ngClass]="{ in: isOpened, fade: isOpened }"
+     [ngClass]="{ in: isOpened, out: isHide }"
      (click)="closeOnOutsideClick($event) ? close() : 0">
     <div [class]="'modal-dialog ' + modalClass">
         <div class="modal-content" tabindex="0" *ngIf="isOpened">

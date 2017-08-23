@@ -32,6 +32,8 @@ export class ModalComponent implements OnDestroy {
   isHeader: boolean = true;
   isFooter: boolean = true;
   onClosing: Function;
+  isHide: boolean;
+  clear: number;
 
   @Input() modalClass: string;
   @Input() title: string;
@@ -44,8 +46,7 @@ export class ModalComponent implements OnDestroy {
   @Output() onClose = new EventEmitter(false);
   @Output() onSubmit = new EventEmitter(false);
 
-  @ViewChild('modalRoot') private modalRoot: ElementRef;
-
+  @ViewChild('modalRoot') el: ElementRef;
 
   private backdropElement: HTMLElement;
 
@@ -74,9 +75,10 @@ export class ModalComponent implements OnDestroy {
     }
 
     this.isOpened = true;
+    this.isHide = false;
     this.onOpen.emit(args);
     document.body.appendChild(this.backdropElement);
-    window.setTimeout(() => this.modalRoot.nativeElement.focus(), 0);
+    window.setTimeout(() => this.el.nativeElement.focus(), 0);
     document.body.className += ' modal-open';
   }
 
@@ -84,12 +86,19 @@ export class ModalComponent implements OnDestroy {
     if (!this.isOpened)
       return;
 
-    this.isOpened = false;
     if (this.onClosing)
       this.onClosing();
     this.onClose.emit(args);
-    document.body.removeChild(this.backdropElement);
-    document.body.className = document.body.className.replace(/modal-open\b/, '');
+
+    this.isHide = true;
+    this.clear = window.setTimeout(() => {
+      document.body.removeChild(this.backdropElement);
+      document.body.className = document.body.className.replace(/modal-open\b/, '');
+      this.el.nativeElement.classList.remove('out');
+      this.isOpened = false;
+
+      clearTimeout(this.clear);
+    }, 300);
 
     if (document.getElementsByClassName('dropdown open').length)
       document.getElementsByClassName('dropdown open')[0].classList.remove('open');
