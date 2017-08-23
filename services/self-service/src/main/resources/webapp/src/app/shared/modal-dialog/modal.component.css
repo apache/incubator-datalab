@@ -16,6 +16,18 @@ limitations under the License.
 
 ****************************************************************************/
 
+/** Keyframes **/
+@keyframes show {
+  from { opacity: 0; transform: translateY(-25%); }
+  20% { opacity: 0; transform: translateY(-20%); }
+  to { opacity: 1; transform: translateY(0%); }
+}
+@keyframes hide {
+  from { opacity: 1; transform: translateY(0%); }
+  30% { opacity: 0; }
+  to { opacity: 0; transform: translateY(-20%); }
+}
+
 .modal-xs {
   width: 375px;
 }
@@ -134,12 +146,16 @@ limitations under the License.
   align-self: center;
 }
 .dialog.in .modal-dialog {
-  -webkit-animation: show .8s ease normal;
-  animation: show .8s ease normal;
+  animation-duration: .8s;
+  animation-fill-mode: forwards;
+  animation-name: show;
+  animation-timing-function: ease;
 }
 .dialog.out .modal-dialog {
-  -webkit-animation: hide .8s ease normal;
-  animation: hide .8s ease normal;
+  animation-duration: .8s;
+  animation-fill-mode: forwards;
+  animation-name: hide;
+  animation-timing-function: ease;
 }
 
 .dialog .btn {
@@ -344,28 +360,4 @@ limitations under the License.
 
 .progress-dialog .modal-body {
   padding: 30px 30px 45px 30px;
-}
-
-@keyframes show {
-  from {
-    opacity: 0;
-    transform: translateY(-20%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0%);
-  }
-}
-@keyframes hide {
-  from {
-    opacity: 1;
-    transform: translateY(0%);
-  }
-  30% {
-    opacity: 0;
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-20%);
-  }
 }
