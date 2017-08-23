@@ -25,7 +25,7 @@ from dlab.meta_lib import *
 from dlab.actions_lib import *
 
 
-def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_name, subnet_name):
+def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_name, subnet_name, vpc_name):
     # print 'Terminating EMR cluster'
     # try:
     #     clusters_list = get_emr_list(tag_name)
@@ -78,9 +78,8 @@ def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_na
 
     print "Removing private subnet"
     try:
-        for vpc in AzureActions().network_client.virtual_networks.list(resource_group_name):
-            AzureActions().remove_subnet(resource_group_name, vpc.name, subnet_name)
-            print "Private subnet {} has been terminated".format(subnet_name)
+        AzureActions().remove_subnet(resource_group_name, vpc_name, subnet_name)
+        print "Private subnet {} has been terminated".format(subnet_name)
     except:
         sys.exit(1)
 
@@ -99,6 +98,7 @@ if __name__ == "__main__":
     edge_conf['storage_account_name'] = (os.environ['conf_service_base_name'] + edge_conf['user_name']).lower().\
         replace('_', '').replace('-', '')
     edge_conf['private_subnet_name'] = os.environ['conf_service_base_name'] + "-" + edge_conf['user_name'] + '-subnet'
+    edge_conf['vpc_name'] = os.environ['azure_vpc_name']
 
 
     try:
@@ -106,7 +106,8 @@ if __name__ == "__main__":
         print '[TERMINATE EDGE]'
         try:
             terminate_edge_node(edge_conf['resource_group_name'], edge_conf['user_env_prefix'],
-                                edge_conf['storage_account_name'], edge_conf['private_subnet_name'])
+                                edge_conf['storage_account_name'], edge_conf['private_subnet_name'],
+                                edge_conf['vpc_name'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate edge.", str(err))
