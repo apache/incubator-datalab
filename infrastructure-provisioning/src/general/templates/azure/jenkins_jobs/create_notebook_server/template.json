@@ -3,6 +3,7 @@
     "conf_os_family":"COF",
     "request_id":"RID",
     "conf_service_base_name":"SBN",
+    "azure_resource_group_name": "ARGN",
     "azure_vpc_name": "VPC",
     "azure_region":"CREG",
     "conf_key_name":"CKN",

@@ -34,12 +34,13 @@ if __name__ == "__main__":
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+    edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
 
     logging.info('[STOP EDGE]')
     print '[STOP EDGE]'
     try:
-        AzureActions().stop_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        AzureActions().stop_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
     except Exception as err:
         append_result("Failed to stop edge.", str(err))
         sys.exit(1)

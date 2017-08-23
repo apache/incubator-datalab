@@ -74,14 +74,14 @@ if __name__ == "__main__":
     print 'Generating infrastructure names and tags'
     notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+    notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-    notebook_config['bucket_name'] = (notebook_config['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
     notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
 
     logging.info('[STOP NOTEBOOK]')
     print '[STOP NOTEBOOK]'
     try:
-        AzureActions().stop_instance(notebook_config['service_base_name'], notebook_config['notebook_name'])
+        AzureActions().stop_instance(notebook_config['resource_group_name'], notebook_config['notebook_name'])
     except Exception as err:
         append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
@@ -90,7 +90,6 @@ if __name__ == "__main__":
     try:
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
-                   "user_own_bucket_name": notebook_config['bucket_name'],
                    "Action": "Stop notebook server"}
             print json.dumps(res)
             result.write(json.dumps(res))

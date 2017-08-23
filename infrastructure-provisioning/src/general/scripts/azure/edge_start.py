@@ -34,13 +34,14 @@ if __name__ == "__main__":
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+    edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_conf['instance_dns_name'] = edge_conf['instance_name'] + '.' + os.environ['azure_region'] + '.cloudapp.azure.com'
 
     logging.info('[START EDGE]')
     print '[START EDGE]'
     try:
-        AzureActions().start_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        AzureActions().start_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
     except Exception as err:
         append_result("Failed to start edge.", str(err))
         sys.exit(1)
@@ -49,9 +50,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        public_ip_address = AzureMeta().get_instance_public_ip_address(edge_conf['service_base_name'],
+        public_ip_address = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
                                                                        edge_conf['instance_name'])
-        private_ip_address = AzureMeta().get_instance_private_ip_address(edge_conf['service_base_name'],
+        private_ip_address = AzureMeta().get_instance_private_ip_address(edge_conf['resource_group_name'],
                                                                          edge_conf['instance_name'])
         print '[SUMMARY]'
         logging.info('[SUMMARY]')

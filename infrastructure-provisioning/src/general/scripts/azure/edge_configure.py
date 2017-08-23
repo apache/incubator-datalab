@@ -36,6 +36,7 @@ if __name__ == "__main__":
     edge_conf = dict()
 
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+    edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
     edge_conf['key_name'] = os.environ['conf_key_name']
     edge_conf['vpc_name'] = os.environ['azure_vpc_name']
     edge_conf['region'] = os.environ['azure_region']
@@ -49,6 +50,8 @@ if __name__ == "__main__":
                                          '-edge-ip'
     edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
     edge_conf['instance_dns_name'] = edge_conf['instance_name'] + '.' + edge_conf['region'] + '.cloudapp.azure.com'
+    edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower(). \
+        replace('_', '').replace('-', '')
     edge_conf['container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name']).lower().\
         replace('_', '-')
     edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared').lower().replace('_', '')
@@ -58,23 +61,23 @@ if __name__ == "__main__":
     edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
     keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
     try:
-        edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+        edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                                                   edge_conf['private_subnet_name']).address_prefix
-        edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['service_base_name'],
+        edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
                                                                        edge_conf['instance_name'])
-        edge_conf['edge_private_ip'] = AzureMeta().get_instance_private_ip_address(edge_conf['service_base_name'],
+        edge_conf['edge_private_ip'] = AzureMeta().get_instance_private_ip_address(edge_conf['resource_group_name'],
                                                                                    edge_conf['instance_name'])
 
-        instance_hostname = AzureMeta().get_instance_private_ip_address(edge_conf['service_base_name'],
-                                                                       edge_conf['instance_name'])
+        instance_hostname = AzureMeta().get_instance_private_ip_address(edge_conf['resource_group_name'],
+                                                                        edge_conf['instance_name'])
     except Exception as err:
         append_result("Failed to generate infrastructure names", str(err))
-        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
-        AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
-        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
+        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         sys.exit(1)
 
     try:
@@ -98,12 +101,12 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed creating ssh user 'dlab'.", str(err))
-        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
-        AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
-        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
+        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         sys.exit(1)
 
     try:
@@ -118,12 +121,12 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing apps: apt & pip.", str(err))
-        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
-        AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
-        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
+        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         sys.exit(1)
 
     try:
@@ -140,12 +143,12 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing http proxy.", str(err))
-        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
-        AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
-        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
+        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         sys.exit(1)
 
 
@@ -163,12 +166,12 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing users key. Excpeption: " + str(err))
-        AzureActions().remove_subnet(edge_conf['service_base_name'], edge_conf['vpc_name'],
+        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['service_base_name'], edge_conf['notebook_security_group_name'])
-        AzureActions().remove_storage_account(edge_conf['service_base_name'], edge_conf['storage_account_name'])
-        AzureActions().remove_instance(edge_conf['service_base_name'], edge_conf['instance_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
+        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         sys.exit(1)
 
     try:
@@ -179,6 +182,7 @@ if __name__ == "__main__":
         print "Public IP: " + edge_conf['edge_public_ip']
         print "Private IP: " + edge_conf['edge_private_ip']
         print "Key name: " + edge_conf['key_name']
+        print "Storage account name: " + edge_conf['storage_account_name']
         print "Container name: " + edge_conf['bucketcontainer_name_name']
         print "Shared bucket name: " + edge_conf['shared_container_name']
         print "Notebook SG: " + edge_conf['notebook_security_group_name']
@@ -189,6 +193,7 @@ if __name__ == "__main__":
                    "public_ip": edge_conf['edge_public_ip'],
                    "ip": edge_conf['edge_private_ip'],
                    "key_name": edge_conf['key_name'],
+                   "storage_account_name": edge_conf['storage_account_name'],
                    "user_own_bicket_name": edge_conf['container_name'],
                    "shared_bucket_name": edge_conf['shared_container_name'],
                    "tunnel_port": "22",

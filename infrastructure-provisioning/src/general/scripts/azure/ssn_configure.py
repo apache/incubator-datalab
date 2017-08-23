@@ -64,6 +64,7 @@ if __name__ == "__main__":
             if os.environ['azure_resource_group_name'] == '':
                 raise KeyError
         except KeyError:
+            os.environ['azure_resource_group_name'] = ssn_conf['service_base_name']
             pre_defined_resource_group = True
         try:
             if os.environ['azure_vpc_name'] == '':
@@ -90,7 +91,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        instance_hostname = AzureMeta().get_instance_public_ip_address(ssn_conf['service_base_name'],
+        instance_hostname = AzureMeta().get_instance_public_ip_address(os.environ['azure_resource_group_name'],
                                                                        ssn_conf['instance_name'])
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'

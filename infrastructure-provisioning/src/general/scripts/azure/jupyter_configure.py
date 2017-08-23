@@ -46,6 +46,7 @@ if __name__ == "__main__":
     except:
         notebook_config['exploratory_name'] = ''
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+    notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
     notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['user_keyname'] = os.environ['edge_user_name']
@@ -61,11 +62,11 @@ if __name__ == "__main__":
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
 
     # generating variables regarding EDGE proxy on Notebook instance
-    instance_hostname = AzureMeta().get_instance_private_ip_address(notebook_config['service_base_name'],
+    instance_hostname = AzureMeta().get_instance_private_ip_address(notebook_config['resource_group_name'],
                                                                     notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_instance_hostname = AzureMeta().get_instance_private_ip_address(notebook_config['service_base_name'],
-                                                                        edge_instance_name)
+    edge_instance_hostname = AzureMeta().get_instance_private_ip_address(notebook_config['resource_group_name'],
+                                                                         edge_instance_name)
     keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
 
     try:
@@ -89,7 +90,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed creating ssh user 'dlab'.", str(err))
-        AzureActions().remove_instance(notebook_config['service_base_name'], notebook_config['instance_name'])
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # configuring proxy on Notebook instance
@@ -107,7 +108,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to configure proxy.", str(err))
-        AzureActions().remove_instance(notebook_config['service_base_name'], notebook_config['instance_name'])
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # updating repositories & installing python packages
@@ -123,7 +124,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing apps: apt & pip.", str(err))
-        AzureActions().remove_instance(notebook_config['service_base_name'], notebook_config['instance_name'])
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # installing and configuring jupiter and all dependencies
@@ -141,7 +142,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to configure jupyter.", str(err))
-        AzureActions().remove_instance(notebook_config['service_base_name'], notebook_config['instance_name'])
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # installing python2 and python3 libs
@@ -157,7 +158,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to install python libs.", str(err))
-        AzureActions().remove_instance(notebook_config['service_base_name'], notebook_config['instance_name'])
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -174,7 +175,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing users key.", str(err))
-        AzureActions().remove_instance(notebook_config['service_base_name'], notebook_config['instance_name'])
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     try:
@@ -190,7 +191,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to setup git credentials.", str(err))
-        AzureActions().remove_instance(notebook_config['service_base_name'], notebook_config['instance_name'])
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     # try:
@@ -210,7 +211,7 @@ if __name__ == "__main__":
     #     sys.exit(1)
 
     # generating output information
-    ip_address = AzureMeta().get_instance_private_ip_address(notebook_config['service_base_name'],
+    ip_address = AzureMeta().get_instance_private_ip_address(notebook_config['resource_group_name'],
                                                              notebook_config['instance_name'])
     jupyter_ip_url = "http://" + ip_address + ":8888/"
     ungit_ip_url = "http://" + ip_address + ":8085/"

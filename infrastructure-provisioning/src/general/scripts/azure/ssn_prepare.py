@@ -87,7 +87,7 @@ if __name__ == "__main__":
         print "[CREATING VIRTUAL NETWORK]"
         try:
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {}".format(
-                ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'])
+                os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'])
             try:
                 local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
             except:
@@ -96,9 +96,9 @@ if __name__ == "__main__":
             os.environ['azure_vpc_name'] = ssn_conf['vpc_name']
         except Exception as err:
             if pre_defined_resource_group:
-                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+                AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
             try:
-                AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
+                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             except:
                 print "Virtual Network hasn't been created."
             append_result("Failed to create Virtual Network. Exception:" + str(err))
@@ -113,8 +113,8 @@ if __name__ == "__main__":
         print "[CREATING SUBNET]"
         try:
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
-                format(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'],
-                       ssn_conf['subnet_name'], ssn_conf['subnet_prefix'])
+                format(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'],
+                       ssn_conf['vpc_cidr'], ssn_conf['subnet_name'], ssn_conf['subnet_prefix'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_subnet', params))
             except:
@@ -123,11 +123,11 @@ if __name__ == "__main__":
             os.environ['azure_subnet_name'] = ssn_conf['subnet_name']
         except Exception as err:
             if pre_defined_resource_group:
-                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+                AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
             if pre_defined_vpc:
-                AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
+                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             try:
-                AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'],
+                AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                              ssn_conf['subnet_name'])
             except:
                 print "Subnet hasn't been created."
@@ -200,7 +200,7 @@ if __name__ == "__main__":
                 }
             ]
             params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".\
-                format(ssn_conf['service_base_name'], ssn_conf['security_group_name'], ssn_conf['region'],
+                format(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'], ssn_conf['region'],
                        json.dumps(list_rules))
             try:
                 local("~/scripts/{}.py {}".format('common_create_security_group', params))
@@ -210,10 +210,11 @@ if __name__ == "__main__":
             os.environ['azure_security_group_name'] = ssn_conf['security_group_name']
         except Exception as err:
             if pre_defined_resource_group:
-                AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+                AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
             if pre_defined_vpc:
-                AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
-                AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+                AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
+                AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
+                                             ssn_conf['subnet_name'])
             append_result("Failed to create Security groups. Exception:" + str(err))
             sys.exit(1)
 
@@ -222,7 +223,7 @@ if __name__ == "__main__":
         print('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
         params = "--container_name {} --shared_container_name {} --account_name {} --resource_group_name {} --region {}". \
                  format(ssn_conf['ssn_container_name'], ssn_conf['shared_container_name'],
-                        ssn_conf['storage_account_name'], ssn_conf['service_base_name'], ssn_conf['region'])
+                        ssn_conf['storage_account_name'], os.environ['azure_resource_group_name'], ssn_conf['region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_container', params))
         except:
@@ -230,14 +231,14 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         if pre_defined_resource_group:
-            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
-            AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
+            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
         if pre_defined_sg:
-            AzureActions().remove_security_group(ssn_conf['service_base_name'], ssn_conf['security_group_name'])
+            AzureActions().remove_security_group(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'])
         try:
-            AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
+            AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['storage_account_name'])
         except:
             print "Storage account hasn't been created."
         append_result("Failed to create storage account and containers. Exception:" + str(err))
@@ -253,11 +254,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {}".\
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {}".\
             format(ssn_conf['instance_name'], os.environ['azure_ssn_instance_size'], ssn_conf['region'], os.environ['azure_vpc_name'],
                    ssn_conf['network_interface_name'], os.environ['azure_security_group_name'], os.environ['azure_subnet_name'],
-                   ssn_conf['service_base_name'], initial_user, ssn_conf['static_public_ip_name'],
-                   ssn_conf['public_ssh_key'], '30', 'ssn')
+                   ssn_conf['service_base_name'], os.environ['azure_resource_group_name'], initial_user,
+                   ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '30', 'ssn')
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -265,15 +266,18 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         if pre_defined_resource_group:
-            AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
+            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(ssn_conf['service_base_name'], ssn_conf['vpc_name'])
-            AzureActions().remove_subnet(ssn_conf['service_base_name'], ssn_conf['vpc_name'], ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
+            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
+                                         ssn_conf['subnet_name'])
         if pre_defined_sg:
-            AzureActions().remove_security_group(ssn_conf['service_base_name'], ssn_conf['security_group_name'])
-        AzureActions().remove_storage_account(ssn_conf['service_base_name'], ssn_conf['storage_account_name'])
+            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
+                                                 ssn_conf['security_group_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'],
+                                              ssn_conf['storage_account_name'])
         try:
-            AzureActions().remove_instance(ssn_conf['service_base_name'], ssn_conf['instance_name'])
+            AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         except:
             print "The instance {} hasn't been created".format(ssn_conf['instance_name'])
         append_result("Failed to create instance. Exception:" + str(err))
