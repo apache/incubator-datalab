@@ -46,11 +46,11 @@ if __name__ == "__main__":
                                           '-edge-nif'
     edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
                                          '-edge-ip'
-    edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
     edge_conf['region'] = os.environ['azure_region']
     edge_conf['vpc_cidr'] = '10.10.0.0/16'
     edge_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
     edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
     edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ[
         'edge_user_name'] + '-nb-sg'

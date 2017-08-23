@@ -68,7 +68,9 @@ if __name__ == "__main__":
     notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-    notebook_config['bucket_name'] = (notebook_config['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
+    notebook_config['user_name'] = os.environ['edge_user_name']
+    notebook_config['storage_account_name'] = (os.environ['conf_service_base_name'] + notebook_config['user_name']).lower().\
+        replace('_', '').replace('-', '')
 
     try:
         logging.info('[TERMINATE NOTEBOOK]')
@@ -85,7 +87,7 @@ if __name__ == "__main__":
     try:
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
-                   "user_own_bucket_name": notebook_config['bucket_name'],
+                   "user_own_bucket_name": notebook_config['storage_account_name'],
                    "Action": "Terminate notebook server"}
             print json.dumps(res)
             result.write(json.dumps(res))
