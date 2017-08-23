@@ -80,7 +80,7 @@ export class InstallLibrariesComponent implements OnInit {
         this.query = newValue;
         this.filterList();
       });
-    this.bindDialog.onClosing = () => this.close();
+    this.bindDialog.onClosing = () => this.close;
   }
   
   uploadLibraries(): void {
