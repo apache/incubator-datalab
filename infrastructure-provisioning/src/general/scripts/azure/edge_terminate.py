@@ -69,28 +69,24 @@ def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_na
     print "Removing storage account"
     try:
         AzureActions().remove_storage_account(resource_group_name, storage_account_name)
+        print "Storage account {} has been terminated".format(storage_account_name)
     except:
         sys.exit(1)
-
-    # print "Removing IAM roles and profiles"
-    # try:
-    #     remove_all_iam_resources('notebook', user_name)
-    #     remove_all_iam_resources('edge', user_name)
-    # except:
-    #     sys.exit(1)
 
     print "Removing security groups"
     try:
         for sg in AzureMeta().network_client.network_security_groups.list(resource_group_name):
             if user_env_prefix in sg.name:
                 AzureActions().remove_security_group(resource_group_name, sg.name)
+                print "Security group {} has been terminated".format(sg.name)
     except:
         sys.exit(1)
 
     print "Removing private subnet"
     try:
-        for vpc in AzureActions().network_client.virtual_networks.list("dlab-1808"):
+        for vpc in AzureActions().network_client.virtual_networks.list(resource_group_name):
             AzureActions().remove_subnet(resource_group_name, vpc.name, subnet_name)
+            print "Private subnet {} has been terminated".format(subnet_name)
     except:
         sys.exit(1)
 
