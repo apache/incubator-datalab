@@ -183,7 +183,7 @@ if __name__ == "__main__":
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
         try:
-            local("~/scripts/{}.py {}".format('common_download_git_certfile', params))
+            # local("~/scripts/{}.py {}".format('common_download_git_certfile', params))
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
         except:
             append_result("Failed setup git credentials")
@@ -212,15 +212,11 @@ if __name__ == "__main__":
     # generating output information
     ip_address = AzureMeta().get_instance_private_ip_address(notebook_config['service_base_name'],
                                                              notebook_config['instance_name'])
-    dns_name = notebook_config['service_base_name'] + os.environ['edge_user_name'] + '-edge' + '.' + \
-               os.environ['azure_region'] + '.cloudapp.azure.com'
     jupyter_ip_url = "http://" + ip_address + ":8888/"
-    jupyter_dns_url = "http://" + dns_name + ":8888/"
     ungit_ip_url = "http://" + ip_address + ":8085/"
     print '[SUMMARY]'
     logging.info('[SUMMARY]')
     print "Instance name: " + notebook_config['instance_name']
-    print "Private DNS: " + dns_name
     print "Private IP: " + ip_address
     print "Instance type: " + notebook_config['instance_size']
     print "Key name: " + notebook_config['key_name']
@@ -228,12 +224,9 @@ if __name__ == "__main__":
     print "AMI name: " + notebook_config['expected_ami_name']
     print "SG name: " + notebook_config['security_group_name']
     print "Jupyter URL: " + jupyter_ip_url
-    print "Jupyter URL: " + jupyter_dns_url
     print "Ungit URL: " + ungit_ip_url
     print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
         'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
-    print 'SSH access (from Edge node, via FQDN): ssh -i ' + notebook_config['key_name'] + '.pem ' + \
-          notebook_config['dlab_ssh_user'] + '@' + dns_name
 
     with open("/root/result.json", 'w') as result:
         res = {"hostname": dns_name,
