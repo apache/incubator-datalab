@@ -35,6 +35,9 @@ section > div:nth-child(3) {
 .action-butt {
     align-self: center;
 }
+.action-butt button:first-child{
+    margin-right: 10px;
+}
 
 .action-butt .butt-report-range {
     width: 240px;
@@ -78,10 +81,20 @@ section > div:nth-child(3) {
 #range-picker .ng-daterangepicker .calendar .calendar-container .day-num.is-active,
 #range-picker .ng-daterangepicker .calendar .calendar-container .days .day-num:hover {
     background: #35afd5;
+    background-clip: padding-box;
+
+}
+#range-picker .ng-daterangepicker .calendar .calendar-container .day-names,
+#range-picker .ng-daterangepicker .calendar .calendar-container .days {
+    width: 310px;
+}
+#range-picker .ng-daterangepicker .calendar .day.is-within-range.is-first-weekday,
+#range-picker .ng-daterangepicker .calendar .day.is-within-range.is-last-weekday {
+    background-clip: padding-box;
 }
 
 #range-picker .ng-daterangepicker .calendar .calendar-container .day.is-within-range {
-    background:rgba(53, 175, 213, .10);
+    background: #e9f8fc
 }
 
 #range-picker .ng-daterangepicker .input-section .cal-icon svg path {
