@@ -27,7 +27,7 @@ import sys
 import os
 
 
-def terminate_dataproc_cluster(notebook_name, dataproc_name, dataproc_version, bucket_name, ssh_user, key_path):
+def terminate_dataproc_cluster(notebook_name, dataproc_name, bucket_name, ssh_user, key_path):
     print 'Terminating Dataproc cluster and cleaning Dataproc config from bucket'
     try:
         cluster = meta_lib.GCPMeta().get_list_cluster_statuses([dataproc_name])
@@ -38,7 +38,7 @@ def terminate_dataproc_cluster(notebook_name, dataproc_name, dataproc_version, b
             print 'The Dataproc cluster {} has been terminated successfully'.format(dataproc_name)
             actions_lib.GCPActions().remove_kernels(notebook_name, dataproc_name, cluster[0]['version'], ssh_user, key_path)
         else:
-            print "There are no EMR clusters to terminate."
+            print "There are no Dataproc clusters to terminate."
     except:
         sys.exit(1)
 
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         logging.info('[TERMINATE DATAPROC CLUSTER]')
         print '[TERMINATE DATAPROC CLUSTER]'
         try:
-            terminate_dataproc_cluster(dataproc_conf['notebook_name'], dataproc_conf['dataproc_name'], dataproc_conf['dataproc_version'],
+            terminate_dataproc_cluster(dataproc_conf['notebook_name'], dataproc_conf['dataproc_name'],
                                        dataproc_conf['bucket_name'], os.environ['conf_os_user'], dataproc_conf['key_path'])
         except Exception as err:
             traceback.print_exc()

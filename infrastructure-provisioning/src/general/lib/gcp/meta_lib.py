@@ -390,9 +390,30 @@ class GCPMeta:
             return res['status']['state'].lower()
         except Exception as err:
             logging.info(
-                "Unable to get dataproc job status: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                "Unable to get Dataproc job status: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
-            append_result(str({"error": "Unable to get dataproc job status",
+            append_result(str({"error": "Unable to get Dataproc job status",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def get_dataproc_list(self, notebook_instance_name):
+        cluster_filter = 'labels.{}:*'.format(notebook_instance_name)
+        request = self.dataproc.projects().regions().clusters().list(projectId=self.project,
+                                                                     region=os.environ['gcp_region'],
+                                                                     filter=cluster_filter)
+        try:
+            res = request.execute()
+            if res != dict():
+                return [i['clusterName'] for i in res['clusters']]
+            else:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get Dataproc list clusters: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to get Dataproc list clusters",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
