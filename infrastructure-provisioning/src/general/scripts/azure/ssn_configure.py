@@ -158,7 +158,8 @@ if __name__ == "__main__":
                              {"name": "rstudio", "tag": "latest"},
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
-                             {"name": "deeplearning", "tag": "latest"}]
+                             {"name": "deeplearning", "tag": "latest"},
+                             {"name": "dataengine", "tag": "latest"}]
                              # {"name": "dataproc", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
             format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),

@@ -1,0 +1,30 @@
+{
+    "projectId": "PROJECT_ID",
+    "clusterName": "CLUSTER_NAME",
+    "config": {
+        "configBucket": "",
+        "gceClusterConfig": {
+            "zoneUri": "CLUSTER_ZONE",
+            "subnetworkUri": "CLUSTER_SUBNET",
+            "metadata": {
+                "ssh-keys": "SSH_USER:SSH_PUBKEY"
+            }
+        },
+        "masterConfig": {
+            "numInstances": 1,
+            "machineTypeUri": "MASTER_INSTANCE",
+            "diskConfig": {
+                "bootDiskSizeGb": 50,
+                "numLocalSsds": 0
+            }
+        },
+        "workerConfig": {
+            "numInstances": "NUM_SLAVES",
+            "machineTypeUri": "SLAVE_INSTANCE",
+            "diskConfig": {
+                "bootDiskSizeGb": 50,
+                "numLocalSsds": 0
+            }
+        }
+    }
+}

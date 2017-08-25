@@ -1,0 +1,11 @@
+{
+    "request_id":"RID",
+    "conf_resource": "emr",
+    "conf_service_base_name":"SBN",
+    "azure_resource_group_name":"ARGN",
+    "edge_user_name":"EUN",
+    "dataengine_instance_count":"EIC",
+    "conf_key_name":"KN",
+    "azure_region":"CREG",
+    "notebook_instance_name":"NNM"
+}
