@@ -22,7 +22,7 @@ limitations under the License.
   </modal-header>
   <modal-content>
    
-   <md-tab-group #tabGroup>
+   <md-tab-group #tabGroup class="content-box">
       <md-tab label="INFO">
         <div>
           <md-list>
@@ -46,18 +46,18 @@ limitations under the License.
                   {{ lib.status }}
                   <div class="warn-action" *ngIf="lib.status === 'failed' && notebook?.status === 'running'">
                     <div>
-                        <span *ngIf="!installingInProgress"
-                          mdTooltip="Retry installation"
-                          mdTooltipPosition="above"
-                          (click)="model.confirmAction([{group: lib.group, name: lib.name, version: lib.version}])">
-                          <i class="material-icons">replay</i>
-                        </span>
-                        <span class="not-allowed"
-                          *ngIf="installingInProgress"
-                          mdTooltip="You can't reinstall library until previous process will be completed"
-                            mdTooltipPosition="above">
-                          <i class="material-icons">replay</i>
-                        </span>
+                      <span *ngIf="!installingInProgress"
+                        mdTooltip="Retry installation"
+                        mdTooltipPosition="above"
+                        (click)="model.confirmAction([{group: lib.group, name: lib.name, version: lib.version}])">
+                        <i class="material-icons">replay</i>
+                      </span>
+                      <span class="not-allowed"
+                        *ngIf="installingInProgress"
+                        mdTooltip="You can't reinstall library until previous process will be completed"
+                          mdTooltipPosition="above">
+                        <i class="material-icons">replay</i>
+                      </span>
                     </div>
                     <div *ngIf="lib.status === 'failed' && lib.error_message"
                        class="lib-error"

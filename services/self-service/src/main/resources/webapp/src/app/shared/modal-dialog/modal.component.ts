@@ -106,8 +106,6 @@ export class ModalComponent implements OnDestroy {
 
   private createBackDrop() {
     this.backdropElement = document.createElement('div');
-    this.backdropElement.classList.add('modal-backdrop');
-    this.backdropElement.classList.add('fade');
-    this.backdropElement.classList.add('in');
+    this.backdropElement.classList.add('backdrop');
   }
 }

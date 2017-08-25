@@ -21,83 +21,85 @@ limitations under the License.
     <h4 class="modal-title">Create computational resource</h4>
   </modal-header>
   <modal-content>
-    <form [formGroup]="createComputationalResourceForm" novalidate (submit)="createComputationalResource($event, createComputationalResourceForm.value, shapes.master_shape, shapes.slave_shape)">
-      <div class="form-group row">
-        <div  class="col-xs-4">
-          <label class="control-label">Select template</label>
-        </div>
-        <div class="col-xs-8">
-          <dropdown-list #templatesList (selectedItem)="onUpdate($event)"></dropdown-list>
-        </div>
-        <div class="col-xs-12" *ngIf="model.computationalResourceApplicationTemplates">
-          <small *ngIf="model.computationalResourceApplicationTemplates && model.computationalResourceApplicationTemplates.length > 0 && !template_description">{{model.computationalResourceApplicationTemplates[0].description}}</small>
-          <small *ngIf="template_description">{{template_description}}</small>
-        </div>
-      </div>
-      <div class="form-group row">
-        <div  class="col-xs-4">
-          <label class="control-label">Cluster Alias</label>
-        </div>
-        <div class="col-xs-8">
-            <input [class.danger_field]="computationalResourceExist" type="text" class="form-control" placeholder="Enter Cluster Alias" formControlName="cluster_alias_name" />
-            <span class="danger_color" *ngIf="computationalResourceExist">This cluster name already exists.</span>
-            <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.cluster_alias_name.valid && checkValidity">Not a valid name</span>
-        </div>
-      </div>
-      <div class="form-group row">
-        <div  class="col-xs-4">
-          <label class="control-label">Total Instance number</label>
-        </div>
-        <div class="col-xs-8">
-          <input type="number" class="form-control" min="{{minInstanceNumber}}" max="{{maxInstanceNumber}}" formControlName="instance_number" (keypress)="isNumberKey($event)" />
-          <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.instance_number.valid">
-            Only integer values greater than or equal to {{minInstanceNumber}} and less than {{maxInstanceNumber}} are allowed
-          </span>
-        </div>
-      </div>
-      <div class="form-group row">
-        <div  class="col-xs-4">
-          <label class="control-label">Master Instance shape</label>
-        </div>
-        <div class="col-xs-8">
-          <dropdown-list #masterShapesList (selectedItem)="onUpdate($event)"></dropdown-list>
-        </div>
-      </div>
-      <div class="row">
-        <div  class="col-xs-4">
-          <label class="control-label">Slave Instance shape</label>
-        </div>
-        <div class="col-xs-8">
-          <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
-        </div>
-      </div>
-      <div class="checkbox-group row">
-        <label>
-          <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" /> Spot Instance
-        </label>
-        <div class="spot-details" [ngClass]="{ show: spotInstancesSelect.nativeElement['checked'] }">
-          <div *ngIf="spotInstancesSelect.nativeElement['checked']">
-            <div class="col-xs-4">
-              <label class="control-label">Your bid for spot instance, %</label>
-            </div>
-            <div class="col-xs-8">
-              <input type="number" class="form-control" step="5" min="{{minSpotPrice}}" max="{{maxSpotPrice}}" formControlName="instance_price" (keypress)="isNumberKey($event)">
-              <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.instance_price.valid">
-                Only integer values greater than or equal to {{minSpotPrice}} and less than {{maxSpotPrice}} are allowed
-              </span>
-            </div>
+    <div class="content-box">
+      <form [formGroup]="createComputationalResourceForm" novalidate (submit)="createComputationalResource($event, createComputationalResourceForm.value, shapes.master_shape, shapes.slave_shape)">
+        <div class="form-group row">
+          <div  class="col-xs-4">
+            <label class="control-label">Select template</label>
           </div>
-          <span class="info">When the current Spot price rises above your bid price, the Spot instance is reclaimed by AWS so that it can be given to another customer. Make sure to backup your data on periodic basis.</span>
+          <div class="col-xs-8">
+            <dropdown-list #templatesList (selectedItem)="onUpdate($event)"></dropdown-list>
+          </div>
+          <div class="col-xs-12" *ngIf="model.computationalResourceApplicationTemplates">
+            <small *ngIf="model.computationalResourceApplicationTemplates && model.computationalResourceApplicationTemplates.length > 0 && !template_description">{{model.computationalResourceApplicationTemplates[0].description}}</small>
+            <small *ngIf="template_description">{{template_description}}</small>
+          </div>
         </div>
-      </div>
-      <div class="text-right" *ngIf="processError">
-        <small class="danger_color">{{errorMessage}}</small>
-      </div>
-      <div class="text-center m-top-10">
-        <button md-raised-button type="button" (click)="bindDialog.close()" class="butt">Cancel</button>
-        <button md-raised-button type="submit" [disabled]="!createComputationalResourceForm.valid"
-                class="butt butt-success" [ngClass]="{'not-allowed': !createComputationalResourceForm.valid}">Create</button>
-      </div>
-    </form>
+        <div class="form-group row">
+          <div  class="col-xs-4">
+            <label class="control-label">Cluster Alias</label>
+          </div>
+          <div class="col-xs-8">
+              <input [class.danger_field]="computationalResourceExist" type="text" class="form-control" placeholder="Enter Cluster Alias" formControlName="cluster_alias_name" />
+              <span class="danger_color" *ngIf="computationalResourceExist">This cluster name already exists.</span>
+              <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.cluster_alias_name.valid && checkValidity">Not a valid name</span>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div  class="col-xs-4">
+            <label class="control-label">Total Instance number</label>
+          </div>
+          <div class="col-xs-8">
+            <input type="number" class="form-control" min="{{minInstanceNumber}}" max="{{maxInstanceNumber}}" formControlName="instance_number" (keypress)="isNumberKey($event)" />
+            <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.instance_number.valid">
+              Only integer values greater than or equal to {{minInstanceNumber}} and less than {{maxInstanceNumber}} are allowed
+            </span>
+          </div>
+        </div>
+        <div class="form-group row">
+          <div  class="col-xs-4">
+            <label class="control-label">Master Instance shape</label>
+          </div>
+          <div class="col-xs-8">
+            <dropdown-list #masterShapesList (selectedItem)="onUpdate($event)"></dropdown-list>
+          </div>
+        </div>
+        <div class="row">
+          <div  class="col-xs-4">
+            <label class="control-label">Slave Instance shape</label>
+          </div>
+          <div class="col-xs-8">
+            <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
+          </div>
+        </div>
+        <div class="checkbox-group row">
+          <label>
+            <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" /> Spot Instance
+          </label>
+          <div class="spot-details" [ngClass]="{ show: spotInstancesSelect.nativeElement['checked'] }">
+            <div *ngIf="spotInstancesSelect.nativeElement['checked']">
+              <div class="col-xs-4">
+                <label class="control-label">Your bid for spot instance, %</label>
+              </div>
+              <div class="col-xs-8">
+                <input type="number" class="form-control" step="5" min="{{minSpotPrice}}" max="{{maxSpotPrice}}" formControlName="instance_price" (keypress)="isNumberKey($event)">
+                <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.instance_price.valid">
+                  Only integer values greater than or equal to {{minSpotPrice}} and less than {{maxSpotPrice}} are allowed
+                </span>
+              </div>
+            </div>
+            <span class="info">When the current Spot price rises above your bid price, the Spot instance is reclaimed by AWS so that it can be given to another customer. Make sure to backup your data on periodic basis.</span>
+          </div>
+        </div>
+        <div class="text-right" *ngIf="processError">
+          <small class="danger_color">{{errorMessage}}</small>
+        </div>
+        <div class="text-center m-top-10">
+          <button md-raised-button type="button" (click)="bindDialog.close()" class="butt">Cancel</button>
+          <button md-raised-button type="submit" [disabled]="!createComputationalResourceForm.valid"
+                  class="butt butt-success" [ngClass]="{'not-allowed': !createComputationalResourceForm.valid}">Create</button>
+        </div>
+      </form>
+    </div>
   </modal-content>
 </modal-dialog>

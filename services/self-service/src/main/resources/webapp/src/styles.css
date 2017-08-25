@@ -125,7 +125,7 @@ limitations under the License.
 
 
 
-[hidden] {
+[hidden], .hidden {
   display: none !important;
 }
 
@@ -135,6 +135,8 @@ body {
   overflow-x: hidden;
   font-weight: 300;
   display: flex;
+  margin: 0;
+  padding: 0;
 }
 
 button {
@@ -166,13 +168,13 @@ button {
   padding: 12px 15px;
 }
 
-.modal .btn {
+/* .modal .btn {
   margin-top: 20px;
 }
 
 .modal .modal-footer .btn {
   margin-top: 0;
-}
+} */
 
 .loader {
   border: 3px solid #f3f3f3;

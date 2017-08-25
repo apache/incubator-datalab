@@ -38,36 +38,134 @@ limitations under the License.
   to { opacity: 0; transform: translateX(150%); }
 }
 
-.modal-xs {
-  width: 375px;
-}
+.modal-xs { width: 375px; }
+.modal-sm { width: 525px; }
+.modal-md { width: 545px; }
+.modal-lg { width: 580px; }
+.modal-xl { width: 900px; }
+.modal-xxl { width: 1000px; }
 
-.modal-sm {
-  width: 525px;
-}
-
-.modal-md {
-  width: 545px;
-}
-
-.modal-lg {
-  width: 580px;
-}
-
-.modal-xl {
-  width: 900px;
-}
-
-.modal-xxl {
-  width: 1000px;
-}
-
-.modal-backdrop {
+.backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  background-color: #000;
   transition: .3s ease-in-out;
+  opacity: .5;
+  filter: alpha(opacity=50);
 }
 
-.header-white .modal-header {
+.dialog {
+  color: #718ba6;
+  font-size: 14px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1050;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  justify-content: center;  
+  outline: 0;
+}
+.dialog:not(.in) {
+  visibility: hidden;
+}
+.dialog.in {
+  visibility: visible;
+  display: flex
+}
+
+.dialog.in .dialog-container {
+  animation-duration: .35s;
+  animation-fill-mode: forwards;
+  animation-name: show;
+  animation-timing-function: ease;
+}
+
+.dialog.out .dialog-container {
+  animation-duration: .35s;
+  animation-fill-mode: forwards;
+  animation-name: hide;
+  animation-timing-function: ease;
+}
+
+.dialog.in .dialog-container.install-libs {
+  animation-duration: .35s;
+  animation-fill-mode: forwards;
+  animation-name: showSlideSide;
+  animation-timing-function: ease;
+  width: 100%;
+}
+
+.dialog.in .dialog-container.install-libs .dialog-content {
+  height: 100vh;
+  width: 100%;
+}
+
+.dialog.out .dialog-container.install-libs {
+  animation-duration: .35s;
+  animation-fill-mode: forwards;
+  animation-name: hideSlideSide;
+  animation-timing-function: ease;
+}
+
+.dialog-container {
+  /* display: flex; */
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dialog-content {
+  display: block;
+  position: relative;
+  background-color: #fff;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 3px;
+  outline: 0;
+  -webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
+  box-shadow: 0 3px 9px rgba(0,0,0,.5);
+}
+
+.dialog-header {
+  padding-left: 20px;
+  background: #f6fafe;
+  border-bottom: 1px solid #edf1f5;
+  height: 50px;
+  line-height: 50px;
+}
+
+.header-white .dialog-header {
   background: #fff;
+}
+
+.dialog-header .close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 50px;
+  width: 50px;
+  font-size: 24px;
+  border: 0;
+  background: none;
+  color: #cbcbcb;
+  outline: none;
+  cursor: pointer;
+  transition: all .45s ease-in-out;
+}
+
+.dialog-header .close:hover {
+  color: #718ba6;
 }
 
 .dialog .info-label {
@@ -75,30 +173,35 @@ limitations under the License.
   margin-top: 20px;
 }
 
-.transparent-header .modal-header {
+.transparent-header .dialog-header {
   background: transparent;
   border-bottom: 0;
   height: 30px;
 }
 
-.modal-header {
-  padding: 13px 22px;
-  background: #f6fafe;
-  border-bottom: 1px solid #edf1f5;
+
+.dialog-body .content-box {
+  padding: 35px 50px 45px;
 }
 
-.modal-body {
-  padding: 30px 50px 45px 50px;
-}
-
-.modal-header .modal-title {
+.dialog-header .modal-title {
   font-weight: 600;
   color: #455c74;
   font-size: 18px;
 }
-.modal-header .modal-title i {
+.dialog-header .modal-title i {
   vertical-align: bottom;
 }
+
+
+.dialog a {
+  color: #35afd5;
+  transition: all .45s ease-in-out;
+}
+.dialog a:hover {
+  color: #5faec7;
+}
+
 
 .dialog .control-label {
   font-weight: 600;
@@ -123,72 +226,27 @@ limitations under the License.
   margin-right: 2px;
 }
 
-.modal-content {
-  border-radius: 3px;
-}
 
-.modal-header .close {
-  margin-top: 3px;
-}
 
-.dialog {
-  color: #718ba6;
-  font-size: 14px;
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 1050;
-  overflow: hidden;
-  -webkit-overflow-scrolling: touch;
-  outline: 0;
-}
-.dialog:not(.in) {
-  visibility: hidden;
-}
-.dialog.in {
-  visibility: visible;
-  display: flex
-}
 
-.dialog .modal-dialog {
-  align-self: center;
-}
-.dialog.in .modal-dialog {
-  animation-duration: .35s;
-  animation-fill-mode: forwards;
-  animation-name: show;
-  animation-timing-function: ease;
-}
-.dialog.out .modal-dialog {
-  animation-duration: .35s;
-  animation-fill-mode: forwards;
-  animation-name: hide;
-  animation-timing-function: ease;
-}
-.dialog.in .modal-dialog.install-libs {
-  animation-duration: .35s;
-  animation-fill-mode: forwards;
-  animation-name: showSlideSide;
-  animation-timing-function: ease;
-  width: 100%;
-}
-.dialog.in .modal-dialog.install-libs .modal-content {
-  height: 100vh;
-}
-.dialog.out .modal-dialog.install-libs {
-  animation-duration: .35s;
-  animation-fill-mode: forwards;
-  animation-name: hideSlideSide;
-  animation-timing-function: ease;
-}
+
+
 .dialog .btn {
   padding: 6px 15px;
   min-width: 140px;
   font-weight: 600;
 }
 
+
+.dialog-content .danger_color {
+  padding-left: 10px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.dialog-content .danger_field {
+  border-color: #d9534f;
+}
 .modal-footer .btn {
   margin-top: 0;
 }
@@ -239,10 +297,6 @@ limitations under the License.
   display: block;
 }
 
-.modal-content {
-  display: block;
-}
-
 .upload-key {
   margin-bottom: 20px;
 }
@@ -258,6 +312,8 @@ limitations under the License.
 .confirmation-dialog p {
   font-size: 14px;
   font-weight: 600;
+  margin: 0;
+  margin-bottom: 10px;
 }
 
 .confirmation-dialog .truncate-name {
@@ -280,24 +336,21 @@ limitations under the License.
   text-overflow: ellipsis;
 }
 
-.confirmation-dialog.modal-dialog {
+.confirmation-dialog.dialog-container {
   width: 550px;
 }
 
-.detail-dialog .modal-header {
+.detail-dialog .dialog-header {
   border-bottom: 0;
 }
 
-.detail-dialog .modal-body {
+.detail-dialog .dialog-body {
   padding-top: 0;
-}
-
-.detail-header-wrap {
-  margin: 0 -50px 40px -50px;
 }
 
 .detail-header {
   width: 100%;
+  border-collapse: collapse;
   table-layout: fixed;
 }
 
@@ -307,13 +360,14 @@ limitations under the License.
   text-align: center;
 }
 
-.detail-header .modal-title {
+.modal-title {
   background: #f6fafe;
   font-size: 16px;
   font-weight: 600;
   color: #455c74;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin: 0;
 }
 
 .detail-header .tooltip-wrap {
@@ -367,22 +421,4 @@ limitations under the License.
 
 .detail-info .links_block {
   padding-left: 25px;
-}
-
-.dialog a {
-  color: #35afd5;
-}
-
-.modal-content .danger_color {
-  padding-left: 10px;
-  font-size: 12px;
-  display: inline-block;
-}
-
-.modal-content .danger_field {
-  border-color: #d9534f;
-}
-
-.progress-dialog .modal-body {
-  padding: 30px 30px 45px 30px;
 }
