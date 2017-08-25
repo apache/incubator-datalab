@@ -22,6 +22,7 @@ ARG OS
 ARG CLOUD
 
 COPY dataengine/ /root/
+COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
 

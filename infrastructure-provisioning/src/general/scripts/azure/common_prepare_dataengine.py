@@ -153,18 +153,18 @@ if __name__ == "__main__":
                 "access": "Allow",
                 "priority": 110,
                 "direction": "Outbound"
-            },
-            {
-                "name": "out-3",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "*",
-                "source_address_prefix": "*",
-                "destination_address_prefix": "*",
-                "access": "Deny",
-                "priority": 300,
-                "direction": "Outbound"
             }
+            # {
+            #     "name": "out-3",
+            #     "protocol": "*",
+            #     "source_port_range": "*",
+            #     "destination_port_range": "*",
+            #     "source_address_prefix": "*",
+            #     "destination_address_prefix": "*",
+            #     "access": "Deny",
+            #     "priority": 300,
+            #     "direction": "Outbound"
+            # }
         ]
         params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".format(
             data_engine['resource_group_name'], data_engine['master_security_group_name'], data_engine['region'],
@@ -246,18 +246,18 @@ if __name__ == "__main__":
                 "access": "Allow",
                 "priority": 110,
                 "direction": "Outbound"
-            },
-            {
-                "name": "out-3",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "*",
-                "source_address_prefix": "*",
-                "destination_address_prefix": "*",
-                "access": "Deny",
-                "priority": 300,
-                "direction": "Outbound"
             }
+            # {
+            #     "name": "out-3",
+            #     "protocol": "*",
+            #     "source_port_range": "*",
+            #     "destination_port_range": "*",
+            #     "source_address_prefix": "*",
+            #     "destination_address_prefix": "*",
+            #     "access": "Deny",
+            #     "priority": 300,
+            #     "direction": "Outbound"
+            # }
         ]
         params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".format(
             data_engine['resource_group_name'], data_engine['slave_security_group_name'], data_engine['region'],
@@ -312,7 +312,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        for i in range(data_engine['instance_count_count'] - 1):
+        for i in range(data_engine['instance_count'] - 1):
             logging.info('[CREATE SLAVE NODE {}]'.format(i+1))
             print '[CREATE SLAVE NODE {}]'.format(i+1)
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
@@ -328,7 +328,7 @@ if __name__ == "__main__":
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
-        for i in range(data_engine['slave_count']):
+        for i in range(data_engine['instance_count'] -1):
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
             try:
                 AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)

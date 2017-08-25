@@ -487,6 +487,50 @@ class AzureActions:
                         ]
                     }
                 }
+            elif instance_type == 'dataengine':
+                parameters = {
+                    'location': region,
+                    'hardware_profile': {
+                        'vm_size': instance_size
+                    },
+                    'storage_profile': {
+                        'image_reference': {
+                            'publisher': 'Canonical',
+                            'offer': 'UbuntuServer',
+                            'sku': '16.04-LTS',
+                            'version': 'latest'
+                        },
+                        'os_disk': {
+                            'os_type': 'Linux',
+                            'name': '{}-primary-disk'.format(instance_name),
+                            'create_option': 'fromImage',
+                            'disk_size_gb': int(primary_disk_size),
+                            'managed_disk': {
+                                'storage_account_type': 'Premium_LRS'
+                            }
+                        }
+                    },
+                    'os_profile': {
+                        'computer_name': instance_name,
+                        'admin_username': dlab_ssh_user_name,
+                        'linux_configuration': {
+                            'disable_password_authentication': True,
+                            'ssh': {
+                                'public_keys': [{
+                                    'path': '/home/{}/.ssh/authorized_keys'.format(dlab_ssh_user_name),
+                                    'key_data': public_key
+                                }]
+                            }
+                        }
+                    },
+                    'network_profile': {
+                        'network_interfaces': [
+                            {
+                                'id': network_interface_resource_id
+                            }
+                        ]
+                    }
+                }
             else:
                 parameters = {}
             result = self.compute_client.virtual_machines.create_or_update(
