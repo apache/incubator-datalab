@@ -354,7 +354,6 @@ if __name__ == "__main__":
             res = {"hostname": data_engine['service_base_name'],
                    "instance_id": data_engine['master_node_name'],
                    "key_name": data_engine['key_name'],
-                   "user_own_bucket_name": 'None',
                    "Action": "Create new Data Engine"}
             print json.dumps(res)
             result.write(json.dumps(res))
