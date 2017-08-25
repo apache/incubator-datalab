@@ -24,8 +24,18 @@ limitations under the License.
 }
 @keyframes hide {
   from { opacity: 1; transform: translateY(0%); }
-  30% { opacity: 0; }
+  35% { opacity: 0; }
   to { opacity: 0; transform: translateY(-20%); }
+}
+@keyframes showSlideSide {
+  from { opacity: 0; transform: translateX(150%); }
+  20% { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0%); }
+}
+@keyframes hideSlideSide {
+  from { opacity: 1; transform: translateX(0%); }
+  50% { opacity: 0; transform: translateX(100%); }
+  to { opacity: 0; transform: translateX(150%); }
 }
 
 .modal-xs {
@@ -146,18 +156,33 @@ limitations under the License.
   align-self: center;
 }
 .dialog.in .modal-dialog {
-  animation-duration: .8s;
+  animation-duration: .35s;
   animation-fill-mode: forwards;
   animation-name: show;
   animation-timing-function: ease;
 }
 .dialog.out .modal-dialog {
-  animation-duration: .8s;
+  animation-duration: .35s;
   animation-fill-mode: forwards;
   animation-name: hide;
   animation-timing-function: ease;
 }
-
+.dialog.in .modal-dialog.install-libs {
+  animation-duration: .35s;
+  animation-fill-mode: forwards;
+  animation-name: showSlideSide;
+  animation-timing-function: ease;
+  width: 100%;
+}
+.dialog.in .modal-dialog.install-libs .modal-content {
+  height: 100vh;
+}
+.dialog.out .modal-dialog.install-libs {
+  animation-duration: .35s;
+  animation-fill-mode: forwards;
+  animation-name: hideSlideSide;
+  animation-timing-function: ease;
+}
 .dialog .btn {
   padding: 6px 15px;
   min-width: 140px;
