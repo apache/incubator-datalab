@@ -184,13 +184,8 @@ limitations under the License.
   padding: 35px 50px 45px;
 }
 
-.dialog-header .modal-title {
-  font-weight: 600;
-  color: #455c74;
-  font-size: 18px;
-}
 .dialog-header .modal-title i {
-  vertical-align: bottom;
+  vertical-align: middle;
 }
 
 
@@ -361,13 +356,14 @@ limitations under the License.
 }
 
 .modal-title {
-  background: #f6fafe;
-  font-size: 16px;
-  font-weight: 600;
-  color: #455c74;
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin: 0;
+  font-weight: 600;
+  color: #455c74;
+  line-height: 50px;
+  font-size: 18px;
+  background: #f6fafe;
 }
 
 .detail-header .tooltip-wrap {
