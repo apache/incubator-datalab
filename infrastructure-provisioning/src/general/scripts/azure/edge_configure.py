@@ -184,7 +184,7 @@ if __name__ == "__main__":
         print "Key name: " + edge_conf['key_name']
         print "Storage account name: " + edge_conf['storage_account_name']
         print "Container name: " + edge_conf['container_name_name']
-        print "Shared bucket name: " + edge_conf['shared_container_name']
+        print "Shared container name: " + edge_conf['shared_container_name']
         print "Notebook SG: " + edge_conf['notebook_security_group_name']
         print "Edge SG: " + edge_conf['edge_security_group_name']
         print "Notebook subnet: " + edge_conf['private_subnet_cidr']
