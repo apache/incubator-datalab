@@ -20,7 +20,7 @@
 
 import argparse
 from fabric.api import *
-import boto3
+from fabric.contrib.files import exists
 from dlab.meta_lib import *
 import os
 
@@ -65,6 +65,6 @@ if __name__ == "__main__":
     env.host_string = env.user + "@" + env.hosts
     configure_notebook(args)
     sudo("/usr/bin/python /usr/local/bin/jupyter_dataengine_create_configs.py "
-         "--cluster_name {} --spark_version {} --hadoop_version {} --region {} --os_user {} spark_master {}".
+         "--cluster_name {} --spark_version {} --hadoop_version {} --region {} --os_user {} --spark_master {}".
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.region, args.os_user, args.spark_master
                 ))

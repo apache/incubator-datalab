@@ -11,5 +11,6 @@
     "conf_key_name":"KN",
     "azure_region":"CREG",
     "notebook_instance_name":"NNM",
-    "computational_name": "CNAM"
+    "computational_name": "CNAM",
+    "application": "APP"
 }

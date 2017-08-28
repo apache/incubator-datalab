@@ -157,3 +157,7 @@ if __name__ == "__main__":
     elif args.action == 'git_creds':
         with hide('running'):
             local("/bin/git_creds.py")
+
+    elif args.action == 'configure_dataengine':
+        with hide('running'):
+            local("/bin/configure_dataengine.py")

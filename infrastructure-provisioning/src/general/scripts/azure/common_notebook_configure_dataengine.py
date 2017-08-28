@@ -58,9 +58,9 @@ if __name__ == "__main__":
     notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     try:
-        notebook_config['spark_master_ip'] = AzureMeta.get_private_ip_address(
+        notebook_config['spark_master_ip'] = AzureMeta().get_private_ip_address(
             notebook_config['resource_group_name'], notebook_config['master_node_name'])
-        notebook_config['notebook_ip'] = AzureMeta.get_private_ip_address(
+        notebook_config['notebook_ip'] = AzureMeta().get_private_ip_address(
             notebook_config['resource_group_name'], notebook_config['notebook_name'])
     except:
         sys.exit(1)
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         print '[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]'
-        params = "--cluster_name {} --spark_version {} --hadoop_version {} --region {} --os_user {} spark_master {} --keyfile {} --notebook_ip {}".\
+        params = "--cluster_name {} --spark_version {} --hadoop_version {} --region {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {}".\
             format(notebook_config['cluster_name'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['region'], notebook_config['dlab_ssh_user'],
                    notebook_config['spark_master_url'], notebook_config['key_path'], notebook_config['notebook_ip'])

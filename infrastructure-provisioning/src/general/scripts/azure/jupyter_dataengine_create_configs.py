@@ -46,7 +46,6 @@ spark_dir = '/opt/' + args.cluster_name + '/spark/'
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-jupyter_version = os.environ['notebook_jupyter_version']
 scala_link = "http://www.scala-lang.org/files/archive/"
 spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
 
