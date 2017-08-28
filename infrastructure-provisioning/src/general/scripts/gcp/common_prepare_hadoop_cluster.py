@@ -77,6 +77,9 @@ if __name__ == "__main__":
     dataproc_conf['bucket_name'] = (dataproc_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
     dataproc_conf['release_label'] = os.environ['dataproc_version']
     dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
+    dataproc_conf['dataproc_service_account_name'] = "dlabowner"
+    service_account_email = "{}@{}.iam.gserviceaccount.com".format(dataproc_conf['dataproc_service_account_name'],
+                                                                   os.environ['gcp_project_id'])
 
     print "Will create exploratory environment with edge node as access point as following: " + \
           json.dumps(dataproc_conf, sort_keys=True, indent=4, separators=(',', ': '))
@@ -89,11 +92,17 @@ if __name__ == "__main__":
     dataproc_cluster['projectId'] = os.environ['gcp_project_id']
     dataproc_cluster['clusterName'] = dataproc_conf['cluster_name']
     dataproc_cluster['labels'] = dataproc_conf['cluster_label']
+    dataproc_cluster['config']['gceClusterConfig']['serviceAccount'] = service_account_email
     dataproc_cluster['config']['gceClusterConfig']['zoneUri'] = dataproc_conf['zone']
     dataproc_cluster['config']['gceClusterConfig']['subnetworkUri'] = dataproc_conf['subnet']
     dataproc_cluster['config']['masterConfig']['machineTypeUri'] = os.environ['dataproc_master_instance_type']
     dataproc_cluster['config']['workerConfig']['machineTypeUri'] = os.environ['dataproc_slave_instance_type']
-    dataproc_cluster['config']['workerConfig']['numInstances'] = int(os.environ['dataproc_instance_count']) - 1
+    dataproc_cluster['config']['masterConfig']['numInstances'] = int(os.environ['dataproc_master_count'])
+    dataproc_cluster['config']['workerConfig']['numInstances'] = int(os.environ['dataproc_slave_count'])
+    if int(os.environ['dataproc_preemptible_count']) != 0:
+        dataproc_cluster['config']['secondaryWorkerConfig']['numInstances'] = int(os.environ['dataproc_preemptible_count'])
+    else:
+        del dataproc_cluster['config']['secondaryWorkerConfig']
     dataproc_cluster['config']['softwareConfig']['imageVersion'] = dataproc_conf['release_label']
     ssh_user = os.environ['conf_os_user']
     ssh_user_pubkey = open(os.environ['conf_key_dir'] + os.environ['edge_user_name'] + '.pub').read()
@@ -132,7 +141,9 @@ if __name__ == "__main__":
         print "Dataproc version: {}".format(dataproc_conf['release_label'])
         print "Dataproc master node shape: {}".format(os.environ['dataproc_master_instance_type'])
         print "Dataproc slave node shape: {}".format(os.environ['dataproc_slave_instance_type'])
-        print "Instance count: {}".format(os.environ['dataproc_instance_count'])
+        print "Master count: {}".format(os.environ['dataproc_master_count'])
+        print "Slave count: {}".format(os.environ['dataproc_slave_count'])
+        print "Preemptible count: {}".format(os.environ['dataproc_preemptible_count'])
         print "Notebook hostname: {}".format(os.environ['notebook_instance_name'])
         print "Bucket name: " + dataproc_conf['bucket_name']
         with open("/root/result.json", 'w') as result:
