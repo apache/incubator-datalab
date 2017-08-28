@@ -55,6 +55,20 @@ local_spark_path = '/opt/spark/'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
 
 
+def configure_spark_master(os_user, master_ip):
+    if not exists('/home/{}/.ensure_dir/spark_master_ensured'.format(os_user)):
+        run('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
+        run('''echo "SPARK_MASTER_IP='{}'"'''.format(master_ip))
+        run('/opt/spark/sbin/start-master.sh')
+        sudo('touch /home/{}/.ensure_dir/spark_master_ensured'.format(os_user))
+
+
+def start_spark_slave(os_user, master_ip):
+    if not exists('/home/{}/.ensure_dir/spark_slave_ensured'.format(os_user)):
+        run('/opt/spark/sbin/start-slave.sh spark://{}:7077'.format(master_ip))
+        sudo('touch /home/{}/.ensure_dir/spark_slave_ensured'.format(os_user))
+
+
 ##############
 # Run script #
 ##############
