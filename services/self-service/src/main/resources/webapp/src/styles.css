@@ -57,10 +57,6 @@ limitations under the License.
   border-radius: 0;
 }
 
-.cdk-overlay-container {
-    z-index: 9999 !important;
-}
-
 .install-libs .mat-tab-label,
 .manage-ungit .mat-tab-label {
     width: 50%;
@@ -167,14 +163,6 @@ button {
   height: 60px;
   padding: 12px 15px;
 }
-
-/* .modal .btn {
-  margin-top: 20px;
-}
-
-.modal .modal-footer .btn {
-  margin-top: 0;
-} */
 
 .loader {
   border: 3px solid #f3f3f3;

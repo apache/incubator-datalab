@@ -39,6 +39,7 @@ a.nav-item {
   padding: 5px 40px;
   font-size: 14px;
   height: 56px;
+  line-height: 56px;
   position: relative;
   font-family: "Open Sans", sans-serif;
   transition: all .45s ease-in-out;
@@ -121,7 +122,7 @@ a.nav-item:hover {
   background: none;
   outline: none;
   width: 56px;
-  height: 100%;
+  height: 46px;
   cursor: pointer;
   transition: all .45s ease-in-out;
 }
