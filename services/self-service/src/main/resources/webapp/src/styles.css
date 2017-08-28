@@ -159,11 +159,6 @@ button {
   color: #d9534f;
 }
 
-.sub_nav {
-  height: 60px;
-  padding: 12px 15px;
-}
-
 .loader {
   border: 3px solid #f3f3f3;
   border-radius: 50%;
