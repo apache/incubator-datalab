@@ -42,7 +42,7 @@ if __name__ == "__main__":
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
 
-    if GCPActions().download_from_container(resource_group_name, storage_account_name, container_name, gitlab_certfile):
+    if AzureActions().download_from_container(resource_group_name, storage_account_name, container_name, gitlab_certfile):
         put(gitlab_certfile, gitlab_certfile)
         sudo('chown root:root {}'.format(gitlab_certfile))
         print '{} has been downloaded'.format(gitlab_certfile)

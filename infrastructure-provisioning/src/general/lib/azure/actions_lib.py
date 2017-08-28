@@ -17,6 +17,7 @@
 # ******************************************************************************
 
 from azure.common.client_factory import get_client_from_auth_file
+import azure.common
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
@@ -262,6 +263,8 @@ class AzureActions:
             block_blob_service = BlockBlobService(account_name=account_name, account_key=secret_key)
             for filename in files:
                 block_blob_service.get_blob_to_path(container_name, filename, filename)
+            return ''
+        except azure.common.AzureMissingResourceHttpError:
             return ''
         except Exception as err:
             logging.info(
