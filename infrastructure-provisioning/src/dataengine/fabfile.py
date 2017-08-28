@@ -37,14 +37,14 @@ def run():
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
-        local("~/scripts/{}.py".format('common_prepare_dataengine'))
+        local("~/scripts/{}.py".format('dataengine_prepare'))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed preparing Data Engine.", str(err))
         sys.exit(1)
 
     try:
-        local("~/scripts/{}.py".format('common_configure_dataengine'))
+        local("~/scripts/{}.py".format('dataengine_configure'))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Data Engine.", str(err))
