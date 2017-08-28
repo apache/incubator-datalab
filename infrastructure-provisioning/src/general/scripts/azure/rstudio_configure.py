@@ -63,10 +63,10 @@ if __name__ == "__main__":
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
 
     # generating variables regarding EDGE proxy on Notebook instance
-    instance_hostname = AzureMeta().get_instance_private_ip_address(notebook_config['resource_group_name'],
+    instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                     notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_instance_hostname = AzureMeta().get_instance_private_ip_address(notebook_config['resource_group_name'],
+    edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                          edge_instance_name)
     keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
     notebook_config['rstudio_pass'] = id_generator()
@@ -195,7 +195,7 @@ if __name__ == "__main__":
     #     sys.exit(1)
 
     # generating output information
-    ip_address = AzureMeta().get_instance_private_ip_address(notebook_config['resource_group_name'],
+    ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                              notebook_config['instance_name'])
     rstudio_ip_url = "http://" + ip_address + ":8787/"
     ungit_ip_url = "http://" + ip_address + ":8085/"
