@@ -91,8 +91,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        instance_hostname = AzureMeta().get_instance_public_ip_address(os.environ['azure_resource_group_name'],
-                                                                       ssn_conf['instance_name'])
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
             sudo_group = 'sudo'
@@ -103,7 +101,7 @@ if __name__ == "__main__":
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (instance_hostname, ssn_conf['ssh_key_path'], initial_user, ssn_conf['dlab_ssh_user'], sudo_group)
+            (ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], initial_user, ssn_conf['dlab_ssh_user'], sudo_group)
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -118,7 +116,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric awscli pymongo pyyaml google-api-python-client google-cloud-storage pycrypto' --user {} --region {}". \
-            format(instance_hostname, ssn_conf['ssh_key_path'], ssn_conf['dlab_ssh_user'], ssn_conf['region'])
+            format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], ssn_conf['dlab_ssh_user'], ssn_conf['region'])
 
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
@@ -137,7 +135,7 @@ if __name__ == "__main__":
                              "security_group_id": ssn_conf['security_group_name'], "vpc_id": ssn_conf['vpc_name'],
                              "subnet_id": ssn_conf['subnet_name'], "admin_key": os.environ['conf_key_name']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
-            format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),
+            format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'], ssn_conf['service_base_name'])
 
         try:
@@ -162,7 +160,7 @@ if __name__ == "__main__":
                              {"name": "dataengine", "tag": "latest"}]
                              # {"name": "dataproc", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
-            format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),
+            format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    os.environ['conf_os_family'], ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
                    os.environ['conf_cloud_provider'], ssn_conf['region'])
 
@@ -179,7 +177,7 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
-            format(instance_hostname, ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
+            format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
                    os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'],
                    ssn_conf['region'], ssn_conf['service_base_name'], ssn_conf['security_group_name'],
                    ssn_conf['vpc_name'], ssn_conf['subnet_name'], os.environ['conf_tag_resource_id'],
@@ -197,6 +195,8 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
+        instance_hostname = AzureMeta().get_instance_public_ip_address(os.environ['azure_resource_group_name'],
+                                                                       ssn_conf['instance_name'])
         print('[SUMMARY]')
         print "Service base name: " + ssn_conf['service_base_name']
         print "SSN Name: " + ssn_conf['instance_name']
