@@ -45,8 +45,8 @@ if __name__ == "__main__":
     ssn_conf['vpc_cidr'] = '10.10.0.0/16'
     ssn_conf['subnet_prefix'] = '20'
     ssn_conf['storage_account_name'] = (ssn_conf['service_base_name'] + 'ssn').lower().replace('_', '').replace('-', '')
-    ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn').lower().replace('_', '-')
-    ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared').lower().replace('_', '')
+    ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn-container').lower().replace('_', '-')
+    ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared-container').lower().replace('_', '')
     ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
     ssn_conf['network_interface_name'] = ssn_conf['service_base_name'] + '-ssn-nif'
     ssn_conf['static_public_ip_name'] = ssn_conf['service_base_name'] + '-ssn-ip'

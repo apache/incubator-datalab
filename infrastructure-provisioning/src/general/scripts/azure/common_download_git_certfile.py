@@ -32,7 +32,7 @@ args = parser.parse_args()
 
 resource_group_name = os.environ['azure_resource_group_name']
 storage_account_name = (os.environ['conf_service_base_name'] + 'ssn').lower().replace('_', '').replace('-', '')
-container_name = ('{}-ssn'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
+container_name = ('{}-ssn-container'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 if __name__ == "__main__":

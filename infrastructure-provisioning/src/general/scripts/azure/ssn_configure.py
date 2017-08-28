@@ -46,7 +46,10 @@ if __name__ == "__main__":
         ssn_conf = dict()
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
         ssn_conf['region'] = os.environ['azure_region']
-        ssn_conf['ssn_bucket_name'] = (ssn_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
+        ssn_conf['storage_account_name'] = (ssn_conf['service_base_name'] + 'ssn').lower().replace('_', '').replace('-',
+                                                                                                                    '')
+        ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn-container').lower().replace('_', '-')
+        ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared-container').lower().replace('_', '')
         ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
         # ssn_conf['instance_size'] = os.environ['ssn_instance_size']
         ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
@@ -208,7 +211,7 @@ if __name__ == "__main__":
         print "Firewall Names: " + ssn_conf['security_group_name']
         print "SSN instance size: " + os.environ['ssn_instance_size']
         # print "SSN AMI name: " + ssn_conf['ami_name']
-        print "SSN bucket name: " + ssn_conf['ssn_bucket_name']
+        print "SSN container name: " + ssn_conf['ssn_container_name']
         print "Region: " + ssn_conf['region']
         jenkins_url = "http://{}/jenkins".format(ssn_conf['instance_dns_name'])
         jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_dns_name'])
@@ -229,7 +232,7 @@ if __name__ == "__main__":
                    "subnet_id": ssn_conf['subnet_name'],
                    "security_id": ssn_conf['security_group_name'],
                    "instance_shape": os.environ['ssn_instance_size'],
-                   "bucket_name": ssn_conf['ssn_bucket_name'],
+                   "container_name": ssn_conf['ssn_container_name'],
                    "region": ssn_conf['region'],
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))

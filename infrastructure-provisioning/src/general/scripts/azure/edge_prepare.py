@@ -55,8 +55,8 @@ if __name__ == "__main__":
     edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
     edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ[
         'edge_user_name'] + '-nb-sg'
-    edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name']).lower().\
-        replace('_', '-')
+    edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] +
+                                        '-container').lower().replace('_', '-')
     edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower().\
         replace('_', '').replace('-', '')
     ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'

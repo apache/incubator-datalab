@@ -52,9 +52,9 @@ if __name__ == "__main__":
     edge_conf['instance_dns_name'] = edge_conf['instance_name'] + '.' + edge_conf['region'] + '.cloudapp.azure.com'
     edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower(). \
         replace('_', '').replace('-', '')
-    edge_conf['container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name']).lower().\
-        replace('_', '-')
-    edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared').lower().replace('_', '')
+    edge_conf['container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-container').\
+        lower().replace('_', '-')
+    edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared-container').lower().replace('_', '')
     edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
     edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
                                                 '-nb-sg'
@@ -183,7 +183,7 @@ if __name__ == "__main__":
         print "Private IP: " + edge_conf['edge_private_ip']
         print "Key name: " + edge_conf['key_name']
         print "Storage account name: " + edge_conf['storage_account_name']
-        print "Container name: " + edge_conf['bucketcontainer_name_name']
+        print "Container name: " + edge_conf['container_name_name']
         print "Shared bucket name: " + edge_conf['shared_container_name']
         print "Notebook SG: " + edge_conf['notebook_security_group_name']
         print "Edge SG: " + edge_conf['edge_security_group_name']
