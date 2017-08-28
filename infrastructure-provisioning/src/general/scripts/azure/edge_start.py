@@ -52,7 +52,7 @@ if __name__ == "__main__":
     try:
         public_ip_address = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
                                                                        edge_conf['instance_name'])
-        private_ip_address = AzureMeta().get_instance_private_ip_address(edge_conf['resource_group_name'],
+        private_ip_address = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
                                                                          edge_conf['instance_name'])
         print '[SUMMARY]'
         logging.info('[SUMMARY]')

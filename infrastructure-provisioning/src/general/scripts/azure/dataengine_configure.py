@@ -76,7 +76,7 @@ if __name__ == "__main__":
     data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
     data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
     data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
-    master_node_hostname = AzureMeta().get_instance_private_ip_address(data_engine['resource_group_name'],
+    master_node_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                        data_engine['master_node_name'])
     keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
     if os.environ['conf_os_family'] == 'debian':
@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
     for slave in range(data_engine['instance_count'] - 1):
         slave_name = data_engine['slave_node_name'] + '-{}'.format(slave + 1)
-        slave_hostname = AzureMeta().get_instance_private_ip_address(data_engine['resource_group_name'], slave_name)
+        slave_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'], slave_name)
         try:
             logging.info('[CREATING DLAB SSH USER]')
             print('[CREATING DLAB SSH USER]')

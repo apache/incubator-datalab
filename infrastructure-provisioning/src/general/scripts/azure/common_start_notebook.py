@@ -59,7 +59,7 @@ if __name__ == "__main__":
     try:
         logging.info('[SETUP USER GIT CREDENTIALS]')
         print '[SETUP USER GIT CREDENTIALS]'
-        notebook_config['notebook_ip'] = AzureMeta().get_instance_private_ip_address(
+        notebook_config['notebook_ip'] = AzureMeta().get_private_ip_address(
             notebook_config['resource_group_name'], notebook_config['notebook_name'])
         notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
 
     try:
-        ip_address = AzureMeta().get_instance_private_ip_address(notebook_config['resource_group_name'],
+        ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                  notebook_config['notebook_name'])
         print '[SUMMARY]'
         logging.info('[SUMMARY]')

@@ -264,7 +264,7 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def get_instance_private_ip_address(self, resource_group_name, instance_name):
+    def get_private_ip_address(self, resource_group_name, instance_name):
         try:
             instance = self.compute_client.virtual_machines.get(resource_group_name, instance_name)
             for i in instance.network_profile.network_interfaces:
@@ -330,3 +330,15 @@ class AzureMeta:
                 host['status'] = 'terminated'
                 data.append(host)
         return data
+
+
+def get_instance_private_ip_address(tag_name, instance_name):
+    try:
+        resource_group_name = os.environ['azure_resource_group_name']
+        return AzureMeta().get_private_ip_address(resource_group_name, instance_name)
+    except Exception as err:
+            logging.info("Error with getting private ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Error with getting private ip address by name",
+                       "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
