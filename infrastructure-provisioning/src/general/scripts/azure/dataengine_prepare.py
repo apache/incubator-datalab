@@ -342,23 +342,3 @@ if __name__ == "__main__":
         append_result("Failed to create slave instances.", str(err))
         sys.exit(1)
 
-    try:
-        logging.info('[SUMMARY]')
-        print '[SUMMARY]'
-        print "Service base name: " + data_engine['service_base_name']
-        print "Region: " + data_engine['region']
-        print "Master node shape: " + data_engine['master_size']
-        print "Slave node shape: " + data_engine['slave_size']
-        print "Instance count: " + data_engine['instance_count']
-        with open("/root/result.json", 'w') as result:
-            res = {"hostname": data_engine['service_base_name'],
-                   "instance_id": data_engine['master_node_name'],
-                   "key_name": data_engine['key_name'],
-                   "Action": "Create new Data Engine"}
-            print json.dumps(res)
-            result.write(json.dumps(res))
-    except:
-        print "Failed writing results."
-        sys.exit(0)
-
-    sys.exit(0)
