@@ -38,9 +38,12 @@ a.nav-item {
   color: #577289;
   padding: 5px 40px;
   font-size: 14px;
+  height: 56px;
   position: relative;
   font-family: "Open Sans", sans-serif;
   transition: all .45s ease-in-out;
+  text-decoration: none;
+  outline: none;
  }
  a.nav-item:not(:last-child)::after {
   content: ' ';
