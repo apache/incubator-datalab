@@ -30,6 +30,10 @@ parser.add_argument('--notebook_ip', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
+resource_group_name = os.environ['azure_resource_group_name']
+storage_account_name = (os.environ['conf_service_base_name'] + 'ssn').lower().replace('_', '').replace('-', '')
+container_name = ('{}-ssn'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
+gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 if __name__ == "__main__":
     env.hosts = "{}".format(args.notebook_ip)
@@ -38,9 +42,7 @@ if __name__ == "__main__":
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
 
-    bucket_name = ('{}-ssn-bucket'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
-    gitlab_certfile = os.environ['conf_gitlab_certfile']
-    if dlab.actions_lib.get_gitlab_cert(bucket_name, gitlab_certfile):
+    if GCPActions().download_from_container(resource_group_name, storage_account_name, container_name, gitlab_certfile):
         put(gitlab_certfile, gitlab_certfile)
         sudo('chown root:root {}'.format(gitlab_certfile))
         print '{} has been downloaded'.format(gitlab_certfile)

@@ -65,10 +65,10 @@ if __name__ == "__main__":
                                                                   edge_conf['private_subnet_name']).address_prefix
         edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
                                                                        edge_conf['instance_name'])
-        edge_conf['edge_private_ip'] = AzureMeta().get_instance_private_ip_address(edge_conf['resource_group_name'],
+        edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
                                                                                    edge_conf['instance_name'])
 
-        instance_hostname = AzureMeta().get_instance_private_ip_address(edge_conf['resource_group_name'],
+        instance_hostname = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
                                                                         edge_conf['instance_name'])
     except Exception as err:
         append_result("Failed to generate infrastructure names", str(err))
