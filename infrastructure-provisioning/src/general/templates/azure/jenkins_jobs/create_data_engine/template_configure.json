@@ -2,10 +2,14 @@
     "request_id":"RID",
     "conf_resource": "emr",
     "conf_service_base_name":"SBN",
+    "conf_os_family":"COF",
+    "azure_resource_group_name":"ARGN",
+    "azure_subnet_name":"CSI",
+    "azure_vpc_name":"EVI",
     "edge_user_name":"EUN",
-    "emr_version":"EVER",
+    "dataengine_instance_count":"EIC",
     "conf_key_name":"KN",
-    "aws_region":"CREG",
+    "azure_region":"CREG",
     "notebook_instance_name":"NNM",
-    "application":"APP"
+    "computational_name": "CNAM"
 }
