@@ -41,51 +41,54 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
-
-    notebook_config = dict()
     try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        notebook_config['exploratory_name'] = ''
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
-    notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
-    notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
-    notebook_config['key_name'] = os.environ['conf_key_name']
-    notebook_config['user_keyname'] = os.environ['edge_user_name']
-    notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
-    if os.environ['application'] == 'zeppelin':
-        if os.environ['notebook_multiple_clusters'] == 'true':
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-                'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
+        notebook_config = dict()
+        try:
+            notebook_config['exploratory_name'] = os.environ['exploratory_name']
+        except:
+            notebook_config['exploratory_name'] = ''
+        notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+        notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
+        notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
+        notebook_config['key_name'] = os.environ['conf_key_name']
+        notebook_config['user_keyname'] = os.environ['edge_user_name']
+        notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+            'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
+        if os.environ['application'] == 'zeppelin':
+            if os.environ['notebook_multiple_clusters'] == 'true':
+                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+                    'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
+            else:
+                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+                    'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
         else:
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-                'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
-    else:
-        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-            'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
-    #notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
-    #                                       os.environ['edge_user_name'] + "-nb-Profile"
-    notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + '-nb-sg'
-    notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+                'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
+        #notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
+        #                                       os.environ['edge_user_name'] + "-nb-Profile"
+        notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + os.environ[
+            'edge_user_name'] + '-nb-sg'
+        notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
 
-    # generating variables regarding EDGE proxy on Notebook instance
-    instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                    notebook_config['instance_name'])
-    edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                         edge_instance_name)
-    keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
-
-    try:
+        # generating variables regarding EDGE proxy on Notebook instance
+        instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                        notebook_config['instance_name'])
+        edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+        edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                             edge_instance_name)
+        keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
             sudo_group = 'sudo'
         if os.environ['conf_os_family'] == 'redhat':
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
+    except Exception as err:
+        append_result("Failed to generate variables dictionary.", str(err))
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        sys.exit(1)
 
+    try:
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
@@ -226,33 +229,37 @@ if __name__ == "__main__":
     #     sys.exit(1)
 
     # generating output information
-    ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                             notebook_config['instance_name'])
-    zeppelin_ip_url = "http://" + ip_address + ":8080/"
-    ungit_ip_url = "http://" + ip_address + ":8085/"
-    print '[SUMMARY]'
-    logging.info('[SUMMARY]')
-    print "Instance name: " + notebook_config['instance_name']
-    print "Private IP: " + ip_address
-    print "Instance type: " + notebook_config['instance_size']
-    print "Key name: " + notebook_config['key_name']
-    print "User key name: " + notebook_config['user_keyname']
-    print "AMI name: " + notebook_config['expected_ami_name']
-    print "Profile name: " + notebook_config['role_profile_name']
-    print "SG name: " + notebook_config['security_group_name']
-    print "Zeppelin URL: " + zeppelin_ip_url
-    print "Ungit URL: " + ungit_ip_url
-    print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
-        'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
+    try:
+        ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                 notebook_config['instance_name'])
+        zeppelin_ip_url = "http://" + ip_address + ":8080/"
+        ungit_ip_url = "http://" + ip_address + ":8085/"
+        print '[SUMMARY]'
+        logging.info('[SUMMARY]')
+        print "Instance name: " + notebook_config['instance_name']
+        print "Private IP: " + ip_address
+        print "Instance type: " + notebook_config['instance_size']
+        print "Key name: " + notebook_config['key_name']
+        print "User key name: " + notebook_config['user_keyname']
+        #print "AMI name: " + notebook_config['expected_ami_name']
+        print "SG name: " + notebook_config['security_group_name']
+        print "Zeppelin URL: " + zeppelin_ip_url
+        print "Ungit URL: " + ungit_ip_url
+        print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
+            'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
 
-    with open("/root/result.json", 'w') as result:
-        res = {"ip": ip_address,
-               "master_keyname": os.environ['conf_key_name'],
-               "notebook_name": notebook_config['instance_name'],
-               "Action": "Create new notebook server",
-               "exploratory_url": [
-                   {"description": "Zeppelin",
-                    "url": zeppelin_ip_url},
-                   {"description": "Ungit",
-                    "url": ungit_ip_url}]}
-        result.write(json.dumps(res))
+        with open("/root/result.json", 'w') as result:
+            res = {"ip": ip_address,
+                   "master_keyname": os.environ['conf_key_name'],
+                   "notebook_name": notebook_config['instance_name'],
+                   "Action": "Create new notebook server",
+                   "exploratory_url": [
+                       {"description": "Zeppelin",
+                        "url": zeppelin_ip_url},
+                       {"description": "Ungit",
+                        "url": ungit_ip_url}]}
+            result.write(json.dumps(res))
+    except Exception as err:
+        append_result("Failed to generate output information.", str(err))
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        sys.exit(1)

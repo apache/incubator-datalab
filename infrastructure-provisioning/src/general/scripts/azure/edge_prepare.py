@@ -34,44 +34,49 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    print 'Generating infrastructure names and tags'
-    edge_conf = dict()
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
-    edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-    edge_conf['key_name'] = os.environ['conf_key_name']
-    edge_conf['user_keyname'] = os.environ['edge_user_name']
-    edge_conf['vpc_name'] = os.environ['azure_vpc_name']
-    edge_conf['subnet_name'] = os.environ['azure_subnet_name']
-    edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
-    edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
-                                          '-edge-nif'
-    edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
-                                         '-edge-ip'
-    edge_conf['region'] = os.environ['azure_region']
-    edge_conf['vpc_cidr'] = '10.10.0.0/16'
-    edge_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
-    edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
-    edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
-    edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + '-nb-sg'
-    edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] +
-                                        '-container').lower().replace('_', '-')
-    edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower().\
-        replace('_', '').replace('-', '')
-    ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
-    key = RSA.importKey(open(ssh_key_path, 'rb').read())
-    edge_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+    try:
+        print 'Generating infrastructure names and tags'
+        edge_conf = dict()
+        edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+        edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
+        edge_conf['key_name'] = os.environ['conf_key_name']
+        edge_conf['user_keyname'] = os.environ['edge_user_name']
+        edge_conf['vpc_name'] = os.environ['azure_vpc_name']
+        edge_conf['subnet_name'] = os.environ['azure_subnet_name']
+        edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
+        edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                              '-edge-nif'
+        edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                             '-edge-ip'
+        edge_conf['region'] = os.environ['azure_region']
+        edge_conf['vpc_cidr'] = '10.10.0.0/16'
+        edge_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
+        edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+        edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
+        edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
+        edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ[
+            'edge_user_name'] + '-nb-sg'
+        edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] +
+                                            '-container').lower().replace('_', '-')
+        edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower().\
+            replace('_', '').replace('-', '')
+        ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        key = RSA.importKey(open(ssh_key_path, 'rb').read())
+        edge_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
 
-    # FUSE in case of absence of user's key
-    fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
-    if not os.path.isfile(fname):
-        print "USERs PUBLIC KEY DOES NOT EXIST in {}".format(fname)
+        # FUSE in case of absence of user's key
+        fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
+        if not os.path.isfile(fname):
+            print "USERs PUBLIC KEY DOES NOT EXIST in {}".format(fname)
+            sys.exit(1)
+
+        print "Will create exploratory environment with edge node as access point as following: " + \
+              json.dumps(edge_conf, sort_keys=True, indent=4, separators=(',', ': '))
+        logging.info(json.dumps(edge_conf))
+    except Exception as err:
+        print "Failed to generate variables dictionary."
+        append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
-
-    print "Will create exploratory environment with edge node as access point as following: " + \
-          json.dumps(edge_conf, sort_keys=True, indent=4, separators=(',', ': '))
-    logging.info(json.dumps(edge_conf))
 
     try:
         logging.info('[CREATE SUBNET]')

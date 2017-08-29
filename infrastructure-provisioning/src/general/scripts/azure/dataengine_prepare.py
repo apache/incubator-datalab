@@ -38,58 +38,63 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.INFO,
                         filename=local_log_filepath)
-    edge_status = AzureMeta().get_list_instance_statuses(os.environ['conf_service_base_name'],
-                                                         [os.environ['conf_service_base_name'] + '-' +
-                                                          os.environ['edge_user_name'] + '-edge'])
-    if len(edge_status) == 1:
-        if edge_status[0]['status'] != 'running':
-            logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print 'ERROR: Edge node is unavailable! Aborting...'
-            ssn_hostname = AzureMeta().get_instance_public_ip_address(os.environ['conf_service_base_name'],
-                                                                      os.environ['conf_service_base_name'] + '-ssn')
-            put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
-                                ssn_hostname)
-            append_result("Edge node is unavailable")
+    try:
+        edge_status = AzureMeta().get_list_instance_statuses(os.environ['conf_service_base_name'],
+                                                             [os.environ['conf_service_base_name'] + '-' +
+                                                              os.environ['edge_user_name'] + '-edge'])
+        if len(edge_status) == 1:
+            if edge_status[0]['status'] != 'running':
+                logging.info('ERROR: Edge node is unavailable! Aborting...')
+                print 'ERROR: Edge node is unavailable! Aborting...'
+                ssn_hostname = AzureMeta().get_instance_public_ip_address(os.environ['conf_service_base_name'],
+                                                                          os.environ['conf_service_base_name'] + '-ssn')
+                put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
+                                    ssn_hostname)
+                append_result("Edge node is unavailable")
+                sys.exit(1)
+        else:
+            append_result("Error with getting Edge instance status")
             sys.exit(1)
-    else:
-        append_result("Error with getting Edge instance status")
+        print 'Generating infrastructure names and tags'
+        data_engine = dict()
+        try:
+            data_engine['exploratory_name'] = os.environ['exploratory_name']
+        except:
+            data_engine['exploratory_name'] = ''
+        try:
+            data_engine['computational_name'] = os.environ['computational_name']
+        except:
+            data_engine['computational_name'] = ''
+        data_engine['service_base_name'] = os.environ['conf_service_base_name']
+        data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
+        data_engine['region'] = os.environ['azure_region']
+        data_engine['key_name'] = os.environ['conf_key_name']
+        data_engine['vpc_name'] = os.environ['azure_vpc_name']
+        data_engine['subnet_name'] = os.environ['azure_subnet_name']
+        data_engine['private_subnet_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+                                             '-subnet'
+        data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
+                                                                    data_engine['vpc_name'],
+                                                                    data_engine['private_subnet_name']).address_prefix
+        data_engine['master_security_group_name'] = data_engine['service_base_name'] + '-dataengine-master-sg'
+        data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-dataengine-slave-sg'
+        data_engine['master_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+                                          '-dataengine-' + data_engine['exploratory_name'] + '-' + \
+                                          data_engine['computational_name'] + '-master'
+        data_engine['slave_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+                                          '-dataengine-' + data_engine['exploratory_name'] + '-' + \
+                                          data_engine['computational_name'] + '-slave'
+        data_engine['master_network_interface_name'] = data_engine['master_node_name'] + '-nif'
+        data_engine['master_size'] = os.environ['azure_dataengine_master_size']
+        ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        key = RSA.importKey(open(ssh_key_path, 'rb').read())
+        data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
+        data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
+    except Exception as err:
+        print "Failed to generate variables dictionary."
+        append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
-    print 'Generating infrastructure names and tags'
-    data_engine = dict()
-    try:
-        data_engine['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        data_engine['exploratory_name'] = ''
-    try:
-        data_engine['computational_name'] = os.environ['computational_name']
-    except:
-        data_engine['computational_name'] = ''
-    data_engine['service_base_name'] = os.environ['conf_service_base_name']
-    data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
-    data_engine['region'] = os.environ['azure_region']
-    data_engine['key_name'] = os.environ['conf_key_name']
-    data_engine['vpc_name'] = os.environ['azure_vpc_name']
-    data_engine['subnet_name'] = os.environ['azure_subnet_name']
-    data_engine['private_subnet_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                         '-subnet'
-    data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
-                                                                data_engine['vpc_name'],
-                                                                data_engine['private_subnet_name']).address_prefix
-    data_engine['master_security_group_name'] = data_engine['service_base_name'] + '-dataengine-master-sg'
-    data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-dataengine-slave-sg'
-    data_engine['master_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                      '-dataengine-' + data_engine['exploratory_name'] + '-' + \
-                                      data_engine['computational_name'] + '-master'
-    data_engine['slave_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                      '-dataengine-' + data_engine['exploratory_name'] + '-' + \
-                                      data_engine['computational_name'] + '-slave'
-    data_engine['master_network_interface_name'] = data_engine['master_node_name'] + '-nif'
-    data_engine['master_size'] = os.environ['azure_dataengine_master_size']
-    ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
-    key = RSA.importKey(open(ssh_key_path, 'rb').read())
-    data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
-    data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
-    data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
 
     logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
     print "[CREATING SECURITY GROUPS FOR MASTER NODE]"

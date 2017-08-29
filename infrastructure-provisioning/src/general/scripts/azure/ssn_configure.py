@@ -90,17 +90,17 @@ if __name__ == "__main__":
             os.environ['aws_account_id'] = 'None'
             os.environ['aws_billing_bucket'] = 'None'
             os.environ['aws_report_path'] = 'None'
-    except:
-        sys.exit(1)
-
-    try:
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
             sudo_group = 'sudo'
         if os.environ['conf_os_family'] == 'redhat':
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
+    except:
+        print "Failed to generate variables dictionary."
+        sys.exit(1)
 
+    try:
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
