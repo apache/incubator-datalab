@@ -194,38 +194,42 @@ if __name__ == "__main__":
     #     remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
     #     sys.exit(1)
 
-    # generating output information
-    ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                             notebook_config['instance_name'])
-    rstudio_ip_url = "http://" + ip_address + ":8787/"
-    ungit_ip_url = "http://" + ip_address + ":8085/"
-    print '[SUMMARY]'
-    logging.info('[SUMMARY]')
-    print "Instance name: " + notebook_config['instance_name']
-    print "Private IP: " + ip_address
-    print "Instance type: " + notebook_config['instance_size']
-    print "Key name: " + notebook_config['key_name']
-    print "User key name: " + notebook_config['user_keyname']
-    print "AMI name: " + notebook_config['expected_ami_name']
-    print "Profile name: " + notebook_config['role_profile_name']
-    print "SG name: " + notebook_config['security_group_name']
-    print "Rstudio URL: " + rstudio_ip_url
-    print "Rstudio user: " + notebook_config['dlab_ssh_user']
-    print "Rstudio pass: " + notebook_config['rstudio_pass']
-    print "Ungit URL: " + ungit_ip_url
-    print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
-        'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
+    try:
+        # generating output information
+        ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                 notebook_config['instance_name'])
+        rstudio_ip_url = "http://" + ip_address + ":8787/"
+        ungit_ip_url = "http://" + ip_address + ":8085/"
+        print '[SUMMARY]'
+        logging.info('[SUMMARY]')
+        print "Instance name: " + notebook_config['instance_name']
+        print "Private IP: " + ip_address
+        print "Instance type: " + notebook_config['instance_size']
+        print "Key name: " + notebook_config['key_name']
+        print "User key name: " + notebook_config['user_keyname']
+        #print "AMI name: " + notebook_config['expected_ami_name']
+        print "SG name: " + notebook_config['security_group_name']
+        print "Rstudio URL: " + rstudio_ip_url
+        print "Rstudio user: " + notebook_config['dlab_ssh_user']
+        print "Rstudio pass: " + notebook_config['rstudio_pass']
+        print "Ungit URL: " + ungit_ip_url
+        print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
+            'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
 
-    with open("/root/result.json", 'w') as result:
-        res = {"ip": ip_address,
-               "master_keyname": os.environ['conf_key_name'],
-               "notebook_name": notebook_config['instance_name'],
-               "Action": "Create new notebook server",
-               "exploratory_url": [
-                   {"description": "Rstudio",
-                    "url": rstudio_ip_url},
-                   {"description": "Ungit",
-                    "url": ungit_ip_url}],
-               "exploratory_user": notebook_config['dlab_ssh_user'],
-               "exploratory_pass": notebook_config['rstudio_pass']}
-        result.write(json.dumps(res))
+        with open("/root/result.json", 'w') as result:
+            res = {"ip": ip_address,
+                   "master_keyname": os.environ['conf_key_name'],
+                   "notebook_name": notebook_config['instance_name'],
+                   "Action": "Create new notebook server",
+                   "exploratory_url": [
+                       {"description": "Rstudio",
+                        "url": rstudio_ip_url},
+                       {"description": "Ungit",
+                        "url": ungit_ip_url}],
+                   "exploratory_user": notebook_config['dlab_ssh_user'],
+                   "exploratory_pass": notebook_config['rstudio_pass']}
+            result.write(json.dumps(res))
+    except Exception as err:
+        append_result("Failed to generate output information", str(err))
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        sys.exit(1)
