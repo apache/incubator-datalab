@@ -94,7 +94,13 @@ limitations under the License.
             <li (click)="exploratoryAction(env, 'run')" *ngIf="env.status.toLowerCase() == 'stopped' ||
                                                         env.status == 'stopping'">Run</li>
             <li (click)="exploratoryAction(env, 'terminate')" *ngIf="env.status.toLowerCase() == 'running' || env.status.toLowerCase() == 'stopped'">Terminate</li>
-            <li (click)="exploratoryAction(env, 'deploy')" *ngIf="env.status != 'stopping' && env.status != 'stopped' && env.status != 'starting'">Deploy EMR</li>
+            <li (click)="exploratoryAction(env, 'deploy')"
+                *ngIf="env.status != 'stopping'
+                && env.status != 'stopped'
+                && env.status != 'starting'
+                && env.template_name.toLowerCase().indexOf('tensorflow') === -1
+                && env.template_name.toLowerCase().indexOf('deep learning') === -1
+                ">Deploy EMR</li>
             <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
           </ul>
         </div>
