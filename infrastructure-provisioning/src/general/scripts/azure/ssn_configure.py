@@ -112,6 +112,18 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        if pre_defined_resource_group:
+            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
+            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
+                                         ssn_conf['subnet_name'])
+        if pre_defined_sg:
+            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
+                                                 ssn_conf['security_group_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'],
+                                              ssn_conf['storage_account_name'])
+        AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Failed creating ssh user 'dlab-user'.", str(err))
         sys.exit(1)
 
@@ -127,6 +139,18 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        if pre_defined_resource_group:
+            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
+            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
+                                         ssn_conf['subnet_name'])
+        if pre_defined_sg:
+            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
+                                                 ssn_conf['security_group_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'],
+                                              ssn_conf['storage_account_name'])
+        AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Failed installing software: pip, packages.", str(err))
         sys.exit(1)
 
@@ -147,6 +171,18 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        if pre_defined_resource_group:
+            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
+            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
+                                         ssn_conf['subnet_name'])
+        if pre_defined_sg:
+            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
+                                                 ssn_conf['security_group_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'],
+                                              ssn_conf['storage_account_name'])
+        AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Failed configuring ssn.", str(err))
         sys.exit(1)
 
@@ -173,6 +209,18 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        if pre_defined_resource_group:
+            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
+            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
+                                         ssn_conf['subnet_name'])
+        if pre_defined_sg:
+            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
+                                                 ssn_conf['security_group_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'],
+                                              ssn_conf['storage_account_name'])
+        AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Unable to configure docker.", str(err))
         sys.exit(1)
 
@@ -193,6 +241,18 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        if pre_defined_resource_group:
+            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
+            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
+                                         ssn_conf['subnet_name'])
+        if pre_defined_sg:
+            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
+                                                 ssn_conf['security_group_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'],
+                                              ssn_conf['storage_account_name'])
+        AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Unable to configure UI.", str(err))
         sys.exit(1)
 
