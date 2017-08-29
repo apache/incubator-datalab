@@ -36,40 +36,44 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    # generating variables dictionary
-    print 'Generating infrastructure names and tags'
-    notebook_config = dict()
     try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        notebook_config['exploratory_name'] = ''
-    try:
-        notebook_config['computational_name'] = os.environ['computational_name']
-    except:
-        notebook_config['computational_name'] = ''
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
-    notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
-    notebook_config['region'] = os.environ['azure_region']
-    notebook_config['cluster_name'] = notebook_config['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                      '-dataengine-' + notebook_config['exploratory_name'] + '-' + \
-                                      notebook_config['computational_name']
-    notebook_config['master_node_name'] = notebook_config['cluster_name'] + '-master'
-    notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-    notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
-    notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
-    try:
-        notebook_config['spark_master_ip'] = AzureMeta().get_private_ip_address(
-            notebook_config['resource_group_name'], notebook_config['master_node_name'])
-        notebook_config['notebook_ip'] = AzureMeta().get_private_ip_address(
-            notebook_config['resource_group_name'], notebook_config['notebook_name'])
-    except:
-        sys.exit(1)
-    notebook_config['spark_master_url'] = 'spark://{}:7077'.format(notebook_config['spark_master_ip'])
+        # generating variables dictionary
+        print 'Generating infrastructure names and tags'
+        notebook_config = dict()
+        try:
+            notebook_config['exploratory_name'] = os.environ['exploratory_name']
+        except:
+            notebook_config['exploratory_name'] = ''
+        try:
+            notebook_config['computational_name'] = os.environ['computational_name']
+        except:
+            notebook_config['computational_name'] = ''
+        notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+        notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
+        notebook_config['region'] = os.environ['azure_region']
+        notebook_config['cluster_name'] = notebook_config['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+                                          '-dataengine-' + notebook_config['exploratory_name'] + '-' + \
+                                          notebook_config['computational_name']
+        notebook_config['master_node_name'] = notebook_config['cluster_name'] + '-master'
+        notebook_config['notebook_name'] = os.environ['notebook_instance_name']
+        notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
+        notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+        try:
+            notebook_config['spark_master_ip'] = AzureMeta().get_private_ip_address(
+                notebook_config['resource_group_name'], notebook_config['master_node_name'])
+            notebook_config['notebook_ip'] = AzureMeta().get_private_ip_address(
+                notebook_config['resource_group_name'], notebook_config['notebook_name'])
+        except:
+            sys.exit(1)
+        notebook_config['spark_master_url'] = 'spark://{}:7077'.format(notebook_config['spark_master_ip'])
 
-    if os.environ['application'] == 'deeplearning':
-        application = 'jupyter'
-    else:
-        application = os.environ['application']
+        if os.environ['application'] == 'deeplearning':
+            application = 'jupyter'
+        else:
+            application = os.environ['application']
+    except Exception as err:
+        append_result("Failed to generate infrastructure names", str(err))
+        sys.exit(1)
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
