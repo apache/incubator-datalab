@@ -21,26 +21,23 @@ limitations under the License.
     <a class="logo">
       <img src="assets/img/logo.png" alt="">
     </a>
-    <form name="form" class="form_wrap" #f="ngForm" novalidate>
-      <div class="input-group">
-        <span class="input-group-addon" id="sizing-addon2">
-            <span class="login-icon icon-username"></span>
-        </span>
-        <input type="text" class="form-control" name="username" [(ngModel)]="model.username" [pattern]="userPattern" #username="ngModel" placeholder="Username" />
+    <form name="form" class="form-wrap" #f="ngForm" novalidate>
+
+      <div class="input-icon-group">
+        <span class="input-icon"><span class="login-icon icon-username"></span></span>
+        <input type="text" class="input-with-icon" name="username" [(ngModel)]="model.username" [pattern]="userPattern" #username="ngModel" placeholder="Username" />
       </div>
-      <div class="input-group">
-          <span class="input-group-addon" id="sizing-addon2">
-            <span class="login-icon icon-password"></span>
-          </span>
-          <input type="password" class="form-control" placeholder="Password" name="password" [(ngModel)]="model.password" #password="ngModel" required />
+
+      <div class="input-icon-group">
+        <span class="input-icon"><span class="login-icon icon-password"></span></span>
+        <input type="password" class="input-with-icon" placeholder="Password" name="password" [(ngModel)]="model.password" #password="ngModel" required />
       </div>
+
+      <div *ngIf="error" class="warning-alert"><span class="material-icons">priority_high</span>{{ error }}</div>
       <div class="form-group">
-        <div *ngIf="error" class="alert alert-danger">{{error}}</div>
-      </div>
-      <div class="form-group">
-        <button md-raised-button [disabled]="loading || !username.valid || !password.valid" 
-                (click)="login_btnClick();" 
-                class="butt butt-login" 
+        <button md-raised-button [disabled]="loading || !username.valid || !password.valid"
+                (click)="login_btnClick();"
+                class="butt butt-login"
                 [ngClass]="{'not-allowed':loading || !username.valid || !password.valid}">
             <span *ngIf="!loading">Login</span>
 
