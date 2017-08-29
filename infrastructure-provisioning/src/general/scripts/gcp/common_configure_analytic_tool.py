@@ -39,15 +39,16 @@ if __name__ == "__main__":
     # generating variables dictionary
     print 'Generating infrastructure names and tags'
     notebook_config = dict()
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+    notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
+    notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-    notebook_config['bucket_name'] = (notebook_config['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
+    notebook_config['bucket_name'] = '{}-ssn-bucket'.format(notebook_config['service_base_name'])
     notebook_config['cluster_name'] = meta_lib.GCPMeta().get_not_configured_dataproc(notebook_config['notebook_name'])
     notebook_config['notebook_ip'] = meta_lib.GCPMeta().get_private_ip_address(notebook_config['notebook_name'])
-    notebook_config['key_path'] = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
+    notebook_config['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     # notebook_config['cluster_id'] = get_emr_id_by_name(notebook_config['cluster_name'])
-    edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
     edge_instance_hostname = meta_lib.GCPMeta().get_private_ip_address(edge_instance_name)
     if os.environ['application'] == 'deeplearning':
         application = 'jupyter'
@@ -60,7 +61,7 @@ if __name__ == "__main__":
         params = "--bucket {} --cluster_name {} --dataproc_version {} --keyfile {} --notebook_ip {} --region {} --edge_user_name {} --os_user {}  --edge_hostname {} --proxy_port {} --scala_version {} --application {} --pip_mirror {}" \
             .format(notebook_config['bucket_name'], notebook_config['cluster_name'], os.environ['dataproc_version'],
                     notebook_config['key_path'], notebook_config['notebook_ip'], os.environ['gcp_region'],
-                    os.environ['edge_user_name'], os.environ['conf_os_user'], edge_instance_hostname, '3128',
+                    notebook_config['edge_user_name'], os.environ['conf_os_user'], edge_instance_hostname, '3128',
                     os.environ['notebook_scala_version'], os.environ['application'], os.environ['conf_pypi_mirror'])
         try:
             local("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params))

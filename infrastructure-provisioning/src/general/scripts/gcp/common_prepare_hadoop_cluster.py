@@ -42,7 +42,7 @@ if __name__ == "__main__":
         os.environ['exploratory_name']
     except:
         os.environ['exploratory_name'] = ''
-    if os.path.exists('/response/.dataproc_creating_' + os.environ['exploratory_name']):
+    if os.path.exists('/response/.dataproc_creating_{}'.format(os.environ['exploratory_name'])):
         time.sleep(30)
 
     # edge_status = GCPMeta().get_instance_status(os.environ['conf_service_base_name'] + "-" +
@@ -59,22 +59,24 @@ if __name__ == "__main__":
     dataproc_conf = dict()
     dataproc_conf['uuid'] = str(uuid.uuid4())[:5]
     try:
-        dataproc_conf['exploratory_name'] = os.environ['exploratory_name']
+        dataproc_conf['exploratory_name'] = (os.environ['exploratory_name']).lower().replace('_', '-')
     except:
         dataproc_conf['exploratory_name'] = ''
     try:
-        dataproc_conf['computational_name'] = os.environ['computational_name']
+        dataproc_conf['computational_name'] = (os.environ['computational_name']).lower().replace('_', '-')
     except:
         dataproc_conf['computational_name'] = ''
-    dataproc_conf['service_base_name'] = os.environ['conf_service_base_name']
+    dataproc_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
+    dataproc_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     dataproc_conf['key_name'] = os.environ['conf_key_name']
-    dataproc_conf['key_path'] = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
+    dataproc_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     dataproc_conf['region'] = os.environ['gcp_region']
     dataproc_conf['zone'] = os.environ['gcp_zone']
     dataproc_conf['subnet'] = os.environ['gcp_subnet_name']
-    dataproc_conf['cluster_name'] = dataproc_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-dp-' + dataproc_conf['exploratory_name'] + '-' + dataproc_conf['computational_name'] + '-' + dataproc_conf['uuid']
-    dataproc_conf['cluster_tag'] = dataproc_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-dp'
-    dataproc_conf['bucket_name'] = (dataproc_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
+    dataproc_conf['cluster_name'] = '{0}-{1}-dp-{2}-{3}-{4}'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'],
+                                                                    dataproc_conf['exploratory_name'], dataproc_conf['computational_name'], dataproc_conf['uuid'])
+    dataproc_conf['cluster_tag'] = '{0}-{1}-dp'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
+    dataproc_conf['bucket_name'] = '{}-ssn-bucket'.format(dataproc_conf['service_base_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
     dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
     dataproc_conf['dataproc_service_account_name'] = "dlabowner"

@@ -43,19 +43,19 @@ if __name__ == "__main__":
         billing_enabled = False
 
         ssn_conf = dict()
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
+        ssn_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
         ssn_conf['region'] = os.environ['gcp_region']
         ssn_conf['zone'] = os.environ['gcp_zone']
-        ssn_conf['ssn_bucket_name'] = (ssn_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
-        ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
+        ssn_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(ssn_conf['service_base_name'])
+        ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_size'] = os.environ['ssn_instance_size']
-        ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
-        ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
+        ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
+        ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
         ssn_conf['subnet_cidr'] = '10.10.1.0/24'
-        ssn_conf['firewall_name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
-        ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        ssn_conf['firewall_name'] = '{}-ssn-firewall'.format(ssn_conf['service_base_name'])
+        ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
-        ssn_conf['service_account_name'] = ssn_conf['service_base_name'] + '-ssn-sa'
+        ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name'])
         ssn_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
         ssn_conf['role_name'] = 'dlab_ssn_role'
 
