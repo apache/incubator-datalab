@@ -73,9 +73,6 @@ def configure_mongo(mongo_passwd):
             sudo('mv /tmp/mongod.service /lib/systemd/system/mongod.service')
             sudo('systemctl daemon-reload')
             sudo('systemctl enable mongod.service')
-        local('scp -i {} /root/files/ssn_instance_shapes.lst {}:/tmp/ssn_instance_shapes.lst'.format(args.keyfile,
-                                                                                                 env.host_string))
-        sudo('mv /tmp/ssn_instance_shapes.lst ' + args.dlab_path + 'tmp/')
         local('sed -i "s|PASSWORD|{}|g" /root/scripts/resource_status.py'.format(mongo_passwd))
         local('scp -i {} /root/scripts/resource_status.py {}:/tmp/resource_status.py'.format(args.keyfile,
                                                                                                       env.host_string))
