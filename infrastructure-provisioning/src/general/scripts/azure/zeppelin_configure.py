@@ -55,7 +55,7 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
     if os.environ['application'] == 'zeppelin':
-        if os.environ['notebook_multiple_emrs'] == 'true':
+        if os.environ['notebook_multiple_clusters'] == 'true':
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
                 'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
         else:
@@ -144,12 +144,12 @@ if __name__ == "__main__":
                              "backend_hostname": instance_hostname,
                              "backend_port": "8080",
                              "nginx_template_dir": "/root/templates/"}
-        params = "--hostname {} --instance_name {} --keyfile {} --region {} --additional_config '{}' --os_user {} --spark_version {} --hadoop_version {} --edge_hostname {} --proxy_port {} --zeppelin_version {} --scala_version {} --livy_version {} --multiple_emrs {} --r_mirror {}" \
+        params = "--hostname {} --instance_name {} --keyfile {} --region {} --additional_config '{}' --os_user {} --spark_version {} --hadoop_version {} --edge_hostname {} --proxy_port {} --zeppelin_version {} --scala_version {} --livy_version {} --multiple_clusters {} --r_mirror {}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['azure_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
-                    os.environ['notebook_livy_version'], os.environ['notebook_multiple_emrs'],
+                    os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
                     os.environ['notebook_r_mirror'])
         try:
             local("~/scripts/{}.py {}".format('configure_zeppelin_node', params))

@@ -47,7 +47,7 @@ def configure_notebook(args):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
     files_dir = '/root/files/'
-    if os.environ['notebook_multiple_emrs'] == 'true':
+    if os.environ['notebook_multiple_clusters'] == 'true':
         put(templates_dir + 'emr_interpreter_livy.json', '/tmp/emr_interpreter.json')
     else:
         put(templates_dir + 'emr_interpreter_spark.json', '/tmp/emr_interpreter.json')
@@ -77,6 +77,6 @@ if __name__ == "__main__":
          + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
          + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user +
          " --edge_hostname " + args.edge_hostname + " --proxy_port " + args.proxy_port + " --scala_version " +
-         args.scala_version + " --livy_version " + livy_version + " --multiple_emrs " +
-         os.environ['notebook_multiple_emrs'] + " --pip_mirror " + args.pip_mirror + " --application " +
+         args.scala_version + " --livy_version " + livy_version + " --multiple_clusters " +
+         os.environ['notebook_multiple_clusters'] + " --pip_mirror " + args.pip_mirror + " --application " +
          args.application)

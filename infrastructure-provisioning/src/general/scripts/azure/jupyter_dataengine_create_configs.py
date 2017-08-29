@@ -107,13 +107,6 @@ def prepare(cluster_dir):
     local('mkdir -p ' + cluster_dir)
 
 
-def install_dataengine_spark(args):
-    local('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-    local('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-    local('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + spark_dir)
-    local('chown -R ' + args.os_user + ':' + args.os_user + ' ' + spark_dir)
-
-
 def pyspark_kernel(args):
     spark_path = '/opt/' + args.cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + args.cluster_name + '/')
@@ -160,7 +153,7 @@ if __name__ == "__main__":
         parser.print_help()
     else:
         prepare('/opt/{}/'.format(args.cluster_name))
-        install_dataengine_spark(args)
+        install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
         pyspark_kernel(args)
         toree_kernel(args)
         r_kernel(args)

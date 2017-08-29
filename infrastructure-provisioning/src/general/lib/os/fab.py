@@ -122,6 +122,13 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sys.exit(1)
 
 
+def install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, os_user):
+    local('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+    local('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+    local('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + spark_dir)
+    local('chown -R ' + os_user + ':' + os_user + ' ' + spark_dir)
+
+
 def prepare(emr_dir, yarn_dir):
     local('mkdir -p ' + emr_dir)
     local('mkdir -p ' + yarn_dir)
@@ -393,7 +400,7 @@ def pyspark_kernel(kernels_dir, emr_version, cluster_name, spark_version, bucket
 
 
 def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_dir, os_user, yarn_dir, bucket,
-                                       user_name, endpoint_url, multiple_emrs):
+                                       user_name, endpoint_url, multiple_clusters):
     try:
         port_number_found = False
         zeppelin_restarted = False
@@ -432,7 +439,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                 zeppelin_restarted = True
         local('sleep 5')
         local('echo \"Configuring emr spark interpreter for Zeppelin\"')
-        if multiple_emrs == 'true':
+        if multiple_clusters == 'true':
             while not port_number_found:
                 port_free = local('sudo bash -c "nmap -p ' + str(default_port) +
                                   ' localhost | grep closed > /dev/null" ; echo $?', capture=True)
