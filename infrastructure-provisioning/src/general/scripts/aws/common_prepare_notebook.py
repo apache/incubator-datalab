@@ -67,7 +67,7 @@ if __name__ == "__main__":
     else:
         notebook_config['primary_disk_size'] = '12'
     if os.environ['application'] == 'zeppelin':
-        if os.environ['notebook_multiple_emrs'] == 'true':
+        if os.environ['notebook_multiple_clusters'] == 'true':
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
                 'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
         else:

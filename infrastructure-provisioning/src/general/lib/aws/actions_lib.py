@@ -764,7 +764,7 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                 env.host_string = env.user + "@" + env.hosts
                 sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, emr_name))
                 if exists('/home/{}/.ensure_dir/emr_{}_interpreter_ensured'.format(ssh_user, emr_name)):
-                    if os.environ['notebook_multiple_emrs'] == 'true':
+                    if os.environ['notebook_multiple_clusters'] == 'true':
                         try:
                             livy_port = sudo("cat /opt/" + emr_version + "/" + emr_name
                                              + "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
