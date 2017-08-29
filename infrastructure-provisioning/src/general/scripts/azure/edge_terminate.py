@@ -26,37 +26,12 @@ from dlab.actions_lib import *
 
 
 def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_name, subnet_name, vpc_name):
-    # print 'Terminating EMR cluster'
-    # try:
-    #     clusters_list = get_emr_list(tag_name)
-    #     if clusters_list:
-    #         for cluster_id in clusters_list:
-    #             client = boto3.client('emr')
-    #             cluster = client.describe_cluster(ClusterId=cluster_id)
-    #             cluster = cluster.get("Cluster")
-    #             emr_name = cluster.get('Name')
-    #             terminate_emr(cluster_id)
-    #             print "The EMR cluster " + emr_name + " has been terminated successfully"
-    #     else:
-    #         print "There are no EMR clusters to terminate."
-    # except:
-    #     sys.exit(1)
-
-    # print "Deregistering notebook's AMI"
-    # try:
-    #     deregister_image(user_name)
-    # except:
-    #     sys.exit(1)
-
     print "Terminating EDGE and notebook instances"
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
             if user_env_prefix in vm.name:
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print "Instance {} has been terminated".format(vm.name)
-            if '-nb-' in vm.name:
-                AzureActions().remove_disk(resource_group_name, vm.name + '-secondary-disk')
-                print "Secondaty Disk {} has been terminated".format(vm.name + '-secondary-disk')
     except:
         sys.exit(1)
 
