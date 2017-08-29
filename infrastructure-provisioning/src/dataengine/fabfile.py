@@ -59,7 +59,7 @@ def terminate():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('common_terminate_dataengine'))
+        local("~/scripts/{}.py".format('dataengine_terminate'))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed terminating Data Engine.", str(err))

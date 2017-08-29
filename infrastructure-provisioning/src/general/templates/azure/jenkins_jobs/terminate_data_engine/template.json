@@ -6,5 +6,6 @@
     "azure_region":"CREG",
     "edge_user_name":"EUN",
     "notebook_instance_name":"NIN",
-    "conf_key_name":"KN"
+    "conf_key_name":"KN",
+    "computational_name": "CNAM"
 }

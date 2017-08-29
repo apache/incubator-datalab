@@ -28,6 +28,9 @@ from azure.storage.blob import BlockBlobService
 from azure.storage.blob import ContentSettings
 from azure.storage.blob.models import ContentSettings, PublicAccess
 import azure.common.exceptions as AzureExceptions
+from fabric.api import *
+from fabric.contrib.files import exists
+import urllib2
 import meta_lib
 import logging
 import traceback
@@ -691,4 +694,69 @@ class AzureActions:
             append_result(str({"error": "Unable to delete network interface",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def remove_dataengine_kernels(self, resource_group_name, notebook_name, os_user, key_path, cluster_name):
+        try:
+            private = meta_lib.AzureMeta().get_private_ip_address(resource_group_name, notebook_name)
+            env.hosts = "{}".format(private)
+            env.user = "{}".format(os_user)
+            env.key_filename = "{}".format(key_path)
+            env.host_string = env.user + "@" + env.hosts
+            sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
+            if exists('/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
+                if os.environ['notebook_multiple_clusters'] == 'true':
+                    try:
+                        livy_port = sudo("cat /opt/" + cluster_name +
+                                         "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
+                        process_number = sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                                              "' | awk '{print $7}' | sed 's|/.*||g'")
+                        sudo('kill -9 ' + process_number)
+                        sudo('systemctl disable livy-server-' + livy_port)
+                    except:
+                        print "Wasn't able to find Livy server for this EMR!"
+                sudo(
+                    'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+                sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
+                zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
+                opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+                req = opener.open(urllib2.Request(zeppelin_url))
+                r_text = req.read()
+                interpreter_json = json.loads(r_text)
+                interpreter_prefix = cluster_name
+                for interpreter in interpreter_json['body']:
+                    if interpreter_prefix in interpreter['name']:
+                        print "Interpreter with ID:", interpreter['id'], "and name:", interpreter['name'], \
+                            "will be removed from zeppelin!"
+                        request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
+                        request.get_method = lambda: 'DELETE'
+                        url = opener.open(request)
+                        print url.read()
+                sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
+                sudo('systemctl daemon-reload')
+                sudo("service zeppelin-notebook stop")
+                sudo("service zeppelin-notebook start")
+                zeppelin_restarted = False
+                while not zeppelin_restarted:
+                    sudo('sleep 5')
+                    result = sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                    result = result[:1]
+                    if result == '1':
+                        zeppelin_restarted = True
+                sudo('sleep 5')
+                sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
+            if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
+                sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Renviron".format(os_user))
+                if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(os_user)):
+                    sudo(
+                        "sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".format(
+                            os_user))
+                sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
+            sudo('rm -rf  /opt/' + cluster_name + '/')
+            print "Notebook's " + env.hosts + " kernels were removed"
+        except Exception as err:
+            logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Unable to remove kernels on Notebook",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
