@@ -89,8 +89,10 @@ if __name__ == "__main__":
     data_engine['slave_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
                                       '-dataengine-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name'] + '-slave'
-    data_engine['master_security_group_name'] = data_engine['service_base_name'] + '-dataengine-master-sg'
-    data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-dataengine-slave-sg'
+    data_engine['master_security_group_name'] = data_engine['service_base_name'] + '-' \
+                                                + os.environ['edge_user_name'] + '-dataengine-master-sg'
+    data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-' \
+                                               + os.environ['edge_user_name'] + '-dataengine-slave-sg'
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
     data_engine['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
     data_engine['cluster_name'] = \
