@@ -103,10 +103,6 @@ def toree_kernel(args):
         f.write(text)
 
 
-def prepare(cluster_dir):
-    local('mkdir -p ' + cluster_dir)
-
-
 def pyspark_kernel(args):
     spark_path = '/opt/' + args.cluster_name + '/spark/'
     local('mkdir -p ' + kernels_dir + 'pyspark_' + args.cluster_name + '/')
@@ -152,7 +148,7 @@ if __name__ == "__main__":
     if args.dry_run == 'true':
         parser.print_help()
     else:
-        prepare('/opt/{}/'.format(args.cluster_name))
+        dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
         install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
         pyspark_kernel(args)
         toree_kernel(args)

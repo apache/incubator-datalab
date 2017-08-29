@@ -43,6 +43,10 @@ def ensure_pip(requisites):
         return False
 
 
+def dataengine_dir_prepare(cluster_dir):
+    local('mkdir -p ' + cluster_dir)
+
+
 def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
     error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:"

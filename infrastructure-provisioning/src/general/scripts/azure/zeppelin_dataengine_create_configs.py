@@ -147,10 +147,6 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, spark_dir, os_user, 
             sys.exit(1)
 
 
-def prepare(cluster_dir):
-    local('mkdir -p ' + cluster_dir)
-
-
 def install_remote_livy(args):
     local('sudo chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
     local('sudo service zeppelin-notebook stop')
@@ -171,7 +167,7 @@ if __name__ == "__main__":
     if args.dry_run == 'true':
         parser.print_help()
     else:
-        prepare('/opt/{}/'.format(args.cluster_name))
+        dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
         install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
         if args.multiple_clusters == 'true':
             install_remote_livy(args)

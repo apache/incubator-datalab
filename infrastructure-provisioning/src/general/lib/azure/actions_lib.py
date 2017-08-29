@@ -747,10 +747,15 @@ class AzureActions:
                 sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
                 sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Renviron".format(os_user))
+                sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Rprofile".format(os_user))
                 if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(os_user)):
                     sudo(
-                        "sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".format(
-                            os_user))
+                        "sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".
+                            format(os_user))
+                if not sudo("sed -n '/^master/p' /home/{}/.Rprofile".format(os_user)):
+                    sudo(
+                        "sed -i '1!G;h;$!d;' /home/{0}/.Rprofile; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Rprofile".
+                            format(os_user))
                 sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
             sudo('rm -rf  /opt/' + cluster_name + '/')
             print "Notebook's " + env.hosts + " kernels were removed"
