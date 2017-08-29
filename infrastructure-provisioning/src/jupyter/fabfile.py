@@ -102,7 +102,7 @@ def start():
         sys.exit(1)
 
 
-# Main function for configuring notebook server after deploying EMR
+# Main function for configuring notebook server after deploying DataEngine service
 def configure():
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] +  "/" + local_log_filename
@@ -118,6 +118,7 @@ def configure():
         sys.exit(1)
 
 
+# Main function for configuring notebook server after deploying DataEngine
 def configure_dataengine():
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
