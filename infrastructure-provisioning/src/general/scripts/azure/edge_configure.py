@@ -31,43 +31,41 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
-
-    print 'Generating infrastructure names and tags'
-    edge_conf = dict()
-
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
-    edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-    edge_conf['key_name'] = os.environ['conf_key_name']
-    edge_conf['vpc_name'] = os.environ['azure_vpc_name']
-    edge_conf['region'] = os.environ['azure_region']
-    edge_conf['subnet_name'] = os.environ['azure_subnet_name']
-    edge_conf['user_keyname'] = os.environ['edge_user_name']
-    edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
-    edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
-                                          '-edge-nif'
-    edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
-                                         '-edge-ip'
-    edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
-    edge_conf['instance_dns_name'] = edge_conf['instance_name'] + '.' + edge_conf['region'] + '.cloudapp.azure.com'
-    edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower(). \
-        replace('_', '').replace('-', '')
-    edge_conf['container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-container').\
-        lower().replace('_', '-')
-    edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared-container').lower().replace('_', '')
-    edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
-    edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
-                                                '-nb-sg'
-    edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
-    keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
     try:
+        print 'Generating infrastructure names and tags'
+        edge_conf = dict()
+
+        edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+        edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
+        edge_conf['key_name'] = os.environ['conf_key_name']
+        edge_conf['vpc_name'] = os.environ['azure_vpc_name']
+        edge_conf['region'] = os.environ['azure_region']
+        edge_conf['subnet_name'] = os.environ['azure_subnet_name']
+        edge_conf['user_keyname'] = os.environ['edge_user_name']
+        edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
+        edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+        edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                              '-edge-nif'
+        edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                             '-edge-ip'
+        edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
+        edge_conf['instance_dns_name'] = edge_conf['instance_name'] + '.' + edge_conf['region'] + '.cloudapp.azure.com'
+        edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower(). \
+            replace('_', '').replace('-', '')
+        edge_conf['container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-container').\
+            lower().replace('_', '-')
+        edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared-container').lower().replace('_', '')
+        edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
+        edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                                    '-nb-sg'
+        edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+        keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
         edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                                                   edge_conf['private_subnet_name']).address_prefix
         edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
                                                                        edge_conf['instance_name'])
         edge_conf['edge_private_ip'] = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
                                                                                    edge_conf['instance_name'])
-
         instance_hostname = AzureMeta().get_private_ip_address(edge_conf['resource_group_name'],
                                                                         edge_conf['instance_name'])
     except Exception as err:

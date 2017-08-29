@@ -39,52 +39,65 @@ if __name__ == "__main__":
                         level=logging.INFO,
                         filename=local_log_filepath)
 
-    print 'Generating infrastructure names and tags'
-    data_engine = dict()
     try:
-        data_engine['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        data_engine['exploratory_name'] = ''
-    try:
-        data_engine['computational_name'] = os.environ['computational_name']
-    except:
-        data_engine['computational_name'] = ''
-    data_engine['service_base_name'] = os.environ['conf_service_base_name']
-    data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
-    data_engine['region'] = os.environ['azure_region']
-    data_engine['key_name'] = os.environ['conf_key_name']
-    data_engine['vpc_name'] = os.environ['azure_vpc_name']
-    data_engine['subnet_name'] = os.environ['azure_subnet_name']
-    data_engine['private_subnet_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                         '-subnet'
-    data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
-                                                                data_engine['vpc_name'],
-                                                                data_engine['private_subnet_name']).address_prefix
-    data_engine['master_security_group_name'] = data_engine['service_base_name'] + '-dataengine-master-sg'
-    data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-dataengine-slave-sg'
-    data_engine['master_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                      '-dataengine-' + data_engine['exploratory_name'] + '-' + \
-                                      data_engine['computational_name'] + '-master'
-    data_engine['slave_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                     '-dataengine-' + data_engine['exploratory_name'] + '-' + \
-                                     data_engine['computational_name'] + '-slave'
-    data_engine['master_network_interface_name'] = data_engine['master_node_name'] + '-nif'
-    data_engine['master_size'] = os.environ['azure_dataengine_master_size']
-    ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
-    key = RSA.importKey(open(ssh_key_path, 'rb').read())
-    data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
-    data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
-    data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
-    data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
-    master_node_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
-                                                                       data_engine['master_node_name'])
-    keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
-    if os.environ['conf_os_family'] == 'debian':
-        initial_user = 'ubuntu'
-        sudo_group = 'sudo'
-    if os.environ['conf_os_family'] == 'redhat':
-        initial_user = 'ec2-user'
-        sudo_group = 'wheel'
+        print 'Generating infrastructure names and tags'
+        data_engine = dict()
+        try:
+            data_engine['exploratory_name'] = os.environ['exploratory_name']
+        except:
+            data_engine['exploratory_name'] = ''
+        try:
+            data_engine['computational_name'] = os.environ['computational_name']
+        except:
+            data_engine['computational_name'] = ''
+        data_engine['service_base_name'] = os.environ['conf_service_base_name']
+        data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
+        data_engine['region'] = os.environ['azure_region']
+        data_engine['key_name'] = os.environ['conf_key_name']
+        data_engine['vpc_name'] = os.environ['azure_vpc_name']
+        data_engine['subnet_name'] = os.environ['azure_subnet_name']
+        data_engine['private_subnet_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+                                             '-subnet'
+        data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
+                                                                    data_engine['vpc_name'],
+                                                                    data_engine['private_subnet_name']).address_prefix
+        data_engine['master_security_group_name'] = data_engine['service_base_name'] + '-dataengine-master-sg'
+        data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-dataengine-slave-sg'
+        data_engine['master_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+                                          '-dataengine-' + data_engine['exploratory_name'] + '-' + \
+                                          data_engine['computational_name'] + '-master'
+        data_engine['slave_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+                                         '-dataengine-' + data_engine['exploratory_name'] + '-' + \
+                                         data_engine['computational_name'] + '-slave'
+        data_engine['master_network_interface_name'] = data_engine['master_node_name'] + '-nif'
+        data_engine['master_size'] = os.environ['azure_dataengine_master_size']
+        ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        key = RSA.importKey(open(ssh_key_path, 'rb').read())
+        data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
+        data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
+        data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
+        master_node_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
+                                                                           data_engine['master_node_name'])
+        keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
+        if os.environ['conf_os_family'] == 'debian':
+            initial_user = 'ubuntu'
+            sudo_group = 'sudo'
+        if os.environ['conf_os_family'] == 'redhat':
+            initial_user = 'ec2-user'
+            sudo_group = 'wheel'
+    except Exception as err:
+        for i in range(data_engine['instance_count']):
+            slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
+            AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        AzureActions().remove_security_group(data_engine['resource_group_name'],
+                                             data_engine['master_security_group_name'])
+        AzureActions().remove_security_group(data_engine['resource_group_name'],
+                                             data_engine['slave_security_group_name'])
+        print "Failed to generate variables dictionary."
+        append_result("Failed to generate variables dictionary.", str(err))
+        sys.exit(1)
 
     try:
         logging.info('[CREATING DLAB SSH USER]')

@@ -42,62 +42,74 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    edge_status = AzureMeta().get_list_instance_statuses(os.environ['conf_service_base_name'],
-                                                         [os.environ['conf_service_base_name'] + '-' +
-                                                         os.environ['edge_user_name'] + '-edge'])
-    if len(edge_status) == 1:
-        if edge_status[0]['status'] != 'running':
-            logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print 'ERROR: Edge node is unavailable! Aborting...'
-            ssn_hostname = AzureMeta().get_instance_public_ip_address(os.environ['conf_service_base_name'],
-                                                                      os.environ['conf_service_base_name'] + '-ssn')
-            put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
-                                ssn_hostname)
-            append_result("Edge node is unavailable")
-            sys.exit(1)
-    else:
-        append_result("Error with getting Edge instance status")
-        sys.exit(1)
-    print 'Generating infrastructure names and tags'
-    notebook_config = dict()
     try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        notebook_config['exploratory_name'] = ''
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
-    notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
-    notebook_config['region'] = os.environ['azure_region']
-    notebook_config['vpc_name'] = os.environ['azure_vpc_name']
-    notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
-    notebook_config['key_name'] = os.environ['conf_key_name']
-    notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
-    notebook_config['network_interface_name'] = notebook_config['instance_name'] + "-nif"
-    notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + '-nb-sg'
-    notebook_config['private_subnet_name'] = notebook_config['service_base_name'] + '-' + \
-                                             os.environ['edge_user_name'] + '-subnet'
-    ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
-    key = RSA.importKey(open(ssh_key_path, 'rb').read())
-    notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
-    if os.environ['application'] == 'deeplearning':
-        notebook_config['primary_disk_size'] = '30'
-    else:
-        notebook_config['primary_disk_size'] = '12'
-    if os.environ['application'] == 'zeppelin':
-        if os.environ['notebook_multiple_clusters'] == 'true':
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-                'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
+        edge_status = AzureMeta().get_list_instance_statuses(os.environ['conf_service_base_name'],
+                                                             [os.environ['conf_service_base_name'] + '-' +
+                                                             os.environ['edge_user_name'] + '-edge'])
+        if len(edge_status) == 1:
+            if edge_status[0]['status'] != 'running':
+                logging.info('ERROR: Edge node is unavailable! Aborting...')
+                print 'ERROR: Edge node is unavailable! Aborting...'
+                ssn_hostname = AzureMeta().get_instance_public_ip_address(os.environ['conf_service_base_name'],
+                                                                          os.environ['conf_service_base_name'] + '-ssn')
+                put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
+                                    ssn_hostname)
+                append_result("Edge node is unavailable")
+                sys.exit(1)
+        else:
+            append_result("Error with getting Edge instance status")
+            sys.exit(1)
+        print 'Generating infrastructure names and tags'
+        notebook_config = dict()
+        try:
+            notebook_config['exploratory_name'] = os.environ['exploratory_name']
+        except:
+            notebook_config['exploratory_name'] = ''
+        notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+        notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
+        notebook_config['region'] = os.environ['azure_region']
+        notebook_config['vpc_name'] = os.environ['azure_vpc_name']
+        notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
+        notebook_config['key_name'] = os.environ['conf_key_name']
+        notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+            'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
+        notebook_config['network_interface_name'] = notebook_config['instance_name'] + "-nif"
+        notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + os.environ[
+            'edge_user_name'] + '-nb-sg'
+        notebook_config['private_subnet_name'] = notebook_config['service_base_name'] + '-' + \
+                                                 os.environ['edge_user_name'] + '-subnet'
+        ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        key = RSA.importKey(open(ssh_key_path, 'rb').read())
+        notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        if os.environ['application'] == 'deeplearning':
+            notebook_config['primary_disk_size'] = '30'
+        else:
+            notebook_config['primary_disk_size'] = '12'
+        if os.environ['application'] == 'zeppelin':
+            if os.environ['notebook_multiple_clusters'] == 'true':
+                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+                    'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
+            else:
+                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+                    'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
         else:
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-                'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
-    else:
-        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-            'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
-    notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
-                                           os.environ['edge_user_name'] + "-nb-Profile"
-    notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + "-nb-sg"
+                'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
+        notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
+                                               os.environ['edge_user_name'] + "-nb-Profile"
+        notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+            'edge_user_name'] + "-nb-sg"
+
+        if os.environ['conf_os_family'] == 'debian':
+            initial_user = 'ubuntu'
+            sudo_group = 'sudo'
+        if os.environ['conf_os_family'] == 'redhat':
+            initial_user = 'ec2-user'
+            sudo_group = 'wheel'
+    except Exception as err:
+        print "Failed to generate variables dictionary."
+        append_result("Failed to generate variables dictionary.", str(err))
+        sys.exit(1)
 
     # print 'Searching preconfigured images'
     # ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'], 'available')
@@ -115,13 +127,6 @@ if __name__ == "__main__":
     # with open('/root/result.json', 'w') as f:
     #     data = {"notebook_name": notebook_config['instance_name'], "error": ""}
     #     json.dump(data, f)
-
-    if os.environ['conf_os_family'] == 'debian':
-        initial_user = 'ubuntu'
-        sudo_group = 'sudo'
-    if os.environ['conf_os_family'] == 'redhat':
-        initial_user = 'ec2-user'
-        sudo_group = 'wheel'
 
     # launching instance for notebook server
     try:

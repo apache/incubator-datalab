@@ -32,28 +32,32 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
                         filename=local_log_filepath)
-    instance = 'ssn'
-    pre_defined_resource_group = False
-    pre_defined_vpc = False
-    pre_defined_subnet = False
-    pre_defined_sg = False
-    ssn_conf = dict()
-    ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
-    ssn_conf['vpc_name'] = os.environ['conf_service_base_name'] + '-ssn-vpc'
-    ssn_conf['subnet_name'] = os.environ['conf_service_base_name'] + '-ssn-subnet'
-    ssn_conf['region'] = os.environ['azure_region']
-    ssn_conf['vpc_cidr'] = '10.10.0.0/16'
-    ssn_conf['subnet_prefix'] = '20'
-    ssn_conf['storage_account_name'] = (ssn_conf['service_base_name'] + 'ssn').lower().replace('_', '').replace('-', '')
-    ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn-container').lower().replace('_', '-')
-    ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared-container').lower().replace('_', '')
-    ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
-    ssn_conf['network_interface_name'] = ssn_conf['service_base_name'] + '-ssn-nif'
-    ssn_conf['static_public_ip_name'] = ssn_conf['service_base_name'] + '-ssn-ip'
-    ssn_conf['security_group_name'] = ssn_conf['instance_name'] + '-sg'
-    ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
-    key = RSA.importKey(open(ssh_key_path, 'rb').read())
-    ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+    try:
+        instance = 'ssn'
+        pre_defined_resource_group = False
+        pre_defined_vpc = False
+        pre_defined_subnet = False
+        pre_defined_sg = False
+        ssn_conf = dict()
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
+        ssn_conf['vpc_name'] = os.environ['conf_service_base_name'] + '-ssn-vpc'
+        ssn_conf['subnet_name'] = os.environ['conf_service_base_name'] + '-ssn-subnet'
+        ssn_conf['region'] = os.environ['azure_region']
+        ssn_conf['vpc_cidr'] = '10.10.0.0/16'
+        ssn_conf['subnet_prefix'] = '20'
+        ssn_conf['storage_account_name'] = (ssn_conf['service_base_name'] + 'ssn').lower().replace('_', '').replace('-', '')
+        ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn-container').lower().replace('_', '-')
+        ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared-container').lower().replace('_', '')
+        ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
+        ssn_conf['network_interface_name'] = ssn_conf['service_base_name'] + '-ssn-nif'
+        ssn_conf['static_public_ip_name'] = ssn_conf['service_base_name'] + '-ssn-ip'
+        ssn_conf['security_group_name'] = ssn_conf['instance_name'] + '-sg'
+        ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        key = RSA.importKey(open(ssh_key_path, 'rb').read())
+        ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+    except:
+        print "Failed to generate variables dictionary."
+        sys.exit(1)
 
     try:
         if os.environ['azure_resource_group_name'] == '':

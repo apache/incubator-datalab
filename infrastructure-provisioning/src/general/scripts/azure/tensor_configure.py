@@ -42,34 +42,46 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    notebook_config = dict()
     try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name']
-    except:
-        notebook_config['exploratory_name'] = ''
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
-    notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
-    notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
-    notebook_config['key_name'] = os.environ['conf_key_name']
-    notebook_config['user_keyname'] = os.environ['edge_user_name']
-    notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
-    notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
-    #notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
-    #                                       os.environ['edge_user_name'] + "-nb-Profile"
-    notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + '-nb-sg'
-    notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-    notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+        notebook_config = dict()
+        try:
+            notebook_config['exploratory_name'] = os.environ['exploratory_name']
+        except:
+            notebook_config['exploratory_name'] = ''
+        notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+        notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
+        notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
+        notebook_config['key_name'] = os.environ['conf_key_name']
+        notebook_config['user_keyname'] = os.environ['edge_user_name']
+        notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+            'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
+        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
+            'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
+        #notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
+        #                                       os.environ['edge_user_name'] + "-nb-Profile"
+        notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + os.environ[
+            'edge_user_name'] + '-nb-sg'
+        notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
+        notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
 
-    # generating variables regarding EDGE proxy on Notebook instance
-    instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                    notebook_config['instance_name'])
-    edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                         edge_instance_name)
-    keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
+        # generating variables regarding EDGE proxy on Notebook instance
+        instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                        notebook_config['instance_name'])
+        edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+        edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                             edge_instance_name)
+        keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
+
+        if os.environ['conf_os_family'] == 'debian':
+            initial_user = 'ubuntu'
+            sudo_group = 'sudo'
+        if os.environ['conf_os_family'] == 'redhat':
+            initial_user = 'ec2-user'
+            sudo_group = 'wheel'
+    except Exception as err:
+        append_result("Failed to generate variables dictionary", str(err))
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        sys.exit(1)
 
     # print 'Searching preconfigured images'
     # ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'], 'available')
@@ -85,13 +97,6 @@ if __name__ == "__main__":
 
 
     try:
-        if os.environ['conf_os_family'] == 'debian':
-            initial_user = 'ubuntu'
-            sudo_group = 'sudo'
-        if os.environ['conf_os_family'] == 'redhat':
-            initial_user = 'ec2-user'
-            sudo_group = 'wheel'
-
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
