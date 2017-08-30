@@ -58,6 +58,10 @@ if __name__ == "__main__":
         edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
         edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
                                                     '-nb-sg'
+        edge_conf['master_security_group_name'] = edge_conf['service_base_name'] + '-' \
+                                                    + os.environ['edge_user_name'] + '-dataengine-master-sg'
+        edge_conf['slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
+                                                   + os.environ['edge_user_name'] + '-dataengine-slave-sg'
         edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
         edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
@@ -70,12 +74,16 @@ if __name__ == "__main__":
                                                                         edge_conf['instance_name'])
     except Exception as err:
         append_result("Failed to generate infrastructure names", str(err))
+        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                             edge_conf['master_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['slave_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
-        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         sys.exit(1)
 
     try:
@@ -99,12 +107,16 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed creating ssh user 'dlab'.", str(err))
+        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                             edge_conf['master_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['slave_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
-        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         sys.exit(1)
 
     try:
@@ -119,12 +131,16 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing apps: apt & pip.", str(err))
+        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                             edge_conf['master_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['slave_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
-        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         sys.exit(1)
 
     try:
@@ -141,12 +157,16 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing http proxy.", str(err))
+        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                             edge_conf['master_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['slave_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
-        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         sys.exit(1)
 
 
@@ -164,12 +184,16 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed installing users key. Excpeption: " + str(err))
+        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                             edge_conf['master_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['slave_security_group_name'])
         AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
-        AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         sys.exit(1)
 
     try:

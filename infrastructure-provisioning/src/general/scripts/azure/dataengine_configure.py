@@ -93,10 +93,6 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-        AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                             data_engine['master_security_group_name'])
-        AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                             data_engine['slave_security_group_name'])
         print "Failed to generate variables dictionary."
         append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
@@ -118,10 +114,6 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-        AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                             data_engine['master_security_group_name'])
-        AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                             data_engine['slave_security_group_name'])
         append_result("Failed creating ssh user 'dlab'.", str(err))
         sys.exit(1)
 
@@ -141,10 +133,6 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-        AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                             data_engine['master_security_group_name'])
-        AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                             data_engine['slave_security_group_name'])
         sys.exit(1)
 
     try:
@@ -166,10 +154,6 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-        AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                             data_engine['master_security_group_name'])
-        AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                             data_engine['slave_security_group_name'])
         sys.exit(1)
 
     for slave in range(data_engine['instance_count'] - 1):
@@ -192,10 +176,6 @@ if __name__ == "__main__":
                 slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
                 AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
             AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-            AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                                 data_engine['master_security_group_name'])
-            AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                                 data_engine['slave_security_group_name'])
             append_result("Failed creating ssh user 'dlab'.", str(err))
             sys.exit(1)
 
@@ -215,10 +195,6 @@ if __name__ == "__main__":
                 slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
                 AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
             AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-            AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                                 data_engine['master_security_group_name'])
-            AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                                 data_engine['slave_security_group_name'])
             append_result("Failed installing prerequisites.", str(err))
             sys.exit(1)
 
@@ -241,10 +217,6 @@ if __name__ == "__main__":
                 slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
                 AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
             AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-            AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                                 data_engine['master_security_group_name'])
-            AzureActions().remove_security_group(data_engine['resource_group_name'],
-                                                 data_engine['slave_security_group_name'])
             sys.exit(1)
 
 
