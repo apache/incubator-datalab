@@ -28,32 +28,24 @@ import os
 import uuid
 
 
-# def terminate_nb(nb_tag_value, bucket_name, tag_name):
-#     print 'Terminating EMR cluster and cleaning EMR config from S3 bucket'
-#     try:
-#         clusters_list = get_emr_list(nb_tag_value, 'Value')
-#         if clusters_list:
-#             for cluster_id in clusters_list:
-#                 client = boto3.client('emr')
-#                 cluster = client.describe_cluster(ClusterId=cluster_id)
-#                 cluster = cluster.get("Cluster")
-#                 emr_name = cluster.get('Name')
-#                 print 'Cleaning bucket from configs for cluster {}'.format(emr_name)
-#                 s3_cleanup(bucket_name, emr_name, os.environ['edge_user_name'])
-#                 print "The bucket " + bucket_name + " has been cleaned successfully"
-#                 print 'Terminating cluster {}'.format(emr_name)
-#                 terminate_emr(cluster_id)
-#                 print "The EMR cluster " + emr_name + " has been terminated successfully"
-#         else:
-#             print "There are no EMR clusters to terminate."
-#     except:
-#         sys.exit(1)
-#
-#     print "Terminating notebook"
-#     try:
-#         remove_ec2(tag_name, nb_tag_value)
-#     except:
-#         sys.exit(1)
+def terminate_nb(resource_group_name, notebook_name, cluster_name):
+    print "Terminating data engine cluster"
+    try:
+        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+            if cluster_name in vm.name:
+                AzureActions().remove_instance(resource_group_name, vm.name)
+                print "Instance {} has been terminated".format(vm.name)
+    except:
+        sys.exit(1)
+
+    print "Terminating notebook"
+    try:
+        for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+            if notebook_name in vm.name:
+                AzureActions().remove_instance(resource_group_name, vm.name)
+                print "Instance {} has been terminated".format(vm.name)
+    except:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -66,16 +58,27 @@ if __name__ == "__main__":
     # generating variables dictionary
     print 'Generating infrastructure names and tags'
     notebook_config = dict()
+    try:
+        notebook_config['exploratory_name'] = os.environ['exploratory_name']
+    except:
+        notebook_config['exploratory_name'] = ''
+    try:
+        notebook_config['computational_name'] = os.environ['computational_name']
+    except:
+        notebook_config['computational_name'] = ''
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-    notebook_config['user_name'] = os.environ['edge_user_name']
+    notebook_config['cluster_name'] = \
+        notebook_config['service_base_name'] + '-' + os.environ['edge_user_name'] + '-dataengine-' + \
+        notebook_config['exploratory_name'] + '-' + notebook_config['computational_name']
 
     try:
         logging.info('[TERMINATE NOTEBOOK]')
         print '[TERMINATE NOTEBOOK]'
         try:
-            AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['notebook_name'])
+            terminate_nb(notebook_config['resource_group_name'], notebook_config['notebook_name'],
+                         notebook_config['cluster_name'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate notebook.", str(err))
