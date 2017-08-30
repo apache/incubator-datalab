@@ -220,6 +220,10 @@ button {
     color: #35afd5;
 }
 
+.base-retreat {
+  margin: 12px 15px;
+}
+
 @-webkit-keyframes spin {
   0% {
     -webkit-transform: rotate(0deg);
@@ -358,4 +362,27 @@ input[type=number] {
   -webkit-box-shadow: inset 1px 1px 6px #9a9393;
   background-color: #f6fafe;
   border-radius: 5px;
+}
+
+.warning-alert {
+  position: relative;
+  display: flex;
+  margin-top: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  color: #fff;
+  background: #E2747D;
+  word-break: break-word;
+}
+.warning-alert span {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border-radius: 50%;
+  background: #E2747D;
+  color: #fff;
+  box-shadow: 2px 5px 16px 5px rgba(88, 60, 60, 0.6)
 }

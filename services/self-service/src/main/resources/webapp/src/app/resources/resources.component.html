@@ -40,8 +40,13 @@ limitations under the License.
       <i class="material-icons">autorenew</i>Refresh
     </button>
   </div>
-  <span *ngIf="userUploadAccessKeyState == 500" class="alert alert-danger">Error happened during user access key upload. Please try to reupload the key.</span>
 </div>
+
+<div *ngIf="userUploadAccessKeyState == 500" class="warning-alert base-retreat">
+  <span class="material-icons">priority_high</span>
+  Error happened during user access key upload. Please try to reupload the key.
+</div>
+
 <resources-grid></resources-grid>
 
 <exploratory-environment-create-dialog #createAnalyticalModal (buildGrid)="refreshGrid($event)"></exploratory-environment-create-dialog>
