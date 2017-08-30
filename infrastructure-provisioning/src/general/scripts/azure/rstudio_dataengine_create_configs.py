@@ -54,8 +54,8 @@ def configure_rstudio():
             local("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron")
             local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
-            local('echo \'# Cluster - "' + args.cluster_name + '"\' >> /home/' + args.os_user + '/.Rprofile')
-            local('echo \'master="' + args.spark_master + '"\' >> /home/' + args.os_user + '/.Rprofile')
+            local('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
+                  args.os_user + '/.Rprofile')
             local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine_ensured')
         except:
             sys.exit(1)
@@ -65,8 +65,8 @@ def configure_rstudio():
             local("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron")
             local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
-            local('echo \'# Cluster - "' + args.cluster_name + '"\' >> /home/' + args.os_user + '/.Rprofile')
-            local('echo \'master="' + args.spark_master + '"\' >> /home/' + args.os_user + '/.Rprofile')
+            local('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
+                  args.os_user + '/.Rprofile')
         except:
             sys.exit(1)
 
