@@ -39,11 +39,9 @@ parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
-parser.add_argument('--keyfile', type=str, default='')
-parser.add_argument('--notebook_ip', type=str, default='')
 args = parser.parse_args()
 
-spark_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/'
+spark_dir = '/opt/' + args.cluster_name + '/spark/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
@@ -56,8 +54,8 @@ def configure_rstudio():
             local("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron")
             local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
-            local('echo \'# Cluster - "' + args.cluster_name + '"\' >> /home/' + args.os_user + '/.Rprofile')
-            local('echo \'master="' + args.spark_master + '"\' >> /home/' + args.os_user + '/.Rprofile')
+            local('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
+                  args.os_user + '/.Rprofile')
             local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine_ensured')
         except:
             sys.exit(1)
@@ -67,17 +65,14 @@ def configure_rstudio():
             local("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron")
             local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
-            local('echo \'# Cluster - "' + args.cluster_name + '"\' >> /home/' + args.os_user + '/.Rprofile')
-            local('echo \'master="' + args.spark_master + '"\' >> /home/' + args.os_user + '/.Rprofile')
+            local('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
+                  args.os_user + '/.Rprofile')
         except:
             sys.exit(1)
 
 
 if __name__ == "__main__":
-    if args.dry_run == 'true':
-        parser.print_help()
-    else:
-        dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
-        install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
-        configure_rstudio()
+    dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
+    install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
+    configure_rstudio()
 
