@@ -28,18 +28,11 @@ import os
 import uuid
 
 
-def terminate_data_engine(resource_group_name, master_instance_name, slave_instance_name, notebook_name, os_user,
-                          key_path, cluster_name):
-    print "Terminating Master node"
-    try:
-        AzureActions().remove_instance(resource_group_name, master_instance_name)
-    except:
-        sys.exit(1)
-
-    print "Terminating slave nodes"
+def terminate_data_engine(resource_group_name, notebook_name, os_user, key_path, cluster_name):
+    print "Terminating data engine cluster"
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if slave_instance_name in vm.name:
+            if cluster_name in vm.name:
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print "Instance {} has been terminated".format(vm.name)
     except:
@@ -75,8 +68,6 @@ if __name__ == "__main__":
     data_engine['cluster_name'] = \
         data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + '-dataengine-' + \
         data_engine['exploratory_name'] + '-' + data_engine['computational_name']
-    data_engine['master_node_name'] = data_engine['cluster_name'] + '-master'
-    data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
     data_engine['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
 
@@ -85,8 +76,7 @@ if __name__ == "__main__":
         logging.info('[TERMINATE DATA ENGINE]')
         print '[TERMINATE DATA ENGINE]'
         try:
-            terminate_data_engine(data_engine['resource_group_name'], data_engine['master_node_name'],
-                                  data_engine['slave_node_name'], data_engine['notebook_name'],
+            terminate_data_engine(data_engine['resource_group_name'], data_engine['notebook_name'],
                                   os.environ['conf_os_user'], data_engine['key_path'], data_engine['cluster_name'])
         except Exception as err:
             traceback.print_exc()
