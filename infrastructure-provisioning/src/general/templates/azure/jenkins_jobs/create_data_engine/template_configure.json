@@ -1,6 +1,6 @@
 {
     "request_id":"RID",
-    "conf_resource": "emr",
+    "conf_resource": "dataengine",
     "conf_service_base_name":"SBN",
     "conf_os_family":"COF",
     "azure_resource_group_name":"ARGN",
