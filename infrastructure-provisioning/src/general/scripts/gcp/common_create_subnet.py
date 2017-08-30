@@ -55,7 +55,10 @@ if __name__ == "__main__":
          int(addr.split("/")[1]))
     sorted_subnets_cidr = sorted(subnets_cidr, key=sortkey)
 
-    last_ip = last_ip = int(ipaddress.IPv4Address(sorted_subnets_cidr[0].split('/')[0].decode("utf-8")))
+    if not empty_vpc:
+        last_ip = int(ipaddress.IPv4Address(sorted_subnets_cidr[0].split('/')[0].decode("utf-8")))
+    else:
+        last_ip = int(ipaddress.IPv4Address(args.vpc_cidr.split('/')[0].decode("utf-8")))
     previous_subnet_size = private_subnet_size
     for cidr in sorted_subnets_cidr:
         first_ip = int(ipaddress.IPv4Address(cidr.split('/')[0].decode("utf-8")))
@@ -65,6 +68,8 @@ if __name__ == "__main__":
             previous_subnet_size = subnet_size
         else:
             break
+
+    dlab_subnet_cidr = ''
     if empty_vpc:
         dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip), args.prefix)
     else:
@@ -77,6 +82,8 @@ if __name__ == "__main__":
                 except ValueError:
                     last_ip = last_ip + 2
                     continue
+        else:
+            dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
 
     if args.subnet_name != '':
         if GCPMeta().get_subnet(args.subnet_name, args.region):

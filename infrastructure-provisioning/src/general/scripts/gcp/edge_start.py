@@ -37,6 +37,7 @@ if __name__ == "__main__":
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     edge_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
     edge_conf['static_address_name'] = '{0}-{1}-ip'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
 
@@ -72,5 +73,5 @@ if __name__ == "__main__":
             result.write(json.dumps(res))
     except:
         print "Failed writing results."
-        sys.exit(0)
+        sys.exit(1)
 

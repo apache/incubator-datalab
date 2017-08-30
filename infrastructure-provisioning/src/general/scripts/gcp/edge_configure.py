@@ -147,7 +147,7 @@ if __name__ == "__main__":
         print '[INSTALLING USERs KEY]'
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": edge_conf['user_keyname'],
-                             "user_keydir": "/root/keys/"}
+                             "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             instance_hostname, edge_conf['ssh_key_path'], json.dumps(additional_config), edge_conf['dlab_ssh_user'])
         try:
@@ -183,7 +183,7 @@ if __name__ == "__main__":
                    "public_ip": edge_conf['elastic_ip'],
                    "ip": edge_conf['private_ip'],
                    "key_name": edge_conf['key_name'],
-                   "user_own_bicket_name": edge_conf['bucket_name'],
+                   "user_own_bucket_name": edge_conf['bucket_name'],
                    "tunnel_port": "22",
                    "socks_port": "1080",
                    "notebook_subnet": edge_conf['private_subnet_cidr'],

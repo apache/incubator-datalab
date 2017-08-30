@@ -153,8 +153,8 @@ if __name__ == "__main__":
     try:
         print '[INSTALLING USERs KEY]'
         logging.info('[INSTALLING USERs KEY]')
-        additional_config = {"user_keyname": notebook_config['user_keyname'],
-                             "user_keydir": "/root/keys/"}
+        additional_config = {"user_keyname": os.environ['edge_user_name'],
+                             "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             instance_hostname, notebook_config['ssh_key_path'], json.dumps(additional_config), notebook_config['dlab_ssh_user'])
         try:
