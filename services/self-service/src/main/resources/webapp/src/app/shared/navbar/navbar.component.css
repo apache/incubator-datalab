@@ -16,23 +16,11 @@ limitations under the License.
 
 ****************************************************************************/
 
-[sd-navbar] {
-  display: block;
-  position: relative;
-  z-index: 3;
-  background: #fff;
-}
-
 .navbar {
-  min-height: 48px!important;
+  min-height: 48px;
   height: 48px;
   margin-bottom: 0;
   border-radius: 0;
-}
-
-.navbar .container-fluid {
-  padding-left: 0;
-  padding-right: 0;
 }
 
 .navbar .navigation {
@@ -42,7 +30,6 @@ limitations under the License.
   margin-right: 5px;
 }
 
-
 .navbar .navbar-toggle {
   display: inline-block;
   margin: 0;
@@ -50,6 +37,7 @@ limitations under the License.
   border: 0;
   border-radius: 0;
   cursor: pointer;
+  transition: all .45s ease-in-out;
 }
 
 .navbar .navigation .navbar-toggle:hover {
@@ -61,7 +49,7 @@ limitations under the License.
   width: 65px;
   position: absolute;
   top: 12px;
-  left: 60px;
+  left: 65px;
 }
 
 .navbar .navbar-logo img {
@@ -81,57 +69,47 @@ limitations under the License.
   border-bottom: 1px solid #edf1f5;
   cursor: pointer;
 }
-
+.navbar .navigation .dropdown-menu li:last-child {
+  border-bottom: 0;
+}
 .navbar .navigation .dropdown-menu li a {
   padding: 15px 20px;
 }
 .navbar .navigation .dropdown-menu li a.active {
   color: #36afd5;
 }
-
 .navbar .navigation .dropdown-menu li a:hover {
   background: none;
   color: #36afd5;
 }
 
-.navbar .navigation .dropdown-menu li:last-child {
-  border-bottom: 0;
-}
-
 .navbar .statusbar {
-  display: block;
-  position: relative;
+  display: flex;
   float: right;
-  width: 56px;
-  text-align: center;
-  line-height: 46px;
+  width: 60px;
+  height: 46px;
+  text-decoration: none;
+  justify-content: center;
   color: #f9fafb;
-  font-size: 15px;
 }
 
-.navbar .statusbar .glyphicon {
-  top: 3px;
+.navbar .statusbar span {
+  align-self: center;
+  font-size: 18px;
 }
 
-.navbar .statusbar .status {
-  display: block;
-  position: absolute;
-  top: 18px;
-  right: 14px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  z-index: 1;
+.ok, .warning, .error, .user-name {
+  transition: all .35s ease-in-out;
 }
-.navbar .statusbar .ok {
-  color: #81b44a;
-}
-.navbar .statusbar .warning {
-  color: #f7b500;
-}
-.navbar .statusbar .error {
-  color: #ef5c4b;
-}
+
+.statusbar .ok { color: #81b44a; }
+.statusbar .ok:hover { color: #618738; }
+
+.statusbar .warning { color: #f7b500; }
+.statusbar .warning:hover { color: #bd8d0a; }
+
+.statusbar .error { color: #ef5c4b; }
+.statusbar .error:hover { color: #bd4146; }
 
 .navbar .btn-logout {
   float: right;
@@ -142,14 +120,9 @@ limitations under the License.
   border: 0;
   border-radius: 0;
 }
+.btn-logout:hover .user-name { color: #3392b0; }
 
-.navbar .btn-logout:hover {
-  color: #cfdae6;
-}
-
-.navbar .user-name {
-  color: #36afd5;
-}
+.user-name { color: #36afd5; }
 
 .navbar-inverse .navbar-toggle:focus, .navbar-inverse .navbar-toggle:hover {
   background: none;
