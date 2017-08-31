@@ -774,7 +774,7 @@ class GCPActions:
             env.host_string = env.user + "@" + env.hosts
             sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, dataproc_name))
             if exists('/home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name)):
-                if os.environ['notebook_multiple_dataengine_services'] == 'true':
+                if os.environ['notebook_multiple_clusters'] == 'true':
                     try:
                         livy_port = sudo("cat /opt/" + dataproc_version + "/" + dataproc_name
                                          + "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
