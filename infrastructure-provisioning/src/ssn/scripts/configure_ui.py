@@ -118,11 +118,14 @@ if __name__ == "__main__":
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
-
-    print "Copying DLab libraries to SSN"
-    if not copy_ssn_libraries():
-        logging.error('Failed to copy DLab libraries')
-        sys.exit(1)
+    try:
+        print "Copying DLab libraries to SSN"
+        if not copy_ssn_libraries():
+            logging.error('Failed to copy DLab libraries')
+            sys.exit(1)
+    except Exception as err:
+        print "Errrorrr ---->>"
+        print err
 
     print "Installing Supervisor"
     if not ensure_supervisor():
