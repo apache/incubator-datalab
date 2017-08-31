@@ -56,6 +56,10 @@ if __name__ == "__main__":
         edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
         edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ[
             'edge_user_name'] + '-nb-sg'
+        edge_conf['master_security_group_name'] = edge_conf['service_base_name'] + '-' \
+                                                    + os.environ['edge_user_name'] + '-dataengine-master-sg'
+        edge_conf['slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
+                                                   + os.environ['edge_user_name'] + '-dataengine-slave-sg'
         edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] +
                                             '-container').lower().replace('_', '-')
         edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower().\
@@ -436,6 +440,204 @@ if __name__ == "__main__":
             print "Notebook Security group hasn't been created."
         sys.exit(1)
 
+    logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
+    print "[CREATING SECURITY GROUPS FOR MASTER NODE]"
+    try:
+        list_rules = [
+            {
+                "name": "in-1",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound"
+            },
+            {
+                "name": "in-2",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": AzureMeta().get_subnet(edge_conf['resource_group_name'],
+                                                                edge_conf['vpc_name'],
+                                                                edge_conf['subnet_name']).address_prefix,
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Inbound"
+            },
+            {
+                "name": "in-3",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Deny",
+                "priority": 200,
+                "direction": "Inbound"
+            },
+            {
+                "name": "out-1",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-2",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": AzureMeta().get_subnet(edge_conf['resource_group_name'],
+                                                                     edge_conf['vpc_name'],
+                                                                     edge_conf['subnet_name']).address_prefix,
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Outbound"
+            }
+            # {
+            #     "name": "out-3",
+            #     "protocol": "*",
+            #     "source_port_range": "*",
+            #     "destination_port_range": "*",
+            #     "source_address_prefix": "*",
+            #     "destination_address_prefix": "*",
+            #     "access": "Deny",
+            #     "priority": 300,
+            #     "direction": "Outbound"
+            # }
+        ]
+        params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".format(
+            edge_conf['resource_group_name'], edge_conf['master_security_group_name'], edge_conf['region'],
+            json.dumps(list_rules))
+        try:
+            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
+                                     edge_conf['private_subnet_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['notebook_security_group_name'])
+        try:
+            AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['master_security_group_name'])
+        except:
+            print "Master Security group hasn't been created."
+        append_result("Failed to create Security groups. Exception:" + str(err))
+        sys.exit(1)
+
+    logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
+    print "[CREATING SECURITY GROUPS FOR SLAVE NODES]"
+    try:
+        list_rules = [
+            {
+                "name": "in-1",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": edge_conf['private_subnet_cidr'],
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Inbound"
+            },
+
+            {
+                "name": "in-2",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": AzureMeta().get_subnet(edge_conf['resource_group_name'],
+                                                                edge_conf['vpc_name'],
+                                                                edge_conf['subnet_name']).address_prefix,
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Inbound"
+            },
+            {
+                "name": "in-3",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Deny",
+                "priority": 200,
+                "direction": "Inbound"
+            },
+            {
+                "name": "out-1",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": edge_conf['private_subnet_cidr'],
+                "access": "Allow",
+                "priority": 100,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-2",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": AzureMeta().get_subnet(edge_conf['resource_group_name'],
+                                                                     edge_conf['vpc_name'],
+                                                                     edge_conf['subnet_name']).address_prefix,
+                "access": "Allow",
+                "priority": 110,
+                "direction": "Outbound"
+            }
+            # {
+            #     "name": "out-3",
+            #     "protocol": "*",
+            #     "source_port_range": "*",
+            #     "destination_port_range": "*",
+            #     "source_address_prefix": "*",
+            #     "destination_address_prefix": "*",
+            #     "access": "Deny",
+            #     "priority": 300,
+            #     "direction": "Outbound"
+            # }
+        ]
+        params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".format(
+            edge_conf['resource_group_name'], edge_conf['slave_security_group_name'], edge_conf['region'],
+            json.dumps(list_rules))
+        try:
+            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
+                                     edge_conf['private_subnet_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['notebook_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                             edge_conf['master_security_group_name'])
+        try:
+            AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['slave_security_group_name'])
+        except:
+            print "Slave Security group hasn't been created."
+        append_result("Failed to create Security groups. Exception:" + str(err))
+        sys.exit(1)
+
+
     try:
         logging.info('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
         print('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
@@ -454,6 +656,10 @@ if __name__ == "__main__":
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                             edge_conf['master_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['slave_security_group_name'])
         try:
             AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
         except:
@@ -501,14 +707,18 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
-                                     edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
-        AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
         try:
             AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         except:
             print "The instance hasn't been created."
+        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
+                                     edge_conf['private_subnet_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                             edge_conf['master_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['slave_security_group_name'])
+        AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
         append_result("Failed to create instance. Exception:" + str(err))
         sys.exit(1)
