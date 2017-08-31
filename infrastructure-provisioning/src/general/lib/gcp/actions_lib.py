@@ -876,6 +876,8 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
             sudo('mkdir -p {}'.format(jars_dir))
             sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/{0} -O {1}{0}'
                  .format('gcs-connector-latest-hadoop2.jar', jars_dir))
+            sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-yarn-server-web-proxy/2.7.4/{0} -O {1}{0}'
+                 .format('hadoop-yarn-server-web-proxy-2.7.4.jar', jars_dir))
             put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
             sudo('sed -i "s|GCP_PROJECT_ID|{}|g" /tmp/core-site.xml'.format(os.environ['gcp_project_id']))
             sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
