@@ -1,0 +1,43 @@
+{
+    "projectId": "PROJECT_ID",
+    "clusterName": "CLUSTER_NAME",
+    "labels": "CLUSTER_LABEL",
+    "config": {
+        "configBucket": "",
+        "gceClusterConfig": {
+            "zoneUri": "CLUSTER_ZONE",
+            "subnetworkUri": "CLUSTER_SUBNET",
+            "internalIpOnly": "true",
+            "serviceAccount": "SERVICE_ACCOUNT",
+            "metadata": {
+                "ssh-keys": "SSH_USER:SSH_PUBKEY"
+            },
+            "tags": [
+                "CLUSTER_TAG"
+            ]
+        },
+        "masterConfig": {
+            "numInstances": "NUM_MASTERS",
+            "machineTypeUri": "MASTER_INSTANCE",
+            "diskConfig": {
+                "bootDiskSizeGb": 30,
+                "numLocalSsds": 0
+            }
+        },
+        "workerConfig": {
+            "numInstances": "NUM_SLAVES",
+            "machineTypeUri": "SLAVE_INSTANCE",
+            "diskConfig": {
+                "bootDiskSizeGb": 30,
+                "numLocalSsds": 0
+            }
+        },
+        "secondaryWorkerConfig": {
+            "numInstances": "NUM_SLAVES",
+            "isPreemptible": "true"
+        },
+        "softwareConfig": {
+            "imageVersion": "IMAGE_VERSION"
+        }
+    }
+}

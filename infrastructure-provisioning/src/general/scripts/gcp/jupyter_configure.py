@@ -42,19 +42,20 @@ if __name__ == "__main__":
 
     notebook_config = dict()
     try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name']
+        notebook_config['exploratory_name'] = (os.environ['exploratory_name']).lower().replace('_', '-')
     except:
         notebook_config['exploratory_name'] = ''
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+    notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     notebook_config['instance_type'] = os.environ['gcp_notebook_instance_size']
     notebook_config['key_name'] = os.environ['conf_key_name']
-    notebook_config['user_keyname'] = os.environ['edge_user_name']
-    notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
+    notebook_config['user_keyname'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+    notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+    notebook_config['instance_name'] = '{0}-{1}-nb-{2}-{3}'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'],
+                                                                   notebook_config['exploratory_name'], args.uuid)
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
-    edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
     edge_instance_hostname = GCPMeta().get_private_ip_address(edge_instance_name)
-    keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
+    notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
     try:
@@ -68,7 +69,7 @@ if __name__ == "__main__":
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", initial_user,
+            (instance_hostname, notebook_config['ssh_key_path'], initial_user,
              notebook_config['dlab_ssh_user'], sudo_group)
 
         try:
@@ -87,7 +88,7 @@ if __name__ == "__main__":
         print '[CONFIGURE PROXY ON JUPYTER INSTANCE]'
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
-            .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
+            .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'], json.dumps(additional_config),
                     notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('notebook_configure_proxy', params))
@@ -104,7 +105,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
         print('[INSTALLING PREREQUISITES TO JUPYTER NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['gcp_region'])
+            format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'], os.environ['gcp_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -120,7 +121,7 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         print '[CONFIGURE JUPYTER NOTEBOOK INSTANCE]'
         params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {}".\
-            format(instance_hostname, keyfile_name, os.environ['gcp_region'], os.environ['notebook_spark_version'],
+            format(instance_hostname, notebook_config['ssh_key_path'], os.environ['gcp_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'])
         try:
@@ -138,7 +139,7 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE JUPYTER ADDITIONS]')
         print '[CONFIGURE JUPYTER ADDITIONS]'
         params = "--hostname {} --keyfile {} --os_user {}"\
-            .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'])
+            .format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_jupyter_additions', params))
         except:
@@ -152,10 +153,10 @@ if __name__ == "__main__":
     try:
         print '[INSTALLING USERs KEY]'
         logging.info('[INSTALLING USERs KEY]')
-        additional_config = {"user_keyname": notebook_config['user_keyname'],
-                             "user_keydir": "/root/keys/"}
+        additional_config = {"user_keyname": os.environ['edge_user_name'],
+                             "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['dlab_ssh_user'])
+            instance_hostname, notebook_config['ssh_key_path'], json.dumps(additional_config), notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
@@ -170,7 +171,7 @@ if __name__ == "__main__":
         print '[SETUP USER GIT CREDENTIALS]'
         logging.info('[SETUP USER GIT CREDENTIALS]')
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
-            .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
+            .format(notebook_config['dlab_ssh_user'], instance_hostname, notebook_config['ssh_key_path'])
         try:
             local("~/scripts/{}.py {}".format('common_download_git_certfile', params))
             local("~/scripts/{}.py {}".format('manage_git_creds', params))
@@ -214,8 +215,7 @@ if __name__ == "__main__":
     # print "SG name: " + notebook_config['security_group_name']
     print "Jupyter URL: " + jupyter_ip_url
     print "Ungit URL: " + ungit_ip_url
-    print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
-        'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
+    print 'SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address)
 
     with open("/root/result.json", 'w') as result:
         res = {"hostname": ip_address,

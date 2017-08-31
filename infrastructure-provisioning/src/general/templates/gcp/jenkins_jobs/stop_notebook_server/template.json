@@ -5,5 +5,6 @@
     "edge_user_name":"NUN",
     "notebook_instance_name":"NIN",
     "gcp_zone":"ZONE",
-    "gcp_project_id":"GPI"
+    "gcp_project_id":"GPI",
+    "conf_key_name":"CKN"
 }

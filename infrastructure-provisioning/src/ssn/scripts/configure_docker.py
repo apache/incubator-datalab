@@ -55,6 +55,7 @@ def build_docker_images(image_list, region, dlab_path):
         for image in image_list:
             name = image['name']
             tag = image['tag']
+            sudo('cd {0}sources/; cp general/files/{1}/{2}_description.json {2}/description.json'.format(args.dlab_path, args.cloud_provider, name))
             sudo("cd {4}sources/; docker build --build-arg OS={2} --build-arg CLOUD={3} --file {0}/Dockerfile -t docker.dlab-{0}:{1} ."
                  .format(name, tag, args.os_family, args.cloud_provider, args.dlab_path))
         return True

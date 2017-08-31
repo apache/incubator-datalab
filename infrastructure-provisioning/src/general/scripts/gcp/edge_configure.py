@@ -34,11 +34,10 @@ if __name__ == "__main__":
 
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
-    # ===================
-
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+    edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     edge_conf['key_name'] = os.environ['conf_key_name']
     edge_conf['user_keyname'] = os.environ['edge_user_name']
+    edge_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
@@ -47,36 +46,30 @@ if __name__ == "__main__":
     except KeyError:
         edge_conf['vpc_name'] = edge_conf['service_base_name'] + '-ssn-vpc'
     edge_conf['vpc_cidr'] = '10.10.0.0/16'
-    edge_conf['subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
+    edge_conf['subnet_name'] = '{0}-{1}-subnet'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
     edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
     edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
-    edge_conf[
-        'edge_service_account_name'] = 'dlabowner'  # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
-    # 'edge_user_name'] + '-edge-Role'
-    edge_conf[
-        'notebook_service_account_name'] = 'dlabowner'  # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
-    # 'edge_user_name'] + '-nb-Role'
-    edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['firewall_name'] = edge_conf['instance_name'] + '-firewall'
-    edge_conf['notebook_firewall_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
-                                          '-nb-firewall'
-    edge_conf['bucket_name'] = (
-        edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
+    edge_conf['edge_service_account_name'] = 'dlabowner'
+    # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Role'
+    edge_conf['notebook_service_account_name'] = 'dlabowner'
+    # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Role'
+    edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['firewall_name'] = edge_conf['instance_name'] + '{}-firewall'.format(edge_conf['instance_name'])
+    edge_conf['notebook_firewall_name'] = '{0}-{1}-nb-firewall'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['bucket_name'] = '{0}-{1}-bucket'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['instance_size'] = os.environ['gcp_edge_instance_size']
-    edge_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+    edge_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     edge_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
-    edge_conf['static_address_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-ip'
+    edge_conf['static_address_name'] = '{0}-{1}-ip'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     instance_hostname = GCPMeta().get_instance_public_ip_by_name(edge_conf['instance_name'])
-    keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
     edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
     edge_conf['private_subnet_cidr'] = GCPMeta().get_subnet(edge_conf['subnet_name'],
                                                             edge_conf['region'])['ipCidrRange']
     edge_conf['elastic_ip'] = \
         GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
     edge_conf['private_ip'] = GCPMeta().get_private_ip_address(edge_conf['instance_name'])
-    # =============
 
     try:
         if os.environ['conf_os_family'] == 'debian':
@@ -111,7 +104,7 @@ if __name__ == "__main__":
         print '[INSTALLING PREREQUISITES]'
         logging.info('[INSTALLING PREREQUISITES]')
         params = "--hostname {} --keyfile {} --user {} --region {}".\
-            format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], os.environ['gcp_region'])
+            format(instance_hostname, edge_conf['ssh_key_path'], edge_conf['dlab_ssh_user'], os.environ['gcp_region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
@@ -133,7 +126,7 @@ if __name__ == "__main__":
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf"}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}" \
-                 .format(instance_hostname, keyfile_name, json.dumps(additional_config), edge_conf['dlab_ssh_user'])
+                 .format(instance_hostname, edge_conf['ssh_key_path'], json.dumps(additional_config), edge_conf['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('configure_http_proxy', params))
         except:
@@ -154,9 +147,9 @@ if __name__ == "__main__":
         print '[INSTALLING USERs KEY]'
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": edge_conf['user_keyname'],
-                             "user_keydir": "/root/keys/"}
+                             "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
-            instance_hostname, keyfile_name, json.dumps(additional_config), edge_conf['dlab_ssh_user'])
+            instance_hostname, edge_conf['ssh_key_path'], json.dumps(additional_config), edge_conf['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('install_user_key', params))
         except:
@@ -190,7 +183,7 @@ if __name__ == "__main__":
                    "public_ip": edge_conf['elastic_ip'],
                    "ip": edge_conf['private_ip'],
                    "key_name": edge_conf['key_name'],
-                   "user_own_bicket_name": edge_conf['bucket_name'],
+                   "user_own_bucket_name": edge_conf['bucket_name'],
                    "tunnel_port": "22",
                    "socks_port": "1080",
                    "notebook_subnet": edge_conf['private_subnet_cidr'],

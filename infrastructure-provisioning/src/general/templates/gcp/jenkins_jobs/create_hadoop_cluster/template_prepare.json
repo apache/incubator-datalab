@@ -1,6 +1,6 @@
 {
     "request_id": "RID",
-    "conf_resource": "dataproc",
+    "conf_resource": "dataengine-service",
     "conf_service_base_name": "SBN",
     "gcp_project_id": "GPI",
     "gcp_subnet_name": "GSN",
@@ -10,5 +10,11 @@
     "gcp_zone": "CZON",
     "exploratory_name": "EXN",
     "computational_name": "CON",
-    "dataproc_instance_count": "INC"
+    "dataproc_version": "DVER",
+    "dataproc_master_count": "IMC",
+    "dataproc_slave_count": "ISC",
+    "dataproc_preemptible_count": "IPC",
+    "dataproc_master_instance_type": "MIT",
+    "dataproc_slave_instance_type": "SIT",
+    "notebook_instance_name":"NIN"
 }

@@ -40,37 +40,37 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    # generating variables dictionary
-    edge_status = GCPMeta().get_instance_status(os.environ['conf_service_base_name'] + "-" +
-                                                   os.environ['edge_user_name'] + '-edge')
+    print 'Generating infrastructure names and tags'
+    notebook_config = dict()
+    notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
+    notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+    notebook_config['region'] = os.environ['gcp_region']
+    notebook_config['zone'] = os.environ['gcp_zone']
+
+    edge_status = GCPMeta().get_instance_status('{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name']))
     if edge_status != 'RUNNING':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print 'ERROR: Edge node is unavailable! Aborting...'
-        ssn_hostname = GCPMeta().get_private_ip_address(os.environ['conf_service_base_name'] + '-ssn')
+        ssn_hostname = GCPMeta().get_private_ip_address(notebook_config['service_base_name'] + '-ssn')
         put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'], ssn_hostname)
         append_result("Edge node is unavailable")
         sys.exit(1)
 
-    print 'Generating infrastructure names and tags'
-    notebook_config = dict()
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
-    notebook_config['region'] = os.environ['gcp_region']
-    notebook_config['zone'] = os.environ['gcp_zone']
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
         else:
             notebook_config['vpc_name'] = os.environ['gcp_vpc_name']
     except KeyError:
-        notebook_config['vpc_name'] = notebook_config['service_base_name'] + '-ssn-vpc'
+        notebook_config['vpc_name'] = '{}-ssn-vpc'.format(notebook_config['service_base_name'])
     try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name']
+        notebook_config['exploratory_name'] = (os.environ['exploratory_name']).lower().replace('_', '-')
     except:
         notebook_config['exploratory_name'] = ''
-    notebook_config['subnet_name'] = notebook_config['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
+    notebook_config['subnet_name'] = '{0}-{1}-subnet'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
     notebook_config['instance_size'] = os.environ['gcp_notebook_instance_size']
-    notebook_config['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
-    notebook_config['notebook_service_account_name'] = "dlabowner"
+    notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+    notebook_config['notebook_service_account_name'] = 'dlabowner'
 
     if os.environ['conf_os_family'] == 'debian':
         initial_user = 'ubuntu'
@@ -78,24 +78,20 @@ if __name__ == "__main__":
     if os.environ['conf_os_family'] == 'redhat':
         initial_user = 'ec2-user'
         sudo_group = 'wheel'
-    notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
+    notebook_config['instance_name'] = '{0}-{1}-nb-{2}-{3}'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'],
+                                                                   notebook_config['exploratory_name'], args.uuid)
     if os.environ['application'] == 'deeplearning':
         notebook_config['primary_disk_size'] = '30'
     else:
         notebook_config['primary_disk_size'] = '12'
     if os.environ['application'] == 'zeppelin':
         if os.environ['notebook_multiple_clusters'] == 'true':
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-                'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
+            notebook_config['expected_ami_name'] = '{0}-{1}-{2}-livy-notebook-image'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'], os.environ['application'])
         else:
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-                'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
+            notebook_config['expected_ami_name'] = '{0}-{1}-{2}-spark-notebook-image'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'], os.environ['application'])
     else:
-        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-            'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
-    notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
-                                           os.environ['edge_user_name'] + "-nb-Profile"
+        notebook_config['expected_ami_name'] = '{0}-{1}-{2}-notebook-image'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'], os.environ['application'])
+    notebook_config['role_profile_name'] = '{0}-{1}-nb-Profile'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
     # notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
     #     'edge_user_name'] + "-nb-SG"
     # notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'

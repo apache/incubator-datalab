@@ -67,7 +67,7 @@ if __name__ == "__main__":
     # generating variables dictionary
     print 'Generating infrastructure names and tags'
     notebook_config = dict()
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+    notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['zone'] = os.environ['gcp_zone']
 

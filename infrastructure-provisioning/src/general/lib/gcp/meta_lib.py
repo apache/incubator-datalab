@@ -22,6 +22,7 @@ from oauth2client.client import GoogleCredentials
 from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import storage
 from google.cloud import exceptions
+from dlab.fab import *
 import actions_lib
 import os
 from googleapiclient import errors
@@ -360,7 +361,8 @@ class GCPMeta:
                 data.append(host)
         return data
 
-    def get_list_cluster_statuses(self, cluster_names, data=[]):
+    def get_list_cluster_statuses(self, cluster_names):
+        data = []
         for cluster in cluster_names:
             host = {}
             try:
@@ -369,6 +371,7 @@ class GCPMeta:
                                                                             clusterName=cluster)
                 result = request.execute()
                 host['id'] = cluster
+                host['version'] = result.get('config').get('softwareConfig').get('imageVersion')[:3]
                 host['status'] = result.get('status').get('state').lower()
                 data.append(host)
             except:
@@ -383,15 +386,57 @@ class GCPMeta:
                                                                 jobId=job_id)
         try:
             res = request.execute()
-            print "JOB Status:", res['status']['state'].lower()
+            print "Job status:", res['status']['state'].lower()
             return res['status']['state'].lower()
         except Exception as err:
             logging.info(
-                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                "Unable to get Dataproc job status: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
-            append_result(str({"error": "Unable to create image from disk",
+            append_result(str({"error": "Unable to get Dataproc job status",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def get_dataproc_list(self, notebook_instance_name):
+        cluster_filter = 'labels.{}:*'.format(notebook_instance_name)
+        request = self.dataproc.projects().regions().clusters().list(projectId=self.project,
+                                                                     region=os.environ['gcp_region'],
+                                                                     filter=cluster_filter)
+        try:
+            res = request.execute()
+            if res != dict():
+                return [i['clusterName'] for i in res['clusters']]
+            else:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get Dataproc list clusters: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to get Dataproc list clusters",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def get_not_configured_dataproc(self, notebook_instance_name):
+        cluster_filter = 'labels.{}:not-configured'.format(notebook_instance_name)
+        request = self.dataproc.projects().regions().clusters().list(projectId=self.project,
+                                                                     region=os.environ['gcp_region'],
+                                                                     filter=cluster_filter)
+        try:
+            res = request.execute()
+            if res != dict():
+                return res['clusters'][0]['clusterName']
+            else:
+                print "No not-configured clusters"
+                return ''
+        except Exception as err:
+            logging.info(
+                "Error with getting not configured cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Error with getting not configured cluster",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
 
@@ -400,9 +445,9 @@ def get_instance_private_ip_address(tag_name, instance_name):
     try:
         return GCPMeta().get_private_ip_address(instance_name)
     except Exception as err:
-            logging.info("Error with getting private ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Error with getting private ip address by name",
+        logging.info("Error with getting private ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with getting private ip address by name",
                        "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
-            return ''
+        traceback.print_exc(file=sys.stdout)
+        return ''
 

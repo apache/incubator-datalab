@@ -1,6 +1,6 @@
 {
     "request_id":"RID",
-    "conf_resource": "emr",
+    "conf_resource": "dataengine-service",
     "conf_service_base_name":"SBN",
     "edge_user_name":"EUN",
     "emr_version":"EVER",
