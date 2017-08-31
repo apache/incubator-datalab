@@ -33,9 +33,10 @@ if __name__ == "__main__":
 
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+    edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     edge_conf['zone'] = os.environ['gcp_zone']
-    edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    edge_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+    edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
 
     logging.info('[STOP EDGE]')
     print '[STOP EDGE]'

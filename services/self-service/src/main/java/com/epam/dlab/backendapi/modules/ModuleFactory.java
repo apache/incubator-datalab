@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.google.inject.AbstractModule;
+import com.google.inject.Module;
 import io.dropwizard.setup.Environment;
 
 public class ModuleFactory {
@@ -37,4 +38,8 @@ public class ModuleFactory {
         				new MockModule(configuration, environment) :
         				new ProductionModule(configuration, environment)));
     }
+
+    public static Module getCloudProviderModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
+    	return new AwsModule();
+	}
 }

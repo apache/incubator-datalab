@@ -63,13 +63,17 @@ keystore_passwd = id_generator()
 
 
 def copy_ssn_libraries():
-    sudo('mkdir -p /usr/lib/python2.7/dlab/')
-    run('mkdir -p /tmp/dlab_libs/')
-    local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
-    run('chmod a+x /tmp/dlab_libs/*')
-    sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
-    if exists('/usr/lib64'):
-        sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+    try:
+        sudo('mkdir -p /usr/lib/python2.7/dlab/')
+        run('mkdir -p /tmp/dlab_libs/')
+        local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
+        run('chmod a+x /tmp/dlab_libs/*')
+        sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
+        if exists('/usr/lib64'):
+            sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+    except Exception as err:
+        print "Errrorrr ---->>"
+        print err
 
 
 def configure_mongo(mongo_passwd):

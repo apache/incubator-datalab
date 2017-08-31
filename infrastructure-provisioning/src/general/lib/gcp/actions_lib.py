@@ -23,6 +23,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from google.cloud import exceptions
 from google.cloud import storage
 from googleapiclient import errors
+from dlab.fab import *
 import meta_lib
 import os
 import json
@@ -30,6 +31,8 @@ import logging
 import traceback
 import sys, time
 from Crypto.PublicKey import RSA
+from fabric.api import *
+import urllib2
 
 
 class GCPActions:
@@ -99,6 +102,7 @@ class GCPActions:
         subnetwork_params = {
             'name': subnet_name,
             'ipCidrRange': subnet_cidr,
+            'privateIpGoogleAccess': 'true',
             'network': vpc_selflink
         }
         request = self.service.subnetworks().insert(
@@ -205,6 +209,22 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def bucket_cleanup(self, bucket_name, user_name, cluster_name):
+        try:
+            bucket = self.storage_client.get_bucket(bucket_name)
+            list_files = bucket.list_blobs(prefix='{0}/{1}'.format(user_name, cluster_name))
+            for item in list_files:
+                print "Deleting:", item.name
+                blob = bucket.blob(item.name)
+                blob.delete()
+        except Exception as err:
+            logging.info(
+                "Unable to remove files from bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove files from bucket",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def create_disk(self, instance_name, zone, size):
         try:
             params = {"sizeGb": size, "name": instance_name + '-secondary',
@@ -243,9 +263,10 @@ class GCPActions:
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
-        if instance_class == 'ssn' or instance_class == 'notebook':
-            access_configs = [{"type": "ONE_TO_ONE_NAT"}]
-        elif instance_class == 'edge':
+        access_configs = ''
+        # if instance_class == 'ssn' or instance_class == 'notebook':
+        #     access_configs = [{"type": "ONE_TO_ONE_NAT"}]
+        if instance_class == 'ssn' or instance_class == 'edge':
             access_configs = [{
                 "type": "ONE_TO_ONE_NAT",
                 "name": "External NAT",
@@ -312,6 +333,8 @@ class GCPActions:
                 }
             ]
         }
+        if instance_class == 'notebook':
+            del instance_params['networkInterfaces'][0]['accessConfigs']
         request = self.service.instances().insert(project=self.project, zone=zone, body=instance_params)
         try:
             result = request.execute()
@@ -567,9 +590,9 @@ class GCPActions:
     def get_from_bucket(self, bucket_name, dest_file, local_file):
         try:
             bucket = self.storage_client.get_bucket(bucket_name)
-            blob = bucket.blob(local_file)
+            blob = bucket.blob(dest_file)
             if blob.exists():
-                blob.download_to_filename(dest_file)
+                blob.download_to_filename(local_file)
                 return True
             else:
                 return False
@@ -598,12 +621,14 @@ class GCPActions:
                 time.sleep(5)
                 print 'The cluster is being created... Please wait'
                 cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+                if cluster_status[0]['status'] == 'terminated':
+                    raise Exception
             return result
         except Exception as err:
             logging.info(
-                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                "Unable to create dataproc cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
-            append_result(str({"error": "Unable to create image from disk",
+            append_result(str({"error": "Unable to create dataproc cluster",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
@@ -621,15 +646,36 @@ class GCPActions:
             return result
         except Exception as err:
             logging.info(
-                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                "Unable to delete dataproc cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
-            append_result(str({"error": "Unable to create image from disk",
+            append_result(str({"error": "Unable to delete dataproc cluster",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
 
-    def submit_dataproc_pyspark_job(self, job_body):
+    def update_dataproc_cluster(self, cluster_name, notebook_instance_name):
+        body = {"labels": {notebook_instance_name: "configured"}}
+        request = self.dataproc.projects().regions().clusters().patch(projectId=self.project,
+                                                                      region=os.environ['gcp_region'],
+                                                                      clusterName=cluster_name,
+                                                                      updateMask='labels',
+                                                                      body=body)
+        try:
+            result = request.execute()
+            time.sleep(15)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to update dataproc cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to update dataproc cluster",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def submit_dataproc_job(self, job_body):
         request = self.dataproc.projects().regions().jobs().submit(projectId=self.project,
                                                                    region=os.environ['gcp_region'],
                                                                    body=job_body)
@@ -639,15 +685,216 @@ class GCPActions:
             job_status = meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
             while job_status != 'done':
                 time.sleep(1)
-                print "wait for job"
                 job_status = meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
+                if job_status == 'failed':
+                    raise Exception
             return job_status
         except Exception as err:
             logging.info(
-                "Unable to create image from disk: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                "Unable to submit dataproc job: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
-            append_result(str({"error": "Unable to create image from disk",
+            append_result(str({"error": "Unable to submit dataproc job",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
+
+    def get_cluster_app_version(self, bucket, user_name, cluster_name, application):
+        try:
+            version_file = '{0}/{1}/{2}_version'.format(user_name, cluster_name, application)
+            if GCPActions().get_from_bucket(bucket, version_file, '/tmp/{}_version'.format(application)):
+                with file('/tmp/{}_version'.format(application)) as f:
+                    version = f.read()
+                return version[0:5]
+            else:
+                raise Exception
+        except Exception as err:
+            logging.info(
+                "Unable to get software version: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to get software version",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def jars(self, args, dataproc_dir):
+        print "Downloading jars..."
+        GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars.tar.gz'.format(args.dataproc_version), '/tmp/jars.tar.gz')
+        GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars-checksum.chk'.format(args.dataproc_version), '/tmp/jars-checksum.chk')
+        if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
+            local('rm -f /tmp/jars.tar.gz')
+            GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars.tar.gz'.format(args.cluster_name), '/tmp/jars.tar.gz')
+            if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
+                print "The checksum of jars.tar.gz is mismatched. It could be caused by gcp network issue."
+                sys.exit(1)
+        local('tar -zhxvf /tmp/jars.tar.gz -C {}'.format(dataproc_dir))
+
+    def yarn(self, args, yarn_dir):
+        print "Downloading yarn configuration..."
+        bucket = self.storage_client.get_bucket(args.bucket)
+        list_files = bucket.list_blobs(prefix='{0}/{1}/config/'.format(args.user_name, args.cluster_name))
+        local('mkdir -p /tmp/{0}/{1}/config/'.format(args.user_name, args.cluster_name))
+        for item in list_files:
+            local_file = '/tmp/{0}/{1}/config/{2}'.format(args.user_name, args.cluster_name, item.name.split("/")[-1:][0])
+            GCPActions().get_from_bucket(args.bucket, item.name, local_file)
+        local('sudo mv /tmp/{0}/{1}/config/* {2}'.format(args.user_name, args.cluster_name, yarn_dir))
+        local('sudo rm -rf /tmp/{}'.format(args.user_name))
+
+    def install_dataproc_spark(self, args):
+        print "Installing spark..."
+        GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark.tar.gz'.format(args.user_name, args.cluster_name), '/tmp/spark.tar.gz')
+        GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark-checksum.chk'.format(args.user_name, args.cluster_name), '/tmp/spark-checksum.chk')
+        if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
+            local('rm -f /tmp/spark.tar.gz')
+            GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark.tar.gz'.format(args.user_name, args.cluster_name), '/tmp/spark.tar.gz')
+            if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
+                print "The checksum of spark.tar.gz is mismatched. It could be caused by gcp network issue."
+                sys.exit(1)
+        local('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/{0}/{1}/'.format(args.dataproc_version, args.cluster_name))
+
+    def spark_defaults(self, args):
+        spark_def_path = '/opt/{0}/{1}/spark/conf/spark-env.sh'.format(args.dataproc_version, args.cluster_name)
+        local(""" sudo bash -c " sed -i '/#/d' {}" """.format(spark_def_path))
+        local(""" sudo bash -c " sed -i '/^\s*$/d' {}" """.format(spark_def_path))
+        local(""" sudo bash -c " sed -i 's|/usr/lib/hadoop|/opt/{0}/jars/usr/lib/hadoop|g' {1}" """.format(args.dataproc_version, spark_def_path))
+        local(""" sudo bash -c " sed -i 's|/etc/hadoop/conf|/opt/{0}/{1}/conf|g' {2}" """.format(args.dataproc_version, args.cluster_name, spark_def_path))
+        local(""" sudo bash -c " sed -i '/\$HADOOP_HOME\/\*/a SPARK_DIST_CLASSPATH=\\"\$SPARK_DIST_CLASSPATH:\$HADOOP_HOME\/client\/*\\"' {}" """.format(spark_def_path))
+        local(""" sudo bash -c " sed -i '/\$HADOOP_YARN_HOME\/\*/a SPARK_DIST_CLASSPATH=\\"\$SPARK_DIST_CLASSPATH:\/opt\/jars\/\*\\"' {}" """.format(spark_def_path))
+        local(""" sudo bash -c " sed -i 's|/hadoop/spark/work|/tmp/hadoop/spark/work|g' {}" """.format(spark_def_path))
+        local(""" sudo bash -c " sed -i 's|/hadoop/spark/tmp|/tmp/hadoop/spark/tmp|g' {}" """.format(spark_def_path))
+        local(""" sudo bash -c " sed -i 's/STANDALONE_SPARK_MASTER_HOST.*/STANDALONE_SPARK_MASTER_HOST={0}-m/g' {1}" """.format(args.cluster_name, spark_def_path))
+
+    def remove_kernels(self, notebook_name, dataproc_name, dataproc_version, ssh_user, key_path):
+        try:
+            notebook_ip = meta_lib.GCPMeta().get_private_ip_address(notebook_name)
+            env.hosts = "{}".format(notebook_ip)
+            env.user = "{}".format(ssh_user)
+            env.key_filename = "{}".format(key_path)
+            env.host_string = env.user + "@" + env.hosts
+            sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(ssh_user, dataproc_name))
+            if exists('/home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name)):
+                if os.environ['notebook_multiple_clusters'] == 'true':
+                    try:
+                        livy_port = sudo("cat /opt/" + dataproc_version + "/" + dataproc_name
+                                         + "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
+                        process_number = sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                                              "' | awk '{print $7}' | sed 's|/.*||g'")
+                        sudo('kill -9 ' + process_number)
+                        sudo('systemctl disable livy-server-' + livy_port)
+                    except:
+                        print "Wasn't able to find Livy server for this EMR!"
+                sudo(
+                    'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+                sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
+                zeppelin_url = 'http://' + notebook_ip + ':8080/api/interpreter/setting/'
+                opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+                req = opener.open(urllib2.Request(zeppelin_url))
+                r_text = req.read()
+                interpreter_json = json.loads(r_text)
+                interpreter_prefix = dataproc_name
+                for interpreter in interpreter_json['body']:
+                    if interpreter_prefix in interpreter['name']:
+                        print "Interpreter with ID:", interpreter['id'], "and name:", interpreter['name'], \
+                            "will be removed from zeppelin!"
+                        request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
+                        request.get_method = lambda: 'DELETE'
+                        url = opener.open(request)
+                        print url.read()
+                sudo('chown ' + ssh_user + ':' + ssh_user + ' -R /opt/zeppelin/')
+                sudo('systemctl daemon-reload')
+                sudo("service zeppelin-notebook stop")
+                sudo("service zeppelin-notebook start")
+                zeppelin_restarted = False
+                while not zeppelin_restarted:
+                    sudo('sleep 5')
+                    result = sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                    result = result[:1]
+                    if result == '1':
+                        zeppelin_restarted = True
+                sudo('sleep 5')
+                sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
+                if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
+                    sudo("sed -i '/{0}/d' /home/{1}/.Renviron".format(dataproc_name, ssh_user))
+                    if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(ssh_user)):
+                        sudo("sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".format(ssh_user))
+                    sudo("sed -i 's|/opt/{0}/{1}/spark//R/lib:||g' /home/{2}/.bashrc".format(dataproc_version, dataproc_name, ssh_user))
+                sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
+                print "Notebook's " + env.hosts + " kernels were removed"
+        except Exception as err:
+            logging.info(
+                "Unable to delete dataproc kernels from notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to delete dataproc kernels from notebook",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def install_python(self, bucket, user_name, cluster_name, application):
+        try:
+            GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
+            with file('/tmp/python_version') as f:
+                python_version = f.read()
+            python_version = python_version[0:5]
+            if not os.path.exists('/opt/python/python{}'.format(python_version)):
+                local('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz -O /tmp/Python-{0}.tgz'.format(python_version))
+                local('tar zxvf /tmp/Python-{}.tgz -C /tmp/'.format(python_version))
+                with lcd('/tmp/Python-{}'.format(python_version)):
+                    local('./configure --prefix=/opt/python/python{} --with-zlib-dir=/usr/local/lib/ --with-ensurepip=install'.format(python_version))
+                    local('sudo make altinstall')
+                with lcd('/tmp/'):
+                    local('sudo rm -rf Python-{}/'.format(python_version))
+                local('sudo -i virtualenv /opt/python/python{}'.format(python_version))
+                venv_command = '/bin/bash /opt/python/python{}/bin/activate'.format(python_version)
+                pip_command = '/opt/python/python{0}/bin/pip{1}'.format(python_version, python_version[:3])
+                local('{0} && sudo -i {1} install -U pip'.format(venv_command, pip_command))
+                local('{0} && sudo -i {1} install ipython ipykernel --no-cache-dir'.format(venv_command, pip_command))
+                local('{0} && sudo -i {1} install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'
+                      .format(venv_command, pip_command))
+                if application == 'deeplearning':
+                    local('{0} && sudo -i {1} install mxnet-cu80 opencv-python keras Theano --no-cache-dir'.format(venv_command, pip_command))
+                    python_without_dots = python_version.replace('.', '')
+                    local('{0} && sudo -i {1} install  https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp{2}-cp{2}m-linux_x86_64.whl --no-cache-dir'
+                          .format(venv_command, pip_command, python_without_dots[:2]))
+                local('sudo rm -rf /usr/bin/python{}'.format(python_version[0:3]))
+                local('sudo ln -fs /opt/python/python{0}/bin/python{1} /usr/bin/python{1}'.format(python_version, python_version[0:3]))
+        except Exception as err:
+            logging.info(
+                "Unable to install python: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to install python",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+
+def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
+    if not exists('/home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user)):
+        try:
+            sudo('mkdir -p {}'.format(jars_dir))
+            sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/{0} -O {1}{0}'
+                 .format('gcs-connector-latest-hadoop2.jar', jars_dir))
+            put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
+            sudo('sed -i "s|GCP_PROJECT_ID|{}|g" /tmp/core-site.xml'.format(os.environ['gcp_project_id']))
+            sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+            put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+            if os.environ['application'] == 'zeppelin':
+                sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
+            sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+            sudo('touch /home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user))
+        except:
+            sys.exit(1)
+
+def get_cluster_python_version(region, bucket, user_name, cluster_name):
+    try:
+        GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
+    except:
+        sys.exit(1)
+
+def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror=''):
+    try:
+        GCPActions().install_python(bucket, user_name, cluster_name, application)
+    except:
+        sys.exit(1)

@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 @TestDescription("Test \"Install libraries\" ")
 public class TestLibInstallStep extends TestLibStep {
+    private final static String REALLY_FAILED_ERROR = " [Error]:Failed to install additional libraries.";
     private final static Logger LOGGER = LogManager.getLogger(TestLibInstallStep.class);
     private String statusUrl;
     private Lib libToInstall;
@@ -76,17 +77,15 @@ public class TestLibInstallStep extends TestLibStep {
                 LibStatusResponse s = actualStatuses.stream()
                         .filter(e -> e.getGroup().equals(libToInstall.getGroup())
                                 && e.getName().equals(libToInstall.getName())
-                                && e.getVersion().equals(libToInstall.getVersion())).findFirst().get();
+                                && (e.getVersion().equals(libToInstall.getVersion()) || "N/A".equals(libToInstall.getVersion())))
+                        .findFirst().get();
 
                 LOGGER.info("Lib status is {}", s);
                 if (s.getStatus().equals("installing")) {
                     LOGGER.info("Wait {} sec left for installation libs {}", expiredTime - currentTime, request);
                     TimeUnit.SECONDS.sleep(ConfigPropertyValue.isRunModeLocal() ? 3L : 20L);
-                } else if (s.getStatus().equals("installed")) {
-                    return;
                 } else {
-                    LOGGER.error("Lib installation failed {}", s);
-                    Assert.fail("Install libs failed for " + notebookName);
+                    return;
                 }
             } else {
                 LOGGER.error("Response status{}, body {}", response.getStatusCode(), response.getBody().print());
@@ -111,11 +110,25 @@ public class TestLibInstallStep extends TestLibStep {
             LibStatusResponse libStatusResponse = actualStatuses.stream()
                     .filter(e -> e.getGroup().equals(libToInstall.getGroup())
                             && e.getName().equals(libToInstall.getName())
-                            && e.getVersion().equals(libToInstall.getVersion())).findFirst().get();
+                            && (e.getVersion().equals(libToInstall.getVersion()) || "N/A".equals(libToInstall.getVersion())))
+                    .findFirst().get();
 
-            Assert.assertTrue(libStatusResponse.getStatus().equals("installed"),
-                    "Lib " + libToInstall + " is not installed. Status " + libStatusResponse);
+            if ("installed".equals(libStatusResponse.getStatus())) {
+                LOGGER.info("Library status of {} is {}", libToInstall, libStatusResponse);
+            } else if ("failed".equals(libStatusResponse.getStatus())) {
 
+                if (REALLY_FAILED_ERROR.equals(libStatusResponse.getErrorMessage())
+                        || libStatusResponse.getErrorMessage() == null
+                        || libStatusResponse.getErrorMessage().isEmpty()) {
+
+                    Assert.fail(String.format("Installing library failed %s", libStatusResponse));
+                }
+
+                LOGGER.warn("Failed status with proper error message happend for {}", libStatusResponse);
+            } else {
+                Assert.assertTrue(libStatusResponse.getStatus().equals("installed"),
+                        "Lib " + libToInstall + " is not installed. Status " + libStatusResponse);
+            }
         } else {
             LOGGER.error("Response status{}, body {}", response.getStatusCode(), response.getBody().print());
             Assert.fail("Install libs failed for " + notebookName);

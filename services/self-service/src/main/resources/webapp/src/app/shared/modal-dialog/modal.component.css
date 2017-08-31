@@ -74,14 +74,15 @@ limitations under the License.
   color: #455c74;
   font-size: 18px;
 }
-.modal-header .glyphicon-warning-sign {
-  margin: 0 5px 0;
+.modal-header .modal-title i {
+  vertical-align: bottom;
 }
 
 .modal {
   color: #718ba6;
   font-size: 14px;
-  overflow: auto !important;
+  display: flex;
+  visibility: hidden;
 }
 
 .modal .control-label {
@@ -115,11 +116,6 @@ limitations under the License.
   margin-top: 3px;
 }
 
-.modal {
-  display: block;
-  visibility: hidden;
-}
-
 .modal.in {
   visibility: visible;
 }
@@ -127,6 +123,7 @@ limitations under the License.
 .modal .modal-dialog {
   transition: .3s ease-in-out;
   opacity: 0;
+  align-self: center;
   -webkit-transform: translateY(-20px);
   transform: translateY(-20px);
 }
@@ -176,10 +173,6 @@ limitations under the License.
   top: 2px;
 }
 
-.glyphicon-question-sign {
-  font-size: 12px;
-}
-
 .modal .butt-file input[type=file] {
   width: 100%;
   height: 100%;
@@ -195,10 +188,6 @@ limitations under the License.
   background: #fff;
   cursor: inherit;
   display: block;
-}
-
-.modal-dialog {
-  margin: 10% auto;
 }
 
 .modal-content {
@@ -333,10 +322,6 @@ limitations under the License.
 
 .modal a {
   color: #35afd5;
-}
-
-.detail-dialog .glyphicon-question-sign {
-  margin-right: 5px;
 }
 
 .modal-content .danger_color {

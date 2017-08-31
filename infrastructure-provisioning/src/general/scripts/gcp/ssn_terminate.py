@@ -33,7 +33,7 @@ if __name__ == "__main__":
     # generating variables dictionary
     print 'Generating infrastructure names and tags'
     ssn_conf = dict()
-    ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
+    ssn_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     ssn_conf['region'] = os.environ['gcp_region']
     ssn_conf['zone'] = os.environ['gcp_zone']
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         params = "--service_base_name {} --region {} --zone {}".format(ssn_conf['service_base_name'],
                                                                        ssn_conf['region'], ssn_conf['zone'])
         try:
-            local("~/scripts/{}.py {}".format('ssn_terminate_aws_resources', params))
+            local("~/scripts/{}.py {}".format('ssn_terminate_gcp_resources', params))
         except:
             traceback.print_exc()
             raise Exception
