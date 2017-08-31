@@ -72,6 +72,7 @@ def copy_ssn_libraries():
         sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
     return True
 
+
 def configure_mongo(mongo_passwd):
     try:
         if not exists("/lib/systemd/system/mongod.service"):
