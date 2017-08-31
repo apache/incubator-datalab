@@ -225,15 +225,25 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        mongo_parameters = {
+            "azure_resource_group_name": os.environ['azure_resource_group_name'],
+            "azure_region": ssn_conf['region'],
+            "azure_vpc_name": ssn_conf['vpc_name'],
+            "azure_subnet_name": ssn_conf['subnet_name'],
+            "conf_service_base_name": ssn_conf['service_base_name'],
+            "azure_security_group_name": ssn_conf['security_group_name'],
+            "conf_os_family": os.environ['conf_os_family'],
+            "conf_key_dir": "/root/keys"
+        }
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {} --mongo_parameters '{}'". \
             format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
                    os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'],
                    ssn_conf['region'], ssn_conf['service_base_name'], ssn_conf['security_group_name'],
                    ssn_conf['vpc_name'], ssn_conf['subnet_name'], os.environ['conf_tag_resource_id'],
                    os.environ['conf_cloud_provider'], os.environ['aws_account_id'], os.environ['aws_billing_bucket'],
-                   os.environ['aws_report_path'], billing_enabled)
+                   os.environ['aws_report_path'], billing_enabled, json.dumps(mongo_parameters))
 
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))

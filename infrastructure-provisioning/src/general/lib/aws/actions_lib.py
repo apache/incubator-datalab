@@ -992,3 +992,14 @@ def create_aws_config_files(generate_full_config=False):
         return True
     except:
         return False
+
+
+def set_mongo_parameters(client, region, vpc, subnet, base_name, sg, os_family, tag_resource_id):
+    client.dlabdb.settings.insert_one({"_id": "aws_region", "value": region})
+    client.dlabdb.settings.insert_one({"_id": "aws_vpc_id", "value": vpc})
+    client.dlabdb.settings.insert_one({"_id": "aws_subnet_id", "value": subnet})
+    client.dlabdb.settings.insert_one({"_id": "conf_service_base_name", "value": base_name})
+    client.dlabdb.settings.insert_one({"_id": "aws_security_groups_ids", "value": sg})
+    client.dlabdb.settings.insert_one({"_id": "conf_os_family", "value": os_family})
+    client.dlabdb.settings.insert_one({"_id": "conf_tag_resource_id", "value": tag_resource_id})
+    client.dlabdb.settings.insert_one({"_id": "conf_key_dir", "value": "/root/keys"})

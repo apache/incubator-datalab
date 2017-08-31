@@ -765,3 +765,8 @@ class AzureActions:
             append_result(str({"error": "Unable to remove kernels on Notebook",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+
+def set_mongo_parameters(client, mongo_parameters):
+    for i in mongo_parameters:
+        client.dlabdb.settings.insert_one({"_id": i, "value": mongo_parameters[i]})
