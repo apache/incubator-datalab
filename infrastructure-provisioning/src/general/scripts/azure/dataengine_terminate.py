@@ -37,6 +37,18 @@ def terminate_data_engine(resource_group_name, notebook_name, os_user, key_path,
                 print "Instance {} has been terminated".format(vm.name)
     except:
         sys.exit(1)
+    print "Removing Master security groups"
+    try:
+        AzureActions().remove_security_group(resource_group_name, master_security_group_name)
+        print "Security group {} has been terminated".format(master_security_group_name)
+    except:
+        sys.exit(1)
+    print "Removing Slave security groups"
+    try:
+        AzureActions().remove_security_group(resource_group_name, slave_security_group_name)
+        print "Security group {} has been terminated".format(slave_security_group_name)
+    except:
+        sys.exit(1)
 
     print "Removing Data Engine kernels from notebook"
     try:
