@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # *****************************************************************************
 #
 # Copyright (c) 2016, EPAM SYSTEMS INC
@@ -16,17 +18,15 @@
 #
 # ******************************************************************************
 
-FROM docker.dlab-base:latest
+# Not used in GCP
 
-ARG OS
-ARG CLOUD
+import argparse
+import subprocess
 
-COPY dataengine-service/fabfile.py /root/
-COPY dataengine-service/description.json /root/
-COPY general/scripts/${CLOUD}/dataengine-service_* /root/scripts/
-COPY general/templates/${CLOUD}/dataengine-service_cluster.json /root/templates/
-COPY general/templates/${CLOUD}/dataengine-service_job.json /root/templates/
 
-RUN chmod a+x /root/fabfile.py; \
-    chmod a+x /root/scripts/*
+parser = argparse.ArgumentParser()
+parser.add_argument('--user_name', type=str, default='')
+args = parser.parse_args()
 
+if __name__ == "__main__":
+    subprocess.Popen('cat /tmp/{}.pub >> /home/hadoop/.ssh/authorized_keys'.format(args.user_name), shell=True)

@@ -39,11 +39,11 @@ args = parser.parse_args()
 
 
 def upload_jars_parser(args):
-    actions_lib.GCPActions().put_to_bucket(args.bucket, '/root/scripts/jars_parser.py', 'jars_parser.py')
+    actions_lib.GCPActions().put_to_bucket(args.bucket, '/root/scripts/dataengine-service_jars_parser.py', 'jars_parser.py')
 
 
 def send_parser_job(args, cluster_name, cluster_version):
-    job_body = json.loads(open('/root/templates/dataproc_job.json').read())
+    job_body = json.loads(open('/root/templates/dataengine-service_job.json').read())
     job_body['job']['placement']['clusterName'] = cluster_name
     job_body['job']['pysparkJob']['mainPythonFileUri'] = 'gs://{}/jars_parser.py'.format(args.bucket)
     job_body['job']['pysparkJob']['args'][1] = args.bucket
