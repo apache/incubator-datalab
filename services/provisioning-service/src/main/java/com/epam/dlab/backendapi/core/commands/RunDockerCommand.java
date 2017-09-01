@@ -204,7 +204,7 @@ public class RunDockerCommand implements DockerCommand {
     }
 
     public RunDockerCommand withAwsRegion(String awsRegion) {
-        options.add(String.format("-e \"region=%s\"", awsRegion));
+        options.add(String.format("-e \"aws_region=%s\"", awsRegion));
         return this;
     }
 

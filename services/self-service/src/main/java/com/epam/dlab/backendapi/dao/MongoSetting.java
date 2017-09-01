@@ -34,7 +34,7 @@ public enum MongoSetting {
 
     // AWS Related properties
     /** Name of AWS region. */
-    AWS_REGION("region"),
+    AWS_REGION("aws_region"),
 	/** Id of security group. */
     AWS_SECURITY_GROUPS("aws_security_groups_ids"),
 	/** Id of virtual private cloud for AWS account. */

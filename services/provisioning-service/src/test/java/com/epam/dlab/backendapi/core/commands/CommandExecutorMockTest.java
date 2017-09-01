@@ -122,7 +122,7 @@ public class CommandExecutorMockTest {
     @Test
     public void edgeCreate() throws IOException, InterruptedException, ExecutionException {
     	String cmd =
-    		"echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
+    		"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
     		"\"conf_service_base_name\":\"usein1120v13\",\"conf_os_family\":\"debian\"," +
     		"\"aws_vpc_id\":\"vpc-83c469e4\",\"aws_subnet_id\":\"subnet-22db937a\",\"aws_security_groups_ids\":\"sg-4d42dc35\"}' | " +
     		"docker run -i --name user_create_edge_1487309918496 " +
@@ -139,7 +139,7 @@ public class CommandExecutorMockTest {
     @Test
     public void edgeStop() throws IOException, InterruptedException, ExecutionException {
     	String cmd =
-    	    "echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
+    	    "echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
     	    "\"conf_service_base_name\":\"usein1122v4\",\"conf_os_family\":\"debian\"}' | " +
     	    "docker run -i --name user_stop_edge_1487677431773 " +
     	    "-v /home/ubuntu/keys:/root/keys " +
@@ -155,7 +155,7 @@ public class CommandExecutorMockTest {
     @Test
     public void edgeStart() throws IOException, InterruptedException, ExecutionException {
     	String cmd =
-    		"echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
+    		"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
     	    "\"conf_service_base_name\":\"usein1122v4\",\"conf_os_family\":\"debian\"}' | " +
     	    "docker run -i --name user_start_edge_1487677538220 " +
     	    "-v /home/ubuntu/keys:/root/keys " +
@@ -171,7 +171,7 @@ public class CommandExecutorMockTest {
     @Test
     public void edgeStatus() throws IOException, InterruptedException, ExecutionException {
     	String cmd =
-    		"echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
+    		"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
     		"\"edge_list_resources\":{\"host\":[{\"id\":\"i-05c1a0d0ad030cdc1\"}, {\"id\":\"i-05c1a0d0ad030cdc2\"}]}}' | " +
     		"docker run -i --name user_status_resources_1487607145484 " +
     		"-v /home/ubuntu/keys:/root/keys " +
@@ -188,7 +188,7 @@ public class CommandExecutorMockTest {
     @Test
     public void notebookCreate() throws Exception {
     	String cmd =
-    		"echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
+    		"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
     		"\"conf_service_base_name\":\"usein1120v13\",\"conf_os_family\":\"debian\"," +
     		"\"exploratory_name\":\"useinxz1\",\"application\":\"zeppelin\",\"notebook_image\":\"docker.dlab-zeppelin\"," +
     		"\"aws_notebook_instance_type\":\"t2.medium\",\"aws_security_groups_ids\":\"sg-4d42dc35\"}' | " +
@@ -206,7 +206,7 @@ public class CommandExecutorMockTest {
     @Test
     public void notebookStop() throws Exception {
     	String cmd =
-    		"echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
+    		"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
     		"\"conf_service_base_name\":\"usein1120v13\"," +
     		"\"exploratory_name\":\"useinxz1\",\"notebook_image\":\"docker.dlab-zeppelin\"," +
     		"\"notebook_instance_name\":\"usein1120v13-user-nb-useinxz1-78af3\",\"conf_key_dir\":\"/root/keys\"}' | " +
@@ -224,7 +224,7 @@ public class CommandExecutorMockTest {
     @Test
     public void notebookStart() throws Exception {
     	String cmd =
-    		"echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
+    		"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
     		"\"conf_service_base_name\":\"usein1120v13\",\"conf_os_family\":\"debian\"," +
     		"\"exploratory_name\":\"useinxz1\",\"notebook_image\":\"docker.dlab-zeppelin\"," +
     		"\"notebook_instance_name\":\"usein1120v13-user-nb-useinxz1-78af3\"}' | " +
@@ -242,7 +242,7 @@ public class CommandExecutorMockTest {
     @Test
     public void notebookTerminate() throws Exception {
     	String cmd =
-    		"echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
+    		"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
     		"\"conf_service_base_name\":\"usein1120v13\",\"conf_os_family\":\"debian\"," +
     		"\"exploratory_name\":\"useinxz1\",\"notebook_image\":\"docker.dlab-zeppelin\"," +
     		"\"notebook_instance_name\":\"usein1120v13-user-nb-useinxz1-78af3\"}' | " +
@@ -261,7 +261,7 @@ public class CommandExecutorMockTest {
     @Test
     public void emrCreate() throws Exception {
     	String cmd =
-    		"echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
+    		"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
     		"\"conf_service_base_name\":\"usein1122v3\",\"conf_os_family\":\"debian\"," +
     	    "\"exploratory_name\":\"useinj1\",\"application\":\"jupyter\",\"computational_name\":\"useine1\"," +
     	    "\"emr_instance_count\":\"2\",\"emr_master_instance_type\":\"c4.large\",\"emr_slave_instance_type\":\"c4.large\"," +
@@ -284,7 +284,7 @@ public class CommandExecutorMockTest {
     @Test
     public void emrConfigure() throws Exception {
     	String cmd =
-    		"echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
+    		"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"," +
     		"\"conf_service_base_name\":\"usein1122v4\",\"exploratory_name\":\"useinj1\"," +
     		"\"application\":\"jupyter\",\"computational_name\":\"useine2\",\"emr_version\":\"emr-5.2.0\"," +
     		"\"notebook_instance_name\":\"usein1122v4-user-nb-useinj1-b0a2e\"}' | " +
@@ -302,7 +302,7 @@ public class CommandExecutorMockTest {
     @Test
     public void emrTerminate() throws Exception {
     	String cmd =
-    		"echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"" +
+    		"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"" +
     	    ",\"conf_service_base_name\":\"usein1122v3\",\"exploratory_name\":\"useinj1\"," +
     	    "\"computational_name\":\"useine1\",\"emr_cluster_name\":\"usein1122v3-user-emr-useinj1-useine1-d2db9\"," +
     	    "\"notebook_instance_name\":\"usein1122v3-user-nb-useinj1-1b198\",\"conf_key_dir\":\"/root/keys\"}' | " +
@@ -321,7 +321,7 @@ public class CommandExecutorMockTest {
 	@Test
 	public void listLibs() throws Exception {
 		String cmd =
-				"echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"" +
+				"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"" +
 						",\"conf_service_base_name\":\"usein1122v3\",\"exploratory_name\":\"useinj1\"," +
 						"\"computational_name\":\"useine1\",\"emr_cluster_name\":\"usein1122v3-user-emr-useinj1-useine1-d2db9\"," +
 						"\"notebook_instance_name\":\"usein1122v3-user-nb-useinj1-1b198\",\"conf_key_dir\":\"/root/keys\"}' | " +
@@ -341,7 +341,7 @@ public class CommandExecutorMockTest {
 	@Test
 	public void installLibs() throws Exception {
 		String cmd =
-				"echo -e '{\"region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"" +
+				"echo -e '{\"aws_region\":\"us-west-2\",\"aws_iam_user\":\"user@epam.com\",\"edge_user_name\":\"user\"" +
 						",\"conf_service_base_name\":\"usein1122v3\",\"exploratory_name\":\"useinj1\"," +
 						"\"computational_name\":\"useine1\",\"emr_cluster_name\":\"usein1122v3-user-emr-useinj1-useine1-d2db9\"," +
 						"\"notebook_instance_name\":\"usein1122v3-user-nb-useinj1-1b198\",\"conf_key_dir\":\"/root/keys\"}' | " +
