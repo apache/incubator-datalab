@@ -134,9 +134,9 @@ export class InstallLibrariesComponent implements OnInit {
           this.resetDialog();
         }
       },
-      (response: Response) => {
+      (error: any) => {
         this.processError = true;
-        this.errorMessage = ErrorMapUtils.setErrorMessage(response);
+        this.errorMessage = error.message;
       },
       () => {
         this.bindDialog.open(param);
