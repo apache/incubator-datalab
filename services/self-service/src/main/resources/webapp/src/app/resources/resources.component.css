@@ -31,15 +31,3 @@ limitations under the License.
 .butt.butt-tool {
   margin-right: 10px;
 }
-
-.sub-nav {
-  height: 60px;
-  padding: 12px 15px;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: space-between;
-}
-
-.sub-nav div {
-  display: flex;
-}

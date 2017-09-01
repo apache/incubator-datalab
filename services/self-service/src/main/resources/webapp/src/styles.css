@@ -224,6 +224,16 @@ button {
   margin: 12px 15px;
 }
 
+.sub-nav {
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+}
+
+.sub-nav div {
+  display: flex;
+}
+
 @-webkit-keyframes spin {
   0% {
     -webkit-transform: rotate(0deg);

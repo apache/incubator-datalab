@@ -35,15 +35,16 @@ limitations under the License.
 }
 
 a.nav-item {
-  color: #577289;
-  padding: 5px 40px;
-  font-size: 14px;
-  height: 56px;
-  line-height: 56px;
   position: relative;
+  height: 56px;
+  padding: 5px 40px;
+  line-height: 48px;
   font-family: "Open Sans", sans-serif;
   transition: all .45s ease-in-out;
   text-decoration: none;
+  font-size: 14px;
+  overflow: hidden;
+  color: #577289;
   outline: none;
  }
  a.nav-item:not(:last-child)::after {
