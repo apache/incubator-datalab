@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi.util;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -40,13 +41,22 @@ public class ResourceUtils {
 	 * @throws DlabException
 	 */
     @SuppressWarnings("unchecked")
-	public static <T extends ResourceBaseDTO<?>> T newResourceBaseDTO(UserInfo userInfo, Class<T> resourceClass) throws DlabException {
+	public static <T extends ResourceBaseDTO<?>> T newResourceBaseDTO(UserInfo userInfo, Class<T> resourceClass, CloudProvider cloudProvider) throws DlabException {
 		try {
 			T resource = resourceClass.newInstance();
-	    	return (T) resource
-	    			.withAwsRegion(settingsDAO.getAwsRegion())
-	    			.withAwsIamUser(userInfo.getName())
-	    			.withEdgeUserName(userInfo.getSimpleName());
+			switch (cloudProvider) {
+				case AWS:
+					return (T) resource
+							.withAwsRegion(settingsDAO.getAwsRegion())
+							.withAwsIamUser(userInfo.getName())
+							.withEdgeUserName(userInfo.getSimpleName());
+				case AZURE:
+				case GCP:
+					return (T) resource.withEdgeUserName(userInfo.getSimpleName());
+				default:
+					throw new DlabException("Unknown cloud provider" + cloudProvider);
+			}
+
 		} catch (Exception e) {
 			throw new DlabException("Cannot create instance of resource class " + resourceClass.getName() + ". " +
 					e.getLocalizedMessage(), e);
@@ -61,8 +71,8 @@ public class ResourceUtils {
 	 * @throws DlabException
 	 */
     @SuppressWarnings("unchecked")
-	public static <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass) throws DlabException {
-    	T resource = newResourceBaseDTO(userInfo, resourceClass);
+	public static <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass, CloudProvider cloudProvider) throws DlabException {
+    	T resource = newResourceBaseDTO(userInfo, resourceClass, cloudProvider);
     	return (T) resource
     			.withServiceBaseName(settingsDAO.getServiceBaseName())
     			.withConfTagResourceId(settingsDAO.getConfTagResourceId())

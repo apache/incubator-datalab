@@ -1,20 +1,18 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Copyright (c) 2017, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.epam.dlab.backendapi.resources;
 
@@ -31,6 +29,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.epam.dlab.backendapi.dao.SettingsDAO;
+import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
+import com.epam.dlab.dto.aws.keyload.UploadFileAws;
+import com.epam.dlab.dto.azure.AzureResource;
+import com.epam.dlab.dto.azure.edge.EdgeCreateAzure;
+import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
+import com.epam.dlab.dto.base.UploadFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +47,7 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
-import com.epam.dlab.dto.keyload.UploadFileResultDTO;
+import com.epam.dlab.dto.aws.keyload.UploadFileResultAws;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
@@ -61,6 +67,10 @@ public class EdgeResource implements EdgeAPI {
 
     @Inject
     private KeyDAO keyDAO;
+
+    @Inject
+    private SettingsDAO settingsDAO;
+
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
@@ -111,26 +121,6 @@ public class EdgeResource implements EdgeAPI {
         }
     }
 
-    
-    /** Stores the result of the upload the user key.
-     * @param dto result of the upload the user key.
-     * @return 200 OK
-     */
-    @POST
-    @Path(ApiCallbacks.STATUS_URI)
-    public Response status(UploadFileResultDTO dto) throws DlabException {
-    	RequestId.checkAndRemove(dto.getRequestId());
-    	try {
-    		LOGGER.debug("Updating the status of EDGE node for user {} to {}", dto.getUser(), dto.getStatus());
-	        keyDAO.updateEdgeStatus(dto.getUser(), dto.getStatus());
-    	} catch (DlabException e) {
-        	LOGGER.error("Could not update status of EDGE node for user {} to {}", dto.getUser(), dto.getStatus(), e);
-        	throw new DlabException("Could not update status of EDGE node to " + dto.getStatus() + ": " + e.getLocalizedMessage(), e);
-    	}
-        return Response.ok().build();
-    }
-
-
     /** Sends the post request to the provisioning service and update the status of EDGE node.
      * @param userInfo user info.
      * @param action action for EDGE node.
@@ -141,7 +131,7 @@ public class EdgeResource implements EdgeAPI {
     private String action(UserInfo userInfo, String action, UserInstanceStatus status) throws DlabException {
         try {
         	keyDAO.updateEdgeStatus(userInfo.getName(), status.toString());
-        	ResourceSysBaseDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ResourceSysBaseDTO.class);
+        	ResourceSysBaseDTO<?> dto = buildResourceSysBase(userInfo, CloudProvider.AWS);
             String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return uuid;
@@ -151,4 +141,17 @@ public class EdgeResource implements EdgeAPI {
         }
     }
 
+    private ResourceSysBaseDTO<?> buildResourceSysBase(UserInfo userInfo, CloudProvider cloudProvider) {
+        switch (cloudProvider) {
+            case AWS:
+                return ResourceUtils.newResourceSysBaseDTO(userInfo, ResourceSysBaseDTO.class, cloudProvider);
+            case AZURE:
+                return ResourceUtils.newResourceSysBaseDTO(userInfo, AzureResource.class, cloudProvider)
+                        .withAzureRegion(settingsDAO.getAzureRegion())
+                        .withAzureIamUser(userInfo.getName());
+            case GCP:
+            default:
+                throw new DlabException("Unknown cloud provider " + cloudProvider);
+        }
+    }
 }

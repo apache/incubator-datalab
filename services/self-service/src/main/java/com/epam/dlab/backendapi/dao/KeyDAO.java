@@ -26,9 +26,9 @@ import static com.mongodb.client.model.Updates.set;
 
 import java.util.Optional;
 
+import com.epam.dlab.dto.base.EdgeInfo;
 import org.bson.Document;
 
-import com.epam.dlab.dto.edge.EdgeInfoDTO;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.dto.keyload.UserKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -87,7 +87,7 @@ public class KeyDAO extends BaseDAO {
 	 * @param edgeInfo the EDGE of user
 	 * @exception DlabException
 	 */
-    public void updateEdgeInfo(String user, EdgeInfoDTO edgeInfo) throws DlabException {
+    public void updateEdgeInfo(String user, EdgeInfo edgeInfo) throws DlabException {
     	Document d = new Document(SET,
     					convertToBson(edgeInfo)
     						.append(ID, user));
@@ -97,11 +97,10 @@ public class KeyDAO extends BaseDAO {
         		true);
     }
 
-    public EdgeInfoDTO getEdgeInfo(String user) {
+    public <T extends EdgeInfo> T getEdgeInfo(String user, Class<T> target, T defaultValue) {
     	return findOne(USER_EDGE,
-    			eq(ID, user),
-    			EdgeInfoDTO.class)
-    			.orElse(new EdgeInfoDTO());
+    			eq(ID, user), target)
+    			.orElse(defaultValue);
     }
 
 	/** Finds and returns the status of user key.

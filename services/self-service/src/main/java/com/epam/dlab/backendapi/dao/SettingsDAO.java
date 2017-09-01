@@ -30,19 +30,10 @@ import com.epam.dlab.exceptions.DlabException;
 public class SettingsDAO extends BaseDAO {
     private static final String VALUE = "value";
 
+
     /** Returns the base name of service. */
     public String getServiceBaseName() {
         return getSetting(SERIVICE_BASE_NAME);
-    }
-
-    /** Returns the name of AWS region. */
-    public String getAwsRegion() {
-        return getSetting(AWS_REGION);
-    }
-
-    /** Returns the id of security group. */
-    public String getAwsSecurityGroups() {
-        return getSetting(AWS_SECURITY_GROUPS);
     }
 
     /** Returns the name of OS family. */
@@ -55,6 +46,22 @@ public class SettingsDAO extends BaseDAO {
         return getSetting(CONF_KEY_DIRECTORY);
     }
 
+    /** Returns the name of tag for resource id. */
+    public String getConfTagResourceId() {
+        return getSetting(CONF_TAG_RESOURCE_ID);
+    }
+
+
+    /** Returns the name of AWS region. */
+    public String getAwsRegion() {
+        return getSetting(AWS_REGION);
+    }
+
+    /** Returns the id of security group. */
+    public String getAwsSecurityGroups() {
+        return getSetting(AWS_SECURITY_GROUPS);
+    }
+
     /** Returns the id of virtual private cloud for AWS account. */
     public String getAwsVpcId() {
         return getSetting(AWS_VPC_ID);
@@ -65,10 +72,22 @@ public class SettingsDAO extends BaseDAO {
         return getSetting(AWS_SUBNET_ID);
     }
 
-    /** Returns the name of tag for resource id. */
-    public String getConfTagResourceId() {
-        return getSetting(CONF_TAG_RESOURCE_ID);
+    public String getAzureRegion() {
+        return getSetting(AZURE_REGION);
     }
+
+    public String getAzureResourceGroupName() {
+        return getSetting(AZURE_RESOURCE_GROUP_NAME);
+    }
+
+    public String getAzureSubnetName() {
+        return getSetting(AZURE_SUBNET_NAME);
+    }
+
+    public String getAzureVpcName() {
+        return getSetting(AZURE_VPC_NAME);
+    }
+
 
     /** Returns the value of property from Mongo database.
      * @param setting the name of property.
@@ -81,7 +100,6 @@ public class SettingsDAO extends BaseDAO {
 	    if (d == null) {
 	        throw new DlabException("Setting property " + setting + " not found");
         }
-        return d.getOrDefault(VALUE, EMPTY)
-                .toString();
+        return d.getOrDefault(VALUE, EMPTY).toString();
     }
 }

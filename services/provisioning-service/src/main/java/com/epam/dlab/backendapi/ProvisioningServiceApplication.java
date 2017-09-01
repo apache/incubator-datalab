@@ -24,7 +24,7 @@ import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.ComputationalResource;
 import com.epam.dlab.backendapi.resources.DockerResource;
-import com.epam.dlab.backendapi.resources.EdgeResource;
+import com.epam.dlab.backendapi.resources.aws.EdgeResourceAws;
 import com.epam.dlab.backendapi.resources.ExploratoryResource;
 import com.epam.dlab.backendapi.resources.InfrastructureResource;
 import com.epam.dlab.process.DlabProcess;
@@ -78,7 +78,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
         jersey.register(new RuntimeExceptionMapper());
         jersey.register(new JsonProcessingExceptionMapper());
         jersey.register(injector.getInstance(DockerResource.class));
-        jersey.register(injector.getInstance(EdgeResource.class));
+        jersey.register(injector.getInstance(EdgeResourceAws.class));
         jersey.register(injector.getInstance(ExploratoryResource.class));
         jersey.register(injector.getInstance(ComputationalResource.class));
         jersey.register(injector.getInstance(InfrastructureResource.class));

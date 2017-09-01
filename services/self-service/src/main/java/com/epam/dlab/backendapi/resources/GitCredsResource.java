@@ -31,6 +31,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.epam.dlab.cloud.CloudProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +88,7 @@ public class GitCredsResource implements ExploratoryAPI {
         	
         	for (UserInstanceDTO instance : instances) {
 				if (UserInstanceStatus.RUNNING == UserInstanceStatus.of(instance.getStatus())) {
-                	ExploratoryGitCredsUpdateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
+                	ExploratoryGitCredsUpdateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class, CloudProvider.AWS)
                 			.withNotebookImage(instance.getImageName())
                 			.withApplicationName(ResourceUtils.getApplicationNameFromImage(instance.getImageName()))
                         	.withNotebookInstanceName(instance.getExploratoryId())

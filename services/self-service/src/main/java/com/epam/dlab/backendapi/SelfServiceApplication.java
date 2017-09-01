@@ -25,6 +25,8 @@ import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
+import com.epam.dlab.backendapi.resources.EdgeResource;
+import com.epam.dlab.backendapi.resources.KeyUploaderResource;
 import com.epam.dlab.utils.ServiceUtils;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
 import com.epam.dlab.rest.mappers.RuntimeExceptionMapper;

@@ -32,6 +32,7 @@ import com.epam.dlab.backendapi.resources.dto.UIConfigurationDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.util.ResourceUtils;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.computational.ComputationalCreateDTO;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
@@ -135,7 +136,7 @@ public class ComputationalResource implements ComputationalAPI {
         if (isAdded) {
             try {
             	UserInstanceDTO instance = infExpDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
-                ComputationalCreateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ComputationalCreateDTO.class)
+                ComputationalCreateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ComputationalCreateDTO.class, CloudProvider.AWS)
                         .withExploratoryName(formDTO.getNotebookName())
                         .withNotebookTemplateName(instance.getTemplateName())
                         .withApplicationName(getApplicationName(instance.getImageName()))
@@ -214,7 +215,7 @@ public class ComputationalResource implements ComputationalAPI {
         try {
             String exploratoryId = infExpDAO.fetchExploratoryId(userInfo.getName(), exploratoryName);
             String computationalId = infCompDAO.fetchComputationalId(userInfo.getName(), exploratoryName, computationalName);
-            ComputationalTerminateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class)
+            ComputationalTerminateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class, CloudProvider.AWS)
                     .withExploratoryName(exploratoryName)
                     .withComputationalName(computationalName)
                     .withNotebookInstanceName(exploratoryId)

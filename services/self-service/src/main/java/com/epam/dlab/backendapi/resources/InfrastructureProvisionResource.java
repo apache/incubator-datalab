@@ -49,7 +49,7 @@ import com.epam.dlab.backendapi.resources.dto.ExploratoryGetLibsFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.dto.edge.EdgeInfoDTO;
+import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.epam.dlab.dto.exploratory.ExploratoryLibListStatusDTO;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
@@ -88,15 +88,16 @@ public class InfrastructureProvisionResource implements DockerAPI {
     public Iterable<Document> getUserResources(@Auth UserInfo userInfo) throws DlabException {
         LOGGER.debug("Loading list of provisioned resources for user {}", userInfo.getName());
         try {
+            //TODO use separarte class
         	Iterable<Document> documents = expDAO.findExploratory(userInfo.getName());
-        	EdgeInfoDTO edgeInfo = keyDAO.getEdgeInfo(userInfo.getName());
-        	List<Document> notebooks = new ArrayList<Document>();
+        	EdgeInfoAws edgeInfo = keyDAO.getEdgeInfo(userInfo.getName(), EdgeInfoAws.class, new EdgeInfoAws());
+        	List<Document> notebooks = new ArrayList<>();
         	
         	int i = 0;
     		for (Document d : documents) {
         		d.append(EDGE_IP, edgeInfo.getPublicIp())
-                        .append(EdgeInfoDTO.USER_OWN_BUCKET_NAME, edgeInfo.getUserOwnBucketName())
-                        .append(EdgeInfoDTO.SHARED_BUCKET_NAME, edgeInfo.getSharedBucketName());
+                        .append(EdgeInfoAws.USER_OWN_BUCKET_NAME, edgeInfo.getUserOwnBucketName())
+                        .append(EdgeInfoAws.SHARED_BUCKET_NAME, edgeInfo.getSharedBucketName());
 
         		notebooks.add(d);
         		LOGGER.debug("Notebook[{}]: {}", ++i, d);

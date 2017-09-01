@@ -14,9 +14,15 @@
         <org.slf4j.version>1.7.21</org.slf4j.version>
         <org.glassfish.jersey.containers.version>2.23.1</org.glassfish.jersey.containers.version>
         <com.google.inject.version>4.1.0</com.google.inject.version>
+        <lombok.version>1.16.18</lombok.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.18</version>s
+        </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-views-mustache</artifactId>
