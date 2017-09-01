@@ -38,11 +38,7 @@ parser.add_argument('--cloud_provider', type=str, default='')
 parser.add_argument('--os_family', type=str, default='')
 parser.add_argument('--request_id', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
-parser.add_argument('--region', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
-parser.add_argument('--security_groups_ids', type=str, default='')
-parser.add_argument('--vpc_id', type=str, default='')
-parser.add_argument('--subnet_id', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default='')
 parser.add_argument('--account_id', type=str, default='')
 parser.add_argument('--billing_bucket', type=str, default='')
@@ -97,7 +93,8 @@ def configure_mongo(mongo_passwd):
                                                                                              env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
         mongo_parameters = json.loads(args.mongo_parameters)
-        sudo("python " + args.dlab_path + "tmp/configure_mongo.py --region {} --base_name {} --sg '{}' --vpc {} --subnet {} --dlab_path {} --os_user {} --os_family {} --tag_resource_id {} --mongo_parameters '{}'".format(args.region, args.service_base_name, args.security_groups_ids.replace(" ", ""), args.vpc_id, args.subnet_id, args.dlab_path, args.os_user, args.os_family, args.tag_resource_id, json.dumps(mongo_parameters)))
+        sudo("python " + args.dlab_path + "tmp/configure_mongo.py --dlab_path {} --mongo_parameters '{}'".format(
+            args.dlab_path, json.dumps(mongo_parameters)))
         return True
     except Exception as err:
         print err

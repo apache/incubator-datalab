@@ -226,15 +226,24 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        mongo_parameters = {
+            "aws_region": os.environ['aws_region'],
+            "aws_vpc_id": os.environ['aws_vpc_id'],
+            "aws_subnet_id": os.environ['aws_subnet_id'],
+            "conf_service_base_name": os.environ['conf_service_base_name'],
+            "aws_security_groups_ids": os.environ['aws_security_groups_ids'].replace(" ", ""),
+            "conf_os_family": os.environ['conf_os_family'],
+            "conf_tag_resource_id": os.environ['conf_tag_resource_id'],
+            "conf_key_dir": "/root/keys"
+        }
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --service_base_name {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {} --mongo_parameters '{}'". \
             format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']), os.environ['ssn_dlab_path'],
-                   dlab_ssh_user, os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'], os.environ['aws_region'],
-                   os.environ['conf_service_base_name'], os.environ['aws_security_groups_ids'], os.environ['aws_vpc_id'],
-                   os.environ['aws_subnet_id'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
-                   os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],
-                   billing_enabled)
+                   dlab_ssh_user, os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'],
+                   os.environ['conf_service_base_name'], os.environ['conf_tag_resource_id'],
+                   os.environ['conf_cloud_provider'], os.environ['aws_account_id'], os.environ['aws_billing_bucket'],
+                   os.environ['aws_report_path'], billing_enabled, json.dumps(mongo_parameters))
 
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))

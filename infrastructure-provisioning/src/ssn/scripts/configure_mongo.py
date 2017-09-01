@@ -23,21 +23,13 @@ import yaml, json, sys
 import subprocess
 import time
 import argparse
-from dlab.actions_lib import *
+from dlab.fab import *
 
 path = "/etc/mongod.conf"
 outfile = "/etc/mongo_params.yml"
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--region', type=str, default='')
-parser.add_argument('--vpc', type=str, default='')
-parser.add_argument('--subnet', type=str, default='')
-parser.add_argument('--base_name', type=str, default='')
-parser.add_argument('--sg', type=str, default='')
 parser.add_argument('--dlab_path', type=str, default='')
-parser.add_argument('--os_user', type=str, default='')
-parser.add_argument('--os_family', type=str, default='')
-parser.add_argument('--tag_resource_id', type=str, default='')
 parser.add_argument('--mongo_parameters', type=str, default='')
 args = parser.parse_args()
 

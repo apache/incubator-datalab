@@ -368,3 +368,7 @@ def install_ungit(os_user):
         except:
             sys.exit(1)
 
+
+def set_mongo_parameters(client, mongo_parameters):
+    for i in mongo_parameters:
+        client.dlabdb.settings.insert_one({"_id": i, "value": mongo_parameters[i]})
