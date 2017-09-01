@@ -96,7 +96,7 @@ def configure_mongo(mongo_passwd):
         local('scp -i {} /root/files/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
                                                                                              env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
-        sudo("python " + args.dlab_path + "tmp/configure_mongo.py --region {} --base_name {} --sg '{}' --vpc {} --subnet {} --dlab_path {} --os_user {} --os_family {} --tag_resource_id {} --mongo_parameters '{}'".format(args.region, args.service_base_name, args.security_groups_ids.replace(" ", ""), args.vpc_id, args.subnet_id, args.dlab_path, args.os_user, args.os_family, args.tag_resource_id, json.dumps(mongo_parameters)))
+        sudo("python " + args.dlab_path + "tmp/configure_mongo.py --region {} --base_name {} --sg '{}' --vpc {} --subnet {} --dlab_path {} --os_user {} --os_family {} --tag_resource_id {} --mongo_parameters '{}'".format(args.region, args.service_base_name, args.security_groups_ids.replace(" ", ""), args.vpc_id, args.subnet_id, args.dlab_path, args.os_user, args.os_family, args.tag_resource_id, json.dumps(args.mongo_parameters)))
         return True
     except Exception as err:
         print err
