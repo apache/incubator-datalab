@@ -23,7 +23,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 abstract public class ResourceBaseDTO<T extends ResourceBaseDTO<?>> {
-    @JsonProperty("region")
+    @JsonProperty("aws_region")
     private String awsRegion;
     @JsonProperty("aws_iam_user")
     private String awsIamUser;
