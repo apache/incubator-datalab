@@ -72,7 +72,18 @@ if __name__ == "__main__":
             else:
                 break
 
-        dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
+        dlab_subnet_cidr = ''
+        if previous_subnet_size < private_subnet_size:
+            while True:
+                try:
+                    dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
+                    ipaddress.ip_network(dlab_subnet_cidr.decode('utf-8'))
+                    break
+                except ValueError:
+                    last_ip = last_ip + 2
+                    continue
+        else:
+            dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
 
         if args.ssn:
             subnet_id = get_subnet_by_cidr(dlab_subnet_cidr, args.vpc_id)

@@ -41,19 +41,17 @@ import java.util.concurrent.TimeUnit;
 @TestDescription("Test \"Search libraries by group and prefix\" ")
 public class TestLibListStep extends TestLibStep {
     private static final Logger LOGGER = LogManager.getLogger(TestLibListStep.class);
-    private List<LibToSearchData> libToSearchDatas;
+    private LibToSearchData libToSearchData;
     private List<Lib> libs = new ArrayList<>();
 
-    public TestLibListStep(String url, String token, String notebookName, long initTimeoutSec, String jsonFilePath) {
+    public TestLibListStep(String url, String token, String notebookName, long initTimeoutSec, LibToSearchData libToSearchData) {
         super(NamingHelper.getSelfServiceURL(url), token, notebookName, initTimeoutSec);
-        this.libToSearchDatas = JsonMapperDto.readListOf(jsonFilePath, LibToSearchData.class);
+        this.libToSearchData = libToSearchData;
     }
 
     @Override
     public void init() throws InterruptedException {
-
-        LibToSearchData libFound = libToSearchDatas.get(0);
-        LibSearchRequest request = new LibSearchRequest(notebookName, libFound.getGroup(), libFound.getStartWith());
+        LibSearchRequest request = new LibSearchRequest(notebookName, libToSearchData.getGroup(), libToSearchData.getStartWith());
 
         long currentTime = System.currentTimeMillis() / 1000L;
         long expiredTime = currentTime + initTimeoutSec;
@@ -85,9 +83,8 @@ public class TestLibListStep extends TestLibStep {
     @Override
     public void verify() {
         Map<String, String> actualFoundLibs = new HashMap<>();
-        LibToSearchData libFound = libToSearchDatas.get(0);
 
-        LibSearchRequest request = new LibSearchRequest(notebookName, libFound.getGroup(), libFound.getStartWith());
+        LibSearchRequest request = new LibSearchRequest(notebookName, libToSearchData.getGroup(), libToSearchData.getStartWith());
         Response response = new HttpRequest().webApiPost(url, ContentType.JSON, request, token);
         LOGGER.info("Request libraries {}", request);
         if (response.getStatusCode() == HttpStatusCode.OK) {
@@ -97,9 +94,10 @@ public class TestLibListStep extends TestLibStep {
             } else {
                 LOGGER.info("Found libraries for {} are {}", request, actualFoundLibs);
                 for (Map.Entry<String, String> entry : actualFoundLibs.entrySet()) {
-                    Assert.assertTrue(entry.getKey().startsWith(libFound.getStartWith()),
+                    Assert.assertTrue(entry.getKey().toLowerCase().startsWith(libToSearchData.getStartWith().toLowerCase()),
                             String.format("Nor expected lib is found %s-%s", entry.getKey(), entry.getValue()));
                 }
+                LOGGER.info("Libraries are verified");
             }
 
         } else {
@@ -109,7 +107,7 @@ public class TestLibListStep extends TestLibStep {
         LOGGER.info(getDescription() + "passed");
 
         for (Map.Entry<String, String> entry : actualFoundLibs.entrySet()) {
-            libs.add(new Lib(libFound.getGroup(), entry.getKey(), entry.getValue()));
+            libs.add(new Lib(libToSearchData.getGroup(), entry.getKey(), entry.getValue()));
         }
     }
 

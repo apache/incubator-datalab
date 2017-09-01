@@ -48,13 +48,15 @@ def add_china_repository(dlab_path):
 def build_docker_images(image_list, region, dlab_path):
     try:
         local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, env.host_string, args.dlab_path))
-        local('scp -i {} /root/azure_auth.json {}:{}sources/base/azure_auth.json'.format(args.keyfile, env.host_string,
+        if os.environ['conf_cloud_provider'] == 'azure':
+            local('scp -i {} /root/azure_auth.json {}:{}sources/base/azure_auth.json'.format(args.keyfile, env.host_string,
                                                                                          args.dlab_path))
         if region == 'cn-north-1':
             add_china_repository(dlab_path)
         for image in image_list:
             name = image['name']
             tag = image['tag']
+            sudo('cd {0}sources/; cp general/files/{1}/{2}_description.json {2}/description.json'.format(args.dlab_path, args.cloud_provider, name))
             sudo("cd {4}sources/; docker build --build-arg OS={2} --build-arg CLOUD={3} --file {0}/Dockerfile -t docker.dlab-{0}:{1} ."
                  .format(name, tag, args.os_family, args.cloud_provider, args.dlab_path))
         return True

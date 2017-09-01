@@ -67,7 +67,7 @@ if __name__ == "__main__":
                     os.environ['conf_os_user'], edge_instance_hostname, '3128', os.environ['notebook_scala_version'],
                     os.environ['application'], os.environ['conf_pypi_mirror'])
         try:
-            local("~/scripts/{}_{}.py {}".format(application, 'install_emr_kernels', params))
+            local("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params))
             remove_emr_tag(notebook_config['cluster_id'], ['State'])
         except:
             traceback.print_exc()

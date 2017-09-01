@@ -1,5 +1,5 @@
 {
-    "conf_resource": "emr",
+    "conf_resource": "dataengine-service",
     "request_id":"RID",
     "conf_service_base_name":"SBN",
     "aws_region":"CREG",

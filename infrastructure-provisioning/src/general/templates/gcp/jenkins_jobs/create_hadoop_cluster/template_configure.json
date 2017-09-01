@@ -1,11 +1,13 @@
 {
     "request_id":"RID",
-    "conf_resource": "emr",
+    "conf_resource": "dataengine-service",
     "conf_service_base_name":"SBN",
+    "gcp_project_id": "GPI",
     "edge_user_name":"EUN",
-    "emr_version":"EVER",
-    "conf_key_name":"KN",
+    "conf_key_name":"CKN",
     "gcp_region":"CREG",
-    "notebook_instance_name":"NNM",
+    "gcp_zone": "CZON",
+    "notebook_instance_name":"NIN",
+    "dataproc_version": "DVER",
     "application":"APP"
 }

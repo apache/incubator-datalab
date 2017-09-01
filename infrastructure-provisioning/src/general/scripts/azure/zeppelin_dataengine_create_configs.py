@@ -164,12 +164,9 @@ def install_remote_livy(args):
 
 
 if __name__ == "__main__":
-    if args.dry_run == 'true':
-        parser.print_help()
-    else:
-        dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
-        install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
-        if args.multiple_clusters == 'true':
-            install_remote_livy(args)
-        configure_zeppelin_dataengine_interpreter(args.cluster_name, spark_dir, args.os_user,
-                                                  args.multiple_clusters, args.spark_master)
+    dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
+    install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
+    if args.multiple_clusters == 'true':
+        install_remote_livy(args)
+    configure_zeppelin_dataengine_interpreter(args.cluster_name, spark_dir, args.os_user,
+                                              args.multiple_clusters, args.spark_master)

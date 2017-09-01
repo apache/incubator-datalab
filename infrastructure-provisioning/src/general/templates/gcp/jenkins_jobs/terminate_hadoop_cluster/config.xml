@@ -18,7 +18,7 @@ limitations under the License.
 -->
 <project>
   <actions/>
-  <description>This job terminates emr cluster, cleans up s3 bucket, removes notebook kernels</description>
+  <description>This job terminates dataproc cluster, cleans up storage bucket, removes notebook kernels</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
@@ -26,7 +26,12 @@ limitations under the License.
         <hudson.model.StringParameterDefinition>
           <name>Service_base_name</name>
           <description>unique infrastructure value that previously was used when ssn being provisioned</description>
-          <defaultValue>SBN</defaultValue>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>gcp_project_id</name>
+          <description>GCP project ID</description>
+          <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>Username</name>
@@ -34,29 +39,41 @@ limitations under the License.
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>emr_name</name>
-          <description>name of the EMR cluster to terminate</description>
+          <name>dataproc_cluster_name</name>
+          <description>name of the Dataproc cluster to terminate</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>Notebook_Name</name>
-          <description>name of the notebook, EMR cluster is linked to</description>
+          <description>name of the notebook, Dataproc cluster is linked to</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>SSH_Key_Name</name>
-          <description>name of the uploaded ssh key file (without ".pem")</description>
-          <defaultValue>AKEY</defaultValue>
+          <description>name of the uploaded ssh key file (without &quot;.pem&quot;)</description>
+          <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>Region</name>
-          <description>aws region where infrastructure was deployed</description>
+          <description>gcp region where infrastructure was deployed</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>us-west-2</string>
-              <string>us-west-1</string>
-              <string>us-east-2</string>
-              <string>us-east-1</string>
+              <string>us-west1</string>
+              <string>us-west2</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Zone</name>
+          <description>gcp zone where infrastructure was deployed</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>us-west1-a</string>
+              <string>us-west1-b</string>
+              <string>us-west1-c</string>
+              <string>us-west2-a</string>
+              <string>us-west2-b</string>
+              <string>us-west2-c</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -82,7 +99,7 @@ limitations under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/terminate_hadoop_cluster/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/ECN/&apos;${emr_name}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response  docker.dlab-emr --action $Action</command>
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/terminate_hadoop_cluster/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/GPI/&apos;${gcp_project_id}&apos;/g&apos; | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/CZON/&apos;${Zone}&apos;/g&apos; | sed &apos;s/DCN/&apos;${dataproc_cluster_name}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sudo docker run -i -e &quot;conf_tag_resource_id=${Service_base_name}&quot; -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service docker.dlab-dataengine-service --action $Action</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

@@ -67,14 +67,14 @@ limitations under the License.
   margin: 0;
 }
 
-.dropdown-multiselect.statuses .dropdown-menu li a,
-.dropdown-multiselect.resources .dropdown-menu li a {
+.dropdown-multiselect.statuses .dropdown-menu .list-item,
+.dropdown-multiselect.resources .dropdown-menu .list-item {
   text-transform: capitalize;
 }
 
 .dropdown-multiselect .dropdown-menu a {
   padding: 10px;
-  padding-left: 35px;
+  padding-left: 45px;
   position: relative;
   font-weight: 300;
 }
@@ -91,20 +91,29 @@ limitations under the License.
   color: #35afd5;
 }
 
-.dropdown-multiselect .dropdown-menu .filter-actions .select_all:hover {
+.dropdown-multiselect .dropdown-menu .filter-actions i {
+    vertical-align: sub;
+    color: #35afd5;
+    font-size: 18px;
+    line-height: 26px;
+}
+
+.dropdown-multiselect .dropdown-menu .filter-actions .select_all:hover,
+.dropdown-multiselect .dropdown-menu .filter-actions .select_all:hover i {
   color: #4eaf3e;
   background: #f9fafb;
 }
 
-.dropdown-multiselect .dropdown-menu .filter-actions .deselect_all:hover {
+.dropdown-multiselect .dropdown-menu .filter-actions .deselect_all:hover,
+.dropdown-multiselect .dropdown-menu .filter-actions .deselect_all:hover i {
   color: #f1696e;
   background: #f9fafb;
 }
 
 .dropdown-multiselect .dropdown-menu a span {
   position: absolute;
-  top: 14px;
-  left: 14px;
+  top: 8px;
+  left: 12px;
   color: #35afd5;
 }
 

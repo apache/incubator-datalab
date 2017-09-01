@@ -38,7 +38,7 @@ def add_breeze_library_local(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/breeze_local_ensured'):
         try:
             breeze_tmp_dir = '/tmp/breeze_tmp_local/'
-            s3_jars_dir = '/opt/jars/'
+            jars_dir = '/opt/jars/'
             sudo('mkdir -p ' + breeze_tmp_dir)
             sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze_2.11/0.12/breeze_2.11-0.12.jar -O ' +
                  breeze_tmp_dir + 'breeze_2.11-0.12.jar')
@@ -56,7 +56,7 @@ def add_breeze_library_local(os_user):
                  breeze_tmp_dir + 'jcommon-1.0.24.jar')
             sudo('wget https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
                  breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
-            sudo('mv ' + breeze_tmp_dir + '* ' + s3_jars_dir)
+            sudo('mv ' + breeze_tmp_dir + '* ' + jars_dir)
         except:
             sys.exit(1)
 

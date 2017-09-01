@@ -72,7 +72,7 @@ def backup_keys():
         if args.keys == "all":
             local("cp {0}* {1}keys".format(keys_folder, temp_folder))
         else:
-            for key_file in args.keys:
+            for key_file in args.keys.split(","):
                 local("cp {0}{1} {2}keys".format(keys_folder, key_file, temp_folder))
     except:
         print "Backup keys failed."
@@ -89,7 +89,7 @@ def backup_certs():
                 local("sudo cp {0}{1} {2}certs".format(certs_folder, cert, temp_folder))
                 local("sudo chown {0}:{0} {1}certs/{2} ".format(os_user, temp_folder, cert))
         else:
-            for cert in args.certs:
+            for cert in args.certs.split(","):
                 local("cp {0}{1} {2}certs".format(certs_folder, cert, temp_folder))
                 local("sudo chown {0}:{0} {1}certs/{2} ".format(os_user, temp_folder, cert))
     except:
@@ -105,10 +105,10 @@ def backup_jars():
         elif args.jars == "all":
             for root, dirs, files in os.walk("{0}{1}".format(args.dlab_path, jars_folder)):
                 for service in dirs:
-                    local("cp -R {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
+                    local("cp -RP {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
         else:
             for service in args.jars.split(","):
-                local("cp -R {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
+                local("cp -RP {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
     except:
         print "Backup jars failed."
         pass

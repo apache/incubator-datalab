@@ -55,9 +55,11 @@ if __name__ == "__main__":
                                           '-dataengine-' + notebook_config['exploratory_name'] + '-' + \
                                           notebook_config['computational_name']
         notebook_config['master_node_name'] = notebook_config['cluster_name'] + '-master'
+        notebook_config['slave_node_name'] = notebook_config['cluster_name'] + '-slave'
         notebook_config['notebook_name'] = os.environ['notebook_instance_name']
         notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+        notebook_config['instance_count'] = int(os.environ['dataengine_instance_count'])
         try:
             notebook_config['spark_master_ip'] = AzureMeta().get_private_ip_address(
                 notebook_config['resource_group_name'], notebook_config['master_node_name'])
@@ -72,6 +74,10 @@ if __name__ == "__main__":
         else:
             application = os.environ['application']
     except Exception as err:
+        for i in range(notebook_config['instance_count']):
+            slave_name = notebook_config['slave_node_name'] + '-{}'.format(i+1)
+            AzureActions().remove_instance(notebook_config['resource_group_name'], slave_name)
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['master_node_name'])
         append_result("Failed to generate infrastructure names", str(err))
         sys.exit(1)
 
@@ -88,6 +94,10 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        for i in range(notebook_config['instance_count']):
+            slave_name = notebook_config['slave_node_name'] + '-{}'.format(i+1)
+            AzureActions().remove_instance(notebook_config['resource_group_name'], slave_name)
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['master_node_name'])
         append_result("Failed installing Dataengine kernels.", str(err))
         sys.exit(1)
 

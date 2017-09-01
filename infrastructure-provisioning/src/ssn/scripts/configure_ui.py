@@ -38,16 +38,13 @@ parser.add_argument('--cloud_provider', type=str, default='')
 parser.add_argument('--os_family', type=str, default='')
 parser.add_argument('--request_id', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
-parser.add_argument('--region', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
-parser.add_argument('--security_groups_ids', type=str, default='')
-parser.add_argument('--vpc_id', type=str, default='')
-parser.add_argument('--subnet_id', type=str, default='')
 parser.add_argument('--tag_resource_id', type=str, default='')
 parser.add_argument('--account_id', type=str, default='')
 parser.add_argument('--billing_bucket', type=str, default='')
 parser.add_argument('--report_path', type=str, default='')
 parser.add_argument('--billing_enabled', type=bool, default=False)
+parser.add_argument('--mongo_parameters', type=str, default='')
 args = parser.parse_args()
 
 dlab_conf_dir = args.dlab_path + 'conf/'
@@ -59,6 +56,17 @@ logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                     filename=local_log_filepath)
 mongo_passwd = id_generator()
 keystore_passwd = id_generator()
+
+
+def copy_ssn_libraries():
+    sudo('mkdir -p /usr/lib/python2.7/dlab/')
+    run('mkdir -p /tmp/dlab_libs/')
+    local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
+    run('chmod a+x /tmp/dlab_libs/*')
+    sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
+    if exists('/usr/lib64'):
+        sudo('ln -fs /usr/lib/python2.7/dlab /usr/lib64/python2.7/dlab')
+    return True
 
 
 def configure_mongo(mongo_passwd):
@@ -84,7 +92,9 @@ def configure_mongo(mongo_passwd):
         local('scp -i {} /root/files/mongo_roles.json {}:/tmp/mongo_roles.json'.format(args.keyfile,
                                                                                              env.host_string))
         sudo('mv /tmp/mongo_roles.json ' + args.dlab_path + 'tmp/')
-        sudo('python ' + args.dlab_path + 'tmp/configure_mongo.py --region {} --base_name {} --sg "{}" --vpc {} --subnet {} --dlab_path {} --os_user {} --os_family {} --tag_resource_id {}'.format(args.region, args.service_base_name, args.security_groups_ids.replace(" ", ""), args.vpc_id, args.subnet_id, args.dlab_path, args.os_user, args.os_family, args.tag_resource_id))
+        mongo_parameters = json.loads(args.mongo_parameters)
+        sudo("python " + args.dlab_path + "tmp/configure_mongo.py --dlab_path {} --mongo_parameters '{}'".format(
+            args.dlab_path, json.dumps(mongo_parameters)))
         return True
     except Exception as err:
         print err
@@ -103,6 +113,11 @@ if __name__ == "__main__":
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
+
+    print "Copying DLab libraries to SSN"
+    if not copy_ssn_libraries():
+        logging.error('Failed to copy DLab libraries')
+        sys.exit(1)
 
     print "Installing Supervisor"
     if not ensure_supervisor():

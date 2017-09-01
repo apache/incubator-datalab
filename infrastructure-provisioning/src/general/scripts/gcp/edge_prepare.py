@@ -35,9 +35,10 @@ if __name__ == "__main__":
 
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
-    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
+    edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     edge_conf['key_name'] = os.environ['conf_key_name']
     edge_conf['user_keyname'] = os.environ['edge_user_name']
+    edge_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     try:
         if os.environ['gcp_vpc_name'] == '':
             raise KeyError
@@ -46,7 +47,7 @@ if __name__ == "__main__":
     except KeyError:
         edge_conf['vpc_name'] = edge_conf['service_base_name'] + '-ssn-vpc'
     edge_conf['vpc_cidr'] = '10.10.0.0/16'
-    edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
+    edge_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['subnet_name'] = os.environ['gcp_subnet_name']
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
@@ -56,20 +57,19 @@ if __name__ == "__main__":
         # 'edge_user_name'] + '-edge-Role'
     edge_conf['notebook_service_account_name'] = 'dlabowner' # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
         # 'edge_user_name'] + '-nb-Role'
-    edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['ssn_instance_name'] = edge_conf['service_base_name'] + '-ssn'
-    edge_conf['bucket_name'] = (
-    edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
+    edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['ssn_instance_name'] = '{}-ssn'.format(edge_conf['service_base_name'])
+    edge_conf['bucket_name'] = '{0}-{1}-bucket'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['instance_size'] = os.environ['gcp_edge_instance_size']
-    edge_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+    edge_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     edge_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
-    edge_conf['static_address_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-ip'
-
-    edge_conf['fw_edge_ingress_public'] = edge_conf['instance_name'] + '-ingress-public'
-    edge_conf['fw_edge_ingress_internal'] = edge_conf['instance_name'] + '-ingress-internal'
-    edge_conf['notebook_firewall_target'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
-    edge_conf['fw_nb_ingress'] = edge_conf['notebook_firewall_target'] + '-ingress'
-    edge_conf['fw_nb_egress'] = edge_conf['notebook_firewall_target'] + '-egress'
+    edge_conf['static_address_name'] = '{0}-{1}-ip'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['fw_edge_ingress_public'] = '{}-ingress-public'.format(edge_conf['instance_name'])
+    edge_conf['fw_edge_ingress_internal'] = '{}-ingress-internal'.format(edge_conf['instance_name'])
+    edge_conf['notebook_firewall_target'] = '{0}-{1}-nb'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['dataproc_firewall_target'] = '{0}-{1}-dp'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['fw_nb_ingress'] = '{}-ingress'.format(edge_conf['notebook_firewall_target'])
+    edge_conf['fw_nb_egress'] = '{}-egress'.format(edge_conf['notebook_firewall_target'])
 
     # FUSE in case of absence of user's key
     fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
@@ -198,7 +198,10 @@ if __name__ == "__main__":
         print '[CREATE INGRESS FIREWALL FOR PRIVATE SUBNET]'
         firewall = {}
         firewall['name'] = edge_conf['fw_nb_ingress']
-        firewall['targetTags'] = [edge_conf['notebook_firewall_target']]
+        firewall['targetTags'] = [
+            edge_conf['notebook_firewall_target'],
+            edge_conf['dataproc_firewall_target']
+        ]
         firewall['sourceRanges'] = [
             edge_conf['private_subnet_cidr']
         ]

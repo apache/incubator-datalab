@@ -39,7 +39,7 @@ if __name__ == "__main__":
     # generating variables dictionary
     print 'Generating infrastructure names and tags'
     notebook_config = dict()
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
+    notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['zone'] = os.environ['gcp_zone']
 
@@ -60,7 +60,7 @@ if __name__ == "__main__":
         logging.info('[SETUP USER GIT CREDENTIALS]')
         print '[SETUP USER GIT CREDENTIALS]'
         notebook_config['notebook_ip'] = GCPMeta().get_private_ip_address(notebook_config['notebook_name'])
-        notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+        notebook_config['keyfile'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:

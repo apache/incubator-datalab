@@ -43,19 +43,19 @@ if __name__ == "__main__":
         billing_enabled = False
 
         ssn_conf = dict()
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
+        ssn_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
         ssn_conf['region'] = os.environ['gcp_region']
         ssn_conf['zone'] = os.environ['gcp_zone']
-        ssn_conf['ssn_bucket_name'] = (ssn_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
-        ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
+        ssn_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(ssn_conf['service_base_name'])
+        ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
         ssn_conf['instance_size'] = os.environ['ssn_instance_size']
-        ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
-        ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
+        ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
+        ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
         ssn_conf['subnet_cidr'] = '10.10.1.0/24'
-        ssn_conf['firewall_name'] = ssn_conf['service_base_name'] + '-ssn-firewall'
-        ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        ssn_conf['firewall_name'] = '{}-ssn-firewall'.format(ssn_conf['service_base_name'])
+        ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
-        ssn_conf['service_account_name'] = ssn_conf['service_base_name'] + '-ssn-sa'
+        ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name'])
         ssn_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
         ssn_conf['role_name'] = 'dlab_ssn_role'
 
@@ -180,11 +180,11 @@ if __name__ == "__main__":
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
-                             {"name": "rstudio", "tag": "latest"},
-                             {"name": "zeppelin", "tag": "latest"},
-                             {"name": "tensor", "tag": "latest"},
-                             {"name": "deeplearning", "tag": "latest"},
-                             {"name": "dataproc", "tag": "latest"}]
+                             # {"name": "rstudio", "tag": "latest"},
+                             # {"name": "zeppelin", "tag": "latest"},
+                             # {"name": "tensor", "tag": "latest"},
+                             # {"name": "deeplearning", "tag": "latest"},
+                             {"name": "dataengine-service", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
             format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),
                    os.environ['conf_os_family'], ssn_conf['dlab_ssh_user'], os.environ['ssn_dlab_path'],
@@ -209,15 +209,24 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        mongo_parameters = {
+            "gcp_region": ssn_conf['region'],
+            "gcp_vpc_name": ssn_conf['vpc_name'],
+            "gcp_subnet_name": ssn_conf['subnet_name'],
+            "conf_service_base_name": ssn_conf['service_base_name'],
+            "gcp_security_group_name": ssn_conf['firewall_name'],
+            "conf_os_family": os.environ['conf_os_family'],
+            "conf_tag_resource_id": os.environ['conf_tag_resource_id'],
+            "conf_key_dir": "/root/keys"
+        }
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --service_base_name {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {} --mongo_parameters '{}'". \
             format(instance_hostname, ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
                    os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'],
-                   ssn_conf['region'], ssn_conf['service_base_name'], ssn_conf['firewall_name'], ssn_conf['vpc_name'],
-                   ssn_conf['subnet_name'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
+                   ssn_conf['service_base_name'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
                    os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],
-                   billing_enabled)
+                   billing_enabled, json.dumps(mongo_parameters))
 
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))

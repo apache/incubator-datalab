@@ -44,7 +44,6 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.resources.dto.BillingFilterFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryGetLibsFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
@@ -220,25 +219,6 @@ public class InfrastructureProvisionResource implements DockerAPI {
         // Always necessary send OK for status request
         return Response.ok().build();
     }
-
-    
-    /** Returns the billing report.
-     * @param userInfo user info.
-     * @param formDTO filter for report data.
-     */
-    @POST
-    @Path("/billing")
-    public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilterFormDTO formDTO) {
-        LOGGER.trace("Loading billing report for user {} with filter {}", userInfo.getName(), formDTO);
-        try {
-        	return billingDAO.getReport(userInfo, formDTO);
-        } catch (Throwable t) {
-        	LOGGER.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), formDTO, t);
-            throw new DlabException("Cannot load billing report: " + t.getLocalizedMessage(), t);
-        }
-    }
-    
-
 
     /** Return the image name without suffix version.
      * @param imageName the name of image.

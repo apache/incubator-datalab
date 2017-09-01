@@ -23,15 +23,15 @@ ARG OS
 ARG CLOUD
 
 COPY zeppelin/ /root/
-COPY general/scripts/${CLOUD}/zeppelin_* /root/scripts/
 COPY general/scripts/os/* /root/scripts/
-COPY zeppelin/scripts/create_configs.py /root/scripts/
+COPY general/scripts/${CLOUD}/zeppelin_* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
-COPY general/templates/${CLOUD}/emr_interpreter_livy.json /root/templates/
-COPY general/templates/${CLOUD}/emr_interpreter_spark.json /root/templates/
-COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
+COPY general/templates/${CLOUD}/dataengine-service_interpreter_* /root/templates/
+COPY general/templates/${CLOUD}/interpreter_* /root/templates/
+COPY general/templates/${CLOUD}/dataengine_interpreter_livy.json /root/templates/
+COPY general/templates/${CLOUD}/dataengine_interpreter_spark.json /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
-COPY general/files/os/notebook_local_jars.tar.gz /root/files/
+COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

@@ -59,8 +59,10 @@ def restore_prepare():
             head, tail = os.path.split(args.file)
             temp_folder = "/tmp/{}/".format(tail.split(".")[0])
             if os.path.isdir(temp_folder):
-                print "Temporary folder with this backup already exist. Use folder path in --file key."
+                print "Temporary folder with this backup already exist."
+                print "Use folder path '{}' in --file key".format(temp_folder)
                 raise Exception
+            print "Backup acrhive will be unpacked to: {}".format(temp_folder)
             local("mkdir {}".format(temp_folder))
             local("tar -xf {0} -C {1}".format(backup_file, temp_folder))
         elif os.path.isdir(backup_file):
@@ -92,6 +94,8 @@ def restore_prepare():
         print "Failed to stop all services. Can not continue."
         sys.exit(1)
 
+    return temp_folder
+
 
 def restore_configs():
     try:
@@ -103,7 +107,7 @@ def restore_configs():
         if args.configs == "all":
             configs = [files for root, dirs, files in os.walk("{0}{1}".format(temp_folder, conf_folder))][0]
         else:
-            configs = args.config.split(",")
+            configs = args.configs.split(",")
         print "Restore configs: ", configs
 
         if args.configs != "skip":
@@ -187,7 +191,7 @@ def restore_certs():
                         if not filecmp.cmp("{0}certs/{1}".format(temp_folder, filename), "{0}{1}".format(certs_folder, filename)):
                             if ask("Cert {} was changed, rewrite it?".format(filename)):
                                 local("sudo cp -f {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename))
-                                local("sudo chown {0}:{0} {1}certs/{2}".format("root", certs_folder, filename))
+                                local("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename))
                             else:
                                 print "Cert {} was skipped.".format(filename)
                         else:
@@ -195,7 +199,7 @@ def restore_certs():
                     else:
                         print "Cert {} does not exist. Creating.".format(filename)
                         local("sudo cp {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename))
-                        local("sudo chown {0}:{0} {1}certs/{2}".format("root", certs_folder, filename))
+                        local("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename))
     except:
         print "Restore certs failed."
         pass
@@ -212,7 +216,7 @@ def restore_jars():
             jars = [dirs for root, dirs, files in os.walk("{}jars".format(temp_folder))][0]
         else:
             jars = args.jars.split(",")
-        print "Restore configs: ", jars
+        print "Restore jars: ", jars
 
         if args.jars != "skip":
             for service in jars:
@@ -226,13 +230,14 @@ def restore_jars():
                                 destfile = "{0}{1}{2}/{3}".format(args.dlab_path, jars_folder, service, filename)
                                 if not filecmp.cmp(backupfile, destfile):
                                     if ask("Jar {} was changed, rewrite it?".format(filename)):
-                                        local("cp -f {0} {1}".format(backupfile, destfile))
+                                        local("cp -fP {0} {1}".format(backupfile, destfile))
                                     else:
                                         print "Jar {} was skipped.".format(destfile)
                                 else:
                                     print "Jar {} was not changed. Skipped.".format(filename)
                             else:
-                                local("cp {0}jars/{1}/{2} {3}{4}{1}".format(temp_folder, service, filename, args.dlab_path, jars_folder))
+                                print "Jar {} does not exist. Creating.".format(filename)
+                                local("cp -P {0}jars/{1}/{2} {3}{4}{1}".format(temp_folder, service, filename, args.dlab_path, jars_folder))
     except:
         print "Restore jars failed."
         pass
@@ -242,24 +247,19 @@ def restore_database():
     try:
         print "Restore database: ", args.db
         if args.db:
-            if ask("Do you want to drop existing database and restore another from backup?"):
-                ssn_conf = open(args.dlab_path + conf_folder + 'ssn.yml').read()
-                data = yaml.load("mongo" + ssn_conf.split("mongo")[-1])
-                try:
-                    with settings(hide('running')):
-                        print "Try to drop existing database."
-                        local("mongo --host {0} --port {1} --username {2} --password '{3}' {4} --eval 'db.dropDatabase();'" \
-                            .format(data['mongo']['host'], data['mongo']['port'], data['mongo']['username'],
-                                    data['mongo']['password'], data['mongo']['database']))
-                except:
-                    print "Failed to drop existing database. Restoring is not possible."
-                    print "See: https://docs.mongodb.com/manual/reference/program/mongorestore/"
-                    raise Exception
-                print "Restoring database from backup"
-                local("mongorestore --host {0} --port {1} --archive={2}mongo.db" \
-                      .format(data['mongo']['host'], data['mongo']['port'], temp_folder))
+            if not os.path.isfile("{0}{1}".format(temp_folder, "mongo.db")):
+                print "File {} are not available in this backup.".format("mongo.db")
+                raise Exception
             else:
-                print "Restore database was skipped."
+                if ask("Do you want to drop existing database and restore another from backup?"):
+                    ssn_conf = open(args.dlab_path + conf_folder + 'ssn.yml').read()
+                    data = yaml.load("mongo" + ssn_conf.split("mongo")[-1])
+                    print "Restoring database from backup"
+                    local("mongorestore --drop --host {0} --port {1} --archive={2}/mongo.db --username {3} --password '{4}' --authenticationDatabase={5}" \
+                            .format(data['mongo']['host'], data['mongo']['port'], temp_folder,
+                                    data['mongo']['username'], data['mongo']['password'], data['mongo']['database']))
+        else:
+            print "Restore database was skipped."
     except:
         print "Restore database failed."
         pass
@@ -289,7 +289,7 @@ if __name__ == "__main__":
     temp_folder = ""
 
     # Backup file section
-    restore_prepare()
+    temp_folder = restore_prepare()
 
     # Restore section
     restore_configs()
