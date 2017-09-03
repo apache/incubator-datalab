@@ -21,10 +21,9 @@ from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
+from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
 from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.storage.blob import BlockBlobService
-from azure.storage import CloudStorageAccount
-from azure.storage.blob.models import ContentSettings, PublicAccess
 import azure.common.exceptions as AzureExceptions
 import meta_lib
 import logging
@@ -40,6 +39,7 @@ class AzureMeta:
         self.resource_client = get_client_from_auth_file(ResourceManagementClient)
         self.network_client = get_client_from_auth_file(NetworkManagementClient)
         self.storage_client = get_client_from_auth_file(StorageManagementClient)
+        self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
         self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
 
     def get_resource_group(self, resource_group_name):
@@ -147,6 +147,39 @@ class AzureMeta:
             logging.info(
                 "Unable to get instance: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to get instance",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def get_datalake(self, resource_group_name, datalake_name):
+        try:
+            result = self.resource_client.resource_groups.get(
+                resource_group_name,
+                datalake_name
+            )
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get Data Lake account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Data Lake account",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def list_datalakes(self, resource_group_name):
+        try:
+            result = self.resource_client.resource_groups.list_by_resource_group(resource_group_name)
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to list Data Lake accounts: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to list Data Lake accounts",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)

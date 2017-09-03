@@ -23,6 +23,8 @@ from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
 from azure.mgmt.authorization import AuthorizationManagementClient
+from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
+from azure.datalake.store import core, lib, multithread
 from azure.storage import CloudStorageAccount
 from azure.storage.blob import BlockBlobService
 from azure.storage.blob import ContentSettings
@@ -45,6 +47,7 @@ class AzureActions:
         self.resource_client = get_client_from_auth_file(ResourceManagementClient)
         self.network_client = get_client_from_auth_file(NetworkManagementClient)
         self.storage_client = get_client_from_auth_file(StorageManagementClient)
+        self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
         self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
 
     def create_resource_group(self, resource_group_name, region):
@@ -191,6 +194,71 @@ class AzureActions:
             logging.info(
                 "Unable to remove security group: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to remove security group",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def create_datalake_store(self, resource_group_name, datalake_name, region):
+        try:
+            if region != 'eastus2' or region != 'centralus' or region != 'northeurope':
+                print "Data Lake currently does not support {} region".format(region)
+                raise Exception
+            result = self.datalake_client.account.create(
+                resource_group_name,
+                datalake_name,
+                {
+                    "location": region,
+                    "encryption_state": "Enable",
+                    "encryption_config": {
+                        "type": "ServiceManaged"
+                    }
+                }
+            ).wait()
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create Data Lake store: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Data Lake store",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def delete_datalake_store(self, resource_group_name, datalake_name):
+        try:
+            result = self.datalake_client.account.delete(
+                resource_group_name,
+                datalake_name
+            ).wait()
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to remove Data Lake store: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove Data Lake store",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def create_datalake_directory(self, resource_group_name, datalake_name, region):
+        try:
+            if region != 'eastus2' or region != 'centralus' or region != 'northeurope':
+                print "Data Lake currently does not support {} region".format(region)
+                raise Exception
+            result = self.datalake_client.account.create(
+                resource_group_name,
+                datalake_name,
+                {
+                    "location": region,
+                    "encryption_state": "Enable",
+                    "encryption_config": {
+                        "type": "ServiceManaged"
+                    }
+                }
+            ).wait()
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create Data Lake store: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Data Lake store",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
