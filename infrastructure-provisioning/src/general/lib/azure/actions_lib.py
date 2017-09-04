@@ -249,6 +249,20 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def remove_datalake_directory(self, datalake_name, dir_name):
+        try:
+            token = lib.auth(tenant_id='', client_secret='', client_id='')
+            adlsFileSystemClient = core.AzureDLFileSystem(token, store_name=datalake_name)
+            result = adlsFileSystemClient.rm(dir_name, recursive=True)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Data Lake directory",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def create_storage_account(self, resource_group_name, account_name, region):
         try:
             result = self.storage_client.storage_accounts.create(
