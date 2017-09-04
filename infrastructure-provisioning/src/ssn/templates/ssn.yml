@@ -24,7 +24,7 @@
 <#assign TRUST_STORE_PASSWORD="changeit">
 
 # Available options are aws, azure, gcp
-cloudProvider: azure
+cloudProvider: CLOUD_PROVIDER
 
 #Switch on/off developer mode here
 <#assign DEV_MODE="false">
