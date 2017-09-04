@@ -20,7 +20,7 @@ package com.epam.dlab.backendapi.domain.contracts;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
-import com.epam.dlab.dto.keyload.UploadFileResultDTO;
+import com.epam.dlab.dto.aws.keyload.UploadFileResultAws;
 import com.epam.dlab.exceptions.DlabException;
 
 /** Interface for upload process the user key to notebook.
@@ -43,5 +43,5 @@ public interface IKeyUploader {
 	/** Event called when the user key has been uploaded to notebook.
 	 * @param result info about an upload operation.
 	 */
-    void onKeyUploadComplete(UploadFileResultDTO result);
+    void onKeyUploadComplete(UploadFileResultAws result);
 }

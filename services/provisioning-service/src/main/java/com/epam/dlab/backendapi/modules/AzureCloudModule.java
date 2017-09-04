@@ -16,24 +16,14 @@
 
 package com.epam.dlab.backendapi.modules;
 
-import com.epam.dlab.backendapi.resources.callback.aws.EdgeCallbackAws;
-import com.epam.dlab.backendapi.resources.callback.aws.KeyUploaderCallbackAws;
-import com.epam.dlab.backendapi.service.AwsBillingService;
-import com.epam.dlab.backendapi.service.BillingService;
+import com.epam.dlab.backendapi.resources.azure.EdgeResourceAzure;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 
-public class AwsModule extends CloudModule {
-    public AwsModule(JerseyEnvironment jerseyEnvironment, Injector injector) {
+public class AzureCloudModule extends CloudModule {
+    public AzureCloudModule(JerseyEnvironment jerseyEnvironment, Injector injector) {
         super(jerseyEnvironment, injector);
-        jerseyEnvironment.register(injector.getInstance(EdgeCallbackAws.class));
-        jerseyEnvironment.register(injector.getInstance(KeyUploaderCallbackAws.class));
-    }
-
-    @Override
-    protected void configure() {
-        bind(BillingService.class).to(AwsBillingService.class);
-        expose(BillingService.class);
+        jerseyEnvironment.register(injector.getInstance(EdgeResourceAzure.class));
     }
 }

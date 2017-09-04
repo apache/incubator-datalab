@@ -31,6 +31,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.cloud.CloudProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +71,8 @@ public class GitCredsResource implements ExploratoryAPI {
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
+    @Inject
+    private SelfServiceApplicationConfiguration configuration;
 
     /** Update GIT credentials for user.
      * @param userInfo user info.
@@ -87,7 +91,7 @@ public class GitCredsResource implements ExploratoryAPI {
         	
         	for (UserInstanceDTO instance : instances) {
 				if (UserInstanceStatus.RUNNING == UserInstanceStatus.of(instance.getStatus())) {
-                	ExploratoryGitCredsUpdateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
+                	ExploratoryGitCredsUpdateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class, configuration.getCloudProvider())
                 			.withNotebookImage(instance.getImageName())
                 			.withApplicationName(ResourceUtils.getApplicationNameFromImage(instance.getImageName()))
                         	.withNotebookInstanceName(instance.getExploratoryId())

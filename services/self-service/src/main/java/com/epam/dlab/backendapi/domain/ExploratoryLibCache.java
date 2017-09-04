@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +49,9 @@ public class ExploratoryLibCache implements Managed, Runnable {
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
+
+    @Inject
+    private SelfServiceApplicationConfiguration configuration;
 	
     /** Instance of cache.
      */
@@ -165,7 +169,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	private void requestLibList(UserInfo userInfo, UserInstanceDTO userInstance) {
 		try {
 			LOGGER.debug("Ask docker for the list of libraries for user {} and exploratory {}", userInfo.getName(), userInstance.getExploratoryId());
-			ExploratoryActionDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class);
+			ExploratoryActionDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class, configuration.getCloudProvider());
             dto.withNotebookImage(userInstance.getImageName())
             	.withNotebookInstanceName(userInstance.getExploratoryId())
             	.withApplicationName(ResourceUtils.getApplicationNameFromImage(userInstance.getImageName()))
