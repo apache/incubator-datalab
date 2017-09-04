@@ -99,7 +99,10 @@ if __name__ == "__main__":
                                                os.environ['edge_user_name'] + "-nb-Profile"
         notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
             'edge_user_name'] + "-nb-sg"
-
+        if os.environ['application'] == 'deeplearning' or os.environ['application'] == 'tensor':
+            notebook_config['storage_account_type'] = 'Standard_LRS'
+        else:
+            notebook_config['storage_account_type'] = 'Premium_LRS'
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
             sudo_group = 'sudo'
@@ -132,13 +135,13 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
         print '[CREATE NOTEBOOK INSTANCE]'
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {}". \
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --storage_account_type {}". \
             format(notebook_config['instance_name'], notebook_config['instance_size'], notebook_config['region'],
                    notebook_config['vpc_name'], notebook_config['network_interface_name'],
                    notebook_config['security_group_name'], notebook_config['private_subnet_name'],
                    notebook_config['service_base_name'], notebook_config['resource_group_name'], initial_user,
                    'None', notebook_config['public_ssh_key'], '30', 'notebook',
-                   os.environ['edge_user_name'])
+                   os.environ['edge_user_name'], notebook_config['storage_account_type'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

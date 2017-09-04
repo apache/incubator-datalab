@@ -41,6 +41,7 @@ parser.add_argument('--security_group_name', type=str, default='')
 parser.add_argument('--instance_type', type=str, default='')
 parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--resource_group_name', type=str, default='')
+parser.add_argument('--storage_account_type', type=str, default='')
 args = parser.parse_args()
 
 
@@ -82,7 +83,8 @@ if __name__ == "__main__":
                 AzureActions().create_instance(args.region, args.instance_size, args.service_base_name,
                                                args.instance_name, args.dlab_ssh_user_name, args.public_key,
                                                network_interface_id, args.resource_group_name, args.primary_disk_size,
-                                               args.instance_type, args.user_name, create_option, disk_id)
+                                               args.instance_type, args.user_name, create_option, disk_id,
+                                               args.storage_account_type)
         except:
             sys.exit(1)
     else:
