@@ -389,7 +389,7 @@ class AzureActions:
 
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
-                        user_name='', create_option='fromImage', disk_id='', storage_account_type='Premium_LRS'):
+                        user_name='', create_option='fromImage', disk_id='', instance_storage_account_type='Premium_LRS'):
         try:
             if instance_type == 'ssn':
                 parameters = {
@@ -410,7 +410,7 @@ class AzureActions:
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'managed_disk': {
-                                'storage_account_type': storage_account_type
+                                'storage_account_type': instance_storage_account_type
                             }
                         }
                     },
@@ -455,7 +455,7 @@ class AzureActions:
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
                                 'managed_disk': {
-                                    'storage_account_type': storage_account_type
+                                    'storage_account_type': instance_storage_account_type
                                 }
                             }
                         },
@@ -494,7 +494,7 @@ class AzureActions:
                                 'disk_size_gb': int(primary_disk_size),
                                 'managed_disk': {
                                     'id': disk_id,
-                                    'storage_account_type': storage_account_type
+                                    'storage_account_type': instance_storage_account_type
                                 }
                             }
                         },
@@ -525,7 +525,7 @@ class AzureActions:
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'managed_disk': {
-                                'storage_account_type': storage_account_type
+                                'storage_account_type': instance_storage_account_type
                             }
                         },
                         'data_disks': [
@@ -580,7 +580,7 @@ class AzureActions:
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'managed_disk': {
-                                'storage_account_type': storage_account_type
+                                'storage_account_type': instance_storage_account_type
                             }
                         }
                     },

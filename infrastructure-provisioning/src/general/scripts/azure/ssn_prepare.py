@@ -54,6 +54,7 @@ if __name__ == "__main__":
         ssn_conf['security_group_name'] = ssn_conf['instance_name'] + '-sg'
         ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
+        ssn_conf['instance_storage_account_type'] = 'Premium_LRS'
         ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
     except:
         print "Failed to generate variables dictionary."
@@ -258,11 +259,12 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {}".\
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --instance_storage_account_type {}".\
             format(ssn_conf['instance_name'], os.environ['azure_ssn_instance_size'], ssn_conf['region'], os.environ['azure_vpc_name'],
                    ssn_conf['network_interface_name'], os.environ['azure_security_group_name'], os.environ['azure_subnet_name'],
                    ssn_conf['service_base_name'], os.environ['azure_resource_group_name'], initial_user,
-                   ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '30', 'ssn')
+                   ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '30', 'ssn',
+                   ssn_conf['instance_storage_account_type'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

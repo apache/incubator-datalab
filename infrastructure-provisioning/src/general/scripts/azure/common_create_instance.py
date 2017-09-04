@@ -41,7 +41,7 @@ parser.add_argument('--security_group_name', type=str, default='')
 parser.add_argument('--instance_type', type=str, default='')
 parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--resource_group_name', type=str, default='')
-parser.add_argument('--storage_account_type', type=str, default='')
+parser.add_argument('--instance_storage_account_type', type=str, default='')
 args = parser.parse_args()
 
 

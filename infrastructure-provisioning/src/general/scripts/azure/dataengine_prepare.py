@@ -93,6 +93,7 @@ if __name__ == "__main__":
         data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
+        data_engine['instance_storage_account_type'] = 'Premium_LRS'
     except Exception as err:
         print "Failed to generate variables dictionary."
         append_result("Failed to generate variables dictionary. Exception:" + str(err))
@@ -108,12 +109,13 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE MASTER NODE]')
         print '[CREATE MASTER NODE]'
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {}". \
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {}". \
             format(data_engine['master_node_name'], data_engine['master_size'], data_engine['region'],
                    data_engine['vpc_name'], data_engine['master_network_interface_name'],
                    data_engine['master_security_group_name'], data_engine['private_subnet_name'],
                    data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
-                   data_engine['public_ssh_key'], '30', 'dataengine', os.environ['edge_user_name'])
+                   data_engine['public_ssh_key'], '30', 'dataengine', os.environ['edge_user_name'],
+                   data_engine['instance_storage_account_type'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
