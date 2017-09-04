@@ -54,7 +54,7 @@ public class EdgeResourceAzure extends EdgeService {
     @Path("/create")
     public String create(@Auth UserInfo ui, UploadFileAzure dto) throws IOException, InterruptedException {
         saveKeyToFile(dto.getEdge().getEdgeUserName(), dto.getContent());
-        return action(ui.getName(), dto.getEdge(), dto.getEdge().getAwsIamUser(), KEY_LOADER, DockerAction.CREATE);
+        return action(ui.getName(), dto.getEdge(), dto.getEdge().getAzureIamUser(), KEY_LOADER, DockerAction.CREATE);
     }
 
     @POST
