@@ -16,13 +16,11 @@
 
 package com.epam.dlab.backendapi.resources.callback.azure;
 
-import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.callback.EdgeCallback;
 import com.epam.dlab.dto.aws.keyload.UploadFileResultAws;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
-import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path(ApiCallbacks.EDGE)
+@Path("/infrastructure/edge")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class EdgeCallbackAzure extends EdgeCallback {

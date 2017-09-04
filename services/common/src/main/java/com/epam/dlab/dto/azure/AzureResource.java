@@ -21,13 +21,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 public class AzureResource<T extends AzureResource<?>> extends ResourceSysBaseDTO<T> {
+    @SuppressWarnings("unchecked")
+    private final T self = (T) this;
     @JsonProperty("azure_region")
     private String azureRegion;
-    @JsonProperty("aws_iam_user")
+    @JsonProperty("azure_iam_user")
     private String azureIamUser;
-
-    @SuppressWarnings("unchecked")
-    private final T self = (T)this;
+    @JsonProperty("azure_vpc_name")
+    private String azureVpcName;
+    @JsonProperty("azure_subnet_name")
+    private String azureSubnetName;
+    @JsonProperty("azure_resource_group_name")
+    private String azureResourceGroupName;
+    @JsonProperty("azure_security_group_name")
+    private String azureSecurityGroupName;
 
     public String getAzureRegion() {
         return azureRegion;
@@ -47,11 +54,51 @@ public class AzureResource<T extends AzureResource<?>> extends ResourceSysBaseDT
         return self;
     }
 
+    public String getAzureVpcName() {
+        return azureVpcName;
+    }
+
+    public T withAzureVpcName(String azureVpcName) {
+        this.azureVpcName = azureVpcName;
+        return self;
+    }
+
+    public String getAzureSubnetName() {
+        return azureSubnetName;
+    }
+
+    public T withAzureSubnetName(String azureSubnetName) {
+        this.azureSubnetName = azureSubnetName;
+        return self;
+    }
+
+    public String getAzureSecurityGroupName() {
+        return azureSecurityGroupName;
+    }
+
+    public T withAzureSecurityGroupName(String azureSecurityGroupName) {
+        this.azureSecurityGroupName = azureSecurityGroupName;
+        return self;
+    }
+
+    public String getAzureResourceGroupName() {
+        return azureResourceGroupName;
+    }
+
+    public T withAzureResourceGroupName(String azureResourceGroupName) {
+        this.azureResourceGroupName = azureResourceGroupName;
+        return self;
+    }
+
     @Override
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
         return MoreObjects.toStringHelper(self)
                 .add("azureRegion", azureRegion)
-                .add("azureIamUser", azureIamUser);
+                .add("azureIamUser", azureIamUser)
+                .add("azureVpcName", azureVpcName)
+                .add("azureSubnetName", azureSubnetName)
+                .add("azureSecurityGroupName", azureSecurityGroupName)
+                .add("azureResourceGroupName", azureResourceGroupName);
     }
 
     @Override

@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab;
 
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.mongo.MongoServiceFactory;
 import com.epam.dlab.rest.client.RESTServiceFactory;
 import com.epam.dlab.constants.ServiceConsts;
@@ -28,6 +29,10 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 public class ServiceConfiguration extends Configuration {
+
+    @NotNull
+    @JsonProperty
+    private CloudProvider cloudProvider;
 
     @Valid
     @JsonProperty
@@ -53,6 +58,9 @@ public class ServiceConfiguration extends Configuration {
     @JsonProperty(ServiceConsts.SELF_SERVICE_NAME)
     private RESTServiceFactory selfFactory = new RESTServiceFactory();
 
+    public CloudProvider getCloudProvider() {
+        return cloudProvider;
+    }
 
     /** Returns <b>true</b> if service is a mock. */
     public boolean isDevMode() {

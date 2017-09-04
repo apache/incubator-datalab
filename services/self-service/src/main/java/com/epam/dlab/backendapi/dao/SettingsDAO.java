@@ -88,6 +88,10 @@ public class SettingsDAO extends BaseDAO {
         return getSetting(AZURE_VPC_NAME);
     }
 
+    public String getAzureSecurityGroupName() {
+        return getSetting(AZURE_SECURITY_GROUP_NAME);
+    }
+
 
     /** Returns the value of property from Mongo database.
      * @param setting the name of property.

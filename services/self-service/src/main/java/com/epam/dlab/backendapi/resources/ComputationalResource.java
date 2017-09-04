@@ -136,7 +136,7 @@ public class ComputationalResource implements ComputationalAPI {
         if (isAdded) {
             try {
             	UserInstanceDTO instance = infExpDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
-                ComputationalCreateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ComputationalCreateDTO.class, CloudProvider.AWS)
+                ComputationalCreateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ComputationalCreateDTO.class, configuration.getCloudProvider())
                         .withExploratoryName(formDTO.getNotebookName())
                         .withNotebookTemplateName(instance.getTemplateName())
                         .withApplicationName(getApplicationName(instance.getImageName()))
@@ -215,7 +215,7 @@ public class ComputationalResource implements ComputationalAPI {
         try {
             String exploratoryId = infExpDAO.fetchExploratoryId(userInfo.getName(), exploratoryName);
             String computationalId = infCompDAO.fetchComputationalId(userInfo.getName(), exploratoryName, computationalName);
-            ComputationalTerminateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class, CloudProvider.AWS)
+            ComputationalTerminateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class, configuration.getCloudProvider())
                     .withExploratoryName(exploratoryName)
                     .withComputationalName(computationalName)
                     .withNotebookInstanceName(exploratoryId)

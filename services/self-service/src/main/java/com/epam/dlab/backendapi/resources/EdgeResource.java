@@ -27,16 +27,11 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
+import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.cloud.CloudProvider;
-import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
-import com.epam.dlab.dto.aws.keyload.UploadFileAws;
 import com.epam.dlab.dto.azure.AzureResource;
-import com.epam.dlab.dto.azure.edge.EdgeCreateAzure;
-import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
-import com.epam.dlab.dto.base.UploadFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +42,8 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
-import com.epam.dlab.dto.aws.keyload.UploadFileResultAws;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.epam.dlab.rest.contracts.EdgeAPI;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -74,6 +67,9 @@ public class EdgeResource implements EdgeAPI {
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
+
+    @Inject
+    private SelfServiceApplicationConfiguration configuration;
 
     /** Starts EDGE node for user.
      * @param userInfo user info.
@@ -131,7 +127,7 @@ public class EdgeResource implements EdgeAPI {
     private String action(UserInfo userInfo, String action, UserInstanceStatus status) throws DlabException {
         try {
         	keyDAO.updateEdgeStatus(userInfo.getName(), status.toString());
-        	ResourceSysBaseDTO<?> dto = buildResourceSysBase(userInfo, CloudProvider.AWS);
+        	ResourceSysBaseDTO<?> dto = buildResourceSysBase(userInfo, configuration.getCloudProvider());
             String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return uuid;
@@ -148,7 +144,9 @@ public class EdgeResource implements EdgeAPI {
             case AZURE:
                 return ResourceUtils.newResourceSysBaseDTO(userInfo, AzureResource.class, cloudProvider)
                         .withAzureRegion(settingsDAO.getAzureRegion())
+                        .withAzureResourceGroupName(settingsDAO.getAzureResourceGroupName())
                         .withAzureIamUser(userInfo.getName());
+
             case GCP:
             default:
                 throw new DlabException("Unknown cloud provider " + cloudProvider);

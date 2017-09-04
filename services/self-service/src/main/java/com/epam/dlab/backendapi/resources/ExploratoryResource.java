@@ -40,7 +40,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +101,8 @@ public class ExploratoryResource implements ExploratoryAPI {
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
+    @Inject
+    private SelfServiceApplicationConfiguration configuration;
 
     /**
      * Creates the exploratory environment for user.
@@ -130,7 +132,7 @@ public class ExploratoryResource implements ExploratoryAPI {
                     .withTemplateName(formDTO.getTemplateName())
                     .withShape(formDTO.getShape()));
             ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
-            ExploratoryCreateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryCreateDTO.class, CloudProvider.AWS)
+            ExploratoryCreateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryCreateDTO.class, configuration.getCloudProvider())
                     .withExploratoryName(formDTO.getName())
                     .withNotebookImage(formDTO.getImage())
                     .withApplicationName(ResourceUtils.getApplicationNameFromImage(formDTO.getImage()))
@@ -248,8 +250,8 @@ public class ExploratoryResource implements ExploratoryAPI {
 
             UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
             ExploratoryActionDTO<?> dto = (status == STARTING ?
-            		ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class, CloudProvider.AWS) :
-            		ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class, CloudProvider.AWS));
+            		ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class, configuration.getCloudProvider()) :
+            		ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class, configuration.getCloudProvider()));
             dto.withNotebookImage(userInstance.getImageName())
             	.withNotebookInstanceName(userInstance.getExploratoryId())
             	.withExploratoryName(exploratoryName);
@@ -303,7 +305,7 @@ public class ExploratoryResource implements ExploratoryAPI {
         		throw new DlabException("Exploratory " + formDTO.getNotebookName() + " is not running");
         	}
             List<LibInstallDTO> libs = new ArrayList<>();
-        	ExploratoryLibInstallDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryLibInstallDTO.class, CloudProvider.AWS)
+        	ExploratoryLibInstallDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryLibInstallDTO.class, configuration.getCloudProvider())
         			.withNotebookImage(userInstance.getImageName())
         			.withApplicationName(ResourceUtils.getApplicationNameFromImage(userInstance.getImageName()))
                 	.withNotebookInstanceName(userInstance.getExploratoryId())

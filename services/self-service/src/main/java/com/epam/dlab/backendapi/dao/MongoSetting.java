@@ -47,7 +47,8 @@ public enum MongoSetting {
     AZURE_REGION("azure_region"),
     AZURE_RESOURCE_GROUP_NAME("azure_resource_group_name"),
     AZURE_SUBNET_NAME("azure_subnet_name"),
-    AZURE_VPC_NAME("azure_vpc_name");
+    AZURE_VPC_NAME("azure_vpc_name"),
+    AZURE_SECURITY_GROUP_NAME("azure_security_group_name");
 
 
     private String id;

@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.azure.edge;
+package com.epam.dlab.cloud;
 
-import com.epam.dlab.dto.azure.AzureResource;
-import com.google.common.base.MoreObjects;
+import com.google.inject.Injector;
+import com.google.inject.PrivateModule;
+import io.dropwizard.jersey.setup.JerseyEnvironment;
 
-public class EdgeCreateAzure extends AzureResource<EdgeCreateAzure> {
+public abstract class CloudModule extends PrivateModule {
+    protected JerseyEnvironment jerseyEnvironment;
+    protected Injector injector;
 
-    @Override
-    public MoreObjects.ToStringHelper toStringHelper(Object self) {
-        return MoreObjects.toStringHelper(self);
+    public CloudModule(JerseyEnvironment jerseyEnvironment, Injector injector) {
+        this.jerseyEnvironment = jerseyEnvironment;
+        this.injector = injector;
     }
 
     @Override
-    public String toString() {
-        return toStringHelper(this).toString();
+    protected void configure() {
     }
 }

@@ -18,6 +18,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -74,6 +75,8 @@ public class KeyUploaderResource implements EdgeAPI {
     @Inject
     @Named(PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
+    @Inject
+    private SelfServiceApplicationConfiguration configuration;
 
     /**
      * Finds and returns the status of the user key.
@@ -140,7 +143,7 @@ public class KeyUploaderResource implements EdgeAPI {
         LOGGER.debug("Recreating edge node for user {}", userInfo.getName());
 
         try {
-            return Response.ok(startEdgeRecovery(userInfo, CloudProvider.AWS)).build();
+            return Response.ok(startEdgeRecovery(userInfo, configuration.getCloudProvider())).build();
         } catch (Throwable e) {
             LOGGER.error("Could not create the EDGE node for user {}", userInfo.getName(), e);
             keyDAO.updateEdgeStatus(userInfo.getName(), UserInstanceStatus.FAILED.toString());
@@ -162,7 +165,7 @@ public class KeyUploaderResource implements EdgeAPI {
         }
 
         try {
-            UploadFile uploadFile = buildUploadFile(userInfo, keyContent, CloudProvider.AWS, publicIp);
+            UploadFile uploadFile = buildUploadFile(userInfo, keyContent, configuration.getCloudProvider(), publicIp);
             String uuid = provisioningService.post(EDGE_CREATE, userInfo.getAccessToken(), uploadFile, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return uuid;
@@ -192,7 +195,7 @@ public class KeyUploaderResource implements EdgeAPI {
                         .withAzureRegion(settingsDAO.getAzureRegion())
                         .withAzureIamUser(userInfo.getName())
                         .withAzureVpcName(settingsDAO.getAzureVpcName())
-                        .withAzureSecurityGroupName(settingsDAO.getAzureResourceGroupName())
+                        .withAzureResourceGroupName(settingsDAO.getAzureResourceGroupName())
                         .withAzureSubnetName(settingsDAO.getAzureSubnetName());
 
                 UploadFileAzure uploadFileAzure = new UploadFileAzure();
