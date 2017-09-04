@@ -200,15 +200,12 @@ class AzureActions:
 
     def create_datalake_store(self, resource_group_name, datalake_name, region):
         try:
-            if region != 'eastus2' or region != 'centralus' or region != 'northeurope':
-                print "Data Lake currently does not support {} region".format(region)
-                raise Exception
             result = self.datalake_client.account.create(
                 resource_group_name,
                 datalake_name,
                 {
                     "location": region,
-                    "encryption_state": "Enable",
+                    "encryption_state": "Enabled",
                     "encryption_config": {
                         "type": "ServiceManaged"
                     }
@@ -238,27 +235,16 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_datalake_directory(self, resource_group_name, datalake_name, region):
+    def create_datalake_directory(self, datalake_name, dir_name):
         try:
-            if region != 'eastus2' or region != 'centralus' or region != 'northeurope':
-                print "Data Lake currently does not support {} region".format(region)
-                raise Exception
-            result = self.datalake_client.account.create(
-                resource_group_name,
-                datalake_name,
-                {
-                    "location": region,
-                    "encryption_state": "Enable",
-                    "encryption_config": {
-                        "type": "ServiceManaged"
-                    }
-                }
-            ).wait()
+            token = lib.auth(tenant_id='', client_secret='', client_id='')
+            adlsFileSystemClient = core.AzureDLFileSystem(token, store_name=datalake_name)
+            result = adlsFileSystemClient.mkdir(dir_name)
             return result
         except Exception as err:
             logging.info(
-                "Unable to create Data Lake store: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to create Data Lake store",
+                "Unable to create Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create Data Lake directory",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
