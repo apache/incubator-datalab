@@ -18,4 +18,8 @@ package com.epam.dlab.cloud;
 
 public enum CloudProvider {
     AWS, AZURE, GCP;
+
+    public String getName() {
+        return this.toString().toLowerCase();
+    }
 }
