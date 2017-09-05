@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.resources.EdgeService;
 import com.epam.dlab.dto.azure.AzureResource;
 import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
+import com.epam.dlab.dto.azure.keyload.UploadFileResultAzure;
 import com.epam.dlab.rest.contracts.EdgeAPI;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
@@ -71,6 +72,6 @@ public class EdgeResourceAzure extends EdgeService {
 
     @SuppressWarnings("unchecked")
     protected FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user, String callbackURI) {
-        return new EdgeCallbackHandler(selfService, action, uuid, user, callbackURI, EdgeInfoAzure.class);
+        return new EdgeCallbackHandler(selfService, action, uuid, user, callbackURI, EdgeInfoAzure.class, UploadFileResultAzure.class);
     }
 }

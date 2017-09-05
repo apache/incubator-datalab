@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.resources.EdgeService;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.epam.dlab.dto.aws.keyload.UploadFileAws;
+import com.epam.dlab.dto.aws.keyload.UploadFileResultAws;
 import com.epam.dlab.rest.contracts.EdgeAPI;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +71,6 @@ public class EdgeResourceAws extends EdgeService {
 
     @SuppressWarnings("unchecked")
     protected FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user, String callbackURI) {
-        return new EdgeCallbackHandler(selfService, action, uuid, user, callbackURI, EdgeInfoAws.class);
+        return new EdgeCallbackHandler(selfService, action, uuid, user, callbackURI, EdgeInfoAws.class, UploadFileResultAws.class);
     }
 }
