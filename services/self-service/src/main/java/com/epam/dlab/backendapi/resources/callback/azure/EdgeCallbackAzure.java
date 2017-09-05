@@ -18,11 +18,10 @@ package com.epam.dlab.backendapi.resources.callback.azure;
 
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.callback.EdgeCallback;
-import com.epam.dlab.dto.aws.keyload.UploadFileResultAws;
+import com.epam.dlab.dto.azure.keyload.UploadFileResultAzure;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -34,12 +33,11 @@ import javax.ws.rs.core.Response;
 @Path("/infrastructure/edge")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class EdgeCallbackAzure extends EdgeCallback {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     public EdgeCallbackAzure() {
-        logger.info("{} is initialized", getClass().getSimpleName());
+        log.info("{} is initialized", getClass().getSimpleName());
     }
 
     /**
@@ -50,7 +48,7 @@ public class EdgeCallbackAzure extends EdgeCallback {
      */
     @POST
     @Path(ApiCallbacks.STATUS_URI)
-    public Response status(UploadFileResultAws dto) throws DlabException {
+    public Response status(UploadFileResultAzure dto) throws DlabException {
         RequestId.checkAndRemove(dto.getRequestId());
         handleEdgeCallback(dto.getUser(), dto.getStatus());
         return Response.ok().build();

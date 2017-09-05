@@ -23,6 +23,8 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EdgeInfo {
+    @JsonProperty("instance_id")
+    private String instanceId;
     @JsonProperty
     private String hostname;
     @JsonProperty("public_ip")

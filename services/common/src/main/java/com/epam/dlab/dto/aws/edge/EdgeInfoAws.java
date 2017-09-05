@@ -31,8 +31,6 @@ public class EdgeInfoAws extends EdgeInfo {
     public static final String USER_OWN_BUCKET_NAME = "user_own_bicket_name";
     public static final String SHARED_BUCKET_NAME = "shared_bucket_name";
 
-    @JsonProperty("instance_id")
-    private String instanceId;
     @JsonProperty(USER_OWN_BUCKET_NAME)
     private String userOwnBucketName;
     @JsonProperty("notebook_profile")

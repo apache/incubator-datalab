@@ -1,6 +1,6 @@
 package com.epam.dlab.backendapi.domain;
 
-import com.epam.dlab.dto.status.EnvResourceDTO;
+import com.epam.dlab.dto.aws.status.AwsEnvResource;
 import com.epam.dlab.utils.UsernameUtils;
 
 /** Store info for the requests about the environment status of user. 
@@ -12,8 +12,15 @@ public class EnvStatusListenerUserInfo {
     private String username;
     /** Access token for request provisioning service. */
     private String accessToken;
-    
-    private EnvResourceDTO dto;
+
+    //TODO @dto
+    private AwsEnvResource dto;
+
+    public EnvStatusListenerUserInfo(String username, String accessToken) {
+        this.nextCheckTimeMillis = System.currentTimeMillis();
+        this.accessToken = accessToken;
+        this.username = username;
+    }
 
     /** Instantiate the user info.
      * @param username the name of user.
@@ -24,7 +31,7 @@ public class EnvStatusListenerUserInfo {
 		this.nextCheckTimeMillis = System.currentTimeMillis();
     	this.accessToken = accessToken;
     	this.username = username;
-    	dto = new EnvResourceDTO()
+    	dto = new AwsEnvResource()
     			.withAwsRegion(awsRegion)
     			.withEdgeUserName(UsernameUtils.removeDomain(username))
     			.withAwsIamUser(username);
@@ -57,7 +64,7 @@ public class EnvStatusListenerUserInfo {
     
     /** Return the DTO object for check of environment statuses.
      */
-    public EnvResourceDTO getDTO() {
+    public AwsEnvResource getDTO() {
     	return dto;
     }
 }
