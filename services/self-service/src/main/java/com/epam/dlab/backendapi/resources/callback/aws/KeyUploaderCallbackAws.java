@@ -21,8 +21,7 @@ import com.epam.dlab.backendapi.resources.callback.KeyUploaderCallback;
 import com.epam.dlab.dto.aws.keyload.UploadFileResultAws;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -34,13 +33,13 @@ import javax.ws.rs.core.Response;
 @Path("/user/access_key")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class KeyUploaderCallbackAws {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
     @Inject
     private KeyUploaderCallback keyUploaderCallback;
 
     public KeyUploaderCallbackAws() {
-        logger.info("{} is initialized", getClass().getSimpleName());
+        log.info("{} is initialized", getClass().getSimpleName());
     }
 
     /**
@@ -52,7 +51,7 @@ public class KeyUploaderCallbackAws {
     @POST
     @Path("/callback")
     public Response loadKeyResponse(UploadFileResultAws dto) throws DlabException {
-        logger.debug("Upload the key result and EDGE node info for user {}: {}", dto.getUser(), dto);
+        log.debug("Upload the key result and EDGE node info for user {}: {}", dto.getUser(), dto);
         RequestId.checkAndRemove(dto.getRequestId());
         keyUploaderCallback.handleCallback(dto.getStatus(), dto.getUser(), dto.retrieveEdgeInfo());
 

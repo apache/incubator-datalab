@@ -19,25 +19,23 @@ package com.epam.dlab.backendapi.resources.callback;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class EdgeCallback {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     @Inject
     private KeyDAO keyDAO;
 
     public EdgeCallback() {
-        logger.info("{} is initialized", getClass().getSimpleName());
+        log.info("{} is initialized", getClass().getSimpleName());
     }
 
     public void handleEdgeCallback(String user, String status) {
         try {
-            logger.debug("Updating the status of EDGE node for user {} to {}", user, status);
+            log.debug("Updating the status of EDGE node for user {} to {}", user, status);
             keyDAO.updateEdgeStatus(user, status);
         } catch (DlabException e) {
-            logger.error("Could not update status of EDGE node for user {} to {}", status, status, e);
+            log.error("Could not update status of EDGE node for user {} to {}", status, status, e);
             throw new DlabException("Could not update status of EDGE node to " + status + ": " + e.getLocalizedMessage(), e);
         }
     }
