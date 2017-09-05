@@ -25,9 +25,9 @@ public class CloudModuleConfigurer {
     public static CloudModule configureCloudModule(ProvisioningServiceApplicationConfiguration configuration, Environment environment, Injector injector) {
         switch (configuration.getCloudProvider()) {
             case AWS:
-                return new AwsCloudModule(environment.jersey(), injector);
+                return new AwsProvisioningModule(environment, injector);
             case AZURE:
-                return new AzureCloudModule(environment.jersey(), injector);
+                return new AzureProvisioningModule(environment, injector);
             case GCP:
             default:
                 throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());

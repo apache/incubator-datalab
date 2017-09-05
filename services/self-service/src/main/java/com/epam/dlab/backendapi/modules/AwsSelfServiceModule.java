@@ -16,19 +16,21 @@
 
 package com.epam.dlab.backendapi.modules;
 
+import com.epam.dlab.backendapi.domain.BillingSchedulerManager;
 import com.epam.dlab.backendapi.resources.callback.aws.EdgeCallbackAws;
 import com.epam.dlab.backendapi.resources.callback.aws.KeyUploaderCallbackAws;
 import com.epam.dlab.backendapi.service.AwsBillingService;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
-import io.dropwizard.jersey.setup.JerseyEnvironment;
+import io.dropwizard.setup.Environment;
 
-public class AwsModule extends CloudModule {
-    public AwsModule(JerseyEnvironment jerseyEnvironment, Injector injector) {
-        super(jerseyEnvironment, injector);
+public class AwsSelfServiceModule extends CloudModule {
+    public AwsSelfServiceModule(Environment environment, Injector injector) {
+        super(environment, injector);
         jerseyEnvironment.register(injector.getInstance(EdgeCallbackAws.class));
         jerseyEnvironment.register(injector.getInstance(KeyUploaderCallbackAws.class));
+        environment.lifecycle().manage(injector.getInstance(BillingSchedulerManager.class));
     }
 
     @Override

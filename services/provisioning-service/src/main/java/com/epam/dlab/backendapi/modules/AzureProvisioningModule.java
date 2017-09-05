@@ -16,16 +16,16 @@
 
 package com.epam.dlab.backendapi.modules;
 
-import com.epam.dlab.backendapi.resources.aws.EdgeResourceAws;
-import com.epam.dlab.backendapi.resources.aws.InfrastructureResourceAws;
+import com.epam.dlab.backendapi.resources.azure.EdgeResourceAzure;
+import com.epam.dlab.backendapi.resources.azure.InfrastructureResourceAzure;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
-import io.dropwizard.jersey.setup.JerseyEnvironment;
+import io.dropwizard.setup.Environment;
 
-public class AwsCloudModule extends CloudModule {
-    public AwsCloudModule(JerseyEnvironment jerseyEnvironment, Injector injector) {
-        super(jerseyEnvironment, injector);
-        jerseyEnvironment.register(injector.getInstance(EdgeResourceAws.class));
-        jerseyEnvironment.register(injector.getInstance(InfrastructureResourceAws.class));
+public class AzureProvisioningModule extends CloudModule {
+    public AzureProvisioningModule(Environment environment, Injector injector) {
+        super(environment, injector);
+        jerseyEnvironment.register(injector.getInstance(EdgeResourceAzure.class));
+        jerseyEnvironment.register(injector.getInstance(InfrastructureResourceAzure.class));
     }
 }

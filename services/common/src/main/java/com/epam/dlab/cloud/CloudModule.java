@@ -19,13 +19,16 @@ package com.epam.dlab.cloud;
 import com.google.inject.Injector;
 import com.google.inject.PrivateModule;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
+import io.dropwizard.setup.Environment;
 
 public abstract class CloudModule extends PrivateModule {
+    protected Environment environment;
     protected JerseyEnvironment jerseyEnvironment;
     protected Injector injector;
 
-    public CloudModule(JerseyEnvironment jerseyEnvironment, Injector injector) {
-        this.jerseyEnvironment = jerseyEnvironment;
+    public CloudModule(Environment environment, Injector injector) {
+        this.environment = environment;
+        this.jerseyEnvironment = environment.jersey();
         this.injector = injector;
     }
 
