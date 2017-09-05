@@ -176,7 +176,7 @@ public class KeyUploaderResource implements EdgeAPI {
         }
     }
 
-
+    //TODO @dto
     private UploadFile buildUploadFile(UserInfo userInfo, String content, CloudProvider cloudProvider, String publicIp) {
         switch (cloudProvider) {
             case AWS: {
