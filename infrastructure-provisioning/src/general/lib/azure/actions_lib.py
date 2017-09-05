@@ -535,7 +535,7 @@ class AzureActions:
                                 'create_option': 'empty',
                                 'disk_size_gb': 32,
                                 'managed_disk': {
-                                    'storage_account_type': 'Premium_LRS'
+                                    'storage_account_type': instance_storage_account_type
                                 }
                             }
                         ]
@@ -833,3 +833,7 @@ class AzureActions:
             append_result(str({"error": "Unable to remove kernels on Notebook",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+
+def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
+    print "Downloading local jars for Azure"
