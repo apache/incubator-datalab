@@ -23,8 +23,11 @@ import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.BillingSchedulerManager;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
+import com.epam.dlab.backendapi.resources.EdgeResource;
+import com.epam.dlab.backendapi.resources.KeyUploaderResource;
 import com.epam.dlab.utils.ServiceUtils;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
 import com.epam.dlab.rest.mappers.RuntimeExceptionMapper;
@@ -76,7 +79,8 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         environment.lifecycle().manage(injector.getInstance(BillingSchedulerManager.class));
         injector.getInstance(SecurityFactory.class).configure(injector, environment);
 
-        Injector childInjector = injector.createChildInjector(ModuleFactory.getCloudProviderModule(configuration, environment));
+        CloudModule cloudModule = ModuleFactory.getCloudProviderModule(configuration, environment, injector);
+        Injector childInjector = injector.createChildInjector(cloudModule);
 
         JerseyEnvironment jersey = environment.jersey();
         jersey.register(new RuntimeExceptionMapper());

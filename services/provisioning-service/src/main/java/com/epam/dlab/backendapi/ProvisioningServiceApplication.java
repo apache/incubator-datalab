@@ -21,10 +21,10 @@ package com.epam.dlab.backendapi;
 import com.epam.dlab.auth.SecurityFactory;
 import com.epam.dlab.backendapi.core.DirectoriesCreator;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
+import com.epam.dlab.backendapi.modules.CloudModuleConfigurer;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.ComputationalResource;
 import com.epam.dlab.backendapi.resources.DockerResource;
-import com.epam.dlab.backendapi.resources.EdgeResource;
 import com.epam.dlab.backendapi.resources.ExploratoryResource;
 import com.epam.dlab.backendapi.resources.InfrastructureResource;
 import com.epam.dlab.process.DlabProcess;
@@ -43,11 +43,11 @@ import io.dropwizard.setup.Environment;
 
 public class ProvisioningServiceApplication extends Application<ProvisioningServiceApplicationConfiguration> {
 	private static Injector injector;
-	
+
 	public static Injector getInjector() {
 		return injector;
 	}
-	
+
     public static void main(String[] args) throws Exception {
 		if (ServiceUtils.printAppVersion(ProvisioningServiceApplication.class, args)) {
 			return;
@@ -67,20 +67,23 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
         DlabProcess.getInstance().setProcessTimeout(configuration.getProcessTimeout());
         DlabProcess.getInstance().setMaxProcessesPerBox(configuration.getProcessMaxThreadsPerJvm());
         DlabProcess.getInstance().setMaxProcessesPerUser(configuration.getProcessMaxThreadsPerUser());
-        
+
         injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment));
         injector.getInstance(SecurityFactory.class).configure(injector, environment);
-        
+
         environment.lifecycle().manage(injector.getInstance(DirectoriesCreator.class));
         environment.lifecycle().manage(injector.getInstance(DockerWarmuper.class));
-        
+
         JerseyEnvironment jersey = environment.jersey();
+        jersey.register(configuration.getCloudProvider());
         jersey.register(new RuntimeExceptionMapper());
         jersey.register(new JsonProcessingExceptionMapper());
+
+        CloudModuleConfigurer.configureCloudModule(configuration, environment, injector);
         jersey.register(injector.getInstance(DockerResource.class));
-        jersey.register(injector.getInstance(EdgeResource.class));
         jersey.register(injector.getInstance(ExploratoryResource.class));
         jersey.register(injector.getInstance(ComputationalResource.class));
         jersey.register(injector.getInstance(InfrastructureResource.class));
+
     }
 }

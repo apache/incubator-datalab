@@ -28,7 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.epam.dlab.dto.edge.EdgeInfoDTO;
+import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -77,13 +77,13 @@ public class KeyDAOTest extends DAOTestBase {
     		"\"edge_sg\": \"usein1120v10-usein_faradzhev-edge-SG\"," +
     		"\"edge_status\": \"running\"" +
         	"}";
-    	EdgeInfoDTO dto1 = MAPPER.readValue(json, EdgeInfoDTO.class);
+    	EdgeInfoAws dto1 = MAPPER.readValue(json, EdgeInfoAws.class);
     	System.out.println(dto1);
     	
     	String user = "user1";
     	dao.updateEdgeInfo(user, dto1);
     	
-    	EdgeInfoDTO dto2 = dao.getEdgeInfo(user);
+    	EdgeInfoAws dto2 = dao.getEdgeInfo(user, EdgeInfoAws.class, new EdgeInfoAws());
 
         assertEquals(dto1.toString(), dto2.toString());
     }

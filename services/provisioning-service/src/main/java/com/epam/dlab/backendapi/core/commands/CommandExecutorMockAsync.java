@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.epam.dlab.cloud.CloudProvider;
 import com.google.common.io.ByteStreams;
 import org.apache.commons.codec.Charsets;
 import org.slf4j.Logger;
@@ -61,10 +62,13 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private CommandParserMock parser = new CommandParserMock();
     private String responseFileName;
 
-    public CommandExecutorMockAsync(String user, String uuid, String command) {
+    private CloudProvider cloudProvider;
+
+    public CommandExecutorMockAsync(String user, String uuid, String command, CloudProvider cloudProvider) {
     	this.user = user;
     	this.uuid = uuid;
     	this.command = command;
+    	this.cloudProvider = cloudProvider;
 	}
 
 	@Override
@@ -192,22 +196,24 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
         		return dir;
         	}
         	throw new FileNotFoundException("Directory \"" + dir + "\" not found. " +
-        			"Please set JVM argument -Ddocker.dir to the \".../infrastructure-provisioning/src\" directory");
+        			"Please set JVM argument -Ddocker.dir to the " +
+					"\".../infrastructure-provisioning/src/general/files/" + cloudProvider.getName() + "\" directory");
     	}
     	dir = getAbsolutePath(
     			".",
-    			"../../infrastructure-provisioning/src");
+    			"../../infrastructure-provisioning/src/general/files/" + cloudProvider.getName());
     	if (dirExists(dir)) {
     		return dir;
     	}
     	dir = getAbsolutePath(
     			ServiceUtils.getUserDir(),
-    			"../../infrastructure-provisioning/src");
+    			"../../infrastructure-provisioning/src/general/files/" + cloudProvider.getName());
     	if (dirExists(dir)) {
     		return dir;
     	}
     	throw new FileNotFoundException("Directory \"" + dir + "\" not found. " +
-    			"Please set the value docker.dir property to the \".../infrastructure-provisioning/src\" directory");
+    			"Please set the value docker.dir property to the " +
+				"\".../infrastructure-provisioning/src/general/files/" + cloudProvider.getName() + "\" directory");
     }
     
     /** Describe action.
@@ -216,10 +222,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private void describe() throws DlabException {
     	String templateFileName;
 		try {
-			templateFileName = getAbsolutePath(
-					findTemplatesDir(),
-					parser.getImageType(),
-					"description.json");
+			templateFileName = getAbsolutePath(findTemplatesDir(),parser.getImageType() + "_description.json");
 		} catch (FileNotFoundException e) {
 			throw new DlabException("Cannot describe image " + parser.getImageType() + ". " + e.getLocalizedMessage(), e);
 		}

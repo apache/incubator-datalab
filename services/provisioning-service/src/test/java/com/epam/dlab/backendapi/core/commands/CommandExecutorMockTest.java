@@ -21,6 +21,7 @@ package com.epam.dlab.backendapi.core.commands;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ResourceCallbackHandler;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.rest.client.RESTServiceMock;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -34,12 +35,12 @@ import java.util.concurrent.ExecutionException;
 @Ignore
 public class CommandExecutorMockTest {
     private CommandExecutorMock getCommandExecutor() {
-    	return new CommandExecutorMock();
+    	return new CommandExecutorMock(CloudProvider.AWS);
     }
     
     private CommandExecutorMock executeAsync(String cmd) throws IOException, InterruptedException, ExecutionException {
     	String uuid = UUID.randomUUID().toString();
-    	CommandExecutorMock exec = new CommandExecutorMock();
+    	CommandExecutorMock exec = new CommandExecutorMock(CloudProvider.AWS);
     	exec.executeAsync("user", uuid, cmd);
     	exec.getResultSync();
 

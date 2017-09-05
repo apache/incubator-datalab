@@ -1,0 +1,42 @@
+/*
+ * Copyright (c) 2017, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.epam.dlab.dto.aws.edge;
+
+import com.epam.dlab.dto.base.EdgeInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class EdgeInfoAws extends EdgeInfo {
+    public static final String USER_OWN_BUCKET_NAME = "user_own_bicket_name";
+    public static final String SHARED_BUCKET_NAME = "shared_bucket_name";
+
+    @JsonProperty("instance_id")
+    private String instanceId;
+    @JsonProperty(USER_OWN_BUCKET_NAME)
+    private String userOwnBucketName;
+    @JsonProperty("notebook_profile")
+    private String notebookProfile;
+    @JsonProperty(SHARED_BUCKET_NAME)
+    private String sharedBucketName;
+}

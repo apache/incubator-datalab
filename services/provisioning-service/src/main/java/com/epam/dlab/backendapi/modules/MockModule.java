@@ -58,7 +58,7 @@ public class MockModule extends ModuleBase<ProvisioningServiceApplicationConfigu
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME)).toInstance(createAuthenticationService());
         bind(RESTService.class).toInstance(configuration.getSelfFactory().build(environment, ServiceConsts.SELF_SERVICE_NAME));
         bind(MetadataHolder.class).to(DockerWarmuper.class);
-        bind(ICommandExecutor.class).to(CommandExecutorMock.class).asEagerSingleton();
+        bind(ICommandExecutor.class).toInstance(new CommandExecutorMock(configuration.getCloudProvider()));
     }
 
     /** Creates and returns the mock object for authentication service.
