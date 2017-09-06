@@ -163,7 +163,7 @@ class AzureActions:
                 {
                     'location': region
                 }
-            )
+            ).wait()
             for rule in list_rules:
                 self.network_client.security_rules.create_or_update(
                     resource_group_name,
