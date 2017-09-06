@@ -834,3 +834,4 @@ class AzureActions:
 
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     print "Downloading local jars for Azure"
+    sudo('mkdir -p ' + jars_dir)
