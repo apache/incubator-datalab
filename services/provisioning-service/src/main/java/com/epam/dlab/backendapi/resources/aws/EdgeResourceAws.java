@@ -22,12 +22,12 @@ import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.core.response.handlers.EdgeCallbackHandler;
 import com.epam.dlab.backendapi.resources.EdgeService;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
+import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.epam.dlab.dto.aws.keyload.UploadFileAws;
+import com.epam.dlab.dto.aws.keyload.UploadFileResultAws;
 import com.epam.dlab.rest.contracts.EdgeAPI;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -46,10 +46,8 @@ import static com.epam.dlab.rest.contracts.ApiCallbacks.*;
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class EdgeResourceAws extends EdgeService {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     public EdgeResourceAws() {
-        logger.info("{} is initialized", getClass().getSimpleName());
+        log.info("{} is initialized", getClass().getSimpleName());
     }
 
     @POST
@@ -73,6 +71,6 @@ public class EdgeResourceAws extends EdgeService {
 
     @SuppressWarnings("unchecked")
     protected FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, String user, String callbackURI) {
-        return new EdgeCallbackHandler(selfService, action, uuid, user, callbackURI, EdgeResourceAws.class);
+        return new EdgeCallbackHandler(selfService, action, uuid, user, callbackURI, EdgeInfoAws.class, UploadFileResultAws.class);
     }
 }

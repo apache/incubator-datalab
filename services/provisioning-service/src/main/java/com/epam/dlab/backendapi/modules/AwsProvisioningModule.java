@@ -17,13 +17,15 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.backendapi.resources.aws.EdgeResourceAws;
+import com.epam.dlab.backendapi.resources.aws.InfrastructureResourceAws;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
-import io.dropwizard.jersey.setup.JerseyEnvironment;
+import io.dropwizard.setup.Environment;
 
-public class AwsCloudModule extends CloudModule {
-    public AwsCloudModule(JerseyEnvironment jerseyEnvironment, Injector injector) {
-        super(jerseyEnvironment, injector);
+public class AwsProvisioningModule extends CloudModule {
+    public AwsProvisioningModule(Environment environment, Injector injector) {
+        super(environment, injector);
         jerseyEnvironment.register(injector.getInstance(EdgeResourceAws.class));
+        jerseyEnvironment.register(injector.getInstance(InfrastructureResourceAws.class));
     }
 }

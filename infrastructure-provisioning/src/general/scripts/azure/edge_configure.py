@@ -223,6 +223,7 @@ if __name__ == "__main__":
                    "notebook_sg": edge_conf['notebook_security_group_name'],
                    "edge_sg": edge_conf['edge_security_group_name'],
                    "notebook_subnet": edge_conf['private_subnet_cidr'],
+                   "instance_id": edge_conf['instance_name'],
                    "full_edge_conf": edge_conf,
                    "Action": "Create new EDGE server"}
             print json.dumps(res)

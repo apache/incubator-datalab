@@ -45,9 +45,9 @@ public class ModuleFactory {
     public static CloudModule getCloudProviderModule(SelfServiceApplicationConfiguration configuration, Environment environment, Injector injector) {
         switch (configuration.getCloudProvider()) {
             case AWS:
-                return new AwsModule(environment.jersey(), injector);
+                return new AwsSelfServiceModule(environment, injector);
             case AZURE:
-                return new AzureModule(environment.jersey(), injector);
+                return new AzureSelfServiceModule(environment, injector);
             case GCP:
             default:
                 throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());

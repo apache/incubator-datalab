@@ -22,12 +22,12 @@ import com.epam.dlab.backendapi.service.AwsBillingService;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
-import io.dropwizard.jersey.setup.JerseyEnvironment;
+import io.dropwizard.setup.Environment;
 
-public class AzureModule extends CloudModule {
+public class AzureSelfServiceModule extends CloudModule {
 
-    public AzureModule(JerseyEnvironment jerseyEnvironment, Injector injector) {
-        super(jerseyEnvironment, injector);
+    public AzureSelfServiceModule(Environment environment, Injector injector) {
+        super(environment, injector);
         jerseyEnvironment.register(injector.getInstance(EdgeCallbackAzure.class));
         jerseyEnvironment.register(injector.getInstance(KeyUploaderCallbackAzure.class));
     }

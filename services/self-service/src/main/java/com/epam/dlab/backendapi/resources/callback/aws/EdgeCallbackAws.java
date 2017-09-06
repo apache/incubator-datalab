@@ -21,8 +21,7 @@ import com.epam.dlab.backendapi.resources.callback.EdgeCallback;
 import com.epam.dlab.dto.aws.keyload.UploadFileResultAws;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -34,12 +33,11 @@ import javax.ws.rs.core.Response;
 @Path("/infrastructure/edge")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class EdgeCallbackAws extends EdgeCallback {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     public EdgeCallbackAws() {
-        logger.info("{} is initialized", getClass().getSimpleName());
+        log.info("{} is initialized", getClass().getSimpleName());
     }
 
     /**

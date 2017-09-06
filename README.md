@@ -890,7 +890,7 @@ db.createUser(
 )
 ```
 
-  * Load collections form file dlab/services/mongo\_settings.json
+  * Load collections form file dlab/services/settings/{cloud_provider}/mongo\_settings.json
 
 ```
 mongoimport -u admin -p <password> -d <database_name> –c settings mongo_settings.json

@@ -40,7 +40,8 @@ public class ResourceUtils {
 	 * @return initialized <b>resourceClass</b> instance.
 	 * @throws DlabException
 	 */
-    @SuppressWarnings("unchecked")
+    //TODO @dto
+	@SuppressWarnings("unchecked")
 	public static <T extends ResourceBaseDTO<?>> T newResourceBaseDTO(UserInfo userInfo, Class<T> resourceClass, CloudProvider cloudProvider) throws DlabException {
 		try {
 			T resource = resourceClass.newInstance();
@@ -70,12 +71,19 @@ public class ResourceUtils {
 	 * @return initialized <b>resourceClass</b> instance.
 	 * @throws DlabException
 	 */
+	//TODO @dto
     @SuppressWarnings("unchecked")
 	public static <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass, CloudProvider cloudProvider) throws DlabException {
     	T resource = newResourceBaseDTO(userInfo, resourceClass, cloudProvider);
+
+    	switch (cloudProvider) {
+			case AWS:
+				resource.withConfTagResourceId(settingsDAO.getConfTagResourceId());
+				break;
+
+		}
     	return (T) resource
     			.withServiceBaseName(settingsDAO.getServiceBaseName())
-    			.withConfTagResourceId(settingsDAO.getConfTagResourceId())
     			.withConfOsFamily(settingsDAO.getConfOsFamily());
 
     }

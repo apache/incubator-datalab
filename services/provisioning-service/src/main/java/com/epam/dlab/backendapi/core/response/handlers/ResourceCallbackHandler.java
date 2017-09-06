@@ -60,6 +60,14 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
         this.resultType = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 
+    public ResourceCallbackHandler(RESTService selfService, String user, String uuid, DockerAction action, Class<T> resultType) {
+        this.selfService = selfService;
+        this.user = user;
+        this.uuid = uuid;
+        this.action = action;
+        this.resultType = resultType;
+    }
+
     @Override
     public String getUUID() {
     	return uuid;

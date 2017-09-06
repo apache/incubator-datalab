@@ -176,7 +176,7 @@ public class KeyUploaderResource implements EdgeAPI {
         }
     }
 
-
+    //TODO @dto
     private UploadFile buildUploadFile(UserInfo userInfo, String content, CloudProvider cloudProvider, String publicIp) {
         switch (cloudProvider) {
             case AWS: {
@@ -189,6 +189,8 @@ public class KeyUploaderResource implements EdgeAPI {
                 UploadFileAws uploadFileAws = new UploadFileAws();
                 uploadFileAws.setEdge(edge);
                 uploadFileAws.setContent(content);
+
+                return uploadFileAws;
             }
             case AZURE: {
                 EdgeCreateAzure edge = ResourceUtils.newResourceSysBaseDTO(userInfo, EdgeCreateAzure.class, cloudProvider)
@@ -201,6 +203,8 @@ public class KeyUploaderResource implements EdgeAPI {
                 UploadFileAzure uploadFileAzure = new UploadFileAzure();
                 uploadFileAzure.setEdge(edge);
                 uploadFileAzure.setContent(content);
+
+                return uploadFileAzure;
             }
             case GCP:
             default:

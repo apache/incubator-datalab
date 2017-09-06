@@ -23,13 +23,11 @@ import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 @Singleton
+@Slf4j
 public class KeyUploaderCallback {
-    private static final Logger LOGGER = LoggerFactory.getLogger(KeyUploaderCallback.class);
-
     @Inject
     private KeyDAO keyDAO;
 
@@ -44,12 +42,12 @@ public class KeyUploaderCallback {
                 UserInstanceStatus instanceStatus = UserInstanceStatus.of(keyDAO.getEdgeStatus(user));
                 if (instanceStatus == null) {
                     // Upload the key first time
-                    LOGGER.debug("Delete the key for user {}", user);
+                    log.debug("Delete the key for user {}", user);
                     keyDAO.deleteKey(user);
                 }
             }
         } catch (DlabException e) {
-            LOGGER.error("Could not upload the key result and create EDGE node for user {}", user, e);
+            log.error("Could not upload the key result and create EDGE node for user {}", user, e);
             throw new DlabException("Could not upload the key result and create EDGE node for user " + user + ": " + e.getLocalizedMessage(), e);
         }
     }

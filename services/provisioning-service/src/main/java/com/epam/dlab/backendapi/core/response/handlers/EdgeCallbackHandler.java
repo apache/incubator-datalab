@@ -33,8 +33,8 @@ public class EdgeCallbackHandler<E extends EdgeInfo, T extends StatusBaseDTO<?> 
     private final String callbackURI;
     private final Class<E> responseType;
 
-    public EdgeCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String callbackURI, Class<E> responseType) {
-        super(selfService, user, uuid, action);
+    public EdgeCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String callbackURI, Class<E> responseType, Class<T> enclosingType) {
+        super(selfService, user, uuid, action, enclosingType);
         this.callbackURI = callbackURI;
         this.responseType = responseType;
     }
