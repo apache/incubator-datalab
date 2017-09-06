@@ -114,7 +114,7 @@ public class ComputationalConfigure implements DockerCommands {
 
     private String getImageConfigure(String application) throws DlabException {
     	String imageName = configuration.getEmrImage();
-    	int pos = imageName.lastIndexOf('-');
+    	int pos = imageName.indexOf('-');
     	if (pos > 0) {
     		return imageName.substring(0, pos + 1) + application;
     	}
