@@ -40,7 +40,7 @@ if __name__ == "__main__":
         else:
             print "Creating security group {}.".format(args.security_group_name)
             security_group = AzureActions().create_security_group(args.resource_group_name, args.security_group_name,
-                                                                    args.region, list_rules).wait()
+                                                                    args.region, list_rules)
             print "SECURITY GROUP {} has been created".format(args.security_group_name)
     except:
         sys.exit(1)
