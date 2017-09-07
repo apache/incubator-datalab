@@ -76,6 +76,7 @@ limitations under the License.
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>Standard_DS1_v2</string>
+              <string>Standard_NC6</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
