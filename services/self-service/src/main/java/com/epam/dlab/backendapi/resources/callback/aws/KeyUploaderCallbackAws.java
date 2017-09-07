@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.resources.callback.aws;
 
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.resources.callback.KeyUploaderCallback;
+import com.epam.dlab.backendapi.resources.callback.base.KeyUploaderCallback;
 import com.epam.dlab.dto.aws.keyload.UploadFileResultAws;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;

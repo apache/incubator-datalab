@@ -23,6 +23,7 @@ import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.BillingSchedulerManager;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.resources.callback.ExploratoryCallback;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
@@ -95,6 +96,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         jersey.register(injector.getInstance(InfrastructureResource.class));
         jersey.register(injector.getInstance(UserSettingsResource.class));
         jersey.register(injector.getInstance(GitCredsResource.class));
+        jersey.register(injector.getInstance(ExploratoryCallback.class));
         jersey.register(childInjector.getInstance(BillingResource.class));
     }
 }

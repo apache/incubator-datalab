@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.resources.callback;
+package com.epam.dlab.backendapi.resources.callback.base;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.dao.KeyDAO;

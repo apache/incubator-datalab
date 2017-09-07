@@ -18,24 +18,6 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Projections.exclude;
-import static com.mongodb.client.model.Projections.excludeId;
-import static com.mongodb.client.model.Projections.fields;
-import static com.mongodb.client.model.Projections.include;
-import static com.mongodb.client.model.Updates.set;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.bson.Document;
-import org.bson.conversions.Bson;
-
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
@@ -44,26 +26,45 @@ import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.result.UpdateResult;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 
-/** DAO for user exploratory.
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Projections.*;
+import static com.mongodb.client.model.Updates.set;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+
+/**
+ * DAO for user exploratory.
  */
 public class ExploratoryDAO extends BaseDAO {
-    public static final String EXPLORATORY_NAME = "exploratory_name";
-    protected static final String EXPLORATORY_ID = "exploratory_id";
+
+    static final String EXPLORATORY_NAME = "exploratory_name";
+    static final String EXPLORATORY_ID = "exploratory_id";
+    static final String UPTIME = "up_time";
+    static final String COMPUTATIONAL_RESOURCES = "computational_resources";
+
     private static final String EXPLORATORY_URL = "exploratory_url";
     private static final String EXPLORATORY_URL_DESC = "description";
     private static final String EXPLORATORY_URL_URL = "url";
     private static final String EXPLORATORY_USER = "exploratory_user";
     private static final String EXPLORATORY_PASSWORD = "exploratory_pass";
     private static final String EXPLORATORY_PRIVATE_IP = "private_ip";
-    protected static final String UPTIME = "up_time";
-    public static final String COMPUTATIONAL_RESOURCES = "computational_resources";
 
     public static Bson exploratoryCondition(String user, String exploratoryName) {
         return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));
     }
 
-    /** Finds and returns the list of user resources. 
+    /**
+     * Finds and returns the list of user resources.
+     *
      * @param user name
      * @return
      */
@@ -71,10 +72,12 @@ public class ExploratoryDAO extends BaseDAO {
         return find(USER_INSTANCES, eq(USER, user));
     }
 
-    /** Finds and returns the unique id for exploratory.
-     * @param user user name.
+    /**
+     * Finds and returns the unique id for exploratory.
+     *
+     * @param user            user name.
      * @param exploratoryName the name of exploratory.
-     * @exception DlabException
+     * @throws DlabException
      */
     public String fetchExploratoryId(String user, String exploratoryName) throws DlabException {
         return findOne(USER_INSTANCES,
@@ -84,10 +87,12 @@ public class ExploratoryDAO extends BaseDAO {
                 .getOrDefault(EXPLORATORY_ID, EMPTY).toString();
     }
 
-    /** Finds and returns the status of exploratory.
-     * @param user user name.
+    /**
+     * Finds and returns the status of exploratory.
+     *
+     * @param user            user name.
      * @param exploratoryName the name of exploratory.
-     * @exception DlabException
+     * @throws DlabException
      */
     public UserInstanceStatus fetchExploratoryStatus(String user, String exploratoryName) throws DlabException {
         return UserInstanceStatus.of(
@@ -98,25 +103,29 @@ public class ExploratoryDAO extends BaseDAO {
                         .getOrDefault(STATUS, EMPTY).toString());
     }
 
-    /** Finds and returns the info of all user's notebooks.
+    /**
+     * Finds and returns the info of all user's notebooks.
+     *
      * @param user user name.
-     * @exception DlabException
+     * @throws DlabException
      */
     public List<UserInstanceDTO> fetchExploratoryFields(String user) throws DlabException {
-     	FindIterable<Document> docs = getCollection(USER_INSTANCES)
-					.find(eq(USER, user))
-					.projection(fields(exclude(COMPUTATIONAL_RESOURCES)));
-     	List<UserInstanceDTO> instances = new ArrayList<>();
-     	for (Document d : docs) {
-     		instances.add(convertFromDocument(d, UserInstanceDTO.class));
-     	}
-    	return instances;
+        FindIterable<Document> docs = getCollection(USER_INSTANCES)
+                .find(eq(USER, user))
+                .projection(fields(exclude(COMPUTATIONAL_RESOURCES)));
+        List<UserInstanceDTO> instances = new ArrayList<>();
+        for (Document d : docs) {
+            instances.add(convertFromDocument(d, UserInstanceDTO.class));
+        }
+        return instances;
     }
 
-    /** Finds and returns the info of exploratory.
-     * @param user user name.
+    /**
+     * Finds and returns the info of exploratory.
+     *
+     * @param user            user name.
      * @param exploratoryName the name of exploratory.
-     * @exception DlabException
+     * @throws DlabException
      */
     public UserInstanceDTO fetchExploratoryFields(String user, String exploratoryName) throws DlabException {
         Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
@@ -124,24 +133,28 @@ public class ExploratoryDAO extends BaseDAO {
                 fields(exclude(COMPUTATIONAL_RESOURCES)),
                 UserInstanceDTO.class);
 
-        if( opt.isPresent() ) {
+        if (opt.isPresent()) {
             return opt.get();
         }
-        throw new DlabException("Exploratory instance for user " + user + " with name " + exploratoryName +" not found.");
+        throw new DlabException("Exploratory instance for user " + user + " with name " + exploratoryName + " not found.");
     }
 
-    /** Inserts the info about notebook into Mongo database.
+    /**
+     * Inserts the info about notebook into Mongo database.
+     *
      * @param dto the info about notebook
-     * @exception DlabException
+     * @throws DlabException
      */
     public void insertExploratory(UserInstanceDTO dto) throws DlabException {
         insertOne(USER_INSTANCES, dto);
     }
 
-    /** Updates the status of exploratory in Mongo database.
+    /**
+     * Updates the status of exploratory in Mongo database.
+     *
      * @param dto object of exploratory status info.
      * @return The result of an update operation.
-     * @exception DlabException
+     * @throws DlabException
      */
     public UpdateResult updateExploratoryStatus(StatusEnvBaseDTO<?> dto) throws DlabException {
         return updateOne(USER_INSTANCES,
@@ -149,24 +162,26 @@ public class ExploratoryDAO extends BaseDAO {
                 set(STATUS, dto.getStatus()));
     }
 
-    /** Updates the info of exploratory in Mongo database.
+    /**
+     * Updates the info of exploratory in Mongo database.
+     *
      * @param dto object of exploratory status info.
      * @return The result of an update operation.
-     * @exception DlabException
+     * @throws DlabException
      */
-	@SuppressWarnings("serial")
+    @SuppressWarnings("serial")
     public UpdateResult updateExploratoryFields(ExploratoryStatusDTO dto) throws DlabException {
         Document values = new Document(STATUS, dto.getStatus()).append(UPTIME, dto.getUptime());
-    	if (dto.getInstanceId() != null) {
-    		values.append(INSTANCE_ID, dto.getInstanceId());
-    	}
+        if (dto.getInstanceId() != null) {
+            values.append(INSTANCE_ID, dto.getInstanceId());
+        }
         if (dto.getErrorMessage() != null) {
             values.append(ERROR_MESSAGE, DateRemoverUtil.removeDateFormErrorMessage(dto.getErrorMessage()));
         }
         if (dto.getExploratoryId() != null) {
             values.append(EXPLORATORY_ID, dto.getExploratoryId());
         }
-        
+
         if (dto.getExploratoryUrl() != null) {
             values.append(EXPLORATORY_URL, dto.getExploratoryUrl().stream()
                     .map(url -> new LinkedHashMap<String, String>() {{
@@ -175,17 +190,17 @@ public class ExploratoryDAO extends BaseDAO {
                     }})
                     .collect(Collectors.toList()));
         } else if (dto.getPrivateIp() != null) {
-        	UserInstanceDTO inst = fetchExploratoryFields(dto.getUser(),dto.getExploratoryName());
-	        if (!inst.getPrivateIp().equals(dto.getPrivateIp())) { // IP was changed
-	        	if (inst.getExploratoryUrl() != null) {
-	        		values.append(EXPLORATORY_URL, inst.getExploratoryUrl().stream()
-	                	.map(url -> new LinkedHashMap<String, String>() {{
-	                		put(EXPLORATORY_URL_DESC, url.getDescription());
-	                        put(EXPLORATORY_URL_URL, url.getUrl().replace(inst.getPrivateIp(),dto.getPrivateIp()));
-	                        }})
-	                	.collect(Collectors.toList()));
-	        	}
-	        }
+            UserInstanceDTO inst = fetchExploratoryFields(dto.getUser(), dto.getExploratoryName());
+            if (!inst.getPrivateIp().equals(dto.getPrivateIp())) { // IP was changed
+                if (inst.getExploratoryUrl() != null) {
+                    values.append(EXPLORATORY_URL, inst.getExploratoryUrl().stream()
+                            .map(url -> new LinkedHashMap<String, String>() {{
+                                put(EXPLORATORY_URL_DESC, url.getDescription());
+                                put(EXPLORATORY_URL_URL, url.getUrl().replace(inst.getPrivateIp(), dto.getPrivateIp()));
+                            }})
+                            .collect(Collectors.toList()));
+                }
+            }
         }
 
         if (dto.getPrivateIp() != null) {

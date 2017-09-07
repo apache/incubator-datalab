@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.backendapi.resources.azure.EdgeResourceAzure;
+import com.epam.dlab.backendapi.resources.azure.ExploratoryResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.InfrastructureResourceAzure;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
@@ -27,5 +28,6 @@ public class AzureProvisioningModule extends CloudModule {
         super(environment, injector);
         jerseyEnvironment.register(injector.getInstance(EdgeResourceAzure.class));
         jerseyEnvironment.register(injector.getInstance(InfrastructureResourceAzure.class));
+        jerseyEnvironment.register(injector.getInstance(ExploratoryResourceAzure.class));
     }
 }

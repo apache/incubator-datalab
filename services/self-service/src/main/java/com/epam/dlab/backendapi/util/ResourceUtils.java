@@ -63,7 +63,7 @@ public class ResourceUtils {
 					e.getLocalizedMessage(), e);
 		}
     }
-    
+
     /** Instantiate, initialize and return class instance which inherits from {@link com.epam.dlab.dto.ResourceSysBaseDTO}.
 	 * Initialize: AWS region, AWS IAM user name, EDGE user name, service base name, conf tag resource Id, conf OS family, conf OS user.
 	 * @param userInfo the user info.
@@ -87,7 +87,7 @@ public class ResourceUtils {
     			.withConfOsFamily(settingsDAO.getConfOsFamily());
 
     }
-    
+
     /** Returns the name of application for notebook: jupyter, rstudio, etc. */
     public static String getApplicationNameFromImage(String imageName) {
     	if (imageName != null) {

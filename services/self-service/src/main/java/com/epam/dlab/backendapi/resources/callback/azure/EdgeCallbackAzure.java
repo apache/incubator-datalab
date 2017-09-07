@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.resources.callback.azure;
 
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.resources.callback.EdgeCallback;
+import com.epam.dlab.backendapi.resources.callback.base.EdgeCallback;
 import com.epam.dlab.dto.azure.keyload.UploadFileResultAzure;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ApiCallbacks;

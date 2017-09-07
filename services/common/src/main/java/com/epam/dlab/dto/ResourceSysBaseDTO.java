@@ -24,6 +24,7 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends ResourceBaseDTO<T> {
     @JsonProperty("conf_service_base_name")
     private String serviceBaseName;
+    //TODO @dto
     @JsonProperty("conf_tag_resource_id")
     private String confTagResourceId;
     @JsonProperty("conf_os_family")

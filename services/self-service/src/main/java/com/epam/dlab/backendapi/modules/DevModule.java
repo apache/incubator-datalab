@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response;
 
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.backendapi.util.ResourceUtils;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -64,7 +65,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
         bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
                 .toInstance(createAuthenticationService());
-		requestStaticInjection(EnvStatusListener.class, RequestId.class, ResourceUtils.class);
+		requestStaticInjection(EnvStatusListener.class, RequestId.class, ResourceUtils.class, RequestBuilder.class);
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
         		.toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
     }

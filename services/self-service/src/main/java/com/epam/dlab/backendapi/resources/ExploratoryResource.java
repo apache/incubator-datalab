@@ -22,7 +22,6 @@ import static com.epam.dlab.UserInstanceStatus.CREATING;
 import static com.epam.dlab.UserInstanceStatus.FAILED;
 import static com.epam.dlab.UserInstanceStatus.STARTING;
 import static com.epam.dlab.UserInstanceStatus.STOPPING;
-import static com.epam.dlab.UserInstanceStatus.TERMINATED;
 import static com.epam.dlab.UserInstanceStatus.TERMINATING;
 
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.util.RequestBuilder;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,6 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
-import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
@@ -65,7 +64,6 @@ import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
@@ -73,7 +71,6 @@ import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -88,8 +85,6 @@ import io.dropwizard.auth.Auth;
 public class ExploratoryResource implements ExploratoryAPI {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExploratoryResource.class);
 
-    @Inject
-    private SettingsDAO settingsDAO;
     @Inject
     private ExploratoryDAO exploratoryDAO;
     @Inject
@@ -131,16 +126,11 @@ public class ExploratoryResource implements ExploratoryAPI {
                     .withImageVersion(formDTO.getVersion())
                     .withTemplateName(formDTO.getTemplateName())
                     .withShape(formDTO.getShape()));
-            ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
-            ExploratoryCreateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryCreateDTO.class, configuration.getCloudProvider())
-                    .withExploratoryName(formDTO.getName())
-                    .withNotebookImage(formDTO.getImage())
-                    .withApplicationName(ResourceUtils.getApplicationNameFromImage(formDTO.getImage()))
-                    .withNotebookInstanceType(formDTO.getShape())
-                    .withAwsSecurityGroupIds(settingsDAO.getAwsSecurityGroups())
-                    .withGitCreds(gitCreds.getGitCreds());
-            LOGGER.debug("Created exploratory environment {} for user {}", formDTO.getName(), userInfo.getName());
 
+            isAdded = true;
+            ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
+            ExploratoryCreateDTO<?> dto = RequestBuilder.newExploratoryCreate(formDTO, userInfo, gitCreds.getGitCreds());
+            LOGGER.debug("Created exploratory environment {} for user {}", formDTO.getName(), userInfo.getName());
             String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return Response.ok(uuid).build();
@@ -154,46 +144,6 @@ public class ExploratoryResource implements ExploratoryAPI {
         }
     }
 
-    /** Changes the status of exploratory environment.
-     * @param dto description of status.
-     * @return 200 OK - if request success.
-     * @exception DlabException
-     */
-    @POST
-    @Path(ApiCallbacks.STATUS_URI)
-    public Response status(ExploratoryStatusDTO dto) throws DlabException {
-        LOGGER.debug("Updating status for exploratory environment {} for user {} to {}",
-        		dto.getExploratoryName(), dto.getUser(), dto.getStatus());
-        RequestId.checkAndRemove(dto.getRequestId());
-        UserInstanceStatus currentStatus;
-        
-        try {
-        	currentStatus = exploratoryDAO.fetchExploratoryStatus(dto.getUser(), dto.getExploratoryName());
-        } catch (DlabException e) {
-        	LOGGER.error("Could not get current status for exploratory environment {} for user {}",
-        			dto.getExploratoryName(), dto.getUser(), e);
-            throw new DlabException("Could not get current status for exploratory environment " + dto.getExploratoryName() +
-            		" for user " + dto.getUser() + ": " + e.getLocalizedMessage(), e);
-        }
-        LOGGER.debug("Current status for exploratory environment {} for user {} is {}",
-        		dto.getExploratoryName(), dto.getUser(), currentStatus);
-
-        try {
-            exploratoryDAO.updateExploratoryFields(dto);
-            if (currentStatus == TERMINATING) {
-            	updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), UserInstanceStatus.of(dto.getStatus()));
-            } else if (currentStatus == STOPPING) {
-            	updateComputationalStatuses(dto.getUser(), dto.getExploratoryName(), TERMINATED);
-            }
-        } catch (DlabException e) {
-        	LOGGER.error("Could not update status for exploratory environment {} for user {} to {}",
-        			dto.getExploratoryName(), dto.getUser(), dto.getStatus(), e);
-        	throw new DlabException("Could not update status for exploratory environment " + dto.getExploratoryName() +
-        			" for user " + dto.getUser() + " to " + dto.getStatus() + ": " + e.getLocalizedMessage(), e);
-        }
-
-    	return Response.ok().build();
-    }
 
     /** Starts exploratory environment for user.
      * @param userInfo user info.
@@ -232,7 +182,7 @@ public class ExploratoryResource implements ExploratoryAPI {
         LOGGER.debug("Terminating exploratory environment {} for user {}", name, userInfo.getName());
         return action(userInfo, name, EXPLORATORY_TERMINATE, TERMINATING);
     }
-    
+
     /** Sends the post request to the provisioning service and update the status of exploratory environment.
      * @param userInfo user info.
      * @param exploratoryName name of exploratory environment.
@@ -244,20 +194,23 @@ public class ExploratoryResource implements ExploratoryAPI {
     private String action(UserInfo userInfo, String exploratoryName, String action, UserInstanceStatus status) throws DlabException {
         try {
             updateExploratoryStatus(userInfo.getName(), exploratoryName, status);
+
             if (status == STOPPING || status == TERMINATING) {
             	updateComputationalStatuses(userInfo.getName(), exploratoryName, TERMINATING);
             }
 
             UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
-            ExploratoryActionDTO<?> dto = (status == STARTING ?
-            		ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class, configuration.getCloudProvider()) :
-            		ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class, configuration.getCloudProvider()));
-            dto.withNotebookImage(userInstance.getImageName())
-            	.withNotebookInstanceName(userInstance.getExploratoryId())
-            	.withExploratoryName(exploratoryName);
-            if (status == STARTING) {
-            	ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
-        		((ExploratoryGitCredsUpdateDTO) dto).withGitCreds(gitCreds.getGitCreds());
+            ExploratoryActionDTO<?> dto;
+            switch (status) {
+                case STARTING:
+                    dto = RequestBuilder.newExploratoryStart(userInfo)
+                            .withNotebookInstanceName(userInstance.getExploratoryId())
+                            .withGitCreds(gitCredsDAO.findGitCreds(userInfo.getName()).getGitCreds());
+                    break;
+                default:
+                    dto = RequestBuilder.newExploratoryStop(userInfo, userInstance)
+                            .withNotebookInstanceName(userInstance.getExploratoryId());
+                    break;
             }
 
             String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
@@ -271,7 +224,7 @@ public class ExploratoryResource implements ExploratoryAPI {
     }
 
 
-    
+
     /** Returns the list of libraries groups for exploratory.
      * @param userInfo user info.
      * @param imageName name of exploratory image.
@@ -311,7 +264,7 @@ public class ExploratoryResource implements ExploratoryAPI {
                 	.withNotebookInstanceName(userInstance.getExploratoryId())
                 	.withExploratoryName(formDTO.getNotebookName())
                 	.withLibs(libs);
-            
+
         	for (LibInstallDTO lib : formDTO.getLibs()) {
         		LibStatus status = libraryDAO.fetchLibraryStatus(userInfo.getName(), formDTO.getNotebookName(),
                         lib.getGroup(), lib.getName(), lib.getVersion());
@@ -328,7 +281,7 @@ public class ExploratoryResource implements ExploratoryAPI {
         		lib.setStatus(LibStatus.INSTALLING.toString());
         		libraryDAO.addLibrary(userInfo.getName(), formDTO.getNotebookName(), lib, LibStatus.FAILED == status);
         	}
-        	
+
         	String uuid = provisioningService.post(EXPLORATORY_LIB_INSTALL, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return Response.ok(uuid).build();
@@ -338,7 +291,7 @@ public class ExploratoryResource implements ExploratoryAPI {
         	throw new DlabException("Cannot install libraries: " + e.getLocalizedMessage(), e);
         }
     }
-    
+
     /** Changes the status of installed libraries for exploratory environment.
      * @param dto description of status.
      * @return 200 OK - if request success.

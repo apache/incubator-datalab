@@ -27,9 +27,7 @@ import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecu
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryGitCredsCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler;
-import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
 import com.epam.dlab.rest.client.RESTService;
@@ -61,31 +59,6 @@ public class ExploratoryResource implements DockerCommands {
     private CommandBuilder commandBuilder;
     @Inject
     private RESTService selfService;
-
-
-    @Path("/create")
-    @POST
-    public String create(@Auth UserInfo ui, ExploratoryCreateDTO dto) throws IOException, InterruptedException {
-        return action(ui.getName(), dto, DockerAction.CREATE);
-    }
-
-    @Path("/start")
-    @POST
-    public String start(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws IOException, InterruptedException {
-        return action(ui.getName(), dto, DockerAction.START);
-    }
-
-    @Path("/terminate")
-    @POST
-    public String terminate(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws IOException, InterruptedException {
-        return action(ui.getName(), dto, DockerAction.TERMINATE);
-    }
-
-    @Path("/stop")
-    @POST
-    public String stop(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws IOException, InterruptedException {
-        return action(ui.getName(), dto, DockerAction.STOP);
-    }
 
     @Path("/lib_install")
     @POST
