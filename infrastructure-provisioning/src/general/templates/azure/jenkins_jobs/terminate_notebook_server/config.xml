@@ -57,6 +57,7 @@ limitations under the License.
               <string>rstudio</string>
               <string>zeppelin</string>
               <string>tensor</string>
+              <string>deeplearning</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
