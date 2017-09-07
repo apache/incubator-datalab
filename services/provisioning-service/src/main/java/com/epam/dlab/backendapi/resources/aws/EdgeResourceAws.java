@@ -20,7 +20,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.core.response.handlers.EdgeCallbackHandler;
-import com.epam.dlab.backendapi.resources.EdgeService;
+import com.epam.dlab.backendapi.resources.base.EdgeService;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.epam.dlab.dto.aws.keyload.UploadFileAws;

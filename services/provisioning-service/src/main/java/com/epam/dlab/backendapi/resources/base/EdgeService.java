@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.resources;
+package com.epam.dlab.backendapi.resources.base;
 
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;

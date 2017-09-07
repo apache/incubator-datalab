@@ -18,7 +18,7 @@ package com.epam.dlab.backendapi.resources.azure;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.backendapi.resources.InfrastructureService;
+import com.epam.dlab.backendapi.resources.base.InfrastructureService;
 import com.epam.dlab.dto.azure.status.AzureEnvResource;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;

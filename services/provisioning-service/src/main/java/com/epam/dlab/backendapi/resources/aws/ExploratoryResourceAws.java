@@ -18,7 +18,7 @@ package com.epam.dlab.backendapi.resources.aws;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.backendapi.resources.ExploratoryService;
+import com.epam.dlab.backendapi.resources.base.ExploratoryService;
 import com.epam.dlab.dto.aws.exploratory.ExploratoryCreateAws;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
