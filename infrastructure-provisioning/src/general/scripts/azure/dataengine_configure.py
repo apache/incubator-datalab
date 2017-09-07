@@ -29,7 +29,71 @@ import os
 import uuid
 import logging
 from Crypto.PublicKey import RSA
+import multiprocessing
 
+
+def configure_slave(slave_number, data_engine):
+    slave_name = data_engine['slave_node_name'] + '-{}'.format(slave_number + 1)
+    slave_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'], slave_name)
+    try:
+        logging.info('[CREATING DLAB SSH USER]')
+        print('[CREATING DLAB SSH USER]')
+        params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
+            (slave_hostname, "/root/keys/" + data_engine['key_name'] + ".pem", initial_user,
+             data_engine['dlab_ssh_user'], sudo_group)
+
+        try:
+            local("~/scripts/{}.py {}".format('create_ssh_user', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        for i in range(data_engine['instance_count']):
+            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        append_result("Failed creating ssh user 'dlab'.", str(err))
+        sys.exit(1)
+
+    try:
+        logging.info('[INSTALLING PREREQUISITES TO MASTER NODE]')
+        print('[INSTALLING PREREQUISITES TO MASTER NODE]')
+        params = "--hostname {} --keyfile {} --user {} --region {}". \
+            format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'])
+        try:
+            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed installing apps: apt & pip.", str(err))
+        for i in range(data_engine['instance_count']):
+            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        append_result("Failed installing prerequisites.", str(err))
+        sys.exit(1)
+
+    try:
+        logging.info('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
+        print('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
+        params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {} --master_ip {} --node_type {}". \
+            format(slave_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
+                   os.environ['notebook_hadoop_version'], data_engine['dlab_ssh_user'],
+                   os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
+                   'slave')
+        try:
+            local("~/scripts/{}.py {}".format('configure_dataengine', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed configuring slave node", str(err))
+        for i in range(data_engine['instance_count']):
+            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        sys.exit(1)
 
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
@@ -65,12 +129,11 @@ if __name__ == "__main__":
                                                     + os.environ['edge_user_name'] + '-dataengine-master-sg'
         data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-' \
                                                    + os.environ['edge_user_name'] + '-dataengine-slave-sg'
-        data_engine['master_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                          '-dataengine-' + data_engine['exploratory_name'] + '-' + \
-                                          data_engine['computational_name'] + '-master'
-        data_engine['slave_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                         '-dataengine-' + data_engine['exploratory_name'] + '-' + \
-                                         data_engine['computational_name'] + '-slave'
+        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+                                      '-dataengine-' + data_engine['exploratory_name'] + '-' + \
+                                      data_engine['computational_name']
+        data_engine['master_node_name'] = data_engine['cluster_name'] + '-master'
+        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
         data_engine['master_network_interface_name'] = data_engine['master_node_name'] + '-nif'
         data_engine['master_size'] = os.environ['azure_dataengine_master_size']
         ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
@@ -157,60 +220,17 @@ if __name__ == "__main__":
         sys.exit(1)
 
     for slave in range(data_engine['instance_count'] - 1):
-        slave_name = data_engine['slave_node_name'] + '-{}'.format(slave + 1)
-        slave_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'], slave_name)
         try:
-            logging.info('[CREATING DLAB SSH USER]')
-            print('[CREATING DLAB SSH USER]')
-            params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
-                (slave_hostname, "/root/keys/" + data_engine['key_name'] + ".pem", initial_user,
-                 data_engine['dlab_ssh_user'], sudo_group)
-
-            try:
-                local("~/scripts/{}.py {}".format('create_ssh_user', params))
-            except:
-                traceback.print_exc()
-                raise Exception
-        except Exception as err:
-            for i in range(data_engine['instance_count']):
-                slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
-                AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
-            AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-            append_result("Failed creating ssh user 'dlab'.", str(err))
-            sys.exit(1)
-
-        try:
-            logging.info('[INSTALLING PREREQUISITES TO MASTER NODE]')
-            print('[INSTALLING PREREQUISITES TO MASTER NODE]')
-            params = "--hostname {} --keyfile {} --user {} --region {}". \
-                format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'])
-            try:
-                local("~/scripts/{}.py {}".format('install_prerequisites', params))
-            except:
-                traceback.print_exc()
-                raise Exception
-        except Exception as err:
-            append_result("Failed installing apps: apt & pip.", str(err))
-            for i in range(data_engine['instance_count']):
-                slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
-                AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
-            AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-            append_result("Failed installing prerequisites.", str(err))
-            sys.exit(1)
-
-        try:
-            logging.info('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
-            print('[CONFIGURE SLAVE NODE {}]'.format(slave + 1))
-            params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {} --master_ip {} --node_type {}". \
-                format(slave_hostname, keyfile_name, data_engine['region'], os.environ['notebook_spark_version'],
-                       os.environ['notebook_hadoop_version'], data_engine['dlab_ssh_user'],
-                       os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'], master_node_hostname,
-                       'slave')
-            try:
-                local("~/scripts/{}.py {}".format('configure_dataengine', params))
-            except:
-                traceback.print_exc()
-                raise Exception
+            jobs = []
+            for i in range(data_engine['instance_count'] - 1):
+                p = multiprocessing.Process(target=configure_slave, args=(slave, data_engine))
+                jobs.append(p)
+                p.start()
+            for job in jobs:
+                job.join()
+            for job in jobs:
+                if job.exitcode != 0:
+                    raise Exception
         except Exception as err:
             append_result("Failed configuring slave node", str(err))
             for i in range(data_engine['instance_count']):
@@ -225,11 +245,12 @@ if __name__ == "__main__":
         print '[SUMMARY]'
         print "Service base name: " + data_engine['service_base_name']
         print "Region: " + data_engine['region']
+        print "Cluster name: " + data_engine['cluster_name']
         print "Master node shape: " + data_engine['master_size']
         print "Slave node shape: " + data_engine['slave_size']
         print "Instance count: " + str(data_engine['instance_count'])
         with open("/root/result.json", 'w') as result:
-            res = {"hostname": data_engine['service_base_name'],
+            res = {"hostname": data_engine['cluster_name'],
                    "instance_id": data_engine['master_node_name'],
                    "key_name": data_engine['key_name'],
                    "Action": "Create new Data Engine"}
