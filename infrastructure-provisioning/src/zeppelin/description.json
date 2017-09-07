@@ -21,10 +21,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Zeppelin 0.7.0",
+      "template_name": "Zeppelin 0.7.2",
       "description": "Base image with zeppelin node creation routines",
       "environment_type": "exploratory",
-      "version": "zeppelin-0.7.0",
+      "version": "zeppelin-0.7.2",
       "vendor": "AWS"
     }
   ]
