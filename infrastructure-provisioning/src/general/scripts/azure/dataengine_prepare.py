@@ -29,6 +29,24 @@ import os
 import uuid
 import logging
 from Crypto.PublicKey import RSA
+import multiprocessing
+
+
+def create_slave_node(slave_number, data_engine):
+    logging.info('[CREATE SLAVE NODE {}]'.format(slave_number + 1))
+    print '[CREATE SLAVE NODE {}]'.format(slave_number + 1)
+    slave_name = data_engine['slave_node_name'] + '-{}'.format(slave_number + 1)
+    slave_nif_name = slave_name + '-nif'
+    params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {}". \
+        format(slave_name, data_engine['slave_size'], data_engine['region'], data_engine['vpc_name'],
+               slave_nif_name, data_engine['slave_security_group_name'], data_engine['private_subnet_name'],
+               data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
+               data_engine['public_ssh_key'], '30', 'dataengine', os.environ['edge_user_name'])
+    try:
+        local("~/scripts/{}.py {}".format('common_create_instance', params))
+    except:
+        traceback.print_exc()
+        raise Exception
 
 
 if __name__ == "__main__":
@@ -80,12 +98,11 @@ if __name__ == "__main__":
                                                     + os.environ['edge_user_name'] + '-dataengine-master-sg'
         data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-' \
                                                    + os.environ['edge_user_name'] + '-dataengine-slave-sg'
-        data_engine['master_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
                                           '-dataengine-' + data_engine['exploratory_name'] + '-' + \
-                                          data_engine['computational_name'] + '-master'
-        data_engine['slave_node_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                          '-dataengine-' + data_engine['exploratory_name'] + '-' + \
-                                          data_engine['computational_name'] + '-slave'
+                                          data_engine['computational_name']
+        data_engine['master_node_name'] = data_engine['cluster_name'] + '-master'
+        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
         data_engine['master_network_interface_name'] = data_engine['master_node_name'] + '-nif'
         data_engine['master_size'] = os.environ['azure_dataengine_master_size']
         ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
@@ -130,20 +147,15 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        jobs = []
         for i in range(data_engine['instance_count'] - 1):
-            logging.info('[CREATE SLAVE NODE {}]'.format(i+1))
-            print '[CREATE SLAVE NODE {}]'.format(i+1)
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
-            slave_nif_name = slave_name + '-nif'
-            params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {}". \
-                format(slave_name, data_engine['slave_size'], data_engine['region'], data_engine['vpc_name'],
-                       slave_nif_name, data_engine['slave_security_group_name'], data_engine['private_subnet_name'],
-                       data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
-                       data_engine['public_ssh_key'], '30', 'dataengine', os.environ['edge_user_name'])
-            try:
-                local("~/scripts/{}.py {}".format('common_create_instance', params))
-            except:
-                traceback.print_exc()
+            p = multiprocessing.Process(target=create_slave_node, args=(i, data_engine))
+            jobs.append(p)
+            p.start()
+        for job in jobs:
+            job.join()
+        for job in jobs:
+            if job.exitcode != 0:
                 raise Exception
     except Exception as err:
         for i in range(data_engine['instance_count'] -1):

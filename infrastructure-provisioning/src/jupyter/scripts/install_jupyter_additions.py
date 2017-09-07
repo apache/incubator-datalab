@@ -54,8 +54,8 @@ def add_breeze_library_local(os_user):
                  breeze_tmp_dir + 'jfreechart-1.0.19.jar')
             sudo('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
                  breeze_tmp_dir + 'jcommon-1.0.24.jar')
-            sudo('wget https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
-                 breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
+            # sudo('wget https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
+            #      breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
             sudo('mv ' + breeze_tmp_dir + '* ' + jars_dir)
         except:
             sys.exit(1)

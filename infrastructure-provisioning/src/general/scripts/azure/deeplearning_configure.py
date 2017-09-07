@@ -215,6 +215,8 @@ if __name__ == "__main__":
         print "User key name: " + notebook_config['user_keyname']
         #print "AMI name: " + notebook_config['expected_ami_name']
         print "SG name: " + notebook_config['security_group_name']
+        print "Jupyter URL: " + jupyter_url
+        print "Tensor Board URL: " + tensor_board_url
         print "Ungit URL: " + ungit_ip_url
         print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
             'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
