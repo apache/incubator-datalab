@@ -9,5 +9,6 @@
     "azure_subnet_name":"CSI",
     "azure_vpc_name":"EVI",
     "azure_edge_instance_size":"EIS",
+    "azure_resource_group_name": "ARGN",
     "azure_iam_user":"CIU"
 }

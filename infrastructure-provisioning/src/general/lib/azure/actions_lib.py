@@ -163,17 +163,14 @@ class AzureActions:
                 {
                     'location': region
                 }
-            )
+            ).wait()
             for rule in list_rules:
                 self.network_client.security_rules.create_or_update(
                     resource_group_name,
                     network_security_group_name,
                     security_rule_name=rule['name'],
                     security_rule_parameters=rule
-                )
-                while meta_lib.AzureMeta().get_security_group_rule(resource_group_name, network_security_group_name,
-                                                                   rule['name']).provisioning_state != 'Succeeded':
-                    time.sleep(2)
+                ).wait()
             return result
         except Exception as err:
             logging.info(
@@ -837,3 +834,4 @@ class AzureActions:
 
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     print "Downloading local jars for Azure"
+    sudo('mkdir -p ' + jars_dir)

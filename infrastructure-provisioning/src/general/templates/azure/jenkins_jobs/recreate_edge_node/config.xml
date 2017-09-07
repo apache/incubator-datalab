@@ -29,6 +29,11 @@ limitations under the License.
           <defaultValue>SBN</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
+          <name>Resource_group_name</name>
+          <description>Azure resource group name</description>
+          <defaultValue>ARGN</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
           <name>Username</name>
           <description>name of the scientist</description>
           <defaultValue></defaultValue>
@@ -109,7 +114,7 @@ limitations under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/recreate_edge_node/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/UN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CIU/&apos;${IAM_user}&apos;/g&apos; | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_name}&apos;/g&apos; | sed &apos;s/CSI/&apos;${subnet_name}&apos;/g&apos; | sed &apos;s/EIS/&apos;${instance_shape}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/edge:/logs/edge docker.dlab-edge --action $Action ;</command>
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/recreate_edge_node/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/UN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CIU/&apos;${IAM_user}&apos;/g&apos; | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_name}&apos;/g&apos; | sed &apos;s/CSI/&apos;${subnet_name}&apos;/g&apos; | sed &apos;s/EIS/&apos;${instance_shape}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/edge:/logs/edge docker.dlab-edge --action $Action ;</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
