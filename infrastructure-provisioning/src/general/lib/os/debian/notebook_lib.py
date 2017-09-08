@@ -351,7 +351,7 @@ def get_available_os_pkgs():
         sys.exit(1)
 
 
-def install_caffe(os_user):
+def install_caffe(os_user, region):
     if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         sudo('apt-get install -y python-dev')

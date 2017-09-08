@@ -107,7 +107,7 @@ if __name__ == "__main__":
     install_tensor(args.os_user, args.tensorflow_version, files_dir, templates_dir)
 
     print "Installing Caffe"
-    install_caffe(args.os_user)
+    install_caffe(args.os_user, args.region)
 
     print "Installing Caffe2"
     install_caffe2(args.os_user)
