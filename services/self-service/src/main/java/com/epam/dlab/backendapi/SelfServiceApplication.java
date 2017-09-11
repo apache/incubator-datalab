@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.domain.BillingSchedulerManager;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.resources.callback.ExploratoryCallback;
+import com.epam.dlab.backendapi.resources.callback.GitCredsCallback;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
@@ -77,7 +78,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
         environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
         environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
-        environment.lifecycle().manage(injector.getInstance(BillingSchedulerManager.class));
+
         injector.getInstance(SecurityFactory.class).configure(injector, environment);
 
         CloudModule cloudModule = ModuleFactory.getCloudProviderModule(configuration, environment, injector);
@@ -92,11 +93,15 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         jersey.register(injector.getInstance(EdgeResource.class));
         jersey.register(injector.getInstance(InfrastructureProvisionResource.class));
         jersey.register(injector.getInstance(ComputationalResource.class));
-        jersey.register(injector.getInstance(ExploratoryResource.class));
         jersey.register(injector.getInstance(InfrastructureResource.class));
         jersey.register(injector.getInstance(UserSettingsResource.class));
-        jersey.register(injector.getInstance(GitCredsResource.class));
+
+        jersey.register(injector.getInstance(ExploratoryResource.class));
         jersey.register(injector.getInstance(ExploratoryCallback.class));
+
+        jersey.register(injector.getInstance(GitCredsResource.class));
+        jersey.register(injector.getInstance(GitCredsCallback.class));
+
         jersey.register(childInjector.getInstance(BillingResource.class));
     }
 }
