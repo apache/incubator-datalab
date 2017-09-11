@@ -32,23 +32,6 @@ from Crypto.PublicKey import RSA
 import multiprocessing
 
 
-def create_slave_node(slave_number, data_engine):
-    logging.info('[CREATE SLAVE NODE {}]'.format(slave_number + 1))
-    print '[CREATE SLAVE NODE {}]'.format(slave_number + 1)
-    slave_name = data_engine['slave_node_name'] + '-{}'.format(slave_number + 1)
-    slave_nif_name = slave_name + '-nif'
-    params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {}". \
-        format(slave_name, data_engine['slave_size'], data_engine['region'], data_engine['vpc_name'],
-               slave_nif_name, data_engine['slave_security_group_name'], data_engine['private_subnet_name'],
-               data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
-               data_engine['public_ssh_key'], '30', 'dataengine', os.environ['edge_user_name'])
-    try:
-        local("~/scripts/{}.py {}".format('common_create_instance', params))
-    except:
-        traceback.print_exc()
-        raise Exception
-
-
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
@@ -147,15 +130,21 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        jobs = []
         for i in range(data_engine['instance_count'] - 1):
-            p = multiprocessing.Process(target=create_slave_node, args=(i, data_engine))
-            jobs.append(p)
-            p.start()
-        for job in jobs:
-            job.join()
-        for job in jobs:
-            if job.exitcode != 0:
+            logging.info('[CREATE SLAVE NODE {}]'.format(i + 1))
+            print '[CREATE SLAVE NODE {}]'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_nif_name = slave_name + '-nif'
+            params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {}". \
+                format(slave_name, data_engine['slave_size'], data_engine['region'], data_engine['vpc_name'],
+                       slave_nif_name, data_engine['slave_security_group_name'], data_engine['private_subnet_name'],
+                       data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
+                       data_engine['public_ssh_key'], '30', 'dataengine', os.environ['edge_user_name'],
+                       data_engine['instance_storage_account_type'])
+            try:
+                local("~/scripts/{}.py {}".format('common_create_instance', params))
+            except:
+                traceback.print_exc()
                 raise Exception
     except Exception as err:
         for i in range(data_engine['instance_count'] -1):
