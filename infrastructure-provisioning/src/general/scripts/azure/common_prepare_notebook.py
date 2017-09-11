@@ -114,6 +114,10 @@ if __name__ == "__main__":
         append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
+    with open('/root/result.json', 'w') as f:
+        data = {"notebook_name": notebook_config['instance_name'], "error": ""}
+        json.dump(data, f)
+
     # print 'Searching preconfigured images'
     # ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'], 'available')
     # if ami_id != '':
