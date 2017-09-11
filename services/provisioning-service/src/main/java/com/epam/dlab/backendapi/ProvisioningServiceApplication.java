@@ -25,7 +25,7 @@ import com.epam.dlab.backendapi.modules.CloudModuleConfigurer;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.ComputationalResource;
 import com.epam.dlab.backendapi.resources.DockerResource;
-import com.epam.dlab.backendapi.resources.ExploratoryResource;
+import com.epam.dlab.backendapi.resources.GitExploratoryResource;
 import com.epam.dlab.backendapi.resources.InfrastructureResource;
 import com.epam.dlab.process.DlabProcess;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
@@ -40,6 +40,12 @@ import io.dropwizard.Application;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.glassfish.jersey.filter.LoggingFilter;
+
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ProvisioningServiceApplication extends Application<ProvisioningServiceApplicationConfiguration> {
 	private static Injector injector;
@@ -81,7 +87,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 
         CloudModuleConfigurer.configureCloudModule(configuration, environment, injector);
         jersey.register(injector.getInstance(DockerResource.class));
-        jersey.register(injector.getInstance(ExploratoryResource.class));
+        jersey.register(injector.getInstance(GitExploratoryResource.class));
         jersey.register(injector.getInstance(ComputationalResource.class));
         jersey.register(injector.getInstance(InfrastructureResource.class));
 
