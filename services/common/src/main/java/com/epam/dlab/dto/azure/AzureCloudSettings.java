@@ -17,15 +17,14 @@
 package com.epam.dlab.dto.azure;
 
 import com.epam.dlab.dto.base.CloudSettings;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
 public class AzureCloudSettings extends CloudSettings {
 
     @JsonProperty("azure_region")
@@ -54,6 +53,7 @@ public class AzureCloudSettings extends CloudSettings {
     }
 
     @Override
+    @JsonIgnore
     public String getIamUser() {
         return azureIamUser;
     }

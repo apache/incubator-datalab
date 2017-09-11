@@ -16,11 +16,16 @@
 
 package com.epam.dlab.dto.base;
 
+import com.epam.dlab.utils.CloudSettingsDeserializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
+@JsonDeserialize(using = CloudSettingsDeserializer.class)
 public abstract class CloudSettings {
+    @JsonIgnore
     abstract public String getIamUser();
 }
