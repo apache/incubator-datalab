@@ -233,7 +233,7 @@ public class ExploratoryDAO extends BaseDAO {
             values.append(EXPLORATORY_PASSWORD, dto.getExploratoryPassword());
         }
         return updateOne(USER_INSTANCES,
-                exploratoryIdCondition(dto.getUser(), dto.getExploratoryId()),
+                exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
                 new Document(SET, values));
     }
 }
