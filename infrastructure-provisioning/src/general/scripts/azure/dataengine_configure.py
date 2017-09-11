@@ -56,7 +56,7 @@ def configure_slave(slave_number, data_engine):
         sys.exit(1)
 
     try:
-        logging.info('[INSTALLING PREREQUISITES TO MASTER NODE]')
+        logging.info('[INSTALLING PREREQUISITES TO SLAVE NODE]')
         print('[INSTALLING PREREQUISITES TO MASTER NODE]')
         params = "--hostname {} --keyfile {} --user {} --region {}". \
             format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'])
@@ -219,25 +219,24 @@ if __name__ == "__main__":
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         sys.exit(1)
 
-    for slave in range(data_engine['instance_count'] - 1):
-        try:
-            jobs = []
-            for i in range(data_engine['instance_count'] - 1):
-                p = multiprocessing.Process(target=configure_slave, args=(slave, data_engine))
-                jobs.append(p)
-                p.start()
-            for job in jobs:
-                job.join()
-            for job in jobs:
-                if job.exitcode != 0:
-                    raise Exception
-        except Exception as err:
-            append_result("Failed configuring slave node", str(err))
-            for i in range(data_engine['instance_count']):
-                slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
-                AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
-            AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-            sys.exit(1)
+    try:
+        jobs = []
+        for slave in range(data_engine['instance_count'] - 1):
+            p = multiprocessing.Process(target=configure_slave, args=(slave, data_engine))
+            jobs.append(p)
+            p.start()
+        for job in jobs:
+            job.join()
+        for job in jobs:
+            if job.exitcode != 0:
+                raise Exception
+    except Exception as err:
+        append_result("Failed configuring slave node", str(err))
+        for i in range(data_engine['instance_count']):
+            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        sys.exit(1)
 
 
     try:
