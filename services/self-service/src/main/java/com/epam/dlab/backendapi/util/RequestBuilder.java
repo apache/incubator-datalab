@@ -30,10 +30,7 @@ import com.epam.dlab.dto.azure.AzureCloudSettings;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
 import com.epam.dlab.dto.base.CloudSettings;
-import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryGitCreds;
-import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
+import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 
@@ -62,7 +59,7 @@ public class RequestBuilder {
                         .azureSecurityGroupName(settingsDAO.getAzureSecurityGroupName())
                         .azureSubnetName(settingsDAO.getAzureSubnetName())
                         .azureVpcName(settingsDAO.getAzureVpcName())
-                        .azureVpcName(userInfo.getName()).build();
+                        .azureIamUser(userInfo.getName()).build();
             default:
                 throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
         }
@@ -157,10 +154,26 @@ public class RequestBuilder {
         return exploratoryStop.withNotebookImage(userInstanceDTO.getImageName());
     }
 
+    public static ExploratoryGitCredsUpdateDTO newGitCredentialsUpdate(UserInfo userInfo, UserInstanceDTO instanceDTO,
+                                                                       ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
+
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+                return newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
+                        .withNotebookImage(instanceDTO.getImageName())
+                        .withApplicationName(ResourceUtils.getApplicationNameFromImage(instanceDTO.getImageName()))
+                        .withNotebookInstanceName(instanceDTO.getExploratoryId())
+                        .withExploratoryName(instanceDTO.getExploratoryName())
+                        .withGitCreds(exploratoryGitCredsDTO.getGitCreds());
+
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+    }
+
     private static CloudProvider cloudProvider() {
         return configuration.getCloudProvider();
-
-
     }
 }
 

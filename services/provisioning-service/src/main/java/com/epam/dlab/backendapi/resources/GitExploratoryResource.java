@@ -86,7 +86,7 @@ public class GitExploratoryResource implements DockerCommands {
     }
 
     private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
-        return new ExploratoryGitCredsCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName());
+        return new ExploratoryGitCredsCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(), dto.getExploratoryName());
     }
 
     private String nameContainer(String user, DockerAction action, String name) {
