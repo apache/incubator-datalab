@@ -58,8 +58,12 @@ public class ExploratoryDAO extends BaseDAO {
     private static final String EXPLORATORY_PASSWORD = "exploratory_pass";
     private static final String EXPLORATORY_PRIVATE_IP = "private_ip";
 
-    public static Bson exploratoryCondition(String user, String exploratoryName) {
+    static Bson exploratoryCondition(String user, String exploratoryName) {
         return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));
+    }
+
+    static Bson exploratoryIdCondition(String user, String exploratoryId) {
+        return and(eq(USER, user), eq(EXPLORATORY_ID, exploratoryId));
     }
 
     /**
@@ -98,6 +102,22 @@ public class ExploratoryDAO extends BaseDAO {
         return UserInstanceStatus.of(
                 findOne(USER_INSTANCES,
                         exploratoryCondition(user, exploratoryName),
+                        fields(include(STATUS), excludeId()))
+                        .orElse(new Document())
+                        .getOrDefault(STATUS, EMPTY).toString());
+    }
+
+    /**
+     * Finds and returns the status of exploratory.
+     *
+     * @param user          user name.
+     * @param exploratoryId the id of exploratory.
+     * @throws DlabException
+     */
+    public UserInstanceStatus fetchExploratoryStatusByExploratoryId(String user, String exploratoryId) throws DlabException {
+        return UserInstanceStatus.of(
+                findOne(USER_INSTANCES,
+                        exploratoryIdCondition(user, exploratoryId),
                         fields(include(STATUS), excludeId()))
                         .orElse(new Document())
                         .getOrDefault(STATUS, EMPTY).toString());
@@ -213,7 +233,7 @@ public class ExploratoryDAO extends BaseDAO {
             values.append(EXPLORATORY_PASSWORD, dto.getExploratoryPassword());
         }
         return updateOne(USER_INSTANCES,
-                exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
+                exploratoryIdCondition(dto.getUser(), dto.getExploratoryId()),
                 new Document(SET, values));
     }
 }

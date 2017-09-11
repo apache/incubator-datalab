@@ -69,7 +69,7 @@ public class RequestBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T extends ResourceBaseDTO<?>> T newResourceBaseDTO(UserInfo userInfo, Class<T> resourceClass) throws DlabException {
+    private static <T extends ResourceBaseDTO<?>> T newResourceBaseDTO(UserInfo userInfo, Class<T> resourceClass) {
         try {
             T resource = resourceClass.newInstance();
             switch (cloudProvider()) {
@@ -88,7 +88,7 @@ public class RequestBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass) throws DlabException {
+    public static <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass) {
         T resource = newResourceBaseDTO(userInfo, resourceClass);
         return (T) resource
                 .withServiceBaseName(settingsDAO.getServiceBaseName())
@@ -154,7 +154,7 @@ public class RequestBuilder {
                 throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
         }
 
-        return exploratoryStop;
+        return exploratoryStop.withNotebookImage(userInstanceDTO.getImageName());
     }
 
     private static CloudProvider cloudProvider() {

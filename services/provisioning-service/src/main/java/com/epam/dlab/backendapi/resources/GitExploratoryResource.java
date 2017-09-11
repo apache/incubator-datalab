@@ -1,20 +1,20 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
-****************************************************************************/
+ ****************************************************************************/
 
 package com.epam.dlab.backendapi.resources;
 
@@ -24,17 +24,13 @@ import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryGitCredsCallbackHandler;
-import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -46,8 +42,8 @@ import java.io.IOException;
 @Path("/exploratory")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class ExploratoryResource implements DockerCommands {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExploratoryResource.class);
+@Slf4j
+public class GitExploratoryResource implements DockerCommands {
 
     @Inject
     private ProvisioningServiceApplicationConfiguration configuration;
@@ -60,12 +56,6 @@ public class ExploratoryResource implements DockerCommands {
     @Inject
     private RESTService selfService;
 
-    @Path("/lib_install")
-    @POST
-    public String libInstall(@Auth UserInfo ui, ExploratoryLibInstallDTO dto) throws IOException, InterruptedException {
-        return action(ui.getName(), dto, DockerAction.LIB_INSTALL);
-    }
-
     @Path("/git_creds")
     @POST
     public String gitCredsUpdate(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws IOException, InterruptedException {
@@ -73,7 +63,7 @@ public class ExploratoryResource implements DockerCommands {
     }
 
     private String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws IOException, InterruptedException {
-        LOGGER.debug("{} exploratory environment", action);
+        log.debug("{} exploratory environment", action);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
@@ -95,16 +85,8 @@ public class ExploratoryResource implements DockerCommands {
         return uuid;
     }
 
-	private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
-    	switch (action) {
-    		case LIB_INSTALL:
-        		return new LibInstallCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), (ExploratoryLibInstallDTO) dto);
-    		case GIT_CREDS:
-    			return new ExploratoryGitCredsCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName());
-    		default:
-    			break;
-    	}
-		return new ExploratoryCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName());
+    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
+        return new ExploratoryGitCredsCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), dto.getExploratoryName());
     }
 
     private String nameContainer(String user, DockerAction action, String name) {
