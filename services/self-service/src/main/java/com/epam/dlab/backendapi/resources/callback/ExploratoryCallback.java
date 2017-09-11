@@ -63,15 +63,15 @@ public class ExploratoryCallback {
         UserInstanceStatus currentStatus;
 
         try {
-            currentStatus = exploratoryDAO.fetchExploratoryStatus(dto.getUser(), dto.getExploratoryName());
+            currentStatus = exploratoryDAO.fetchExploratoryStatusByExploratoryId(dto.getUser(), dto.getExploratoryId());
         } catch (DlabException e) {
             log.error("Could not get current status for exploratory environment {} for user {}",
                     dto.getExploratoryName(), dto.getUser(), e);
-            throw new DlabException("Could not get current status for exploratory environment " + dto.getExploratoryName() +
+            throw new DlabException("Could not get current status for exploratory environment " + dto.getExploratoryId() +
                     " for user " + dto.getUser() + ": " + e.getLocalizedMessage(), e);
         }
         log.debug("Current status for exploratory environment {} for user {} is {}",
-                dto.getExploratoryName(), dto.getUser(), currentStatus);
+                dto.getExploratoryId(), dto.getUser(), currentStatus);
 
         try {
             exploratoryDAO.updateExploratoryFields(dto);

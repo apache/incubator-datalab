@@ -364,6 +364,18 @@ class AzureMeta:
                 data.append(host)
         return data
 
+    def get_application(self, application_object_id):
+        try:
+            result = graphrbac_client.applications.get(application_object_id)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to get application: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get application",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
 
 def get_instance_private_ip_address(tag_name, instance_name):
     try:

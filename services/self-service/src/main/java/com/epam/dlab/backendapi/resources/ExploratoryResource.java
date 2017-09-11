@@ -24,9 +24,6 @@ import static com.epam.dlab.UserInstanceStatus.STARTING;
 import static com.epam.dlab.UserInstanceStatus.STOPPING;
 import static com.epam.dlab.UserInstanceStatus.TERMINATING;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -41,7 +38,6 @@ import javax.ws.rs.core.Response;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.util.RequestBuilder;
-import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,20 +51,14 @@ import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryActionFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
-import com.epam.dlab.backendapi.resources.dto.ExploratoryLibInstallFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
-import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
-import com.epam.dlab.dto.exploratory.LibInstallDTO;
-import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
@@ -205,11 +195,15 @@ public class ExploratoryResource implements ExploratoryAPI {
                 case STARTING:
                     dto = RequestBuilder.newExploratoryStart(userInfo)
                             .withNotebookInstanceName(userInstance.getExploratoryId())
-                            .withGitCreds(gitCredsDAO.findGitCreds(userInfo.getName()).getGitCreds());
+                            .withGitCreds(gitCredsDAO.findGitCreds(userInfo.getName()).getGitCreds())
+                            .withNotebookImage(userInstance.getImageName())
+                            .withExploratoryName(exploratoryName);
                     break;
                 default:
                     dto = RequestBuilder.newExploratoryStop(userInfo, userInstance)
-                            .withNotebookInstanceName(userInstance.getExploratoryId());
+                            .withNotebookInstanceName(userInstance.getExploratoryId())
+                            .withNotebookImage(userInstance.getImageName())
+                            .withExploratoryName(exploratoryName);
                     break;
             }
 
@@ -221,98 +215,6 @@ public class ExploratoryResource implements ExploratoryAPI {
         	updateExploratoryStatusSilent(userInfo.getName(), exploratoryName, FAILED);
             throw new DlabException("Could not " + action + " exploratory environment " + exploratoryName + ": " + t.getLocalizedMessage(), t);
         }
-    }
-
-
-
-    /** Returns the list of libraries groups for exploratory.
-     * @param userInfo user info.
-     * @param imageName name of exploratory image.
-     */
-    @POST
-    @Path("/lib_list")
-    public Iterable<Document> getLibList(@Auth UserInfo userInfo, @NotNull String exploratoryName) {
-        LOGGER.debug("Loading list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName);
-        try {
-        	return libraryDAO.findLibraries(userInfo.getName(), exploratoryName);
-        } catch (Throwable t) {
-        	LOGGER.error("Cannot load list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName, t);
-            throw new DlabException("Cannot load list of libraries: " + t.getLocalizedMessage(), t);
-        }
-    }
-
-    /** Install the libraries to the exploratory environment.
-     * @param userInfo user info.
-     * @param formDTO description of libraries which will be installed to the exploratory environment.
-     * @return Invocation response as JSON string.
-     * @throws DlabException
-     */
-    @POST
-    @Path("/lib_install")
-    public Response libInstall(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryLibInstallFormDTO formDTO) throws DlabException {
-        LOGGER.debug("Installing libs to exploratory environment {} for user {}, libs {}",
-        		formDTO.getNotebookName(), userInfo.getName(), formDTO);
-        try {
-        	UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
-        	if (UserInstanceStatus.RUNNING != UserInstanceStatus.of(userInstance.getStatus())) {
-        		throw new DlabException("Exploratory " + formDTO.getNotebookName() + " is not running");
-        	}
-            List<LibInstallDTO> libs = new ArrayList<>();
-        	ExploratoryLibInstallDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryLibInstallDTO.class, configuration.getCloudProvider())
-        			.withNotebookImage(userInstance.getImageName())
-        			.withApplicationName(ResourceUtils.getApplicationNameFromImage(userInstance.getImageName()))
-                	.withNotebookInstanceName(userInstance.getExploratoryId())
-                	.withExploratoryName(formDTO.getNotebookName())
-                	.withLibs(libs);
-
-        	for (LibInstallDTO lib : formDTO.getLibs()) {
-        		LibStatus status = libraryDAO.fetchLibraryStatus(userInfo.getName(), formDTO.getNotebookName(),
-                        lib.getGroup(), lib.getName(), lib.getVersion());
-
-        		if (status == LibStatus.INSTALLING) {
-        			throw new DlabException("Library " + lib.getName() + " is already installing");
-        		}
-
-        		LibInstallDTO newLib = new LibInstallDTO(lib.getGroup(), lib.getName(), lib.getVersion());
-				if (libs.contains(newLib)) {
-					continue;
-				}
-        		libs.add(newLib);
-        		lib.setStatus(LibStatus.INSTALLING.toString());
-        		libraryDAO.addLibrary(userInfo.getName(), formDTO.getNotebookName(), lib, LibStatus.FAILED == status);
-        	}
-
-        	String uuid = provisioningService.post(EXPLORATORY_LIB_INSTALL, userInfo.getAccessToken(), dto, String.class);
-            RequestId.put(userInfo.getName(), uuid);
-            return Response.ok(uuid).build();
-        } catch (DlabException e) {
-        	LOGGER.error("Cannot install libs to exploratory environment {} for user {}: {}",
-        			formDTO.getNotebookName(), userInfo.getName(), e.getLocalizedMessage(), e);
-        	throw new DlabException("Cannot install libraries: " + e.getLocalizedMessage(), e);
-        }
-    }
-
-    /** Changes the status of installed libraries for exploratory environment.
-     * @param dto description of status.
-     * @return 200 OK - if request success.
-     * @exception DlabException
-     */
-    @POST
-    @Path("/lib_status")
-    public Response libInstallStatus(ExploratoryLibInstallStatusDTO dto) throws DlabException {
-        LOGGER.debug("Updating status of libraries for exploratory environment {} for user {} to {}",
-        		dto.getExploratoryName(), dto.getUser(), dto);
-        RequestId.checkAndRemove(dto.getRequestId());
-        try {
-        	libraryDAO.updateLibraryFields(dto);
-        } catch (DlabException e) {
-        	LOGGER.error("Cannot update status of libraries for exploratory environment {} for user {} to {}",
-        			dto.getExploratoryName(), dto.getUser(), dto, e);
-        	throw new DlabException("Cannot update status of libaries for exploratory environment " + dto.getExploratoryName() +
-        			" for user " + dto.getUser() + ": " + e.getLocalizedMessage(), e);
-        }
-
-    	return Response.ok().build();
     }
 
     /** Instantiates and returns the descriptor of exploratory environment status.
