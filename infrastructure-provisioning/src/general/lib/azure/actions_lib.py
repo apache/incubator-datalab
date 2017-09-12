@@ -26,9 +26,8 @@ from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
 from azure.datalake.store import core, lib, multithread
 from azure.storage import CloudStorageAccount
+from azure.storage import SharedAccessSignature
 from azure.storage.blob import BlockBlobService
-from azure.storage.blob import ContentSettings
-from azure.storage.blob.models import ContentSettings, PublicAccess
 import azure.common.exceptions as AzureExceptions
 from fabric.api import *
 from fabric.contrib.files import exists
@@ -338,6 +337,20 @@ class AzureActions:
             logging.info(
                 "Unable to download files from container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to download files from container",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def generate_container_sas(self, resource_group_name, account_name, container_name, source_ip_range):
+        try:
+            secret_key = meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+            sas = SharedAccessSignature(account_name=account_name, account_key=secret_key)
+            result = sas.generate_container(container_name, source_ip_range)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to generate SAS for container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to generate SAS for container",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
