@@ -135,7 +135,7 @@ def pyspark_kernel(args):
     text = text.replace('SPARK_PATH', spark_path)
     text = text.replace('MASTER', args.spark_master)
     text = text.replace('PYTHON_SHORT_VERSION', '3.5')
-    text = text.replace('PYTHON_FULL_VERSION', '3.5.3')
+    text = text.replace('PYTHON_FULL_VERSION', '3.5')
     text = text.replace('PYTHON_PATH', '/usr/bin/python3.5')
     with open(kernel_path, 'w') as f:
         f.write(text)

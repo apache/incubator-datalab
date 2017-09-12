@@ -42,7 +42,6 @@ COPY general/templates/os/tensorboard.service /root/templates/
 COPY general/files/os/toree-assembly-0.2.0.jar /root/files/
 COPY general/files/os/toree_kernel.tar.gz /root/files/
 COPY general/templates/os/tensorboard.service /root/templates/
-COPY general/files/os/cudnn-8.0-linux-x64-v5.1.tgz /root/files/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
