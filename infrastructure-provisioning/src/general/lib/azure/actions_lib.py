@@ -898,10 +898,10 @@ class AzureActions:
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
         try:
-            container_name = (os.environ['service_base_name'] + '-' + os.environ['edge_user_name'] + '-container').lower().replace('_', '-')
-            storage_account_name = (os.environ['service_base_name'] + os.environ['edge_user_name']).lower().replace('_', '').replace('-', '')
-            source_ip_range = AzureMeta().get_subnet(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'],
-                                                     os.environ['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet').address_prefix
+            container_name = (os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-container').lower().replace('_', '-')
+            storage_account_name = (os.environ['conf_service_base_name'] + os.environ['edge_user_name']).lower().replace('_', '').replace('-', '')
+            source_ip_range = meta_lib.AzureMeta().get_subnet(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'],
+                                                     os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet').address_prefix
             container_sas = AzureActions().generate_container_sas(os.environ['azure_resource_group_name'],
                                                                   storage_account_name, container_name, source_ip_range)
             print "Downloading local jars for Azure"
