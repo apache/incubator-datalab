@@ -133,6 +133,7 @@ def pyspark_kernel(args):
     text = text.replace('CLUSTER_NAME', args.cluster_name)
     text = text.replace('SPARK_VERSION', 'Spark-' + spark_version)
     text = text.replace('SPARK_PATH', spark_path)
+    text = text.replace('MASTER', args.spark_master)
     text = text.replace('PYTHON_SHORT_VERSION', '3.5')
     text = text.replace('PYTHON_FULL_VERSION', '3.5.3')
     text = text.replace('PYTHON_PATH', '/usr/bin/python3.5')
