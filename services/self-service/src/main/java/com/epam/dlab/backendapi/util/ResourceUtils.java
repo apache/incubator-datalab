@@ -26,8 +26,13 @@ import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 
-/** Utilities for resource methods.
+/**
+ *  Utilities for resource methods.
+ *
+ *   @see com.epam.dlab.backendapi.util.RequestBuilder
+ *
  */
+@Deprecated
 public class ResourceUtils {
 
 	@Inject

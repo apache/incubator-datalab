@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static com.epam.dlab.rest.contracts.ApiCallbacks.EXPLORATORY;
 import static com.epam.dlab.rest.contracts.ApiCallbacks.UPDATE_LIBS_URI;
 
 /** Handler of docker response for the request the list of libraries.
@@ -58,7 +59,7 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<ExploratoryL
 
 	@Override
     protected String getCallbackURI() {
-        return UPDATE_LIBS_URI;
+        return EXPLORATORY + UPDATE_LIBS_URI;
     }
 
 	@Override

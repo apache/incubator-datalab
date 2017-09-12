@@ -20,36 +20,24 @@ package com.epam.dlab.backendapi.resources;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.core.UserInstanceDTO;
-import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
-import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
-import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.resources.dto.ExploratoryGetLibsFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
-import com.epam.dlab.dto.exploratory.ExploratoryLibListStatusDTO;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -71,8 +59,6 @@ public class InfrastructureProvisionResource implements DockerAPI {
 
     @Inject
     private ExploratoryDAO expDAO;
-    @Inject
-    private BillingDAO billingDAO;
     @Inject
     private KeyDAO keyDAO;
     @Inject
@@ -152,72 +138,6 @@ public class InfrastructureProvisionResource implements DockerAPI {
         	LOGGER.error("Could not load list of exploratory templates for user: {}", userInfo.getName(), t);
             throw new DlabException("Could not load list of exploratory templates for user " + userInfo.getName() + ": " + t.getLocalizedMessage(), t);
         }
-    }
-    
-    /** Returns the list of libraries groups for exploratory.
-     * @param userInfo user info.
-     * @param imageName name of exploratory image.
-     */
-    @POST
-    @Path("/lib_groups")
-    public Iterable<String> getLibGroupList(@Auth UserInfo userInfo, @NotNull String exploratoryName) {
-        LOGGER.trace("Loading list of lib groups for user {} and exploratory {}", userInfo.getName(), exploratoryName);
-        try {
-        	UserInstanceDTO userInstance = expDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
-        	return ExploratoryLibCache
-        			.getCache()
-        			.getLibGroupList(userInfo, userInstance);
-        } catch (Throwable t) {
-        	LOGGER.error("Cannot load list of lib groups for user {} and exploratory {}", userInfo.getName(), exploratoryName, t);
-            throw new DlabException("Cannot load list of libraries groups: " + t.getLocalizedMessage(), t);
-        }
-    }
-    
-    /** Returns the list of libraries for exploratory.
-     * @param userInfo user info.
-     * @param formDTO search condition for find libraries for the exploratory environment.
-     */
-    @POST
-    @Path("/lib_list")
-    public Map<String, String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryGetLibsFormDTO formDTO) {
-        LOGGER.trace("Loading list of libs for user {} with condition {}", userInfo.getName(), formDTO);
-        try {
-        	UserInstanceDTO userInstance = expDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
-        	return ExploratoryLibCache
-        			.getCache()
-        			.getLibList(userInfo, userInstance, formDTO.getGroup(), formDTO.getStartWith());
-        } catch (Throwable t) {
-        	LOGGER.error("Cannot load list of libs for user {} with condition {}",
-        			userInfo.getName(), formDTO, t);
-            throw new DlabException("Cannot load list of libraries: " + t.getLocalizedMessage(), t);
-        }
-    }
-    
-    /** Updates the list of libraries.
-     * @param dto DTO the list of libraries.
-     * @return Always return code 200 (OK).
-     */
-    @POST
-    @Path("/update_lib_list")
-    public Response updateLibList(ExploratoryLibListStatusDTO dto) {
-        LOGGER.debug("Updating the list of libraries for image {}", dto.getImageName());
-        RequestId.checkAndRemove(dto.getRequestId());
-        try {
-        	if (UserInstanceStatus.FAILED == UserInstanceStatus.of(dto.getStatus())) {
-        		LOGGER.warn("Request for the list of libraries fails: {}", dto.getErrorMessage());
-        		ExploratoryLibCache
-					.getCache()
-					.removeLibList(dto.getImageName());
-        	} else {
-        		ExploratoryLibCache
-    				.getCache()
-    				.updateLibList(dto.getImageName(), dto.getLibs());
-        	}
-        } catch (Throwable e) {
-        	LOGGER.warn("Cannot update the list of libs: {}", e.getLocalizedMessage(), e);
-        }
-        // Always necessary send OK for status request
-        return Response.ok().build();
     }
 
     /** Return the image name without suffix version.
