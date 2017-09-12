@@ -254,7 +254,7 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            run('echo "export LD_LIBRARY_PATH=\\"\\$LD_LIBRARY_PATH:/opt/cudnn/lib64\\"" >> ~/.bashrc')
+            run('echo "export LD_LIBRARY_PATH=\'\\$LD_LIBRARY_PATH:/opt/cudnn/lib64\'" >> /home/{}/.bashrc'.format(os_user))
             # install TensorFlow and run TensorBoard
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl')
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl')
@@ -379,7 +379,7 @@ def install_caffe(os_user, region):
             sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
         sudo('yum update-minimal --security -y')
         sudo('yum install -y protobuf-devel leveldb-devel snappy-devel boost-devel hdf5-devel gcc gcc-c++')
-        sudo('yum install -y gflags-devel glog-devel lmdb-devel')
+        sudo('yum install -y gflags-devel glog-devel lmdb-devel yum-utils && package-cleanup --cleandupes')
         sudo('yum install -y openblas-devel gflags-devel glog-devel lmdb-devel')
         sudo('git clone https://github.com/BVLC/caffe.git')
         with cd('/home/{}/caffe/'.format(os_user)):
@@ -394,8 +394,8 @@ def install_caffe(os_user, region):
             sudo('echo "OPENCV_VERSION := 3" >> Makefile.config')
             sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" >> Makefile.config')
             sudo('echo "PYTHON_LIB := /usr/lib" >> Makefile.config')
-            sudo('echo "INCLUDE_DIRS := \\$(PYTHON_INCLUDE) /usr/local/include /usr /usr/lib64 /usr/include/python2.7 /usr/lib64/python2.7/site-packages/numpy/core/include" >> Makefile.config')
-            sudo('echo "LIBRARY_DIRS := \\$(PYTHON_LIB) /usr/local/lib /usr/lib /usr /usr/lib64" >> Makefile.config')
+            sudo('echo "INCLUDE_DIRS := \\\$(PYTHON_INCLUDE) /usr/local/include /usr /usr/lib64 /usr/include/python2.7 /usr/lib64/python2.7/site-packages/numpy/core/include" >> Makefile.config')
+            sudo('echo "LIBRARY_DIRS := \\\$(PYTHON_LIB) /usr/local/lib /usr/lib /usr /usr/lib64" >> Makefile.config')
             sudo('echo "BUILD_DIR := build" >> Makefile.config')
             sudo('echo "DISTRIBUTE_DIR := distribute" >> Makefile.config')
             sudo('echo "TEST_GPUID := 0" >> Makefile.config')
@@ -410,7 +410,7 @@ def install_caffe(os_user, region):
 def install_caffe2(os_user):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
-        sudo('yum update -y')
+        sudo('yum update-minimal --security -y')
         sudo('yum install -y automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
         sudo('pip2 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future --no-cache-dir')
@@ -427,7 +427,7 @@ def install_caffe2(os_user):
 
 def install_cntk(os_user):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
-        sudo('yum install -y openmpi openmpi-devel')
+        sudo('yum install -y openmpi openmpi-devel --nogpgcheck')
         sudo('sed -i "s/LD_LIBRARY_PATH:/LD_LIBRARY_PATH:\/usr\/lib64\/openmpi\/lib:/g" /etc/systemd/system/jupyter-notebook.service')
         sudo('systemctl daemon-reload')
         sudo('systemctl restart jupyter-notebook')
