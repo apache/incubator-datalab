@@ -254,7 +254,7 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64\"" >> ~/.bashrc')
+            run('echo "export LD_LIBRARY_PATH=\\"\\$LD_LIBRARY_PATH:/opt/cudnn/lib64\\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl')
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl')
@@ -347,8 +347,9 @@ def get_available_os_pkgs():
 
 def install_opencv(os_user):
     if not exists('/home/{}/.ensure_dir/opencv_ensured'.format(os_user)):
-        sudo('yum install -y cmake python3 python3-devel python3-numpy gcc gcc-c++')
+        sudo('yum install -y cmake python34 python34-devel python34-pip gcc gcc-c++')
         sudo('pip2 install numpy --no-cache-dir')
+        sudo('pip3.4 install numpy --no-cache-dir')
         sudo('pip3.5 install numpy --no-cache-dir')
         run('git clone https://github.com/opencv/opencv.git')
         with cd('/home/{}/opencv/'.format(os_user)):
@@ -385,20 +386,20 @@ def install_caffe(os_user, region):
             sudo('pip2 install -r python/requirements.txt --no-cache-dir')
             sudo('pip3.5 install -r python/requirements.txt --no-cache-dir')
             sudo('echo "CUDA_DIR := /usr/local/cuda" > Makefile.config')
-            sudo('echo "CUDA_ARCH := -gencode arch=compute_35,code=sm_35 -gencode arch=compute_52,code=sm_52 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61" >> Makefile.config')
+            cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
+            sudo('echo "CUDA_ARCH := -gencode arch=compute_{0},code=sm_{0}" >> Makefile.config'.format(cuda_arch.replace('.', '')))
             sudo('echo "PYTHON_INCLUDE := /usr/include/python2.7 /usr/lib64/python2.7/site-packages/numpy/core/include" >> Makefile.config')
             sudo('echo "BLAS := open" >> Makefile.config')
             sudo('echo "BLAS_INCLUDE := /usr/include/openblas" >> Makefile.config')
             sudo('echo "OPENCV_VERSION := 3" >> Makefile.config')
             sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" >> Makefile.config')
             sudo('echo "PYTHON_LIB := /usr/lib" >> Makefile.config')
-            sudo('echo "INCLUDE_DIRS := \\\$(PYTHON_INCLUDE) /usr/local/include /usr /usr/lib64 /usr/include/python2.7 /usr/lib64/python2.7/site-packages/numpy/core/include" >> Makefile.config')
-            sudo('echo "LIBRARY_DIRS := \\\$(PYTHON_LIB) /usr/local/lib /usr/lib /usr /usr/lib64" >> Makefile.config')
+            sudo('echo "INCLUDE_DIRS := \\$(PYTHON_INCLUDE) /usr/local/include /usr /usr/lib64 /usr/include/python2.7 /usr/lib64/python2.7/site-packages/numpy/core/include" >> Makefile.config')
+            sudo('echo "LIBRARY_DIRS := \\$(PYTHON_LIB) /usr/local/lib /usr/lib /usr /usr/lib64" >> Makefile.config')
             sudo('echo "BUILD_DIR := build" >> Makefile.config')
             sudo('echo "DISTRIBUTE_DIR := distribute" >> Makefile.config')
             sudo('echo "TEST_GPUID := 0" >> Makefile.config')
             sudo('echo "Q ?= @" >> Makefile.config')
-            sudo('make clean')
             sudo('make all -j$(nproc)')
             sudo('make test -j$(nproc)')
             sudo('make runtest')
@@ -410,8 +411,7 @@ def install_caffe2(os_user):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         sudo('yum update -y')
-        sudo('yum install -y automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel '
-             'python-devel snappy-devel')
+        sudo('yum install -y automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
         sudo('pip2 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future --no-cache-dir')
         sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
@@ -419,8 +419,9 @@ def install_caffe2(os_user):
         sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
         sudo('git clone --recursive https://github.com/caffe2/caffe2')
+        cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
         with cd('/home/{}/caffe2/'.format(os_user)):
-            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="35 52 60 61" -DCUDA_ARCH_PTX="61" && make "-j$(nproc)" install')
+            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_BIN="{0}" -DCUDA_ARCH_PTX="{0}" && make "-j$(nproc)" install'.format(cuda_arch.replace('.', '')))
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
