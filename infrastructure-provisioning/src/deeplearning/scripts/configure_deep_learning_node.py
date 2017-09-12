@@ -88,6 +88,9 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
+    print "Mount additional volume"
+    prepare_disk(args.os_user)
+
     print "Install Java"
     ensure_jre_jdk(args.os_user)
 
