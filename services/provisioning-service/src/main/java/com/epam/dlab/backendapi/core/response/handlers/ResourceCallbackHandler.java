@@ -35,7 +35,7 @@ import java.time.Instant;
 import java.util.Date;
 
 abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implements FileHandlerCallback {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCallbackHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(ResourceCallbackHandler.class);
     protected ObjectMapper MAPPER = new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 
     private static final String STATUS_FIELD = "status";
@@ -92,7 +92,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
         try {
         	selfService.post(getCallbackURI(), object, resultType);
         } catch (Throwable e) {
-        	LOGGER.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
+        	log.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
         	throw new DlabException("Send request or responce error for UUID " + uuid + ": " + e.getLocalizedMessage(), e);
         }
     }
@@ -110,7 +110,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
         if (success) {
         	debugMessage("Did {} resource for user: {}, UUID: {}", action, user, uuid);
         } else {
-            LOGGER.error("Could not {} resource for user: {}, UUID: {}", action, user, uuid);
+            log.error("Could not {} resource for user: {}, UUID: {}", action, user, uuid);
             result.setErrorMessage(getTextValue(resultNode.get(ERROR_NODE)));
         }
         result = parseOutResponse(resultNode, result);
@@ -186,9 +186,9 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
     
     private void debugMessage(String format, Object... arguments) {
     	if (action == DockerAction.STATUS) {
-    		LOGGER.trace(format, arguments);
+    		log.trace(format, arguments);
     	} else {
-    		LOGGER.debug(format, arguments);
+    		log.debug(format, arguments);
     	}
     }
 }

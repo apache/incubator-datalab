@@ -166,12 +166,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	private void requestLibList(UserInfo userInfo, UserInstanceDTO userInstance) {
 		try {
 			LOGGER.debug("Ask docker for the list of libraries for user {} and exploratory {}", userInfo.getName(), userInstance.getExploratoryId());
-			ExploratoryActionDTO<?> dto = RequestBuilder.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class);
-            dto.withNotebookImage(userInstance.getImageName())
-            	.withNotebookInstanceName(userInstance.getExploratoryId())
-            	.withApplicationName(ResourceUtils.getApplicationNameFromImage(userInstance.getImageName()))
-            	.withExploratoryName(userInstance.getExploratoryName());
-
+			ExploratoryActionDTO<?> dto = RequestBuilder.newLibExploratoryList(userInfo, userInstance);
 			String uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_LIST, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
 		} catch (Exception e) {

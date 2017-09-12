@@ -112,8 +112,7 @@ public class ExploratoryResource implements ExploratoryAPI {
                     .withShape(formDTO.getShape()));
 
             isAdded = true;
-            ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
-            ExploratoryCreateDTO<?> dto = RequestBuilder.newExploratoryCreate(formDTO, userInfo, gitCreds.getGitCreds());
+            ExploratoryCreateDTO<?> dto = RequestBuilder.newExploratoryCreate(formDTO, userInfo, gitCredsDAO.findGitCreds(userInfo.getName()));
             LOGGER.debug("Created exploratory environment {} for user {}", formDTO.getName(), userInfo.getName());
             String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
@@ -187,17 +186,10 @@ public class ExploratoryResource implements ExploratoryAPI {
             ExploratoryActionDTO<?> dto;
             switch (status) {
                 case STARTING:
-                    dto = RequestBuilder.newExploratoryStart(userInfo)
-                            .withNotebookInstanceName(userInstance.getExploratoryId())
-                            .withGitCreds(gitCredsDAO.findGitCreds(userInfo.getName()).getGitCreds())
-                            .withNotebookImage(userInstance.getImageName())
-                            .withExploratoryName(exploratoryName);
+                    dto = RequestBuilder.newExploratoryStart(userInfo, userInstance, gitCredsDAO.findGitCreds(userInfo.getName()));
                     break;
                 default:
-                    dto = RequestBuilder.newExploratoryStop(userInfo, userInstance)
-                            .withNotebookInstanceName(userInstance.getExploratoryId())
-                            .withNotebookImage(userInstance.getImageName())
-                            .withExploratoryName(exploratoryName);
+                    dto = RequestBuilder.newExploratoryStop(userInfo, userInstance);
                     break;
             }
 
