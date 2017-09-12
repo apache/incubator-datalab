@@ -34,6 +34,7 @@ COPY general/templates/os/py3spark_local_template.json /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/pyspark_dataengine-service_template.json /root/templates/
 COPY general/templates/os/tensorboard.service /root/templates/
+COPY general/templates/${CLOUD}/core-site.xml /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*

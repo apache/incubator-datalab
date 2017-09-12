@@ -896,10 +896,28 @@ class AzureActions:
 
 
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
-    print "Downloading local jars for Azure"
-    sudo('mkdir -p ' + jars_dir)
-    sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/2.7.4/hadoop-azure-2.7.4.jar -O ' +
-         jars_dir + 'hadoop-azure-2.7.4.jar')
-    sudo(
-        'wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/5.5.0/azure-storage-5.5.0.jar -O ' +
-        jars_dir + 'azure-storage-5.5.0.jar')
+    if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
+        try:
+            container_name = (os.environ['service_base_name'] + '-' + os.environ['edge_user_name'] + '-container').lower().replace('_', '-')
+            storage_account_name = (os.environ['service_base_name'] + os.environ['edge_user_name']).lower().replace('_', '').replace('-', '')
+            source_ip_range = AzureMeta().get_subnet(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'],
+                                                     os.environ['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet').address_prefix
+            container_sas = AzureActions().generate_container_sas(os.environ['azure_resource_group_name'],
+                                                                  storage_account_name, container_name, source_ip_range)
+            print "Downloading local jars for Azure"
+            sudo('mkdir -p ' + jars_dir)
+            sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/2.7.4/hadoop-azure-2.7.4.jar -O ' +
+                 jars_dir + 'hadoop-azure-2.7.4.jar')
+            sudo(
+                'wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/5.5.0/azure-storage-5.5.0.jar -O ' +
+                jars_dir + 'azure-storage-5.5.0.jar')
+            put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
+            sudo('sed -i "s|BLOB_CONTAINER|{}|g" /tmp/core-site.xml'.format(container_name))
+            sudo('sed -i "s|STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(storage_account_name))
+            sudo('sed -i "s|CONTAINER_SAS|{}|g" /tmp/core-site.xml'.format(container_sas))
+            sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+            put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+            sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+            sudo('touch /home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user))
+        except:
+            sys.exit(1)
