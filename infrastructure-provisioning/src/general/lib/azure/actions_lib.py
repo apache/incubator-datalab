@@ -268,7 +268,10 @@ class AzureActions:
                     "sku": {"name": "Standard_LRS"},
                     "kind": "BlobStorage",
                     "location":  region,
-                    "access_tier": "Hot"
+                    "access_tier": "Hot",
+                    "encryption": {
+                        "services": {"blob": {"enabled": True}}
+                    }
                 }
             )
             return result
