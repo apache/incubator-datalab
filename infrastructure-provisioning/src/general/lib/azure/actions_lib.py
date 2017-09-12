@@ -898,3 +898,8 @@ class AzureActions:
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     print "Downloading local jars for Azure"
     sudo('mkdir -p ' + jars_dir)
+    sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/2.7.4/hadoop-azure-2.7.4.jar -O ' +
+         jars_dir + 'hadoop-azure-2.7.4.jar')
+    sudo(
+        'wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/5.5.0/azure-storage-5.5.0.jar -O ' +
+        jars_dir + 'azure-storage-5.5.0.jar')
