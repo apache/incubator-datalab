@@ -32,10 +32,8 @@ COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 COPY general/templates/os/pyspark_local_template.json /root/templates/
 COPY general/templates/os/py3spark_local_template.json /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
-COPY general/files/os/notebook_local_jars.tar.gz /root/files/
 COPY general/templates/os/pyspark_dataengine-service_template.json /root/templates/
 COPY general/templates/os/tensorboard.service /root/templates/
-COPY general/files/os/cudnn-8.0-linux-x64-v5.1.tgz /root/files/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
