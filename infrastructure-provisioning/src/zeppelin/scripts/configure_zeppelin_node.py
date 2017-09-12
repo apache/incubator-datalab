@@ -101,7 +101,6 @@ def configure_zeppelin(os_user):
             sudo('chown ' + os_user + ':' + os_user + ' /mnt/var')
             sudo("systemctl daemon-reload")
             sudo("systemctl enable zeppelin-notebook")
-            sudo("systemctl start zeppelin-notebook")
             sudo('echo \"d /var/run/zeppelin 0755 ' + os_user + '\" > /usr/lib/tmpfiles.d/zeppelin.conf')
             sudo('touch /home/' + os_user + '/.ensure_dir/zeppelin_ensured')
         except:
@@ -131,6 +130,7 @@ def configure_local_livy_kernels(args):
         if exists('/opt/livy/conf/spark-blacklist.conf'):
             sudo('sed -i "s/^/#/g" /opt/livy/conf/spark-blacklist.conf')
         sudo("systemctl start livy-server")
+        sudo("systemctl start zeppelin-notebook")
         sudo('touch /home/' + args.os_user + '/.ensure_dir/local_livy_kernel_ensured')
 
 
@@ -140,6 +140,7 @@ def configure_local_spark_kernels(args):
         sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
         sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
+        sudo("systemctl start zeppelin-notebook")
         sudo('touch /home/' + args.os_user + '/.ensure_dir/local_spark_kernel_ensured')
 
 
