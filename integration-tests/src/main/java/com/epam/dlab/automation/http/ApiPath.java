@@ -30,8 +30,8 @@ public class ApiPath {
     public static final String STOP_NOTEBOOK = EXP_ENVIRONMENT + "/%s/stop";
     public static final String TERMINATE_EMR = COMPUTATIONAL_RES + "/%s/%s/terminate";
     public static final String TERMINATE_NOTEBOOK = EXP_ENVIRONMENT + "/%s/terminate";
-    public static final String LIB_GROUPS = "/api/infrastructure_provision/lib_groups";
-    public static final String LIB_LIST = "/api/infrastructure_provision/lib_list";
+    public static final String LIB_GROUPS = "/api/infrastructure_provision/exploratory_environment/lib_groups";
+    public static final String LIB_LIST = "/api/infrastructure_provision/exploratory_environment/search/lib_list";
     public static final String LIB_INSTALL = "/api/infrastructure_provision/exploratory_environment/lib_install";
     public static final String LIB_LIST_EXPLORATORY = "/api/infrastructure_provision/exploratory_environment/lib_list";
 

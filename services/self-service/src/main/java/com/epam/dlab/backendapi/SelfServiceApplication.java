@@ -20,11 +20,11 @@ package com.epam.dlab.backendapi;
 
 import com.epam.dlab.auth.SecurityFactory;
 import com.epam.dlab.backendapi.dao.IndexCreator;
-import com.epam.dlab.backendapi.domain.BillingSchedulerManager;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.resources.callback.ExploratoryCallback;
 import com.epam.dlab.backendapi.resources.callback.GitCredsCallback;
+import com.epam.dlab.backendapi.resources.callback.LibExploratoryCallback;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
@@ -98,6 +98,9 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 
         jersey.register(injector.getInstance(ExploratoryResource.class));
         jersey.register(injector.getInstance(ExploratoryCallback.class));
+
+        jersey.register(injector.getInstance(LibExploratoryResource.class));
+        jersey.register(injector.getInstance(LibExploratoryCallback.class));
 
         jersey.register(injector.getInstance(GitCredsResource.class));
         jersey.register(injector.getInstance(GitCredsCallback.class));

@@ -60,7 +60,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
      * @param selfService REST pointer for Self Service.
      * @param action docker action.
      * @param uuid request UID.
-     * @param exploratoryName the name of exploratory.
+     * @param dto contains libraries to instal
      */
     public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, ExploratoryLibInstallDTO dto) {
         super(selfService, user, uuid, action);

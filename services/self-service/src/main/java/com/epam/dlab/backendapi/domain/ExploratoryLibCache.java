@@ -23,7 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,6 @@ import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.DockerAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
@@ -49,9 +49,6 @@ public class ExploratoryLibCache implements Managed, Runnable {
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
-
-    @Inject
-    private SelfServiceApplicationConfiguration configuration;
 	
     /** Instance of cache.
      */
@@ -169,17 +166,13 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	private void requestLibList(UserInfo userInfo, UserInstanceDTO userInstance) {
 		try {
 			LOGGER.debug("Ask docker for the list of libraries for user {} and exploratory {}", userInfo.getName(), userInstance.getExploratoryId());
-			ExploratoryActionDTO<?> dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class, configuration.getCloudProvider());
+			ExploratoryActionDTO<?> dto = RequestBuilder.newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class);
             dto.withNotebookImage(userInstance.getImageName())
             	.withNotebookInstanceName(userInstance.getExploratoryId())
             	.withApplicationName(ResourceUtils.getApplicationNameFromImage(userInstance.getImageName()))
             	.withExploratoryName(userInstance.getExploratoryName());
 
-			String uuid = provisioningService.post(
-					DockerAPI.DOCKER_LIB_LIST,
-					userInfo.getAccessToken(),
-					dto,
-					String.class);
+			String uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_LIST, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
 		} catch (Exception e) {
 			LOGGER.warn("Ask docker for the status of resources for user {} and exploratory {} fails: {}", userInfo.getName(), userInstance.getExploratoryName(), e.getLocalizedMessage(), e);

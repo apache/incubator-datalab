@@ -18,7 +18,6 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
@@ -58,8 +57,6 @@ public class GitCredsResource implements ExploratoryAPI {
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
-    @Inject
-    private SelfServiceApplicationConfiguration configuration;
 
     /**
      * Update GIT credentials for user.
