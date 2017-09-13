@@ -24,12 +24,19 @@ import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
+import com.epam.dlab.dto.UserEnvironmentResources;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
+import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
 import com.epam.dlab.dto.aws.exploratory.ExploratoryCreateAws;
+import com.epam.dlab.dto.aws.keyload.UploadFileAws;
 import com.epam.dlab.dto.azure.AzureCloudSettings;
+import com.epam.dlab.dto.azure.edge.EdgeCreateAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
+import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
 import com.epam.dlab.dto.base.CloudSettings;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
+import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -54,7 +61,8 @@ public class RequestBuilder {
                         .confTagResourceId(settingsDAO.getConfTagResourceId())
                         .awsIamUser(userInfo.getName()).build();
             case AZURE:
-                return AzureCloudSettings.builder().azureRegion(settingsDAO.getAzureRegion())
+                return AzureCloudSettings.builder()
+                        .azureRegion(settingsDAO.getAzureRegion())
                         .azureResourceGroupName(settingsDAO.getAzureResourceGroupName())
                         .azureSecurityGroupName(settingsDAO.getAzureSecurityGroupName())
                         .azureSubnetName(settingsDAO.getAzureSubnetName())
@@ -85,13 +93,66 @@ public class RequestBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass) {
+    private static <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass) {
         T resource = newResourceBaseDTO(userInfo, resourceClass);
         return (T) resource
                 .withServiceBaseName(settingsDAO.getServiceBaseName())
                 .withConfOsFamily(settingsDAO.getConfOsFamily());
     }
 
+    @SuppressWarnings("unchecked")
+    public static UploadFile newEdgeKeyUpload(UserInfo userInfo, String content, EdgeInfo edgeInfo) {
+
+        switch (cloudProvider()) {
+            case AWS:
+                EdgeCreateAws edgeCreateAws = newResourceSysBaseDTO(userInfo, EdgeCreateAws.class);
+                if (edgeInfo != null) {
+                    edgeCreateAws.setEdgeElasticIp(edgeInfo.getPublicIp());
+                }
+                UploadFileAws uploadFileAws = new UploadFileAws();
+                uploadFileAws.setEdge(edgeCreateAws);
+                uploadFileAws.setContent(content);
+
+                return uploadFileAws;
+
+            case AZURE:
+                EdgeCreateAzure edgeCreateAzure = newResourceSysBaseDTO(userInfo, EdgeCreateAzure.class);
+
+                UploadFileAzure uploadFileAzure = new UploadFileAzure();
+                uploadFileAzure.setEdge(edgeCreateAzure);
+                uploadFileAzure.setContent(content);
+
+                return uploadFileAzure;
+
+            case GCP:
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends ResourceSysBaseDTO<?>> T newEdgeAction(UserInfo userInfo) {
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+                return (T) newResourceSysBaseDTO(userInfo, ResourceSysBaseDTO.class);
+
+            case GCP:
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+    }
+
+    public static UserEnvironmentResources newUserEnvironmentStatus(UserInfo userInfo) {
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+                return newResourceSysBaseDTO(userInfo, UserEnvironmentResources.class);
+            case GCP:
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public static <T extends ExploratoryCreateDTO<T>> T newExploratoryCreate(ExploratoryCreateFormDTO formDTO, UserInfo userInfo,

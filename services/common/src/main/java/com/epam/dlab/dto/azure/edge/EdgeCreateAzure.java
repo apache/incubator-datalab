@@ -16,10 +16,10 @@
 
 package com.epam.dlab.dto.azure.edge;
 
-import com.epam.dlab.dto.azure.AzureResource;
+import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.google.common.base.MoreObjects;
 
-public class EdgeCreateAzure extends AzureResource<EdgeCreateAzure> {
+public class EdgeCreateAzure extends ResourceSysBaseDTO<EdgeCreateAzure> {
 
     @Override
     public MoreObjects.ToStringHelper toStringHelper(Object self) {

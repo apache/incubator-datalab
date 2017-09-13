@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.base;
+package com.epam.dlab.backendapi.dao.aws;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
+import lombok.extern.slf4j.Slf4j;
 
-@Data
-public class UploadFile {
-    @JsonProperty
-    private String content;
+@Slf4j
+public class AwsKeyDao extends KeyDAO {
+
+    public AwsKeyDao() {
+        log.info("{} is initialized", getClass().getSimpleName());
+    }
+
+    @Override
+    public EdgeInfoAws getEdgeInfo(String user) {
+        return super.getEdgeInfo(user, EdgeInfoAws.class, new EdgeInfoAws());
+    }
 }

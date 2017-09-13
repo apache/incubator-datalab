@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.base;
+package com.epam.dlab.dto.base.edge;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

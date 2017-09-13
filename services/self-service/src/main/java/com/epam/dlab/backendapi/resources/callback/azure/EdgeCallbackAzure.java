@@ -18,7 +18,8 @@ package com.epam.dlab.backendapi.resources.callback.azure;
 
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.callback.base.EdgeCallback;
-import com.epam.dlab.dto.azure.keyload.UploadFileResultAzure;
+import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
+import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,7 @@ public class EdgeCallbackAzure extends EdgeCallback {
      */
     @POST
     @Path(ApiCallbacks.STATUS_URI)
-    public Response status(UploadFileResultAzure dto) throws DlabException {
+    public Response status(UploadFileResult<EdgeInfoAzure> dto) throws DlabException {
         RequestId.checkAndRemove(dto.getRequestId());
         handleEdgeCallback(dto.getUser(), dto.getStatus());
         return Response.ok().build();

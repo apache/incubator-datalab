@@ -20,20 +20,21 @@ package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.dto.EdgeInfoAware;
-import com.epam.dlab.dto.StatusBaseDTO;
-import com.epam.dlab.dto.base.EdgeInfo;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
+import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 
-public class EdgeCallbackHandler<E extends EdgeInfo, T extends StatusBaseDTO<?> & EdgeInfoAware<E>> extends ResourceCallbackHandler<T> {
+public class EdgeCallbackHandler<E extends EdgeInfo, T extends UploadFileResult<E>> extends ResourceCallbackHandler<T> {
     private final String callbackURI;
     private final Class<E> responseType;
 
-    public EdgeCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, String callbackURI, Class<E> responseType, Class<T> enclosingType) {
+    public EdgeCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user,
+                               String callbackURI, Class<E> responseType, Class<T> enclosingType) {
+
         super(selfService, user, uuid, action, enclosingType);
         this.callbackURI = callbackURI;
         this.responseType = responseType;
@@ -50,7 +51,7 @@ public class EdgeCallbackHandler<E extends EdgeInfo, T extends StatusBaseDTO<?> 
             try {
                 E credential = MAPPER.readValue(resultNode.toString(), responseType);
                 credential.setEdgeStatus(UserInstanceStatus.RUNNING.toString());
-                baseStatus.populateEdgeInfo(credential);
+                baseStatus.withEdgeInfo(credential);
             } catch (IOException e) {
                 throw new DlabException("Cannot parse the EDGE info in JSON: " + e.getLocalizedMessage(), e);
             }

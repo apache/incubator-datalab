@@ -21,54 +21,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 public class EdgeCreateAws extends ResourceSysBaseDTO<EdgeCreateAws> {
-    @JsonProperty("aws_vpc_id")
-    private String awsVpcId;
-    @JsonProperty("aws_subnet_id")
-    private String awsSubnetId;
-    @JsonProperty("aws_security_groups_ids")
-    private String awsSecurityGroupIds;
     @JsonProperty("edge_elastic_ip")
     private String edgeElasticIp;
-
-    public String getAwsVpcId() {
-        return awsVpcId;
-    }
-
-    public void setAwsVpcId(String awsVpcId) {
-
-        this.awsVpcId = awsVpcId;
-    }
-
-    public EdgeCreateAws withAwsVpcId(String awsVpcId) {
-        setAwsVpcId(awsVpcId);
-        return this;
-    }
-
-     public String getAwsSubnetId() {
-        return awsSubnetId;
-    }
-
-    public void setAwsSubnetId(String awsSubnetId) {
-        this.awsSubnetId = awsSubnetId;
-    }
-
-    public EdgeCreateAws withAwsSubnetId(String awsSubnetId) {
-        setAwsSubnetId(awsSubnetId);
-        return this;
-    }
-
-    public String getAwsSecurityGroupIds() {
-        return awsSecurityGroupIds;
-    }
-
-    public void setAwsSecurityGroupIds(String awsSecurityGroupIds) {
-        this.awsSecurityGroupIds = awsSecurityGroupIds;
-    }
-
-    public EdgeCreateAws withAwsSecurityGroupIds(String awsSecurityGroupIds) {
-        setAwsSecurityGroupIds(awsSecurityGroupIds);
-        return this;
-    }
 
     public String getEdgeElasticIp() {
         return edgeElasticIp;
@@ -79,21 +33,18 @@ public class EdgeCreateAws extends ResourceSysBaseDTO<EdgeCreateAws> {
     }
 
     public EdgeCreateAws withEdgeElasticIp(String edgeElasticIp) {
-    	setEdgeElasticIp(edgeElasticIp);
+        setEdgeElasticIp(edgeElasticIp);
         return this;
     }
 
     @Override
     public ToStringHelper toStringHelper(Object self) {
-    	return super.toStringHelper(self)
-    	        .add("awsVpcId", awsVpcId)
-    	        .add("awsSubnetId", awsSubnetId)
-    	        .add("awsSecurityGroupIds", awsSecurityGroupIds)
-    	        .add("edgeElasticIp", edgeElasticIp);
+        return super.toStringHelper(self)
+                .add("edgeElasticIp", edgeElasticIp);
     }
 
     @Override
     public String toString() {
-    	return toStringHelper(this).toString();
+        return toStringHelper(this).toString();
     }
 }

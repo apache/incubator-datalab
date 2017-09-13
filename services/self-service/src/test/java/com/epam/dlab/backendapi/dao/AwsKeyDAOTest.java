@@ -22,6 +22,7 @@ import static junit.framework.TestCase.assertEquals;
 
 import java.io.IOException;
 
+import com.epam.dlab.backendapi.dao.aws.AwsKeyDao;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -33,19 +34,19 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Ignore
-public class KeyDAOTest extends DAOTestBase {
+public class AwsKeyDAOTest extends DAOTestBase {
 	private ObjectMapper MAPPER = new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 	
     private KeyDAO dao;
     
-    public KeyDAOTest() {
+    public AwsKeyDAOTest() {
         super(USER_EDGE);
     }
 
     @Before
     public void setup() {
         cleanup();
-        dao = new KeyDAO();
+        dao = new AwsKeyDao();
         testInjector.injectMembers(dao);
 
     }

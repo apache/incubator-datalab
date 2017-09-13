@@ -26,7 +26,7 @@ import static com.mongodb.client.model.Updates.set;
 
 import java.util.Optional;
 
-import com.epam.dlab.dto.base.EdgeInfo;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
 import org.bson.Document;
 
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
@@ -36,7 +36,7 @@ import com.mongodb.client.model.Updates;
 
 /** DAO for manage the user key.
  */
-public class KeyDAO extends BaseDAO {
+public abstract class KeyDAO extends BaseDAO {
 	protected static final String EDGE_STATUS = "edge_status";
 	
 	/** Store the user key to Mongo database.
@@ -96,6 +96,8 @@ public class KeyDAO extends BaseDAO {
         		d,
         		true);
     }
+
+	public abstract EdgeInfo getEdgeInfo(String user);
 
     public <T extends EdgeInfo> T getEdgeInfo(String user, Class<T> target, T defaultValue) {
     	return findOne(USER_EDGE,

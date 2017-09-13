@@ -14,24 +14,13 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.azure.edge;
+package com.epam.dlab.dto.base.keyload;
 
-import com.epam.dlab.dto.base.edge.EdgeInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@Getter
-@Setter
-@ToString(callSuper = true)
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class EdgeInfoAzure extends EdgeInfo {
-    @JsonProperty("storage_account_name")
-    private String storageAccountName;
-    @JsonProperty("user_container_name")
-    private String userContainerName;
-    @JsonProperty("shared_container_name")
-    private String sharedContainerName;
+@Data
+public class UploadFile {
+    @JsonProperty
+    private String content;
 }

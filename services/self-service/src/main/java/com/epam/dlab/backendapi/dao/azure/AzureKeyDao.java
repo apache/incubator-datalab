@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto;
+package com.epam.dlab.backendapi.dao.azure;
 
-import com.epam.dlab.dto.base.EdgeInfo;
+import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
+import lombok.extern.slf4j.Slf4j;
 
-public interface EdgeInfoAware<T extends EdgeInfo> {
-    void populateEdgeInfo(T edgeInfo);
+@Slf4j
+public class AzureKeyDao extends KeyDAO {
 
-    EdgeInfo retrieveEdgeInfo();
+    public AzureKeyDao() {
+        log.info("{} is initialized", getClass().getSimpleName());
+    }
+
+    @Override
+    public EdgeInfoAzure getEdgeInfo(String user) {
+        return super.getEdgeInfo(user, EdgeInfoAzure.class, new EdgeInfoAzure());
+    }
 }

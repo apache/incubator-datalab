@@ -14,38 +14,29 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.azure.keyload;
+package com.epam.dlab.dto.base.keyload;
 
-import com.epam.dlab.dto.EdgeInfoAware;
 import com.epam.dlab.dto.StatusBaseDTO;
-import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
-import com.epam.dlab.dto.base.EdgeInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.google.common.base.MoreObjects;
 
-public class UploadFileResultAzure extends StatusBaseDTO<UploadFileResultAzure> implements EdgeInfoAware<EdgeInfoAzure> {
+public class UploadFileResult<T extends EdgeInfo> extends StatusBaseDTO<UploadFileResult<T>> {
 
-    @JsonProperty
-    private EdgeInfoAzure edgeInfo;
+    private T edgeInfo;
 
-    @Override
-    public void populateEdgeInfo(EdgeInfoAzure edgeInfo) {
-        this.edgeInfo = edgeInfo;
-    }
-
-    @Override
-    public EdgeInfo retrieveEdgeInfo() {
+    public T getEdgeInfo() {
         return edgeInfo;
     }
 
-    @Override
+    public UploadFileResult<T> withEdgeInfo(T edgeInfo) {
+        this.edgeInfo = edgeInfo;
+        return this;
+    }
+
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
-        return super.toStringHelper(self)
+        return MoreObjects.toStringHelper(self)
                 .add("edgeInfo", edgeInfo);
     }
 
-    @Override
-    public String toString() {
-        return toStringHelper(this).toString();
-    }
+
 }
