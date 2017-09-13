@@ -18,7 +18,7 @@ limitations under the License.
 
 <modal-dialog #bindDialog modalClass="modal-lg">
   <modal-header>
-    <h4 class="modal-title">Create computational resource</h4>
+    <h4 class="modal-title">Add computational resources</h4>
   </modal-header>
   <modal-content>
     <form [formGroup]="createComputationalResourceForm" novalidate (submit)="createComputationalResource($event, createComputationalResourceForm.value, shapes.master_shape, shapes.slave_shape)">

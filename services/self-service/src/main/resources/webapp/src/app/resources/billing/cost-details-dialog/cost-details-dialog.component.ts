@@ -18,6 +18,8 @@ limitations under the License.
 
 import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
 
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+
 @Component({
     moduleId: module.id,
     selector: 'cost-details-dialog',
@@ -26,6 +28,8 @@ import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
     encapsulation: ViewEncapsulation.None
 })
 export class CostDetailsDialogComponent {
+  readonly DICTIONARY = DICTIONARY;
+
   notebook: any;
   tooltip: boolean = false;
 

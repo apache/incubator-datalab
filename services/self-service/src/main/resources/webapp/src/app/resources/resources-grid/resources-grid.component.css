@@ -141,6 +141,7 @@ limitations under the License.
   padding: 10px 15px;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, .175);
   border: none;
+  width: 190px;
 }
 
 .dashboard_table .dropdown-outscreen .dropdown-menu {
