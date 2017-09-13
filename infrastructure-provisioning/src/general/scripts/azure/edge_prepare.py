@@ -414,6 +414,17 @@ if __name__ == "__main__":
                 "name": "out-3",
                 "protocol": "*",
                 "source_port_range": "*",
+                "destination_port_range": "445",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-4",
+                "protocol": "*",
+                "source_port_range": "*",
                 "destination_port_range": "*",
                 "source_address_prefix": "*",
                 "destination_address_prefix": "*",
