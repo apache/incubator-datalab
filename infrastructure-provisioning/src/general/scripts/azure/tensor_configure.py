@@ -254,6 +254,7 @@ if __name__ == "__main__":
                    "master_keyname": os.environ['conf_key_name'],
                    "tensorboard_log_dir": "/var/log/tensorboard",
                    "notebook_name": notebook_config['instance_name'],
+                   "instance_id": notebook_config['instance_name'],
                    "Action": "Create new notebook server",
                    "exploratory_url": [
                        {"description": "TensorBoard",
