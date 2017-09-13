@@ -1,70 +1,84 @@
+/*
+ * Copyright (c) 2017, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.epam.dlab.backendapi.domain;
 
-import com.epam.dlab.dto.aws.status.AwsEnvResource;
-import com.epam.dlab.utils.UsernameUtils;
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.dto.UserEnvironmentResources;
 
-/** Store info for the requests about the environment status of user. 
+/**
+ * Store info for the requests about the environment status of user.
  */
 public class EnvStatusListenerUserInfo {
-	/** Time for the next check in milliseconds. */
+    /**
+     * Time for the next check in milliseconds.
+     */
     private long nextCheckTimeMillis;
-    /** Name of user. */
+    /**
+     * Name of user.
+     */
     private String username;
-    /** Access token for request provisioning service. */
+    /**
+     * Access token for request provisioning service.
+     */
     private String accessToken;
+    private UserEnvironmentResources dto;
 
-    //TODO @dto
-    private AwsEnvResource dto;
-
-    public EnvStatusListenerUserInfo(String username, String accessToken) {
+    EnvStatusListenerUserInfo(UserInfo userInfo) {
         this.nextCheckTimeMillis = System.currentTimeMillis();
-        this.accessToken = accessToken;
-        this.username = username;
+        this.accessToken = userInfo.getAccessToken();
+        this.username = userInfo.getName();
+        this.dto = RequestBuilder.newUserEnvironmentStatus(userInfo);
     }
 
-    /** Instantiate the user info.
-     * @param username the name of user.
-     * @param accessToken the access token for requests to Provisioning Service.
-     * @param awsRegion the name of region in Amazon. 
+    /**
+     * Return the time for next check of environment statuses.
      */
-    public EnvStatusListenerUserInfo(String username, String accessToken, String awsRegion) {
-		this.nextCheckTimeMillis = System.currentTimeMillis();
-    	this.accessToken = accessToken;
-    	this.username = username;
-    	dto = new AwsEnvResource()
-    			.withAwsRegion(awsRegion)
-    			.withEdgeUserName(UsernameUtils.removeDomain(username))
-    			.withAwsIamUser(username);
-	}
-
-    /** Return the time for next check of environment statuses.
-     */
-    public long getNextCheckTimeMillis() {
-    	return nextCheckTimeMillis;
+    long getNextCheckTimeMillis() {
+        return nextCheckTimeMillis;
     }
-    
-    /** Set the time for next check of environment statuses.
+
+    /**
+     * Set the time for next check of environment statuses.
+     *
      * @param nextCheckTimeMillis the time for next check.
      */
-	public void setNextCheckTimeMillis(long nextCheckTimeMillis) {
-		this.nextCheckTimeMillis = nextCheckTimeMillis;
-	}
+    void setNextCheckTimeMillis(long nextCheckTimeMillis) {
+        this.nextCheckTimeMillis = nextCheckTimeMillis;
+    }
 
-	/** Return the name of user.
+    /**
+     * Return the name of user.
      */
     public String getUsername() {
-    	return username;
+        return username;
     }
-    
-    /** Return the access token for requests to Provisioning Service.
+
+    /**
+     * Return the access token for requests to Provisioning Service.
      */
     public String getAccessToken() {
-    	return accessToken;
+        return accessToken;
     }
-    
-    /** Return the DTO object for check of environment statuses.
+
+    /**
+     * Return the DTO object for check of environment statuses.
      */
-    public AwsEnvResource getDTO() {
-    	return dto;
+    UserEnvironmentResources getDTO() {
+        return dto;
     }
 }

@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.aws.status;
+package com.epam.dlab.dto;
 
-import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class AwsEnvResource extends ResourceBaseDTO<AwsEnvResource> {
+public class UserEnvironmentResources extends ResourceSysBaseDTO<UserEnvironmentResources> {
     @JsonProperty("edge_list_resources")
     private EnvResourceList resourceList;
 
@@ -42,7 +41,7 @@ public class AwsEnvResource extends ResourceBaseDTO<AwsEnvResource> {
     /**
      * Set the list of resources (hosts, clusters, storages).
      */
-    public AwsEnvResource withResourceList(EnvResourceList resourceList) {
+    public UserEnvironmentResources withResourceList(EnvResourceList resourceList) {
         setResourceList(resourceList);
         return this;
     }

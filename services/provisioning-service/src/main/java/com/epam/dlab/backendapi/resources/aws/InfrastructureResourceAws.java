@@ -19,7 +19,7 @@ package com.epam.dlab.backendapi.resources.aws;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.resources.base.InfrastructureService;
-import com.epam.dlab.dto.aws.status.AwsEnvResource;
+import com.epam.dlab.dto.UserEnvironmentResources;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +40,7 @@ public class InfrastructureResourceAws extends InfrastructureService {
 
     @Path("/status")
     @POST
-    public String status(@Auth UserInfo ui, AwsEnvResource dto) {
-        return action(ui.getName(), dto, dto.getAwsIamUser(), DockerAction.STATUS);
+    public String status(@Auth UserInfo ui, UserEnvironmentResources dto) {
+        return action(ui.getName(), dto, dto.getCloudSettings().getIamUser(), DockerAction.STATUS);
     }
 }

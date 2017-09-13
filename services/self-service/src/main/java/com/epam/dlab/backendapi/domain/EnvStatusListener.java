@@ -23,9 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
-import com.epam.dlab.backendapi.domain.azure.EnvStatusListenerUserInfoAzure;
-import com.epam.dlab.cloud.CloudProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,19 +51,18 @@ public class EnvStatusListener implements Managed, Runnable {
 	/** Environment status listener. */
 	private static EnvStatusListener listener;
 
-	/** Append the status checker for user to environment status listener.
-	 * @param username the name of user.
-	 * @param accessToken the access token for user.
-	 * @param cloudProvider cloud provider
+	/**
+	 * Append the status checker for user to environment status listener.
+	 * @param userInfo authentication info of the current user
 	 */
-	public static synchronized void listen(String username, String accessToken, CloudProvider cloudProvider) {
-		if (listener.userMap.containsKey(username)) {
-			LOGGER.debug("EnvStatus listener the status checker for user {} already exist", username);
+	public static synchronized void listen(UserInfo userInfo) {
+		if (listener.userMap.containsKey(userInfo.getName())) {
+			LOGGER.debug("EnvStatus listener the status checker for user {} already exist", userInfo.getName());
 			return;
 		}
-		LOGGER.debug("EnvStatus listener will be added the status checker for user {}", username);
-		EnvStatusListenerUserInfo userInfo = getEnvStatusListenerUserInfo(username, accessToken, cloudProvider);
-		listener.userMap.put(username, userInfo);
+		LOGGER.debug("EnvStatus listener will be added the status checker for user {}", userInfo.getName());
+		EnvStatusListenerUserInfo listenerUserInfo = new EnvStatusListenerUserInfo(userInfo);
+		listener.userMap.put(listenerUserInfo.getUsername(), listenerUserInfo);
 		if (listener.thread == null) {
 			LOGGER.info("EnvStatus listener not running and will be started ...");
 			listener.thread = new Thread(listener, listener.getClass().getSimpleName());
@@ -97,20 +95,6 @@ public class EnvStatusListener implements Managed, Runnable {
 	public static EnvStatusListenerUserInfo getUserInfo(String username) {
 		return (listener == null ? null : listener.userMap.get(username));
 	}
-
-    //TODO @dto
-    private static EnvStatusListenerUserInfo getEnvStatusListenerUserInfo(String username, String accessToken, CloudProvider cloudProvider) {
-        switch (cloudProvider) {
-            case AWS:
-                return new EnvStatusListenerUserInfo(username, accessToken, settingsDAO.getAwsRegion());
-            case AZURE:
-                return new EnvStatusListenerUserInfoAzure(username, accessToken, settingsDAO.getAzureRegion(),
-                        settingsDAO.getAzureResourceGroupName());
-            case GCP:
-            default:
-                throw new UnsupportedOperationException("Unsupported operation for cloud provider " + cloudProvider);
-        }
-    }
 
 	/** Thread of the folder listener. */
 	private Thread thread;
@@ -182,8 +166,8 @@ public class EnvStatusListener implements Managed, Runnable {
 	 */
 	private void checkStatus(EnvStatusListenerUserInfo userInfo) {
 		try {
-			LOGGER.trace("EnvStatus listener check status for user {}", userInfo.getUsername());
 			EnvResourceList resourceList = dao.findEnvResources(userInfo.getUsername());
+			LOGGER.trace("EnvStatus listener check status for user {} with resource list {}", userInfo.getUsername(), resourceList);
 			if (resourceList.getHostList() != null || resourceList.getClusterList() != null) {
 				userInfo.getDTO().withResourceList(resourceList);
 				LOGGER.trace("Ask docker for the status of resources for user {}: {}", userInfo.getUsername(), userInfo.getDTO());

@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 
+import com.epam.dlab.backendapi.dao.aws.AwsKeyDao;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -70,7 +71,7 @@ public class EnvStatusDAOTest extends DAOTestBase {
         testInjector.injectMembers(compDAO);
         envDAO = new EnvStatusDAO();
         testInjector.injectMembers(envDAO);
-        keyDAO = new KeyDAO();
+        keyDAO = new AwsKeyDao();
         testInjector.injectMembers(keyDAO);
     }
 

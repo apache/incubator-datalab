@@ -97,7 +97,7 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
         			Status.OK :
         			Status.FORBIDDEN;
         	if (status == Status.OK) {
-        		EnvStatusListener.listen(userInfo.getName(), userInfo.getAccessToken(), configuration.getCloudProvider());
+        		EnvStatusListener.listen(userInfo);
         		if (configuration.isRolePolicyEnabled()) {
         			UserRoles.initialize(dao, configuration.getRoleDefaultAccess());
         		}
