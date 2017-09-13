@@ -30,7 +30,6 @@ parser.add_argument('--container_name', type=str, default='')
 parser.add_argument('--account_name', type=str, default='')
 parser.add_argument('--resource_group_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
-parser.add_argument('--shared_container_name', type=str, default='')
 args = parser.parse_args()
 
 
@@ -52,11 +51,6 @@ if __name__ == "__main__":
                                                                       args.container_name)
                 print "STORAGE ACCOUNT {} has been created".format(args.account_name)
                 print "CONTAINER {} has been created".format(args.container_name)
-                if args.shared_container_name != '':
-                    shared_blob_container = AzureActions().create_blob_container(args.resource_group_name,
-                                                                                 args.account_name,
-                                                                                 args.shared_container_name)
-                    print "SHARED CONTAINER {} has been created".format(args.shared_container_name)
             else:
                 print "STORAGE ACCOUNT with name {} could not be created. ".format(args.account_name), check.message
                 sys.exit(1)

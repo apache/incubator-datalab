@@ -19,13 +19,11 @@ limitations under the License.
 -->
 <configuration>
   <property>
-    <name>fs.azure.sas.USER_CONTAINER.USER_STORAGE_ACCOUNT.blob.core.windows.net</name>
-    <value>USER_CONTAINER_SAS</value>
-    <description>Shared access signature for Azure user blob container</description>
+    <name>fs.azure.account.key.USER_STORAGE_ACCOUNT.blob.core.windows.net</name>
+    <value>USER_ACCOUNT_KEY</value>
   </property>
   <property>
-    <name>fs.azure.sas.SHARED_CONTAINER.SSN_STORAGE_ACCOUNT.blob.core.windows.net</name>
-    <value>SSN_CONTAINER_SAS</value>
-    <description>Shared access signature for Azure shared blob container</description>
+    <name>fs.azure.account.key.SHARED_STORAGE_ACCOUNT.blob.core.windows.net</name>
+    <value>SHARED_ACCOUNT_KEY</value>
   </property>
 </configuration>

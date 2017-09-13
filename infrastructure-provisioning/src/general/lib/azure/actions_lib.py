@@ -898,19 +898,14 @@ class AzureActions:
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
         try:
-            user_container_name = (os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-container').lower().replace('_', '-')
-            shared_container_name = (os.environ['conf_service_base_name'] + '-shared-container').lower().replace('_', '-')
-            user_storage_account_name = (os.environ['conf_service_base_name'] + os.environ['edge_user_name']).lower().replace('_', '').replace('-', '')
-            ssn_storage_account_name = (os.environ['conf_service_base_name']).lower().replace('_', '').replace('-', '')
-            source_ip_range = meta_lib.AzureMeta().get_subnet(os.environ['azure_resource_group_name'], os.environ['azure_vpc_name'],
-                                                              os.environ['conf_service_base_name'] + '-' +
-                                                              os.environ['edge_user_name'] + '-subnet').address_prefix
-            user_container_sas = AzureActions().generate_container_sas(os.environ['azure_resource_group_name'],
-                                                                       user_storage_account_name, user_container_name,
-                                                                       source_ip_range).replace('&', '\&amp;')
-            ssn_container_sas = AzureActions().generate_container_sas(os.environ['azure_resource_group_name'],
-                                                                      ssn_storage_account_name, shared_container_name,
-                                                                      source_ip_range).replace('&', '\&amp;')
+            user_storage_account_name = (os.environ['conf_service_base_name'] + os.environ['edge_user_name']).lower().\
+                replace('_', '').replace('-', '')
+            shared_storage_account_name = (os.environ['conf_service_base_name'] + 'shared').lower().replace('_', '').\
+                replace('-', '')
+            user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
+                                                                              user_storage_account_name)[0]
+            shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
+                                                                                shared_storage_account_name)[0]
             print "Downloading local jars for Azure"
             sudo('mkdir -p ' + jars_dir)
             sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/2.7.3/hadoop-azure-2.7.3.jar -O ' +
@@ -919,12 +914,10 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                 'wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/5.5.0/azure-storage-5.5.0.jar -O ' +
                 jars_dir + 'azure-storage-5.5.0.jar')
             put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
-            sudo('sed -i "s|USER_CONTAINER|{}|g" /tmp/core-site.xml'.format(user_container_name))
             sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
-            sudo('sed -i "s|USER_CONTAINER_SAS|{}|g" /tmp/core-site.xml'.format(user_container_sas))
-            sudo('sed -i "s|SHARED_CONTAINER|{}|g" /tmp/core-site.xml'.format(shared_container_name))
-            sudo('sed -i "s|SSN_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(ssn_storage_account_name))
-            sudo('sed -i "s|SSN_CONTAINER_SAS|{}|g" /tmp/core-site.xml'.format(ssn_container_sas))
+            sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
+            sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
+            sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
             sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
