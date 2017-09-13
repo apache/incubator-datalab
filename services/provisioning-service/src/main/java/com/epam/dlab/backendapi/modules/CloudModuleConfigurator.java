@@ -18,16 +18,14 @@ package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.cloud.CloudModule;
-import com.google.inject.Injector;
-import io.dropwizard.setup.Environment;
 
-public class CloudModuleConfigurer {
-    public static CloudModule configureCloudModule(ProvisioningServiceApplicationConfiguration configuration, Environment environment, Injector injector) {
+public class CloudModuleConfigurator {
+    public static CloudModule getCloudModule(ProvisioningServiceApplicationConfiguration configuration) {
         switch (configuration.getCloudProvider()) {
             case AWS:
-                return new AwsProvisioningModule(environment, injector);
+                return new AwsProvisioningModule();
             case AZURE:
-                return new AzureProvisioningModule(environment, injector);
+                return new AzureProvisioningModule();
             case GCP:
             default:
                 throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());

@@ -24,10 +24,11 @@ import com.google.inject.Injector;
 import io.dropwizard.setup.Environment;
 
 public class AwsProvisioningModule extends CloudModule {
-    public AwsProvisioningModule(Environment environment, Injector injector) {
-        super(environment, injector);
-        jerseyEnvironment.register(injector.getInstance(EdgeResourceAws.class));
-        jerseyEnvironment.register(injector.getInstance(InfrastructureResourceAws.class));
-        jerseyEnvironment.register(injector.getInstance(ExploratoryResourceAws.class));
+
+    @Override
+    public void init(Environment environment, Injector injector) {
+        environment.jersey().register(injector.getInstance(EdgeResourceAws.class));
+        environment.jersey().register(injector.getInstance(InfrastructureResourceAws.class));
+        environment.jersey().register(injector.getInstance(ExploratoryResourceAws.class));
     }
 }
