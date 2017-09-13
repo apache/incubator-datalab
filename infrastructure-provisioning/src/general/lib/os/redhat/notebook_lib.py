@@ -427,6 +427,8 @@ def install_caffe2(os_user):
 
 def install_cntk(os_user):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
+        sudo('echo "exclude=*.i386 *.i686" >> /etc/yum.conf')
+        sudo('yum clean all && yum update-minimal --security -y')
         sudo('yum install -y openmpi openmpi-devel --nogpgcheck')
         sudo('sed -i "s/LD_LIBRARY_PATH:/LD_LIBRARY_PATH:\/usr\/lib64\/openmpi\/lib:/g" /etc/systemd/system/jupyter-notebook.service')
         sudo('systemctl daemon-reload')
@@ -454,7 +456,6 @@ def install_keras(os_user):
 
 def install_mxnet(os_user):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        sudo('yum install -y graphviz')
         sudo('pip2 install mxnet-cu80 opencv-python --no-cache-dir')
         sudo('pip3.5 install mxnet-cu80 opencv-python --no-cache-dir')
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
