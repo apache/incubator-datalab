@@ -19,7 +19,7 @@ package com.epam.dlab.backendapi.resources.azure;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.resources.base.InfrastructureService;
-import com.epam.dlab.dto.azure.status.AzureEnvResource;
+import com.epam.dlab.dto.UserEnvironmentResources;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,7 +41,7 @@ public class InfrastructureResourceAzure extends InfrastructureService {
 
     @Path("/status")
     @POST
-    public String status(@Auth UserInfo ui, AzureEnvResource dto) {
-        return action(ui.getName(), dto, dto.getAzureIamUser(), DockerAction.STATUS);
+    public String status(@Auth UserInfo ui, UserEnvironmentResources dto) {
+        return action(ui.getName(), dto, dto.getCloudSettings().getIamUser(), DockerAction.STATUS);
     }
 }

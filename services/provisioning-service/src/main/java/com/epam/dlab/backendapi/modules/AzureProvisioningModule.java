@@ -24,10 +24,11 @@ import com.google.inject.Injector;
 import io.dropwizard.setup.Environment;
 
 public class AzureProvisioningModule extends CloudModule {
-    public AzureProvisioningModule(Environment environment, Injector injector) {
-        super(environment, injector);
-        jerseyEnvironment.register(injector.getInstance(EdgeResourceAzure.class));
-        jerseyEnvironment.register(injector.getInstance(InfrastructureResourceAzure.class));
-        jerseyEnvironment.register(injector.getInstance(ExploratoryResourceAzure.class));
+
+    @Override
+    public void init(Environment environment, Injector injector) {
+        environment.jersey().register(injector.getInstance(EdgeResourceAzure.class));
+        environment.jersey().register(injector.getInstance(InfrastructureResourceAzure.class));
+        environment.jersey().register(injector.getInstance(ExploratoryResourceAzure.class));
     }
 }

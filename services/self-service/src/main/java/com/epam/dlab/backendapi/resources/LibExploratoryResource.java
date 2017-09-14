@@ -122,13 +122,8 @@ public class LibExploratoryResource {
             if (UserInstanceStatus.RUNNING != UserInstanceStatus.of(userInstance.getStatus())) {
                 throw new DlabException("Exploratory " + formDTO.getNotebookName() + " is not running");
             }
-            List<LibInstallDTO> libs = new ArrayList<>();
-            ExploratoryLibInstallDTO dto = RequestBuilder.newResourceSysBaseDTO(userInfo, ExploratoryLibInstallDTO.class)
-                    .withNotebookImage(userInstance.getImageName())
-                    .withApplicationName(ResourceUtils.getApplicationNameFromImage(userInstance.getImageName()))
-                    .withNotebookInstanceName(userInstance.getExploratoryId())
-                    .withExploratoryName(formDTO.getNotebookName())
-                    .withLibs(libs);
+
+            ExploratoryLibInstallDTO dto = RequestBuilder.newLibExploratoryInstall(userInfo, userInstance);
 
             for (LibInstallDTO lib : formDTO.getLibs()) {
                 LibStatus status = libraryDAO.fetchLibraryStatus(userInfo.getName(), formDTO.getNotebookName(),
@@ -139,10 +134,10 @@ public class LibExploratoryResource {
                 }
 
                 LibInstallDTO newLib = new LibInstallDTO(lib.getGroup(), lib.getName(), lib.getVersion());
-                if (libs.contains(newLib)) {
+                if (dto.getLibs().contains(newLib)) {
                     continue;
                 }
-                libs.add(newLib);
+                dto.getLibs().add(newLib);
                 lib.setStatus(LibStatus.INSTALLING.toString());
                 libraryDAO.addLibrary(userInfo.getName(), formDTO.getNotebookName(), lib, LibStatus.FAILED == status);
             }
@@ -169,9 +164,7 @@ public class LibExploratoryResource {
         log.trace("Loading list of libs for user {} with condition {}", userInfo.getName(), formDTO);
         try {
             UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
-            return ExploratoryLibCache
-                    .getCache()
-                    .getLibList(userInfo, userInstance, formDTO.getGroup(), formDTO.getStartWith());
+            return ExploratoryLibCache.getCache().getLibList(userInfo, userInstance, formDTO.getGroup(), formDTO.getStartWith());
         } catch (Throwable t) {
             log.error("Cannot load list of libs for user {} with condition {}",
                     userInfo.getName(), formDTO, t);

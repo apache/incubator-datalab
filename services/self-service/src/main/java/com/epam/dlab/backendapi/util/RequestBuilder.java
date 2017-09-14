@@ -24,17 +24,24 @@ import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
+import com.epam.dlab.dto.UserEnvironmentResources;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
+import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
 import com.epam.dlab.dto.aws.exploratory.ExploratoryCreateAws;
+import com.epam.dlab.dto.aws.keyload.UploadFileAws;
 import com.epam.dlab.dto.azure.AzureCloudSettings;
+import com.epam.dlab.dto.azure.edge.EdgeCreateAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
+import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
 import com.epam.dlab.dto.base.CloudSettings;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
+import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class RequestBuilder {
     @Inject
@@ -54,7 +61,8 @@ public class RequestBuilder {
                         .confTagResourceId(settingsDAO.getConfTagResourceId())
                         .awsIamUser(userInfo.getName()).build();
             case AZURE:
-                return AzureCloudSettings.builder().azureRegion(settingsDAO.getAzureRegion())
+                return AzureCloudSettings.builder()
+                        .azureRegion(settingsDAO.getAzureRegion())
                         .azureResourceGroupName(settingsDAO.getAzureResourceGroupName())
                         .azureSecurityGroupName(settingsDAO.getAzureSecurityGroupName())
                         .azureSubnetName(settingsDAO.getAzureSubnetName())
@@ -85,17 +93,70 @@ public class RequestBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass) {
+    private static <T extends ResourceSysBaseDTO<?>> T newResourceSysBaseDTO(UserInfo userInfo, Class<T> resourceClass) {
         T resource = newResourceBaseDTO(userInfo, resourceClass);
         return (T) resource
                 .withServiceBaseName(settingsDAO.getServiceBaseName())
                 .withConfOsFamily(settingsDAO.getConfOsFamily());
     }
 
+    @SuppressWarnings("unchecked")
+    public static UploadFile newEdgeKeyUpload(UserInfo userInfo, String content, EdgeInfo edgeInfo) {
+
+        switch (cloudProvider()) {
+            case AWS:
+                EdgeCreateAws edgeCreateAws = newResourceSysBaseDTO(userInfo, EdgeCreateAws.class);
+                if (edgeInfo != null) {
+                    edgeCreateAws.setEdgeElasticIp(edgeInfo.getPublicIp());
+                }
+                UploadFileAws uploadFileAws = new UploadFileAws();
+                uploadFileAws.setEdge(edgeCreateAws);
+                uploadFileAws.setContent(content);
+
+                return uploadFileAws;
+
+            case AZURE:
+                EdgeCreateAzure edgeCreateAzure = newResourceSysBaseDTO(userInfo, EdgeCreateAzure.class);
+
+                UploadFileAzure uploadFileAzure = new UploadFileAzure();
+                uploadFileAzure.setEdge(edgeCreateAzure);
+                uploadFileAzure.setContent(content);
+
+                return uploadFileAzure;
+
+            case GCP:
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends ResourceSysBaseDTO<?>> T newEdgeAction(UserInfo userInfo) {
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+                return (T) newResourceSysBaseDTO(userInfo, ResourceSysBaseDTO.class);
+
+            case GCP:
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+    }
+
+    public static UserEnvironmentResources newUserEnvironmentStatus(UserInfo userInfo) {
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+                return newResourceSysBaseDTO(userInfo, UserEnvironmentResources.class);
+            case GCP:
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public static <T extends ExploratoryCreateDTO<T>> T newExploratoryCreate(ExploratoryCreateFormDTO formDTO, UserInfo userInfo,
-                                                                             List<ExploratoryGitCreds> gitCreds) {
+                                                                             ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
 
         T exploratoryCreate;
 
@@ -114,19 +175,24 @@ public class RequestBuilder {
 
         return exploratoryCreate.withExploratoryName(formDTO.getName())
                 .withNotebookImage(formDTO.getImage())
-                .withApplicationName(ResourceUtils.getApplicationNameFromImage(formDTO.getImage()))
-                .withGitCreds(gitCreds);
+                .withApplicationName(getApplicationNameFromImage(formDTO.getImage()))
+                .withGitCreds(exploratoryGitCredsDTO.getGitCreds());
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends ExploratoryGitCredsUpdateDTO> T newExploratoryStart(UserInfo userInfo) {
+    public static <T extends ExploratoryGitCredsUpdateDTO> T newExploratoryStart(UserInfo userInfo, UserInstanceDTO userInstance,
+                                                                                 ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
 
         T exploratoryStart;
 
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
-                exploratoryStart = (T) newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class);
+                exploratoryStart = (T) newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
+                        .withNotebookInstanceName(userInstance.getExploratoryId())
+                        .withGitCreds(exploratoryGitCredsDTO.getGitCreds())
+                        .withNotebookImage(userInstance.getImageName())
+                        .withExploratoryName(userInstance.getExploratoryName());
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
@@ -136,7 +202,7 @@ public class RequestBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends ExploratoryActionDTO<T>> T newExploratoryStop(UserInfo userInfo, UserInstanceDTO userInstanceDTO) {
+    public static <T extends ExploratoryActionDTO<T>> T newExploratoryStop(UserInfo userInfo, UserInstanceDTO userInstance) {
 
         T exploratoryStop;
 
@@ -151,7 +217,11 @@ public class RequestBuilder {
                 throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
         }
 
-        return exploratoryStop.withNotebookImage(userInstanceDTO.getImageName());
+        return exploratoryStop
+                .withNotebookInstanceName(userInstance.getExploratoryId())
+                .withNotebookImage(userInstance.getImageName())
+                .withExploratoryName(userInstance.getExploratoryName())
+                .withNotebookImage(userInstance.getImageName());
     }
 
     public static ExploratoryGitCredsUpdateDTO newGitCredentialsUpdate(UserInfo userInfo, UserInstanceDTO instanceDTO,
@@ -162,7 +232,7 @@ public class RequestBuilder {
             case AZURE:
                 return newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
                         .withNotebookImage(instanceDTO.getImageName())
-                        .withApplicationName(ResourceUtils.getApplicationNameFromImage(instanceDTO.getImageName()))
+                        .withApplicationName(getApplicationNameFromImage(instanceDTO.getImageName()))
                         .withNotebookInstanceName(instanceDTO.getExploratoryId())
                         .withExploratoryName(instanceDTO.getExploratoryName())
                         .withGitCreds(exploratoryGitCredsDTO.getGitCreds());
@@ -172,8 +242,58 @@ public class RequestBuilder {
         }
     }
 
+    public static ExploratoryLibInstallDTO newLibExploratoryInstall(UserInfo userInfo, UserInstanceDTO userInstance) {
+
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+                return newResourceSysBaseDTO(userInfo, ExploratoryLibInstallDTO.class)
+                        .withNotebookImage(userInstance.getImageName())
+                        .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+                        .withNotebookInstanceName(userInstance.getExploratoryId())
+                        .withExploratoryName(userInstance.getExploratoryName())
+                        .withLibs(new ArrayList<>());
+
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends ExploratoryActionDTO<T>> T newLibExploratoryList(UserInfo userInfo, UserInstanceDTO userInstance) {
+
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+                return (T) newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class)
+                        .withNotebookInstanceName(userInstance.getExploratoryId())
+                        .withNotebookImage(userInstance.getImageName())
+                        .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+                        .withExploratoryName(userInstance.getExploratoryName());
+
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+    }
+
     private static CloudProvider cloudProvider() {
         return configuration.getCloudProvider();
+    }
+
+    /**
+     * Returns application name basing on docker image
+     *
+     * @param imageName docker image name
+     * @return application name
+     */
+    public static String getApplicationNameFromImage(String imageName) {
+        if (imageName != null) {
+            int pos = imageName.lastIndexOf('-');
+            if (pos > 0) {
+                return imageName.substring(pos + 1);
+            }
+        }
+        return "";
     }
 }
 

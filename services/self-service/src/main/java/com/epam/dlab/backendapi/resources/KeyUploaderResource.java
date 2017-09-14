@@ -18,20 +18,12 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.util.ResourceUtils;
-import com.epam.dlab.cloud.CloudProvider;
-import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
-import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
-import com.epam.dlab.dto.aws.keyload.UploadFileAws;
-import com.epam.dlab.dto.azure.edge.EdgeCreateAzure;
-import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
-import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
-import com.epam.dlab.dto.base.EdgeInfo;
-import com.epam.dlab.dto.base.UploadFile;
+import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
+import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.keyload.KeyLoadStatus;
 import com.epam.dlab.dto.keyload.UserKeyDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -75,8 +67,6 @@ public class KeyUploaderResource implements EdgeAPI {
     @Inject
     @Named(PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
-    @Inject
-    private SelfServiceApplicationConfiguration configuration;
 
     /**
      * Finds and returns the status of the user key.
@@ -143,7 +133,7 @@ public class KeyUploaderResource implements EdgeAPI {
         LOGGER.debug("Recreating edge node for user {}", userInfo.getName());
 
         try {
-            return Response.ok(startEdgeRecovery(userInfo, configuration.getCloudProvider())).build();
+            return Response.ok(startEdgeRecovery(userInfo)).build();
         } catch (Throwable e) {
             LOGGER.error("Could not create the EDGE node for user {}", userInfo.getName(), e);
             keyDAO.updateEdgeStatus(userInfo.getName(), UserInstanceStatus.FAILED.toString());
@@ -158,14 +148,14 @@ public class KeyUploaderResource implements EdgeAPI {
      * @param keyContent content of file key
      * @throws DlabException
      */
-    private String startKeyUpload(UserInfo userInfo, String keyContent, String publicIp) throws DlabException {
+    private String startKeyUpload(UserInfo userInfo, String keyContent, EdgeInfo edgeInfo) throws DlabException {
         LOGGER.debug("The upload of the user key and creation EDGE node will be started for user {}", userInfo.getName());
-        if (publicIp == null) {
+        if (edgeInfo == null || edgeInfo.getPublicIp() == null) {
             keyDAO.insertKey(userInfo.getName(), keyContent);
         }
 
         try {
-            UploadFile uploadFile = buildUploadFile(userInfo, keyContent, configuration.getCloudProvider(), publicIp);
+            UploadFile uploadFile = RequestBuilder.newEdgeKeyUpload(userInfo, keyContent, edgeInfo);
             String uuid = provisioningService.post(EDGE_CREATE, userInfo.getAccessToken(), uploadFile, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return uuid;
@@ -176,46 +166,9 @@ public class KeyUploaderResource implements EdgeAPI {
         }
     }
 
-    //TODO @dto
-    private UploadFile buildUploadFile(UserInfo userInfo, String content, CloudProvider cloudProvider, String publicIp) {
-        switch (cloudProvider) {
-            case AWS: {
-                EdgeCreateAws edge = ResourceUtils.newResourceSysBaseDTO(userInfo, EdgeCreateAws.class, cloudProvider)
-                        .withAwsSecurityGroupIds(settingsDAO.getAwsSecurityGroups())
-                        .withAwsVpcId(settingsDAO.getAwsVpcId())
-                        .withAwsSubnetId(settingsDAO.getAwsSubnetId())
-                        .withEdgeElasticIp(publicIp);
-
-                UploadFileAws uploadFileAws = new UploadFileAws();
-                uploadFileAws.setEdge(edge);
-                uploadFileAws.setContent(content);
-
-                return uploadFileAws;
-            }
-            case AZURE: {
-                EdgeCreateAzure edge = ResourceUtils.newResourceSysBaseDTO(userInfo, EdgeCreateAzure.class, cloudProvider)
-                        .withAzureRegion(settingsDAO.getAzureRegion())
-                        .withAzureIamUser(userInfo.getName())
-                        .withAzureVpcName(settingsDAO.getAzureVpcName())
-                        .withAzureResourceGroupName(settingsDAO.getAzureResourceGroupName())
-                        .withAzureSubnetName(settingsDAO.getAzureSubnetName());
-
-                UploadFileAzure uploadFileAzure = new UploadFileAzure();
-                uploadFileAzure.setEdge(edge);
-                uploadFileAzure.setContent(content);
-
-                return uploadFileAzure;
-            }
-            case GCP:
-            default:
-                throw new DlabException("Unknown cloud provider " + cloudProvider);
-        }
-    }
-
-    private String startEdgeRecovery(UserInfo userInfo, CloudProvider cloudProvider) {
+    private String startEdgeRecovery(UserInfo userInfo) {
         String userName = userInfo.getName();
-        EdgeInfo edgeInfo = getEdgeInfo(userName, cloudProvider);
-        EdgeRecovery edgeRecovery = getEdgeRecovery(cloudProvider);
+        EdgeInfo edgeInfo = keyDAO.getEdgeInfo(userName);
 
         UserInstanceStatus status = UserInstanceStatus.of(edgeInfo.getEdgeStatus());
         if (status == null || !status.in(FAILED, TERMINATED)) {
@@ -230,7 +183,8 @@ public class KeyUploaderResource implements EdgeAPI {
             throw new DlabException("Could not create EDGE node because the status of user key is " + keyStatus);
         }
 
-        edgeRecovery.prepare(edgeInfo);
+        edgeInfo.setInstanceId(null);
+        edgeInfo.setEdgeStatus(UserInstanceStatus.CREATING.toString());
 
         try {
             keyDAO.updateEdgeInfo(userName, edgeInfo);
@@ -239,39 +193,6 @@ public class KeyUploaderResource implements EdgeAPI {
             throw new DlabException("Could not create EDGE node: " + e.getLocalizedMessage(), e);
         }
 
-        return startKeyUpload(userInfo, key.getContent(), edgeInfo.getPublicIp());
-    }
-
-    private EdgeRecovery getEdgeRecovery(CloudProvider cloudProvider) {
-        switch (cloudProvider) {
-            case AWS:
-                return (e) -> {
-                    ((EdgeInfoAws)e).setInstanceId(null);
-                    e.setEdgeStatus(UserInstanceStatus.CREATING.toString());
-                };
-
-            case AZURE:
-                return (e) -> e.setEdgeStatus(UserInstanceStatus.CREATING.toString());
-            case GCP:
-            default:
-                throw new DlabException("Unknown cloud provider " + cloudProvider);
-        }
-    }
-
-    private EdgeInfo getEdgeInfo(String userName, CloudProvider cloudProvider) {
-        switch (cloudProvider) {
-            case AWS:
-                return keyDAO.getEdgeInfo(userName, EdgeInfoAws.class, new EdgeInfoAws());
-            case AZURE:
-                return keyDAO.getEdgeInfo(userName, EdgeInfoAzure.class, new EdgeInfoAzure());
-            case GCP:
-            default:
-                throw new DlabException("Unknown cloud provider " + cloudProvider);
-        }
-    }
-
-    @FunctionalInterface
-    interface EdgeRecovery {
-        void prepare(EdgeInfo edgeInfo);
+        return startKeyUpload(userInfo, key.getContent(), edgeInfo);
     }
 }

@@ -17,7 +17,9 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, ViewChild } from '@angular/core';
+
 import { DateUtils } from '../../../core/util';
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
   moduleId: module.id,
@@ -26,6 +28,8 @@ import { DateUtils } from '../../../core/util';
 })
 
 export class DetailDialogComponent {
+  readonly DICTIONARY = DICTIONARY;
+
   notebook: any;
   upTimeInHours: number;
   upTimeSince: string = '';

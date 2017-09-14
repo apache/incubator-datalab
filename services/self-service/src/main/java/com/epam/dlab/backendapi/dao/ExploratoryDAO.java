@@ -26,6 +26,7 @@ import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.result.UpdateResult;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
@@ -44,19 +45,22 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 /**
  * DAO for user exploratory.
  */
+@Slf4j
 public class ExploratoryDAO extends BaseDAO {
 
     static final String EXPLORATORY_NAME = "exploratory_name";
     static final String EXPLORATORY_ID = "exploratory_id";
     static final String UPTIME = "up_time";
     static final String COMPUTATIONAL_RESOURCES = "computational_resources";
-
     private static final String EXPLORATORY_URL = "exploratory_url";
     private static final String EXPLORATORY_URL_DESC = "description";
     private static final String EXPLORATORY_URL_URL = "url";
     private static final String EXPLORATORY_USER = "exploratory_user";
     private static final String EXPLORATORY_PASSWORD = "exploratory_pass";
     private static final String EXPLORATORY_PRIVATE_IP = "private_ip";
+    public ExploratoryDAO() {
+        log.info("{} is initialized", getClass().getSimpleName());
+    }
 
     static Bson exploratoryCondition(String user, String exploratoryName) {
         return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));

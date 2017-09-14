@@ -16,30 +16,11 @@
 
 package com.epam.dlab.backendapi.resources;
 
-import static com.epam.dlab.UserInstanceStatus.FAILED;
-import static com.epam.dlab.UserInstanceStatus.RUNNING;
-import static com.epam.dlab.UserInstanceStatus.STARTING;
-import static com.epam.dlab.UserInstanceStatus.STOPPED;
-import static com.epam.dlab.UserInstanceStatus.STOPPING;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.SettingsDAO;
-import com.epam.dlab.cloud.CloudProvider;
-import com.epam.dlab.dto.azure.AzureResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.util.ResourceUtils;
+import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -47,109 +28,99 @@ import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.EdgeAPI;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-
 import io.dropwizard.auth.Auth;
+import lombok.extern.slf4j.Slf4j;
 
-/** Provides the REST API for the exploratory.
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import static com.epam.dlab.UserInstanceStatus.*;
+
+/**
+ * Provides the REST API to manage(start/stop) edge node
  */
 @Path("/infrastructure/edge")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class EdgeResource implements EdgeAPI {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EdgeResource.class);
-
     @Inject
     private KeyDAO keyDAO;
-
-    @Inject
-    private SettingsDAO settingsDAO;
 
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
 
-    @Inject
-    private SelfServiceApplicationConfiguration configuration;
-
-    /** Starts EDGE node for user.
+    /**
+     * Starts EDGE node for user.
+     *
      * @param userInfo user info.
      * @return Request Id.
      * @throws DlabException
      */
     @POST
     @Path("/start")
-    public String start(@Auth UserInfo userInfo) throws DlabException {
-        LOGGER.debug("Starting EDGE node for user {}", userInfo.getName());
+    public String start(@Auth UserInfo userInfo) {
+        log.debug("Starting EDGE node for user {}", userInfo.getName());
         UserInstanceStatus status = UserInstanceStatus.of(keyDAO.getEdgeStatus(userInfo.getName()));
-    	if (status == null || !status.in(STOPPED)) {
-        	LOGGER.error("Could not start EDGE node for user {} because the status of instance is {}", userInfo.getName(), status);
+        if (status == null || !status.in(STOPPED)) {
+            log.error("Could not start EDGE node for user {} because the status of instance is {}", userInfo.getName(), status);
             throw new DlabException("Could not start EDGE node because the status of instance is " + status);
         }
 
-    	try {
-        	return action(userInfo, EDGE_START, STARTING);
+        try {
+            return action(userInfo, EDGE_START, STARTING);
         } catch (DlabException e) {
-        	LOGGER.error("Could not start EDGE node for user {}", userInfo.getName(), e);
-        	throw new DlabException("Could not start EDGE node: " + e.getLocalizedMessage(), e);
+            log.error("Could not start EDGE node for user {}", userInfo.getName(), e);
+            throw new DlabException("Could not start EDGE node: " + e.getLocalizedMessage(), e);
         }
     }
 
-    /** Stop EDGE node for user.
+    /**
+     * Stop EDGE node for user.
+     *
      * @param userInfo user info.
      * @return Request Id.
-     * @throws DlabException
      */
     @POST
     @Path("/stop")
-    public String stop(@Auth UserInfo userInfo) throws DlabException {
-        LOGGER.debug("Stopping EDGE node for user {}", userInfo.getName());
+    public String stop(@Auth UserInfo userInfo) {
+        log.debug("Stopping EDGE node for user {}", userInfo.getName());
         UserInstanceStatus status = UserInstanceStatus.of(keyDAO.getEdgeStatus(userInfo.getName()));
-    	if (status == null || !status.in(RUNNING)) {
-        	LOGGER.error("Could not stop EDGE node for user {} because the status of instance is {}", userInfo.getName(), status);
+        if (status == null || !status.in(RUNNING)) {
+            log.error("Could not stop EDGE node for user {} because the status of instance is {}", userInfo.getName(), status);
             throw new DlabException("Could not stop EDGE node because the status of instance is " + status);
         }
 
-    	try {
-        	return action(userInfo, EDGE_STOP, STOPPING);
+        try {
+            return action(userInfo, EDGE_STOP, STOPPING);
         } catch (DlabException e) {
-        	LOGGER.error("Could not stop EDGE node for user {}", userInfo.getName(), e);
-        	throw new DlabException("Could not stop EDGE node: " + e.getLocalizedMessage(), e);
+            log.error("Could not stop EDGE node for user {}", userInfo.getName(), e);
+            throw new DlabException("Could not stop EDGE node: " + e.getLocalizedMessage(), e);
         }
     }
 
-    /** Sends the post request to the provisioning service and update the status of EDGE node.
+    /**
+     * Sends the post request to the provisioning service and update the status of EDGE node.
+     *
      * @param userInfo user info.
-     * @param action action for EDGE node.
-     * @param status status of EDGE node.
+     * @param action   action for EDGE node.
+     * @param status   status of EDGE node.
      * @return Request Id.
-     * @throws DlabException
      */
-    private String action(UserInfo userInfo, String action, UserInstanceStatus status) throws DlabException {
+    private String action(UserInfo userInfo, String action, UserInstanceStatus status) {
         try {
-        	keyDAO.updateEdgeStatus(userInfo.getName(), status.toString());
-        	ResourceSysBaseDTO<?> dto = buildResourceSysBase(userInfo, configuration.getCloudProvider());
+            keyDAO.updateEdgeStatus(userInfo.getName(), status.toString());
+            ResourceSysBaseDTO<?> dto = RequestBuilder.newEdgeAction(userInfo);
             String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return uuid;
         } catch (Throwable t) {
-        	keyDAO.updateEdgeStatus(userInfo.getName(), FAILED.toString());
+            keyDAO.updateEdgeStatus(userInfo.getName(), FAILED.toString());
             throw new DlabException("Could not " + action + " EDGE node " + ": " + t.getLocalizedMessage(), t);
-        }
-    }
-
-    private ResourceSysBaseDTO<?> buildResourceSysBase(UserInfo userInfo, CloudProvider cloudProvider) {
-        switch (cloudProvider) {
-            case AWS:
-                return ResourceUtils.newResourceSysBaseDTO(userInfo, ResourceSysBaseDTO.class, cloudProvider);
-            case AZURE:
-                return ResourceUtils.newResourceSysBaseDTO(userInfo, AzureResource.class, cloudProvider)
-                        .withAzureRegion(settingsDAO.getAzureRegion())
-                        .withAzureResourceGroupName(settingsDAO.getAzureResourceGroupName())
-                        .withAzureIamUser(userInfo.getName());
-
-            case GCP:
-            default:
-                throw new DlabException("Unknown cloud provider " + cloudProvider);
         }
     }
 }

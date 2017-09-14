@@ -21,7 +21,6 @@ package com.epam.dlab.backendapi.modules;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.AbstractModule;
-import com.google.inject.Injector;
 import io.dropwizard.setup.Environment;
 
 public class ModuleFactory {
@@ -42,12 +41,12 @@ public class ModuleFactory {
                         new ProductionModule(configuration, environment)));
     }
 
-    public static CloudModule getCloudProviderModule(SelfServiceApplicationConfiguration configuration, Environment environment, Injector injector) {
+    public static CloudModule getCloudProviderModule(SelfServiceApplicationConfiguration configuration) {
         switch (configuration.getCloudProvider()) {
             case AWS:
-                return new AwsSelfServiceModule(environment, injector);
+                return new AwsSelfServiceModule();
             case AZURE:
-                return new AzureSelfServiceModule(environment, injector);
+                return new AzureSelfServiceModule();
             case GCP:
             default:
                 throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());

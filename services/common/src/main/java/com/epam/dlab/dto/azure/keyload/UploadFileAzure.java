@@ -17,13 +17,15 @@
 package com.epam.dlab.dto.azure.keyload;
 
 import com.epam.dlab.dto.azure.edge.EdgeCreateAzure;
-import com.epam.dlab.dto.base.UploadFile;
+import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Data
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class UploadFileAzure extends UploadFile {
     @JsonProperty
     private EdgeCreateAzure edge;

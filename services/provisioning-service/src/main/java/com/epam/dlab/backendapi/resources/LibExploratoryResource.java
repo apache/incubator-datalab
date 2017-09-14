@@ -94,9 +94,9 @@ public class LibExploratoryResource implements DockerCommands {
     private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
         switch (action) {
             case LIB_INSTALL:
-                return new LibInstallCallbackHandler(selfService, action, uuid, dto.getAwsIamUser(), (ExploratoryLibInstallDTO) dto);
+                return new LibInstallCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(), (ExploratoryLibInstallDTO) dto);
             case LIB_LIST:
-                return new LibListCallbackHandler(selfService, DockerAction.LIB_LIST, uuid, dto.getAwsIamUser(), dto.getNotebookImage());
+                return new LibListCallbackHandler(selfService, DockerAction.LIB_LIST, uuid, dto.getCloudSettings().getIamUser(), dto.getNotebookImage());
         }
         throw new IllegalArgumentException("Unknown action " + action);
     }

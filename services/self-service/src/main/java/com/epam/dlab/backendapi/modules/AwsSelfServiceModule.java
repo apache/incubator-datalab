@@ -16,6 +16,8 @@
 
 package com.epam.dlab.backendapi.modules;
 
+import com.epam.dlab.backendapi.dao.KeyDAO;
+import com.epam.dlab.backendapi.dao.aws.AwsKeyDao;
 import com.epam.dlab.backendapi.domain.BillingSchedulerManager;
 import com.epam.dlab.backendapi.resources.callback.aws.EdgeCallbackAws;
 import com.epam.dlab.backendapi.resources.callback.aws.KeyUploaderCallbackAws;
@@ -26,16 +28,17 @@ import com.google.inject.Injector;
 import io.dropwizard.setup.Environment;
 
 public class AwsSelfServiceModule extends CloudModule {
-    public AwsSelfServiceModule(Environment environment, Injector injector) {
-        super(environment, injector);
-        jerseyEnvironment.register(injector.getInstance(EdgeCallbackAws.class));
-        jerseyEnvironment.register(injector.getInstance(KeyUploaderCallbackAws.class));
-        environment.lifecycle().manage(injector.getInstance(BillingSchedulerManager.class));
-    }
 
     @Override
     protected void configure() {
         bind(BillingService.class).to(AwsBillingService.class);
-        expose(BillingService.class);
+        bind((KeyDAO.class)).to(AwsKeyDao.class);
+    }
+
+    @Override
+    public void init(Environment environment, Injector injector) {
+        environment.jersey().register(injector.getInstance(EdgeCallbackAws.class));
+        environment.jersey().register(injector.getInstance(KeyUploaderCallbackAws.class));
+        environment.lifecycle().manage(injector.getInstance(BillingSchedulerManager.class));
     }
 }

@@ -23,6 +23,8 @@ import { ResourcesGridRowModel, FilterConfigurationModel, CreateResourceModel } 
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
 
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
+
 @Component({
   moduleId: module.id,
   selector: 'resources-grid',
@@ -31,6 +33,7 @@ import { SortUtil } from '../../core/util';
 })
 
 export class ResourcesGridComponent implements OnInit {
+  readonly DICTIONARY = DICTIONARY;
 
   environments: Array<ResourcesGridRowModel>;
   filteredEnvironments: Array<ResourcesGridRowModel> = [];
@@ -54,8 +57,8 @@ export class ResourcesGridComponent implements OnInit {
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', className: 'th_name', filtering: {} },
     { title: 'Status', name: 'statuses', className: 'th_status', filtering: {} },
-    { title: 'Shape', name: 'shapes', className: 'th_shape', filtering: {} },
-    { title: 'Computational resources', name: 'resources', className: 'th_resources', filtering: {} },
+    { title: DICTIONARY.instance_size, name: 'shapes', className: 'th_shape', filtering: {} },
+    { title: DICTIONARY.computational_resource, name: 'resources', className: 'th_resources', filtering: {} },
     { title: 'Cost', name: 'cost', className: 'th_cost' },
     { title: 'Actions', className: 'th_actions' }
   ];

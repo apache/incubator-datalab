@@ -224,6 +224,7 @@ if __name__ == "__main__":
             res = {"ip": ip_address,
                    "master_keyname": os.environ['conf_key_name'],
                    "notebook_name": notebook_config['instance_name'],
+                   "instance_id": notebook_config['instance_name'],
                    "Action": "Create new notebook server",
                    "exploratory_url": [
                        {"description": "Rstudio",

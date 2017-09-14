@@ -16,7 +16,7 @@
 
 package com.epam.dlab.dto.azure.edge;
 
-import com.epam.dlab.dto.base.EdgeInfo;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
