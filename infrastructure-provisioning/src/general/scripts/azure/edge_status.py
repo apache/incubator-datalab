@@ -40,7 +40,7 @@ if __name__ == "__main__":
     try:
         logging.info('[COLLECT DATA]')
         print '[COLLECTING DATA]'
-        params = '--resource_group_name --list_resources "{}"'.format(edge_conf['resource_group_name'],
+        params = '--resource_group_name {} --list_resources "{}"'.format(edge_conf['resource_group_name'],
                                                                       os.environ['edge_list_resources'])
         try:
             local("~/scripts/{}.py {}".format('common_collect_data', params))
