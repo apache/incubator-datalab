@@ -54,7 +54,7 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
         try {
             resourceList = MAPPER.readValue(resultNode.toString(), EnvResourceList.class);
         } catch (IOException e) {
-            throw new DlabException("Docker responce for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage(), e);
+            throw new DlabException("Docker response for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage(), e);
         }
 
         baseStatus.withResourceList(resourceList)
