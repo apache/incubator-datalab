@@ -26,7 +26,6 @@ COPY dataengine-service/description.json /root/
 COPY general/scripts/${CLOUD}/dataengine-service_* /root/scripts/
 COPY general/templates/${CLOUD}/dataengine-service_cluster.json /root/templates/
 COPY general/templates/${CLOUD}/dataengine-service_job.json /root/templates/
-COPY general/templates/${CLOUD}/core-site.xml /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
