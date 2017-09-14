@@ -898,7 +898,7 @@ class AzureActions:
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
         try:
-            hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\1/p'")
+            hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
             user_storage_account_name = (os.environ['conf_service_base_name'] + os.environ['edge_user_name']).lower().\
                 replace('_', '').replace('-', '')
             shared_storage_account_name = (os.environ['conf_service_base_name'] + 'shared').lower().replace('_', '').\
@@ -922,5 +922,10 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
             sudo('touch /home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user))
-        except:
-            sys.exit(1)
+        except Exception as err:
+            logging.info(
+                "Unable to download local jars: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to download local jars",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
