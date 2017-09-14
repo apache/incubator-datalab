@@ -910,9 +910,9 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
             print "Downloading local jars for Azure"
             sudo('mkdir -p ' + jars_dir)
             sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
-                 {1}hadoop-azure-{0}.jar').format(hadoop_version, jars_dir)
+                 {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
             sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/2.2.0/azure-storage-2.2.0.jar \
-                -O {}azure-storage-2.2.0.jar').format(jars_dir)
+                 -O {}azure-storage-2.2.0.jar'.format(jars_dir))
             put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
             sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
             sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
