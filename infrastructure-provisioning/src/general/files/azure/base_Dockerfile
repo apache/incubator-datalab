@@ -18,7 +18,6 @@
 
 FROM ubuntu:16.04
 ARG OS
-ARG CLOUD
 
 # Install any .deb dependecies
 RUN	apt-get update && \
@@ -28,7 +27,7 @@ RUN	apt-get update && \
 
 # Install any python dependencies
 RUN pip install -U pip
-RUN pip install boto3 fabric fabvenv awscli argparse ujson jupyter google-api-python-client google-cloud-storage pycrypto azure azure-mgmt-authorization
+RUN pip install fabric fabvenv argparse ujson jupyter pycrypto azure azure-mgmt-authorization
 
 # Configuring ssh for user
 RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \
@@ -48,7 +47,6 @@ RUN mkdir -p /logs/dataengine-service; chmod a+rwx /logs/dataengine-service
 # Copying all base scripts to docker
 ENV PROVISION_CONFIG_DIR /root/conf/
 ENV KEYFILE_DIR /root/keys/
-ENV AWS_DIR /root/.aws
 
 RUN mkdir -p /root/conf
 RUN mkdir -p /root/scripts
@@ -60,8 +58,8 @@ RUN mkdir -p /root/keys/.ssh
 COPY base/ /root
 COPY general/conf/* /root/conf/
 COPY general/api/*.py /bin/
-COPY general/scripts/${CLOUD}/common_* /root/scripts/
-COPY general/lib/${CLOUD}/* /usr/lib/python2.7/dlab/
+COPY general/scripts/azure/common_* /root/scripts/
+COPY general/lib/azure/* /usr/lib/python2.7/dlab/
 COPY general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
 COPY general/lib/os/fab.py /usr/lib/python2.7/dlab/fab.py
 COPY general/files/os/${OS}/sources.list /root/files/
