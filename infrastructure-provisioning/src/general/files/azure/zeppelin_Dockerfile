@@ -30,6 +30,7 @@ COPY general/templates/${CLOUD}/dataengine-service_interpreter_* /root/templates
 COPY general/templates/${CLOUD}/interpreter_* /root/templates/
 COPY general/templates/${CLOUD}/dataengine_interpreter_livy.json /root/templates/
 COPY general/templates/${CLOUD}/dataengine_interpreter_spark.json /root/templates/
+COPY general/templates/${CLOUD}/core-site.xml /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 
