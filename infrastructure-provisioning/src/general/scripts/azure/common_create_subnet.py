@@ -23,7 +23,6 @@ import json
 from dlab.actions_lib import *
 from dlab.meta_lib import *
 import sys
-import boto3
 import ipaddress
 
 

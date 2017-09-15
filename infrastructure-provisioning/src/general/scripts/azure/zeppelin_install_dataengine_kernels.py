@@ -20,7 +20,6 @@
 
 import argparse
 from fabric.api import *
-import boto3
 from dlab.meta_lib import *
 import os
 from fabric.contrib.files import exists
