@@ -24,35 +24,34 @@ import com.epam.dlab.core.parser.ReportLine;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import jersey.repackaged.com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class AwsBillingService implements BillingService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AwsBillingService.class);
     private static final char SEPARATOR = ',';
     @Inject
     private BillingDAO billingDAO;
 
     @Override
     public Document getReport(UserInfo userInfo, BillingFilterFormDTO filter) {
-        LOGGER.trace("Get billing report for user {} with filter {}", userInfo.getName(), filter);
+        log.trace("Get billing report for user {} with filter {}", userInfo.getName(), filter);
         try {
             return billingDAO.getReport(userInfo, filter);
         } catch (RuntimeException t) {
-            LOGGER.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), filter, t);
+            log.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), filter, t);
             throw new DlabException("Cannot load billing report: " + t.getLocalizedMessage(), t);
         }
     }
 
     @Override
     public byte[] downloadReport(UserInfo userInfo, BillingFilterFormDTO filter) {
-        LOGGER.trace("Download billing report for user {} with filter {}", userInfo.getName(), filter);
+        log.trace("Download billing report for user {} with filter {}", userInfo.getName(), filter);
         Document document = billingDAO.getReport(userInfo, filter);
 
         try {
@@ -71,7 +70,7 @@ public class AwsBillingService implements BillingService {
 
             return builder.toString().getBytes();
         } catch (ParseException e) {
-            LOGGER.error("Cannot parse dates", e);
+            log.error("Cannot parse dates", e);
             throw new DlabException("Cannot prepare CSV file", e);
         }
     }

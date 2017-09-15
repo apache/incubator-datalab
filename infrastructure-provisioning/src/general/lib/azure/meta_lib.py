@@ -345,6 +345,7 @@ class AzureMeta:
     def get_list_instance_statuses(self, resource_group_name, instance_name_list):
         data = []
         for instance_name in instance_name_list:
+            instance_name = instance_name['id']
             host = {}
             try:
                 request = self.compute_client.virtual_machines.get(resource_group_name, instance_name,
@@ -358,7 +359,6 @@ class AzureMeta:
                     host['status'] = request.instance_view.statuses[0].display_status.lower()
                     data.append(host)
             except:
-                host['resource_type'] = 'host'
                 host['id'] = instance_name
                 host['status'] = 'terminated'
                 data.append(host)
