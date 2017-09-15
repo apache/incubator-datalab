@@ -18,9 +18,10 @@ package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.aws.AwsKeyDao;
+import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.EdgeCallbackAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.KeyUploaderCallbackAzure;
-import com.epam.dlab.backendapi.service.AwsBillingService;
+import com.epam.dlab.backendapi.service.AzureBillingService;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
@@ -30,8 +31,7 @@ public class AzureSelfServiceModule extends CloudModule {
 
     @Override
     protected void configure() {
-        //TODO just temporary to startup an application
-        bind(BillingService.class).to(AwsBillingService.class);
+        bind(BillingService.class).to(AzureBillingService.class);
         bind((KeyDAO.class)).to(AwsKeyDao.class);
     }
 
@@ -39,5 +39,6 @@ public class AzureSelfServiceModule extends CloudModule {
     public void init(Environment environment, Injector injector) {
         environment.jersey().register(injector.getInstance(EdgeCallbackAzure.class));
         environment.jersey().register(injector.getInstance(KeyUploaderCallbackAzure.class));
+        environment.jersey().register(injector.getInstance(ComputationalResourceAzure.class));
     }
 }

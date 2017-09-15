@@ -19,6 +19,7 @@ package com.epam.dlab.backendapi.modules;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.aws.AwsKeyDao;
 import com.epam.dlab.backendapi.domain.BillingSchedulerManager;
+import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.callback.aws.EdgeCallbackAws;
 import com.epam.dlab.backendapi.resources.callback.aws.KeyUploaderCallbackAws;
 import com.epam.dlab.backendapi.service.AwsBillingService;
@@ -39,6 +40,7 @@ public class AwsSelfServiceModule extends CloudModule {
     public void init(Environment environment, Injector injector) {
         environment.jersey().register(injector.getInstance(EdgeCallbackAws.class));
         environment.jersey().register(injector.getInstance(KeyUploaderCallbackAws.class));
+        environment.jersey().register(injector.getInstance(ComputationalResourceAws.class));
         environment.lifecycle().manage(injector.getInstance(BillingSchedulerManager.class));
     }
 }
