@@ -111,10 +111,11 @@ def install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_di
     local('chown -R ' + os_user + ':' + os_user + ' ' + spark_dir)
 
 
-def configure_dataengine_spark(jars_dir, spark_dir):
-    local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` | sed 's|LIST_OF_JARS|'$jar_list'|g' \
-          /tmp/dataengine_spark-defaults.conf".format(jars_dir))
-    local('mv /tmp/dataengine_spark-defaults.conf  {}/conf/spark-defaults.conf'.format(spark_dir))
+def configure_dataengine_spark(jars_dir, spark_dir, local_spark_dir):
+    local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+          /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
+    local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
+    local('cp {0}conf/core-site.xml {1}conf/'.format(local_spark_dir, spark_dir))
 
 
 def prepare(dataengine_service_dir, yarn_dir):

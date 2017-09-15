@@ -47,7 +47,7 @@ def configure_notebook(args):
     put(files_dir + 'toree_kernel.tar.gz', '/tmp/toree_kernel.tar.gz')
     put(templates_dir + 'toree_dataengine_template.json', '/tmp/toree_dataengine_template.json')
     put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
-    put(templates_dir + 'dataengine_spark-defaults.conf', '/tmp/dataengine_spark-defaults.conf')
+    put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
     sudo('\cp /tmp/jupyter_dataengine_create_configs.py /usr/local/bin/jupyter_dataengine_create_configs.py')
     sudo('chmod 755 /usr/local/bin/jupyter_dataengine_create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')

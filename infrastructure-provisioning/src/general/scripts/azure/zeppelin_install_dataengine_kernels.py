@@ -45,7 +45,7 @@ def configure_notebook(args):
     else:
         put(templates_dir + 'dataengine_interpreter_spark.json', '/tmp/dataengine_interpreter.json')
     put(scripts_dir + 'zeppelin_dataengine_create_configs.py', '/tmp/zeppelin_dataengine_create_configs.py')
-    put(templates_dir + 'dataengine_spark-defaults.conf', '/tmp/dataengine_spark-defaults.conf')
+    put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
     sudo('\cp /tmp/zeppelin_dataengine_create_configs.py /usr/local/bin/zeppelin_dataengine_create_configs.py')
     sudo('chmod 755 /usr/local/bin/zeppelin_dataengine_create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')

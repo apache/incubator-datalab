@@ -43,6 +43,7 @@ args = parser.parse_args()
 
 spark_dir = '/opt/' + args.cluster_name + '/spark/'
 local_jars_dir = '/opt/jars/'
+local_spark_dir = '/opt/spark/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
@@ -75,6 +76,6 @@ def configure_rstudio():
 if __name__ == "__main__":
     dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
     install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
-    configure_dataengine_spark(local_jars_dir, spark_dir)
+    configure_dataengine_spark(local_jars_dir, spark_dir, local_spark_dir)
     configure_rstudio()
 
