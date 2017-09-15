@@ -45,7 +45,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.EnvStatusListenerUserInfo;
-import com.epam.dlab.backendapi.resources.ComputationalResource;
+import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusResource;
@@ -350,7 +350,7 @@ public class EnvStatusDAO extends BaseDAO {
     			user, exploratoryName, computationalName);
     	try {
     		// Send post request to provisioning service to terminate spot EMR.
-    		ComputationalResource computational = new ComputationalResource();
+    		ComputationalResourceAws computational = new ComputationalResourceAws();
     		SelfServiceApplication.getInjector().injectMembers(computational);
     		UserInfo ui = new UserInfo(user, accessToken);
     		computational.terminate(ui, exploratoryName, computationalName);

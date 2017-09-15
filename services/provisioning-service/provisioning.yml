@@ -31,9 +31,18 @@ adminKey: BDCC-DSS-POC
 edgeImage: docker.dlab-edge
 fileLengthCheckDelay: 500ms
 
-emrImage: docker.dlab-dataengine-service
+<#if CLOUD_TYPE == "aws">
+
 emrEC2RoleDefault: EMR_EC2_DefaultRole
 emrServiceRoleDefault: EMR_DefaultRole
+
+dataEngineImage: docker.dlab-dataengine-service
+
+<#elseif CLOUD_TYPE == "azure">
+
+dataEngineImage: docker.dlab-dataengine
+
+</#if>
 
 processMaxThreadsPerJvm: 50
 processMaxThreadsPerUser: 5

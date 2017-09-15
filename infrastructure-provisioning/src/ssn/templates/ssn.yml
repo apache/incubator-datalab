@@ -23,8 +23,9 @@
 <#assign TRUST_STORE_PATH="${JRE_HOME}/lib/security/cacerts">
 <#assign TRUST_STORE_PASSWORD="changeit">
 
+<#assign CLOUD_TYPE="CLOUD_PROVIDER">
 # Available options are aws, azure, gcp
-cloudProvider: CLOUD_PROVIDER
+cloudProvider: ${CLOUD_TYPE}
 
 #Switch on/off developer mode here
 <#assign DEV_MODE="false">
