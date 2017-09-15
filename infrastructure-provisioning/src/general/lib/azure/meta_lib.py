@@ -345,6 +345,7 @@ class AzureMeta:
     def get_list_instance_statuses(self, resource_group_name, instance_name_list):
         data = []
         for instance_name in instance_name_list:
+            instance_name = instance_name['id']
             host = {}
             try:
                 request = self.compute_client.virtual_machines.get(resource_group_name, instance_name,
