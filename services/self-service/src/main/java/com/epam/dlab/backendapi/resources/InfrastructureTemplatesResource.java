@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides the REST API for the information about provisioning infrastructure.
+ * Provides the REST API to retrieve exploratory/computational templates.
  */
 @Path("/infrastructure_templates")
 @Consumes(MediaType.APPLICATION_JSON)
