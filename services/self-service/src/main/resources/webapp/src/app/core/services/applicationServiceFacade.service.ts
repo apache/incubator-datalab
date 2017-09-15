@@ -272,7 +272,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT,
       '/api/infrastructure_provision/exploratory_environment');
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES,
-      '/api/infrastructure_provision/exploratory_templates');
+      '/api/infrastructure_templates/exploratory_templates');
 
 
     // Computational Resources
