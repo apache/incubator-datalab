@@ -652,7 +652,6 @@ def get_list_instance_statuses(instance_ids):
                     host['status'] = j.get('State').get('Name')
                     data.append(host)
         except:
-            host['resource_type'] = 'host'
             host['id'] = h.get('id')
             host['status'] = 'terminated'
             data.append(host)
