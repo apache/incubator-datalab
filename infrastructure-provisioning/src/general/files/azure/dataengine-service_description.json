@@ -1,6 +1,6 @@
 {
-  "template_name": "DLab AWS EMR",
-  "description": "Image for EMR provisioning",
+  "template_name": "DLab Azure HDInsight",
+  "description": "Image for HDInsight provisioning",
   "environment_type": "computational",
   "computation_resources_shapes":
     {
