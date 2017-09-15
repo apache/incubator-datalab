@@ -43,6 +43,7 @@ args = parser.parse_args()
 
 kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
 spark_dir = '/opt/' + args.cluster_name + '/spark/'
+local_jars_dir = '/opt/jars/'
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
@@ -145,12 +146,14 @@ def pyspark_kernel(args):
         format(args.cluster_name, kernel_path, args.os_user))
     local('sudo mv /tmp/kernel_var.json ' + kernel_path)
 
+
 if __name__ == "__main__":
     if args.dry_run == 'true':
         parser.print_help()
     else:
         dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
         install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
+        configure_dataengine_spark(local_jars_dir, spark_dir)
         pyspark_kernel(args)
         toree_kernel(args)
         r_kernel(args)

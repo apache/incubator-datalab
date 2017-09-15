@@ -38,7 +38,9 @@ args = parser.parse_args()
 
 def configure_notebook(keyfile, hoststring):
     scripts_dir = '/root/scripts/'
+    templates_dir = '/root/templates/'
     put(scripts_dir + 'rstudio_dataengine_create_configs.py', '/tmp/rstudio_dataengine_create_configs.py')
+    put(templates_dir + 'dataengine_spark-defaults.conf', '/tmp/dataengine_spark-defaults.conf')
     sudo('\cp /tmp/rstudio_dataengine_create_configs.py /usr/local/bin/rstudio_dataengine_create_configs.py')
     sudo('chmod 755 /usr/local/bin/rstudio_dataengine_create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')

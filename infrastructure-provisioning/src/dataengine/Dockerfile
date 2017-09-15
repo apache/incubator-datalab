@@ -25,7 +25,7 @@ COPY dataengine/ /root/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
 COPY general/scripts/${CLOUD}/dataengine_* /root/scripts/
 COPY general/templates/${CLOUD}/core-site.xml /root/templates/
-COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
+COPY general/templates/os/dataengine_spark-defaults.conf /root/templates/
 
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
