@@ -27,20 +27,15 @@ parser.add_argument('--aws_access_key', type=str, default='', help='AWS Access K
 parser.add_argument('--aws_secret_access_key', type=str, default='', help='AWS Secret Access Key')
 parser.add_argument('--aws_region', type=str, default='', help='AWS region')
 parser.add_argument('--azure_region', type=str, default='', help='Azure region')
-parser.add_argument('--gcp_region', type=str, default='', help='GCP region')
-parser.add_argument('--gcp_zone', type=str, default='', help='GCP zone')
 parser.add_argument('--conf_os_family', type=str, default='',
                     help='Operating system type. Available options: debian, redhat')
 parser.add_argument('--conf_cloud_provider', type=str, default='',
-                    help='Where DLab should be deployed. Available options: aws, gcp')
+                    help='Where DLab should be deployed. Available options: aws')
 parser.add_argument('--aws_vpc_id', type=str, default='', help='AWS VPC ID')
-parser.add_argument('--gcp_vpc_name', type=str, default='', help='GCP VPC Name')
 parser.add_argument('--azure_vpc_name', type=str, default='', help='Azure VPC Name')
 parser.add_argument('--aws_subnet_id', type=str, default='', help='AWS Subnet ID')
-parser.add_argument('--gcp_subnet_name', type=str, default='', help='GCP Subnet Name')
 parser.add_argument('--azure_subnet_name', type=str, default='', help='Azure Subnet Name')
 parser.add_argument('--aws_security_groups_ids', type=str, default='', help='One of more comma-separated Security groups IDs for SSN')
-parser.add_argument('--gcp_firewall_name', type=str, default='', help='One of more comma-separated GCP Firewall rules for SSN')
 parser.add_argument('--azure_security_group_name', type=str, default='', help='One of more comma-separated Security groups names for SSN')
 parser.add_argument('--key_path', type=str, default='', help='Path to admin key (WITHOUT KEY NAME)')
 parser.add_argument('--conf_key_name', type=str, default='', help='Admin key name (WITHOUT ".pem")')
@@ -50,8 +45,6 @@ parser.add_argument('--ssn_instance_size', type=str, default='t2.medium', help='
 parser.add_argument('--aws_account_id', type=str, default='', help='The ID of Amazon account')
 parser.add_argument('--aws_billing_bucket', type=str, default='', help='The name of S3 bucket where billing reports will be placed.')
 parser.add_argument('--aws_report_path', type=str, default='', help='The path to billing reports directory in S3 bucket')
-parser.add_argument('--gcp_project_id', type=str, default='', help='The project ID in Google Cloud Platform')
-parser.add_argument('--gcp_service_account_path', type=str, default='', help='The project ID in Google Cloud Platform')
 parser.add_argument('--azure_resource_group_name', type=str, default='', help='Name of Resource group in Azure')
 parser.add_argument('--azure_auth_path', type=str, default='', help='Full path to Azure credentials JSON file')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
@@ -64,13 +57,11 @@ def generate_docker_command():
     command = []
     command.append('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -v {2}/web_app:/root/web_app '.
                    format(args.key_path, args.conf_key_name, args.workspace_path))
-    if args.conf_cloud_provider == 'gcp':
-        command.append('-v {}:/root/service_account.json '.format(args.gcp_service_account_path))
-    elif args.conf_cloud_provider == 'azure':
+    if args.conf_cloud_provider == 'azure':
         command.append('-v {}:/root/azure_auth.json '.format(args.azure_auth_path))
     attrs = vars(args)
     for i in attrs:
-        if attrs[i] and i != 'action' and i != 'key_path' and i != 'workspace_path' and i != 'gcp_service_account_path':
+        if attrs[i] and i != 'action' and i != 'key_path' and i != 'workspace_path':
             command.append('-e "{}={}" '.format(i, attrs[i]))
     command.append('-e "conf_resource=ssn" ')
     command.append('docker.dlab-ssn ')
@@ -96,9 +87,9 @@ def build_services():
 def build_docker_images(args):
     # Building base and ssn docker images
     with lcd(args.workspace_path + '/infrastructure-provisioning/src/'):
-        local('sudo docker build --build-arg OS={} --build-arg CLOUD={} --file base/Dockerfile '
+        local('sudo docker build --build-arg OS={0} --build-arg CLOUD={1} --file general/files/{1}/base_Dockerfile '
               '-t docker.dlab-base .'.format(args.conf_os_family, args.conf_cloud_provider))
-        local('sudo docker build --build-arg OS={} --build-arg CLOUD={} --file ssn/Dockerfile '
+        local('sudo docker build --build-arg OS={0} --build-arg CLOUD={1} --file general/files/{1}/ssn_Dockerfile '
               '-t docker.dlab-ssn .'.format(args.conf_os_family, args.conf_cloud_provider))
 
 

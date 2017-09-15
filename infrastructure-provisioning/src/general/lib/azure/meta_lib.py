@@ -358,7 +358,6 @@ class AzureMeta:
                     host['status'] = request.instance_view.statuses[0].display_status.lower()
                     data.append(host)
             except:
-                host['resource_type'] = 'host'
                 host['id'] = instance_name
                 host['status'] = 'terminated'
                 data.append(host)

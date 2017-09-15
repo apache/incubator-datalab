@@ -74,7 +74,7 @@ if __name__ == "__main__":
         else:
             application = os.environ['application']
     except Exception as err:
-        for i in range(notebook_config['instance_count']):
+        for i in range(notebook_config['instance_count'] - 1):
             slave_name = notebook_config['slave_node_name'] + '-{}'.format(i+1)
             AzureActions().remove_instance(notebook_config['resource_group_name'], slave_name)
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['master_node_name'])
@@ -94,7 +94,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        for i in range(notebook_config['instance_count']):
+        for i in range(notebook_config['instance_count'] - 1):
             slave_name = notebook_config['slave_node_name'] + '-{}'.format(i+1)
             AzureActions().remove_instance(notebook_config['resource_group_name'], slave_name)
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['master_node_name'])
