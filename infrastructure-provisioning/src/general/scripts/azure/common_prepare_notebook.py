@@ -43,22 +43,19 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     try:
-        edge_status = AzureMeta().get_list_instance_statuses(os.environ['conf_service_base_name'],
-                                                             [os.environ['conf_service_base_name'] + '-' +
-                                                             os.environ['edge_user_name'] + '-edge'])
-        if len(edge_status) == 1:
-            if edge_status[0]['status'] != 'running':
-                logging.info('ERROR: Edge node is unavailable! Aborting...')
-                print 'ERROR: Edge node is unavailable! Aborting...'
-                ssn_hostname = AzureMeta().get_instance_public_ip_address(os.environ['conf_service_base_name'],
-                                                                          os.environ['conf_service_base_name'] + '-ssn')
-                put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
-                                    ssn_hostname)
-                append_result("Edge node is unavailable")
-                sys.exit(1)
-        else:
-            append_result("Error with getting Edge instance status")
+        edge_status = AzureMeta().get_instance_status(os.environ['conf_service_base_name'],
+                                                      os.environ['conf_service_base_name'] + '-' +
+                                                      os.environ['edge_user_name'] + '-edge')
+        if edge_status != 'running':
+            logging.info('ERROR: Edge node is unavailable! Aborting...')
+            print 'ERROR: Edge node is unavailable! Aborting...'
+            ssn_hostname = AzureMeta().get_instance_public_ip_address(os.environ['conf_service_base_name'],
+                                                                      os.environ['conf_service_base_name'] + '-ssn')
+            put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
+                                ssn_hostname)
+            append_result("Edge node is unavailable")
             sys.exit(1)
+
         print 'Generating infrastructure names and tags'
         notebook_config = dict()
         try:
