@@ -345,6 +345,7 @@ class AzureMeta:
     def get_list_instance_statuses(self, resource_group_name, instance_name_list):
         data = []
         for instance_name in instance_name_list:
+            instance_name = instance_name['id']
             host = {}
             try:
                 request = self.compute_client.virtual_machines.get(resource_group_name, instance_name,
@@ -362,6 +363,17 @@ class AzureMeta:
                 host['status'] = 'terminated'
                 data.append(host)
         return data
+
+    def get_instance_status(self, resource_group_name, instance_name):
+        try:
+            request = self.compute_client.virtual_machines.get(resource_group_name, instance_name, expand='instanceView')
+            try:
+                status = request.instance_view.statuses[1].display_status.split(' ')[1].replace("deallocat", "stopp")
+            except:
+                status = request.instance_view.statuses[0].display_status.lower()
+        except:
+            status = 'terminated'
+        return status
 
     def get_application(self, application_object_id):
         try:

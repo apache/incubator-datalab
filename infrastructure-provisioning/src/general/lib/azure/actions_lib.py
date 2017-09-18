@@ -348,7 +348,7 @@ class AzureActions:
         try:
             secret_key = meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
             sas = SharedAccessSignature(account_name=account_name, account_key=secret_key)
-            result = sas.generate_container(container_name, source_ip_range)
+            result = sas.generate_container(container_name, permission='rw', ip=source_ip_range)
             return result
         except Exception as err:
             logging.info(
@@ -896,10 +896,36 @@ class AzureActions:
 
 
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
-    print "Downloading local jars for Azure"
-    sudo('mkdir -p ' + jars_dir)
-    sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/2.7.4/hadoop-azure-2.7.4.jar -O ' +
-         jars_dir + 'hadoop-azure-2.7.4.jar')
-    sudo(
-        'wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/5.5.0/azure-storage-5.5.0.jar -O ' +
-        jars_dir + 'azure-storage-5.5.0.jar')
+    if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
+        try:
+            hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
+            user_storage_account_name = (os.environ['conf_service_base_name'] + os.environ['edge_user_name']).lower().\
+                replace('_', '').replace('-', '')
+            shared_storage_account_name = (os.environ['conf_service_base_name'] + 'shared').lower().replace('_', '').\
+                replace('-', '')
+            user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
+                                                                              user_storage_account_name)[0]
+            shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
+                                                                                shared_storage_account_name)[0]
+            print "Downloading local jars for Azure"
+            sudo('mkdir -p ' + jars_dir)
+            sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
+                 {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
+            sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/2.2.0/azure-storage-2.2.0.jar \
+                 -O {}azure-storage-2.2.0.jar'.format(jars_dir))
+            put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
+            sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
+            sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
+            sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
+            sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
+            sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+            put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+            sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
+            sudo('touch /home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user))
+        except Exception as err:
+            logging.info(
+                "Unable to download local jars: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to download local jars",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
