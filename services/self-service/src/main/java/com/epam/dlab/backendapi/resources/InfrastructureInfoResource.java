@@ -23,9 +23,8 @@ import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
-import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -68,7 +67,7 @@ public class InfrastructureInfoResource implements InfrasctructureAPI {
      * @param userInfo user info.
      */
     @GET
-    @Path(ApiCallbacks.STATUS_URI)
+    @Path("/status")
     public HealthStatusPageDTO status(@Auth UserInfo userInfo, @QueryParam("full") @DefaultValue("0") int fullReport) {
         log.debug("Request the status of resources for user {}, report type {}", userInfo.getName(), fullReport);
         try {
@@ -92,7 +91,7 @@ public class InfrastructureInfoResource implements InfrasctructureAPI {
         log.debug("Loading list of provisioned resources for user {}", userInfo.getName());
         try {
             Iterable<Document> documents = expDAO.findExploratory(userInfo.getName());
-            EdgeInfoAws edgeInfo = keyDAO.getEdgeInfo(userInfo.getName(), EdgeInfoAws.class, new EdgeInfoAws());
+            EdgeInfo edgeInfo = keyDAO.getEdgeInfo(userInfo.getName());
 
             InfrastructureInfo infrastructureInfo = new InfrastructureInfo(infrastructureInfoService.getSharedInfo(edgeInfo), documents);
 
