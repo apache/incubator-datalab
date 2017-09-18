@@ -33,7 +33,7 @@ COPY general/templates/os/pyspark_local_template.json /root/templates/
 COPY general/templates/os/py3spark_local_template.json /root/templates/
 COPY general/templates/os/r_template.json /root/templates/
 COPY general/templates/os/run_template.sh /root/templates/
-COPY general/templates/os/core-site.xml /root/templates/
+COPY general/templates/azure/core-site.xml /root/templates/
 COPY general/templates/os/pyspark_dataengine_template.json /root/templates/
 COPY general/templates/os/r_dataengine_template.json /root/templates/
 COPY general/templates/os/toree_dataengine_template.json /root/templates/
