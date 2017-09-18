@@ -662,6 +662,21 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def set_tag_to_instance(self, resource_group_name, instance_name, tags):
+        try:
+            instance_parameters = self.compute_client.virtual_machines.get(resource_group_name, instance_name)
+            instance_parameters.tags = tags
+            result = self.compute_client.virtual_machines.create_or_update(resource_group_name, instance_name,
+                                                                           instance_parameters)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to set instance tags: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to set instance tags",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def remove_instance(self, resource_group_name, instance_name):
         try:
             instance_parameters = meta_lib.AzureMeta().get_instance(resource_group_name, instance_name)
