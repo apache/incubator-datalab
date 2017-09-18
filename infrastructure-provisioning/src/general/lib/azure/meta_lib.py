@@ -364,6 +364,17 @@ class AzureMeta:
                 data.append(host)
         return data
 
+    def get_instance_status(self, resource_group_name, instance_name):
+        try:
+            request = self.compute_client.virtual_machines.get(resource_group_name, instance_name, expand='instanceView')
+            try:
+                status = request.instance_view.statuses[1].display_status.split(' ')[1].replace("deallocat", "stopp")
+            except:
+                status = request.instance_view.statuses[0].display_status.lower()
+        except:
+            status = 'terminated'
+        return status
+
     def get_application(self, application_object_id):
         try:
             result = graphrbac_client.applications.get(application_object_id)

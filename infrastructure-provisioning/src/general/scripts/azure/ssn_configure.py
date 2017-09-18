@@ -33,35 +33,30 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     instance = 'ssn'
+    pre_defined_resource_group = False
+    pre_defined_vpc = False
+    pre_defined_subnet = False
+    pre_defined_sg = False
+    billing_enabled = False
 
     try:
         logging.info('[DERIVING NAMES]')
         print '[DERIVING NAMES]'
-        pre_defined_resource_group = False
-        pre_defined_vpc = False
-        pre_defined_subnet = False
-        pre_defined_sg = False
-        billing_enabled = False
 
         ssn_conf = dict()
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
         ssn_conf['region'] = os.environ['azure_region']
-        ssn_conf['storage_account_name'] = (ssn_conf['service_base_name'] + 'ssn').lower().replace('_', '').replace('-',
-                                                                                                                    '')
+        ssn_conf['ssn_storage_account_name'] = (ssn_conf['service_base_name'] + 'ssn').lower().replace('_', '').replace('-', '')
         ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn-container').lower().replace('_', '-')
+        ssn_conf['shared_storage_account_name'] = (ssn_conf['service_base_name'] + 'shared').lower().replace('_', '').replace('-', '')
         ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared-container').lower().replace('_', '')
         ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
-        # ssn_conf['instance_size'] = os.environ['ssn_instance_size']
         ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
-        # ssn_conf['subnet_cidr'] = '10.10.1.0/24'
         ssn_conf['security_group_name'] = ssn_conf['service_base_name'] + '-ssn-sg'
         ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         ssn_conf['instance_dns_name'] = ssn_conf['instance_name'] + '.' + ssn_conf['region'] + '.cloudapp.azure.com'
-        # ssn_conf['service_account_name'] = ssn_conf['service_base_name'] + '-ssn-sa'
-        # ssn_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
-        # ssn_conf['role_name'] = 'dlab_ssn_role'
 
         try:
             if os.environ['azure_resource_group_name'] == '':
@@ -98,6 +93,19 @@ if __name__ == "__main__":
             sudo_group = 'wheel'
     except:
         print "Failed to generate variables dictionary."
+        if pre_defined_resource_group:
+            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
+            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
+                                         ssn_conf['subnet_name'])
+        if pre_defined_sg:
+            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
+                                                 ssn_conf['security_group_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['ssn_storage_account_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['shared_storage_account_name'])
+        AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
+        append_result("Failed creating ssh user 'dlab-user'.", str(err))
         sys.exit(1)
 
     try:
@@ -121,8 +129,8 @@ if __name__ == "__main__":
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
-        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'],
-                                              ssn_conf['storage_account_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['ssn_storage_account_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['shared_storage_account_name'])
         AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Failed creating ssh user 'dlab-user'.", str(err))
         sys.exit(1)
@@ -148,8 +156,8 @@ if __name__ == "__main__":
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
-        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'],
-                                              ssn_conf['storage_account_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['ssn_storage_account_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['shared_storage_account_name'])
         AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Failed installing software: pip, packages.", str(err))
         sys.exit(1)
@@ -180,8 +188,8 @@ if __name__ == "__main__":
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
-        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'],
-                                              ssn_conf['storage_account_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['ssn_storage_account_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['shared_storage_account_name'])
         AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Failed configuring ssn.", str(err))
         sys.exit(1)
@@ -218,8 +226,8 @@ if __name__ == "__main__":
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
-        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'],
-                                              ssn_conf['storage_account_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['ssn_storage_account_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['shared_storage_account_name'])
         AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Unable to configure docker.", str(err))
         sys.exit(1)
@@ -259,8 +267,8 @@ if __name__ == "__main__":
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
-        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'],
-                                              ssn_conf['storage_account_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['ssn_storage_account_name'])
+        AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], ssn_conf['shared_storage_account_name'])
         AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Unable to configure UI.", str(err))
         sys.exit(1)
