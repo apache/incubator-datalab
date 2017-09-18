@@ -20,8 +20,8 @@ package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.dto.computational.ComputationalBaseDTO;
-import com.epam.dlab.dto.computational.ComputationalCreateDTO;
+import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
+import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
@@ -34,14 +34,14 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
     private static final String INSTANCE_ID_FIELD = "instance_id";
     private static final String COMPUTATIONAL_ID_FIELD = "hostname";
     
-    private final ComputationalBaseDTO<?> dto;
+    private final ComputationalBase<?> dto;
 
-    public ComputationalCallbackHandler(RESTService selfService, DockerAction action, String uuid, ComputationalBaseDTO<?> dto) {
+    public ComputationalCallbackHandler(RESTService selfService, DockerAction action, String uuid, ComputationalBase<?> dto) {
         super(selfService, dto.getAwsIamUser(), uuid, action);
         this.dto = dto;
     }
     
-    protected ComputationalBaseDTO<?> getDto() {
+    protected ComputationalBase<?> getDto() {
     	return dto;
     }
     
@@ -66,7 +66,7 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
     			.withComputationalId(getTextValue(resultNode.get(COMPUTATIONAL_ID_FIELD)));
     		if (UserInstanceStatus.of(baseStatus.getStatus()) == UserInstanceStatus.RUNNING) {
     			baseStatus.withStatus(UserInstanceStatus.CONFIGURING);
-    			ComputationalConfigure.configure(getUUID(), (ComputationalCreateDTO)getDto());
+    			ComputationalConfigure.configure(getUUID(), (ComputationalCreateAws)getDto());
     		}
     		break;
 		case CONFIGURE:

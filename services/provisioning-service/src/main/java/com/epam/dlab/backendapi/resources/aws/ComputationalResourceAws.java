@@ -1,22 +1,20 @@
-/***************************************************************************
+/*
+ * Copyright (c) 2017, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
-
-package com.epam.dlab.backendapi.resources;
+package com.epam.dlab.backendapi.resources.aws;
 
 import static com.epam.dlab.backendapi.core.commands.DockerAction.CREATE;
 import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
@@ -43,8 +41,8 @@ import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
-import com.epam.dlab.dto.computational.ComputationalBaseDTO;
-import com.epam.dlab.dto.computational.ComputationalCreateDTO;
+import com.epam.dlab.dto.base.computational.ComputationalBase;
+import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
@@ -55,8 +53,8 @@ import io.dropwizard.auth.Auth;
 @Path("/computational")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class ComputationalResource implements DockerCommands {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ComputationalResource.class);
+public class ComputationalResourceAws implements DockerCommands {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComputationalResourceAws.class);
 
     @Inject
     private ProvisioningServiceApplicationConfiguration configuration;
@@ -71,7 +69,7 @@ public class ComputationalResource implements DockerCommands {
 
     @Path("/create")
     @POST
-    public String create(@Auth UserInfo ui, ComputationalCreateDTO dto) throws IOException, InterruptedException {
+    public String create(@Auth UserInfo ui, ComputationalCreateAws dto) throws IOException, InterruptedException {
     	LOGGER.debug("Create computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
@@ -137,7 +135,7 @@ public class ComputationalResource implements DockerCommands {
         return uuid;
     }
 
-    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBaseDTO<?> dto) {
+    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBase<?> dto) {
         return new ComputationalCallbackHandler(selfService, action, uuid, dto);
     }
 
@@ -146,6 +144,6 @@ public class ComputationalResource implements DockerCommands {
     }
 
     public String getResourceType() {
-        return Directories.EMR_LOG_DIRECTORY;
+        return Directories.DATA_ENGINE_SERVICE_LOG_DIRECTORY;
     }
 }
