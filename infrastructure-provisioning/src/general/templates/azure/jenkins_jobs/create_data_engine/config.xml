@@ -54,6 +54,16 @@ limitations under the License.
                     <defaultValue></defaultValue>
                 </hudson.model.StringParameterDefinition>
                 <hudson.model.StringParameterDefinition>
+                    <name>Master_Node_Shape</name>
+                    <description>Shape of the master node</description>
+                    <defaultValue></defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>Slave_Node_Shape</name>
+                    <description>Shape of the slave nodes</description>
+                    <defaultValue></defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
                     <name>Notebook_name</name>
                     <description>Name of the Notebook server</description>
                     <defaultValue></defaultValue>
@@ -113,7 +123,7 @@ limitations under the License.
     <builders>
         <hudson.tasks.Shell>
             <command>rand=`openssl rand -hex 10`;
-                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_data_engine/template_prepare.json | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_name}&apos;/g&apos; | sed &apos;s/CSI/&apos;${subnet_name}&apos;/g&apos; |   sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine  docker.dlab-dataengine --action create;
+                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_data_engine/template_prepare.json | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/ADMS/&apos;${Master_Node_Shape}&apos;/g&apos; | sed &apos;s/ADSS/&apos;${Slave_Node_Shape}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_name}&apos;/g&apos; | sed &apos;s/CSI/&apos;${subnet_name}&apos;/g&apos; |   sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine  docker.dlab-dataengine --action create;
                 rand=`openssl rand -hex 10`;
                 sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_data_engine/template_configure.json | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_name}&apos;/g&apos; | sed &apos;s/CSI/&apos;${subnet_name}&apos;/g&apos; |   sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine  docker.dlab-${notebook_app} --action configure_dataengine;
             </command>
