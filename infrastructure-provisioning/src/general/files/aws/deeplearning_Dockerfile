@@ -20,13 +20,11 @@
 FROM docker.dlab-base:latest
 
 ARG OS
-ARG CLOUD
 
 COPY deeplearning/ /root/
 COPY general/scripts/os/* /root/scripts/
-COPY general/scripts/${CLOUD}/deeplearning_* /root/scripts/
-COPY general/scripts/${CLOUD}/jupyter_install_dataengine-service_kernels.py /root/scripts/deeplearning_install_dataengine-service_kernels.py
-COPY general/scripts/${CLOUD}/jupyter_create_configs.py /root/scripts/deeplearning_create_configs.py
+COPY general/scripts/aws/deeplearning_* /root/scripts/
+COPY general/scripts/aws/jupyter_create_configs.py /root/scripts/deeplearning_create_configs.py
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
 COPY general/templates/os/${OS}/jupyter-notebook.service /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/

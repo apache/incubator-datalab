@@ -151,7 +151,7 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
         print '[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]'
         params = "--hostname {} --keyfile {} --region {} --os_user {}" \
-                 .format(instance_hostname, keyfile_name, os.environ['aws_region'], notebook_config['dlab_ssh_user'])
+                 .format(instance_hostname, keyfile_name, os.environ['azure_region'], notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('configure_tensor_node', params))
         except:

@@ -28,7 +28,6 @@ import os
 import uuid
 from dlab.meta_lib import *
 from dlab.actions_lib import *
-import boto3
 import argparse
 import sys
 

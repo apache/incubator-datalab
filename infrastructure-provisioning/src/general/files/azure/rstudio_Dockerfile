@@ -20,13 +20,12 @@
 FROM docker.dlab-base:latest
 
 ARG OS
-ARG CLOUD
 
 COPY rstudio/ /root/
 COPY general/scripts/os/* /root/scripts/
-COPY general/scripts/${CLOUD}/rstudio_* /root/scripts/
+COPY general/scripts/azure/rstudio_* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
-COPY general/templates/${CLOUD}/core-site.xml /root/templates/
+COPY general/templates/azure/core-site.xml /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
 
