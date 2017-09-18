@@ -29,5 +29,7 @@ export const NAMING_CONVENTION = {
     'service': '',
     'type': '',
     'instance_size': 'Size',
-    'computational_resource': 'Computational resources'
+    'computational_resource': 'Computational resources',
+    'total_instance_number_min': 'min_spark_instance_count',
+    'total_instance_number_max': 'max_spark_instance_count'
 };

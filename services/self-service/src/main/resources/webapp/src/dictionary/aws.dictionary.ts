@@ -30,5 +30,6 @@ export const NAMING_CONVENTION = {
     'type': 'Type',
     'instance_size': 'Shape',
     'computational_resource': 'Computational resources',
-
+    'total_instance_number_min': 'min_emr_instance_count',
+    'total_instance_number_max': 'max_emr_instance_count'
 };
