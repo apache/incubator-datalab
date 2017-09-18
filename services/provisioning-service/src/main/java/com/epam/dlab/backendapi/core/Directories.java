@@ -24,5 +24,6 @@ public interface Directories {
     String KEY_LOADER_DIRECTORY = "/result";
     String EDGE_LOG_DIRECTORY = "edge";
     String NOTEBOOK_LOG_DIRECTORY = "notebook";
-    String EMR_LOG_DIRECTORY = "emr";
+    String DATA_ENGINE_LOG_DIRECTORY = "dataengine";
+    String DATA_ENGINE_SERVICE_LOG_DIRECTORY = "dataengine-service";
 }

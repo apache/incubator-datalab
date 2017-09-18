@@ -26,18 +26,17 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsEmrConfiguration;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.dto.computational.ComputationalCreateDTO;
+import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
-import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -97,10 +96,9 @@ public class ComputationalResourceAws implements ComputationalAPI {
      * @param userInfo user info.
      * @param formDTO  DTO info about creation of the computational resource.
      * @return 200 OK - if request success, 302 Found - for duplicates, otherwise throws exception.
-     * @throws DlabException
      */
     @PUT
-    public Response create(@Auth UserInfo userInfo, @Valid @NotNull ComputationalCreateFormDTO formDTO) throws DlabException {
+    public Response create(@Auth UserInfo userInfo, @Valid @NotNull AwsComputationalCreateForm formDTO) {
         log.debug("Send request for creation the computational resource {} for user {}", formDTO.getName(), userInfo.getName());
         if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage())) {
             log.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
@@ -138,7 +136,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
         if (isAdded) {
             try {
                 UserInstanceDTO instance = infExpDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
-                ComputationalCreateDTO dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ComputationalCreateDTO.class, configuration.getCloudProvider())
+                ComputationalCreateAws dto = ResourceUtils.newResourceSysBaseDTO(userInfo, ComputationalCreateAws.class, configuration.getCloudProvider())
                         .withExploratoryName(formDTO.getNotebookName())
                         .withNotebookTemplateName(instance.getTemplateName())
                         .withApplicationName(getApplicationName(instance.getImageName()))
@@ -152,7 +150,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
                         .withVersion(formDTO.getVersion());
                 String uuid = provisioningService.post(EMR_CREATE, userInfo.getAccessToken(), dto, String.class);
                 RequestId.put(userInfo.getName(), uuid);
-                return Response.ok(uuid).build();
+                return Response.ok().build();
             } catch (Throwable t) {
                 try {
                     updateComputationalStatus(userInfo.getName(), formDTO.getNotebookName(), formDTO.getName(), FAILED);
@@ -168,48 +166,18 @@ public class ComputationalResourceAws implements ComputationalAPI {
     }
 
     /**
-     * Updates the status of the computational resource for user.
-     *
-     * @param dto DTO info about the status of the computational resource.
-     * @return 200 OK - if request success otherwise throws exception.
-     * @throws DlabException if update the status fails.
-     */
-    @POST
-    @Path(ApiCallbacks.STATUS_URI)
-    public Response status(ComputationalStatusDTO dto) throws DlabException {
-        log.debug("Updating status for computational resource {} for user {}: {}", dto.getComputationalName(), dto.getUser(), dto);
-        String uuid = dto.getRequestId();
-        RequestId.checkAndRemove(uuid);
-
-        try {
-            infCompDAO.updateComputationalFields(dto);
-        } catch (DlabException e) {
-            log.error("Could not update status for computational resource {} for user {} to {}: {}",
-                    dto.getComputationalName(), dto.getUser(), dto.getStatus(), e.getLocalizedMessage(), e);
-            throw new DlabException("Could not update status for computational resource " + dto.getComputationalName() +
-                    " for user " + dto.getUser() + " to " + dto.getStatus() + ": " + e.getLocalizedMessage(), e);
-        }
-        if (UserInstanceStatus.CONFIGURING == UserInstanceStatus.of(dto.getStatus())) {
-            log.debug("Waiting for configuration of the computational resource {} for user {}", dto.getComputationalName(), dto.getUser());
-            RequestId.put(dto.getUser(), uuid);
-        }
-        return Response.ok().build();
-    }
-
-    /**
      * Sends request to provisioning service for termination the computational resource for user.
      *
      * @param userInfo          user info.
      * @param exploratoryName   name of exploratory.
      * @param computationalName name of computational resource.
-     * @return JSON formatted string representation of {@link ComputationalTerminateDTO}, otherwise fails.
-     * @throws DlabException
+     * @return 200 OK - if request success, otherwise fails.
      */
     @DELETE
     @Path("/{exploratoryName}/{computationalName}/terminate")
-    public String terminate(@Auth UserInfo userInfo,
-                            @PathParam("exploratoryName") String exploratoryName,
-                            @PathParam("computationalName") String computationalName) throws DlabException {
+    public Response terminate(@Auth UserInfo userInfo,
+                              @PathParam("exploratoryName") String exploratoryName,
+                              @PathParam("computationalName") String computationalName) {
         log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
         try {
             updateComputationalStatus(userInfo.getName(), exploratoryName, computationalName, TERMINATING);
@@ -230,7 +198,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
 
             String uuid = provisioningService.post(EMR_TERMINATE, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
-            return uuid;
+            return Response.ok().build();
         } catch (Throwable t) {
             try {
                 updateComputationalStatus(userInfo.getName(), exploratoryName, computationalName, FAILED);
@@ -248,9 +216,8 @@ public class ComputationalResourceAws implements ComputationalAPI {
      * @param exploratoryName   name of exploratory.
      * @param computationalName name of computational resource.
      * @param status            status
-     * @throws DlabException if the update fails.
      */
-    private void updateComputationalStatus(String user, String exploratoryName, String computationalName, UserInstanceStatus status) throws DlabException {
+    private void updateComputationalStatus(String user, String exploratoryName, String computationalName, UserInstanceStatus status) {
         ComputationalStatusDTO computationalStatus = new ComputationalStatusDTO()
                 .withUser(user)
                 .withExploratoryName(exploratoryName)

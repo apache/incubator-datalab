@@ -21,9 +21,10 @@ import com.epam.dlab.backendapi.dao.EnvStatusDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
-import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
+import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
+import com.epam.dlab.backendapi.service.InfrastructureInfoService;
+import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.epam.dlab.rest.contracts.InfrasctructureAPI;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -43,14 +44,14 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class InfrastructureInfoResource implements InfrasctructureAPI {
 
-    private static final String EDGE_IP = "edge_node_ip";
-
     @Inject
     private ExploratoryDAO expDAO;
     @Inject
     private KeyDAO keyDAO;
     @Inject
     private EnvStatusDAO envDAO;
+    @Inject
+    private InfrastructureInfoService infrastructureInfoService;
 
     /**
      * Return status of self-service.
@@ -66,8 +67,8 @@ public class InfrastructureInfoResource implements InfrasctructureAPI {
      * @param userInfo user info.
      */
     @GET
-    @Path(ApiCallbacks.STATUS_URI)
-    public HealthStatusPageDTO status(@Auth UserInfo userInfo, @QueryParam("full") @DefaultValue("0") int fullReport) throws DlabException {
+    @Path("/status")
+    public HealthStatusPageDTO status(@Auth UserInfo userInfo, @QueryParam("full") @DefaultValue("0") int fullReport) {
         log.debug("Request the status of resources for user {}, report type {}", userInfo.getName(), fullReport);
         try {
             HealthStatusPageDTO status = envDAO.getHealthStatusPageDTO(userInfo.getName(), fullReport != 0);
@@ -86,21 +87,16 @@ public class InfrastructureInfoResource implements InfrasctructureAPI {
      */
     @GET
     @Path("/info")
-    public Iterable<Document> getUserResources(@Auth UserInfo userInfo) throws DlabException {
+    public InfrastructureInfo getUserResources(@Auth UserInfo userInfo) {
         log.debug("Loading list of provisioned resources for user {}", userInfo.getName());
         try {
             Iterable<Document> documents = expDAO.findExploratory(userInfo.getName());
-            EdgeInfoAws edgeInfo = keyDAO.getEdgeInfo(userInfo.getName(), EdgeInfoAws.class, new EdgeInfoAws());
+            EdgeInfo edgeInfo = keyDAO.getEdgeInfo(userInfo.getName());
 
-            int i = 0;
-            for (Document d : documents) {
-                d.append(EDGE_IP, edgeInfo.getPublicIp())
-                        .append(EdgeInfoAws.USER_OWN_BUCKET_NAME, edgeInfo.getUserOwnBucketName())
-                        .append(EdgeInfoAws.SHARED_BUCKET_NAME, edgeInfo.getSharedBucketName());
+            InfrastructureInfo infrastructureInfo = new InfrastructureInfo(infrastructureInfoService.getSharedInfo(edgeInfo), documents);
 
-                log.trace("Notebook[{}]: {}", ++i, d);
-            }
-            return documents;
+            log.trace("Infrastructure info: {}", infrastructureInfo);
+            return infrastructureInfo;
         } catch (DlabException e) {
             log.error("Could not load list of provisioned resources for user: {}", userInfo.getName(), e);
             throw e;
