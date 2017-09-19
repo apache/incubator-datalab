@@ -22,6 +22,8 @@ import { ApplicationSecurityService } from '../../core/services/applicationSecur
 import { HealthStatusService } from '../../core/services/healthStatus.service';
 import { AppRoutingService } from '../../core/services/appRouting.service';
 
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
+
 @Component({
   moduleId: module.id,
   selector: 'dlab-navbar',
@@ -31,6 +33,7 @@ import { AppRoutingService } from '../../core/services/appRouting.service';
 })
 
 export class NavbarComponent implements OnInit {
+  readonly PROVIDER = DICTIONARY.cloud_provider;
   currentUserName: string;
 
   @Input() healthStatus: string;
