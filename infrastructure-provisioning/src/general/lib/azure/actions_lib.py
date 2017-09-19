@@ -259,7 +259,7 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_storage_account(self, resource_group_name, account_name, region):
+    def create_storage_account(self, resource_group_name, account_name, region, tag_value):
         try:
             result = self.storage_client.storage_accounts.create(
                 resource_group_name,
@@ -268,6 +268,7 @@ class AzureActions:
                     "sku": {"name": "Standard_LRS"},
                     "kind": "BlobStorage",
                     "location":  region,
+                    "tags": [{"account_name": tag_value}],
                     "access_tier": "Hot",
                     "encryption": {
                         "services": {"blob": {"enabled": True}}
