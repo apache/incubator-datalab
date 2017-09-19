@@ -56,12 +56,12 @@ limitations under the License.
                 <hudson.model.StringParameterDefinition>
                     <name>Master_Node_Shape</name>
                     <description>Shape of the master node</description>
-                    <defaultValue></defaultValue>
+                    <defaultValue>Standard_DS1_v2</defaultValue>
                 </hudson.model.StringParameterDefinition>
                 <hudson.model.StringParameterDefinition>
                     <name>Slave_Node_Shape</name>
                     <description>Shape of the slave nodes</description>
-                    <defaultValue></defaultValue>
+                    <defaultValue>Standard_DS1_v2</defaultValue>
                 </hudson.model.StringParameterDefinition>
                 <hudson.model.StringParameterDefinition>
                     <name>Notebook_name</name>
