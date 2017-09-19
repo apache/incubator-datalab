@@ -20,13 +20,13 @@ package com.epam.dlab.backendapi.resources.aws;
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.core.UserComputationalResourceDTO;
 import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
+import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalResource;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsEmrConfiguration;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
@@ -122,17 +122,17 @@ public class ComputationalResourceAws implements ComputationalAPI {
         }
 
         boolean isAdded = infCompDAO.addComputational(userInfo.getName(), formDTO.getNotebookName(),
-                new UserComputationalResourceDTO()
-                        .withComputationalName(formDTO.getName())
-                        .withImageName(formDTO.getImage())
-                        .withTemplateName(formDTO.getTemplateName())
-                        .withStatus(CREATING.toString())
-                        .withMasterShape(formDTO.getMasterInstanceType())
-                        .withSlaveShape(formDTO.getSlaveInstanceType())
-                        .withSlaveSpot(formDTO.getSlaveInstanceSpot())
-                        .withSlaveSpotPctPrice(formDTO.getSlaveInstanceSpotPctPrice())
-                        .withSlaveNumber(formDTO.getInstanceCount())
-                        .withVersion(formDTO.getVersion()));
+                AwsComputationalResource.builder()
+                        .computationalName(formDTO.getName())
+                        .imageName(formDTO.getImage())
+                        .templateName(formDTO.getTemplateName())
+                        .status(CREATING.toString())
+                        .masterShape(formDTO.getMasterInstanceType())
+                        .slaveShape(formDTO.getSlaveInstanceType())
+                        .slaveSpot(formDTO.getSlaveInstanceSpot())
+                        .slaveSpotPctPrice(formDTO.getSlaveInstanceSpotPctPrice())
+                        .slaveNumber(formDTO.getInstanceCount())
+                        .version(formDTO.getVersion()).build());
         if (isAdded) {
             try {
                 UserInstanceDTO instance = infExpDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
@@ -148,7 +148,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
                         .withSlaveInstanceSpot(formDTO.getSlaveInstanceSpot())
                         .withSlaveInstanceSpotPctPrice(formDTO.getSlaveInstanceSpotPctPrice())
                         .withVersion(formDTO.getVersion());
-                String uuid = provisioningService.post(EMR_CREATE, userInfo.getAccessToken(), dto, String.class);
+                String uuid = provisioningService.post(COMPUTATIONAL_CREATE, userInfo.getAccessToken(), dto, String.class);
                 RequestId.put(userInfo.getName(), uuid);
                 return Response.ok().build();
             } catch (Throwable t) {
@@ -196,7 +196,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
                     .withClusterName(computationalId)
                     .withConfKeyDir(settingsDAO.getConfKeyDir());
 
-            String uuid = provisioningService.post(EMR_TERMINATE, userInfo.getAccessToken(), dto, String.class);
+            String uuid = provisioningService.post(COMPUTATIONAL_TERMINATE, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return Response.ok().build();
         } catch (Throwable t) {
