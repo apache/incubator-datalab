@@ -95,6 +95,7 @@ def configure_slave(slave_number, data_engine):
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         sys.exit(1)
 
+
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
@@ -120,16 +121,17 @@ if __name__ == "__main__":
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['vpc_name'] = os.environ['azure_vpc_name']
         data_engine['subnet_name'] = os.environ['azure_subnet_name']
-        data_engine['private_subnet_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+        data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+        data_engine['private_subnet_name'] = data_engine['service_base_name'] + '-' + data_engine['user_name'] + \
                                              '-subnet'
         data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
                                                                     data_engine['vpc_name'],
                                                                     data_engine['private_subnet_name']).address_prefix
         data_engine['master_security_group_name'] = data_engine['service_base_name'] + '-' \
-                                                    + os.environ['edge_user_name'] + '-dataengine-master-sg'
+                                                    + data_engine['user_name'] + '-dataengine-master-sg'
         data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-' \
-                                                   + os.environ['edge_user_name'] + '-dataengine-slave-sg'
-        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+                                                   + data_engine['user_name'] + '-dataengine-slave-sg'
+        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['user_name'] + \
                                       '-dataengine-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name']
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-master'
