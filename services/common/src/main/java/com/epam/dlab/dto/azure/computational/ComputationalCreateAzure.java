@@ -43,6 +43,18 @@ public class ComputationalCreateAzure extends ComputationalBase<ComputationalCre
         return this;
     }
 
+    public String getDataEngineInstanceCount() {
+        return dataEngineInstanceCount;
+    }
+
+    public String getDataEngineSlaveSize() {
+        return dataEngineSlaveSize;
+    }
+
+    public String getDataEngineMasterSize() {
+        return dataEngineMasterSize;
+    }
+
     @Override
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
