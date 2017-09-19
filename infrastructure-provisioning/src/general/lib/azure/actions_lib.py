@@ -268,7 +268,7 @@ class AzureActions:
                     "sku": {"name": "Standard_LRS"},
                     "kind": "BlobStorage",
                     "location":  region,
-                    "tags": [{"account_name": tag_value}],
+                    "tags": {"account_name": tag_value},
                     "access_tier": "Hot",
                     "encryption": {
                         "services": {"blob": {"enabled": True}}
