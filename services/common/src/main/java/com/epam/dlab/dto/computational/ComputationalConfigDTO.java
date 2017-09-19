@@ -18,10 +18,11 @@ limitations under the License.
 
 package com.epam.dlab.dto.computational;
 
+import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class ComputationalConfigDTO extends ComputationalBaseDTO<ComputationalConfigDTO> {
+public class ComputationalConfigDTO extends ComputationalBase<ComputationalConfigDTO> {
     @JsonProperty("emr_version")
     private String version;
     @JsonProperty("notebook_instance_name")

@@ -169,7 +169,7 @@ export class ResourcesGridComponent implements OnInit {
 
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result) => {
-        this.environments = this.loadEnvironments(result);
+        this.environments = this.loadEnvironments(result.exploratory, result.shared);
         this.getDefaultFilterConfiguration();
 
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
@@ -185,8 +185,8 @@ export class ResourcesGridComponent implements OnInit {
     return false;
   }
 
-  loadEnvironments(exploratoryList: Array<any>): Array<ResourcesGridRowModel> {
-    if (exploratoryList) {
+  loadEnvironments(exploratoryList: Array<any>, sharedDataList: any): Array<ResourcesGridRowModel> {
+    if (exploratoryList && sharedDataList) {
       return exploratoryList.map((value) => {
         return new ResourcesGridRowModel(value.exploratory_name,
           value.template_name,
@@ -196,11 +196,11 @@ export class ResourcesGridComponent implements OnInit {
           value.computational_resources,
           value.up_time,
           value.exploratory_url,
-          value.edge_node_ip,
+          sharedDataList.edge_node_ip,
           value.exploratory_user,
           value.exploratory_pass,
-          value.user_own_bicket_name,
-          value.shared_bucket_name,
+          sharedDataList.user_own_bicket_name,
+          sharedDataList.shared_bucket_name,
           value.error_message,
           value.cost,
           value.currency_code,

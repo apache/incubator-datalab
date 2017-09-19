@@ -16,9 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-export const CLOUD_NAME = 'AWS';
-
 export const NAMING_CONVENTION = {
+    'cloud_provider': 'aws',
     'notebook_instance_size': 'Instance shape',
     'personal_storage': 'Data bucket',
     'collaboration_storage': 'Collaboration bucket',
@@ -30,5 +29,6 @@ export const NAMING_CONVENTION = {
     'type': 'Type',
     'instance_size': 'Shape',
     'computational_resource': 'Computational resources',
-
+    'total_instance_number_min': 'min_emr_instance_count',
+    'total_instance_number_max': 'max_emr_instance_count'
 };

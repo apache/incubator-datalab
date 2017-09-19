@@ -5,7 +5,7 @@
     "computation_resources_shapes":
     {
       "For testing" : [
-        {"Size": "S", "Description": "Standard_DS1_v2", "Type": "Standard_DS1_v2","Ram": "3.5 GB","Cpu": "1", "Spot": "true", "SpotPctPrice": "70"}
+        {"Size": "S", "Description": "Standard_DS1_v2", "Type": "Standard_DS1_v2","Ram": "3.5 GB","Cpu": "1"}
       ],
       "Memory optimized" : [
         {"Size": "S", "Description": "Standard_E4s_v3", "Type": "Standard_E4s_v3","Ram": "32 GB","Cpu": "4"},

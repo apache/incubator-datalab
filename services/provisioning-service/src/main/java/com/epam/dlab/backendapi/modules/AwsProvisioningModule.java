@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.modules;
 
+import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.aws.EdgeResourceAws;
 import com.epam.dlab.backendapi.resources.aws.ExploratoryResourceAws;
 import com.epam.dlab.backendapi.resources.aws.InfrastructureResourceAws;
@@ -30,5 +31,6 @@ public class AwsProvisioningModule extends CloudModule {
         environment.jersey().register(injector.getInstance(EdgeResourceAws.class));
         environment.jersey().register(injector.getInstance(InfrastructureResourceAws.class));
         environment.jersey().register(injector.getInstance(ExploratoryResourceAws.class));
+        environment.jersey().register(injector.getInstance(ComputationalResourceAws.class));
     }
 }

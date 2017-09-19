@@ -91,6 +91,8 @@ if __name__ == "__main__":
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
         data_engine['instance_storage_account_type'] = 'Premium_LRS'
+        data_engine['notebook_name'] = os.environ['notebook_instance_name']
+        tags = {"notebook_name": data_engine['notebook_name']}
     except Exception as err:
         print "Failed to generate variables dictionary."
         append_result("Failed to generate variables dictionary. Exception:" + str(err))
@@ -115,6 +117,8 @@ if __name__ == "__main__":
                    data_engine['instance_storage_account_type'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
+            AzureActions().set_tag_to_instance(data_engine['resource_group_name'], data_engine['master_node_name'],
+                                               tags)
         except:
             traceback.print_exc()
             raise Exception
@@ -140,6 +144,7 @@ if __name__ == "__main__":
                        data_engine['instance_storage_account_type'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
+                AzureActions().set_tag_to_instance(data_engine['resource_group_name'], slave_name, tags)
             except:
                 traceback.print_exc()
                 raise Exception
