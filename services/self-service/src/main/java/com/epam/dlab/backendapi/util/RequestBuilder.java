@@ -43,6 +43,7 @@ import com.epam.dlab.dto.base.CloudSettings;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
+import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -103,7 +104,8 @@ public class RequestBuilder {
         T resource = newResourceBaseDTO(userInfo, resourceClass);
         return (T) resource
                 .withServiceBaseName(settingsDAO.getServiceBaseName())
-                .withConfOsFamily(settingsDAO.getConfOsFamily());
+                .withConfOsFamily(settingsDAO.getConfOsFamily())
+                .withConfKeyDir(settingsDAO.getConfKeyDir());
     }
 
     @SuppressWarnings("unchecked")
@@ -316,6 +318,32 @@ public class RequestBuilder {
                 .withNotebookTemplateName(userInstance.getTemplateName())
                 .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
                 .withNotebookInstanceName(userInstance.getExploratoryId());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends ComputationalBase<T>> T newComputationalTerminate(UserInfo userInfo,
+                                                                               String exploratoryName,
+                                                                               String exploratoryId,
+                                                                               String computationalName,
+                                                                               String computationalId) {
+        T computationalTerminate;
+
+        switch (cloudProvider()) {
+            case AWS:
+                computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class)
+                        .withClusterName(computationalId);
+                break;
+            case AZURE:
+                computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+
+        return computationalTerminate
+                .withExploratoryName(exploratoryName)
+                .withComputationalName(computationalName)
+                .withNotebookInstanceName(exploratoryId);
     }
 
     private static CloudProvider cloudProvider() {
