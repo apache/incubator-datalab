@@ -9,9 +9,6 @@
       {"Size": "M", "Description": "Standard_E16s_v3", "Type": "Standard_E16s_v3","Ram": "128 GB","Cpu": "16"},
       {"Size": "L", "Description": "Standard_E32s_v3", "Type": "Standard_E32s_v3","Ram": "256 GB","Cpu": "32"}
     ],
-    "GPU optimized": [
-      {"Size": "M", "Description": "Standard_NC6", "Type": "Standard_NC6","Ram": "56.0 GB","Cpu": "6"}
-    ],
     "Compute optimized": [
       {"Size": "S", "Description": "Standard_F2s", "Type": "Standard_F2s","Ram": "4 GB","Cpu": "2"},
       {"Size": "M", "Description": "Standard_F8s", "Type": "Standard_F8s","Ram": "16.0 GB","Cpu": "8"},
