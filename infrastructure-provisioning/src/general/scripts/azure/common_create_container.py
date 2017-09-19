@@ -36,7 +36,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     try:
-        account_name = id_generator()
+        account_name = id_generator().lower()
         if AzureMeta().get_storage_account(args.resource_group_name, account_name):
             print "REQUESTED STORAGE ACCOUNT {} ALREADY EXISTS".format(account_name)
         else:
