@@ -46,9 +46,9 @@ if __name__ == "__main__":
         ssn_conf = dict()
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
         ssn_conf['region'] = os.environ['azure_region']
-        ssn_conf['ssn_storage_account_tag'] = (ssn_conf['service_base_name'] + 'ssn').lower().replace('_', '').replace('-', '')
+        ssn_conf['ssn_storage_account_tag'] = ssn_conf['service_base_name'] + 'ssn'
         ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn-container').lower().replace('_', '-')
-        ssn_conf['shared_storage_account_tag'] = (ssn_conf['service_base_name'] + 'shared').lower().replace('_', '').replace('-', '')
+        ssn_conf['shared_storage_account_tag'] = ssn_conf['service_base_name'] + 'shared'
         ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared-container').lower().replace('_', '')
         ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
         ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'

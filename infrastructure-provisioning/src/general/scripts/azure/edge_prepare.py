@@ -62,8 +62,7 @@ if __name__ == "__main__":
                                                    + os.environ['edge_user_name'] + '-dataengine-slave-sg'
         edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] +
                                             '-container').lower().replace('_', '-')
-        edge_conf['storage_account_tag'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower().\
-            replace('_', '').replace('-', '')
+        edge_conf['storage_account_tag'] = edge_conf['service_base_name'] + os.environ['edge_user_name']
         ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         edge_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")

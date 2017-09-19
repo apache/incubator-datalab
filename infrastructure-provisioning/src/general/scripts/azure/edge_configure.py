@@ -50,8 +50,7 @@ if __name__ == "__main__":
                                              '-edge-ip'
         edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
         edge_conf['instance_dns_name'] = edge_conf['instance_name'] + '.' + edge_conf['region'] + '.cloudapp.azure.com'
-        edge_conf['storage_account_tag'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower(). \
-            replace('_', '').replace('-', '')
+        edge_conf['storage_account_tag'] = edge_conf['service_base_name'] + os.environ['edge_user_name']
         edge_conf['container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-container').\
             lower().replace('_', '-')
         edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared-container').lower().replace('_', '')

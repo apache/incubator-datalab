@@ -73,8 +73,7 @@ if __name__ == "__main__":
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
     edge_conf['user_name'] = os.environ['edge_user_name']
     edge_conf['user_env_prefix'] = os.environ['conf_service_base_name'] + "-" + edge_conf['user_name']
-    edge_conf['storage_account_name'] = (os.environ['conf_service_base_name'] + edge_conf['user_name']).lower().\
-        replace('_', '').replace('-', '')
+    edge_conf['storage_account_name'] = os.environ['conf_service_base_name'] + edge_conf['user_name']
     edge_conf['private_subnet_name'] = os.environ['conf_service_base_name'] + "-" + edge_conf['user_name'] + '-subnet'
     edge_conf['vpc_name'] = os.environ['azure_vpc_name']
 
