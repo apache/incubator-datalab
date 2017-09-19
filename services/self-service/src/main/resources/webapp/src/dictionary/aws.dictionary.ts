@@ -16,9 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-export const CLOUD_NAME = 'AWS';
-
 export const NAMING_CONVENTION = {
+    'cloud_provider': 'aws',
     'notebook_instance_size': 'Instance shape',
     'personal_storage': 'Data bucket',
     'collaboration_storage': 'Collaboration bucket',
