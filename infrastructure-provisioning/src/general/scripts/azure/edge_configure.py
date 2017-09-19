@@ -50,7 +50,7 @@ if __name__ == "__main__":
                                              '-edge-ip'
         edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
         edge_conf['instance_dns_name'] = edge_conf['instance_name'] + '.' + edge_conf['region'] + '.cloudapp.azure.com'
-        edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower(). \
+        edge_conf['storage_account_tag'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower(). \
             replace('_', '').replace('-', '')
         edge_conf['container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-container').\
             lower().replace('_', '-')
@@ -83,7 +83,9 @@ if __name__ == "__main__":
                                              edge_conf['master_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
-        AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
+        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
     try:
@@ -116,7 +118,9 @@ if __name__ == "__main__":
                                              edge_conf['master_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
-        AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
+        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
     try:
@@ -140,7 +144,9 @@ if __name__ == "__main__":
                                              edge_conf['master_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
-        AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
+        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
     try:
@@ -166,7 +172,9 @@ if __name__ == "__main__":
                                              edge_conf['master_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
-        AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
+        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
 
@@ -193,10 +201,15 @@ if __name__ == "__main__":
                                              edge_conf['master_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
-        AzureActions().remove_storage_account(edge_conf['resource_group_name'], edge_conf['storage_account_name'])
+        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
     try:
+        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+                storage_account_name = storage_account.name
         print '[SUMMARY]'
         logging.info('[SUMMARY]')
         print "Instance name: " + edge_conf['instance_name']
@@ -204,7 +217,7 @@ if __name__ == "__main__":
         print "Public IP: " + edge_conf['edge_public_ip']
         print "Private IP: " + edge_conf['edge_private_ip']
         print "Key name: " + edge_conf['key_name']
-        print "Storage account name: " + edge_conf['storage_account_name']
+        print "Storage account name: " + storage_account_name
         print "Container name: " + edge_conf['container_name']
         print "Shared container name: " + edge_conf['shared_container_name']
         print "Notebook SG: " + edge_conf['notebook_security_group_name']
@@ -215,7 +228,7 @@ if __name__ == "__main__":
                    "public_ip": edge_conf['edge_public_ip'],
                    "ip": edge_conf['edge_private_ip'],
                    "key_name": edge_conf['key_name'],
-                   "storage_account_name": edge_conf['storage_account_name'],
+                   "storage_account_name": storage_account_name,
                    "user_container_name": edge_conf['container_name'],
                    "shared_container_name": edge_conf['shared_container_name'],
                    "tunnel_port": "22",
