@@ -16,10 +16,23 @@
 
 package com.epam.dlab.backendapi.resources.aws;
 
-import static com.epam.dlab.backendapi.core.commands.DockerAction.CREATE;
-import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
-
-import java.io.IOException;
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.core.Directories;
+import com.epam.dlab.backendapi.core.FileHandlerCallback;
+import com.epam.dlab.backendapi.core.commands.*;
+import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
+import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
+import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
+import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
+import com.epam.dlab.dto.base.DataEngineType;
+import com.epam.dlab.dto.base.computational.ComputationalBase;
+import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
+import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.rest.client.RESTService;
+import com.google.inject.Inject;
+import io.dropwizard.auth.Auth;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -27,34 +40,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.core.Directories;
-import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.commands.CommandBuilder;
-import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.backendapi.core.commands.DockerCommands;
-import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
-import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
-import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
-import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
-import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
-import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.rest.client.RESTService;
-import com.google.inject.Inject;
-
-import io.dropwizard.auth.Auth;
+import static com.epam.dlab.backendapi.core.commands.DockerAction.CREATE;
+import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
 
 @Path("/computational")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@Slf4j
 public class ComputationalResourceAws implements DockerCommands {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ComputationalResourceAws.class);
 
     @Inject
     private ProvisioningServiceApplicationConfiguration configuration;
@@ -66,11 +59,13 @@ public class ComputationalResourceAws implements DockerCommands {
     private CommandBuilder commandBuilder;
     @Inject
     private RESTService selfService;
+    @Inject
+    private ComputationalConfigure computationalConfigure;
 
     @Path("/create")
     @POST
-    public String create(@Auth UserInfo ui, ComputationalCreateAws dto) throws IOException, InterruptedException {
-    	LOGGER.debug("Create computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
+    public String create(@Auth UserInfo ui, ComputationalCreateAws dto) {
+        log.debug("Create computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
@@ -86,8 +81,8 @@ public class ComputationalResourceAws implements DockerCommands {
                                     .withName(nameContainer(dto.getEdgeUserName(), CREATE, dto.getComputationalName()))
                                     .withVolumeForRootKeys(configuration.getKeyDirectory())
                                     .withVolumeForResponse(configuration.getImagesDirectory())
-                                    .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
-                                    .withResource(getResourceType())
+                                    .withVolumeForLog(configuration.getDockerLogDirectory(), DataEngineType.CLOUD_SERVICE.getName())
+                                    .withResource(DataEngineType.CLOUD_SERVICE.getName())
                                     .withRequestId(uuid)
                                     .withEc2Role(configuration.getEmrEC2RoleDefault())
                                     .withEmrTimeout(Long.toString(timeout))
@@ -105,8 +100,8 @@ public class ComputationalResourceAws implements DockerCommands {
 
     @Path("/terminate")
     @POST
-    public String terminate(@Auth UserInfo ui, ComputationalTerminateDTO dto) throws IOException, InterruptedException {
-    	LOGGER.debug("Terminate computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
+    public String terminate(@Auth UserInfo ui, ComputationalTerminateDTO dto) {
+        log.debug("Terminate computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
@@ -121,8 +116,8 @@ public class ComputationalResourceAws implements DockerCommands {
                                     .withName(nameContainer(dto.getEdgeUserName(), TERMINATE, dto.getComputationalName()))
                                     .withVolumeForRootKeys(configuration.getKeyDirectory())
                                     .withVolumeForResponse(configuration.getImagesDirectory())
-                                    .withVolumeForLog(configuration.getDockerLogDirectory(), getResourceType())
-                                    .withResource(getResourceType())
+                                    .withVolumeForLog(configuration.getDockerLogDirectory(), DataEngineType.CLOUD_SERVICE.getName())
+                                    .withResource(DataEngineType.CLOUD_SERVICE.getName())
                                     .withRequestId(uuid)
                                     .withConfKeyName(configuration.getAdminKey())
                                     .withActionTerminate(configuration.getDataEngineImage()),
@@ -136,7 +131,7 @@ public class ComputationalResourceAws implements DockerCommands {
     }
 
     private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBase<?> dto) {
-        return new ComputationalCallbackHandler(selfService, action, uuid, dto);
+        return new ComputationalCallbackHandler(computationalConfigure, selfService, action, uuid, dto);
     }
 
     private String nameContainer(String user, DockerAction action, String name) {
