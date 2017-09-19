@@ -56,7 +56,7 @@ if __name__ == "__main__":
         ssn_conf['security_group_name'] = ssn_conf['service_base_name'] + '-ssn-sg'
         ssn_conf['ssh_key_path'] = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
-        ssn_conf['instance_dns_name'] = ssn_conf['instance_name'] + '.' + ssn_conf['region'] + '.cloudapp.azure.com'
+        ssn_conf['instance_dns_name'] = 'host-' + ssn_conf['instance_name'] + '.' + ssn_conf['region'] + '.cloudapp.azure.com'
 
         try:
             if os.environ['azure_resource_group_name'] == '':

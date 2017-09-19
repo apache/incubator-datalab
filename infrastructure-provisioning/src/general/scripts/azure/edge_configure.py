@@ -49,7 +49,7 @@ if __name__ == "__main__":
         edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
                                              '-edge-ip'
         edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
-        edge_conf['instance_dns_name'] = edge_conf['instance_name'] + '.' + edge_conf['region'] + '.cloudapp.azure.com'
+        edge_conf['instance_dns_name'] = 'host-' + edge_conf['instance_name'] + '.' + edge_conf['region'] + '.cloudapp.azure.com'
         edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower(). \
             replace('_', '').replace('-', '')
         edge_conf['container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-container').\
