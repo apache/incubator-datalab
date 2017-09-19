@@ -622,7 +622,7 @@ if __name__ == "__main__":
         print('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
 
         params = "--container_name {} --account_tag {} --resource_group_name {} --region {}". \
-            format(edge_conf['edge_container_name'], edge_conf['storage_account_name'],
+            format(edge_conf['edge_container_name'], edge_conf['storage_account_tag'],
                    edge_conf['resource_group_name'], edge_conf['region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_container', params))
