@@ -53,20 +53,18 @@ if __name__ == "__main__":
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['user_keyname'] = os.environ['edge_user_name']
         notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-            'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
-        if os.environ['application'] == 'zeppelin':
-            if os.environ['notebook_multiple_clusters'] == 'true':
-                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-                    'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
-            else:
-                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-                    'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
+        notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + \
+            notebook_config['user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
+
+        if os.environ['notebook_multiple_clusters'] == 'true':
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
+                notebook_config['user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
         else:
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-                'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
-        notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + os.environ[
-            'edge_user_name'] + '-nb-sg'
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
+                notebook_config['user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
+
+        notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + \
+            notebook_config['user_name'] + '-nb-sg'
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
 
         # generating variables regarding EDGE proxy on Notebook instance
