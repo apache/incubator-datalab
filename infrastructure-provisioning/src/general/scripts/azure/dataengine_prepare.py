@@ -55,7 +55,6 @@ if __name__ == "__main__":
             append_result("Edge node is unavailable")
             sys.exit(1)
         print 'Generating infrastructure names and tags'
-        data_engine = dict()
         try:
             data_engine['exploratory_name'] = os.environ['exploratory_name']
         except:
