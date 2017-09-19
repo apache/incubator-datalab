@@ -78,7 +78,7 @@ server:
 logging:
   level: INFO
   loggers:
-    com.epam: DEBUG
+    com.epam: TRACE
     com.aegisql: INFO
   appenders:
 <#if DEV_MODE == "true">
