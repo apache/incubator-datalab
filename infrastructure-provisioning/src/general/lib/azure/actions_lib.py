@@ -913,14 +913,18 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
         try:
             hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
-            user_storage_account_name = (os.environ['conf_service_base_name'] + os.environ['edge_user_name']).lower().\
-                replace('_', '').replace('-', '')
-            shared_storage_account_name = (os.environ['conf_service_base_name'] + 'shared').lower().replace('_', '').\
-                replace('-', '')
-            user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
-                                                                              user_storage_account_name)[0]
-            shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
-                                                                                shared_storage_account_name)[0]
+            user_storage_account_tag = os.environ['conf_service_base_name'] + (os.environ['edge_user_name']).\
+                replace('_', '-')
+            shared_storage_account_tag = os.environ['conf_service_base_name'] + 'shared'
+            for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
+                if user_storage_account_tag == storage_account.tags["account_name"]:
+                    user_storage_account_name = storage_account.name
+                    user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
+                                                                                      user_storage_account_name)[0]
+                if shared_storage_account_tag == storage_account.tags["account_name"]:
+                    shared_storage_account_name = storage_account.name
+                    shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
+                                                                                        shared_storage_account_name)[0]
             print "Downloading local jars for Azure"
             sudo('mkdir -p ' + jars_dir)
             sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \

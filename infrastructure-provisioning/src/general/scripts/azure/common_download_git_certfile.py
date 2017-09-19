@@ -20,6 +20,7 @@
 
 import argparse
 from dlab.actions_lib import *
+from dlab.meta_lib import *
 from fabric.api import *
 import os
 
@@ -31,7 +32,7 @@ parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
 resource_group_name = os.environ['azure_resource_group_name']
-storage_account_name = (os.environ['conf_service_base_name'] + 'ssn').lower().replace('_', '').replace('-', '')
+ssn_storage_account_tag = os.environ['conf_service_base_name'] + 'ssn'
 container_name = ('{}-ssn-container'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
@@ -42,7 +43,10 @@ if __name__ == "__main__":
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
 
-    if AzureActions().download_from_container(resource_group_name, storage_account_name, container_name, gitlab_certfile):
+    for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
+        if ssn_storage_account_tag == storage_account.tags["account_name"]:
+            ssn_storage_account_name = storage_account.name
+    if AzureActions().download_from_container(resource_group_name, ssn_storage_account_name, container_name, gitlab_certfile):
         put(gitlab_certfile, gitlab_certfile)
         sudo('chown root:root {}'.format(gitlab_certfile))
         print '{} has been downloaded'.format(gitlab_certfile)
