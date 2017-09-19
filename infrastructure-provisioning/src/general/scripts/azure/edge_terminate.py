@@ -58,6 +58,7 @@ def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_na
     except:
         sys.exit(1)
 
+
 if __name__ == "__main__":
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
@@ -68,7 +69,7 @@ if __name__ == "__main__":
     print 'Generating infrastructure names and tags'
     edge_conf = dict()
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-    edge_conf['user_name'] = os.environ['edge_user_name']
+    edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
     edge_conf['user_env_prefix'] = os.environ['conf_service_base_name'] + "-" + edge_conf['user_name']
     edge_conf['storage_account_name'] = (os.environ['conf_service_base_name'] + edge_conf['user_name']).lower().\
         replace('_', '').replace('-', '')

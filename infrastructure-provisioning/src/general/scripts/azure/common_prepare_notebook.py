@@ -43,9 +43,11 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     try:
+        notebook_config = dict()
+        notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
         edge_status = AzureMeta().get_instance_status(os.environ['conf_service_base_name'],
                                                       os.environ['conf_service_base_name'] + '-' +
-                                                      os.environ['edge_user_name'] + '-edge')
+                                                      notebook_config['user_name'] + '-edge')
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print 'ERROR: Edge node is unavailable! Aborting...'
@@ -57,7 +59,6 @@ if __name__ == "__main__":
             sys.exit(1)
 
         print 'Generating infrastructure names and tags'
-        notebook_config = dict()
         try:
             notebook_config['exploratory_name'] = os.environ['exploratory_name']
         except:
@@ -74,7 +75,7 @@ if __name__ == "__main__":
         notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + os.environ[
             'edge_user_name'] + '-nb-sg'
         notebook_config['private_subnet_name'] = notebook_config['service_base_name'] + '-' + \
-                                                 os.environ['edge_user_name'] + '-subnet'
+            notebook_config['user_name'] + '-subnet'
         ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
@@ -93,7 +94,7 @@ if __name__ == "__main__":
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
                 'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
         notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
-                                               os.environ['edge_user_name'] + "-nb-Profile"
+            notebook_config['user_name'] + "-nb-Profile"
         notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
             'edge_user_name'] + "-nb-sg"
         if os.environ['application'] == 'deeplearning' or os.environ['application'] == 'tensor':
@@ -115,23 +116,6 @@ if __name__ == "__main__":
         data = {"notebook_name": notebook_config['instance_name'], "error": ""}
         json.dump(data, f)
 
-    # print 'Searching preconfigured images'
-    # ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'], 'available')
-    # if ami_id != '':
-    #     print 'Preconfigured image found. Using: ' + ami_id
-    #     notebook_config['ami_id'] = ami_id
-    # else:
-    #     notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
-    #     print 'No preconfigured image found. Using default one: ' + notebook_config['ami_id']
-    #
-    # tag = {"Key": notebook_config['tag_name'],
-    #        "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
-    # notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)
-    #
-    # with open('/root/result.json', 'w') as f:
-    #     data = {"notebook_name": notebook_config['instance_name'], "error": ""}
-    #     json.dump(data, f)
-
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
@@ -142,7 +126,7 @@ if __name__ == "__main__":
                    notebook_config['security_group_name'], notebook_config['private_subnet_name'],
                    notebook_config['service_base_name'], notebook_config['resource_group_name'], initial_user,
                    'None', notebook_config['public_ssh_key'], '30', 'notebook',
-                   os.environ['edge_user_name'], notebook_config['instance_storage_account_type'])
+                   notebook_config['user_name'], notebook_config['instance_storage_account_type'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

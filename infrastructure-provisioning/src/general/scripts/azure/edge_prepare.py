@@ -39,31 +39,30 @@ if __name__ == "__main__":
         edge_conf = dict()
         edge_conf['service_base_name'] = os.environ['conf_service_base_name']
         edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
+        edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
         edge_conf['key_name'] = os.environ['conf_key_name']
-        edge_conf['user_keyname'] = os.environ['edge_user_name']
+        edge_conf['user_keyname'] = edge_conf['user_name']
         edge_conf['vpc_name'] = os.environ['azure_vpc_name']
         edge_conf['subnet_name'] = os.environ['azure_subnet_name']
-        edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-subnet'
-        edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
-                                              '-edge-nif'
-        edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
-                                             '-edge-ip'
+        edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-subnet'
+        edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge-nif'
+        edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge-ip'
         edge_conf['region'] = os.environ['azure_region']
         edge_conf['vpc_cidr'] = '10.10.0.0/16'
         edge_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
-        edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+        edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge'
         edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
         edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
         edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ[
             'edge_user_name'] + '-nb-sg'
         edge_conf['master_security_group_name'] = edge_conf['service_base_name'] + '-' \
-                                                    + os.environ['edge_user_name'] + '-dataengine-master-sg'
+                                                    + edge_conf['user_name'] + '-dataengine-master-sg'
         edge_conf['slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
-                                                   + os.environ['edge_user_name'] + '-dataengine-slave-sg'
-        edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + os.environ['edge_user_name'] +
-                                            '-container').lower().replace('_', '-')
-        edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + os.environ['edge_user_name']).lower().\
-            replace('_', '').replace('-', '')
+                                                   + edge_conf['user_name'] + '-dataengine-slave-sg'
+        edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] +
+                                            '-container').lower()
+        edge_conf['storage_account_name'] = (edge_conf['service_base_name'] + edge_conf['user_name']).lower().\
+            replace('-', '')
         ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         edge_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
@@ -106,37 +105,6 @@ if __name__ == "__main__":
     edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                                               edge_conf['private_subnet_name']).address_prefix
     print 'NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr'])
-
-    # try:
-    #     logging.info('[CREATE EDGE ROLES]')
-    #     print '[CREATE EDGE ROLES]'
-    #     params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
-    #              .format(edge_conf['role_name'], edge_conf['role_profile_name'],
-    #                      edge_conf['policy_name'], os.environ['aws_region'])
-    #     try:
-    #         local("~/scripts/{}.py {}".format('common_create_role_policy', params))
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    # except Exception as err:
-    #     append_result("Failed to creating roles.", str(err))
-    #     sys.exit(1)
-    #
-    # try:
-    #     logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
-    #     print '[CREATE BACKEND (NOTEBOOK) ROLES]'
-    #     params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
-    #              .format(edge_conf['notebook_role_name'], edge_conf['notebook_role_profile_name'],
-    #                      edge_conf['notebook_policy_name'], os.environ['aws_region'])
-    #     try:
-    #         local("~/scripts/{}.py {}".format('common_create_role_policy', params))
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    # except Exception as err:
-    #     append_result("Failed to creating roles.", str(err))
-    #     remove_all_iam_resources('edge', os.environ['edge_user_name'])
-    #     sys.exit(1)
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
@@ -678,25 +646,6 @@ if __name__ == "__main__":
             print "Storage account hasn't been created."
         sys.exit(1)
 
-    # try:
-    #     logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-    #     print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-    #     params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {}'.format(
-    #         edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], edge_conf['shared_bucket_name'], os.environ['edge_user_name'],
-    #         edge_conf['role_name'], edge_conf['notebook_role_name'],  edge_conf['service_base_name'], edge_conf['region'])
-    #     try:
-    #         local("~/scripts/{}.py {}".format('common_create_policy', params))
-    #     except:
-    #         traceback.print_exc()
-    # except Exception as err:
-    #     append_result("Failed to create bucket policy.", str(err))
-    #     remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-    #     remove_all_iam_resources('edge', os.environ['edge_user_name'])
-    #     remove_sgroups(edge_conf['notebook_instance_name'])
-    #     remove_sgroups(edge_conf['instance_name'])
-    #     remove_s3('edge', os.environ['edge_user_name'])
-    #     sys.exit(1)
-
     if os.environ['conf_os_family'] == 'debian':
         initial_user = 'ubuntu'
         sudo_group = 'sudo'
@@ -712,7 +661,7 @@ if __name__ == "__main__":
                    edge_conf['vpc_name'], edge_conf['network_interface_name'], edge_conf['edge_security_group_name'],
                    edge_conf['subnet_name'], edge_conf['service_base_name'], edge_conf['resource_group_name'],
                    initial_user, edge_conf['static_public_ip_name'], edge_conf['public_ssh_key'], '30', 'edge',
-                   os.environ['edge_user_name'], edge_conf['instance_storage_account_type'])
+                   edge_conf['user_name'], edge_conf['instance_storage_account_type'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

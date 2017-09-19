@@ -79,9 +79,10 @@ if __name__ == "__main__":
         notebook_config['computational_name'] = ''
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
+    notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['cluster_name'] = \
-        notebook_config['service_base_name'] + '-' + os.environ['edge_user_name'] + '-dataengine-' + \
+        notebook_config['service_base_name'] + '-' + notebook_config['user_name'] + '-dataengine-' + \
         notebook_config['exploratory_name'] + '-' + notebook_config['computational_name']
     notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
 

@@ -91,7 +91,6 @@ if __name__ == "__main__":
     ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
     ssn_conf['resource_group_name'] = os.environ['azure_resource_group_name']
     ssn_conf['region'] = os.environ['azure_region']
-    # ssn_conf['user_name'] = os.environ['edge_user_name']
     ssn_conf['vpc_name'] = os.environ['azure_vpc_name']
 
     try:

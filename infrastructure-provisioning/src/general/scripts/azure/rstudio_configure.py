@@ -50,13 +50,12 @@ if __name__ == "__main__":
         notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
         notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
         notebook_config['key_name'] = os.environ['conf_key_name']
-        notebook_config['user_keyname'] = os.environ['edge_user_name']
+        notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+        notebook_config['user_keyname'] = notebook_config['user_name']
         notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
             'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
         notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
             'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
-        #notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
-        #                                       os.environ['edge_user_name'] + "-nb-Profile"
         notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + os.environ[
             'edge_user_name'] + '-nb-sg'
         notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
@@ -65,7 +64,7 @@ if __name__ == "__main__":
         # generating variables regarding EDGE proxy on Notebook instance
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                         notebook_config['instance_name'])
-        edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+        edge_instance_name = os.environ['conf_service_base_name'] + "-" + notebook_config['user_name'] + '-edge'
         edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                              edge_instance_name)
         keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
@@ -182,22 +181,6 @@ if __name__ == "__main__":
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    # try:
-    #     print '[CREATING AMI]'
-    #     logging.info('[CREATING AMI]')
-    #     ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
-    #     if ami_id == '':
-    #         print "Looks like it's first time we configure notebook server. Creating image."
-    #         image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
-    #                                               instance_name=notebook_config['instance_name'],
-    #                                               image_name=notebook_config['expected_ami_name'])
-    #         if image_id != '':
-    #             print "Image was successfully created. It's ID is " + image_id
-    # except Exception as err:
-    #     append_result("Failed installing users key.", str(err))
-    #     remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
-    #     sys.exit(1)
-
     try:
         # generating output information
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
@@ -211,7 +194,6 @@ if __name__ == "__main__":
         print "Instance type: " + notebook_config['instance_size']
         print "Key name: " + notebook_config['key_name']
         print "User key name: " + notebook_config['user_keyname']
-        #print "AMI name: " + notebook_config['expected_ami_name']
         print "SG name: " + notebook_config['security_group_name']
         print "Rstudio URL: " + rstudio_ip_url
         print "Rstudio user: " + notebook_config['dlab_ssh_user']
