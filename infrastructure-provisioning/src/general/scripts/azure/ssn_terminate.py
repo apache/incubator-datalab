@@ -37,7 +37,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
 
     print "Removing storage accounts"
     try:
-        for storage_account in AzureMeta().storage_client.storage_accounts.list(resource_group_name):
+        for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
             if service_base_name in storage_account.tags["account_name"]:
                 AzureActions().remove_storage_account(resource_group_name, storage_account.name)
                 print "Storage account {} has been terminated".format(storage_account.name)
