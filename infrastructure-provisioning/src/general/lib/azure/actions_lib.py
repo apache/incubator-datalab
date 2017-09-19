@@ -259,7 +259,7 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_storage_account(self, resource_group_name, account_name, region):
+    def create_storage_account(self, resource_group_name, account_name, region, tag_value):
         try:
             result = self.storage_client.storage_accounts.create(
                 resource_group_name,
@@ -268,6 +268,7 @@ class AzureActions:
                     "sku": {"name": "Standard_LRS"},
                     "kind": "BlobStorage",
                     "location":  region,
+                    "tags": {"account_name": tag_value},
                     "access_tier": "Hot",
                     "encryption": {
                         "services": {"blob": {"enabled": True}}
@@ -662,33 +663,46 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def set_tag_to_instance(self, resource_group_name, instance_name, tags):
+        try:
+            instance_parameters = self.compute_client.virtual_machines.get(resource_group_name, instance_name)
+            instance_parameters.tags = tags
+            result = self.compute_client.virtual_machines.create_or_update(resource_group_name, instance_name,
+                                                                           instance_parameters)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to set instance tags: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to set instance tags",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def remove_instance(self, resource_group_name, instance_name):
         try:
-            instance_parameters = meta_lib.AzureMeta().get_instance(resource_group_name, instance_name)
             result = self.compute_client.virtual_machines.delete(resource_group_name, instance_name)
             while meta_lib.AzureMeta().get_instance(resource_group_name, instance_name):
                 time.sleep(5)
             print "Instance {} has been removed".format(instance_name)
             # Removing instance disks
             disk_names = []
-            disk_names.append(instance_parameters.storage_profile.os_disk.name)
-            if instance_parameters.storage_profile.data_disks:
-                for i in instance_parameters.storage_profile.data_disks:
-                    disk_names.append(i.name)
+            resource_group_disks = self.compute_client.disks.list_by_resource_group(resource_group_name)
+            for disk in resource_group_disks:
+                if instance_name in disk.name:
+                    disk_names.append(disk.name)
             for i in disk_names:
                 self.remove_disk(resource_group_name, i)
                 print "Disk {} has been removed".format(i)
             # Removing public static IP address and network interfaces
-            for i in instance_parameters.network_profile.network_interfaces:
-                network_interface_name = i.id.split('/')[-1]
-                for j in meta_lib.AzureMeta().get_network_interface(resource_group_name,
-                                                                    network_interface_name).ip_configurations:
-                    self.delete_network_if(resource_group_name, network_interface_name)
-                    print "Network interface {} has been removed".format(network_interface_name)
-                    if j.public_ip_address:
-                        static_ip_name = j.public_ip_address.id.split('/')[-1]
-                        self.delete_static_public_ip(resource_group_name, static_ip_name)
-                        print "Static IP address {} has been removed".format(static_ip_name)
+            network_interface_name = instance_name + '-nif'
+            for j in meta_lib.AzureMeta().get_network_interface(resource_group_name,
+                                                                network_interface_name).ip_configurations:
+                self.delete_network_if(resource_group_name, network_interface_name)
+                print "Network interface {} has been removed".format(network_interface_name)
+                if j.public_ip_address:
+                    static_ip_name = j.public_ip_address.id.split('/')[-1]
+                    self.delete_static_public_ip(resource_group_name, static_ip_name)
+                    print "Static IP address {} has been removed".format(static_ip_name)
             return result
         except Exception as err:
             logging.info(

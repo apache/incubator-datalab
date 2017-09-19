@@ -24,6 +24,8 @@ import { ComputationalResourceCreateModel } from './';
 import { UserResourceService } from '../../../core/services';
 import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
 
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+
 @Component({
   moduleId: module.id,
   selector: 'computational-resource-create-dialog',
@@ -204,8 +206,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   private getComputationalResourceLimits(): void {
     this.userResourceService.getComputationalResourcesConfiguration()
       .subscribe((limits) => {
-        this.minInstanceNumber = limits.min_emr_instance_count;
-        this.maxInstanceNumber = limits.max_emr_instance_count;
+        this.minInstanceNumber = limits[DICTIONARY.total_instance_number_min];
+        this.maxInstanceNumber = limits[DICTIONARY.total_instance_number_max];
 
         this.minSpotPrice = limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = limits.max_emr_spot_instance_bid_pct;

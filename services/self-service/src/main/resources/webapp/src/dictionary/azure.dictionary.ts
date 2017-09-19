@@ -16,9 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-export const CLOUD_NAME = 'AZURE';
-
 export const NAMING_CONVENTION = {
+    'cloud_provider': 'azure',
     'notebook_instance_size': 'Virtual machine size',
     'personal_storage': 'Personal storage',
     'collaboration_storage': 'Collaboration storage',
@@ -29,5 +28,7 @@ export const NAMING_CONVENTION = {
     'service': '',
     'type': '',
     'instance_size': 'Size',
-    'computational_resource': 'Computational resources'
+    'computational_resource': 'Computational resources',
+    'total_instance_number_min': 'min_spark_instance_count',
+    'total_instance_number_max': 'max_spark_instance_count'
 };
