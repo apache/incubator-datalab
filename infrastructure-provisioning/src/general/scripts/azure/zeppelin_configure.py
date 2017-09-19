@@ -51,7 +51,7 @@ if __name__ == "__main__":
         notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
         notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
         notebook_config['key_name'] = os.environ['conf_key_name']
-        notebook_config['key_name'] = os.environ['conf_key_name']
+        notebook_config['user_keyname'] = os.environ['edge_user_name']
         notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
         notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
             'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid

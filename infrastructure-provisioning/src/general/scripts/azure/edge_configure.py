@@ -42,7 +42,7 @@ if __name__ == "__main__":
         edge_conf['region'] = os.environ['azure_region']
         edge_conf['subnet_name'] = os.environ['azure_subnet_name']
         edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        edge_conf['user_keyname'] = edge_conf['user_name']
+        edge_conf['user_keyname'] = os.environ['edge_user_name']
         edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-subnet'
         edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge'
         edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge-nif'
