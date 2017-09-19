@@ -20,6 +20,7 @@
 
 import argparse
 import json
+from dlab.fab import *
 from dlab.actions_lib import *
 from dlab.meta_lib import *
 import sys
