@@ -16,6 +16,18 @@
 
 package com.epam.dlab.backendapi.resources.dto;
 
-public enum DataEngineType {
-    CLOUD_SERVICE, SPARK_STANDALONE;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.ToString;
+import org.bson.Document;
+
+import java.util.Map;
+
+@AllArgsConstructor
+@ToString
+public class InfrastructureInfo {
+    @JsonProperty
+    private Map<String, String> shared;
+    @JsonProperty
+    private Iterable<Document> exploratory;
 }

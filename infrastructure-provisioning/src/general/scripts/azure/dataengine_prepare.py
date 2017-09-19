@@ -40,9 +40,11 @@ if __name__ == "__main__":
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
+        data_engine = dict()
+        data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
         edge_status = AzureMeta().get_instance_status(os.environ['conf_service_base_name'],
                                                       os.environ['conf_service_base_name'] + '-' +
-                                                      os.environ['edge_user_name'] + '-edge')
+                                                      data_engine['user_name'] + '-edge')
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print 'ERROR: Edge node is unavailable! Aborting...'
@@ -53,13 +55,12 @@ if __name__ == "__main__":
             append_result("Edge node is unavailable")
             sys.exit(1)
         print 'Generating infrastructure names and tags'
-        data_engine = dict()
         try:
-            data_engine['exploratory_name'] = os.environ['exploratory_name']
+            data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
         except:
             data_engine['exploratory_name'] = ''
         try:
-            data_engine['computational_name'] = os.environ['computational_name']
+            data_engine['computational_name'] = os.environ['computational_name'].replace('_', '-')
         except:
             data_engine['computational_name'] = ''
         data_engine['service_base_name'] = os.environ['conf_service_base_name']
@@ -68,16 +69,16 @@ if __name__ == "__main__":
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['vpc_name'] = os.environ['azure_vpc_name']
         data_engine['subnet_name'] = os.environ['azure_subnet_name']
-        data_engine['private_subnet_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+        data_engine['private_subnet_name'] = data_engine['service_base_name'] + '-' + data_engine['user_name'] + \
                                              '-subnet'
         data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
                                                                     data_engine['vpc_name'],
                                                                     data_engine['private_subnet_name']).address_prefix
         data_engine['master_security_group_name'] = data_engine['service_base_name'] + '-' \
-                                                    + os.environ['edge_user_name'] + '-dataengine-master-sg'
+                                                    + data_engine['user_name'] + '-dataengine-master-sg'
         data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-' \
-                                                   + os.environ['edge_user_name'] + '-dataengine-slave-sg'
-        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+                                                   + data_engine['user_name'] + '-dataengine-slave-sg'
+        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['user_name'] + \
                                           '-dataengine-' + data_engine['exploratory_name'] + '-' + \
                                           data_engine['computational_name']
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-master'
@@ -90,6 +91,8 @@ if __name__ == "__main__":
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
         data_engine['instance_storage_account_type'] = 'Premium_LRS'
+        data_engine['notebook_name'] = os.environ['notebook_instance_name']
+        tags = {"notebook_name": data_engine['notebook_name']}
     except Exception as err:
         print "Failed to generate variables dictionary."
         append_result("Failed to generate variables dictionary. Exception:" + str(err))
@@ -110,10 +113,12 @@ if __name__ == "__main__":
                    data_engine['vpc_name'], data_engine['master_network_interface_name'],
                    data_engine['master_security_group_name'], data_engine['private_subnet_name'],
                    data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
-                   data_engine['public_ssh_key'], '30', 'dataengine', os.environ['edge_user_name'],
+                   data_engine['public_ssh_key'], '30', 'dataengine', data_engine['user_name'],
                    data_engine['instance_storage_account_type'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
+            AzureActions().set_tag_to_instance(data_engine['resource_group_name'], data_engine['master_node_name'],
+                                               tags)
         except:
             traceback.print_exc()
             raise Exception
@@ -135,10 +140,11 @@ if __name__ == "__main__":
                 format(slave_name, data_engine['slave_size'], data_engine['region'], data_engine['vpc_name'],
                        slave_nif_name, data_engine['slave_security_group_name'], data_engine['private_subnet_name'],
                        data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
-                       data_engine['public_ssh_key'], '30', 'dataengine', os.environ['edge_user_name'],
+                       data_engine['public_ssh_key'], '30', 'dataengine', data_engine['user_name'],
                        data_engine['instance_storage_account_type'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
+                AzureActions().set_tag_to_instance(data_engine['resource_group_name'], slave_name, tags)
             except:
                 traceback.print_exc()
                 raise Exception

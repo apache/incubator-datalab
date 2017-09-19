@@ -17,12 +17,14 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.backendapi.dao.KeyDAO;
-import com.epam.dlab.backendapi.dao.aws.AwsKeyDao;
+import com.epam.dlab.backendapi.dao.azure.AzureKeyDao;
 import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.EdgeCallbackAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.KeyUploaderCallbackAzure;
 import com.epam.dlab.backendapi.service.AzureBillingService;
+import com.epam.dlab.backendapi.service.AzureInfrastructureInfoService;
 import com.epam.dlab.backendapi.service.BillingService;
+import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
 import io.dropwizard.setup.Environment;
@@ -32,7 +34,8 @@ public class AzureSelfServiceModule extends CloudModule {
     @Override
     protected void configure() {
         bind(BillingService.class).to(AzureBillingService.class);
-        bind((KeyDAO.class)).to(AwsKeyDao.class);
+        bind((KeyDAO.class)).to(AzureKeyDao.class);
+        bind(InfrastructureInfoService.class).to(AzureInfrastructureInfoService.class);
     }
 
     @Override

@@ -23,7 +23,9 @@ import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.callback.aws.EdgeCallbackAws;
 import com.epam.dlab.backendapi.resources.callback.aws.KeyUploaderCallbackAws;
 import com.epam.dlab.backendapi.service.AwsBillingService;
+import com.epam.dlab.backendapi.service.AwsInfrastructureInfoService;
 import com.epam.dlab.backendapi.service.BillingService;
+import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
 import io.dropwizard.setup.Environment;
@@ -34,6 +36,7 @@ public class AwsSelfServiceModule extends CloudModule {
     protected void configure() {
         bind(BillingService.class).to(AwsBillingService.class);
         bind((KeyDAO.class)).to(AwsKeyDao.class);
+        bind(InfrastructureInfoService.class).to(AwsInfrastructureInfoService.class);
     }
 
     @Override

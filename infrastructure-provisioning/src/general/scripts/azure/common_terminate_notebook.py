@@ -28,11 +28,11 @@ import os
 import uuid
 
 
-def terminate_nb(resource_group_name, notebook_name, cluster_name):
+def terminate_nb(resource_group_name, notebook_name):
     print "Terminating data engine cluster"
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if cluster_name in vm.name:
+            if notebook_name == vm.tags['notebook_name']:
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print "Instance {} has been terminated".format(vm.name)
     except:
@@ -59,26 +59,23 @@ if __name__ == "__main__":
     print 'Generating infrastructure names and tags'
     notebook_config = dict()
     try:
-        notebook_config['exploratory_name'] = os.environ['exploratory_name']
+        notebook_config['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
     except:
         notebook_config['exploratory_name'] = ''
     try:
-        notebook_config['computational_name'] = os.environ['computational_name']
+        notebook_config['computational_name'] = os.environ['computational_name'].replace('_', '-')
     except:
         notebook_config['computational_name'] = ''
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
+    notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-    notebook_config['cluster_name'] = \
-        notebook_config['service_base_name'] + '-' + os.environ['edge_user_name'] + '-dataengine-' + \
-        notebook_config['exploratory_name'] + '-' + notebook_config['computational_name']
 
     try:
         logging.info('[TERMINATE NOTEBOOK]')
         print '[TERMINATE NOTEBOOK]'
         try:
-            terminate_nb(notebook_config['resource_group_name'], notebook_config['notebook_name'],
-                         notebook_config['cluster_name'])
+            terminate_nb(notebook_config['resource_group_name'], notebook_config['notebook_name'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate notebook.", str(err))

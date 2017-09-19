@@ -16,9 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-export const CLOUD_NAME = 'GCP';
-
 export const NAMING_CONVENTION = {
+    'cloud_provider': 'gcp',
     'notebook_instance_size': 'Instance type',
     'personal_storage': 'Data bucket',
     'collaboration_storage': 'Collaboration bucket',

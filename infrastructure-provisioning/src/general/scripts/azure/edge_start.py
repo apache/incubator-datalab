@@ -35,7 +35,8 @@ if __name__ == "__main__":
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
-    edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+    edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge'
     edge_conf['instance_dns_name'] = 'host-' + edge_conf['instance_name'] + '.' + os.environ['azure_region'] + '.cloudapp.azure.com'
 
     logging.info('[START EDGE]')

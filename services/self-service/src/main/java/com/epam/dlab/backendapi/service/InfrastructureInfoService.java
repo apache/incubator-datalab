@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.aws.edge;
+package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.dto.base.edge.EdgeInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 
-@Getter
-@Setter
-@ToString(callSuper = true)
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class EdgeInfoAws extends EdgeInfo {
-    @JsonProperty("user_own_bicket_name")
-    private String userOwnBucketName;
-    @JsonProperty("notebook_profile")
-    private String notebookProfile;
-    @JsonProperty("shared_bucket_name")
-    private String sharedBucketName;
+import java.util.Map;
+
+public interface InfrastructureInfoService {
+    Map<String, String> getSharedInfo(EdgeInfo edgeInfo);
 }

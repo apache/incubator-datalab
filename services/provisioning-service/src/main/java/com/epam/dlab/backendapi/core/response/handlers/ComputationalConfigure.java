@@ -34,9 +34,9 @@ import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.dto.computational.ComputationalBaseDTO;
+import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalConfigDTO;
-import com.epam.dlab.dto.computational.ComputationalCreateDTO;
+import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -55,7 +55,7 @@ public class ComputationalConfigure implements DockerCommands {
     @Inject
     private RESTService selfService;
 
-    public static String configure(String uuid, ComputationalCreateDTO dto) throws DlabException {
+    public static String configure(String uuid, ComputationalCreateAws dto) throws DlabException {
     	ComputationalConfigDTO dtoConf = new ComputationalConfigDTO()
                 .withServiceBaseName(dto.getServiceBaseName())
                 .withApplicationName(dto.getApplicationName())
@@ -104,7 +104,7 @@ public class ComputationalConfigure implements DockerCommands {
     	return uuid;
     }
 
-    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String originalUuid, ComputationalBaseDTO<?> dto) {
+    private FileHandlerCallback getFileHandlerCallback(DockerAction action, String originalUuid, ComputationalBase<?> dto) {
         return new ComputationalCallbackHandler(selfService, action, originalUuid, dto);
     }
     
@@ -122,6 +122,6 @@ public class ComputationalConfigure implements DockerCommands {
     }
 
     public String getResourceType() {
-        return Directories.EMR_LOG_DIRECTORY;
+        return Directories.DATA_ENGINE_SERVICE_LOG_DIRECTORY;
     }
 }
