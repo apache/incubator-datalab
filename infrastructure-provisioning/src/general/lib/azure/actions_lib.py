@@ -368,7 +368,7 @@ class AzureActions:
                     "public_ip_allocation_method": "static",
                     "public_ip_address_version": "IPv4",
                     "dns_settings": {
-                        "domain_name_label": instance_name
+                        "domain_name_label": "host-" + instance_name
                     }
                 }
             )
