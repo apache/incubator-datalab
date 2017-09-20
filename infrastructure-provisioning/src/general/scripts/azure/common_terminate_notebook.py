@@ -71,7 +71,6 @@ if __name__ == "__main__":
     notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
     notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-    notebook_config['user_name'] = os.environ['edge_user_name']
 
     try:
         logging.info('[TERMINATE NOTEBOOK]')
