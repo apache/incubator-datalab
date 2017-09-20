@@ -104,8 +104,7 @@ public class RequestBuilder {
         T resource = newResourceBaseDTO(userInfo, resourceClass);
         return (T) resource
                 .withServiceBaseName(settingsDAO.getServiceBaseName())
-                .withConfOsFamily(settingsDAO.getConfOsFamily())
-                .withConfKeyDir(settingsDAO.getConfKeyDir());
+                .withConfOsFamily(settingsDAO.getConfOsFamily());
     }
 
     @SuppressWarnings("unchecked")
