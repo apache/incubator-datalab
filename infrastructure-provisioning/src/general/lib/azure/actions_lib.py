@@ -938,6 +938,9 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
             sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
             sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+            if os.environ['application'] == 'zeppelin':
+                sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+                  /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
             sudo('touch /home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user))
         except Exception as err:
