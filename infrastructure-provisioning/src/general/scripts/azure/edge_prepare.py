@@ -483,17 +483,6 @@ if __name__ == "__main__":
                 "direction": "Outbound"
             },
             {
-                "name": "out-3",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "443",
-                "source_address_prefix": "*",
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 120,
-                "direction": "Outbound"
-            },
-            {
                 "name": "out-4",
                 "protocol": "*",
                 "source_port_range": "*",
