@@ -481,18 +481,29 @@ if __name__ == "__main__":
                 "access": "Allow",
                 "priority": 110,
                 "direction": "Outbound"
+            },
+            {
+                "name": "out-3",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "443",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-4",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Deny",
+                "priority": 200,
+                "direction": "Outbound"
             }
-            # {
-            #     "name": "out-3",
-            #     "protocol": "*",
-            #     "source_port_range": "*",
-            #     "destination_port_range": "*",
-            #     "source_address_prefix": "*",
-            #     "destination_address_prefix": "*",
-            #     "access": "Deny",
-            #     "priority": 300,
-            #     "direction": "Outbound"
-            # }
         ]
         params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".format(
             edge_conf['resource_group_name'], edge_conf['master_security_group_name'], edge_conf['region'],
@@ -579,18 +590,29 @@ if __name__ == "__main__":
                 "access": "Allow",
                 "priority": 110,
                 "direction": "Outbound"
+            },
+            {
+                "name": "out-3",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "443",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Allow",
+                "priority": 120,
+                "direction": "Outbound"
+            },
+            {
+                "name": "out-4",
+                "protocol": "*",
+                "source_port_range": "*",
+                "destination_port_range": "*",
+                "source_address_prefix": "*",
+                "destination_address_prefix": "*",
+                "access": "Deny",
+                "priority": 200,
+                "direction": "Outbound"
             }
-            # {
-            #     "name": "out-3",
-            #     "protocol": "*",
-            #     "source_port_range": "*",
-            #     "destination_port_range": "*",
-            #     "source_address_prefix": "*",
-            #     "destination_address_prefix": "*",
-            #     "access": "Deny",
-            #     "priority": 300,
-            #     "direction": "Outbound"
-            # }
         ]
         params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".format(
             edge_conf['resource_group_name'], edge_conf['slave_security_group_name'], edge_conf['region'],
