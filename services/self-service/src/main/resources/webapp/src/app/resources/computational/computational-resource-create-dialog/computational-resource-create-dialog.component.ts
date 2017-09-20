@@ -104,9 +104,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     if (this.shapes[$event.model.type])
       this.shapes[$event.model.type] = $event.model.value.type;
 
-    if ($event.model.type === 'slave_shape' && this.spotInstancesSelect.nativeElement['checked']) {
-      this.spotInstance = $event.model.value.spot;
-    }
+    if (DICTIONARY.cloud_provider === 'aws')
+      if ($event.model.type === 'slave_shape' && this.spotInstancesSelect.nativeElement['checked']) {
+        this.spotInstance = $event.model.value.spot;
+      }
   }
 
   public createComputationalResource($event, data, shape_master: string, shape_slave: string) {
@@ -236,8 +237,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       master_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type'),
       slave_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type')
     };
-    this.templates_list.setDefaultOptions(this.model.computationalResourceApplicationTemplates,
-      this.model.selectedItem.version, 'template', 'version', 'array');
+    if (DICTIONARY.cloud_provider === 'aws') {
+      this.templates_list.setDefaultOptions(this.model.computationalResourceApplicationTemplates,
+        this.model.selectedItem.version, 'template', 'version', 'array');
+    }
     this.master_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
       this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
     this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
