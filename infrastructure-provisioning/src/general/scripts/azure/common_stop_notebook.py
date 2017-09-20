@@ -32,12 +32,13 @@ import argparse
 import sys
 
 
-def stop_notebook(resource_group_name, notebook_name, os_user, key_path):
+def stop_notebook(resource_group_name, service_base_name, user_name, notebook_name, os_user, key_path):
     print "Terminating data engine cluster"
     cluster_list = []
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if notebook_name == vm.tags['notebook_name']:
+            if service_base_name + '-' + user_name + '-dataengine' in vm.name and notebook_name == \
+                    vm.tags['notebook_name']:
                 if '-master' in vm.name:
                     cluster_list.append(vm.name.replace('-master', ''))
                 AzureActions().remove_instance(resource_group_name, vm.name)
@@ -85,13 +86,15 @@ if __name__ == "__main__":
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
+    notebook_config['user_name'] = os.environ['edge_user_name']
     notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
 
     logging.info('[STOP NOTEBOOK]')
     print '[STOP NOTEBOOK]'
     try:
-        stop_notebook(notebook_config['resource_group_name'], notebook_config['notebook_name'],
-                     os.environ['conf_os_user'], notebook_config['key_path'])
+        stop_notebook(notebook_config['resource_group_name'], notebook_config['service_base_name'],
+                      notebook_config['user_name'], notebook_config['notebook_name'], os.environ['conf_os_user'],
+                      notebook_config['key_path'])
     except Exception as err:
         append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
