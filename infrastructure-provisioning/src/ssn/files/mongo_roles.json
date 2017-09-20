@@ -1,92 +1,104 @@
-[{
-    "_id" : "_Example",
-    "description" : "Example role",
-    "exploratories" : [ 
-        "comma separated list of exploratories image names from description.json", 
-        "explorartory image name"
-        ],
-    "computationals" : [ 
-        "comma separated list of computationals image names from description.json", 
-        "computational image name"
-        ],
-    "groups" : [ 
-        "comma separated list of the external group's names in lower case", 
-        "other group"
-        ],
-    "users" : [ 
-        "comma separated list of the DLab's users in lower case", 
-        "example@user"
-        ]
-},
-{
-    "_id" : "nbCreateDeeplearning",
-    "description" : "Create Notebook Deep Learning",
-    "exploratories" : [ 
-        "docker.dlab-deeplearning"
-        ],
-    "groups" : [
-        "$anyuser" 
-        ]
-},
-{
-    "_id" : "nbCreateJupyter",
-    "description" : "Create Notebook Jupyter",
-    "exploratories" : [ 
-        "docker.dlab-jupyter"
-        ],
-    "groups" : [
-        "$anyuser" 
-        ]
-},
-{
-    "_id" : "nbCreateRstudio",
-    "description" : "Create Notebook R-Studio",
-    "exploratories" : [ 
-        "docker.dlab-rstudio"
-        ],
-    "groups" : [
-        "$anyuser" 
-        ]
-},
-{
-    "_id" : "nbCreateTensor",
-    "description" : "Create Notebook Tensor Flow",
-    "exploratories" : [ 
-        "docker.dlab-tensor"
-        ],
-    "groups" : [
-        "$anyuser" 
-        ]
-},
-{
-    "_id" : "nbCreateZeppelin",
-    "description" : "Create Notebook Zeppelin",
-    "exploratories" : [ 
-        "docker.dlab-zeppelin"
-        ],
-    "groups" : [
-        "$anyuser" 
-        ]
-},
-{
-    "_id" : "nbCreateEMR",
-    "description" : "Create EMR",
-    "computationals" : [ 
-        "docker.dlab-emr"
-        ],
-    "groups" : [
-        "$anyuser" 
-        ]
-},
-{
-    "_id" : "nbBillingReportFull",
-    "description" : "View full billing report for all users",
-    "pages" : [ 
-        "/api/infrastructure_provision/billing"
-        ],
-    "groups" : [
-        "$anyuser" 
-        ],
-    "users" : [ 
-        ]
-}]
+[
+  {
+    "_id": "_Example",
+    "description": "Example role",
+    "exploratories": [
+      "comma separated list of exploratories image names from description.json",
+      "explorartory image name"
+    ],
+    "computationals": [
+      "comma separated list of computationals image names from description.json",
+      "computational image name"
+    ],
+    "groups": [
+      "comma separated list of the external group's names in lower case",
+      "other group"
+    ],
+    "users": [
+      "comma separated list of the DLab's users in lower case",
+      "example@user"
+    ]
+  },
+  {
+    "_id": "nbCreateDeeplearning",
+    "description": "Create Notebook Deep Learning",
+    "exploratories": [
+      "docker.dlab-deeplearning"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateJupyter",
+    "description": "Create Notebook Jupyter",
+    "exploratories": [
+      "docker.dlab-jupyter"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateRstudio",
+    "description": "Create Notebook R-Studio",
+    "exploratories": [
+      "docker.dlab-rstudio"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateTensor",
+    "description": "Create Notebook Tensor Flow",
+    "exploratories": [
+      "docker.dlab-tensor"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateZeppelin",
+    "description": "Create Notebook Zeppelin",
+    "exploratories": [
+      "docker.dlab-zeppelin"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateDataEngine",
+    "description": "Create Data Engine",
+    "computationals": [
+      "docker.dlab-dataengine"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbCreateDataEngineService",
+    "description": "Create Data Engine Service",
+    "computationals": [
+      "docker.dlab-dataengine-service"
+    ],
+    "groups": [
+      "$anyuser"
+    ]
+  },
+  {
+    "_id": "nbBillingReportFull",
+    "description": "View full billing report for all users",
+    "pages": [
+      "/api/infrastructure_provision/billing"
+    ],
+    "groups": [
+      "$anyuser"
+    ],
+    "users": [
+    ]
+  }
+]

@@ -14,33 +14,38 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.computational;
+package com.epam.dlab.dto.aws.computational;
 
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-public class ComputationalTerminateDTO extends ComputationalBase<ComputationalTerminateDTO> {
-    @JsonProperty("emr_cluster_name")
-    private String clusterName;
+public class ComputationalConfigAws extends ComputationalBase<ComputationalConfigAws> {
+    @JsonProperty("emr_version")
+    private String version;
 
-    public String getClusterName() {
-        return clusterName;
+    public String getVersion() {
+        return version;
     }
 
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
-    public ComputationalTerminateDTO withClusterName(String clusterName) {
-        setClusterName(clusterName);
+    public ComputationalConfigAws withVersion(String version) {
+        setVersion(version);
+        return this;
+    }
+
+    public ComputationalConfigAws withNotebookInstanceName(String notebookInstanceName) {
+        setNotebookInstanceName(notebookInstanceName);
         return this;
     }
 
     @Override
     public ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
-                .add("clusterName", clusterName);
+                .add("version", version);
     }
 
     @Override

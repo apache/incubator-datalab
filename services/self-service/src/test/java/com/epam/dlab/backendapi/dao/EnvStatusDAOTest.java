@@ -33,7 +33,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.epam.dlab.backendapi.core.UserComputationalResourceDTO;
+import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalResource;
 import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
@@ -122,11 +122,11 @@ public class EnvStatusDAOTest extends DAOTestBase {
         expDAO.updateExploratoryFields(expStatus);
 
         // Add computational
-        UserComputationalResourceDTO comp1 = new UserComputationalResourceDTO()
-                .withComputationalName(computationalName)
-                .withInstanceId("instance11")
-                .withStatus("creating")
-                .withUptime(new Date(200));
+        AwsComputationalResource comp1 = AwsComputationalResource.builder()
+                .computationalName(computationalName)
+                .instanceId("instance11")
+                .status("creating")
+                .uptime(new Date(200)).build();
         boolean inserted = compDAO.addComputational(exp1.getUser(), exploratoryName, comp1);
         assertTrue(inserted);
 
