@@ -22,10 +22,7 @@ import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
-import com.epam.dlab.backendapi.resources.callback.EnvironmentStatusCallback;
-import com.epam.dlab.backendapi.resources.callback.ExploratoryCallback;
-import com.epam.dlab.backendapi.resources.callback.GitCredsCallback;
-import com.epam.dlab.backendapi.resources.callback.LibExploratoryCallback;
+import com.epam.dlab.backendapi.resources.callback.*;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
 import com.epam.dlab.rest.mappers.RuntimeExceptionMapper;
@@ -93,6 +90,8 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         jersey.register(injector.getInstance(InfrastructureInfoResource.class));
 
         jersey.register(injector.getInstance(EnvironmentStatusCallback.class));
+
+        jersey.register(injector.getInstance(ComputationalCallback.class));
 
         jersey.register(injector.getInstance(UserSettingsResource.class));
 

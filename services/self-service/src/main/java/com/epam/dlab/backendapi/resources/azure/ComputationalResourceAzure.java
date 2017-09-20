@@ -28,6 +28,7 @@ import com.epam.dlab.backendapi.resources.dto.azure.AzureComputationalCreateForm
 import com.epam.dlab.backendapi.resources.dto.azure.AzureComputationalResource;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.azure.computational.ComputationalCreateAzure;
@@ -71,6 +72,9 @@ public class ComputationalResourceAzure {
 
     @Inject
     private SelfServiceApplicationConfiguration configuration;
+
+    @Inject
+    private ComputationalService computationalService;
 
     /**
      * Returns the limits for creation the computational resources.
@@ -143,15 +147,16 @@ public class ComputationalResourceAzure {
      * @param userInfo          user info.
      * @param exploratoryName   name of exploratory.
      * @param computationalName name of computational resource.
-     * @return 200 OK - if request success, otherwise fails.
      */
     @DELETE
     @Path("/{exploratoryName}/{computationalName}/terminate")
-    public Response terminate(@Auth UserInfo userInfo,
-                              @PathParam("exploratoryName") String exploratoryName,
-                              @PathParam("computationalName") String computationalName) {
+    public void terminate(@Auth UserInfo userInfo,
+                          @PathParam("exploratoryName") String exploratoryName,
+                          @PathParam("computationalName") String computationalName) {
 
-        throw new UnsupportedOperationException("Operation is not implemented yet");
+        log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
+
+        computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
     }
 
     /**
