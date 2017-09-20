@@ -36,8 +36,8 @@ def configure_slave(slave_number, data_engine):
     slave_name = data_engine['slave_node_name'] + '-{}'.format(slave_number + 1)
     slave_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'], slave_name)
     try:
-        logging.info('[CREATING DLAB SSH USER]')
-        print('[CREATING DLAB SSH USER]')
+        logging.info('[CREATING DLAB SSH USER ON SLAVE NODE]')
+        print('[CREATING DLAB SSH USER ON SLAVE NODE]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
             (slave_hostname, "/root/keys/" + data_engine['key_name'] + ".pem", initial_user,
              data_engine['dlab_ssh_user'], sudo_group)
@@ -52,12 +52,32 @@ def configure_slave(slave_number, data_engine):
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-        append_result("Failed creating ssh user 'dlab'.", str(err))
+        append_result("Failed to create ssh user on slave.", str(err))
         sys.exit(1)
 
     try:
-        logging.info('[INSTALLING PREREQUISITES TO SLAVE NODE]')
-        print('[INSTALLING PREREQUISITES TO MASTER NODE]')
+        logging.info('[CONFIGURE PROXY ON SLAVE NODE]')
+        print '[CONFIGURE PROXY ON ON SLAVE NODE]'
+        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
+            .format(slave_hostname, slave_name, keyfile_name, json.dumps(additional_config),
+                    data_engine['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        append_result("Failed to configure proxy on slave.", str(err))
+        sys.exit(1)
+
+    try:
+        logging.info('[INSTALLING PREREQUISITES ON SLAVE NODE]')
+        print('[INSTALLING PREREQUISITES ON SLAVE NODE]')
         params = "--hostname {} --keyfile {} --user {} --region {}". \
             format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'])
         try:
@@ -71,7 +91,7 @@ def configure_slave(slave_number, data_engine):
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-        append_result("Failed installing prerequisites.", str(err))
+        append_result("Failed to install prerequisites on slave.", str(err))
         sys.exit(1)
 
     try:
@@ -93,6 +113,7 @@ def configure_slave(slave_number, data_engine):
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        append_result("Failed to configure slave node.", str(err))
         sys.exit(1)
 
 
@@ -146,6 +167,9 @@ if __name__ == "__main__":
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
         master_node_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                            data_engine['master_node_name'])
+        edge_instance_name = data_engine['service_base_name'] + "-" + data_engine['user_name'] + '-edge'
+        edge_instance_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
+                                                                    edge_instance_name)
         keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -163,8 +187,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        logging.info('[CREATING DLAB SSH USER]')
-        print('[CREATING DLAB SSH USER]')
+        logging.info('[CREATING DLAB SSH USER ON MASTER NODE]')
+        print('[CREATING DLAB SSH USER ON MASTER NODE]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
             (master_node_hostname, "/root/keys/" + data_engine['key_name'] + ".pem", initial_user,
              data_engine['dlab_ssh_user'], sudo_group)
@@ -179,12 +203,32 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-        append_result("Failed creating ssh user 'dlab'.", str(err))
+        append_result("Failed to create ssh user on master.", str(err))
         sys.exit(1)
 
     try:
-        logging.info('[INSTALLING PREREQUISITES TO MASTER NODE]')
-        print('[INSTALLING PREREQUISITES TO MASTER NODE]')
+        logging.info('[CONFIGURE PROXY ON MASTER NODE]')
+        print '[CONFIGURE PROXY ON ON MASTER NODE]'
+        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
+            .format(master_node_hostname, data_engine['master_node_name'], keyfile_name, json.dumps(additional_config),
+                    data_engine['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
+            AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        append_result("Failed to configure proxy on master.", str(err))
+        sys.exit(1)
+
+    try:
+        logging.info('[INSTALLING PREREQUISITES ON MASTER NODE]')
+        print('[INSTALLING PREREQUISITES ON MASTER NODE]')
         params = "--hostname {} --keyfile {} --user {} --region {}".\
             format(master_node_hostname, keyfile_name, data_engine['dlab_ssh_user'], data_engine['region'])
         try:
@@ -198,6 +242,7 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        append_result("Failed to install prerequisites on master.", str(err))
         sys.exit(1)
 
     try:
@@ -214,7 +259,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed configuring master node", str(err))
+        append_result("Failed to configure master node", str(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
@@ -233,7 +278,6 @@ if __name__ == "__main__":
             if job.exitcode != 0:
                 raise Exception
     except Exception as err:
-        append_result("Failed configuring slave node", str(err))
         for i in range(data_engine['instance_count'] - 1):
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
