@@ -30,11 +30,11 @@ import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalResource;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsEmrConfiguration;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
-import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
@@ -49,7 +49,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static com.epam.dlab.UserInstanceStatus.*;
+import static com.epam.dlab.UserInstanceStatus.CREATING;
+import static com.epam.dlab.UserInstanceStatus.FAILED;
 
 /**
  * Provides the REST API for the computational resource on AWS.
@@ -71,6 +72,8 @@ public class ComputationalResourceAws implements ComputationalAPI {
     private RESTService provisioningService;
     @Inject
     private SelfServiceApplicationConfiguration configuration;
+    @Inject
+    private ComputationalService computationalService;
 
 
     /**
@@ -160,39 +163,15 @@ public class ComputationalResourceAws implements ComputationalAPI {
      * @param userInfo          user info.
      * @param exploratoryName   name of exploratory.
      * @param computationalName name of computational resource.
-     * @return 200 OK - if request success, otherwise fails.
      */
     @DELETE
     @Path("/{exploratoryName}/{computationalName}/terminate")
-    public Response terminate(@Auth UserInfo userInfo,
-                              @PathParam("exploratoryName") String exploratoryName,
-                              @PathParam("computationalName") String computationalName) {
+    public void terminate(@Auth UserInfo userInfo,
+                          @PathParam("exploratoryName") String exploratoryName,
+                          @PathParam("computationalName") String computationalName) {
         log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
-        try {
-            updateComputationalStatus(userInfo.getName(), exploratoryName, computationalName, TERMINATING);
-        } catch (DlabException e) {
-            log.error("Could not update the status of computational resource {} for user {}", computationalName, userInfo.getName(), e);
-            throw new DlabException("Could not terminate computational resource " + computationalName + ": " + e.getLocalizedMessage(), e);
-        }
 
-        try {
-            String exploratoryId = infExpDAO.fetchExploratoryId(userInfo.getName(), exploratoryName);
-            String computationalId = infCompDAO.fetchComputationalId(userInfo.getName(), exploratoryName, computationalName);
-
-            ComputationalTerminateDTO dto = RequestBuilder.newComputationalTerminate(userInfo, exploratoryName,
-                    exploratoryId, computationalName, computationalId);
-
-            String uuid = provisioningService.post(COMPUTATIONAL_TERMINATE, userInfo.getAccessToken(), dto, String.class);
-            RequestId.put(userInfo.getName(), uuid);
-            return Response.ok().build();
-        } catch (Throwable t) {
-            try {
-                updateComputationalStatus(userInfo.getName(), exploratoryName, computationalName, FAILED);
-            } catch (DlabException e) {
-                log.error("Could not update the status of computational resource {} for user {}", computationalName, userInfo.getName(), e);
-            }
-            throw new DlabException("Could not terminate computational resource " + computationalName + ": " + t.getLocalizedMessage(), t);
-        }
+        computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
     }
 
     /**
@@ -211,19 +190,4 @@ public class ComputationalResourceAws implements ComputationalAPI {
                 .withStatus(status);
         infCompDAO.updateComputationalStatus(computationalStatus);
     }
-
-
-    /**
-     * Returns the name of application for notebook: jupiter, rstudio, etc.
-     */
-    private String getApplicationName(String imageName) {
-        if (imageName != null) {
-            int pos = imageName.lastIndexOf('-');
-            if (pos > 0) {
-                return imageName.substring(pos + 1);
-            }
-        }
-        return "";
-    }
-
 }

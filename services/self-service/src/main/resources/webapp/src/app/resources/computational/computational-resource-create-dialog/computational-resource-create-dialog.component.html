@@ -22,7 +22,7 @@ limitations under the License.
   </modal-header>
   <modal-content>
     <form [formGroup]="createComputationalResourceForm" novalidate (submit)="createComputationalResource($event, createComputationalResourceForm.value, shapes.master_shape, shapes.slave_shape)">
-      <div class="form-group row">
+      <div class="form-group row" *ngIf="PROVIDER === 'aws'">
         <div  class="col-xs-4">
           <label class="control-label">Select template</label>
         </div>
@@ -71,12 +71,12 @@ limitations under the License.
           <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
         </div>
       </div>
-      <div class="checkbox-group row">
+      <div class="checkbox-group row" *ngIf="PROVIDER === 'aws'">
         <label>
           <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" /> Spot Instance
         </label>
-        <div class="spot-details" [ngClass]="{ show: spotInstancesSelect.nativeElement['checked'] }">
-          <div *ngIf="spotInstancesSelect.nativeElement['checked']">
+        <div class="spot-details" [ngClass]="{ show: spotInstancesSelect?.nativeElement['checked'] }">
+          <div *ngIf="spotInstancesSelect?.nativeElement['checked']">
             <div class="col-xs-4">
               <label class="control-label">Your bid for spot instance, %</label>
             </div>

@@ -34,6 +34,8 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 })
 
 export class ComputationalResourceCreateDialogComponent implements OnInit {
+  readonly PROVIDER = DICTIONARY.cloud_provider;
+
   model: ComputationalResourceCreateModel;
   notebook_instance: any;
   template_description: string;
@@ -50,8 +52,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public minInstanceNumber: number;
   public maxInstanceNumber: number;
-  public minSpotPrice: number;
-  public maxSpotPrice: number;
+  public minSpotPrice: number = 0;
+  public maxSpotPrice: number = 0;
 
   public createComputationalResourceForm: FormGroup;
 
@@ -102,9 +104,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     if (this.shapes[$event.model.type])
       this.shapes[$event.model.type] = $event.model.value.type;
 
-    if ($event.model.type === 'slave_shape' && this.spotInstancesSelect.nativeElement['checked']) {
-      this.spotInstance = $event.model.value.spot;
-    }
+    if (DICTIONARY.cloud_provider === 'aws')
+      if ($event.model.type === 'slave_shape' && this.spotInstancesSelect.nativeElement['checked']) {
+        this.spotInstance = $event.model.value.spot;
+      }
   }
 
   public createComputationalResource($event, data, shape_master: string, shape_slave: string) {
@@ -209,8 +212,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.minInstanceNumber = limits[DICTIONARY.total_instance_number_min];
         this.maxInstanceNumber = limits[DICTIONARY.total_instance_number_max];
 
-        this.minSpotPrice = limits.min_emr_spot_instance_bid_pct;
-        this.maxSpotPrice = limits.max_emr_spot_instance_bid_pct;
+        if (this.PROVIDER === 'aws') {
+          this.minSpotPrice = limits.min_emr_spot_instance_bid_pct;
+          this.maxSpotPrice = limits.max_emr_spot_instance_bid_pct;
+        }
 
         this.createComputationalResourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
       });
@@ -221,9 +226,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validInstanceSpotRange(control) {
-    return this.spotInstancesSelect.nativeElement['checked']
-      ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
-      : control.value;
+    if (this.spotInstancesSelect)
+      return this.spotInstancesSelect.nativeElement['checked']
+        ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
+        : control.value;
   }
 
   private setDefaultParams(): void {
@@ -231,8 +237,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       master_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type'),
       slave_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type')
     };
-    this.templates_list.setDefaultOptions(this.model.computationalResourceApplicationTemplates,
-      this.model.selectedItem.version, 'template', 'version', 'array');
+    if (DICTIONARY.cloud_provider === 'aws') {
+      this.templates_list.setDefaultOptions(this.model.computationalResourceApplicationTemplates,
+        this.model.selectedItem.version, 'template', 'version', 'array');
+    }
     this.master_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
       this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
     this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
@@ -246,9 +254,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.errorMessage = '';
 
     this.spotInstance = false;
-    this.spotInstancesSelect.nativeElement['checked'] = false;
     this.initFormModel();
     this.getComputationalResourceLimits();
     this.model.resetModel();
+
+    if (this.PROVIDER === 'aws')
+      this.spotInstancesSelect.nativeElement['checked'] = false;
   }
 }

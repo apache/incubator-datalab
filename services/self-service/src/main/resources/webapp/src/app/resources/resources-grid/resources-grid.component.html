@@ -18,7 +18,10 @@ limitations under the License.
 
 <table class="dashboard_table">
   <tr>
-    <th *ngFor="let column of filteringColumns" ngClass="{{column.className || ''}}">{{column.title}}
+    <th *ngFor="let column of filteringColumns"
+        ngClass="{{column.className || ''}}"
+        [hidden]="DICTIONARY.cloud_provider !== 'aws' && column.name === 'cost'">
+      {{column.title}}
       <button md-icon-button *ngIf="column.filtering" aria-label="More" class="pull-right" (click)="toggleFilterRow()">
         <i class="material-icons">
           <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">filter_list</span>
@@ -41,7 +44,7 @@ limitations under the License.
     <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'" [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
     </td>
-    <td></td>
+    <td [hidden]="DICTIONARY.cloud_provider !== 'aws'"></td>
     <td>
       <div class="actions">
         <button md-icon-button class="btn reset" (click)="resetFilterConfigurations()">
@@ -56,11 +59,11 @@ limitations under the License.
   </tr>
 
   <tr *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering" class="message_block">
-    <td colspan="6">To start working, please, create new environment</td>
+    <td [colSpan]="DICTIONARY.cloud_provider !== 'aws' ? filteringColumns.length -1 : filteringColumns.length">To start working, please, create new environment</td>
   </tr>
 
   <tr *ngIf="(filteredEnvironments.length == 0) && filtering" class="message_block">
-    <td colspan="6">No matches found</td>
+    <td [colSpan]="DICTIONARY.cloud_provider !== 'aws' ? filteringColumns.length -1 : filteringColumns.length">No matches found</td>
   </tr>
 
   <tr *ngFor="let env of filteredEnvironments;" class="dashboard_table_body" [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
@@ -72,7 +75,7 @@ limitations under the License.
     <td>
       <computational-resources-list [resources]="env.resources" [environment]="env" (buildGrid)="buildGrid($event)"></computational-resources-list>
     </td>
-    <td>
+    <td [hidden]="DICTIONARY.cloud_provider !== 'aws'">
       <span class="total_cost">{{env.cost || 'N/A'}} {{env.currency_code || ''}}</span>
       <!-- (click)="env.billing && printCostDetails(env)" -->
       <!-- [ngClass]="{'not-allowed' : !env.billing}" -->

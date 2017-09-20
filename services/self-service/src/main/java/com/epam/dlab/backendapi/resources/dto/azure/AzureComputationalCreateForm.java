@@ -33,10 +33,10 @@ public class AzureComputationalCreateForm extends ComputationalCreateFormDTO {
     private String dataEngineInstanceCount;
 
     @NotBlank
-    @JsonProperty("azure_dataengine_slave_size")
+    @JsonProperty("dataengine_slave_size")
     private String dataEngineSlaveSize;
 
     @NotBlank
-    @JsonProperty("azure_dataengine_master_size")
+    @JsonProperty("dataengine_master_size")
     private String dataEngineMasterSize;
 }

@@ -24,6 +24,8 @@ import java.util.Map;
 public enum DataEngineType {
     CLOUD_SERVICE("dataengine-service"), SPARK_STANDALONE("dataengine");
 
+    private static final String DOCKER_IMAGE_PREFIX = "docker.dlab-";
+
     private final static Map<String, DataEngineType> INTERNAL_MAP = new HashMap<>();
 
     static {
@@ -40,6 +42,10 @@ public enum DataEngineType {
 
     public static DataEngineType fromString(String name) {
         return INTERNAL_MAP.get(name);
+    }
+
+    public static DataEngineType fromDockerImageName(String name) {
+        return INTERNAL_MAP.get(name.replace(DOCKER_IMAGE_PREFIX, ""));
     }
 
     @JsonValue
