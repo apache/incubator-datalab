@@ -205,7 +205,8 @@ export class ResourcesGridComponent implements OnInit {
           value.cost,
           value.currency_code,
           value.billing,
-          value.libs);
+          value.libs,
+          sharedDataList.storage_account_name);
       });
     }
   }
