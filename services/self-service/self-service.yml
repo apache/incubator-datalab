@@ -83,7 +83,7 @@ server:
 logging:
   level: INFO
   loggers:
-    com.epam: DEBUG
+    com.epam: TRACE
   appenders:
 <#if DEV_MODE == "true">
     - type: console

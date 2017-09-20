@@ -56,17 +56,18 @@ if __name__ == "__main__":
     print 'Generating infrastructure names and tags'
     data_engine = dict()
     try:
-        data_engine['exploratory_name'] = os.environ['exploratory_name']
+        data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
     except:
         data_engine['exploratory_name'] = ''
     try:
-        data_engine['computational_name'] = os.environ['computational_name']
+        data_engine['computational_name'] = os.environ['computational_name'].replace('_', '-')
     except:
         data_engine['computational_name'] = ''
     data_engine['service_base_name'] = os.environ['conf_service_base_name']
     data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
+    data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
     data_engine['cluster_name'] = \
-        data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + '-dataengine-' + \
+        data_engine['service_base_name'] + '-' + data_engine['user_name'] + '-dataengine-' + \
         data_engine['exploratory_name'] + '-' + data_engine['computational_name']
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
     data_engine['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'

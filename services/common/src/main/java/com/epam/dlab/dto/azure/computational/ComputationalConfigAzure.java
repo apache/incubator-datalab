@@ -14,33 +14,26 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.computational;
+package com.epam.dlab.dto.azure.computational;
 
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.MoreObjects.ToStringHelper;
+import com.google.common.base.MoreObjects;
 
-public class ComputationalTerminateDTO extends ComputationalBase<ComputationalTerminateDTO> {
-    @JsonProperty("emr_cluster_name")
-    private String clusterName;
+public class ComputationalConfigAzure extends ComputationalBase<ComputationalConfigAzure> {
 
-    public String getClusterName() {
-        return clusterName;
-    }
+    @JsonProperty("dataengine_instance_count")
+    private String dataEngineInstanceCount;
 
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
-    }
-
-    public ComputationalTerminateDTO withClusterName(String clusterName) {
-        setClusterName(clusterName);
+    public ComputationalConfigAzure withDataEngineInstanceCount(String dataEngineInstanceCount) {
+        this.dataEngineInstanceCount = dataEngineInstanceCount;
         return this;
     }
 
     @Override
-    public ToStringHelper toStringHelper(Object self) {
+    public MoreObjects.ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
-                .add("clusterName", clusterName);
+                .add("dataEngineInstanceCount", dataEngineInstanceCount);
     }
 
     @Override

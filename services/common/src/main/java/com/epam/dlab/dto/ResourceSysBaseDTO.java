@@ -1,20 +1,18 @@
-/***************************************************************************
-
-Copyright (c) 2016, EPAM SYSTEMS INC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-****************************************************************************/
+/*
+ * Copyright (c) 2017, EPAM SYSTEMS INC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.epam.dlab.dto;
 
@@ -22,16 +20,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
 public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends ResourceBaseDTO<T> {
+    @SuppressWarnings("unchecked")
+    private final T self = (T) this;
     @JsonProperty("conf_service_base_name")
     private String serviceBaseName;
-    //TODO @dto
-    @JsonProperty("conf_tag_resource_id")
-    private String confTagResourceId;
     @JsonProperty("conf_os_family")
     private String confOsFamily;
-
-    @SuppressWarnings("unchecked")
-	private final T self = (T)this;
+    @JsonProperty("conf_key_dir")
+    private String confKeyDir;
 
     public String getServiceBaseName() {
         return serviceBaseName;
@@ -45,20 +41,7 @@ public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends Resourc
         setServiceBaseName(serviceBaseName);
         return self;
     }
-    
-    public String getConfTagResourceId() {
-        return confTagResourceId;
-    }
 
-    public void setConfTagResourceId(String confTagResourceId) {
-        this.confTagResourceId = confTagResourceId;
-    }
-
-    public T withConfTagResourceId(String confTagResourceId) {
-        setConfTagResourceId(confTagResourceId);
-        return self;
-    }
-    
     public String getConfOsFamily() {
         return confOsFamily;
     }
@@ -72,15 +55,30 @@ public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends Resourc
         return self;
     }
 
+
+    public String getConfKeyDir() {
+        return confKeyDir;
+    }
+
+    public void setConfKeyDir(String confKeyDir) {
+        this.confKeyDir = confKeyDir;
+    }
+
+    public T withConfKeyDir(String confKeyDir) {
+        setConfKeyDir(confKeyDir);
+        return self;
+    }
+
     @Override
     public ToStringHelper toStringHelper(Object self) {
-    	return super.toStringHelper(self)
-    	        .add("serviceBaseName", serviceBaseName)
-    	        .add("confOsFamily", confOsFamily);
+        return super.toStringHelper(self)
+                .add("serviceBaseName", serviceBaseName)
+                .add("confKeyDir", confKeyDir)
+                .add("confOsFamily", confOsFamily);
     }
-    
+
     @Override
     public String toString() {
-    	return toStringHelper(this).toString();
+        return toStringHelper(this).toString();
     }
 }
