@@ -65,7 +65,7 @@ public class ResourceSysBaseDTO<T extends ResourceSysBaseDTO<?>> extends Resourc
     }
 
     public T withConfKeyDir(String confKeyDir) {
-        setConfOsFamily(confKeyDir);
+        setConfKeyDir(confKeyDir);
         return self;
     }
 
