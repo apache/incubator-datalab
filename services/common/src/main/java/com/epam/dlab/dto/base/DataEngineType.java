@@ -45,7 +45,7 @@ public enum DataEngineType {
     }
 
     public static DataEngineType fromDockerImageName(String name) {
-        return INTERNAL_MAP.get(DOCKER_IMAGE_PREFIX + name);
+        return INTERNAL_MAP.get(name.replace(DOCKER_IMAGE_PREFIX, ""));
     }
 
     @JsonValue

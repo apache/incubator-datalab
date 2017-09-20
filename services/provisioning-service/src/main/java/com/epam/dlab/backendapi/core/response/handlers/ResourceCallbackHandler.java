@@ -74,20 +74,20 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
     public String getUUID() {
     	return uuid;
     }
-    
+
     @Override
     public boolean checkUUID(String uuid) {
         return this.uuid.equals(uuid);
     }
-    
+
     public String getUser() {
     	return user;
     }
-    
+
     public DockerAction getAction() {
     	return action;
     }
-    
+
     private void selfServicePost(T object) throws DlabException {
     	debugMessage("Send post request to self service {} for UUID {}, object is {}",
         		getCallbackURI(), uuid, object);
@@ -107,7 +107,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
         boolean success = isSuccess(document);
         UserInstanceStatus status = calcStatus(action, success);
         T result = getBaseStatusDTO(status);
-        
+
         JsonNode resultNode = document.get(RESPONSE_NODE).get(RESULT_NODE);
         if (success) {
         	debugMessage("Did {} resource for user: {}, UUID: {}", action, user, uuid);
@@ -116,7 +116,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
             result.setErrorMessage(getTextValue(resultNode.get(ERROR_NODE)));
         }
         result = parseOutResponse(resultNode, result);
-        
+
         selfServicePost(result);
         return !UserInstanceStatus.FAILED.equals(status);
     }
@@ -131,7 +131,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
             throw new DlabException("Could not send error message to Self Service for UUID " + uuid + ", user " + user + ": " + errorMessage, t);
         }
     }
-    
+
     abstract protected String getCallbackURI();
 
     abstract protected T parseOutResponse(JsonNode document, T baseStatus) throws DlabException;
@@ -185,7 +185,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
     protected String getTextValue(JsonNode jsonNode) {
         return jsonNode != null ? jsonNode.textValue() : null;
     }
-    
+
     private void debugMessage(String format, Object... arguments) {
     	if (action == DockerAction.STATUS) {
     		log.trace(format, arguments);
@@ -194,12 +194,4 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
     	}
     }
 
-    public static void main(String[] args) {
-        UploadFileResult<EdgeInfoAws> uploadFileResult = new UploadFileResult<>();
-        uploadFileResult.withEdgeInfo(null);
-        uploadFileResult.withStatus("aaa");
-
-
-        System.out.println(uploadFileResult);
-    }
 }
