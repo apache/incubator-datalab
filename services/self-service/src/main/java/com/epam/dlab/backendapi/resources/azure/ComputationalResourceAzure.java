@@ -176,7 +176,7 @@ public class ComputationalResourceAzure {
                     configuration.getMinSparkInstanceCount(), configuration.getMaxSparkInstanceCount()));
         }
 
-        if (DataEngineType.fromString(form.getImage()) != DataEngineType.SPARK_STANDALONE) {
+        if (DataEngineType.fromDockerImageName(form.getImage()) != DataEngineType.SPARK_STANDALONE) {
             throw new IllegalArgumentException(String.format("Unknown data engine %s", form.getImage()));
         }
     }
