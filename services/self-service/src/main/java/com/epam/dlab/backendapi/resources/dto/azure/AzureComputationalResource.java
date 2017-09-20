@@ -16,18 +16,20 @@
 
 package com.epam.dlab.backendapi.resources.dto.azure;
 
-import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.UserComputationalResource;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.validator.constraints.NotBlank;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
-public class AzureComputationalCreateForm extends ComputationalCreateFormDTO {
+import java.util.Date;
 
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class AzureComputationalResource extends UserComputationalResource {
     @NotBlank
     @JsonProperty("dataengine_instance_count")
     private String dataEngineInstanceCount;
@@ -39,4 +41,16 @@ public class AzureComputationalCreateForm extends ComputationalCreateFormDTO {
     @NotBlank
     @JsonProperty("azure_dataengine_master_size")
     private String dataEngineMasterSize;
+
+    @Builder
+    public AzureComputationalResource(String computationalName, String computationalId, String imageName,
+                                      String templateName, String status, Date uptime,
+                                      String dataEngineInstanceCount, String dataEngineSlaveSize,
+                                      String dataEngineMasterSize) {
+
+        super(computationalName, computationalId, imageName, templateName, status, uptime);
+        this.dataEngineInstanceCount = dataEngineInstanceCount;
+        this.dataEngineSlaveSize = dataEngineSlaveSize;
+        this.dataEngineMasterSize = dataEngineMasterSize;
+    }
 }

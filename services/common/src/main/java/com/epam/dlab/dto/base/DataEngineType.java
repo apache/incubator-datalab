@@ -18,13 +18,28 @@ package com.epam.dlab.dto.base;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum DataEngineType {
     CLOUD_SERVICE("dataengine-service"), SPARK_STANDALONE("dataengine");
+
+    private final static Map<String, DataEngineType> INTERNAL_MAP = new HashMap<>();
+
+    static {
+        for (DataEngineType dataEngineType : DataEngineType.values()) {
+            INTERNAL_MAP.put(dataEngineType.getName(), dataEngineType);
+        }
+    }
 
     private String name;
 
     DataEngineType(String name) {
         this.name = name;
+    }
+
+    public static DataEngineType fromString(String name) {
+        return INTERNAL_MAP.get(name);
     }
 
     @JsonValue

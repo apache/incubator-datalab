@@ -24,41 +24,10 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 abstract public class ResourceBaseDTO<T extends ResourceBaseDTO<?>> {
     @SuppressWarnings("unchecked")
     private final T self = (T) this;
-    //TODO @dto
-    @JsonProperty("aws_region")
-    private String awsRegion;
-    @JsonProperty("aws_iam_user")
-    private String awsIamUser;
     @JsonProperty("edge_user_name")
     private String edgeUserName;
     @JsonProperty
     private CloudSettings cloudSettings;
-
-    public String getAwsRegion() {
-        return awsRegion;
-    }
-
-    public void setAwsRegion(String awsRegion) {
-        this.awsRegion = awsRegion;
-    }
-
-    public T withAwsRegion(String region) {
-        setAwsRegion(region);
-        return self;
-    }
-
-    public String getAwsIamUser() {
-        return awsIamUser;
-    }
-
-    public void setAwsIamUser(String awsIamUser) {
-        this.awsIamUser = awsIamUser;
-    }
-
-    public T withAwsIamUser(String awsIamUser) {
-        setAwsIamUser(awsIamUser);
-        return self;
-    }
 
     public String getEdgeUserName() {
         return edgeUserName;
@@ -88,8 +57,6 @@ abstract public class ResourceBaseDTO<T extends ResourceBaseDTO<?>> {
 
     public ToStringHelper toStringHelper(Object self) {
         return MoreObjects.toStringHelper(self)
-                .add("awsRegion", awsRegion)
-                .add("awsIamUser", awsIamUser)
                 .add("edgeUserName", edgeUserName)
                 .add("cloudSettings", cloudSettings);
     }

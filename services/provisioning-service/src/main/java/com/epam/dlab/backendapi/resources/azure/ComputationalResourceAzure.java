@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.resources.aws;
+package com.epam.dlab.backendapi.resources.azure;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
@@ -24,12 +24,13 @@ import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
-import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
+import com.epam.dlab.dto.azure.computational.ComputationalCreateAzure;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
@@ -47,31 +48,31 @@ import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class ComputationalResourceAws implements DockerCommands {
+public class ComputationalResourceAzure implements DockerCommands {
 
     @Inject
-    private ProvisioningServiceApplicationConfiguration configuration;
-    @Inject
-    private FolderListenerExecutor folderListenerExecutor;
+    private RESTService selfService;
     @Inject
     private ICommandExecutor commandExecutor;
     @Inject
     private CommandBuilder commandBuilder;
     @Inject
-    private RESTService selfService;
+    private ProvisioningServiceApplicationConfiguration configuration;
+    @Inject
+    private FolderListenerExecutor folderListenerExecutor;
     @Inject
     private ComputationalConfigure computationalConfigure;
 
     @Path("/create")
     @POST
-    public String create(@Auth UserInfo ui, ComputationalCreateAws dto) {
+    public String create(@Auth UserInfo ui, ComputationalCreateAzure dto) {
         log.debug("Create computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
                 getFileHandlerCallback(CREATE, uuid, dto));
+
         try {
-            long timeout = configuration.getResourceStatusPollTimeout().toSeconds();
             commandExecutor.executeAsync(
                     ui.getName(),
                     uuid,
@@ -81,21 +82,19 @@ public class ComputationalResourceAws implements DockerCommands {
                                     .withName(nameContainer(dto.getEdgeUserName(), CREATE, dto.getComputationalName()))
                                     .withVolumeForRootKeys(configuration.getKeyDirectory())
                                     .withVolumeForResponse(configuration.getImagesDirectory())
-                                    .withVolumeForLog(configuration.getDockerLogDirectory(), DataEngineType.CLOUD_SERVICE.getName())
-                                    .withResource(DataEngineType.CLOUD_SERVICE.getName())
+                                    .withVolumeForLog(configuration.getDockerLogDirectory(), DataEngineType.SPARK_STANDALONE.getName())
+                                    .withResource(DataEngineType.SPARK_STANDALONE.getName())
                                     .withRequestId(uuid)
-                                    .withEc2Role(configuration.getEmrEC2RoleDefault())
-                                    .withEmrTimeout(Long.toString(timeout))
-                                    .withServiceRole(configuration.getEmrServiceRoleDefault())
                                     .withConfKeyName(configuration.getAdminKey())
                                     .withActionCreate(configuration.getDataEngineImage()),
                             dto
                     )
             );
-        } catch (Throwable t) {
-            throw new DlabException("Could not create computational resource cluster", t);
+        } catch (JsonProcessingException e) {
+            throw new DlabException("Could not create computational resource cluster", e);
         }
         return uuid;
+
     }
 
     @Path("/terminate")
@@ -116,16 +115,16 @@ public class ComputationalResourceAws implements DockerCommands {
                                     .withName(nameContainer(dto.getEdgeUserName(), TERMINATE, dto.getComputationalName()))
                                     .withVolumeForRootKeys(configuration.getKeyDirectory())
                                     .withVolumeForResponse(configuration.getImagesDirectory())
-                                    .withVolumeForLog(configuration.getDockerLogDirectory(), DataEngineType.CLOUD_SERVICE.getName())
-                                    .withResource(DataEngineType.CLOUD_SERVICE.getName())
+                                    .withVolumeForLog(configuration.getDockerLogDirectory(), DataEngineType.SPARK_STANDALONE.getName())
+                                    .withResource(DataEngineType.SPARK_STANDALONE.getName())
                                     .withRequestId(uuid)
                                     .withConfKeyName(configuration.getAdminKey())
                                     .withActionTerminate(configuration.getDataEngineImage()),
                             dto
                     )
             );
-        } catch (Throwable t) {
-            throw new DlabException("Could not terminate computational resources cluster", t);
+        } catch (JsonProcessingException e) {
+            throw new DlabException("Could not terminate computational resources cluster", e);
         }
         return uuid;
     }
@@ -139,6 +138,6 @@ public class ComputationalResourceAws implements DockerCommands {
     }
 
     public String getResourceType() {
-        return Directories.DATA_ENGINE_SERVICE_LOG_DIRECTORY;
+        return Directories.DATA_ENGINE_LOG_DIRECTORY;
     }
 }

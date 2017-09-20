@@ -26,6 +26,7 @@ import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { ReportingComponent } from './reporting/reporting.component';
 import { AuthorizationGuard } from './core/services';
+import { CloudProviderGuard } from './core/services';
 
 const routes: Routes = [{
     path: 'login',
@@ -41,7 +42,7 @@ const routes: Routes = [{
   }, {
     path: 'reporting',
     component: ReportingComponent,
-    canActivate: [AuthorizationGuard]
+    canActivate: [CloudProviderGuard]
   }, {
     path: 'help/publickeyguide',
     component: PublicKeyGuideComponent,

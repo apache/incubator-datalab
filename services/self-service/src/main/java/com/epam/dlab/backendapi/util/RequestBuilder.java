@@ -20,23 +20,30 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
+import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
+import com.epam.dlab.backendapi.resources.dto.azure.AzureComputationalCreateForm;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.dto.UserEnvironmentResources;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
+import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
 import com.epam.dlab.dto.aws.exploratory.ExploratoryCreateAws;
 import com.epam.dlab.dto.aws.keyload.UploadFileAws;
 import com.epam.dlab.dto.azure.AzureCloudSettings;
+import com.epam.dlab.dto.azure.computational.ComputationalCreateAzure;
 import com.epam.dlab.dto.azure.edge.EdgeCreateAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
 import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
 import com.epam.dlab.dto.base.CloudSettings;
+import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
+import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -97,7 +104,8 @@ public class RequestBuilder {
         T resource = newResourceBaseDTO(userInfo, resourceClass);
         return (T) resource
                 .withServiceBaseName(settingsDAO.getServiceBaseName())
-                .withConfOsFamily(settingsDAO.getConfOsFamily());
+                .withConfOsFamily(settingsDAO.getConfOsFamily())
+                .withConfKeyDir(settingsDAO.getConfKeyDir());
     }
 
     @SuppressWarnings("unchecked")
@@ -276,6 +284,68 @@ public class RequestBuilder {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T extends ComputationalBase<T>> T newComputationalCreate(UserInfo userInfo,
+                                                                            UserInstanceDTO userInstance,
+                                                                            ComputationalCreateFormDTO form) {
+        T computationalCreate;
+
+        switch (cloudProvider()) {
+            case AWS:
+                AwsComputationalCreateForm awsForm = (AwsComputationalCreateForm) form;
+                computationalCreate = (T) newResourceSysBaseDTO(userInfo, ComputationalCreateAws.class)
+                        .withInstanceCount(awsForm.getInstanceCount())
+                        .withMasterInstanceType(awsForm.getMasterInstanceType())
+                        .withSlaveInstanceType(awsForm.getSlaveInstanceType())
+                        .withSlaveInstanceSpot(awsForm.getSlaveInstanceSpot())
+                        .withSlaveInstanceSpotPctPrice(awsForm.getSlaveInstanceSpotPctPrice())
+                        .withVersion(awsForm.getVersion());
+                break;
+            case AZURE:
+                AzureComputationalCreateForm azureForm = (AzureComputationalCreateForm) form;
+                computationalCreate = (T) newResourceSysBaseDTO(userInfo, ComputationalCreateAzure.class)
+                        .withDataEngineInstanceCount(azureForm.getDataEngineInstanceCount())
+                        .withDataEngineMasterSize(azureForm.getDataEngineMasterSize())
+                        .withDataEngineSlaveSize(azureForm.getDataEngineSlaveSize());
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+
+        return computationalCreate
+                .withExploratoryName(form.getNotebookName())
+                .withComputationalName(form.getName())
+                .withNotebookTemplateName(userInstance.getTemplateName())
+                .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+                .withNotebookInstanceName(userInstance.getExploratoryId());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends ComputationalBase<T>> T newComputationalTerminate(UserInfo userInfo,
+                                                                               String exploratoryName,
+                                                                               String exploratoryId,
+                                                                               String computationalName,
+                                                                               String computationalId) {
+        T computationalTerminate;
+
+        switch (cloudProvider()) {
+            case AWS:
+                computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class)
+                        .withClusterName(computationalId);
+                break;
+            case AZURE:
+                computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+
+        return computationalTerminate
+                .withExploratoryName(exploratoryName)
+                .withComputationalName(computationalName)
+                .withNotebookInstanceName(exploratoryId);
+    }
+
     private static CloudProvider cloudProvider() {
         return configuration.getCloudProvider();
     }
@@ -286,7 +356,7 @@ public class RequestBuilder {
      * @param imageName docker image name
      * @return application name
      */
-    public static String getApplicationNameFromImage(String imageName) {
+    private static String getApplicationNameFromImage(String imageName) {
         if (imageName != null) {
             int pos = imageName.lastIndexOf('-');
             if (pos > 0) {

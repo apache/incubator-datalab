@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.modules;
 
+import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.EdgeResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.ExploratoryResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.InfrastructureResourceAzure;
@@ -30,5 +31,6 @@ public class AzureProvisioningModule extends CloudModule {
         environment.jersey().register(injector.getInstance(EdgeResourceAzure.class));
         environment.jersey().register(injector.getInstance(InfrastructureResourceAzure.class));
         environment.jersey().register(injector.getInstance(ExploratoryResourceAzure.class));
+        environment.jersey().register(injector.getInstance(ComputationalResourceAzure.class));
     }
 }

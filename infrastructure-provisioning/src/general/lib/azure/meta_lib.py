@@ -202,6 +202,21 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def list_storage_accounts(self, resource_group_name):
+        try:
+            result = self.storage_client.storage_accounts.list_by_resource_group(resource_group_name)
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to list storage accounts: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to list Data Lake accounts",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def check_account_availability(self, account_name):
         try:
             result = self.storage_client.storage_accounts.check_name_availability(account_name)

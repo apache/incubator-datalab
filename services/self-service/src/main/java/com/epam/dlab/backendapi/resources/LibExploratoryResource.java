@@ -26,7 +26,6 @@ import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryGetLibsFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryLibInstallFormDTO;
 import com.epam.dlab.backendapi.util.RequestBuilder;
-import com.epam.dlab.backendapi.util.ResourceUtils;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
@@ -48,8 +47,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 @Path("/infrastructure_provision/exploratory_environment")
