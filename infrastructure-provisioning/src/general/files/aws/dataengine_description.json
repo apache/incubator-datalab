@@ -1,5 +1,0 @@
-{
-  "template_name": "Data Engine",
-  "description": "Spark standalone cluster",
-  "environment_type": "computational"
-}
