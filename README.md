@@ -96,25 +96,30 @@ Database serves as a storage with description of user infrastructure, user’s s
 -----------------------------
 # Physical architecture <a name="Physical_architecture"></a>
 
-The following diagram demonstrates high-level physical architecture of DLab
+The following diagram demonstrates high-level physical architecture of DLab in AWS
 
 ![Physical architecture](doc/physical_architecture.png)
+
+and in Azure
+
+...
 
 ## Main components
 
 -   Self-service node (SSN)
 -   Edge node
 -   Notebook node (Jupyter, Rstudio, etc.)
--   EMR cluster
+-   Data engine cluster
+-   Data engine cluster as a service provided with Cloud
 
 ## Self-service node (SSN)
 
 Creation of self-service node – is the first step for deploying DLab. SSN is a main server with following pre-installed services:
 
--   DLab Web UI – is Web user interface for managing/deploying all components of DLab. It is accessible by the following URL: http://SSN\_Public\_IP\_or\_Public\_DNS
+-   DLab Web UI – is Web user interface for managing/deploying all components of DLab. It is accessible by the following URL: http[s]://SSN\_Public\_IP\_or\_Public\_DNS
 -   MongoDB – is a database, which contains part of DLab’s configuration, user’s exploratory environments description as well as user’s preferences.
 -   Docker – used for building DLab Docker containers, which will be used for provisioning other components.
--   Jenkins – is an alternative to Web UI. It is accessible by the following link: http://SSN\_Public\_IP\_or\_Public\_DNS/jenkins
+-   Jenkins – is an alternative to Web UI. It is accessible by the following link: http[s]://SSN\_Public\_IP\_or\_Public\_DNS/jenkins
 
 ## Edge node
 
@@ -127,15 +132,17 @@ The next step is setting up a Notebook node (or a Notebook server). It is a serv
 -   Jupyter
 -   R-studio
 -   Zeppelin
--   Jupyter + TensorFlow
+-   TensorFlow + Jupyter
 -   Deep Learning + Jupyter
 
 Apache Spark is also installed for each of the analytical tools above.
 
-## EMR cluster
+## Data engine cluster
 
-After deploying Notebook node, user can create EMR cluster for it. EMR cluster is a managed cluster platform, that simplifies running big data frameworks, such as Apache Hadoop and Apache Spark on AWS to process and analyze vast amounts of data. Adding EMR is not mandatory and is only needed in case additional computational resources are required for job execution.
-
+After deploying Notebook node, user can create one of the cluster for it:
+-   Data engine - Spark standalone cluster
+-   Data engine service - cloud managed cluster platform (EMR for AWS, HDnsight for Azure)
+That simplifies running big data frameworks, such as Apache Hadoop and Apache Spark to process and analyze vast amounts of data. Adding cluster is not mandatory and is only needed in case additional computational resources are required for job execution.
 ----------------------
 # DLab Deployment <a name="DLab_Deployment"></a>
 
@@ -168,8 +175,9 @@ SSN node structure of log directory is as follows:
      └───opt
          └───dlab
              └───log
+                 ├───dataengine
+                 ├───dateengine-service
                  ├───edge
-                 ├───emr
                  ├───notebook
                  └───ssn
 
@@ -178,13 +186,15 @@ These directories contain the log files for each template and for DLab back-end 
 -   provisioning.log – Provisioning Service log file;
 -   security.log – Security Service log file;
 -   selfservice.log – Self-Service log file;
--   edge, notebook, emr – contains logs of Python scripts.
+-   edge, notebook, dataengine – contains logs of Python scripts.
 
 ## Self-Service Node <a name="Self_Service_Node"></a>
 
 ### Create
 
-For deploying DLAB at AWS cloud the IAM user with following permissions is required:
+#### In Amazon cloud
+
+The IAM user with following permissions is required for deploying DLAB at AWS cloud :
 ```
 {
 	"Version": "2012-10-17",
@@ -238,36 +248,36 @@ To build SSN node, following steps should be executed:
 2.  Go to *dlab* directory.
 3.  Execute following script:
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --infrastructure_tag dlab_test --access_key_id XXXXXXX --secret_access_key XXXXXXXXXX --region us-west-2 --os_family debian --cloud_provider aws --vpc_id vpc-xxxxx --subnet_id subnet-xxxxx --sg_ids sg-xxxxx,sg-xxxx --key_path /root/ --key_name Test --tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab_test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXXXX --aws_region us-west-2 --conf_os_family debian --conf_cloud_provider aws --aws_vpc_id vpc-xxxxx --aws_subnet_id subnet-xxxxx --aws_security_groups_ids sg-xxxxx,sg-xxxx --key_path /root/ --conf_key_name Test --conf_tag_resource_id dlab --aws_account_id xxxxxxxx --aws_billing_bucket billing_bucket --aws_report_path /billing/directory/ --action create
 ```
 
-This bash script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
+This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
 
 List of parameters for SSN node deployment:
 
-| Parameter           | Description/Value                                                                       |
-|---------------------|-----------------------------------------------------------------------------------------|
-| infrastructure\_tag | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
-| access\_key\_id     | AWS user access key                                                                     |
-| secret\_access\_key | AWS user secret access key                                                              |
-| region              | AWS region                                                                              |
-| os\_family          | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
-| cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS)                            |
-| vpc\_id             | ID of the Virtual Private Cloud (VPC)                                                   |
-| subnet\_id          | ID of the public subnet                                                                 |
-| sg\_ids             | One or more ID\`s of AWS Security Groups, which will be assigned to SSN node            |
-| key\_path           | Path to admin key (without key name)                                                    |
-| key\_name           | Name of the uploaded SSH key file (without “.pem” extension)                            |
-| tag\_resource\_id   | The name of tag for billing reports                                                     |
-| aws\_account\_id    | The The ID of Amazon account                                                            |
-| aws\_billing\_bucket| The name of S3 bucket where billing reports will be placed                              |
-| aws\_report\_path   | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
-| action              | In case of SSN node creation, this parameter should be set to “create”                  |
+| Parameter                 | Description/Value                                                                       |
+|---------------------------|-----------------------------------------------------------------------------------------|
+| conf\_service\_base\_name | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| aws\_access\_key          | AWS user access key                                                                     |
+| aws\_secret\_access\_key  | AWS user secret access key                                                              |
+| aws\_region               | AWS region                                                                              |
+| conf\_os\_family          | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
+| conf\_cloud\_provider     | Name of the cloud provider, which is supported by DLab (AWS)                            |
+| aws\_vpc\_id              | ID of the Virtual Private Cloud (VPC)                                                   |
+| aws\_subnet\_id           | ID of the public subnet                                                                 |
+| aws\_security\_groups\_ids| One or more ID\`s of AWS Security Groups, which will be assigned to SSN node            |
+| key\_path                 | Path to admin key (without key name)                                                    |
+| conf\_key\_name           | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| conf\_tag\_resource\_id   | The name of tag for billing reports                                                     |
+| aws\_account\_id          | The The ID of Amazon account                                                            |
+| aws\_billing\_bucket      | The name of S3 bucket where billing reports will be placed                              |
+| aws\_report\_path         | The path to billing reports directory in S3 bucket. This parameter isn't required when billing reports are placed in the root of S3 bucket. |
+| action                    | In case of SSN node creation, this parameter should be set to “create”                  |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
--   vpc\_id
--   subnet\_id
--   sg\_ids
+-   aws\_vpc\_id
+-   aws\_subnet\_id
+-   aws\_sg\_ids
 
 **Note:** If billing won't be using, the following parameters are not required:
 -   aws\_account\_id
@@ -276,11 +286,60 @@ List of parameters for SSN node deployment:
 
 After SSN node deployment following AWS resources will be created:
 
--   EC2 instance
+-   SSN EC2 instance
+-   Elastic IP for SSN instance
+-   IAM role and EC2 Instance Profile for SSN
 -   Security Group for SSN node (if it was specified, script will attach the provided one)
--   IAM role and Instance Profile
--   VPC, Subnet (if they have not been specified)
+-   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
 -   S3 bucket – its name will be \<service\_base\_name\>-ssn. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
+
+#### In Azure cloud
+
+JSON based auth file with service principal clientId, clientSecret and tenantId is required for deploying DLAB 
+at Azure cloud:
+
+
+To build SSN node, following steps should be executed:
+
+1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed.
+2.  Go to *dlab* directory.
+3.  Execute following script:
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab_test --azure_region westus2 --conf_os_family debian --conf_cloud_provider azure --azure_vpc_name vpc-test --azure_subnet_name subnet-test --azure_security_group_name sg-test1,sg-test2 --key_path /root/ --conf_key_name Test --azure_auth_path /dir/file.json  --action create
+```
+
+This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
+
+List of parameters for SSN node deployment:
+
+| Parameter                    | Description/Value                                                                       |
+|------------------------------|-----------------------------------------------------------------------------------------|
+| conf\_service\_base\_name    | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| azure\_region                | Azure region                                                                            |
+| conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
+| conf\_cloud\_provider        | Name of the cloud provider, which is supported by DLab (Azure)                          |
+| azure\_vpc\_name             | Name of the Virtual Network (VN)                                                        |
+| azure\_subnet\_name          | Name of the Azure subnet                                                                |
+| azure\_security\_groups\_name| One or more Name\`s of Azure Security Groups, which will be assigned to SSN node        |
+| key\_path                    | Path to admin key (without key name)                                                    |
+| conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| azure\_auth\_path            | Full path to auth json file                                                             |
+| action                       | In case of SSN node creation, this parameter should be set to “create”                  |
+
+**Note:** If the following parameters are not specified, they will be created automatically:
+-   azure\_vpc\_nam
+-   azure\_subnet\_name
+-   azure\_security\_groups\_name
+
+After SSN node deployment following Azure resources will be created:
+
+-   SSN Virtual machine
+-   Public IP address dor SSN virtual machine
+-   Network interface for SSN node
+-   Security Group for SSN node (if it was specified, script will attach the provided one)
+-   Virtual network and Subnet (if they have not been specified) for SSN and EDGE nodes
+-   Storage account and blob container for necessary further dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
+
 
 ### Terminate
 
