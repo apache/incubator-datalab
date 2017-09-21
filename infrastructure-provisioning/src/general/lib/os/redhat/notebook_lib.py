@@ -233,9 +233,9 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('shutdown -r 1')
             time.sleep(90)
             sudo('yum -y install gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
-            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/367.57/NVIDIA-Linux-x86_64-367.57.run -O /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run')
-            sudo('/bin/bash /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run -s --no-install-libglvnd')
-            sudo('rm -f /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run')
+            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/384.66/NVIDIA-Linux-x86_64-384.66.run -O /home/' + os_user + '/NVIDIA-Linux-x86_64-384.66.run')
+            sudo('/bin/bash /home/' + os_user + '/NVIDIA-Linux-x86_64-384.66.run -s')
+            sudo('rm -f /home/' + os_user + '/NVIDIA-Linux-x86_64-384.66.run')
             # install cuda
             sudo('wget https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64-rpm')
             sudo('mv cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64-rpm cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64.rpm; rpm -i cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64.rpm')
