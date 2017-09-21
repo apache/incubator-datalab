@@ -76,7 +76,7 @@ if __name__ == "__main__":
             notebook_config['user_name'] + '-nb-sg'
         notebook_config['private_subnet_name'] = notebook_config['service_base_name'] + '-' + \
             notebook_config['user_name'] + '-subnet'
-        ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         if os.environ['application'] == 'deeplearning':

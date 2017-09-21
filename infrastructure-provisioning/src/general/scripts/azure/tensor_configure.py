@@ -69,7 +69,7 @@ if __name__ == "__main__":
         edge_instance_name = os.environ['conf_service_base_name'] + "-" + notebook_config['user_name'] + '-edge'
         edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                              edge_instance_name)
-        keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
+        keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", initial_user,
+            (instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", initial_user,
              notebook_config['dlab_ssh_user'], sudo_group)
 
         try:
@@ -168,7 +168,7 @@ if __name__ == "__main__":
         print '[INSTALLING USERs KEY]'
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": notebook_config['user_keyname'],
-                             "user_keydir": "/root/keys/"}
+                             "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['dlab_ssh_user'])
         try:

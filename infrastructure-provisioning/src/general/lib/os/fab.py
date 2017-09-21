@@ -153,7 +153,7 @@ def append_result(error, exception=''):
 
 def put_resource_status(resource, status, dlab_path, os_user, hostname):
     env['connection_attempts'] = 100
-    keyfile = "/root/keys/" + os.environ['conf_key_name'] + ".pem"
+    keyfile = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem"
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
     sudo('python ' + dlab_path + 'tmp/resource_status.py --resource {} --status {}'.format(resource, status))

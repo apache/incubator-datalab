@@ -85,7 +85,7 @@ if __name__ == "__main__":
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
         data_engine['master_network_interface_name'] = data_engine['master_node_name'] + '-nif'
         data_engine['master_size'] = os.environ['azure_dataengine_master_size']
-        ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])

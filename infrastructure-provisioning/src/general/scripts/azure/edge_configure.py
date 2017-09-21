@@ -61,7 +61,7 @@ if __name__ == "__main__":
         edge_conf['slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
                                                    + edge_conf['user_name'] + '-dataengine-slave-sg'
         edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
-        keyfile_name = "/root/keys/{}.pem".format(edge_conf['key_name'])
+        keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
         edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                                                   edge_conf['private_subnet_name']).address_prefix
         edge_conf['edge_public_ip'] = AzureMeta().get_instance_public_ip_address(edge_conf['resource_group_name'],
@@ -97,7 +97,7 @@ if __name__ == "__main__":
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", initial_user,
+            (instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", initial_user,
              edge_conf['dlab_ssh_user'], sudo_group)
 
         try:
@@ -180,7 +180,7 @@ if __name__ == "__main__":
         print '[INSTALLING USERs KEY]'
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": edge_conf['user_keyname'],
-                             "user_keydir": "/root/keys/"}
+                             "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             instance_hostname, keyfile_name, json.dumps(additional_config), edge_conf['dlab_ssh_user'])
         try:

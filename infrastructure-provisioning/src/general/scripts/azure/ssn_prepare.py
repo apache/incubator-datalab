@@ -53,7 +53,7 @@ if __name__ == "__main__":
         ssn_conf['network_interface_name'] = ssn_conf['service_base_name'] + '-ssn-nif'
         ssn_conf['static_public_ip_name'] = ssn_conf['service_base_name'] + '-ssn-ip'
         ssn_conf['security_group_name'] = ssn_conf['instance_name'] + '-sg'
-        ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssn_conf['instance_storage_account_type'] = 'Premium_LRS'
         ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")

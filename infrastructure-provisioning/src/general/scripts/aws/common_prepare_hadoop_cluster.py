@@ -132,7 +132,7 @@ if __name__ == "__main__":
             raise Exception
 
         cluster_name = emr_conf['cluster_name']
-        keyfile_name = "/root/keys/{}.pem".format(emr_conf['key_name'])
+        keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], emr_conf['key_name'])
         local('rm /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
     except Exception as err:
         append_result("Failed to create EMR Cluster.", str(err))

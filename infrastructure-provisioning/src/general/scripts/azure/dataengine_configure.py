@@ -39,7 +39,7 @@ def configure_slave(slave_number, data_engine):
         logging.info('[CREATING DLAB SSH USER ON SLAVE NODE]')
         print('[CREATING DLAB SSH USER ON SLAVE NODE]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format \
-            (slave_hostname, "/root/keys/" + data_engine['key_name'] + ".pem", initial_user,
+            (slave_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", initial_user,
              data_engine['dlab_ssh_user'], sudo_group)
 
         try:
@@ -159,7 +159,7 @@ if __name__ == "__main__":
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
         data_engine['master_network_interface_name'] = data_engine['master_node_name'] + '-nif'
         data_engine['master_size'] = os.environ['azure_dataengine_master_size']
-        ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
@@ -170,7 +170,7 @@ if __name__ == "__main__":
         edge_instance_name = data_engine['service_base_name'] + "-" + data_engine['user_name'] + '-edge'
         edge_instance_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                     edge_instance_name)
-        keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
+        keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
             sudo_group = 'sudo'
@@ -190,7 +190,7 @@ if __name__ == "__main__":
         logging.info('[CREATING DLAB SSH USER ON MASTER NODE]')
         print('[CREATING DLAB SSH USER ON MASTER NODE]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (master_node_hostname, "/root/keys/" + data_engine['key_name'] + ".pem", initial_user,
+            (master_node_hostname, os.environ['conf_key_dir'] + data_engine['key_name'] + ".pem", initial_user,
              data_engine['dlab_ssh_user'], sudo_group)
 
         try:

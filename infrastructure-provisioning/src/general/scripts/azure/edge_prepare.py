@@ -62,13 +62,13 @@ if __name__ == "__main__":
         edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] +
                                             '-container').lower()
         edge_conf['storage_account_tag'] = edge_conf['service_base_name'] + edge_conf['user_name']
-        ssh_key_path = '/root/keys/' + os.environ['conf_key_name'] + '.pem'
+        ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         edge_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         edge_conf['instance_storage_account_type'] = 'Premium_LRS'
 
         # FUSE in case of absence of user's key
-        fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
+        fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
         if not os.path.isfile(fname):
             print "USERs PUBLIC KEY DOES NOT EXIST in {}".format(fname)
             sys.exit(1)

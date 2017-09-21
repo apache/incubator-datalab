@@ -116,29 +116,12 @@ def deploy_dlab(args):
     # Creating SSN node
     docker_command = generate_docker_command()
     local(docker_command)
-    # local('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -v {2}/web_app:/root/web_app -e "conf_os_family={3}" '
-    #       '-e "conf_cloud_provider={4}" -e "conf_resource=ssn" '
-    #       '-e "ssn_instance_size=t2.medium" -e "region={5}" -e "aws_vpc_id={6}" -e "aws_subnet_id={7}" '
-    #       '-e "aws_security_groups_ids={8}" -e "conf_key_name={1}" -e "conf_service_base_name={9}" '
-    #       '-e "aws_access_key={10}" -e "aws_secret_access_key={11}" -e "conf_tag_resource_id={13}" '
-    #       '-e "aws_account_id={14}" -e "aws_billing_bucket={15}" -e "aws_report_path={16}" '
-    #       'docker.dlab-ssn --action {12}'.format(args.key_path, args.conf_key_name, args.workspace_path, args.conf_os_family,
-    #                                              args.conf_cloud_provider, args.region, args.vpc_id,
-    #                                              args.subnet_id, args.sg_ids, args.infrastructure_tag,
-    #                                              args.access_key_id, args.secret_access_key, args.action,
-    #                                              args.tag_resource_id, args.aws_account_id, args.aws_billing_bucket,
-    #                                              args.aws_report_path))
 
 
 def terminate_dlab(args):
     # Dropping Dlab environment with selected infrastructure tag
     docker_command = generate_docker_command()
     local(docker_command)
-    # local('sudo docker run -i -v {0}{1}.pem:/root/keys/{1}.pem -e "region={2}" -e "conf_service_base_name={3}" '
-    #       '-e "conf_resource=ssn" -e "aws_access_key={4}" -e "aws_secret_access_key={5}" '
-    #       'docker.dlab-ssn --action {6}'.
-    #       format(args.key_path, args.conf_key_name, args.region, args.infrastructure_tag, args.access_key_id,
-    #              args.secret_access_key, args.action))
 
 if __name__ == "__main__":
     if not args.workspace_path:
