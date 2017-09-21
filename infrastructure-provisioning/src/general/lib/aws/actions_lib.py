@@ -1098,10 +1098,8 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
             sudo('mkdir -p ' + jars_dir)
             sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.4/hadoop-aws-2.7.4.jar -O ' +
                  jars_dir + 'hadoop-aws-2.7.4.jar')
-            sudo('wget http://central.maven.org/maven2/com/amazonaws/aws-java-sdk-core/1.11.176/aws-java-sdk-core-1.11.176.jar -O ' +
-                 jars_dir + 'aws-java-sdk-core-1.11.176.jar')
-            sudo('wget http://central.maven.org/maven2/com/amazonaws/aws-java-sdk-s3/1.11.176/aws-java-sdk-s3-1.11.176.jar -O ' +
-                 jars_dir + 'aws-java-sdk-s3-1.11.176.jar')
+            sudo('wget http://central.maven.org/maven2/com/amazonaws/aws-java-sdk/1.7.4/aws-java-sdk-1.7.4.jar -O ' +
+                 jars_dir + 'aws-java-sdk-1.7.4.jar')
             sudo('wget http://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/0.4.20/hadoop-lzo-0.4.20.jar -O ' +
                  jars_dir + 'hadoop-lzo-0.4.20.jar')
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')

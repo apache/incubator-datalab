@@ -65,7 +65,6 @@ public class CommandExecutorMock implements ICommandExecutor {
         if (command.startsWith("docker images |")) {
         	return Arrays.asList(
         			"docker.dlab-deeplearning:latest",
-                    "docker.dlab-dataengine:latest",
         			getComputationalDockerImage(),
             		"docker.dlab-jupyter:latest",
             		"docker.dlab-rstudio:latest",

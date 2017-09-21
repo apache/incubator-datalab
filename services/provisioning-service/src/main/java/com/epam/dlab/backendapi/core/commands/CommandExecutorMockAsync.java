@@ -251,7 +251,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
      */
     private void action(String user, DockerAction action) {
     	String resourceType = parser.getResourceType();
-		String prefixFileName = (resourceType.equals("edge") || resourceType.equals("emr") ?
+		String prefixFileName = (resourceType.equals("edge") || resourceType.equals("dataengine-service") ?
     			resourceType : "notebook") + "_";
     	String templateFileName = "mock_response/" + prefixFileName + action.toString() + ".json";
     	responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" + parser.getRequestId() + ".json");
