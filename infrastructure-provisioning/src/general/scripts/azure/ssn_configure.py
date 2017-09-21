@@ -255,7 +255,7 @@ if __name__ == "__main__":
             "conf_service_base_name": ssn_conf['service_base_name'],
             "azure_security_group_name": ssn_conf['security_group_name'],
             "conf_os_family": os.environ['conf_os_family'],
-            "conf_key_dir": "/root/keys"
+            "conf_key_dir": os.environ['conf_key_dir']
         }
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
