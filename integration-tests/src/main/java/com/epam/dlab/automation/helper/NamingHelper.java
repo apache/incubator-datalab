@@ -91,7 +91,7 @@ public class NamingHelper {
     }
     
     public static String getEmrInstanceName(String notebookName, String emrName) {
-    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "dataengine-service", notebookName, emrName);
+    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "emr", notebookName, emrName);
     }
 
     public static String getNotebookContainerName(String notebookName, String action) {
