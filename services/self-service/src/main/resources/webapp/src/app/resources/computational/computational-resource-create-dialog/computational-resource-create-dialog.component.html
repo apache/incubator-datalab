@@ -57,7 +57,7 @@ limitations under the License.
       </div>
       <div class="form-group row">
         <div  class="col-xs-4">
-          <label class="control-label">Master Instance shape</label>
+          <label class="control-label">{{ DICTIONARY.data_engine_master_instance_size}}</label>
         </div>
         <div class="col-xs-8">
           <dropdown-list #masterShapesList (selectedItem)="onUpdate($event)"></dropdown-list>
@@ -65,7 +65,7 @@ limitations under the License.
       </div>
       <div class="row">
         <div  class="col-xs-4">
-          <label class="control-label">Slave Instance shape</label>
+          <label class="control-label">{{ DICTIONARY.data_engine_slave_instance_size }}</label>
         </div>
         <div class="col-xs-8">
           <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
