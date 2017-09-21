@@ -35,6 +35,7 @@ import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 export class ComputationalResourceCreateDialogComponent implements OnInit {
   readonly PROVIDER = DICTIONARY.cloud_provider;
+  readonly DICTIONARY = DICTIONARY;
 
   model: ComputationalResourceCreateModel;
   notebook_instance: any;

@@ -169,7 +169,6 @@ SSN node structure of log directory is as follows:
          └───dlab
              └───log
                  ├───edge
-                 ├───emr
                  ├───dataengine
                  ├───dataengine-service
                  ├───notebook
@@ -853,8 +852,7 @@ Some class names may have endings like Aws or Azure(e.g. ComputationalResourceAw
 
 #### Security service
 
-Security service is REST based service for user authentication against LDAP or LDAP + AWS depending on module configuration and cloud provider
-LDAP only provides with authentication end point that allows to verify authenticity of users against LDAP instance. If you use AWS cloud provider LDAP + AWS authentication could be useful as it allows to combine LDAP authentication and verification if user has any role in AWS account
+Security service is REST based service for user authentication against LDAP or LDAP + AWS depending on module configuration and cloud provider. LDAP only provides with authentication end point that allows to verify authenticity of users against LDAP instance. If you use AWS cloud provider LDAP + AWS authentication could be useful as it allows to combine LDAP authentication and verification if user has any role in AWS account
 
 ## Front-end <a name="Front_end"></a>
 
@@ -925,7 +923,7 @@ mongo:
 *Unix*
 
 ```
-ln -s ssn.yml ../../infrastructure-provisioning/src/ssn/templates/ssn.yml\
+ln -s ssn.yml ../../infrastructure-provisioning/src/ssn/templates/ssn.yml
 ```
 
 *Windows*
