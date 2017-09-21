@@ -147,16 +147,19 @@ public class ComputationalResourceAzure {
      * @param userInfo          user info.
      * @param exploratoryName   name of exploratory.
      * @param computationalName name of computational resource.
+     * @return 200 OK if operation is successfully triggered
      */
     @DELETE
     @Path("/{exploratoryName}/{computationalName}/terminate")
-    public void terminate(@Auth UserInfo userInfo,
-                          @PathParam("exploratoryName") String exploratoryName,
-                          @PathParam("computationalName") String computationalName) {
+    public Response terminate(@Auth UserInfo userInfo,
+                              @PathParam("exploratoryName") String exploratoryName,
+                              @PathParam("computationalName") String computationalName) {
 
         log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
         computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+
+        return Response.ok().build();
     }
 
     /**
