@@ -88,6 +88,9 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
     if not exists('/home/' + os_user + '/.ensure_dir/rstudio_ensured'):
         try:
             sudo('yum install -y --nogpgcheck https://download2.rstudio.org/rstudio-server-rhel-{}-x86_64.rpm'.format(rstudio_version))
+            sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
+            sudo('umount -f /mnt/')
+            sudo('mount -a')
             sudo('mkdir /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             sudo('touch /home/{}/.Renviron'.format(os_user))
