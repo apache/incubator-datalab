@@ -1,0 +1,18 @@
+{
+    "request_id":"RID",
+    "conf_resource": "dataengine-service",
+    "conf_service_base_name":"SBN",
+    "edge_user_name":"EUN",
+    "emr_service_role":"ESR",
+    "emr_ec2_role":"EE2R",
+    "emr_version":"EVER",
+    "emr_master_instance_type":"EMIT",
+    "emr_slave_instance_type":"ESMT",
+    "emr_instance_count":"EIC",
+    "emr_timeout":"ETIM",
+    "conf_key_name":"KN",
+    "region":"CREG",
+    "notebook_instance_name":"NNM",
+    "emr_slave_spot_instance":"SPI",
+    "emr_slave_instance_spot_pct_price": "SISPP"
+}

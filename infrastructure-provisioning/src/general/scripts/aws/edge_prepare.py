@@ -62,7 +62,7 @@ if __name__ == "__main__":
     edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
 
     # FUSE in case of absence of user's key
-    fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
+    fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
     if not os.path.isfile(fname):
         print "USERs PUBLIC KEY DOES NOT EXIST in {}".format(fname)
         sys.exit(1)

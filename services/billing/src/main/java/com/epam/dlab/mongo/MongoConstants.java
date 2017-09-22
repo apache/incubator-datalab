@@ -29,7 +29,7 @@ public interface MongoConstants {
     public static final String FIELD_SERIVICE_BASE_NAME = "conf_service_base_name";
 
     /** Collection user AWS credentials. */
-    public static final String COLLECTION_USER_EDGE = "userAWSCredentials";
+    public static final String COLLECTION_USER_EDGE = "userCloudCredentials";
     public static final String FIELD_EDGE_BUCKET = "user_own_bicket_name";
 
     /** Collection user instances. */

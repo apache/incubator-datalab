@@ -23,6 +23,8 @@ import { ResourcesGridRowModel, FilterConfigurationModel, CreateResourceModel } 
 import { ConfirmationDialogType } from '../../shared';
 import { SortUtil } from '../../core/util';
 
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
+
 @Component({
   moduleId: module.id,
   selector: 'resources-grid',
@@ -31,6 +33,7 @@ import { SortUtil } from '../../core/util';
 })
 
 export class ResourcesGridComponent implements OnInit {
+  readonly DICTIONARY = DICTIONARY;
 
   environments: Array<ResourcesGridRowModel>;
   filteredEnvironments: Array<ResourcesGridRowModel> = [];
@@ -54,8 +57,8 @@ export class ResourcesGridComponent implements OnInit {
   public filteringColumns: Array<any> = [
     { title: 'Environment name', name: 'name', className: 'th_name', filtering: {} },
     { title: 'Status', name: 'statuses', className: 'th_status', filtering: {} },
-    { title: 'Shape', name: 'shapes', className: 'th_shape', filtering: {} },
-    { title: 'Computational resources', name: 'resources', className: 'th_resources', filtering: {} },
+    { title: DICTIONARY.instance_size, name: 'shapes', className: 'th_shape', filtering: {} },
+    { title: DICTIONARY.computational_resource, name: 'resources', className: 'th_resources', filtering: {} },
     { title: 'Cost', name: 'cost', className: 'th_cost' },
     { title: 'Actions', className: 'th_actions' }
   ];
@@ -166,7 +169,7 @@ export class ResourcesGridComponent implements OnInit {
 
     this.userResourceService.getUserProvisionedResources()
       .subscribe((result) => {
-        this.environments = this.loadEnvironments(result);
+        this.environments = this.loadEnvironments(result.exploratory, result.shared);
         this.getDefaultFilterConfiguration();
 
         (this.environments.length) ? this.getUserPreferences() : this.filteredEnvironments = [];
@@ -182,8 +185,8 @@ export class ResourcesGridComponent implements OnInit {
     return false;
   }
 
-  loadEnvironments(exploratoryList: Array<any>): Array<ResourcesGridRowModel> {
-    if (exploratoryList) {
+  loadEnvironments(exploratoryList: Array<any>, sharedDataList: any): Array<ResourcesGridRowModel> {
+    if (exploratoryList && sharedDataList) {
       return exploratoryList.map((value) => {
         return new ResourcesGridRowModel(value.exploratory_name,
           value.template_name,
@@ -193,16 +196,17 @@ export class ResourcesGridComponent implements OnInit {
           value.computational_resources,
           value.up_time,
           value.exploratory_url,
-          value.edge_node_ip,
+          sharedDataList.edge_node_ip,
           value.exploratory_user,
           value.exploratory_pass,
-          value.user_own_bicket_name,
-          value.shared_bucket_name,
+          sharedDataList.user_own_bicket_name,
+          sharedDataList.shared_bucket_name,
           value.error_message,
           value.cost,
           value.currency_code,
           value.billing,
-          value.libs);
+          value.libs,
+          sharedDataList.storage_account_name);
       });
     }
   }

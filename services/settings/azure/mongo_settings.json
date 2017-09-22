@@ -1,0 +1,32 @@
+{
+  "_id": "conf_service_base_name",
+  "value": "dev"
+}
+{
+  "_id": "conf_os_family",
+  "value": "debian"
+}
+{
+  "_id": "conf_key_dir",
+  "value": "/root/keys"
+}
+{
+  "_id": "azure_subnet_name",
+  "value": "dev-ssn-subnet"
+}
+{
+  "_id": "azure_region",
+  "value": "dev-westus2"
+}
+{
+  "_id": "azure_resource_group_name",
+  "value": "dev"
+}
+{
+  "_id": "azure_vpc_name",
+  "value": "dev-ssn-vpc"
+}
+{
+  "_id": "azure_security_group_name",
+  "value": "dev-ssn-sg"
+}

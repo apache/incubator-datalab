@@ -17,40 +17,43 @@
  ****************************************************************************/
 package com.epam.dlab.backendapi.dao;
 
-import static com.epam.dlab.backendapi.dao.BaseDAO.USER;
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
-import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
+import com.epam.dlab.UserInstanceStatus;
+import com.epam.dlab.backendapi.core.UserInstanceDTO;
+import com.epam.dlab.backendapi.resources.dto.UserComputationalResource;
+import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalResource;
+import com.epam.dlab.dto.computational.ComputationalStatusDTO;
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.result.UpdateResult;
+import org.junit.*;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.backendapi.core.UserComputationalResourceDTO;
-import com.epam.dlab.backendapi.core.UserInstanceDTO;
-import com.epam.dlab.dto.computational.ComputationalStatusDTO;
-import com.mongodb.BasicDBObject;
-import com.mongodb.client.model.IndexOptions;
-import com.mongodb.client.result.UpdateResult;
+import static com.epam.dlab.backendapi.dao.BaseDAO.USER;
+import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
+import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
+import static com.epam.dlab.backendapi.dao.MongoCollections.USER_INSTANCES;
+import static junit.framework.TestCase.*;
 
 @Ignore
 public class ComputationalDAOTest extends DAOTestBase {
     private ExploratoryDAO infExpDAO;
     private ComputationalDAO infCompDAO;
-    
+
     public ComputationalDAOTest() {
         super(USER_INSTANCES);
+    }
+
+    @BeforeClass
+    public static void setupAll() {
+        DAOTestBase.setupAll();
+    }
+
+    @AfterClass
+    public static void teardownAll() {
+        //DAOTestBase.teardownAll();
     }
 
     @Before
@@ -67,16 +70,6 @@ public class ComputationalDAOTest extends DAOTestBase {
         testInjector.injectMembers(infCompDAO);
     }
 
-    @BeforeClass
-    public static void setupAll() {
-        DAOTestBase.setupAll();
-    }
-
-    @AfterClass
-    public static void teardownAll() {
-        //DAOTestBase.teardownAll();
-    }
-
     @Test
     public void addComputationalSuccess() {
         UserInstanceDTO instance1 = new UserInstanceDTO()
@@ -88,11 +81,11 @@ public class ComputationalDAOTest extends DAOTestBase {
 
         infExpDAO.insertOne(USER_INSTANCES, instance1);
 
-        UserComputationalResourceDTO comp1 = new UserComputationalResourceDTO()
-                .withComputationalName("comp1")
-                .withComputationalId("c1")
-                .withStatus("created")
-                .withUptime(new Date(100));
+        AwsComputationalResource comp1 = AwsComputationalResource.builder()
+                .computationalName("comp1")
+                .computationalId("c1")
+                .status("created")
+                .uptime(new Date(100)).build();
         boolean inserted = infCompDAO.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp1);
         assertTrue(inserted);
 
@@ -101,7 +94,7 @@ public class ComputationalDAOTest extends DAOTestBase {
                 UserInstanceDTO.class).get();
         assertTrue(testInstance.getResources() != null && testInstance.getResources().size() == 1);
 
-        UserComputationalResourceDTO testComp = testInstance.getResources().get(0);
+        UserComputationalResource testComp = testInstance.getResources().get(0);
         assertEquals(comp1.getComputationalName(), testComp.getComputationalName());
         assertEquals(comp1.getComputationalId(), testComp.getComputationalId());
         assertEquals(comp1.getStatus(), testComp.getStatus());
@@ -119,11 +112,11 @@ public class ComputationalDAOTest extends DAOTestBase {
 
         infExpDAO.insertOne(USER_INSTANCES, instance1);
 
-        UserComputationalResourceDTO comp1 = new UserComputationalResourceDTO()
-                .withComputationalName("comp1")
-                .withComputationalId("c1")
-                .withStatus("created")
-                .withUptime(new Date(100));
+        AwsComputationalResource comp1 = AwsComputationalResource.builder()
+                .computationalName("comp1")
+                .computationalId("c1")
+                .status("created")
+                .uptime(new Date(100)).build();
         boolean inserted = infCompDAO.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp1);
         assertTrue(inserted);
 
@@ -142,19 +135,19 @@ public class ComputationalDAOTest extends DAOTestBase {
 
         infExpDAO.insertOne(USER_INSTANCES, instance1);
 
-        UserComputationalResourceDTO comp1 = new UserComputationalResourceDTO()
-                .withComputationalName("comp1")
-                .withComputationalId("c1")
-                .withStatus("created")
-                .withUptime(new Date(100));
+        AwsComputationalResource comp1 = AwsComputationalResource.builder()
+                .computationalName("comp1")
+                .computationalId("c1")
+                .status("created")
+                .uptime(new Date(100)).build();
         boolean inserted = infCompDAO.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp1);
         assertTrue(inserted);
 
-        UserComputationalResourceDTO comp2 = new UserComputationalResourceDTO()
-                .withComputationalName("comp2")
-                .withComputationalId("c2")
-                .withStatus("created")
-                .withUptime(new Date(100));
+        AwsComputationalResource comp2 = AwsComputationalResource.builder()
+                .computationalName("comp2")
+                .computationalId("c2")
+                .status("created")
+                .uptime(new Date(100)).build();
         boolean inserted2 = infCompDAO.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp2);
         assertTrue(inserted2);
 
@@ -174,19 +167,19 @@ public class ComputationalDAOTest extends DAOTestBase {
 
         infExpDAO.insertOne(USER_INSTANCES, instance1);
 
-        UserComputationalResourceDTO comp1 = new UserComputationalResourceDTO()
-                .withComputationalName("comp1")
-                .withComputationalId("c1")
-                .withStatus("created")
-                .withUptime(new Date(100));
+        AwsComputationalResource comp1 = AwsComputationalResource.builder()
+                .computationalName("comp1")
+                .computationalId("c1")
+                .status("created")
+                .uptime(new Date(100)).build();
         boolean inserted = infCompDAO.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp1);
         assertTrue(inserted);
 
-        UserComputationalResourceDTO comp2 = new UserComputationalResourceDTO()
-                .withComputationalName("comp2")
-                .withComputationalId("c2")
-                .withStatus("created")
-                .withUptime(new Date(100));
+        AwsComputationalResource comp2 = AwsComputationalResource.builder()
+                .computationalName("comp2")
+                .computationalId("c2")
+                .status("created")
+                .uptime(new Date(100)).build();
         boolean inserted2 = infCompDAO.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp2);
         assertTrue(inserted2);
 
@@ -203,14 +196,14 @@ public class ComputationalDAOTest extends DAOTestBase {
                 UserInstanceDTO.class);
         assertTrue(testInstance.isPresent());
 
-        List<UserComputationalResourceDTO> list = testInstance.get().getResources();
-        UserComputationalResourceDTO testComp1 = list.stream()
+        List<UserComputationalResource> list = testInstance.get().getResources();
+        UserComputationalResource testComp1 = list.stream()
                 .filter(r -> r.getComputationalName().equals(comp1.getComputationalName()))
                 .findFirst()
                 .orElse(null);
         assertNotNull(testComp1);
 
-        UserComputationalResourceDTO testComp2 = list.stream()
+        UserComputationalResource testComp2 = list.stream()
                 .filter(r -> r.getComputationalName().equals(comp2.getComputationalName()))
                 .findFirst()
                 .orElse(null);
@@ -231,27 +224,27 @@ public class ComputationalDAOTest extends DAOTestBase {
 
         infExpDAO.insertOne(USER_INSTANCES, instance1);
 
-        UserComputationalResourceDTO comp1 = new UserComputationalResourceDTO()
-                .withComputationalName("comp1")
-                .withComputationalId("c1")
-                .withStatus("created")
-                .withUptime(new Date(100));
+        AwsComputationalResource comp1 = AwsComputationalResource.builder()
+                .computationalName("comp1")
+                .computationalId("c1")
+                .status("created")
+                .uptime(new Date(100)).build();
         boolean inserted = infCompDAO.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp1);
         assertTrue(inserted);
 
-        UserComputationalResourceDTO comp2 = new UserComputationalResourceDTO()
-                .withComputationalName("comp2")
-                .withComputationalId("c2")
-                .withStatus("created")
-                .withUptime(new Date(100));
+        AwsComputationalResource comp2 = AwsComputationalResource.builder()
+                .computationalName("comp2")
+                .computationalId("c2")
+                .status("created")
+                .uptime(new Date(100)).build();
         boolean inserted2 = infCompDAO.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp2);
         assertTrue(inserted2);
 
-        UserComputationalResourceDTO comp3 = new UserComputationalResourceDTO()
-                .withComputationalName("comp3")
-                .withComputationalId("c3")
-                .withStatus("terminated")
-                .withUptime(new Date(100));
+        AwsComputationalResource comp3 = AwsComputationalResource.builder()
+                .computationalName("comp3")
+                .computationalId("c3")
+                .status("terminated")
+                .uptime(new Date(100)).build();
         boolean inserted3 = infCompDAO.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp3);
         assertTrue(inserted3);
 
@@ -266,20 +259,20 @@ public class ComputationalDAOTest extends DAOTestBase {
                 UserInstanceDTO.class);
         assertTrue(testInstance.isPresent());
 
-        List<UserComputationalResourceDTO> list = testInstance.get().getResources();
-        UserComputationalResourceDTO testComp1 = list.stream()
+        List<UserComputationalResource> list = testInstance.get().getResources();
+        UserComputationalResource testComp1 = list.stream()
                 .filter(r -> r.getComputationalName().equals(comp1.getComputationalName()))
                 .findFirst()
                 .orElse(null);
         assertNotNull(testComp1);
 
-        UserComputationalResourceDTO testComp2 = list.stream()
+        UserComputationalResource testComp2 = list.stream()
                 .filter(r -> r.getComputationalName().equals(comp2.getComputationalName()))
                 .findFirst()
                 .orElse(null);
         assertNotNull(testComp2);
 
-        UserComputationalResourceDTO testComp3 = list.stream()
+        UserComputationalResource testComp3 = list.stream()
                 .filter(r -> r.getComputationalName().equals(comp3.getComputationalName()))
                 .findFirst()
                 .orElse(null);
@@ -301,21 +294,21 @@ public class ComputationalDAOTest extends DAOTestBase {
 
         infExpDAO.insertOne(USER_INSTANCES, instance1);
 
-        UserComputationalResourceDTO comp1 = new UserComputationalResourceDTO()
-                .withComputationalName("comp1")
-                .withComputationalId("c1")
-                .withStatus("created")
-                .withUptime(new Date(100))
-                .withVersion("version1");
+        AwsComputationalResource comp1 = AwsComputationalResource.builder()
+                .computationalName("comp1")
+                .computationalId("c1")
+                .status("created")
+                .uptime(new Date(100))
+                .version("version1").build();
         boolean inserted = infCompDAO.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp1);
         assertTrue(inserted);
 
-        UserComputationalResourceDTO comp2 = new UserComputationalResourceDTO()
-                .withComputationalName("comp2")
-                .withComputationalId("c2")
-                .withStatus("created")
-                .withUptime(new Date(100))
-                .withVersion("version2");
+        AwsComputationalResource comp2 = AwsComputationalResource.builder()
+                .computationalName("comp2")
+                .computationalId("c2")
+                .status("created")
+                .uptime(new Date(100))
+                .version("version2").build();
         boolean inserted2 = infCompDAO.addComputational(instance1.getUser(), instance1.getExploratoryName(), comp2);
         assertTrue(inserted2);
 
@@ -334,8 +327,8 @@ public class ComputationalDAOTest extends DAOTestBase {
                 UserInstanceDTO.class);
         assertTrue(testInstance.isPresent());
 
-        List<UserComputationalResourceDTO> list = testInstance.get().getResources();
-        UserComputationalResourceDTO testComp2 = list.stream()
+        List<UserComputationalResource> list = testInstance.get().getResources();
+        UserComputationalResource testComp2 = list.stream()
                 .filter(r -> r.getComputationalName().equals(comp2.getComputationalName()))
                 .findFirst()
                 .orElse(null);
@@ -344,16 +337,18 @@ public class ComputationalDAOTest extends DAOTestBase {
         assertEquals(status.getComputationalId(), testComp2.getComputationalId());
         assertEquals(status.getStatus(), testComp2.getStatus());
         assertEquals(status.getUptime(), testComp2.getUptime());
-        
+
         testComp2 = infCompDAO.fetchComputationalFields(instance1.getUser(), instance1.getExploratoryName(), comp2.getComputationalName());
         assertNotNull(testComp2);
         assertEquals(status.getComputationalId(), testComp2.getComputationalId());
         assertEquals(comp2.getComputationalName(), testComp2.getComputationalName());
-        assertEquals(comp2.getMasterShape(), testComp2.getMasterShape());
-        assertEquals(comp2.getSlaveNumber(), testComp2.getSlaveShape());
-        assertEquals(comp2.getSlaveShape(), testComp2.getSlaveShape());
+
         assertEquals(status.getStatus(), testComp2.getStatus());
         assertEquals(status.getUptime(), testComp2.getUptime());
-        assertEquals(comp2.getVersion(), testComp2.getVersion());
+
+//        assertEquals(comp2.getVersion(), testComp2.getVersion());
+//        assertEquals(comp2.getMasterShape(), testComp2.getMasterShape());
+//        assertEquals(comp2.getSlaveNumber(), testComp2.getSlaveShape());
+//        assertEquals(comp2.getSlaveShape(), testComp2.getSlaveShape());
     }
 }

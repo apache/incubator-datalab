@@ -144,7 +144,7 @@ server:
       trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 userInfoPersistenceEnabled: true
-awsUserIdentificationEnabled: true
+awsUserIdentificationEnabled: false
 
 logging:
   level: INFO

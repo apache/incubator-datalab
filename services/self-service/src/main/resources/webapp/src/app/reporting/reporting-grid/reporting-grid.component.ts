@@ -19,6 +19,8 @@ limitations under the License.
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ReportingConfigModel } from '../reporting-data.model';
 
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
+
 @Component({
   selector: 'dlab-reporting-grid',
   templateUrl: './reporting-grid.component.html',
@@ -26,6 +28,7 @@ import { ReportingConfigModel } from '../reporting-data.model';
               '../../resources/resources-grid/resources-grid.component.css']
 })
 export class ReportingGridComponent implements OnInit {
+  readonly DICTIONARY = DICTIONARY;
 
   filterConfiguration: ReportingConfigModel;
   filteredReportData: ReportingConfigModel = new ReportingConfigModel([], [], [], [], '', '', '');
@@ -41,7 +44,7 @@ export class ReportingGridComponent implements OnInit {
     { title: 'User', name: 'user', className: 'th_user', filtering: true, role: 'admin'},
     { title: 'Environment name', name: 'dlab_id', className: 'env_name', filtering: true },
     { title: 'Resource Type', name: 'resource_type', className: 'th_type', filtering: true },
-    { title: 'Shape', name: 'shape', className: 'th_shape', filtering: true },
+    { title: DICTIONARY.instance_size, name: 'shape', className: 'th_shape', filtering: true },
     { title: 'Service', name: 'product', className: 'service', filtering: true },
     { title: 'Service Charges', name: 'charges', className: 'th_charges', filtering: false }
   ];

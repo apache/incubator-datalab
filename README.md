@@ -169,7 +169,8 @@ SSN node structure of log directory is as follows:
          └───dlab
              └───log
                  ├───edge
-                 ├───emr
+                 ├───dataengine
+                 ├───dataengine-service
                  ├───notebook
                  └───ssn
 
@@ -178,7 +179,7 @@ These directories contain the log files for each template and for DLab back-end 
 -   provisioning.log – Provisioning Service log file;
 -   security.log – Security Service log file;
 -   selfservice.log – Self-Service log file;
--   edge, notebook, emr – contains logs of Python scripts.
+-   edge, notebook, dataengine, dataengine-service – contains logs of Python scripts.
 
 ## Self-Service Node <a name="Self_Service_Node"></a>
 
@@ -759,24 +760,28 @@ docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --fil
 ----------------
 # Development <a name="Development"></a>
 
-DLab services could be ran in development mode. This mode emulates real work an does not create any EC2 instances in Amazon Cloud.
+DLab services could be ran in development mode. This mode emulates real work an does not create any resources on cloud provider environment.
 
 ## Folder structure <a name="Folder_structure"></a>
 
     dlab
     ├───infrastructure-provisioning
     └───services
+        ├───billing
         ├───common
         ├───provisioning-service
         ├───security-service
-        └───self-service
+        ├───self-service
+        └───settings
 
 -   infrastructure-provisioning – code of infrastructure-provisioning module;
--   services – code of back-end services;
--   common – reusable code for all services;
--   provisioning-service – Provisioning Service;
--   security-service – Security Service;
--   self-service – Self-Service and UI;
+-   services – back-end services source code;
+    -   billing – billing module for AWS cloud provider only;
+    -   common – reusable code for all services;
+    -   provisioning-service – Provisioning Service;
+    -   security-service – Security Service;
+    -   self-service – Self-Service and UI;
+    -   settings – global settings that are stored in mongo database in development mode;
 
 ## Pre-requisites <a name="Pre-requisites"></a>
 
@@ -811,38 +816,43 @@ Common is a module, which wraps set of reusable code over services. Commonly reu
 
 Self-Service provides REST based API’s. It tightly interacts with Provisioning Service and Security Service and actually delegates most of user\`s requests for execution.
 
-| API name                        | Supported actions                                   | Description            |
-|---------------------------------|-----------------------------------------------------|------------------------|
-| SecurityResource                | Login<br>Authorize<br>Logout                        | User’s authentication. |
-| EdgeResource                    | Start<br>Stop<br>Status                             | Manage EDGE node.      |
-| KeyUploaderResource             | Check key<br>Upload key<br>Recover<br>Callback      | Used for Gateway/EDGE node public key upload and further storing of this information in Mongo DB. |
-| UserSettingsResource            | Get settings<br>Save settings                       | User’s preferences.    |
-| InfrastructureResource          | Get status of infrastructure<br>Updates the status of the resources | Used for obtaining Edge Node status, as well as for updating the statuses of provisioned resources. |
-| InfrastructureProvisionResource | Get user provisioning resources<br>Get computation resources templates<br>Get exploratory environment templates | Used for propagating the list of provisioned resources per user. |
-| ExploratoryResource             | Create<br>Status<br>Start<br>Stop<br>Terminate      | Used for exploratory environment management. |
-| ComputationalResource           | Limits<br>Create<br>Status<br>Terminate             | Used for computational resources management. |
+| API class name                  | Supported actions                                     | Description            |
+|---------------------------------|-------------------------------------------------------|------------------------|
 | BillingResource                 | Get billing invoice<br>Export billing invoice in CSV file  | Provides billing information. |
+| ComputationalResource           | Configuration limits<br>Create<br>Terminate           | Used for computational resources management. |
+| EdgeResource                    | Start<br>Stop<br>Status                               | Manage EDGE node.      |
+| ExploratoryResource             | Create<br>Status<br>Start<br>Stop<br>Terminate        | Used for exploratory environment management. |
+| GitCredsResource                | Update credentials<br>Get credentials                 | Used for exploratory environment management. |
+| InfrastructureInfoResource      | Get info of environment<br>Get status of environment  | Used for obtaining statuses and additional information about provisioned resources |
+| InfrastructureTemplatesResource | Get computation resources templates<br>Get exploratory environment templates | Used for getting exploratory/computational templates |
+| KeyUploaderResource             | Check key<br>Upload key<br>Recover                    | Used for Gateway/EDGE node public key upload and further storing of this information in Mongo DB. |
+| LibExploratoryResource          | Lib groups<br>Lib list<br>Lib search<br>Lib install   | User’s authentication. |
+| SecurityResource                | Login<br>Authorize<br>Logout                          | User’s authentication. |
+| UserSettingsResource            | Get settings<br>Save settings                         | User’s preferences.    |
+
+Some class names may have endings like Aws or Azure(e.g. ComputationalResourceAws, ComputationalResourceAzure, etc...). It means that it's cloud specific class with a proper API
+
 
 #### Provisioning Service
 
-The Provisioning Service is key, REST based service for management of AWS/Docker based environment resources like computational, exploratory,
+The Provisioning Service is key, REST based service for management of cloud specific or Docker based environment resources like computational, exploratory,
 edge, etc.
 
-| API name               | Supported actions                    | Description                                                                  |
-|------------------------|--------------------------------------|------------------------------------------------------------------------------|
-| DockerResource         | Get Docker image<br>Run Docker image | Requests and describes Docker images and templates.                          |
-| EdgeResource           | Create<br>Start<br>Stop              | Provides Docker actions for EDGE node management.                            |
-| ExploratoryResource    | Create<br>Start<br>Stop<br>Terminate | Provides Docker actions for working with exploratory environment management. |
-| ComputationalResource  | Create<br>Terminate                  | Docker actions for computational resources management.                       |
-| InfrastructureResource | Status                               | Docker action for obtaining status of DLab infrastructure instances.         |
+| API class name            | Supported actions                       | Description                                                                  |
+|---------------------------|-----------------------------------------|------------------------------------------------------------------------------|
+| ComputationalResource     | Create<br>Terminate                     | Docker actions for computational resources management.                       |
+| DockerResource            | Get Docker image<br>Run Docker image    | Requests and describes Docker images and templates.                          |
+| EdgeResource              | Create<br>Start<br>Stop                 | Provides Docker actions for EDGE node management.                            |
+| ExploratoryResource       | Create<br>Start<br>Stop<br>Terminate    | Provides Docker actions for working with exploratory environment management. |
+| GitExploratoryResource    | Update git greds                        | Docker actions to provision git credentials to running notebooks             |
+| InfrastructureResource    | Status                                  | Docker action for obtaining status of DLab infrastructure instances.         |
+| LibExploratoryResource    | Lib list<br>Install lib                 | Docker actions to install libraries on netobboks                             |
+
+Some class names may have endings like Aws or Azure(e.g. ComputationalResourceAws, ComputationalResourceAzure, etc...). It means that it's cloud specific class with a proper API
 
 #### Security service
 
-Security service is REST based service for user authentication over LDAP and in AWS.
-
-| API name           | Supported actions                                     | Description                              |
-|--------------------|-------------------------------------------------------|------------------------------------------|
-| LdapAuthentication | Gateway node (or an Edge node) is an AWS EC2 Instance | Used for authentication in LDAP and AWS. |
+Security service is REST based service for user authentication against LDAP or LDAP + AWS depending on module configuration and cloud provider. LDAP only provides with authentication end point that allows to verify authenticity of users against LDAP instance. If you use AWS cloud provider LDAP + AWS authentication could be useful as it allows to combine LDAP authentication and verification if user has any role in AWS account
 
 ## Front-end <a name="Front_end"></a>
 
@@ -890,10 +900,10 @@ db.createUser(
 )
 ```
 
-  * Load collections form file dlab/services/mongo\_settings.json
+  * Load collections form file dlab/services/settings/(aws|azure)/mongo_settings.json
 
 ```
-mongoimport -u admin -p <password> -d <database_name> –c settings mongo_settings.json
+mongoimport -u admin -p <password> -d <database_name> -c settings mongo_settings.json
 ```
 
 ### Setting up environment options
@@ -913,7 +923,7 @@ mongo:
 *Unix*
 
 ```
-ln -s ssn.yml ../../infrastructure-provisioning/src/ssn/templates/ssn.yml\
+ln -s ssn.yml ../../infrastructure-provisioning/src/ssn/templates/ssn.yml
 ```
 
 *Windows*
@@ -974,7 +984,7 @@ Please find below set of commands to create certificate, depending on OS.
 Pay attention that the last command has to be executed with administrative permissions.
 ```
 keytool -genkeypair -alias dlab -keyalg RSA -storepass KEYSTORE_PASSWORD -keypass KEYSTORE_PASSWORD -keystore ~/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"
-keytool -exportcert -alias dlab -storepass KEYSTORE_PASSWORD -file ~/keys/dlab.crt -keystore ~/keys/dlab. keystore.jks
+keytool -exportcert -alias dlab -storepass KEYSTORE_PASSWORD -file ~/keys/dlab.crt -keystore ~/keys/dlab.keystore.jks
 sudo keytool -importcert -trustcacerts -alias dlab -file ~/keys/dlab.crt -noprompt -storepass changeit -keystore %JRE_HOME%/lib/security/cacerts
 ```
 #### Create Windows server certificate
@@ -1117,7 +1127,7 @@ Using this Docker file, all required scripts and files will be copied to Docker 
 
 -   Docker command for building SSN:
 ```
-docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_os_family=debian" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "aws_ssn_instance_size=t2.medium" -e "aws_region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" -e "conf_tag_resource_id=dlab" docker.dlab-ssn --action create ;
+docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_os_family=debian" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "ssn_instance_size=t2.medium" -e "region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" -e "conf_tag_resource_id=dlab" docker.dlab-ssn --action create ;
 ```
 
 -   Docker executes *entrypoint.py* script with action *create*. *Entrypoint.py* will set environment variables, which were provided from Docker and execute *general/api/create.py* script:
@@ -1164,7 +1174,7 @@ docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/we
 SSN:
 
 ```
-docker run -i -v <key_path><key_name>.pem:/root/keys/<key_name>.pem -e "aws_region=<region>" -e "conf_service_base_name=<Infrastructure_Tag>" -e  “conf_resource=ssn" -e "aws_access_key=<Access_Key_ID>" -e "aws_secret_access_key=<Secret_Access_Key>" docker.dlab-ssn --action <action>
+docker run -i -v <key_path><key_name>.pem:/root/keys/<key_name>.pem -e "region=<region>" -e "conf_service_base_name=<Infrastructure_Tag>" -e  “conf_resource=ssn" -e "aws_access_key=<Access_Key_ID>" -e "aws_secret_access_key=<Secret_Access_Key>" docker.dlab-ssn --action <action>
 ```
 All parameters are listed in section "Self-ServiceNode" chapter.
 

@@ -1,0 +1,8 @@
+{
+    "conf_resource": "edge",
+    "azure_resource_group_name": "ARGN",
+    "request_id":"RID",
+    "conf_service_base_name":"SBN",
+    "edge_user_name":"NUN",
+    "azure_region": "AZR"
+}

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.epam.dlab.cloud.CloudProvider;
 import com.google.common.io.ByteStreams;
 import org.apache.commons.codec.Charsets;
 import org.slf4j.Logger;
@@ -61,10 +62,13 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private CommandParserMock parser = new CommandParserMock();
     private String responseFileName;
 
-    public CommandExecutorMockAsync(String user, String uuid, String command) {
+    private CloudProvider cloudProvider;
+
+    public CommandExecutorMockAsync(String user, String uuid, String command, CloudProvider cloudProvider) {
     	this.user = user;
     	this.uuid = uuid;
     	this.command = command;
+    	this.cloudProvider = cloudProvider;
 	}
 
 	@Override
@@ -136,7 +140,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 				break;
 			case LIB_LIST:
 				action(user, action);
-				copyFile("mock_response/notebook_lib_list_pkgs.json", "notebook_lib_list_pkgs.json", parser.getResponsePath());
+				copyFile("mock_response/aws/notebook_lib_list_pkgs.json", "notebook_lib_list_pkgs.json", parser.getResponsePath());
 				break;
 			case LIB_INSTALL:
 				parser.getVariables().put("lib_install", getResponseLibInstall(true));
@@ -179,47 +183,46 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	File file = new File(dir);
     	return (file.exists() && file.isDirectory());
     }
-    
+
     /** Find and return the directory "infrastructure-provisioning/src".
      * @throws FileNotFoundException
      */
     private String findTemplatesDir() throws FileNotFoundException {
     	String dir = System.getProperty("docker.dir");
-    	
+
     	if (dir != null) {
     		dir = getAbsolutePath(dir);
         	if (dirExists(dir)) {
         		return dir;
         	}
         	throw new FileNotFoundException("Directory \"" + dir + "\" not found. " +
-        			"Please set JVM argument -Ddocker.dir to the \".../infrastructure-provisioning/src\" directory");
+        			"Please set JVM argument -Ddocker.dir to the " +
+					"\".../infrastructure-provisioning/src/general/files/" + cloudProvider.getName() + "\" directory");
     	}
     	dir = getAbsolutePath(
     			".",
-    			"../../infrastructure-provisioning/src");
+    			"../../infrastructure-provisioning/src/general/files/" + cloudProvider.getName());
     	if (dirExists(dir)) {
     		return dir;
     	}
     	dir = getAbsolutePath(
     			ServiceUtils.getUserDir(),
-    			"../../infrastructure-provisioning/src");
+    			"../../infrastructure-provisioning/src/general/files/" + cloudProvider.getName());
     	if (dirExists(dir)) {
     		return dir;
     	}
     	throw new FileNotFoundException("Directory \"" + dir + "\" not found. " +
-    			"Please set the value docker.dir property to the \".../infrastructure-provisioning/src\" directory");
+    			"Please set the value docker.dir property to the " +
+				"\".../infrastructure-provisioning/src/general/files/" + cloudProvider.getName() + "\" directory");
     }
-    
+
     /** Describe action.
-     * @throws FileNotFoundException 
+     * @throws FileNotFoundException
      */
     private void describe() throws DlabException {
     	String templateFileName;
 		try {
-			templateFileName = getAbsolutePath(
-					findTemplatesDir(),
-					parser.getImageType(),
-					"description.json");
+			templateFileName = getAbsolutePath(findTemplatesDir(),parser.getImageType() + "_description.json");
 		} catch (FileNotFoundException e) {
 			throw new DlabException("Cannot describe image " + parser.getImageType() + ". " + e.getLocalizedMessage(), e);
 		}
@@ -241,20 +244,20 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			throw new DlabException("Can't create response file " + responseFileName + ": " + e.getLocalizedMessage(), e);
 		}
     }
-    
+
     /** Perform docker action.
      * @param user the name of user.
      * @param action docker action.
      */
     private void action(String user, DockerAction action) {
     	String resourceType = parser.getResourceType();
-		String prefixFileName = (resourceType.equals("edge") || resourceType.equals("emr") ?
+		String prefixFileName = (resourceType.equals("edge") || resourceType.equals("dataengine-service") ?
     			resourceType : "notebook") + "_";
-    	String templateFileName = "mock_response/" + prefixFileName + action.toString() + ".json";
+    	String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + prefixFileName + action.toString() + ".json";
     	responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" + parser.getRequestId() + ".json");
     	setResponse(templateFileName, responseFileName);
     }
-    
+
     /** Return the section of resource statuses for docker action status.
      */
     private String getResponseStatus(boolean noUpdate) {
@@ -269,7 +272,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		} catch (IOException e) {
 			throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
 		}
-    	
+
     	if (resourceList.getHostList() !=  null) {
     		for (EnvResource host : resourceList.getHostList()) {
     			host.setStatus(UserInstanceStatus.RUNNING.toString());
@@ -280,7 +283,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     			host.setStatus(UserInstanceStatus.RUNNING.toString());
     		}
     	}
-    	
+
     	try {
 			return MAPPER.writeValueAsString(resourceList);
 		} catch (JsonProcessingException e) {
@@ -299,7 +302,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		} catch (IOException e) {
 			throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
 		}
-    	
+
     	for (LibInstallDTO lib : list) {
 			if (isSucces) {
 				lib.setStatus(LibStatus.INSTALLED.toString());
@@ -308,7 +311,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 				lib.setErrorMessage("Mock error message");
 			}
 		}
-    	
+
     	try {
 			return MAPPER.writeValueAsString(list);
 		} catch (JsonProcessingException e) {
@@ -329,12 +332,12 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		} catch (IOException e) {
 			throw new DlabException("Can't read resource " + sourceFileName + ": " + e.getLocalizedMessage(), e);
 		}
-    	
+
     	for (String key : parser.getVariables().keySet()) {
     		String value = parser.getVariables().get(key);
     		content = content.replace("${" + key.toUpperCase() + "}", value);
     	}
-    	
+
     	File fileResponse = new File(responseFileName);
     	try (BufferedWriter out = new BufferedWriter(new FileWriter(fileResponse))) {
         	Files.createParentDirs(fileResponse);

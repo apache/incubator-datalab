@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.epam.dlab.dto.UserEnvironmentResources;
 import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -62,19 +63,15 @@ public class EnvResourceDTOTest {
     	assertEquals(r1.getHostList().get(2).getId(), "3");
     	assertEquals(r1.getClusterList().get(1).getId(), "11");
     	
-    	EnvResourceDTO rs1 = new EnvResourceDTO()
-    			.withAwsRegion("region1")
-    			.withAwsIamUser("edgeUserName1")
+    	UserEnvironmentResources rs1 = new UserEnvironmentResources()
     			.withResourceList(r1);
     	assertEquals(rs1.getResourceList().getHostList().get(0).getId(), "1");
     	assertEquals(rs1.getResourceList().getClusterList().get(0).getId(), "10");
     	
     	String json1 = getJsonString(rs1);
     	
-    	EnvResourceDTO rs2 = getJsonObject(json1, EnvResourceDTO.class);
+    	UserEnvironmentResources rs2 = getJsonObject(json1, UserEnvironmentResources.class);
     	String json2 = getJsonString(rs2);
-    	assertEquals(rs1.getAwsRegion(), rs2.getAwsRegion());
-    	assertEquals(rs1.getAwsIamUser(), rs2.getAwsIamUser());
     	assertEquals(rs1.getResourceList().getHostList().size(), rs2.getResourceList().getHostList().size());
     	assertEquals(rs1.getResourceList().getClusterList().size(), rs2.getResourceList().getClusterList().size());
     	

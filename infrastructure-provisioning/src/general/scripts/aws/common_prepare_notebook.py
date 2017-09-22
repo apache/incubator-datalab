@@ -47,7 +47,8 @@ if __name__ == "__main__":
     if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print 'ERROR: Edge node is unavailable! Aborting...'
-        put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'])
+        ssn_hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag', os.environ['conf_service_base_name'] + '-ssn')
+        put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'], ssn_hostname)
         append_result("Edge node is unavailable")
         sys.exit(1)
     print 'Generating infrastructure names and tags'
@@ -66,7 +67,7 @@ if __name__ == "__main__":
     else:
         notebook_config['primary_disk_size'] = '12'
     if os.environ['application'] == 'zeppelin':
-        if os.environ['notebook_multiple_emrs'] == 'true':
+        if os.environ['notebook_multiple_clusters'] == 'true':
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
                 'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
         else:

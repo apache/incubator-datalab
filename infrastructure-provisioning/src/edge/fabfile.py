@@ -38,7 +38,7 @@ def status():
         local("~/scripts/{}.py".format('edge_status'))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed preparing SSN node.", str(err))
+        append_result("Failed obtaining EDGE status.", str(err))
         sys.exit(1)
 
 

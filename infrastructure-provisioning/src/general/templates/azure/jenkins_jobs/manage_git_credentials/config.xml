@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<project>
+  <actions/>
+  <description>Manage user git credentials on notebook server.</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>Service_base_name</name>
+          <description>unique infrastructure value that previously was used when ssn being provisioned</description>
+          <defaultValue>SBN</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Resource_group_name</name>
+          <description>Azure resource group name</description>
+          <defaultValue>ARGN</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Notebook_Name</name>
+          <description>name of the notebook to start</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Username</name>
+          <description>name of the data scientist user</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SSH_Key_Name</name>
+          <description>name of the uploaded ssh key file (without ".pem")</description>
+          <defaultValue>AKEY</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>notebook_app</name>
+          <description>notebook application to be deployed</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>jupyter</string>
+              <string>rstudio</string>
+              <string>zeppelin</string>
+              <string>tensor</string>
+              <string>deeplearning</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Action</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>git_creds</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>git_creds</name>
+          <description>
+            List of git credentials in json format. For example:
+            [{
+              "username": "Test User",
+              "email": "test@example.com",
+              "hostname": "github.com",
+              "login": "testlogin",
+              "password": "testpassword"
+            }, ...]
+            Fileds "username" and "email" used for commits (display Author).
+            Leave "hostname" field empty to apply login/password by default for all services
+          </description>
+          <defaultValue>[{"username": "", "email": "", "hostname": "", "login": "", "password": ""}]</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>
+        rand=`openssl rand -hex 10`; creds=$git_creds;
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/manage_git_credentials/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/SGI/&apos;${SSN_SG_ids}&apos;/g&apos; | sed &quot;s/GIT/${creds}/g&quot; | sudo docker run -i -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/notebook:/logs/notebook  docker.dlab-${notebook_app} --action $Action
+      </command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

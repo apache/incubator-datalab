@@ -18,11 +18,11 @@ limitations under the License.
 
 <modal-dialog #bindDialog modalClass="modal-lg">
   <modal-header>
-    <h4 class="modal-title">Create computational resource</h4>
+    <h4 class="modal-title">Add computational resources</h4>
   </modal-header>
   <modal-content>
     <form [formGroup]="createComputationalResourceForm" novalidate (submit)="createComputationalResource($event, createComputationalResourceForm.value, shapes.master_shape, shapes.slave_shape)">
-      <div class="form-group row">
+      <div class="form-group row" *ngIf="PROVIDER === 'aws'">
         <div  class="col-xs-4">
           <label class="control-label">Select template</label>
         </div>
@@ -57,7 +57,7 @@ limitations under the License.
       </div>
       <div class="form-group row">
         <div  class="col-xs-4">
-          <label class="control-label">Master Instance shape</label>
+          <label class="control-label">{{ DICTIONARY.data_engine_master_instance_size}}</label>
         </div>
         <div class="col-xs-8">
           <dropdown-list #masterShapesList (selectedItem)="onUpdate($event)"></dropdown-list>
@@ -65,18 +65,18 @@ limitations under the License.
       </div>
       <div class="row">
         <div  class="col-xs-4">
-          <label class="control-label">Slave Instance shape</label>
+          <label class="control-label">{{ DICTIONARY.data_engine_slave_instance_size }}</label>
         </div>
         <div class="col-xs-8">
           <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
         </div>
       </div>
-      <div class="checkbox-group row">
+      <div class="checkbox-group row" *ngIf="PROVIDER === 'aws'">
         <label>
           <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" /> Spot Instance
         </label>
-        <div class="spot-details" [ngClass]="{ show: spotInstancesSelect.nativeElement['checked'] }">
-          <div *ngIf="spotInstancesSelect.nativeElement['checked']">
+        <div class="spot-details" [ngClass]="{ show: spotInstancesSelect?.nativeElement['checked'] }">
+          <div *ngIf="spotInstancesSelect?.nativeElement['checked']">
             <div class="col-xs-4">
               <label class="control-label">Your bid for spot instance, %</label>
             </div>
