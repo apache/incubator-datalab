@@ -100,9 +100,6 @@ The following diagram demonstrates high-level physical architecture of DLab in A
 
 ![Physical architecture](doc/physical_architecture.png)
 
-and in Azure
-
-...
 
 ## Main components
 
@@ -141,7 +138,7 @@ Apache Spark is also installed for each of the analytical tools above.
 
 After deploying Notebook node, user can create one of the cluster for it:
 -   Data engine - Spark standalone cluster
--   Data engine service - cloud managed cluster platform (EMR for AWS, HDnsight for Azure)
+-   Data engine service - cloud managed cluster platform (EMR for AWS)
 That simplifies running big data frameworks, such as Apache Hadoop and Apache Spark to process and analyze vast amounts of data. Adding cluster is not mandatory and is only needed in case additional computational resources are required for job execution.
 ----------------------
 # DLab Deployment <a name="DLab_Deployment"></a>
