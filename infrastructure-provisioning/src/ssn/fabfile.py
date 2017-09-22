@@ -40,12 +40,12 @@ def run():
         append_result("Failed preparing SSN node.", str(err))
         sys.exit(1)
 
-    try:
-        local("~/scripts/{}.py".format('ssn_configure'))
-    except Exception as err:
-        traceback.print_exc()
-        append_result("Failed configuring SSN node.", str(err))
-        sys.exit(1)
+    # try:
+    #     local("~/scripts/{}.py".format('ssn_configure'))
+    # except Exception as err:
+    #     traceback.print_exc()
+    #     append_result("Failed configuring SSN node.", str(err))
+    #     sys.exit(1)
 
 
 def terminate():
