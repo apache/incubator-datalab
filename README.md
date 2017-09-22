@@ -118,6 +118,8 @@ Creation of self-service node – is the first step for deploying DLab. SSN is a
 -   Docker – used for building DLab Docker containers, which will be used for provisioning other components.
 -   Jenkins – is an alternative to Web UI. It is accessible by the following link: http[s]://SSN\_Public\_IP\_or\_Public\_DNS/jenkins
 
+Elastic(Static) IP address is assigned to an SSN Node, so you are free to stop|start it and and SSN node's IP address won’t change.
+
 ## Edge node
 
 Setting up Edge node is the first step that user is asked to do once logged into DLab. This node is used as proxy server and SSH gateway for the user. Through Edge node users can access Notebook via HTTP and SSH. Edge Node has a Squid HTTP web proxy pre-installed.
@@ -289,6 +291,7 @@ After SSN node deployment following AWS resources will be created:
 -   Security Group for SSN node (if it was specified, script will attach the provided one)
 -   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
 -   S3 bucket – its name will be \<service\_base\_name\>-ssn. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
+-   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared
 
 #### In Azure cloud
 
@@ -330,13 +333,14 @@ List of parameters for SSN node deployment:
 
 After SSN node deployment following Azure resources will be created:
 
+-   Resource group where all DLAb resources will be provisioned
 -   SSN Virtual machine
--   Public IP address dor SSN virtual machine
+-   Static public IP address dor SSN virtual machine
 -   Network interface for SSN node
 -   Security Group for SSN node (if it was specified, script will attach the provided one)
 -   Virtual network and Subnet (if they have not been specified) for SSN and EDGE nodes
 -   Storage account and blob container for necessary further dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
-
+-   Storage account and blob container for collaboration between Dlab users
 
 ### Terminate
 
@@ -379,22 +383,26 @@ List of parameters for SSN node termination:
 | azure\_auth\_path          | Full path to auth json file                                                        |
 | action                     | terminate                                                                          |
 
+
 ## Edge Node <a name="Edge_Node"></a>
 
-Gateway node (or an Edge node) is an AWS EC2 Instance provisioned in a public subnet. It serves as an entry point for accessing user’s personal analytical environment. It is created by an end-user, whose public key will be uploaded there. Only via Edge node, DLab user can access such application resources as notebook servers and EMR clusters. Also, Edge Node is used to setup SOCKS proxy to access notebook servers via Web UI and SSH. Elastic IP address is assigned to an Edge Node. In case Edge node instance has been removed by mistake, there is an option to re-create it and Edge node IP address won’t chang.
+Gateway node (or an Edge node) is an instance(virtual machine) provisioned in a public subnet. It serves as an entry point for accessing user’s personal analytical environment. It is created by an end-user, whose public key will be uploaded there. Only via Edge node, DLab user can access such application resources as notebook servers and dataengine clusters. Also, Edge Node is used to setup SOCKS proxy to access notebook servers via Web UI and SSH. Elastic(Static) IP address is assigned to an Edge Node. In case Edge node instance has been removed by mistake, there is an option to re-create it and Edge node IP address won’t change.
 
 ### Create
 
-In order to create Edge node using DLab Web UI – login and, click on the button “Upload”. Choose user’s SSH public key and after that click on the button “Create”. Edge node will be deployed and corresponding EC2 instance will be started.
+In order to create Edge node using DLab Web UI – login and, click on the button “Upload”. Choose user’s SSH public key and after that click on the button “Create”. Edge node will be deployed and corresponding instance (virtual machine) will be started.
+
+#### In Amazon
 
 The following AWS resources will be created:
 -   Edge EC2 instance
--   S3 user bucket
+-   Elastic IP address for Edge EC2 instance
+-   User's S3 bucket
 -   Security Group for user's Edge instance
 -   Security Group for all further user's Notebook instances
 -   IAM Roles and Instance Profiles for user's Edge instance
 -   IAM Roles and Instance Profiles all further user's Notebook instances
--   Private subnet. All further nodes (Notebooks, EMR clusters) will be in different subnet than SSN.
+-   User private subnet. All further nodes (Notebooks, EMR clusters) will be provisioned in different subnet than SSN.
 
 List of parameters for Edge node creation:
 
@@ -409,14 +417,44 @@ List of parameters for Edge node creation:
 | aws\_region                    | AWS region where infrastructure was deployed                                      |
 | aws\_security\_groups\_ids     | One or more id’s of the SSN instance security group                               |
 | aws\_subnet\_id                | ID of the AWS public subnet where Edge will be deployed                           |
-| aws\_iam\_user                 | Name of AWS IAM user                                                              |
 | aws\_private\_subnet\_prefix   | Prefix of the private subnet                                                      |
 | conf\_tag\_resource\_id        | The name of tag for billing reports                                               |
+| action                         | create                                                                            |
+
+#### In Azure
+
+The following Azure resources will be created:
+-   Edge virtual machine
+-   Static public IP address dor Edge virtual machine
+-   Network interface for Edge node
+-   S3 user bucket
+-   Security Group for user's Edge instance
+-   Security Group for all further user's Notebook instances
+-   Security Groups for all further user's master nodes of data engine cluster
+-   Security Groups for all further user's slave nodes of data engine cluster
+-   User's private subnet. All further nodes (Notebooks, data engine clusters) will be provisioned in different subnet than SSN.
+-   User's storage account and blob container 
+
+List of parameters for Edge node creation:
+
+| Parameter                  | Description/Value                                                                     |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | edge                                                                              |
+| conf\_os\_family               | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name               | Name of the user                                                                  |
+| azure\_resource\_group\_name   | Name of the resource group where all DLAb resources are being provisioned         |
+| azure\_region                  | Azure region where infrastructure was deployed                                    |
+| azure\_vpc\_name               | Name of Azure Virtual network where all infrastructure is being deployed          |
+| azure\_subnet\_name            | NAme of the Azure public subnet where Edge will be deployed                       |
 | action                         | create                                                                            |
 
 ### Start/Stop <a name=""></a>
 
 To start/stop Edge node, click on the button which looks like a cycle on the top right corner, then click on the button which is located in “Action” field and in the drop-down menu click on the appropriate action.
+
+#### In Amazon
 
 List of parameters for Edge node starting/stopping:
 
@@ -428,6 +466,29 @@ List of parameters for Edge node starting/stopping:
 | aws\_region               | AWS region where infrastructure was deployed                 |
 | action                    | start/stop                                                   |
 
+#### In Azure
+
+List of parameters for Edge node starting:
+
+| Parameter                    | Description/Value                                                         |
+|------------------------------|---------------------------------------------------------------------------|
+| conf\_resource               | edge                                                                      |
+| conf\_service\_base\_name    | Unique infrastructure value, specified during SSN deployment              |
+| edge\_user\_name             | Name of the user                                                          |
+| azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned |
+| azure\_region                | Azure region where infrastructure was deployed                            |
+| action                       | start                                                                     |
+
+List of parameters for Edge node stopping:
+
+| Parameter                    | Description/Value                                                         |
+|------------------------------|---------------------------------------------------------------------------|
+| conf\_resource               | edge                                                                      |
+| conf\_service\_base\_name    | Unique infrastructure value, specified during SSN deployment              |
+| edge\_user\_name             | Name of the user                                                          |
+| azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned |
+| action                       | stop                                                                      |
+
 ### Recreate <a name=""></a>
 
 In case Edge node was damaged, or terminated manually, there is an option to re-create it.
@@ -435,6 +496,8 @@ In case Edge node was damaged, or terminated manually, there is an option to re-
 If Edge node was removed for some reason, to re-create it, click on the status button close to logged in users’s name (top right corner of the screen).Then click on gear icon in Actions column and choose “Recreate”.
 
 List of parameters for Edge node recreation:
+
+#### In Amazon
 
 | Parameter                  | Description/Value                                                                 |
 |----------------------------|-----------------------------------------------------------------------------------|
@@ -447,10 +510,24 @@ List of parameters for Edge node recreation:
 | aws\_region                | AWS region where infrastructure was deployed                                      |
 | aws\_security\_groups\_ids | ID of the SSN instance's AWS security group                                       |
 | aws\_subnet\_id            | ID of the AWS public subnet where Edge was deployed                               |
-| aws\_iam\_user             | Name of AWS IAM user                                                              |
 | edge\_elastic\_ip          | AWS Elastic IP address which was associated to Edge node                          |
 | conf\_tag\_resource\_id    | The name of tag for billing reports                                               |
 | action                     | Create                                                                            |
+
+#### In Azure
+
+| Parameter                    | Description/Value                                                                 |
+|------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource               | edge                                                                              |
+| conf\_os\_family             | Name of the Linux distributive family, which is supported by DLAB (Debian/RedHat) |
+| conf\_service\_base\_name    | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name              | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name             | Name of the user                                                                  |
+| azure\_vpc\_name             | NAme of Azure Virtual network where all infrastructure is being deployed          |
+| azure\_region                | Azure region where all infrastructure was deployed                                |
+| azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned         |
+| azure\_subnet\_name          | Name of the Azure public subnet where Edge was deployed                               |
+| action                       | Create                                                                            |
 
 ## Notebook node <a name="Notebook_node"></a>
 
