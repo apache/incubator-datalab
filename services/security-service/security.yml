@@ -144,7 +144,9 @@ server:
       trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 userInfoPersistenceEnabled: true
-awsUserIdentificationEnabled: false
+<#if CLOUD_TYPE == "aws">
+awsUserIdentificationEnabled: true
+</#if>
 
 logging:
   level: INFO
