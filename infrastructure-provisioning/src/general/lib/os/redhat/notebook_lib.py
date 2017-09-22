@@ -240,14 +240,12 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('/bin/bash /home/' + os_user + '/NVIDIA-Linux-x86_64-384.66.run -s')
             sudo('rm -f /home/' + os_user + '/NVIDIA-Linux-x86_64-384.66.run')
             # install cuda
-            sudo('wget https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64-rpm')
-            sudo('mv cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64-rpm cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64.rpm; rpm -i cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64.rpm')
-            sudo('yum clean all')
-            sudo('yum -y install cuda')
             sudo('python3.5 -m pip install --upgrade pip wheel numpy --no-cache-dir')
+            sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run')
+            sudo('sh /opt/cuda_8.0.44_linux-run --silent --toolkit')
             sudo('mv /usr/local/cuda-8.0 /opt/')
             sudo('ln -s /opt/cuda-8.0 /usr/local/cuda-8.0')
-            sudo('rm -rf /home/' + os_user + '/cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64.rpm')
+            sudo('rm -f /opt/cuda_8.0.44_linux-run')
             # install cuDNN
             cudnn = 'cudnn-8.0-linux-x64-v6.0.tgz'
             run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v6.0/{0} -O /tmp/{0}'.format(cudnn))
