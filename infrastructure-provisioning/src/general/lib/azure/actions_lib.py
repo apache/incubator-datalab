@@ -628,7 +628,7 @@ class AzureActions:
                 parameters = {}
             result = self.compute_client.virtual_machines.create_or_update(
                 resource_group_name, instance_name, parameters
-            )
+            ).wait()
             return result
         except Exception as err:
             logging.info(
