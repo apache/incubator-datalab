@@ -274,7 +274,7 @@ class AzureActions:
                         "services": {"blob": {"enabled": True}}
                     }
                 }
-            )
+            ).wait()
             return result
         except Exception as err:
             logging.info(
