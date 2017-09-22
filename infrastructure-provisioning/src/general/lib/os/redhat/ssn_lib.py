@@ -71,6 +71,7 @@ def ensure_jenkins(dlab_path):
             sudo('rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key')
             sudo('yum -y install java')
             sudo('yum -y install jenkins')
+            sudo('yum -y install policycoreutils-python')
             sudo('touch {}tmp/jenkins_ensured'.format(dlab_path))
         return True
     except:
