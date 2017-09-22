@@ -348,19 +348,39 @@ Example of command for terminating DLab environment:
 
 #### In Amazon
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key $Access_Key_ID --aws_secret_access_key $Secret_Access_Key --aws_region $Region --key_path /root/ --conf_key_name BDCC-DSS-POC.pem --conf_os_family $OS_family --conf_cloud_provider $Cloud_provider --action $Action
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key XXXXXXX --aws_secret_access_key XXXXXXXX --aws_region us-west-2 --key_path /root/ --conf_key_name Test --conf_os_family debian --conf_cloud_provider aws --action terminate
 ```
 List of parameters for SSN node termination:
 
-| Parameter           | Description/Value                                            |
-|---------------------|--------------------------------------------------------------|
-| infrastructure\_tag | Unique infrastructure value                                  |
-| access\_key\_id     | AWS user access key                                          |
-| secret\_access\_key | AWS user secret access key                                   |
-| region              | AWS region                                                   |
-| key\_path           | Path to admin key (without key name)                         |
-| key\_name           | Name of the uploaded SSH key file (without “.pem” extension) |
-| action              | create                                                       |
+| Parameter                  | Description/Value                                                                  |
+|----------------------------|------------------------------------------------------------------------------------|
+| conf\_service\_base\_name  | Unique infrastructure value                                                        |
+| aws\_access\_key           | AWS user access key                                                                |
+| aws\_secret\_access\_key   | AWS user secret access key                                                         |
+| aws\_region                | AWS region                                                                         |
+| key\_path                  | Path to admin key (without key name)                                               |
+| conf\_key\_name            | Name of the uploaded SSH key file (without “.pem” extension)                       |
+| conf\_os\_family           | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)  |
+| conf\_cloud\_provider      | Name of the cloud provider, which is supported by DLab (Azure)                     |
+| action                     | terminate                                                                          |
+
+#### In Azure
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --azure_vpc_name vpc-test --azure_resource_group_name resource-group-test --azure_region westus2 --key_path /root/ --conf_key_name Test --conf_os_family debian --conf_cloud_provider azure --azure_auth_path /dir/file.json --action terminate
+```
+List of parameters for SSN node termination:
+
+| Parameter            | Description/Value                                                                        |
+|----------------------|------------------------------------------------------------------------------------------|
+| conf\_service\_base\_name  | Unique infrastructure value                                                        |
+| azure\_region              | Azure region                                                                       |
+| conf\_os\_family           | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)  |
+| conf\_cloud\_provider      | Name of the cloud provider, which is supported by DLab (Azure)                     |
+| azure\_vpc\_name           | Name of the Virtual Network (VN)                                                   |
+| key\_path                  | Path to admin key (without key name)                                               |
+| conf\_key\_name            | Name of the uploaded SSH key file (without “.pem” extension)                       |
+| azure\_auth\_path          | Full path to auth json file                                                        |
+| action                     | terminate                                                                          |
 
 ## Edge Node <a name="Edge_Node"></a>
 
