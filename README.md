@@ -345,8 +345,10 @@ After SSN node deployment following Azure resources will be created:
 
 Terminating SSN node will also remove all nodes and components related to it. Basically, terminating Self-service node will terminate all DLab’s infrastructure.
 Example of command for terminating DLab environment:
+
+#### In Amazon
 ```
-/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --infrastructure_tag dlab_test --access_key_id XXXXXXX --secret_access_key XXXXXXXXXX --region us-west-2 --key_path /root/ --key_name Test --action terminate
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab-test --aws_access_key $Access_Key_ID --aws_secret_access_key $Secret_Access_Key --aws_region $Region --key_path /root/ --conf_key_name BDCC-DSS-POC.pem --conf_os_family $OS_family --conf_cloud_provider $Cloud_provider --action $Action
 ```
 List of parameters for SSN node termination:
 
