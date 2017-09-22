@@ -814,11 +814,13 @@ List of parameters for Notebook node to **manage git credentials**:
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | git\_creds                                                                        |
 
-## EMR cluster <a name="EMR_cluster"></a>
+## Dataengine-service cluster <a name="Dataengine-service cluster"></a>
 
-EMR cluster can be created if more computational resources are needed for executing analytical algorithms and models, triggered from analytical tools. Jobs execution will be scaled to a cluster mode increasing the performance and decreasing execution time.
+Dataengine-service cluster (EMR on AWS) can be created if more computational resources are needed for executing analytical algorithms and models, triggered from analytical tools. Jobs execution will be scaled to a cluster mode increasing the performance and decreasing execution time.
 
 ### Create
+
+#### In Amazon
 
 To create EMR cluster click on the “gear” button in Actions column, and click on “Deploy EMR”. Specify EMR version, fill in EMR name, specify number of instances and instance shapes. Click on the “Create” button.
 
@@ -844,6 +846,8 @@ List of parameters for EMR cluster creation:
 
 ### Terminate
 
+#### In Amazon
+
 In order to terminate EMR cluster, click on “x” button which is located in “Computational resources” field.
 
 List of parameters for EMR cluster termination:
@@ -858,6 +862,53 @@ List of parameters for EMR cluster termination:
 | notebook\_instance\_name  | Name of the Notebook instance which EMR is linked to         |
 | aws\_region               | AWS region where infrastructure was deployed                 |
 | action                    | Terminate                                                    |
+
+## Dataengine cluster <a name="Dataengine cluster"></a>
+
+### Create
+
+#### In Azure
+
+To create Spark standalone cluster click on the “gear” button in Actions column, and click on “Deploy EMR”. Specify EMR version, fill in EMR name, specify number of instances and instance shapes. Click on the “Create” button.
+
+List of parameters for EMR cluster creation:
+
+| Parameter                   | Description/Value                                            |
+|-----------------------------|--------------------------------------------------------------|
+| conf\_resource              | emr                                                          |
+| conf\_service\_base\_name   | Unique infrastructure value, specified during SSN deployment |
+| conf\_key\_name             | Name of the uploaded SSH key file (without ".pem")           |
+| emr\_timeout                | Value of timeout for EMR during build.                       |
+| emr\_instance\_count        | Amount of instance in cluster                                |
+| emr\_master\_instance\_type | Value for EMR EC2 master instance shape                      |
+| emr\_slave\_instance\_type  | Value for EMR EC2 slave instances shapes                     |
+| emr\_version                | Available versions of EMR (emr-5.2.0/emr-5.3.1/emr-5.6.0)              |
+| notebook\_instance\_name    | Name of the Notebook EMR will be linked to                   |
+| edge\_user\_name            | Value that previously was used when Edge being provisioned   |
+| aws\_region                 | AWS region where infrastructure was deployed                 |
+| conf\_tag\_resource\_id     | The name of tag for billing reports                          |
+| action                      | create                                                       |
+
+**Note:** If “Spot instances” is enabled, EMR Slave nodes will be created as EC2 Spot instances.
+
+### Terminate
+
+#### In Azure
+
+In order to terminate EMR cluster, click on “x” button which is located in “Computational resources” field.
+
+List of parameters for EMR cluster termination:
+
+| Parameter                 | Description/Value                                            |
+|---------------------------|--------------------------------------------------------------|
+| conf\_resource            | emr                                                          |
+| conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment |
+| conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")           |
+| edge\_user\_name          | Value that previously was used when Edge being provisioned   |
+| emr\_cluster\_name        | Name of the EMR to terminate                                 |
+| notebook\_instance\_name  | Name of the Notebook instance which EMR is linked to         |
+| aws\_region               | AWS region where infrastructure was deployed                 |
+| action                    | Termi
 
 ## Configuration files <a name="Configuration_files"></a>
 
