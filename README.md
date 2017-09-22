@@ -427,7 +427,6 @@ The following Azure resources will be created:
 -   Edge virtual machine
 -   Static public IP address dor Edge virtual machine
 -   Network interface for Edge node
--   S3 user bucket
 -   Security Group for user's Edge instance
 -   Security Group for all further user's Notebook instances
 -   Security Groups for all further user's master nodes of data engine cluster
@@ -526,18 +525,20 @@ List of parameters for Edge node recreation:
 | azure\_vpc\_name             | NAme of Azure Virtual network where all infrastructure is being deployed          |
 | azure\_region                | Azure region where all infrastructure was deployed                                |
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned         |
-| azure\_subnet\_name          | Name of the Azure public subnet where Edge was deployed                               |
+| azure\_subnet\_name          | Name of the Azure public subnet where Edge was deployed                           |
 | action                       | Create                                                                            |
 
 ## Notebook node <a name="Notebook_node"></a>
 
-Notebook node is an AWS EC2 instance, with preinstalled analytical software, needed dependencies and with pre-configured kernels and interpreters. It is the main part of personal analytical environment, which is setup by a data scientist. It can be Created, Stopped and Terminated. To support variety of analytical needs - Notebook node can be provisioned on any of AWS supported EC2 instance shape for your particular region. From analytical software, which is already pre-installed on a notebook node, end users can access (read/write) data stored on S3 buckets.
+Notebook node is an instance (virtual machine), with preinstalled analytical software, needed dependencies and with pre-configured kernels and interpreters. It is the main part of personal analytical environment, which is setup by a data scientist. It can be Created, Stopped and Terminated. To support variety of analytical needs - Notebook node can be provisioned on any of cloud supported instance shape for your particular region. From analytical software, which is already pre-installed on a notebook node, end users can access (read/write) data stored on buckets/containers.
 
 ### Create
 
 To create Notebook node, click on the “Create new” button. Then, in drop-down menu choose template type (jupyter/rstudio/zeppelin/tensor), enter notebook name and choose instance shape. After clicking the button “Create”, notebook node will be deployed and started.
 
 List of parameters for Notebook node creation:
+
+#### In Amazon
 
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
@@ -549,18 +550,37 @@ List of parameters for Notebook node creation:
 | aws\_notebook\_instance\_type | Value of the Notebook EC2 instance shape                                          |
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | aws\_security\_groups\_ids    | ID of the SSN instance's security group                                           |
-| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor)                   |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | conf\_tag\_resource\_id       | The name of tag for billing reports                                               |
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | Create                                                                            |
 
 **Note:** For format of git_creds see "Manage git credentials" lower.
 
+#### In Azure
+
+| Parameter                       | Description/Value                                                                 |
+|---------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                  | notebook                                                                          |
+| conf\_os\_family                | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name       | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                 | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name                | Value that previously was used when Edge being provisioned                        |
+| azure\_notebook\_instance\_size | Value of the Notebook virtual machine shape                                       |
+| azure\_region                   | Azure region where infrastructure was deployed                                    |
+| azure\_vpc\_name                | NAme of Azure Virtual network where all infrastructure is being deployed          |
+| azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
+| application                     | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| git\_creds                      | User git credentials in JSON format                                               |
+| action                          | Create                                                                            |
+
 ### Stop
 
 In order to stop Notebook node, click on the “gear” button in Actions column. From the drop-down menu click on “Stop” action.
 
 List of parameters for Notebook node stopping:
+
+#### In Amazon
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -572,11 +592,25 @@ List of parameters for Notebook node stopping:
 | aws\_region               | AWS region where infrastructure was deployed                 |
 | action                    | Stop                                                         |
 
+#### In Azure
+
+| Parameter                       | Description/Value                                                                 |
+|---------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                  | notebook                                                                          |
+| conf\_service\_base\_name       | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                 | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name                | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
+| azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
+| action                          | Stop                                                                              |
+
 ### Start
 
 In order to start Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Start” action.
 
 List of parameters for Notebook node start:
+
+#### In Amazon
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -591,11 +625,27 @@ List of parameters for Notebook node start:
 
 **Note:** For format of git_creds see "Manage git credentials" lower.
 
+#### In Azure
+
+| Parameter                       | Description/Value                                                                 |
+|---------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                  | notebook                                                                          |
+| conf\_service\_base\_name       | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                 | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name                | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
+| azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
+| azure\_region                   | Azure region where infrastructure was deployed                                    |
+| git\_creds                      | User git credentials in JSON format                                               |
+| action                          | start                                                                             |
+
 ### Terminate
 
 In order to terminate Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Terminate” action.
 
 List of parameters for Notebook node termination:
+
+#### In Amazon
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -607,11 +657,24 @@ List of parameters for Notebook node termination:
 | aws\_region               | AWS region where infrastructure was deployed                 |
 | action                    | terminate                                                         |
 
-**Note:** If terminate action is called, all connected EMR clusters will be removed.
+**Note:** If terminate action is called, all connected data engine clusters will be removed.
+
+#### In Azure
+
+| Parameter                       | Description/Value                                                                 |
+|---------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                  | notebook                                                                          |
+| conf\_service\_base\_name       | Unique infrastructure value, specified during SSN deployment                      |
+| edge\_user\_name                | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
+| azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
+| action                          | terminate                                                                         |
 
 ### List/Install additional libraries
 
 In order to list available libraries (OS/Python2/Python3/R/Others) on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
+
+#### In Amazon
 
 List of parameters for Notebook node to **get list** of available libraries:
 
@@ -672,9 +735,40 @@ List of parameters for Notebook node to **install** additional libraries:
 }
 ```
 
+#### In Azure
+
+List of parameters for Notebook node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
+| azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned         |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_list                                                                          |
+
+List of parameters for Notebook node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                    |
+|-------------------------------|--------------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                             |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                         |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                   |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                           |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                           |
+| azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned            |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
+| action                        | lib_install                                                                          |
+
 ### Manage git credentials
 
 In order to manage git credentials on Notebook node, click on the button “Git credentials”. Then in menu you can add or edit existing credentials.
+
+#### In Amazon
 
 List of parameters for Notebook node to **manage git credentials**:
 
@@ -706,6 +800,19 @@ List of parameters for Notebook node to **manage git credentials**:
 **Note:** Leave "hostname" field empty to apply login/password by default for all services.
 
 **Note:** Also your can use "Personal access tokens" against passwords.
+
+#### In Azure
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
+| azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned         |
+| git\_creds                    | User git credentials in JSON format                                               |
+| action                        | git\_creds                                                                        |
 
 ## EMR cluster <a name="EMR_cluster"></a>
 
