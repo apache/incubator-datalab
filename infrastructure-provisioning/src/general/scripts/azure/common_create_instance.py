@@ -23,6 +23,7 @@ import json
 from dlab.actions_lib import *
 from dlab.meta_lib import *
 import sys
+import time
 
 
 parser = argparse.ArgumentParser()
@@ -86,6 +87,7 @@ if __name__ == "__main__":
                                                network_interface_id, args.resource_group_name, args.primary_disk_size,
                                                args.instance_type, args.ami_name, args.user_name, create_option,
                                                disk_id, args.instance_storage_account_type)
+                time.sleep(60)
         except:
             sys.exit(1)
     else:
