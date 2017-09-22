@@ -97,6 +97,9 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('apt-get install -y gdebi-core')
             sudo('wget https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('gdebi -n rstudio-server-{}-amd64.deb'.format(rstudio_version))
+            sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
+            sudo('umount -f /mnt/')
+            sudo('mount -a')
             sudo('mkdir /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             sudo('touch /home/{}/.Renviron'.format(os_user))
@@ -239,9 +242,9 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('shutdown -r 1')
             time.sleep(90)
             sudo('apt-get -y install linux-image-extra-`uname -r`')
-            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/367.57/NVIDIA-Linux-x86_64-367.57.run -O /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run')
-            sudo('/bin/bash /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run -s --no-install-libglvnd')
-            sudo('rm -f /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run')
+            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/384.66/NVIDIA-Linux-x86_64-384.66.run -O /home/' + os_user + '/NVIDIA-Linux-x86_64-384.66.run')
+            sudo('/bin/bash /home/' + os_user + '/NVIDIA-Linux-x86_64-384.66.run -s')
+            sudo('rm -f /home/' + os_user + '/NVIDIA-Linux-x86_64-384.66.run')
             # install cuda
             sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run')
             sudo('sh /opt/cuda_8.0.44_linux-run --silent --toolkit')
@@ -402,8 +405,9 @@ def install_caffe2(os_user):
         sudo('pip3 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
         sudo('git clone --recursive https://github.com/caffe2/caffe2.git')
+        cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
         with cd('/home/{}/caffe2/'.format(os_user)):
-            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="35 52 60 61" -DCUDA_ARCH_PTX="61" && make "-j$(nproc)" install')
+            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_BIN="{0}" -DCUDA_ARCH_PTX="{0}" && make "-j$(nproc)" install'.format(cuda_arch.replace('.', '')))
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 

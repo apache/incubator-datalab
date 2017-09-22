@@ -188,6 +188,9 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
             sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
             sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
+            sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
+            sudo('umount -f /mnt/')
+            sudo('mount -a')
             sudo('mkdir /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             if os.environ['application'] == 'jupyter':
