@@ -30,6 +30,8 @@ import com.epam.dlab.auth.dao.Request;
 import com.epam.dlab.ServiceConfiguration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.validation.constraints.Min;
+
 public class SecurityServiceConfiguration extends ServiceConfiguration {
 
 	protected final Logger LOG = LoggerFactory.getLogger(this.getClass());
@@ -42,6 +44,10 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
 	@JsonProperty
 	private boolean awsUserIdentificationEnabled = false;
+
+	@JsonProperty
+	@Min(10)
+    private int loginAuthenticationTimeout = 10;
 
 	@JsonProperty
 	private long inactiveUserTimeoutMillSec;
@@ -103,5 +109,9 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
 	public boolean isAwsUserIdentificationEnabled() {
 		return awsUserIdentificationEnabled;
+	}
+
+	public int getLoginAuthenticationTimeout() {
+		return loginAuthenticationTimeout;
 	}
 }

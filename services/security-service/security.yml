@@ -148,6 +148,8 @@ userInfoPersistenceEnabled: true
 awsUserIdentificationEnabled: true
 </#if>
 
+loginAuthenticationTimeout: 10
+
 logging:
   level: INFO
   loggers:

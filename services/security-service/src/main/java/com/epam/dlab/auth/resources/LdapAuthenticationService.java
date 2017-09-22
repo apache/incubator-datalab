@@ -115,9 +115,10 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 		submitAwsKeys(username,token);
 
 		try {
-			UserInfo userInfo = uiFuture.get(10,TimeUnit.SECONDS);
+			UserInfo userInfo = uiFuture.get(config.getLoginAuthenticationTimeout(), TimeUnit.SECONDS);
 			log.debug("user info collected by conveyor '{}' ", userInfo);
 		} catch (Exception e) {
+			log.error("Authentication error", e);
 			Throwable cause = e.getCause();
 			if(cause == null) {
 				cause = e;
@@ -136,6 +137,7 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 				log.debug("User Authenticated: {}",username);
 				loginConveyor.add(token,"USER LOGGED IN",LoginStep.LDAP_LOGIN);
 			} catch (Exception e) {
+				log.error("Authentication error", e);
 				loginConveyor.cancel(token,LoginStep.LDAP_USER_INFO_ERROR,"Username or password are not valid");
 			}
 		});
@@ -148,6 +150,7 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 				UserInfo rolesUserInfo = ldapUserDAO.enrichUserInfo(new UserInfo(username, token));
 				loginConveyor.add(token,rolesUserInfo,LoginStep.LDAP_USER_INFO);
 			} catch (Exception e) {
+				log.error("Authentication error", e);
 				loginConveyor.cancel(token,LoginStep.LDAP_GROUP_INFO_ERROR,"User not authorized. Please access DLAB administrator.");
 			}
 		});
