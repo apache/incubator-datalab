@@ -670,7 +670,7 @@ if __name__ == "__main__":
             format(edge_conf['instance_name'], os.environ['azure_edge_instance_size'], edge_conf['region'],
                    edge_conf['vpc_name'], edge_conf['network_interface_name'], edge_conf['edge_security_group_name'],
                    edge_conf['subnet_name'], edge_conf['service_base_name'], edge_conf['resource_group_name'],
-                   initial_user, edge_conf['static_public_ip_name'], edge_conf['public_ssh_key'], '30', 'edge',
+                   initial_user, edge_conf['static_public_ip_name'], edge_conf['public_ssh_key'], '32', 'edge',
                    edge_conf['user_name'], edge_conf['instance_storage_account_type'], edge_conf['ami_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))

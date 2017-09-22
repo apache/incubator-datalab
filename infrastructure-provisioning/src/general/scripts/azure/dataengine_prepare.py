@@ -114,7 +114,7 @@ if __name__ == "__main__":
                    data_engine['vpc_name'], data_engine['master_network_interface_name'],
                    data_engine['master_security_group_name'], data_engine['private_subnet_name'],
                    data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
-                   data_engine['public_ssh_key'], '30', 'dataengine', data_engine['user_name'],
+                   data_engine['public_ssh_key'], '32', 'dataengine', data_engine['user_name'],
                    data_engine['instance_storage_account_type'], data_engine['ami_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
@@ -141,7 +141,7 @@ if __name__ == "__main__":
                 format(slave_name, data_engine['slave_size'], data_engine['region'], data_engine['vpc_name'],
                        slave_nif_name, data_engine['slave_security_group_name'], data_engine['private_subnet_name'],
                        data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
-                       data_engine['public_ssh_key'], '30', 'dataengine', data_engine['user_name'],
+                       data_engine['public_ssh_key'], '32', 'dataengine', data_engine['user_name'],
                        data_engine['instance_storage_account_type'], data_engine['ami_name'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))

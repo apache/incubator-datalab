@@ -126,7 +126,7 @@ if __name__ == "__main__":
                    notebook_config['vpc_name'], notebook_config['network_interface_name'],
                    notebook_config['security_group_name'], notebook_config['private_subnet_name'],
                    notebook_config['service_base_name'], notebook_config['resource_group_name'], initial_user,
-                   'None', notebook_config['public_ssh_key'], '30', 'notebook',
+                   'None', notebook_config['public_ssh_key'], '32', 'notebook',
                    notebook_config['user_name'], notebook_config['instance_storage_account_type'],
                    notebook_config['ami_name'])
         try:
