@@ -369,7 +369,7 @@ class AzureActions:
                     "public_ip_allocation_method": "static",
                     "public_ip_address_version": "IPv4",
                     "dns_settings": {
-                        "domain_name_label": "host-" + instance_name
+                        "domain_name_label": "host-" + instance_name.lower()
                     }
                 }
             )
@@ -403,7 +403,12 @@ class AzureActions:
 
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
-                        user_name='', create_option='fromImage', disk_id='', instance_storage_account_type='Premium_LRS'):
+                        ami_full_name, user_name='', create_option='fromImage', disk_id='',
+                        instance_storage_account_type='Premium_LRS'):
+        ami_name = ami_full_name.split('_')
+        publisher = ami_name[0]
+        offer = ami_name[1]
+        sku = ami_name[2]
         try:
             if instance_type == 'ssn':
                 parameters = {
@@ -413,9 +418,9 @@ class AzureActions:
                     },
                     'storage_profile': {
                         'image_reference': {
-                            'publisher': 'Canonical',
-                            'offer': 'UbuntuServer',
-                            'sku': '16.04-LTS',
+                            'publisher': publisher,
+                            'offer': offer,
+                            'sku': sku,
                             'version': 'latest'
                         },
                         'os_disk': {
@@ -458,9 +463,9 @@ class AzureActions:
                         },
                         'storage_profile': {
                             'image_reference': {
-                                'publisher': 'Canonical',
-                                'offer': 'UbuntuServer',
-                                'sku': '16.04-LTS',
+                                'publisher': publisher,
+                                'offer': offer,
+                                'sku': sku,
                                 'version': 'latest'
                             },
                             'os_disk': {
@@ -528,9 +533,9 @@ class AzureActions:
                     },
                     'storage_profile': {
                         'image_reference': {
-                            'publisher': 'Canonical',
-                            'offer': 'UbuntuServer',
-                            'sku': '16.04-LTS',
+                            'publisher': publisher,
+                            'offer': offer,
+                            'sku': sku,
                             'version': 'latest'
                         },
                         'os_disk': {
@@ -583,9 +588,9 @@ class AzureActions:
                     },
                     'storage_profile': {
                         'image_reference': {
-                            'publisher': 'Canonical',
-                            'offer': 'UbuntuServer',
-                            'sku': '16.04-LTS',
+                            'publisher': publisher,
+                            'offer': offer,
+                            'sku': sku,
                             'version': 'latest'
                         },
                         'os_disk': {

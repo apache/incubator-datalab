@@ -71,6 +71,7 @@ if __name__ == "__main__":
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['instance_name'] = notebook_config['service_base_name'] + "-" + notebook_config['user_name'] +\
                                            "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
+        notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
         notebook_config['network_interface_name'] = notebook_config['instance_name'] + "-nif"
         notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + \
             notebook_config['user_name'] + '-nb-sg'
@@ -120,13 +121,14 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
         print '[CREATE NOTEBOOK INSTANCE]'
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {}". \
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {}". \
             format(notebook_config['instance_name'], notebook_config['instance_size'], notebook_config['region'],
                    notebook_config['vpc_name'], notebook_config['network_interface_name'],
                    notebook_config['security_group_name'], notebook_config['private_subnet_name'],
                    notebook_config['service_base_name'], notebook_config['resource_group_name'], initial_user,
                    'None', notebook_config['public_ssh_key'], '30', 'notebook',
-                   notebook_config['user_name'], notebook_config['instance_storage_account_type'])
+                   notebook_config['user_name'], notebook_config['instance_storage_account_type'],
+                   notebook_config['ami_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
