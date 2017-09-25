@@ -33,5 +33,9 @@ export const NAMING_CONVENTION = {
     'instance_size': 'Size',
     'computational_resource': 'Computational resources',
     'total_instance_number_min': 'min_spark_instance_count',
-    'total_instance_number_max': 'max_spark_instance_count'
+    'total_instance_number_max': 'max_spark_instance_count',
+    'user_storage_account_name': 'user_storage_account_name',
+    'shared_storage_account_name': 'shared_storage_account_name',
+    'bucket_name': 'user_container_name',
+    'shared_bucket_name': 'shared_container_name',
 };

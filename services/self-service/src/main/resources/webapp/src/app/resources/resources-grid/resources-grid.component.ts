@@ -199,14 +199,16 @@ export class ResourcesGridComponent implements OnInit {
           sharedDataList.edge_node_ip,
           value.exploratory_user,
           value.exploratory_pass,
-          sharedDataList.user_own_bicket_name,
-          sharedDataList.shared_bucket_name,
+          sharedDataList[DICTIONARY.bucket_name],
+          sharedDataList[DICTIONARY.shared_bucket_name],
           value.error_message,
           value.cost,
           value.currency_code,
           value.billing,
           value.libs,
-          sharedDataList.storage_account_name);
+          sharedDataList[DICTIONARY.user_storage_account_name],
+          sharedDataList[DICTIONARY.shared_storage_account_name],
+        );
       });
     }
   }
