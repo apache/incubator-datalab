@@ -52,7 +52,8 @@ if __name__ == "__main__":
         edge_conf['storage_account_tag'] = edge_conf['service_base_name'] + edge_conf['user_name']
         edge_conf['container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-container').\
             lower()
-        edge_conf['shared_container_tag'] = (edge_conf['service_base_name'] + '-shared-container').lower()
+        edge_conf['shared_account_tag'] = edge_conf['service_base_name'] + 'shared'
+        edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared-container').lower()
         edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
         edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
                                                     '-nb-sg'
@@ -208,7 +209,7 @@ if __name__ == "__main__":
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
             if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
                 user_storage_account_name = storage_account.name
-            if edge_conf['shared_container_tag'] == storage_account.tags["account_name"]:
+            if edge_conf['shared_account_tag'] == storage_account.tags["account_name"]:
                 shared_storage_account_name = storage_account.name
         print '[SUMMARY]'
         logging.info('[SUMMARY]')
@@ -220,7 +221,7 @@ if __name__ == "__main__":
         print "User storage account name: " + user_storage_account_name
         print "User container name: " + edge_conf['container_name']
         print "Shared storage account name: " + shared_storage_account_name
-        print "Shared container name: " + edge_conf['shared_container_tag']
+        print "Shared container name: " + edge_conf['shared_container_name']
         print "Notebook SG: " + edge_conf['notebook_security_group_name']
         print "Edge SG: " + edge_conf['edge_security_group_name']
         print "Notebook subnet: " + edge_conf['private_subnet_cidr']
@@ -232,7 +233,7 @@ if __name__ == "__main__":
                    "user_storage_account_name": user_storage_account_name,
                    "user_container_name": edge_conf['container_name'],
                    "shared_storage_account_name": shared_storage_account_name,
-                   "shared_container_name": edge_conf['shared_container_tag'],
+                   "shared_container_name": edge_conf['shared_container_name'],
                    "tunnel_port": "22",
                    "socks_port": "1080",
                    "notebook_sg": edge_conf['notebook_security_group_name'],
