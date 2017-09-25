@@ -32,8 +32,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
             if service_base_name in vm.name:
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print "Instance {} has been terminated".format(vm.name)
-    except Exception as err:
-        print err
+    except:
         sys.exit(1)
 
     print "Removing storage accounts"
@@ -100,8 +99,7 @@ if __name__ == "__main__":
         try:
             terminate_ssn_node(ssn_conf['resource_group_name'], ssn_conf['service_base_name'], ssn_conf['vpc_name'],
                                ssn_conf['region'])
-        except Exception as err:
-            print err
+        except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
