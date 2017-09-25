@@ -35,6 +35,33 @@ def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_na
     except:
         sys.exit(1)
 
+    print "Removing network interfaces"
+    try:
+        for network_interface in AzureMeta().list_network_interfaces(resource_group_name):
+            if user_env_prefix in network_interface.name:
+                AzureActions().delete_network_if(resource_group_name, network_interface.name)
+                print "Network interface {} has been removed".format(network_interface.name)
+    except:
+        sys.exit(1)
+
+    print "Removing static public IPs"
+    try:
+        for static_public_ip in AzureMeta().list_static_ips(resource_group_name):
+            if user_env_prefix in static_public_ip.name:
+                AzureActions().delete_static_public_ip(resource_group_name, static_public_ip.name)
+                print "Static public IP {} has been removed".format(static_public_ip.name)
+    except:
+        sys.exit(1)
+
+    print "Removing disks"
+    try:
+        for disk in AzureMeta().list_disks(resource_group_name):
+            if user_env_prefix in disk.name:
+                AzureActions().remove_disk(resource_group_name, disk.name)
+                print "Disk {} has been removed".format(disk.name)
+    except:
+        sys.exit(1)
+
     print "Removing storage account"
     try:
         for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
