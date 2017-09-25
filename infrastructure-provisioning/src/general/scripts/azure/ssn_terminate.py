@@ -99,7 +99,8 @@ if __name__ == "__main__":
         try:
             terminate_ssn_node(ssn_conf['resource_group_name'], ssn_conf['service_base_name'], ssn_conf['vpc_name'],
                                ssn_conf['region'])
-        except:
+        except Exception as err:
+            print err
             traceback.print_exc()
             raise Exception
     except Exception as err:
