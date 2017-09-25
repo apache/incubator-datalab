@@ -1047,7 +1047,7 @@ To check logs of Docker containers run the following commands:
 ```
 docker ps -a – to get list of containers which were executed.
 ...
-a85d0d3c27aa docker.dlab-emr:latest "/root/entrypoint...." 2 hours ago Exited (0) 2 hours ago infallible_gallileo
+a85d0d3c27aa docker.dlab-dataengine:latest "/root/entrypoint...." 2 hours ago Exited (0) 2 hours ago infallible_gallileo
 6bc2afeb888e docker.dlab-jupyter:latest "/root/entrypoint...." 2 hours ago Exited (0) 2 hours ago practical_cori
 51b71c5d4aa3 docker.dlab-zeppelin:latest "/root/entrypoint...." 2 hours ago Exited (0) 2 hours ago determined_knuth
 ...
@@ -1058,14 +1058,17 @@ To change Docker images on existing environment, execute following steps:
 1.  SSH to SSN instance
 2.  go to */opt/dlab/sources/*
 3.  Modify needed files
-4.  Rebuild proper Docker images, using one or several commands (depending on what files you’ve changed):
+4.  Copy service principal json file with credentials to base/azure_auth.json
+5.  Rebuild proper Docker images, using one or several commands (depending on what files you’ve changed):
 ```
-docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --file base/Dockerfile -t docker.dlab-base .
-docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --file edge/Dockerfile -t docker.dlab-edge .
-docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --file jupyter/Dockerfile -t docker.dlab-jupyter .
-docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --file rstudio/Dockerfile -t docker.dlab-rstudio .
-docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --file zeppelin/Dockerfile -t docker.dlab-zeppelin .
-docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --file emr/Dockerfile -t docker.dlab-emr .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/base_Dockerfile -t docker.dlab-base .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/edge_Dockerfile -t docker.dlab-edge .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/jupyter_Dockerfile -t docker.dlab-jupyter .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/rstudio_Dockerfile -t docker.dlab-rstudio .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/zeppelin_Dockerfile -t docker.dlab-zeppelin .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/tensor_Dockerfile -t docker.dlab-tensor .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/deeplearning_Dockerfile -t docker.dlab-deeplearning .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/dataengine_Dockerfile -t docker.dlab-dataengine .
 ```
 
 ----------------
@@ -1348,8 +1351,10 @@ The following list shows common structure of scripts for deploying DLab
     └───infrastructure-provisioning
         └───src
             ├───base
+            ├───dataengine
+            ├───dataengine-service
+            ├───deeplearning            
             ├───edge
-            ├───emr
             ├───general
             ├───jupyter
             ├───rstudio
@@ -1361,10 +1366,11 @@ Each directory except *general* contains Python scripts, Docker files, templates
 
 -   base – Main Docker image. It is a common/base image for other ones.
 -   edge – Docker image for Edge node.
--   emr – Docker image for EMR cluster.
+-   dataengine – Docker image for dataengine cluster.
+-   dataengine-service – Docker image for dataengine-service cluster.
 -   general – OS and CLOUD dependent common source.
 -   ssn – Docker image for Self-Service node (SSN).
--   jupyter/rstudio/zeppelin/tensor – Docker images for Notebook nodes.
+-   jupyter/rstudio/zeppelin/tensor/deeplearning – Docker images for Notebook nodes.
 
 All Python scripts, Docker files and other files, which are located in these directories, are OS and CLOUD independent.
 
@@ -1405,32 +1411,35 @@ The following table describes mostly used scripts:
 
 Available Docker images and their actions:
 
-| Docker image                    | Actions                                          |
-|---------------------------------|--------------------------------------------------|
-| ssn                             | create, terminate                                |
-| edge                            | create, terminate, status, start, stop, recreate |
-| jupyter/rstudio/zeppelin/tensor | create, terminate, start, stop, configure        |
-| emr                             | create, terminate                                |
+| Docker image                                 | Actions                                                                       |
+|----------------------------------------------|-------------------------------------------------------------------------------|
+| ssn                                          | create, terminate                                                             |
+| edge                                         | create, terminate, status, start, stop, recreate                              |
+| jupyter/rstudio/zeppelin/tensor/deeplearning | create, terminate, start, stop, configure, list_libs, install_libs, git_creds |
+| dataengine/dataengine-service                | create, terminate                                                             |
 
 ##### Docker and python execution workflow on example of SSN node
 
 -   Docker command for building images *docker.dlab-base* and *docker.dlab-ssn*:
 ```
-sudo docker build --build-arg OS=debian --build-arg CLOUD=aws --file base/Dockerfile -t docker.dlab-base . ;
-sudo docker build --build-arg OS=debian --build-arg CLOUD=aws --file ssn/Dockerfile -t docker.dlab-ssn . ;
+sudo docker build --build-arg OS=debian  --file general/files/aws/base_Dockerfile -t docker.dlab-base . ;
+sudo docker build --build-arg OS=debian  --file general/files/aws/ssn_Dockerfile -t docker.dlab-ssn . ;
 ```
 Example of SSN Docker file:
 ```
 FROM docker.dlab-base:latest
+
 ARG OS
-ARG CLOUD
+
 COPY ssn/ /root/
-COPY general/scripts/${CLOUD}/ssn_* /root/scripts/
+COPY general/scripts/aws/ssn_* /root/scripts/
 COPY general/lib/os/${OS}/ssn_lib.py /usr/lib/python2.7/dlab/ssn_lib.py
-COPY general/files/${CLOUD}/ssn_instance_shapes.lst /root/files/
-COPY general/files/${CLOUD}/ssn_policy.json /root/files/
+COPY general/files/aws/ssn_policy.json /root/files/
+COPY general/templates/aws/jenkins_jobs /root/templates/jenkins_jobs
+
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
+
 RUN mkdir /project_tree
 COPY . /project_tree
 ```
@@ -1438,7 +1447,7 @@ Using this Docker file, all required scripts and files will be copied to Docker 
 
 -   Docker command for building SSN:
 ```
-docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_os_family=debian" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "ssn_instance_size=t2.medium" -e "region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" -e "conf_tag_resource_id=dlab" docker.dlab-ssn --action create ;
+docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_os_family=debian" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "ssn_instance_size=t2.medium" -e "aws_region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" -e "conf_tag_resource_id=dlab" docker.dlab-ssn --action create ;
 ```
 
 -   Docker executes *entrypoint.py* script with action *create*. *Entrypoint.py* will set environment variables, which were provided from Docker and execute *general/api/create.py* script:
@@ -1468,10 +1477,10 @@ docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/we
         append_result("Failed configuring SSN node. Exception: " + str(err))
         sys.exit(1)
 ```
--   The scripts *general/scripts/aws/ssn\_prepare.py* an *general/scripts/aws/ssn\_configure.py* will execute other Python scripts/functions for:
+-   The scripts *general/scripts/<cloud_provider>/ssn\_prepare.py* an *general/scripts/<cloud_provider>/ssn\_configure.py* will execute other Python scripts/functions for:
   1. *ssn\_prepate.py:*
-    1.  Creating AWS configuration file
-    2. Creating VPC, Subnet, Security Group, IAM roles, Endpoint, Route table, S3 bucket and EC2 instance.
+    1. Creating configuration file (for AWS)
+    2. Creating Cloud resources.
   2. *ssn\_configure.py:*
     1. Installing prerequisites
     2. Installing required packages
