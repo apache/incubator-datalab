@@ -36,25 +36,22 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     try:
+        for storage_account in AzureMeta().list_storage_accounts(args.resource_group_name):
+            if args.account_tag == storage_account.tags["account_name"]:
+                print "REQUESTED STORAGE ACCOUNT ALREADY EXISTS"
+                sys.exit(0)
         account_name = id_generator().lower()
-        if AzureMeta().get_storage_account(args.resource_group_name, account_name):
-            print "REQUESTED STORAGE ACCOUNT {} ALREADY EXISTS".format(account_name)
+        check = AzureMeta().check_account_availability(account_name)
+        if check.name_available:
+            print "Creating storage account {}.".format(account_name)
+            storage_account = AzureActions().create_storage_account(args.resource_group_name, account_name,
+                                                                    args.region, args.account_tag)
+            blob_container = AzureActions().create_blob_container(args.resource_group_name, account_name,
+                                                                  args.container_name)
+            print "STORAGE ACCOUNT {} has been created".format(account_name)
+            print "CONTAINER {} has been created".format(args.container_name)
         else:
-            check = AzureMeta().check_account_availability(account_name)
-            if check.name_available:
-                print "Creating storage account {}.".format(account_name)
-                storage_account = AzureActions().create_storage_account(args.resource_group_name, account_name,
-                                                                        args.region, args.account_tag)
-                while AzureMeta().get_storage_account(args.resource_group_name, account_name).\
-                        provisioning_state._value_ != "Succeeded":
-                    time.sleep(5)
-
-                blob_container = AzureActions().create_blob_container(args.resource_group_name, account_name,
-                                                                      args.container_name)
-                print "STORAGE ACCOUNT {} has been created".format(account_name)
-                print "CONTAINER {} has been created".format(args.container_name)
-            else:
-                print "STORAGE ACCOUNT with name {} could not be created. ".format(account_name), check.message
-                sys.exit(1)
+            print "STORAGE ACCOUNT with name {} could not be created. ".format(account_name), check.message
+            sys.exit(1)
     except:
         sys.exit(1)
