@@ -279,6 +279,21 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def list_static_ips(self, resource_group_name):
+        try:
+            result = self.network_client.public_ip_addresses.list(resource_group_name)
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to list static IP addresses: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to list static IP addresses",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def check_free_ip(self, resource_group_name, vpc_name, ip_address):
         try:
             result = self.network_client.virtual_networks.check_ip_address_availability(
@@ -342,6 +357,21 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def list_network_interfaces(self, resource_group_name):
+        try:
+            result = self.network_client.network_interfaces.list(resource_group_name)
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to list Network interfaces: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable list Network interfaces",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_disk(self, resource_group_name, disk_name):
         try:
             result = self.compute_client.disks.get(resource_group_name, disk_name)
@@ -353,6 +383,21 @@ class AzureMeta:
             logging.info(
                 "Unable to get instance Disk: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to get instance Disk",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def list_disks(self, resource_group_name):
+        try:
+            result = self.compute_client.disks.list_by_resource_group(resource_group_name)
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to list instance Disks: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to list instance Disks",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
