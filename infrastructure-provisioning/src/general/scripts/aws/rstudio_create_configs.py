@@ -53,14 +53,14 @@ yarn_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/conf/'
 
 
 def configure_rstudio():
-    if not os.path.exists('/home/' + args.os_user + '/.ensure_dir/rstudio_emr_ensured'):
+    if not os.path.exists('/home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured'):
         try:
             local('echo "export R_LIBS_USER=' + spark_dir + '/R/lib:" >> /home/' + args.os_user + '/.bashrc')
             local("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron")
             local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
-            local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_emr_ensured')
+            local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured')
         except:
             sys.exit(1)
     else:
