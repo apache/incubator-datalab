@@ -857,6 +857,7 @@ class AzureActions:
                         "sed -i '1!G;h;$!d;' /home/{0}/.Rprofile; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Rprofile".
                             format(os_user))
                 sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
+                sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
             sudo('rm -rf  /opt/' + cluster_name + '/')
             print "Notebook's " + env.hosts + " kernels were removed"
         except Exception as err:

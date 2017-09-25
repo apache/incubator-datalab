@@ -642,7 +642,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to create bucket.", str(err))
+        append_result("Failed to create storage account.", str(err))
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
