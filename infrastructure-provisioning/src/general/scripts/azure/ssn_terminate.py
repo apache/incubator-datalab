@@ -35,6 +35,15 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     except:
         sys.exit(1)
 
+    print "Removing network interfaces"
+    try:
+        for network_interface in AzureMeta().list_network_interfaces(resource_group_name):
+            if service_base_name in network_interface.name:
+                AzureActions().remove_instance(resource_group_name, vm.name)
+                print "Instance {} has been terminated".format(vm.name)
+    except:
+        sys.exit(1)
+
     print "Removing storage accounts"
     try:
         for storage_account in AzureMeta().list_storage_accounts(resource_group_name):

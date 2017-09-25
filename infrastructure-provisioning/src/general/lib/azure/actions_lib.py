@@ -784,9 +784,7 @@ class AzureActions:
 
     def delete_network_if(self, resource_group_name, interface_name):
         try:
-            result = self.network_client.network_interfaces.delete(resource_group_name, interface_name)
-            while meta_lib.AzureMeta().get_network_interface(resource_group_name, interface_name):
-                time.sleep(5)
+            result = self.network_client.network_interfaces.delete(resource_group_name, interface_name).wait()
             return result
         except Exception as err:
             logging.info(

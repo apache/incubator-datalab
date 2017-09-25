@@ -342,6 +342,21 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def list_network_interfaces(self, resource_group_name):
+        try:
+            result = self.network_client.network_interfaces.list(resource_group_name)
+            return result
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to list Network interfaces: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable list Network interfaces",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_disk(self, resource_group_name, disk_name):
         try:
             result = self.compute_client.disks.get(resource_group_name, disk_name)
