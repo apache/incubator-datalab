@@ -36,11 +36,11 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     try:
-        check_account = 'false'
+        check_account = False
         for storage_account in AzureMeta().list_storage_accounts(args.resource_group_name):
             if args.account_tag == storage_account.tags["account_name"]:
-                account_name = 'true'
-                print "REQUESTED STORAGE ACCOUNT {} ALREADY EXISTS".format(account_name)
+                check_account = True
+                print "REQUESTED STORAGE ACCOUNT {} ALREADY EXISTS".format(storage_account.name)
         if not check_account:
             account_name = id_generator().lower()
             check = AzureMeta().check_account_availability(account_name)
