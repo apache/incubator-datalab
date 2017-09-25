@@ -45,6 +45,7 @@ if __name__ == "__main__":
         ssn_conf['region'] = os.environ['azure_region']
         ssn_conf['vpc_cidr'] = '10.10.0.0/16'
         ssn_conf['subnet_prefix'] = '20'
+        ssn_conf['ssn_ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
         ssn_conf['ssn_storage_account_tag'] = ssn_conf['service_base_name'] + 'ssn'
         ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn-container').lower()
         ssn_conf['shared_storage_account_tag'] = ssn_conf['service_base_name'] + 'shared'
@@ -286,12 +287,12 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --instance_storage_account_type {}".\
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --instance_storage_account_type {} --ami_name {}".\
             format(ssn_conf['instance_name'], os.environ['azure_ssn_instance_size'], ssn_conf['region'], os.environ['azure_vpc_name'],
                    ssn_conf['network_interface_name'], os.environ['azure_security_group_name'], os.environ['azure_subnet_name'],
                    ssn_conf['service_base_name'], os.environ['azure_resource_group_name'], initial_user,
-                   ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '30', 'ssn',
-                   ssn_conf['instance_storage_account_type'])
+                   ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '32', 'ssn',
+                   ssn_conf['instance_storage_account_type'], ssn_conf['ssn_ami_name'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

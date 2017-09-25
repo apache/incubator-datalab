@@ -48,11 +48,12 @@ limitations under the License.
             </p>
           </div>
 
-          <p *ngIf="notebook.username">Node User: <strong>{{notebook.username}}</strong></p>
-          <p *ngIf="notebook.password">Password: <strong>{{notebook.password}}</strong></p>
-          <p *ngIf="notebook.bucket_name">{{ DICTIONARY.personal_storage }}: <strong>{{notebook.bucket_name}}</strong></p>
-          <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY.collaboration_storage}}: <strong>{{notebook.shared_bucket_name}}</strong></p>
-          <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.storage_account_name">Storage account name: <strong>{{ notebook.storage_account_name }}</strong></p>
+          <p *ngIf="notebook.username">Node User: <strong>{{ notebook.username }}</strong></p>
+          <p *ngIf="notebook.password">Password: <strong>{{ notebook.password }}</strong></p>
+          <p *ngIf="notebook.bucket_name">{{ DICTIONARY.personal_storage }}: <strong>{{ notebook.bucket_name }}</strong></p>
+          <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY.collaboration_storage}}: <strong>{{ notebook.shared_bucket_name }}</strong></p>
+          <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">Storage account name: <strong>{{ notebook.account_name }}</strong></p>
+          <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name">Shared storage account name: <strong>{{ notebook.shared_account_name }}</strong></p>
           <br/>
           <p>
             <a href="#/help/accessnotebookguide" target="_blank">
