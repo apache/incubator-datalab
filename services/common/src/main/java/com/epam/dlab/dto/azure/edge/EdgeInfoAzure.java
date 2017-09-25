@@ -28,10 +28,12 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EdgeInfoAzure extends EdgeInfo {
-    @JsonProperty("storage_account_name")
-    private String storageAccountName;
+    @JsonProperty("user_storage_account_name")
+    private String userStorageAccountName;
     @JsonProperty("user_container_name")
     private String userContainerName;
+    @JsonProperty("shared_storage_account_name")
+    private String sharedStorageAccountName;
     @JsonProperty("shared_container_name")
     private String sharedContainerName;
 }
