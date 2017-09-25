@@ -35,6 +35,7 @@ export class ResourcesGridRowModel {
               public currency_code: string,
               public billing: Array<any>,
               public libs: Array<any>,
-              public storage_account_name: string
+              public account_name: string,
+              public shared_account_name: string
             ) { }
 }
