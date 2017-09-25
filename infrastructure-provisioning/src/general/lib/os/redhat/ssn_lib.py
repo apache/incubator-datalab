@@ -227,7 +227,11 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
             except:
                 append_result("Unable to generate cert and copy to java keystore")
                 sys.exit(1)
-            sudo('iptables -F')
+            sudo('systemctl disable firewalld.service')
+            sudo('systemctl stop firewalld.service')
+            sudo('setenforce 0')
+            sudo("sed -i '/^SELINUX=/s/SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config")
+            sudo('systemctl restart docker.service')
             sudo('systemctl restart supervisord')
             sudo('service nginx restart')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/ss_started')
