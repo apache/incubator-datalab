@@ -26,8 +26,9 @@ def ensure_pkg(user, requisites='git vim gcc python-devel openssl-devel nmap lib
     try:
         if not exists('/home/{}/.ensure_dir/pkg_upgraded'.format(user)):
             print "Updating repositories and installing requested tools: " + requisites
-            sudo('systemctl disable firewalld.service')
-            sudo('systemctl stop firewalld.service')
+            if sudo("systemctl list-units  --all | grep firewalld | awk '{print $1}'") != '':
+                sudo('systemctl disable firewalld.service')
+                sudo('systemctl stop firewalld.service')
             sudo('setenforce 0')
             sudo("sed -i '/^SELINUX=/s/SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config")
             sudo('yum update-minimal --security -y')
