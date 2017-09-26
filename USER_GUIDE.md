@@ -97,7 +97,7 @@ Currently by means of DLab, Data Scientists can select between any of the follow
 -   Zeppelin
 -   RStudio
 -   TensorFlow (Jupyter + TensorFlow)
--   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, Theano, CNTK, Torch and Keras)
+-   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, CNTK, Theano, Torch and Keras)
 
 <p align="center"> 
     <img src="doc/notebook_create.png" alt="Create notebook" width="480">
