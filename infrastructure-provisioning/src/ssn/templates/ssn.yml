@@ -51,8 +51,8 @@ securityService:
   host: localhost
   port: 8090
   jerseyClient:
-    timeout: 10s
-    connectionTimeout: 10s
+    timeout: 20s
+    connectionTimeout: 20s
 
 provisioningService:
   protocol: https
