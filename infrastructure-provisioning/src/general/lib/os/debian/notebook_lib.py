@@ -232,7 +232,7 @@ def ensure_python3_libraries(os_user):
             sys.exit(1)
 
 
-def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
+def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia_version):
     if not exists('/home/' + os_user + '/.ensure_dir/tensor_ensured'):
         try:
             # install nvidia drivers
@@ -242,9 +242,9 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('shutdown -r 1')
             time.sleep(90)
             sudo('apt-get -y install linux-image-extra-`uname -r`')
-            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/384.66/NVIDIA-Linux-x86_64-384.66.run -O /home/' + os_user + '/NVIDIA-Linux-x86_64-384.66.run')
-            sudo('/bin/bash /home/' + os_user + '/NVIDIA-Linux-x86_64-384.66.run -s')
-            sudo('rm -f /home/' + os_user + '/NVIDIA-Linux-x86_64-384.66.run')
+            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
+            sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
+            sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
             sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run')
             sudo('sh /opt/cuda_8.0.44_linux-run --silent --toolkit')
