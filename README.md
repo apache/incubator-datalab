@@ -118,6 +118,8 @@ Creation of self-service node – is the first step for deploying DLab. SSN is a
 -   Docker – used for building DLab Docker containers, which will be used for provisioning other components.
 -   Jenkins – is an alternative to Web UI. It is accessible by the following link: http[s]://SSN\_Public\_IP\_or\_Public\_DNS/jenkins
 
+Elastic(Static) IP address is assigned to an SSN Node, so you are free to stop|start it and and SSN node's IP address won’t change.
+
 ## Edge node
 
 Setting up Edge node is the first step that user is asked to do once logged into DLab. This node is used as proxy server and SSH gateway for the user. Through Edge node users can access Notebook via HTTP and SSH. Edge Node has a Squid HTTP web proxy pre-installed.
@@ -289,6 +291,7 @@ After SSN node deployment following AWS resources will be created:
 -   Security Group for SSN node (if it was specified, script will attach the provided one)
 -   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
 -   S3 bucket – its name will be \<service\_base\_name\>-ssn. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
+-   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared
 
 #### In Azure cloud
 
@@ -330,13 +333,14 @@ List of parameters for SSN node deployment:
 
 After SSN node deployment following Azure resources will be created:
 
+-   Resource group where all DLAb resources will be provisioned
 -   SSN Virtual machine
--   Public IP address dor SSN virtual machine
+-   Static public IP address dor SSN virtual machine
 -   Network interface for SSN node
 -   Security Group for SSN node (if it was specified, script will attach the provided one)
 -   Virtual network and Subnet (if they have not been specified) for SSN and EDGE nodes
 -   Storage account and blob container for necessary further dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
-
+-   Storage account and blob container for collaboration between Dlab users
 
 ### Terminate
 
@@ -379,22 +383,26 @@ List of parameters for SSN node termination:
 | azure\_auth\_path          | Full path to auth json file                                                        |
 | action                     | terminate                                                                          |
 
+
 ## Edge Node <a name="Edge_Node"></a>
 
-Gateway node (or an Edge node) is an AWS EC2 Instance provisioned in a public subnet. It serves as an entry point for accessing user’s personal analytical environment. It is created by an end-user, whose public key will be uploaded there. Only via Edge node, DLab user can access such application resources as notebook servers and EMR clusters. Also, Edge Node is used to setup SOCKS proxy to access notebook servers via Web UI and SSH. Elastic IP address is assigned to an Edge Node. In case Edge node instance has been removed by mistake, there is an option to re-create it and Edge node IP address won’t chang.
+Gateway node (or an Edge node) is an instance(virtual machine) provisioned in a public subnet. It serves as an entry point for accessing user’s personal analytical environment. It is created by an end-user, whose public key will be uploaded there. Only via Edge node, DLab user can access such application resources as notebook servers and dataengine clusters. Also, Edge Node is used to setup SOCKS proxy to access notebook servers via Web UI and SSH. Elastic(Static) IP address is assigned to an Edge Node. In case Edge node instance has been removed by mistake, there is an option to re-create it and Edge node IP address won’t change.
 
 ### Create
 
-In order to create Edge node using DLab Web UI – login and, click on the button “Upload”. Choose user’s SSH public key and after that click on the button “Create”. Edge node will be deployed and corresponding EC2 instance will be started.
+In order to create Edge node using DLab Web UI – login and, click on the button “Upload”. Choose user’s SSH public key and after that click on the button “Create”. Edge node will be deployed and corresponding instance (virtual machine) will be started.
+
+#### In Amazon
 
 The following AWS resources will be created:
 -   Edge EC2 instance
--   S3 user bucket
+-   Elastic IP address for Edge EC2 instance
+-   User's S3 bucket
 -   Security Group for user's Edge instance
 -   Security Group for all further user's Notebook instances
 -   IAM Roles and Instance Profiles for user's Edge instance
 -   IAM Roles and Instance Profiles all further user's Notebook instances
--   Private subnet. All further nodes (Notebooks, EMR clusters) will be in different subnet than SSN.
+-   User private subnet. All further nodes (Notebooks, EMR clusters) will be provisioned in different subnet than SSN.
 
 List of parameters for Edge node creation:
 
@@ -409,14 +417,43 @@ List of parameters for Edge node creation:
 | aws\_region                    | AWS region where infrastructure was deployed                                      |
 | aws\_security\_groups\_ids     | One or more id’s of the SSN instance security group                               |
 | aws\_subnet\_id                | ID of the AWS public subnet where Edge will be deployed                           |
-| aws\_iam\_user                 | Name of AWS IAM user                                                              |
 | aws\_private\_subnet\_prefix   | Prefix of the private subnet                                                      |
 | conf\_tag\_resource\_id        | The name of tag for billing reports                                               |
+| action                         | create                                                                            |
+
+#### In Azure
+
+The following Azure resources will be created:
+-   Edge virtual machine
+-   Static public IP address dor Edge virtual machine
+-   Network interface for Edge node
+-   Security Group for user's Edge instance
+-   Security Group for all further user's Notebook instances
+-   Security Groups for all further user's master nodes of data engine cluster
+-   Security Groups for all further user's slave nodes of data engine cluster
+-   User's private subnet. All further nodes (Notebooks, data engine clusters) will be provisioned in different subnet than SSN.
+-   User's storage account and blob container 
+
+List of parameters for Edge node creation:
+
+| Parameter                  | Description/Value                                                                     |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | edge                                                                              |
+| conf\_os\_family               | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name               | Name of the user                                                                  |
+| azure\_resource\_group\_name   | Name of the resource group where all DLAb resources are being provisioned         |
+| azure\_region                  | Azure region where infrastructure was deployed                                    |
+| azure\_vpc\_name               | Name of Azure Virtual network where all infrastructure is being deployed          |
+| azure\_subnet\_name            | NAme of the Azure public subnet where Edge will be deployed                       |
 | action                         | create                                                                            |
 
 ### Start/Stop <a name=""></a>
 
 To start/stop Edge node, click on the button which looks like a cycle on the top right corner, then click on the button which is located in “Action” field and in the drop-down menu click on the appropriate action.
+
+#### In Amazon
 
 List of parameters for Edge node starting/stopping:
 
@@ -428,6 +465,29 @@ List of parameters for Edge node starting/stopping:
 | aws\_region               | AWS region where infrastructure was deployed                 |
 | action                    | start/stop                                                   |
 
+#### In Azure
+
+List of parameters for Edge node starting:
+
+| Parameter                    | Description/Value                                                         |
+|------------------------------|---------------------------------------------------------------------------|
+| conf\_resource               | edge                                                                      |
+| conf\_service\_base\_name    | Unique infrastructure value, specified during SSN deployment              |
+| edge\_user\_name             | Name of the user                                                          |
+| azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned |
+| azure\_region                | Azure region where infrastructure was deployed                            |
+| action                       | start                                                                     |
+
+List of parameters for Edge node stopping:
+
+| Parameter                    | Description/Value                                                         |
+|------------------------------|---------------------------------------------------------------------------|
+| conf\_resource               | edge                                                                      |
+| conf\_service\_base\_name    | Unique infrastructure value, specified during SSN deployment              |
+| edge\_user\_name             | Name of the user                                                          |
+| azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned |
+| action                       | stop                                                                      |
+
 ### Recreate <a name=""></a>
 
 In case Edge node was damaged, or terminated manually, there is an option to re-create it.
@@ -435,6 +495,8 @@ In case Edge node was damaged, or terminated manually, there is an option to re-
 If Edge node was removed for some reason, to re-create it, click on the status button close to logged in users’s name (top right corner of the screen).Then click on gear icon in Actions column and choose “Recreate”.
 
 List of parameters for Edge node recreation:
+
+#### In Amazon
 
 | Parameter                  | Description/Value                                                                 |
 |----------------------------|-----------------------------------------------------------------------------------|
@@ -447,20 +509,36 @@ List of parameters for Edge node recreation:
 | aws\_region                | AWS region where infrastructure was deployed                                      |
 | aws\_security\_groups\_ids | ID of the SSN instance's AWS security group                                       |
 | aws\_subnet\_id            | ID of the AWS public subnet where Edge was deployed                               |
-| aws\_iam\_user             | Name of AWS IAM user                                                              |
 | edge\_elastic\_ip          | AWS Elastic IP address which was associated to Edge node                          |
 | conf\_tag\_resource\_id    | The name of tag for billing reports                                               |
 | action                     | Create                                                                            |
 
+#### In Azure
+
+| Parameter                    | Description/Value                                                                 |
+|------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource               | edge                                                                              |
+| conf\_os\_family             | Name of the Linux distributive family, which is supported by DLAB (Debian/RedHat) |
+| conf\_service\_base\_name    | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name              | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name             | Name of the user                                                                  |
+| azure\_vpc\_name             | NAme of Azure Virtual network where all infrastructure is being deployed          |
+| azure\_region                | Azure region where all infrastructure was deployed                                |
+| azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned         |
+| azure\_subnet\_name          | Name of the Azure public subnet where Edge was deployed                           |
+| action                       | Create                                                                            |
+
 ## Notebook node <a name="Notebook_node"></a>
 
-Notebook node is an AWS EC2 instance, with preinstalled analytical software, needed dependencies and with pre-configured kernels and interpreters. It is the main part of personal analytical environment, which is setup by a data scientist. It can be Created, Stopped and Terminated. To support variety of analytical needs - Notebook node can be provisioned on any of AWS supported EC2 instance shape for your particular region. From analytical software, which is already pre-installed on a notebook node, end users can access (read/write) data stored on S3 buckets.
+Notebook node is an instance (virtual machine), with preinstalled analytical software, needed dependencies and with pre-configured kernels and interpreters. It is the main part of personal analytical environment, which is setup by a data scientist. It can be Created, Stopped and Terminated. To support variety of analytical needs - Notebook node can be provisioned on any of cloud supported instance shape for your particular region. From analytical software, which is already pre-installed on a notebook node, end users can access (read/write) data stored on buckets/containers.
 
 ### Create
 
 To create Notebook node, click on the “Create new” button. Then, in drop-down menu choose template type (jupyter/rstudio/zeppelin/tensor), enter notebook name and choose instance shape. After clicking the button “Create”, notebook node will be deployed and started.
 
 List of parameters for Notebook node creation:
+
+#### In Amazon
 
 | Parameter                     | Description/Value                                                                 |
 |-------------------------------|-----------------------------------------------------------------------------------|
@@ -472,18 +550,37 @@ List of parameters for Notebook node creation:
 | aws\_notebook\_instance\_type | Value of the Notebook EC2 instance shape                                          |
 | aws\_region                   | AWS region where infrastructure was deployed                                      |
 | aws\_security\_groups\_ids    | ID of the SSN instance's security group                                           |
-| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor)                   |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
 | conf\_tag\_resource\_id       | The name of tag for billing reports                                               |
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | Create                                                                            |
 
 **Note:** For format of git_creds see "Manage git credentials" lower.
 
+#### In Azure
+
+| Parameter                       | Description/Value                                                                 |
+|---------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                  | notebook                                                                          |
+| conf\_os\_family                | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name       | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                 | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name                | Value that previously was used when Edge being provisioned                        |
+| azure\_notebook\_instance\_size | Value of the Notebook virtual machine shape                                       |
+| azure\_region                   | Azure region where infrastructure was deployed                                    |
+| azure\_vpc\_name                | NAme of Azure Virtual network where all infrastructure is being deployed          |
+| azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
+| application                     | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| git\_creds                      | User git credentials in JSON format                                               |
+| action                          | Create                                                                            |
+
 ### Stop
 
 In order to stop Notebook node, click on the “gear” button in Actions column. From the drop-down menu click on “Stop” action.
 
 List of parameters for Notebook node stopping:
+
+#### In Amazon
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -495,11 +592,25 @@ List of parameters for Notebook node stopping:
 | aws\_region               | AWS region where infrastructure was deployed                 |
 | action                    | Stop                                                         |
 
+#### In Azure
+
+| Parameter                       | Description/Value                                                                 |
+|---------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                  | notebook                                                                          |
+| conf\_service\_base\_name       | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                 | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name                | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
+| azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
+| action                          | Stop                                                                              |
+
 ### Start
 
 In order to start Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Start” action.
 
 List of parameters for Notebook node start:
+
+#### In Amazon
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -514,11 +625,27 @@ List of parameters for Notebook node start:
 
 **Note:** For format of git_creds see "Manage git credentials" lower.
 
+#### In Azure
+
+| Parameter                       | Description/Value                                                                 |
+|---------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                  | notebook                                                                          |
+| conf\_service\_base\_name       | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                 | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name                | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
+| azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
+| azure\_region                   | Azure region where infrastructure was deployed                                    |
+| git\_creds                      | User git credentials in JSON format                                               |
+| action                          | start                                                                             |
+
 ### Terminate
 
 In order to terminate Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Terminate” action.
 
 List of parameters for Notebook node termination:
+
+#### In Amazon
 
 | Parameter                 | Description/Value                                            |
 |---------------------------|--------------------------------------------------------------|
@@ -530,11 +657,24 @@ List of parameters for Notebook node termination:
 | aws\_region               | AWS region where infrastructure was deployed                 |
 | action                    | terminate                                                         |
 
-**Note:** If terminate action is called, all connected EMR clusters will be removed.
+**Note:** If terminate action is called, all connected data engine clusters will be removed.
+
+#### In Azure
+
+| Parameter                       | Description/Value                                                                 |
+|---------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                  | notebook                                                                          |
+| conf\_service\_base\_name       | Unique infrastructure value, specified during SSN deployment                      |
+| edge\_user\_name                | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
+| azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
+| action                          | terminate                                                                         |
 
 ### List/Install additional libraries
 
 In order to list available libraries (OS/Python2/Python3/R/Others) on Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
+
+#### In Amazon
 
 List of parameters for Notebook node to **get list** of available libraries:
 
@@ -595,9 +735,40 @@ List of parameters for Notebook node to **install** additional libraries:
 }
 ```
 
+#### In Azure
+
+List of parameters for Notebook node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
+| azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned         |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_list                                                                          |
+
+List of parameters for Notebook node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                    |
+|-------------------------------|--------------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                             |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                         |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                   |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                           |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                           |
+| azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned            |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
+| action                        | lib_install                                                                          |
+
 ### Manage git credentials
 
 In order to manage git credentials on Notebook node, click on the button “Git credentials”. Then in menu you can add or edit existing credentials.
+
+#### In Amazon
 
 List of parameters for Notebook node to **manage git credentials**:
 
@@ -630,50 +801,113 @@ List of parameters for Notebook node to **manage git credentials**:
 
 **Note:** Also your can use "Personal access tokens" against passwords.
 
-## EMR cluster <a name="EMR_cluster"></a>
+#### In Azure
 
-EMR cluster can be created if more computational resources are needed for executing analytical algorithms and models, triggered from analytical tools. Jobs execution will be scaled to a cluster mode increasing the performance and decreasing execution time.
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
+| azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned         |
+| git\_creds                    | User git credentials in JSON format                                               |
+| action                        | git\_creds                                                                        |
+
+## Dataengine-service cluster <a name="Dataengine-service cluster"></a>
+
+Dataengine-service is a cluster provided by cloud as a service (EMR on AWS) can be created if more computational resources are needed for executing analytical algorithms and models, triggered from analytical tools. Jobs execution will be scaled to a cluster mode increasing the performance and decreasing execution time.
 
 ### Create
 
-To create EMR cluster click on the “gear” button in Actions column, and click on “Deploy EMR”. Specify EMR version, fill in EMR name, specify number of instances and instance shapes. Click on the “Create” button.
+#### In Amazon
 
-List of parameters for EMR cluster creation:
+To create dataengine-service cluster click on the “gear” button in Actions column, and click on “Add computational resources”. Specify dataengine-service version, fill in dataengine-service name, specify number of instances and instance shapes. Click on the “Create” button.
 
-| Parameter                   | Description/Value                                            |
-|-----------------------------|--------------------------------------------------------------|
-| conf\_resource              | emr                                                          |
-| conf\_service\_base\_name   | Unique infrastructure value, specified during SSN deployment |
-| conf\_key\_name             | Name of the uploaded SSH key file (without ".pem")           |
-| emr\_timeout                | Value of timeout for EMR during build.                       |
-| emr\_instance\_count        | Amount of instance in cluster                                |
-| emr\_master\_instance\_type | Value for EMR EC2 master instance shape                      |
-| emr\_slave\_instance\_type  | Value for EMR EC2 slave instances shapes                     |
-| emr\_version                | Available versions of EMR (emr-5.2.0/emr-5.3.1/emr-5.6.0)              |
-| notebook\_instance\_name    | Name of the Notebook EMR will be linked to                   |
-| edge\_user\_name            | Value that previously was used when Edge being provisioned   |
-| aws\_region                 | AWS region where infrastructure was deployed                 |
-| conf\_tag\_resource\_id     | The name of tag for billing reports                          |
-| action                      | create                                                       |
+List of parameters for dataengine-service cluster creation:
 
-**Note:** If “Spot instances” is enabled, EMR Slave nodes will be created as EC2 Spot instances.
+| Parameter                   | Description/Value                                                        |
+|-----------------------------|--------------------------------------------------------------------------|
+| conf\_resource              | dataengine-service                                                       |
+| conf\_service\_base\_name   | Unique infrastructure value, specified during SSN deployment             |
+| conf\_key\_name             | Name of the uploaded SSH key file (without ".pem")                       |
+| emr\_timeout                | Value of timeout for dataengine-service during build.                    |
+| emr\_instance\_count        | Amount of instance in dataengine-service cluster                         |
+| emr\_master\_instance\_type | Value for dataengine-service EC2 master instance shape                   |
+| emr\_slave\_instance\_type  | Value for dataengine-service EC2 slave instances shapes                  |
+| emr\_version                | Available versions of dataengine-service (emr-5.2.0/emr-5.3.1/emr-5.6.0) |
+| notebook\_instance\_name    | Name of the Notebook dataengine-service will be linked to                |
+| edge\_user\_name            | Value that previously was used when Edge being provisioned               |
+| aws\_region                 | AWS region where infrastructure was deployed                             |
+| conf\_tag\_resource\_id     | The name of tag for billing reports                                      |
+| action                      | create                                                                   |
+
+**Note:** If “Spot instances” is enabled, dataengine-service Slave nodes will be created as EC2 Spot instances.
 
 ### Terminate
 
-In order to terminate EMR cluster, click on “x” button which is located in “Computational resources” field.
+#### In Amazon
 
-List of parameters for EMR cluster termination:
+In order to terminate dataengine-service cluster, click on “x” button which is located in “Computational resources” field.
 
-| Parameter                 | Description/Value                                            |
-|---------------------------|--------------------------------------------------------------|
-| conf\_resource            | emr                                                          |
-| conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment |
-| conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")           |
-| edge\_user\_name          | Value that previously was used when Edge being provisioned   |
-| emr\_cluster\_name        | Name of the EMR to terminate                                 |
-| notebook\_instance\_name  | Name of the Notebook instance which EMR is linked to         |
-| aws\_region               | AWS region where infrastructure was deployed                 |
-| action                    | Terminate                                                    |
+List of parameters for dataengine-service cluster termination:
+
+| Parameter                 | Description/Value                                                   |
+|---------------------------|---------------------------------------------------------------------|
+| conf\_resource            | dataengine-service                                                  |
+| conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment        |
+| conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")                  |
+| edge\_user\_name          | Value that previously was used when Edge being provisioned          |
+| emr\_cluster\_name        | Name of the dataengine-service to terminate                         |
+| notebook\_instance\_name  | Name of the Notebook instance which dataengine-service is linked to |
+| aws\_region               | AWS region where infrastructure was deployed                        |
+| action                    | Terminate                                                           |
+
+## Dataengine cluster <a name="Dataengine cluster"></a>
+
+Dataengine is cluster based on Standalone Spark framework can be created if more computational resources are needed for executing analytical algorithms, but without additional expenses for cloud provided service.
+
+### Create
+
+#### In Azure
+
+To create Spark standalone cluster click on the “gear” button in Actions column, and click on “Add computational resources”. Specify dataengine version, fill in dataengine name, specify number of instances and instance shapes. Click on the “Create” button.
+
+List of parameters for dataengine cluster creation:
+
+| Parameter                    | Description/Value                                                                 |
+|------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource               | dataengine                                                                        |
+| conf\_service\_base\_name    | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name              | Name of the uploaded SSH key file (without ".pem")                                |
+| conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat) |
+| notebook\_instance\_name     | Name of the Notebook dataengine will be linked to                                 |
+| edge\_user\_name             | Value that previously was used when Edge being provisioned                        |
+| azure\_vpc\_name             | Name of Azure Virtual network where all infrastructure is being deployed          |
+| azure\_region                | Azure region where all infrastructure was deployed                                |
+| azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned         |
+| azure\_subnet\_name          | Name of the Azure public subnet where Edge was deployed                           |
+| action                       | create                                                                            |
+
+
+### Terminate
+
+#### In Azure
+
+In order to terminate dataengine cluster, click on “x” button which is located in “Computational resources” field.
+
+List of parameters for dataengine cluster termination:
+
+| Parameter                    | Description/Value                                                        |
+|------------------------------|--------------------------------------------------------------------------|
+| conf\_resource               | dataengine                                                               |
+| conf\_service\_base\_name    | Unique infrastructure value, specified during SSN deployment             |
+| conf\_key\_name              | Name of the uploaded SSH key file (without ".pem")                       |
+| edge\_user\_name             | Value that previously was used when Edge being provisioned               |
+| notebook\_instance\_name     | Name of the Notebook instance which dataengine is linked to              |
+| azure\_region                | Azure region where infrastructure was deployed                           |
+| azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned|
+| action                       | Terminate                                                                |
 
 ## Configuration files <a name="Configuration_files"></a>
 
@@ -813,7 +1047,7 @@ To check logs of Docker containers run the following commands:
 ```
 docker ps -a – to get list of containers which were executed.
 ...
-a85d0d3c27aa docker.dlab-emr:latest "/root/entrypoint...." 2 hours ago Exited (0) 2 hours ago infallible_gallileo
+a85d0d3c27aa docker.dlab-dataengine:latest "/root/entrypoint...." 2 hours ago Exited (0) 2 hours ago infallible_gallileo
 6bc2afeb888e docker.dlab-jupyter:latest "/root/entrypoint...." 2 hours ago Exited (0) 2 hours ago practical_cori
 51b71c5d4aa3 docker.dlab-zeppelin:latest "/root/entrypoint...." 2 hours ago Exited (0) 2 hours ago determined_knuth
 ...
@@ -824,14 +1058,17 @@ To change Docker images on existing environment, execute following steps:
 1.  SSH to SSN instance
 2.  go to */opt/dlab/sources/*
 3.  Modify needed files
-4.  Rebuild proper Docker images, using one or several commands (depending on what files you’ve changed):
+[4]. [ONLY FOR AZURE] Copy service principal json file with credentials to base/azure_auth.json
+5.  Rebuild proper Docker images, using one or several commands (depending on what files you’ve changed):
 ```
-docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --file base/Dockerfile -t docker.dlab-base .
-docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --file edge/Dockerfile -t docker.dlab-edge .
-docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --file jupyter/Dockerfile -t docker.dlab-jupyter .
-docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --file rstudio/Dockerfile -t docker.dlab-rstudio .
-docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --file zeppelin/Dockerfile -t docker.dlab-zeppelin .
-docker build --build-arg OS=<os_family> --build-arg CLOUD=<cloud_provider> --file emr/Dockerfile -t docker.dlab-emr .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/base_Dockerfile -t docker.dlab-base .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/edge_Dockerfile -t docker.dlab-edge .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/jupyter_Dockerfile -t docker.dlab-jupyter .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/rstudio_Dockerfile -t docker.dlab-rstudio .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/zeppelin_Dockerfile -t docker.dlab-zeppelin .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/tensor_Dockerfile -t docker.dlab-tensor .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/deeplearning_Dockerfile -t docker.dlab-deeplearning .
+docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/dataengine_Dockerfile -t docker.dlab-dataengine .
 ```
 
 ----------------
@@ -1114,8 +1351,10 @@ The following list shows common structure of scripts for deploying DLab
     └───infrastructure-provisioning
         └───src
             ├───base
+            ├───dataengine
+            ├───dataengine-service
+            ├───deeplearning            
             ├───edge
-            ├───emr
             ├───general
             ├───jupyter
             ├───rstudio
@@ -1127,10 +1366,11 @@ Each directory except *general* contains Python scripts, Docker files, templates
 
 -   base – Main Docker image. It is a common/base image for other ones.
 -   edge – Docker image for Edge node.
--   emr – Docker image for EMR cluster.
+-   dataengine – Docker image for dataengine cluster.
+-   dataengine-service – Docker image for dataengine-service cluster.
 -   general – OS and CLOUD dependent common source.
 -   ssn – Docker image for Self-Service node (SSN).
--   jupyter/rstudio/zeppelin/tensor – Docker images for Notebook nodes.
+-   jupyter/rstudio/zeppelin/tensor/deeplearning – Docker images for Notebook nodes.
 
 All Python scripts, Docker files and other files, which are located in these directories, are OS and CLOUD independent.
 
@@ -1171,32 +1411,35 @@ The following table describes mostly used scripts:
 
 Available Docker images and their actions:
 
-| Docker image                    | Actions                                          |
-|---------------------------------|--------------------------------------------------|
-| ssn                             | create, terminate                                |
-| edge                            | create, terminate, status, start, stop, recreate |
-| jupyter/rstudio/zeppelin/tensor | create, terminate, start, stop, configure        |
-| emr                             | create, terminate                                |
+| Docker image                                 | Actions                                                                       |
+|----------------------------------------------|-------------------------------------------------------------------------------|
+| ssn                                          | create, terminate                                                             |
+| edge                                         | create, terminate, status, start, stop, recreate                              |
+| jupyter/rstudio/zeppelin/tensor/deeplearning | create, terminate, start, stop, configure, list_libs, install_libs, git_creds |
+| dataengine/dataengine-service                | create, terminate                                                             |
 
 ##### Docker and python execution workflow on example of SSN node
 
 -   Docker command for building images *docker.dlab-base* and *docker.dlab-ssn*:
 ```
-sudo docker build --build-arg OS=debian --build-arg CLOUD=aws --file base/Dockerfile -t docker.dlab-base . ;
-sudo docker build --build-arg OS=debian --build-arg CLOUD=aws --file ssn/Dockerfile -t docker.dlab-ssn . ;
+sudo docker build --build-arg OS=debian  --file general/files/aws/base_Dockerfile -t docker.dlab-base . ;
+sudo docker build --build-arg OS=debian  --file general/files/aws/ssn_Dockerfile -t docker.dlab-ssn . ;
 ```
 Example of SSN Docker file:
 ```
 FROM docker.dlab-base:latest
+
 ARG OS
-ARG CLOUD
+
 COPY ssn/ /root/
-COPY general/scripts/${CLOUD}/ssn_* /root/scripts/
+COPY general/scripts/aws/ssn_* /root/scripts/
 COPY general/lib/os/${OS}/ssn_lib.py /usr/lib/python2.7/dlab/ssn_lib.py
-COPY general/files/${CLOUD}/ssn_instance_shapes.lst /root/files/
-COPY general/files/${CLOUD}/ssn_policy.json /root/files/
+COPY general/files/aws/ssn_policy.json /root/files/
+COPY general/templates/aws/jenkins_jobs /root/templates/jenkins_jobs
+
 RUN chmod a+x /root/fabfile.py; \
     chmod a+x /root/scripts/*
+
 RUN mkdir /project_tree
 COPY . /project_tree
 ```
@@ -1204,7 +1447,7 @@ Using this Docker file, all required scripts and files will be copied to Docker 
 
 -   Docker command for building SSN:
 ```
-docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_os_family=debian" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "ssn_instance_size=t2.medium" -e "region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" -e "conf_tag_resource_id=dlab" docker.dlab-ssn --action create ;
+docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/web_app -e "conf_os_family=debian" -e "conf_cloud_provider=aws" -e "conf_resource=ssn" -e "ssn_instance_size=t2.medium" -e "aws_region=us-west-2" -e "aws_vpc_id=vpc-111111" -e "aws_subnet_id=subnet-111111" -e "aws_security_groups_ids=sg-11111,sg-22222,sg-33333" -e "conf_key_name=KEYNAME" -e "conf_service_base_name=dlab_test" -e "aws_access_key=Access_Key_ID" -e "aws_secret_access_key=Secret_Access_Key" -e "conf_tag_resource_id=dlab" docker.dlab-ssn --action create ;
 ```
 
 -   Docker executes *entrypoint.py* script with action *create*. *Entrypoint.py* will set environment variables, which were provided from Docker and execute *general/api/create.py* script:
@@ -1234,10 +1477,10 @@ docker run -i -v /root/KEYNAME.pem:/root/keys/KEYNAME.pem –v /web_app:/root/we
         append_result("Failed configuring SSN node. Exception: " + str(err))
         sys.exit(1)
 ```
--   The scripts *general/scripts/aws/ssn\_prepare.py* an *general/scripts/aws/ssn\_configure.py* will execute other Python scripts/functions for:
+-   The scripts *general/scripts/<cloud_provider>/ssn\_prepare.py* an *general/scripts/<cloud_provider>/ssn\_configure.py* will execute other Python scripts/functions for:
   1. *ssn\_prepate.py:*
-    1.  Creating AWS configuration file
-    2. Creating VPC, Subnet, Security Group, IAM roles, Endpoint, Route table, S3 bucket and EC2 instance.
+    1. Creating configuration file (for AWS)
+    2. Creating Cloud resources.
   2. *ssn\_configure.py:*
     1. Installing prerequisites
     2. Installing required packages
@@ -1270,12 +1513,9 @@ The following scripts/directories are required to be created in the template dir
 
     my-tool
     ├───scripts
-    ├───description.json
-    ├───Dockerfile
     └───fabfile.py
 
--   Dockerfile – used for building template Docker image and describes which files, scripts, templates are required and will be copied to template Docker image.
--   fabfile.py – the main script, which contains main functions for this template such as run, stop, terminate, etc.
+fabfile.py – the main script, which contains main functions for this template such as run, stop, terminate, etc.
 
 Here is example of *run*() function for Jupyter Notebook node:
 
@@ -1365,40 +1605,40 @@ The following steps are required for each Notebook node:
 Other scripts, responsible for configuring Jupyter node are placed in *infrastructure-provisioning/src/jupyter/scripts/*
 
 -   scripts directory – contains all required configuration scripts.
--   descriptsion.json – JSON file for DLab Web UI. In this file you can specify:
+
+
+-   *infrastructure-provisioning/src/general/files/<cloud_provider>/my-tool_Dockerfile* – used for building template Docker image and describes which files, scripts, templates are required and will be copied to template Docker image.
+-   *infrastructure-provisioning/src/general/files/<cloud_provider>/my-tool_descriptsion.json* – JSON file for DLab Web UI. In this file you can specify:
   * exploratory\_environment\_shapes – list of EC2 shapes
   * exploratory\_environment\_versions – description of template
 
-Example of this file for Jupyter node:
+Example of this file for Jupyter node for AWS cloud:
 ```
 {
   "exploratory_environment_shapes" :
   {
     "For testing" : [
-      {"Size": "XS", "Description": "t2.medium", "Type": "t2.medium","Ram": "4 GB","Cpu": "2"}
+      {"Size": "S", "Description": "Standard_DS1_v2", "Type": "Standard_DS1_v2","Ram": "3.5 GB","Cpu": "1", "Spot": "true", "SpotPctPrice": "70"}
     ],
     "Memory optimized" : [
-      {"Size": "S", "Description": "r3.xlarge", "Type": "r3.xlarge","Ram": "30.5 GB","Cpu": "4"},
-      {"Size": "M", "Description": "r3.4xlarge", "Type": "r3.4xlarge","Ram": "122 GB","Cpu": "16"},
-      {"Size": "L", "Description": "r3.8xlarge", "Type": "r3.8xlarge","Ram": "244 GB","Cpu": "32"}
-    ],
-    "GPU optimized": [
-      {"Size": "M", "Description": "g2.2xlarge", "Type": "g2.2xlarge","Ram": "15.0 GB","Cpu": "8"}
+      {"Size": "S", "Description": "Standard_E4s_v3", "Type": "Standard_E4s_v3","Ram": "32 GB","Cpu": "4"},
+      {"Size": "M", "Description": "Standard_E16s_v3", "Type": "Standard_E16s_v3","Ram": "128 GB","Cpu": "16"},
+      {"Size": "L", "Description": "Standard_E32s_v3", "Type": "Standard_E32s_v3","Ram": "256 GB","Cpu": "32"}
     ],
     "Compute optimized": [
-      {"Size": "S", "Description": "c4.large", "Type": "c4.large","Ram": "3.75 GB","Cpu": "2"},
-      {"Size": "M", "Description": "c4.2xlarge", "Type": "c4.2xlarge","Ram": "15.0 GB","Cpu": "8"},
-      {"Size": "L", "Description": "c4.8xlarge", "Type": "c4.8xlarge","Ram": "60.0 GB","Cpu": "36"}
+      {"Size": "S", "Description": "Standard_F2s", "Type": "Standard_F2s","Ram": "4 GB","Cpu": "2"},
+      {"Size": "M", "Description": "Standard_F8s", "Type": "Standard_F8s","Ram": "16.0 GB","Cpu": "8"},
+      {"Size": "L", "Description": "Standard_F16s", "Type": "Standard_F16s","Ram": "32.0 GB","Cpu": "16"}
     ]
   },
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Jupyter 1.5",
+      "template_name": "Jupyter notebook 5.0.0",
       "description": "Base image with jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "jupyter-1.6",
-      "vendor": "AWS"
+      "version": "jupyter_notebook-5.0.0",
+      "vendor": "Azure"
     }
   ]
 }
