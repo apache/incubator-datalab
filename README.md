@@ -1058,7 +1058,7 @@ To change Docker images on existing environment, execute following steps:
 1.  SSH to SSN instance
 2.  go to */opt/dlab/sources/*
 3.  Modify needed files
-4.  Copy service principal json file with credentials to base/azure_auth.json
+[4]. [ONLY FOR AZURE] Copy service principal json file with credentials to base/azure_auth.json
 5.  Rebuild proper Docker images, using one or several commands (depending on what files you’ve changed):
 ```
 docker build --build-arg OS=<os_family> --file general/files/<cloud_provider>/base_Dockerfile -t docker.dlab-base .
@@ -1513,12 +1513,9 @@ The following scripts/directories are required to be created in the template dir
 
     my-tool
     ├───scripts
-    ├───description.json
-    ├───Dockerfile
     └───fabfile.py
 
--   Dockerfile – used for building template Docker image and describes which files, scripts, templates are required and will be copied to template Docker image.
--   fabfile.py – the main script, which contains main functions for this template such as run, stop, terminate, etc.
+fabfile.py – the main script, which contains main functions for this template such as run, stop, terminate, etc.
 
 Here is example of *run*() function for Jupyter Notebook node:
 
@@ -1608,40 +1605,40 @@ The following steps are required for each Notebook node:
 Other scripts, responsible for configuring Jupyter node are placed in *infrastructure-provisioning/src/jupyter/scripts/*
 
 -   scripts directory – contains all required configuration scripts.
--   descriptsion.json – JSON file for DLab Web UI. In this file you can specify:
+
+
+-   *infrastructure-provisioning/src/general/files/<cloud_provider>/my-tool_Dockerfile* – used for building template Docker image and describes which files, scripts, templates are required and will be copied to template Docker image.
+-   *infrastructure-provisioning/src/general/files/<cloud_provider>/my-tool_descriptsion.json* – JSON file for DLab Web UI. In this file you can specify:
   * exploratory\_environment\_shapes – list of EC2 shapes
   * exploratory\_environment\_versions – description of template
 
-Example of this file for Jupyter node:
+Example of this file for Jupyter node for AWS cloud:
 ```
 {
   "exploratory_environment_shapes" :
   {
     "For testing" : [
-      {"Size": "XS", "Description": "t2.medium", "Type": "t2.medium","Ram": "4 GB","Cpu": "2"}
+      {"Size": "S", "Description": "Standard_DS1_v2", "Type": "Standard_DS1_v2","Ram": "3.5 GB","Cpu": "1", "Spot": "true", "SpotPctPrice": "70"}
     ],
     "Memory optimized" : [
-      {"Size": "S", "Description": "r3.xlarge", "Type": "r3.xlarge","Ram": "30.5 GB","Cpu": "4"},
-      {"Size": "M", "Description": "r3.4xlarge", "Type": "r3.4xlarge","Ram": "122 GB","Cpu": "16"},
-      {"Size": "L", "Description": "r3.8xlarge", "Type": "r3.8xlarge","Ram": "244 GB","Cpu": "32"}
-    ],
-    "GPU optimized": [
-      {"Size": "M", "Description": "g2.2xlarge", "Type": "g2.2xlarge","Ram": "15.0 GB","Cpu": "8"}
+      {"Size": "S", "Description": "Standard_E4s_v3", "Type": "Standard_E4s_v3","Ram": "32 GB","Cpu": "4"},
+      {"Size": "M", "Description": "Standard_E16s_v3", "Type": "Standard_E16s_v3","Ram": "128 GB","Cpu": "16"},
+      {"Size": "L", "Description": "Standard_E32s_v3", "Type": "Standard_E32s_v3","Ram": "256 GB","Cpu": "32"}
     ],
     "Compute optimized": [
-      {"Size": "S", "Description": "c4.large", "Type": "c4.large","Ram": "3.75 GB","Cpu": "2"},
-      {"Size": "M", "Description": "c4.2xlarge", "Type": "c4.2xlarge","Ram": "15.0 GB","Cpu": "8"},
-      {"Size": "L", "Description": "c4.8xlarge", "Type": "c4.8xlarge","Ram": "60.0 GB","Cpu": "36"}
+      {"Size": "S", "Description": "Standard_F2s", "Type": "Standard_F2s","Ram": "4 GB","Cpu": "2"},
+      {"Size": "M", "Description": "Standard_F8s", "Type": "Standard_F8s","Ram": "16.0 GB","Cpu": "8"},
+      {"Size": "L", "Description": "Standard_F16s", "Type": "Standard_F16s","Ram": "32.0 GB","Cpu": "16"}
     ]
   },
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Jupyter 1.5",
+      "template_name": "Jupyter notebook 5.0.0",
       "description": "Base image with jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "jupyter-1.6",
-      "vendor": "AWS"
+      "version": "jupyter_notebook-5.0.0",
+      "vendor": "Azure"
     }
   ]
 }
