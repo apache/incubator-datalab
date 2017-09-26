@@ -655,10 +655,7 @@ class AzureActions:
 
     def start_instance(self, resource_group_name, instance_name):
         try:
-            result = self.compute_client.virtual_machines.start(resource_group_name, instance_name)
-            while meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).provisioning_state != "Succeeded":
-                time.sleep(5)
-                print "Instance {} is being started...".format(instance_name)
+            result = self.compute_client.virtual_machines.start(resource_group_name, instance_name).wait()
             return result
         except Exception as err:
             logging.info(
