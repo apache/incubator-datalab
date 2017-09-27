@@ -21,7 +21,9 @@ package com.epam.dlab.backendapi.modules;
 import com.epam.dlab.ModuleBase;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
@@ -61,7 +63,7 @@ public class MockModule extends ModuleBase<SelfServiceApplicationConfiguration> 
         bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
                 .toInstance(createAuthenticationService());
-        requestStaticInjection(RequestId.class, com.epam.dlab.backendapi.util.ResourceUtils.class);
+        requestStaticInjection(EnvStatusListener.class, RequestId.class, ResourceUtils.class, RequestBuilder.class);
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
                 .toInstance(createProvisioningService());
     }

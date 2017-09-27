@@ -1,0 +1,18 @@
+{
+ "argv": [
+  "PYTHON_PATH",
+  "-m",
+  "ipykernel",
+  "-f",
+  "{connection_file}"
+ ],
+ "language": "python",
+ "display_name": "PySpark (Python-PYTHON_FULL_VERSION / SPARK_VERSION ) [CLUSTER_NAME]",
+ "env": {
+  "PYSPARK_PYTHON": "pythonPYTHON_FULL_VERSION",
+  "SPARK_HOME": "SPARK_PATH",
+  "PYTHONPATH": "PY4J:SPARK_PATHpython/:",
+  "PYTHONSTARTUP": "SPARK_PATHpython/pyspark/shell.py",
+  "PYSPARK_SUBMIT_ARGS": "--master MASTER pyspark-shell"
+ }
+}

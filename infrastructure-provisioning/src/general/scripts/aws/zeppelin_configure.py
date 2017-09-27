@@ -54,7 +54,7 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
     if os.environ['application'] == 'zeppelin':
-        if os.environ['notebook_multiple_emrs'] == 'true':
+        if os.environ['notebook_multiple_clusters'] == 'true':
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
                 'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
         else:
@@ -70,11 +70,19 @@ if __name__ == "__main__":
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
 
+    region = os.environ['aws_region']
+    if region == 'us-east-1':
+        endpoint_url = 'https://s3.amazonaws.com'
+    elif region == 'cn-north-1':
+        endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
+    else:
+        endpoint_url = 'https://s3-{}.amazonaws.com'.format(region)
+
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
     edge_instance_name = os.environ['conf_service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_instance_hostname = get_instance_hostname(notebook_config['tag_name'], edge_instance_name)
-    keyfile_name = "/root/keys/{}.pem".format(os.environ['conf_key_name'])
+    keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
     try:
         if os.environ['conf_os_family'] == 'debian':
@@ -87,7 +95,7 @@ if __name__ == "__main__":
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", initial_user,
+            (instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", initial_user,
              notebook_config['dlab_ssh_user'], sudo_group)
 
         try:
@@ -109,7 +117,7 @@ if __name__ == "__main__":
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
                     notebook_config['dlab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('notebook_configure_proxy', params))
+            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except:
             traceback.print_exc()
             raise Exception
@@ -142,13 +150,13 @@ if __name__ == "__main__":
                              "backend_hostname": get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name']),
                              "backend_port": "8080",
                              "nginx_template_dir": "/root/templates/"}
-        params = "--hostname {} --instance_name {} --keyfile {} --region {} --additional_config '{}' --os_user {} --spark_version {} --hadoop_version {} --edge_hostname {} --proxy_port {} --zeppelin_version {} --scala_version {} --livy_version {} --multiple_emrs {} --r_mirror {}" \
+        params = "--hostname {} --instance_name {} --keyfile {} --region {} --additional_config '{}' --os_user {} --spark_version {} --hadoop_version {} --edge_hostname {} --proxy_port {} --zeppelin_version {} --scala_version {} --livy_version {} --multiple_clusters {} --r_mirror {} --endpoint_url {}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, os.environ['aws_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
                     os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
-                    os.environ['notebook_livy_version'], os.environ['notebook_multiple_emrs'],
-                    os.environ['notebook_r_mirror'])
+                    os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
+                    os.environ['notebook_r_mirror'], endpoint_url)
         try:
             local("~/scripts/{}.py {}".format('configure_zeppelin_node', params))
         except:
@@ -179,7 +187,7 @@ if __name__ == "__main__":
         print '[INSTALLING USERs KEY]'
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": notebook_config['user_keyname'],
-                             "user_keydir": "/root/keys/"}
+                             "user_keydir": os.environ['conf_key_dir']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --user {}".format(
             instance_hostname, keyfile_name, json.dumps(additional_config), notebook_config['dlab_ssh_user'])
         try:

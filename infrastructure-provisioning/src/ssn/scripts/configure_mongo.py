@@ -23,20 +23,14 @@ import yaml, json, sys
 import subprocess
 import time
 import argparse
+from dlab.fab import *
 
 path = "/etc/mongod.conf"
 outfile = "/etc/mongo_params.yml"
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--region', type=str, default='')
-parser.add_argument('--vpc', type=str, default='')
-parser.add_argument('--subnet', type=str, default='')
-parser.add_argument('--base_name', type=str, default='')
-parser.add_argument('--sg', type=str, default='')
 parser.add_argument('--dlab_path', type=str, default='')
-parser.add_argument('--os_user', type=str, default='')
-parser.add_argument('--os_family', type=str, default='')
-parser.add_argument('--tag_resource_id', type=str, default='')
+parser.add_argument('--mongo_parameters', type=str, default='')
 args = parser.parse_args()
 
 
@@ -77,7 +71,7 @@ if __name__ == "__main__":
     mongo_passwd = "PASSWORD"
     mongo_ip = read_yml_conf(path,'net','bindIp')
     mongo_port = read_yml_conf(path,'net','port')
-
+    mongo_parameters = json.loads(args.mongo_parameters)
     # Setting up admin's password and enabling security
     client = MongoClient(mongo_ip + ':' + str(mongo_port))
     pass_upd = True
@@ -87,14 +81,7 @@ if __name__ == "__main__":
         time.sleep(5)
         client.dlabdb.add_user('admin', mongo_passwd, roles=[{'role':'userAdminAnyDatabase','db':'admin'}])
         client.dlabdb.command('grantRolesToUser', "admin", roles=["readWrite"])
-        client.dlabdb.settings.insert_one({"_id": "aws_region", "value": args.region})
-        client.dlabdb.settings.insert_one({"_id": "aws_vpc_id", "value": args.vpc})
-        client.dlabdb.settings.insert_one({"_id": "aws_subnet_id", "value": args.subnet})
-        client.dlabdb.settings.insert_one({"_id": "conf_service_base_name", "value": args.base_name})
-        client.dlabdb.settings.insert_one({"_id": "aws_security_groups_ids", "value": args.sg})
-        client.dlabdb.settings.insert_one({"_id": "conf_os_family", "value": args.os_family})
-        client.dlabdb.settings.insert_one({"_id": "conf_tag_resource_id", "value": args.tag_resource_id})
-        client.dlabdb.settings.insert_one({"_id": "conf_key_dir", "value": "/root/keys"})
+        set_mongo_parameters(client, mongo_parameters)
         with open(args.dlab_path + 'tmp/mongo_roles.json', 'r') as data:
             json_data = json.load(data)
         for i in json_data:

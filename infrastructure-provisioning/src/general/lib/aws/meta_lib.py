@@ -26,6 +26,7 @@ import sys
 import random
 import string
 from dlab.fab import *
+import actions_lib
 
 
 def get_instance_hostname(tag_name, instance_name):
@@ -118,8 +119,18 @@ def get_instance_ip_address(tag_name, instance_name):
             raise Exception("Unable to find instance IP addresses with instance name: " + instance_name)
         return ips
     except Exception as err:
-        logging.error("Error with getting bucket by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Error with getting bucket by name", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        logging.error("Error with getting ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with getting ip address by name", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def get_instance_private_ip_address(tag_name, instance_name):
+    try:
+        actions_lib.create_aws_config_files()
+        return get_instance_ip_address(tag_name, instance_name).get('Private')
+    except Exception as err:
+        logging.error("Error with getting private ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with getting private ip address by name", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
 
@@ -641,7 +652,6 @@ def get_list_instance_statuses(instance_ids):
                     host['status'] = j.get('State').get('Name')
                     data.append(host)
         except:
-            host['resource_type'] = 'host'
             host['id'] = h.get('id')
             host['status'] = 'terminated'
             data.append(host)

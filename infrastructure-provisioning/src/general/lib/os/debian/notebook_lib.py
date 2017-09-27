@@ -97,7 +97,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
             sudo('apt-get install -y gdebi-core')
             sudo('wget https://download2.rstudio.org/rstudio-server-{}-amd64.deb'.format(rstudio_version))
             sudo('gdebi -n rstudio-server-{}-amd64.deb'.format(rstudio_version))
-            sudo('mkdir /mnt/var')
+            sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             sudo('touch /home/{}/.Renviron'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
@@ -229,7 +229,7 @@ def ensure_python3_libraries(os_user):
             sys.exit(1)
 
 
-def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
+def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia_version):
     if not exists('/home/' + os_user + '/.ensure_dir/tensor_ensured'):
         try:
             # install nvidia drivers
@@ -239,9 +239,9 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('shutdown -r 1')
             time.sleep(90)
             sudo('apt-get -y install linux-image-extra-`uname -r`')
-            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/367.57/NVIDIA-Linux-x86_64-367.57.run -O /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run')
-            sudo('/bin/bash /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run -s --no-install-libglvnd')
-            sudo('rm -f /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run')
+            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
+            sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
+            sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
             sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run')
             sudo('sh /opt/cuda_8.0.44_linux-run --silent --toolkit')
@@ -249,8 +249,9 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('ln -s /opt/cuda-8.0 /usr/local/cuda-8.0')
             sudo('rm -f /opt/cuda_8.0.44_linux-run')
             # install cuDNN
-            put(files_dir + 'cudnn-8.0-linux-x64-v5.1.tgz', '/tmp/cudnn-8.0-linux-x64-v5.1.tgz')
-            run('tar xvzf /tmp/cudnn-8.0-linux-x64-v5.1.tgz -C /tmp')
+            cudnn = 'cudnn-8.0-linux-x64-v6.0.tgz'
+            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v6.0/{0} -O /tmp/{0}'.format(cudnn))
+            run('tar xvzf /tmp/{} -C /tmp'.format(cudnn))
             sudo('mkdir -p /opt/cudnn/include')
             sudo('mkdir -p /opt/cudnn/lib64')
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
@@ -312,20 +313,22 @@ def install_nodejs(os_user):
 
 def install_os_pkg(requisites):
     status = list()
+    error_parser = "Could not|No matching|Error:|failed|Requires:"
     try:
         print "Updating repositories and installing requested tools:", requisites
         sudo('apt-get update')
-        sudo('apt-get -y install python-pip python3-pip')
         for os_pkg in requisites:
-            try:
-                sudo('apt-get -y install ' + os_pkg)
-                res = sudo('apt list --installed | grep ' + os_pkg)
+            sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 | if ! grep -w -E  "({1})" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
+            err = sudo('cat /tmp/os_install_{}.log'.format(os_pkg)).replace('"', "'")
+            sudo('apt list --installed | if ! grep {0}/ > /tmp/os_install_{0}.list; then  echo "" > /tmp/os_install_{0}.list;fi'.format(os_pkg))
+            res = sudo('cat /tmp/os_install_{}.list'.format(os_pkg))
+            if res:
                 ansi_escape = re.compile(r'\x1b[^m]*m')
                 ver = ansi_escape.sub('', res).split("\r\n")
                 version = [i for i in ver if os_pkg in i][0].split(' ')[1]
                 status.append({"group": "os_pkg", "name": os_pkg, "version": version, "status": "installed"})
-            except:
-                status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": ""})
+            else:
+                status.append({"group": "os_pkg", "name": os_pkg, "status": "failed", "error_message": err})
         sudo('unattended-upgrades -v')
         sudo('export LC_ALL=C')
         return status
@@ -348,7 +351,7 @@ def get_available_os_pkgs():
         sys.exit(1)
 
 
-def install_caffe(os_user):
+def install_caffe(os_user, region):
     if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         sudo('apt-get install -y python-dev')
@@ -399,8 +402,9 @@ def install_caffe2(os_user):
         sudo('pip3 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
         sudo('git clone --recursive https://github.com/caffe2/caffe2.git')
+        cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
         with cd('/home/{}/caffe2/'.format(os_user)):
-            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="35 52 60 61" -DCUDA_ARCH_PTX="61" && make "-j$(nproc)" install')
+            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_BIN="{0}" -DCUDA_ARCH_PTX="{0}" && make "-j$(nproc)" install'.format(cuda_arch.replace('.', '')))
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 

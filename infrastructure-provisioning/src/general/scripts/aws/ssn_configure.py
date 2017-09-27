@@ -85,7 +85,11 @@ if __name__ == "__main__":
         if not billing_enabled:
             os.environ['aws_account_id'] = 'None'
             os.environ['aws_billing_bucket'] = 'None'
-            os.environ['aws_report_path'] = 'None'
+        try:
+            if not os.environ['aws_report_path']:
+                raise KeyError
+        except KeyError:
+            os.environ['aws_report_path'] = ''
     except:
         sys.exit(1)
 
@@ -100,8 +104,8 @@ if __name__ == "__main__":
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (get_instance_hostname(tag_name, instance_name), "/root/keys/" + os.environ['conf_key_name'] + ".pem",
-             initial_user, dlab_ssh_user, sudo_group)
+            (get_instance_hostname(tag_name, instance_name), os.environ['conf_key_dir'] + os.environ['conf_key_name'] +
+             ".pem", initial_user, dlab_ssh_user, sudo_group)
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -130,7 +134,7 @@ if __name__ == "__main__":
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric awscli pymongo pyyaml' --user {} --region {}". \
-            format(instance_hostname, "/root/keys/" + os.environ['conf_key_name'] + ".pem", dlab_ssh_user,
+            format(instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", dlab_ssh_user,
                    os.environ['aws_region'])
 
         try:
@@ -159,7 +163,7 @@ if __name__ == "__main__":
         print('[CONFIGURE SSN INSTANCE]')
         additional_config = {"nginx_template_dir": "/root/templates/", "service_base_name": service_base_name, "security_group_id": os.environ['aws_security_groups_ids'], "vpc_id": os.environ['aws_vpc_id'], "subnet_id": os.environ['aws_subnet_id'], "admin_key": os.environ['conf_key_name']}
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_user {} --dlab_path {} --tag_resource_id {}". \
-            format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),
+            format(instance_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
                    json.dumps(additional_config), dlab_ssh_user, os.environ['ssn_dlab_path'],
                    os.environ['conf_tag_resource_id'])
 
@@ -194,9 +198,9 @@ if __name__ == "__main__":
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
-                             {"name": "emr", "tag": "latest"}]
+                             {"name": "dataengine-service", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
-            format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']),
+            format(instance_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
                    json.dumps(additional_config), os.environ['conf_os_family'], dlab_ssh_user,
                    os.environ['ssn_dlab_path'], os.environ['conf_cloud_provider'], os.environ['aws_region'])
 
@@ -222,15 +226,25 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        mongo_parameters = {
+            "aws_region": os.environ['aws_region'],
+            "aws_vpc_id": os.environ['aws_vpc_id'],
+            "aws_subnet_id": os.environ['aws_subnet_id'],
+            "conf_service_base_name": os.environ['conf_service_base_name'],
+            "aws_security_groups_ids": os.environ['aws_security_groups_ids'].replace(" ", ""),
+            "conf_os_family": os.environ['conf_os_family'],
+            "conf_tag_resource_id": os.environ['conf_tag_resource_id'],
+            "conf_key_dir": os.environ['conf_key_dir']
+        }
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
-            format(instance_hostname, "/root/keys/{}.pem".format(os.environ['conf_key_name']), os.environ['ssn_dlab_path'],
-                   dlab_ssh_user, os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'], os.environ['aws_region'],
-                   os.environ['conf_service_base_name'], os.environ['aws_security_groups_ids'], os.environ['aws_vpc_id'],
-                   os.environ['aws_subnet_id'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
-                   os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],
-                   billing_enabled)
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --service_base_name {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {} --mongo_parameters '{}'". \
+            format(instance_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
+                   os.environ['ssn_dlab_path'], dlab_ssh_user, os.environ['conf_os_family'], os.environ['request_id'],
+                   os.environ['conf_resource'], os.environ['conf_service_base_name'],
+                   os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'], os.environ['aws_account_id'],
+                   os.environ['aws_billing_bucket'], os.environ['aws_report_path'], billing_enabled,
+                   json.dumps(mongo_parameters))
 
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
@@ -266,7 +280,7 @@ if __name__ == "__main__":
         print "VPC ID: " + os.environ['aws_vpc_id']
         print "Subnet ID: " + os.environ['aws_subnet_id']
         print "Security IDs: " + os.environ['aws_security_groups_ids']
-        print "SSN instance shape: " + os.environ['aws_ssn_instance_size']
+        print "SSN instance shape: " + os.environ['ssn_instance_size']
         print "SSN AMI name: " + ssn_ami_name
         print "SSN bucket name: " + user_bucket_name
         print "Shared bucket name: " + shared_bucket_name
@@ -292,7 +306,7 @@ if __name__ == "__main__":
                    "vpc_id": os.environ['aws_vpc_id'],
                    "subnet_id": os.environ['aws_subnet_id'],
                    "security_id": os.environ['aws_security_groups_ids'],
-                   "instance_shape": os.environ['aws_ssn_instance_size'],
+                   "instance_shape": os.environ['ssn_instance_size'],
                    "bucket_name": user_bucket_name,
                    "shared_bucket_name": shared_bucket_name,
                    "region": region,
@@ -300,8 +314,8 @@ if __name__ == "__main__":
             f.write(json.dumps(res))
 
         print 'Upload response file'
-        params = "--instance_name {} --local_log_filepath {} --os_user {}".format(instance_name, local_log_filepath,
-                                                                                  dlab_ssh_user)
+        params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}".\
+            format(instance_name, local_log_filepath, dlab_ssh_user, instance_hostname)
         local("~/scripts/{}.py {}".format('upload_response_file', params))
 
         logging.info('[FINALIZE]')

@@ -102,7 +102,7 @@ def start():
         sys.exit(1)
 
 
-# Main function for configuring notebook server after deploying EMR
+# Main function for configuring notebook server after deploying DataEngine service
 def configure():
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] +  "/" + local_log_filename
@@ -111,7 +111,10 @@ def configure():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('common_configure_analytic_tool'))
+        if os.environ['conf_resource'] == 'dataengine-service':
+            local("~/scripts/{}.py".format('common_configure_analytic_tool'))
+        elif os.environ['conf_resource'] == 'dataengine':
+            local("~/scripts/{}.py".format('common_notebook_configure_dataengine'))
     except Exception as err:
         append_result("Failed configuring analytical tool on Notebook node.", str(err))
         sys.exit(1)

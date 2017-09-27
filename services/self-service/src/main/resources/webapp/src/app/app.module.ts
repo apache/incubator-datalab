@@ -40,6 +40,7 @@ import {
   HealthStatusService,
   AppRoutingService,
   AuthorizationGuard,
+  CloudProviderGuard,
   ApplicationServiceFacade,
   ApplicationSecurityService,
   LibrariesInstallationService,
@@ -72,6 +73,7 @@ import {
       deps: [XHRBackend, RequestOptions, Router]
     },
     AuthorizationGuard,
+    CloudProviderGuard,
     ApplicationSecurityService,
     UserAccessKeyService,
     AppRoutingService,

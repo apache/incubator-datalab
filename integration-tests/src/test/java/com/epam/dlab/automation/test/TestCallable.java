@@ -20,6 +20,7 @@ package com.epam.dlab.automation.test;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
@@ -27,6 +28,7 @@ import com.epam.dlab.automation.test.libs.TestLibGroupStep;
 import com.epam.dlab.automation.test.libs.TestLibInstallStep;
 import com.epam.dlab.automation.test.libs.TestLibListStep;
 import com.epam.dlab.automation.test.libs.models.Lib;
+import com.epam.dlab.automation.test.libs.models.LibToSearchData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -77,6 +79,7 @@ public class TestCallable implements Callable<Boolean> {
     public Boolean call() throws Exception {
         final String notebookIp = createNotebook(notebookName);
         testLibs();
+
         final DeployEMRDto deployEMR = createEMR();
 
         final String emrClusterName = NamingHelper.getEmrClusterName(NamingHelper.getEmrInstanceName(notebookName, emrName));
@@ -100,7 +103,8 @@ public class TestCallable implements Callable<Boolean> {
        	// Create notebook from AMI
        	String notebookNewName = "AMI" + notebookName;
        	createNotebook(notebookNewName);
-       	terminateNotebook(notebookNewName);
+
+       	terminateNotebook(notebookName);
 
        	LOGGER.info("{} All tests finished successfully", notebookName);
         return true;
@@ -147,25 +151,41 @@ public class TestCallable implements Callable<Boolean> {
 
        TestLibGroupStep testLibGroupStep = new TestLibGroupStep(ApiPath.LIB_GROUPS, token, notebookName,
                ConfigPropertyValue.getTimeoutLibGroups().getSeconds(),
-               Paths.get(PropertiesResolver.getNotebookTestLibLocation(), "lib_groups.json").toString());
+               getTemplateTestLibFile("lib_groups.json"));
 
        testLibGroupStep.init();
        testLibGroupStep.verify();
 
-       TestLibListStep testLibListStep = new TestLibListStep(ApiPath.LIB_LIST, token, notebookName,
-               ConfigPropertyValue.getTimeoutLibList().getSeconds(),
-               Paths.get(PropertiesResolver.getNotebookTestLibLocation(), "lib_list.json").toString());
+       List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(getTemplateTestLibFile("lib_list.json"),
+               LibToSearchData.class);
 
-       testLibListStep.init();
-       testLibListStep.verify();
+       for (LibToSearchData libToSearchData : libToSearchDataList) {
+           TestLibListStep testLibListStep = new TestLibListStep(ApiPath.LIB_LIST, token, notebookName,
+                   ConfigPropertyValue.getTimeoutLibList().getSeconds(), libToSearchData);
 
-       Lib lib = testLibListStep.getLibs().get(new Random().nextInt(testLibListStep.getLibs().size()));
+           testLibListStep.init();
+           testLibListStep.verify();
 
-       TestLibInstallStep testLibInstallStep = new TestLibInstallStep(ApiPath.LIB_INSTALL, ApiPath.LIB_LIST_EXPLORATORY,
-               token, notebookName, ConfigPropertyValue.getTimeoutLibInstall().getSeconds(), lib);
+           Lib lib = testLibListStep.getLibs().get(new Random().nextInt(testLibListStep.getLibs().size()));
 
-       testLibInstallStep.init();
-       testLibInstallStep.verify();
+           TestLibInstallStep testLibInstallStep = new TestLibInstallStep(ApiPath.LIB_INSTALL, ApiPath.LIB_LIST_EXPLORATORY,
+                   token, notebookName, ConfigPropertyValue.getTimeoutLibInstall().getSeconds(), lib);
+
+           testLibInstallStep.init();
+           testLibInstallStep.verify();
+       }
+   }
+
+   private String getTemplateTestLibFile(String fileName) {
+        String absoluteFileName;
+        if (PropertiesResolver.DEV_MODE) {
+            absoluteFileName = Paths.get(PropertiesResolver.getNotebookTestLibLocation(), fileName).toString();
+        } else {
+            absoluteFileName = Paths.get(PropertiesResolver.getNotebookTestLibLocation(), notebookTemplate,
+                    fileName).toString();
+        }
+        LOGGER.info("Absolute file name is {}", absoluteFileName);
+        return absoluteFileName;
    }
 
    private DeployEMRDto createEMR() throws Exception {

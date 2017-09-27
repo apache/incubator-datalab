@@ -27,7 +27,9 @@ limitations under the License.
     <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
       <li><a [routerLink]="['/resources_list']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">List of Resources</a></li>
       <li><a [routerLink]="['/environment_health_status']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Health Status</a></li>
-      <li><a [routerLink]="['/reporting']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Reporting</a></li>
+      <li *ngIf="PROVIDER === 'aws'">
+        <a [routerLink]="['/reporting']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Reporting</a>
+      </li>
     </ul>
   </div>
   <a [routerLink]="['/resources_list']" class="navbar-logo">
@@ -39,7 +41,6 @@ limitations under the License.
     <span class="user-name">{{currentUserName}}</span>
   </button>
   <a *ngIf="healthStatus" [routerLink]="['/environment_health_status']" class="statusbar">
-    <span class="glyphicon glyphicon-record" ngClass="{{healthStatus || ''}}"></span>
-    <span class="status"></span> 
+    <span class="material-icons" ngClass="{{healthStatus || ''}}">radio_button_checked</span>
   </a>
 </nav>

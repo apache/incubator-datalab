@@ -134,14 +134,6 @@ limitations under the License.
   text-transform: capitalize;
 }
 
-.dashboard_table .glyphicon-cog {
-  font-size: 16px;
-}
-
-.dashboard_table .glyphicon {
-  cursor: pointer;
-}
-
 .dashboard_table .dropdown-menu {
   left: auto;
   margin-left: 0;
@@ -149,6 +141,7 @@ limitations under the License.
   padding: 10px 15px;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, .175);
   border: none;
+  width: 190px;
 }
 
 .dashboard_table .dropdown-outscreen .dropdown-menu {

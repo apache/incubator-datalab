@@ -42,11 +42,7 @@ if __name__ == "__main__":
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
 
-    bucket_name = ('{}-ssn-bucket'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
     gitlab_certfile = os.environ['conf_gitlab_certfile']
-    if dlab.actions_lib.get_gitlab_cert(bucket_name, gitlab_certfile):
-        put(gitlab_certfile, gitlab_certfile)
-        sudo('chown root:root {}'.format(gitlab_certfile))
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 

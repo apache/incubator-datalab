@@ -71,7 +71,7 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
      */
     @POST
     @Path("/login")
-    public Response login(@NotNull UserCredentialDTO credential) {
+    public Response login(@Valid @NotNull UserCredentialDTO credential) {
         LOGGER.debug("Try login for user {}", credential.getUsername());
         try {
             dao.writeLoginAttempt(credential);
@@ -97,7 +97,7 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
         			Status.OK :
         			Status.FORBIDDEN;
         	if (status == Status.OK) {
-        		EnvStatusListener.listen(userInfo.getName(), userInfo.getAccessToken(), settingsDAO.getAwsRegion());
+        		EnvStatusListener.listen(userInfo);
         		if (configuration.isRolePolicyEnabled()) {
         			UserRoles.initialize(dao, configuration.getRoleDefaultAccess());
         		}

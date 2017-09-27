@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import com.epam.dlab.cloud.CloudProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,21 +34,26 @@ public class CommandExecutorMock implements ICommandExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutorMock.class);
 
     private CommandExecutorMockAsync execAsync = null;
-
 	private CompletableFuture<Boolean> future;
-    
-    /** Return result of execution. 
-     * @throws ExecutionException 
+
+    private CloudProvider cloudProvider;
+
+    public CommandExecutorMock(CloudProvider cloudProvider) {
+        this.cloudProvider = cloudProvider;
+    }
+
+    /** Return result of execution.
+     * @throws ExecutionException
      * @throws InterruptedException */
     public boolean getResultSync() throws InterruptedException, ExecutionException {
     	return (future == null ? true : future.get());
     }
-    
+
     /** Return variables for substitution into Json response file. */
     public Map<String, String> getVariables() {
     	return (execAsync == null ? null : execAsync.getParser().getVariables());
     }
-    
+
     /** Response file name. */
     public String getResponseFileName() {
     	return (execAsync == null ? null : execAsync.getResponseFileName());
@@ -59,7 +65,7 @@ public class CommandExecutorMock implements ICommandExecutor {
         if (command.startsWith("docker images |")) {
         	return Arrays.asList(
         			"docker.dlab-deeplearning:latest",
-        			"docker.dlab-emr:latest",
+        			getComputationalDockerImage(),
             		"docker.dlab-jupyter:latest",
             		"docker.dlab-rstudio:latest",
             		"docker.dlab-tensor:latest",
@@ -70,8 +76,20 @@ public class CommandExecutorMock implements ICommandExecutor {
 
     @Override
     public void executeAsync(String user, String uuid, String command) {
-    	execAsync = new CommandExecutorMockAsync(user, uuid, command);
+    	execAsync = new CommandExecutorMockAsync(user, uuid, command, cloudProvider);
     	future = CompletableFuture.supplyAsync(execAsync);
     }
-    
+
+    private String getComputationalDockerImage() {
+        switch (cloudProvider) {
+            case AWS:
+                return "docker.dlab-dataengine-service:latest";
+            case AZURE:
+                return "docker.dlab-dataengine:latest";
+        }
+
+        return "";
+
+    }
+
 }
