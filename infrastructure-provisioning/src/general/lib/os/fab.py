@@ -82,6 +82,9 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
 def prepare_disk(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
+            sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
+            sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
+            sudo('mount -a')
             disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
             sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
             sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
@@ -188,9 +191,6 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
             sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
             sudo('chown -R {0}:{0} /home/{0}/.local'.format(os_user))
-            sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
-            sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
-            sudo('mount -a')
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             if os.environ['application'] == 'jupyter':
