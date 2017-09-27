@@ -28,6 +28,7 @@ import os
 def ensure_docker_daemon(dlab_path, os_user, region):
     try:
         if not exists('{}tmp/docker_daemon_ensured'.format(dlab_path)):
+            docker_version = '17.06.2'
             if region == 'cn-north-1':
                 mirror = 'mirror.lzu.edu.cn'
             else:
@@ -42,7 +43,7 @@ def ensure_docker_daemon(dlab_path, os_user, region):
             sudo('yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo')
             sudo('yum update-minimal --security -y')
             sudo('yum install container-selinux -y')
-            sudo('yum install docker-ce -y')
+            sudo('yum install docker-ce-{}.ce -y'.format(docker_version))
             sudo('usermod -aG docker {}'.format(os_user))
             sudo('systemctl enable docker.service')
             sudo('systemctl start docker')
