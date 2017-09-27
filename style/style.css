@@ -387,7 +387,7 @@ header {
         header nav > ul > li .sub-menu {
           visibility: hidden;
           position: absolute;
-          width: 320px;
+          width: 280px;
           opacity: 0;
           top: 150%;
           left: 0;
