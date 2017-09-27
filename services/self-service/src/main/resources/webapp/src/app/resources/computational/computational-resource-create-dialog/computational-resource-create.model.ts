@@ -24,6 +24,7 @@ import { UserResourceService } from '../../../core/services';
 import { ComputationalResourceImage,
          ComputationalResourceApplicationTemplate,
          ResourceShapeTypesModel } from '../../../core/models';
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 export class ComputationalResourceCreateModel {
 
@@ -88,15 +89,23 @@ export class ComputationalResourceCreateModel {
       this.userResourceService.getComputationalResourcesTemplates()
         .subscribe(
         data => {
-          for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
-            const computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
-            this.computationalResourceImages.push(computationalResourceImage);
+          let computationalResourceImage;
 
-            for (let index = 0; index < computationalResourceImage.application_templates.length; index++)
-              this.computationalResourceApplicationTemplates.push(computationalResourceImage.application_templates[index]);
+          for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
+            computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
+            
+            if (DICTIONARY.cloud_provider === 'aws') {
+              this.computationalResourceImages.push(computationalResourceImage);
+              for (let index = 0; index < computationalResourceImage.application_templates.length; index++)
+                this.computationalResourceApplicationTemplates.push(computationalResourceImage.application_templates[index]);
+            }
           }
-          if (this.computationalResourceImages.length > 0)
+
+          if (this.computationalResourceImages.length > 0 && DICTIONARY.cloud_provider === 'aws') {
             this.setSelectedTemplate(0);
+          } else if (DICTIONARY.cloud_provider !== 'aws') {
+            this.selectedItem = computationalResourceImage;
+          }
 
           if (this.continueWith)
             this.continueWith();
@@ -124,17 +133,29 @@ export class ComputationalResourceCreateModel {
   }
 
   private createComputationalResource(): Observable<Response> {
-    return this.userResourceService.createComputationalResource({
-      name: this.computational_resource_alias,
-      emr_instance_count: this.computational_resource_count,
-      emr_master_instance_type: this.computational_resource_master_shape,
-      emr_slave_instance_type: this.computational_resource_slave_shape,
-      emr_version: this.selectedItem.version,
-      notebook_name: this.notebook_name,
-      image: this.selectedItem.image,
-      template_name: this.selectedItem.template_name,
-      emr_slave_instance_spot: this.emr_slave_instance_spot,
-      emr_slave_instance_spot_pct_price: this.emr_slave_instance_price
-    });
+    if (DICTIONARY.cloud_provider === 'aws') {
+      return this.userResourceService.createComputationalResource({
+        name: this.computational_resource_alias,
+        emr_instance_count: this.computational_resource_count,
+        emr_master_instance_type: this.computational_resource_master_shape,
+        emr_slave_instance_type: this.computational_resource_slave_shape,
+        emr_version: this.selectedItem.version,
+        notebook_name: this.notebook_name,
+        image: this.selectedItem.image,
+        template_name: this.selectedItem.template_name,
+        emr_slave_instance_spot: this.emr_slave_instance_spot,
+        emr_slave_instance_spot_pct_price: this.emr_slave_instance_price
+      });
+    } else {
+      return this.userResourceService.createComputationalResource({
+        name: this.computational_resource_alias,
+        dataengine_instance_count: this.computational_resource_count,
+        dataengine_master_size: this.computational_resource_master_shape,
+        dataengine_slave_size: this.computational_resource_slave_shape,
+        notebook_name: this.notebook_name,
+        image: this.selectedItem.image,
+        template_name: this.selectedItem.template_name,
+      });
+    }
   };
 }

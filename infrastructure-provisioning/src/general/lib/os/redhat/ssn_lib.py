@@ -69,8 +69,9 @@ def ensure_jenkins(dlab_path):
         if not exists('{}tmp/jenkins_ensured'.format(dlab_path)):
             sudo('wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo')
             sudo('rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key')
-            sudo('yum -y install java')
+            sudo('yum -y install java-1.8.0-openjdk-devel')
             sudo('yum -y install jenkins')
+            sudo('yum -y install policycoreutils-python')
             sudo('touch {}tmp/jenkins_ensured'.format(dlab_path))
         return True
     except:
@@ -173,10 +174,11 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
              service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path=''):
     try:
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_dlab_path'])):
-            java_path = sudo("alternatives --list | grep jre_openjdk | awk '{print $3}'")
+            java_path = sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'")
             supervisor_conf = '/etc/supervisord.d/supervisor_svc.ini'
             local('sed -i "s|MONGO_PASSWORD|{}|g" /root/templates/ssn.yml'.format(mongo_passwd))
             local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
+            local('sed -i "s|CLOUD_PROVIDER|{}|g" /root/templates/ssn.yml'.format(cloud_provider))
             local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')

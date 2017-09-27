@@ -52,7 +52,7 @@ py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kerne
 jupyter_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_notebook_config.py'
 scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 r_kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
-s3_jars_dir = '/opt/jars/'
+jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 local_spark_path = '/opt/spark/'
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
 
     print "Install local jars"
-    ensure_local_jars(args.os_user, s3_jars_dir, files_dir, args.region, templates_dir)
+    ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
     print "Install pyspark local kernel for Jupyter"
     ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
@@ -118,6 +118,6 @@ if __name__ == "__main__":
 
     print "Install Ungit"
     install_nodejs(args.os_user)
-    install_ungit(args.os_user, gitlab_certfile)
+    install_ungit(args.os_user)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)

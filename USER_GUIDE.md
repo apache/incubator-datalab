@@ -22,9 +22,9 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Terminate Notebook server](#notebook_terminate)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Deploy EMR](#emr_deploy)
+&nbsp; &nbsp; &nbsp; &nbsp; [Deploy Computational resource](#computational_deploy)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Terminate EMR](#emr_terminate)
+&nbsp; &nbsp; &nbsp; &nbsp; [Terminate Computational resource](#computational_terminate)
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Collaboration space](#collaboration_space)
 
@@ -97,7 +97,7 @@ Currently by means of DLab, Data Scientists can select between any of the follow
 -   Zeppelin
 -   RStudio
 -   TensorFlow (Jupyter + TensorFlow)
--   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, Theano, CNTK, Torch and Keras)
+-   Deep Learning (Jupyter + MXNet, Caffe, Caffe2, TensorFlow, CNTK, Theano, Torch and Keras)
 
 <p align="center"> 
     <img src="doc/notebook_create.png" alt="Create notebook" width="480">
@@ -138,8 +138,8 @@ In the body of the dialog:
 -   Up time
 -   Analytical tool URL
 -   Git UI tool (ungit)
--   S3 shared bucket for all users
--   S3 bucket that has been provisioned for your needs
+-   Shared bucket for all users
+-   Bucket that has been provisioned for your needs
 
 To access analytical tool Web UI – you need to configure SOCKS proxy. Please follow the steps described on “Read instruction how to create the tunnel” page to configure SOCKS proxy for Windows/MAC/Linux machines.
 
@@ -186,7 +186,7 @@ After clicking on "Install" button you will see process of installation with app
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
 
-Once you have stopped working with an analytical tool and you would like to release AWS resources for the sake of the costs, you might want to Stop the notebook. You will be able to Start the notebook again after a while and proceed with your analytics.
+Once you have stopped working with an analytical tool and you would like to release cloud resources for the sake of the costs, you might want to Stop the notebook. You will be able to Start the notebook again after a while and proceed with your analytics.
 
 To Stop the Notebook click on a gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Stop:
 
@@ -196,74 +196,80 @@ To Stop the Notebook click on a gear icon ![gear](doc/gear_icon.png) in the Acti
 
 Hit OK in confirmation popup.
 
-**NOTE:** if any EMR clusters have been connected to your notebook server – they will be automatically terminated if you stop the notebook.
+**NOTE:** if any Computational resources have been connected to your notebook server – they will be automatically terminated if you stop the notebook.
 
 <p align="center"> 
     <img src="doc/notebook_stop_confirm.png" alt="Notebook stop confirm" width="400">
 </p>
 
-After you confirm you intent to Stop the notebook - the status will be changed to Stopping and will become Stopped in a while. EMR cluster status will be changed to Terminated.
+After you confirm you intent to Stop the notebook - the status will be changed to Stopping and will become Stopped in a while. Computational resource status will be changed to Terminated.
 
 --------------------------------
 ## Terminate Notebook server <a name="notebook_terminate"></a>
 
-Once you have finished working with an analytical tool and you would like to release AWS resources for the sake of the costs, you might want to Terminate the notebook. You will not be able to Start the notebook which has been Terminated. Instead, you will have to create new Notebook server if you will need to proceed your analytical activities.
+Once you have finished working with an analytical tool and you would like to release cloud resources for the sake of the costs, you might want to Terminate the notebook. You will not be able to Start the notebook which has been Terminated. Instead, you will have to create new Notebook server if you will need to proceed your analytical activities.
 
 To Terminate the Notebook click on a gear icon ![gear](doc/gear_icon.png) in the Actions column for a needed Notebook and hit Terminate:
 
-**NOTE:** if any EMR clusters have been linked to your notebook server – they will be automatically terminated if you stop the notebook.
+**NOTE:** if any Computational resources have been linked to your notebook server – they will be automatically terminated if you stop the notebook.
 
 Confirm termination of the notebook and afterward notebook status will be changed to **Terminating**:
 
 ![Notebook terminating](doc/notebook_terminating.png)
 
-Once corresponding instances are terminated on AWS, status will finally
+Once corresponding instances are terminated on cloud, status will finally
 change to Terminated:
 
 ![Notebook terminated](doc/notebook_terminated.png)
 
 ---------------
-## Deploy EMR <a name="emr_deploy"></a>
+## Deploy Computational resource <a name="computational_deploy"></a>
 
-After deploying Notebook node, you can deploy EMR cluster and it will be automatically linked with your Notebook server. EMR cluster is a managed cluster platform, that simplifies running big data frameworks, such as Apache Hadoop and Apache Spark on AWS to process and analyze vast amounts of data. Adding EMR is not mandatory and is needed in case computational resources are required for job execution.
+After deploying Notebook node, you can deploy Computational resource and it will be automatically linked with your Notebook server. Computational resource is a managed cluster platform, that simplifies running big data frameworks, such as Apache Hadoop and Apache Spark on cloud to process and analyze vast amounts of data. Adding Computational resource is not mandatory and is needed in case computational resources are required for job execution.
 
-On “Create Computational Resource” popup you will have to choose EMR version (configurable) and specify alias for EMR cluster. To setup a cluster that meets your needs – you will have to define:
+On “Create Computational Resource” popup you will have to choose Computational resource version (configurable) and specify alias for it. To setup a cluster that meets your needs – you will have to define:
 
 -   Total number of instances (min 2 and max 14, configurable);
--   Master and Slave instance shapes (list is configurable and supports all available AWS instance shapes, supported in your AWS region);
+-   Master and Slave instance shapes (list is configurable and supports all available cloud instance shapes, supported in your cloud region);
 
-Also, if you would like to save some costs for your EMR cluster you can create EMR cluster based on [spot instances](https://aws.amazon.com/ec2/spot/), which are often available at a discount price:
+Also, if you would like to save some costs for your Computational resource you can create it based on [spot instances](https://aws.amazon.com/ec2/spot/), which are often available at a discount price (this functionality is only available for AWS cloud):
 
 -   Select Spot Instance checkbox;
 -   Specify preferable bid for your spot instance in % (between 20 and 90, configurable).
 
-**NOTE:** When the current Spot price rises above your bid price, the Spot instance is reclaimed by AWS so that it can be given to another customer. Please make sure to backup your data on periodic basis.
+**NOTE:** When the current Spot price rises above your bid price, the Spot instance is reclaimed by cloud so that it can be given to another customer. Please make sure to backup your data on periodic basis.
 
+This picture shows menu for creating Computational resource for AWS:
 <p align="center"> 
-    <img src="doc/emr_create.png" alt="Create EMR" width="450">
+    <img src="doc/emr_create.png" alt="Create Computational resource on AWS" width="450">
 </p>
 
-If you click on Create button EMR cluster creation will kick off. You will see corresponding record on DLab Web UI in status **Creating**:
-
-![Creating EMR](doc/emr_creating.png)
-
-Once EMR clusters are provisioned, their status will be changed to **Running**.
-
-Clicking on EMR name in DLab dashboard will open EMR details popup:
-
+This picture shows menu for creating Computational resource for Azure:
 <p align="center"> 
-    <img src="doc/emr_info.png" alt="EMR info" width="400">
+    <img src="doc/dataengine_creating_menu.png" alt="Create Computational resource on Azure" width="450">
 </p>
 
-Since EMR cluster is up and running - you are now able to leverage cluster computational power to run your analytical jobs on.
+If you click on Create button Computational resource creation will kick off. You will see corresponding record on DLab Web UI in status **Creating**:
+
+![Creating Computational resource](doc/emr_creating.png)
+
+Once Computational resources are provisioned, their status will be changed to **Running**.
+
+Clicking on Computational resource name in DLab dashboard will open Computational resource details popup:
+
+<p align="center"> 
+    <img src="doc/emr_info.png" alt="Computational resource info" width="400">
+</p>
+
+Since Computational resource is up and running - you are now able to leverage cluster computational power to run your analytical jobs on.
 
 To do that open any of the analytical tools and select proper kernel/interpreter:
 
-**Jupyter** – goto Kernel and choose preferable interpreter between local and EMR ones. Currently we have added support of Python 2/3, Spark, Scala, R into Jupyter.
+**Jupyter** – goto Kernel and choose preferable interpreter between local and Computational resource ones. Currently we have added support of Python 2/3, Spark, Scala, R into Jupyter.
 
 ![Jupiter](doc/jupiter.png)
 
-**Zeppelin** – goto Interpreter Biding menu and switch between local and EMR there. Once needed interpreter is selected click on Save.
+**Zeppelin** – goto Interpreter Biding menu and switch between local and Computational resource there. Once needed interpreter is selected click on Save.
 
 ![Zeppelin](doc/zeppelin.png)
 
@@ -274,20 +280,20 @@ Insert following “magics” before blocks of your code to start executing your
 -   interpreter\_name.%pyspark3 – for Python3;
 -   interpreter\_name.%sparkr – for R;
 
-**R-studio –** open R.environ and comment out /opt/spark/ to switch to EMR and vise versa to switch to local kernel:
+**R-studio –** open R.environ and comment out /opt/spark/ to switch to Computational resource and vise versa to switch to local kernel:
 
 ![RStudio](doc/rstudio.png)
 
 ------------------
-## Terminate EMR <a name="emr_terminate"></a>
+## Terminate Computational resource <a name="computational_terminate"></a>
 
-To release cluster computational resources click on ![cross](doc/cross_icon.png) button close to EMR cluser alias. Confirm decommissioning of EMR by hitting Yes:
+To release cluster computational resources click on ![cross](doc/cross_icon.png) button close to Computational resource alias. Confirm decommissioning of Computational resource by hitting Yes:
 
 <p align="center"> 
-    <img src="doc/emr_terminate_confirm.png" alt="EMR terminate confirm" width="400">
+    <img src="doc/emr_terminate_confirm.png" alt="Computational resource terminate confirm" width="400">
 </p>
 
-In a while EMR cluster will get **Terminated**. Corresponding EC2 instances will also removed on AWS.
+In a while Computational resource cluster will get **Terminated**. Corresponding cloud instances will also removed on cloud.
 
 --------------------------------
 ## Collaboration space <a name="collaboration_space"></a>
@@ -360,7 +366,7 @@ Also clicking on "circle" button you can uncommit or revert changes.
 --------------------------------
 # DLab Health Status Page <a name="health_page"></a>
 
-Health Status page is an administration page allowing users to start/stop/recreate gateway node. This might be useful in cases when someone manually deleted corresponding Edge node instance from AWS. This would have made DLab as an application corrupted in general. If any actions are manually done to Edge node EC2 instance directly via AWS Web Console – those changes will be synchronized with DLab automatically and shortly Edge Node status will be updated in DLab.
+Health Status page is an administration page allowing users to start/stop/recreate gateway node. This might be useful in cases when someone manually deleted corresponding Edge node instance from cloud. This would have made DLab as an application corrupted in general. If any actions are manually done to Edge node instance directly via Cloud Web Console – those changes will be synchronized with DLab automatically and shortly Edge Node status will be updated in DLab.
 
 To access Health status page either navigate to it via main menu:
 
@@ -416,7 +422,7 @@ In the footer of billing report, you can see Total cost for all environments.
 --------------------
 # Web UI filters <a name="filters"></a>
 
-You can leverage functionality of build-in UI filter to quickly manage the analytical tools and EMR clusters, which you only want to see in your dashboard.
+You can leverage functionality of build-in UI filter to quickly manage the analytical tools and computational resources, which you only want to see in your dashboard.
 
 To do this, simply click on icon ![filter](doc/filter_icon.png) in dashboard header and filter your list by any of:
 

@@ -1,0 +1,9 @@
+{
+  "argv": ["/usr/lib/R/bin/R", "--slave", "-e", "library(SparkR, lib.loc = \"/opt/CLUSTER_NAME/spark/R/lib\")", "-e", "sc<-sparkR.SPARK_ACTION", "-e", "IRkernel::main()", "--args", "{connection_file}"],
+  "display_name": "SparkR (R_KERNEL_VERSION, SPARK_VERSION) on [CLUSTER_NAME]",
+  "language": "R",
+  "env": {
+    "SPARKR_SUBMIT_ARGS" : "--master MASTER sparkr-shell",
+    "SPARK_HOME": "SPARK_PATH"
+  }
+}

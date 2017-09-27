@@ -44,8 +44,9 @@ parser.add_argument('--edge_hostname', type=str, default='')
 parser.add_argument('--proxy_port', type=str, default='')
 parser.add_argument('--scala_version', type=str, default='')
 parser.add_argument('--livy_version', type=str, default='')
-parser.add_argument('--multiple_emrs', type=str, default='')
+parser.add_argument('--multiple_clusters', type=str, default='')
 parser.add_argument('--r_mirror', type=str, default='')
+parser.add_argument('--endpoint_url', type=str, default='')
 args = parser.parse_args()
 
 spark_version = args.spark_version
@@ -64,13 +65,7 @@ python3_version = "3.4"
 local_spark_path = '/opt/spark/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
-s3_jars_dir = '/opt/jars/'
-if args.region == 'us-east-1':
-    endpoint_url = 'https://s3.amazonaws.com'
-elif args.region == 'cn-north-1':
-    endpoint_url = "https://s3.{}.amazonaws.com.cn".format(args.region)
-else:
-    endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
+jars_dir = '/opt/jars/'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
@@ -102,11 +97,10 @@ def configure_zeppelin(os_user):
             sudo("chmod 644 /tmp/zeppelin-notebook.service")
             sudo('cp /tmp/zeppelin-notebook.service /etc/systemd/system/zeppelin-notebook.service')
             sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
-            sudo('mkdir /mnt/var')
+            sudo('mkdir -p /mnt/var')
             sudo('chown ' + os_user + ':' + os_user + ' /mnt/var')
             sudo("systemctl daemon-reload")
             sudo("systemctl enable zeppelin-notebook")
-            sudo("systemctl start zeppelin-notebook")
             sudo('echo \"d /var/run/zeppelin 0755 ' + os_user + '\" > /usr/lib/tmpfiles.d/zeppelin.conf')
             sudo('touch /home/' + os_user + '/.ensure_dir/zeppelin_ensured')
         except:
@@ -119,7 +113,7 @@ def configure_local_livy_kernels(args):
         default_port = 8998
         livy_port = ''
         put(templates_dir + 'interpreter_livy.json', '/tmp/interpreter.json')
-        sudo('sed -i "s|ENDPOINTURL|' + endpoint_url + '|g" /tmp/interpreter.json')
+        sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
         while not port_number_found:
             port_free = sudo('nmap -p ' + str(default_port) + ' localhost | grep "closed" > /dev/null; echo $?')
@@ -130,21 +124,25 @@ def configure_local_livy_kernels(args):
             else:
                 default_port += 1
         sudo('sed -i "s|LIVY_PORT|' + str(livy_port) + '|g" /tmp/interpreter.json')
-        sudo('cp /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
+        sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
         sudo('echo "livy.server.port = ' + str(livy_port) + '" >> /opt/livy/conf/livy.conf')
         sudo('''echo "SPARK_HOME='/opt/spark/'" >> /opt/livy/conf/livy-env.sh''')
         if exists('/opt/livy/conf/spark-blacklist.conf'):
             sudo('sed -i "s/^/#/g" /opt/livy/conf/spark-blacklist.conf')
         sudo("systemctl start livy-server")
+        sudo('chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
+        sudo("systemctl start zeppelin-notebook")
         sudo('touch /home/' + args.os_user + '/.ensure_dir/local_livy_kernel_ensured')
 
 
 def configure_local_spark_kernels(args):
     if not exists('/home/' + args.os_user + '/.ensure_dir/local_spark_kernel_ensured'):
         put(templates_dir + 'interpreter_spark.json', '/tmp/interpreter.json')
-        sudo('sed -i "s|ENDPOINTURL|' + endpoint_url + '|g" /tmp/interpreter.json')
+        sudo('sed -i "s|ENDPOINTURL|' + args.endpoint_url + '|g" /tmp/interpreter.json')
         sudo('sed -i "s|OS_USER|' + args.os_user + '|g" /tmp/interpreter.json')
-        sudo('cp /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
+        sudo('cp -f /tmp/interpreter.json /opt/zeppelin/conf/interpreter.json')
+        sudo('chown ' + args.os_user + ':' + args.os_user + ' -R /opt/zeppelin/')
+        sudo("systemctl start zeppelin-notebook")
         sudo('touch /home/' + args.os_user + '/.ensure_dir/local_spark_kernel_ensured')
 
 
@@ -206,7 +204,7 @@ if __name__ == "__main__":
     ensure_local_spark(args.os_user, spark_link, args.spark_version, args.hadoop_version, local_spark_path)
 
     print "Install local jars"
-    ensure_local_jars(args.os_user, s3_jars_dir, files_dir, args.region, templates_dir)
+    ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
     print "Installing scala"
     ensure_scala(scala_link, args.scala_version, args.os_user)
@@ -224,7 +222,7 @@ if __name__ == "__main__":
     ensure_python3_libraries(args.os_user)
     ensure_python3_specific_version(python3_version, args.os_user)
 
-    if args.multiple_emrs == 'true':
+    if args.multiple_clusters == 'true':
         print "Installing Livy for local kernels"
         install_local_livy(args)
         print "Configuring local kernels"
@@ -237,6 +235,6 @@ if __name__ == "__main__":
 
     print "Install Ungit"
     install_nodejs(args.os_user)
-    install_ungit(args.os_user, gitlab_certfile)
+    install_ungit(args.os_user)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)

@@ -88,7 +88,7 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
     if not exists('/home/' + os_user + '/.ensure_dir/rstudio_ensured'):
         try:
             sudo('yum install -y --nogpgcheck https://download2.rstudio.org/rstudio-server-rhel-{}-x86_64.rpm'.format(rstudio_version))
-            sudo('mkdir /mnt/var')
+            sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             sudo('touch /home/{}/.Renviron'.format(os_user))
             sudo('chown {0}:{0} /home/{0}/.Renviron'.format(os_user))
@@ -223,7 +223,7 @@ def ensure_python3_libraries(os_user):
             sys.exit(1)
 
 
-def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
+def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia_version):
     if not exists('/home/' + os_user + '/.ensure_dir/tensor_ensured'):
         try:
             # install nvidia drivers
@@ -233,27 +233,26 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir):
             sudo('shutdown -r 1')
             time.sleep(90)
             sudo('yum -y install gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
-            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/367.57/NVIDIA-Linux-x86_64-367.57.run -O /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run')
-            sudo('/bin/bash /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run -s --no-install-libglvnd')
-            sudo('rm -f /home/' + os_user + '/NVIDIA-Linux-x86_64-367.57.run')
+            sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
+            sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
+            sudo('rm -f /home/{0}/NVIDIA-Linux-x86_64-{1}.run'.format(os_user, nvidia_version))
             # install cuda
-            sudo('wget https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64-rpm')
-            sudo('mv cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64-rpm cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64.rpm; rpm -i cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64.rpm')
-            sudo('yum clean all')
-            sudo('yum -y install cuda')
             sudo('python3.5 -m pip install --upgrade pip wheel numpy --no-cache-dir')
+            sudo('wget -P /opt https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run')
+            sudo('sh /opt/cuda_8.0.44_linux-run --silent --toolkit')
             sudo('mv /usr/local/cuda-8.0 /opt/')
             sudo('ln -s /opt/cuda-8.0 /usr/local/cuda-8.0')
-            sudo('rm -rf /home/' + os_user + '/cuda-repo-rhel7-8-0-local-8.0.44-1.x86_64.rpm')
+            sudo('rm -f /opt/cuda_8.0.44_linux-run')
             # install cuDNN
-            put(files_dir + 'cudnn-8.0-linux-x64-v5.1.tgz', '/tmp/cudnn-8.0-linux-x64-v5.1.tgz')
-            run('tar xvzf /tmp/cudnn-8.0-linux-x64-v5.1.tgz -C /tmp')
+            cudnn = 'cudnn-8.0-linux-x64-v6.0.tgz'
+            run('wget http://developer.download.nvidia.com/compute/redist/cudnn/v6.0/{0} -O /tmp/{0}'.format(cudnn))
+            run('tar xvzf /tmp/{} -C /tmp'.format(cudnn))
             sudo('mkdir -p /opt/cudnn/include')
             sudo('mkdir -p /opt/cudnn/lib64')
             sudo('mv /tmp/cuda/include/cudnn.h /opt/cudnn/include')
             sudo('mv /tmp/cuda/lib64/libcudnn* /opt/cudnn/lib64')
             sudo('chmod a+r /opt/cudnn/include/cudnn.h /opt/cudnn/lib64/libcudnn*')
-            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64\"" >> ~/.bashrc')
+            run('echo "export LD_LIBRARY_PATH=\"$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64\"" >> ~/.bashrc')
             # install TensorFlow and run TensorBoard
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp27-none-linux_x86_64.whl')
             sudo('wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-' + tensorflow_version + '-cp35-cp35m-linux_x86_64.whl')
@@ -346,47 +345,62 @@ def get_available_os_pkgs():
 
 def install_opencv(os_user):
     if not exists('/home/{}/.ensure_dir/opencv_ensured'.format(os_user)):
-        sudo('yum install -y cmake python3 python3-devel python3-numpy gcc gcc-c++')
+        sudo('yum install -y cmake python34 python34-devel python34-pip gcc gcc-c++')
         sudo('pip2 install numpy --no-cache-dir')
+        sudo('pip3.4 install numpy --no-cache-dir')
         sudo('pip3.5 install numpy --no-cache-dir')
         run('git clone https://github.com/opencv/opencv.git')
         with cd('/home/{}/opencv/'.format(os_user)):
             run('git checkout 3.2.0')
             run('mkdir release')
         with cd('/home/{}/opencv/release/'.format(os_user)):
-            run('cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python2 -c "import sys; print(sys.prefix)") -D PYTHON_EXECUTABLE=$(which python2) ..')
-            run('make -j4')
+            run('cmake -DINSTALL_TESTS=OFF -D CUDA_GENERATION=Auto -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=$(python2 -c "import sys; print(sys.prefix)") -D PYTHON_EXECUTABLE=$(which python2) ..')
+            run('make -j$(nproc)')
             sudo('make install')
         sudo('touch /home/' + os_user + '/.ensure_dir/opencv_ensured')
 
 
-def install_caffe(os_user):
+def install_caffe(os_user, region):
     if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         install_opencv(os_user)
-        sudo('yum install -y protobuf-devel leveldb-devel snappy-devel opencv-devel boost-devel hdf5-devel gcc gcc-c++')
-        sudo('yum install -y gflags-devel glog-devel lmdb-devel')
+        with cd('/etc/yum.repos.d/'):
+            if region == 'cn-north-1':
+                mirror = 'mirror.lzu.edu.cn'
+            else:
+                mirror = 'mirror.centos.org'
+            sudo('echo "[centosrepo]" > centos.repo')
+            sudo('echo "name=Centos 7 Repository" >> centos.repo')
+            sudo('echo "baseurl=http://{}/centos/7/os/x86_64/" >> centos.repo'.format(mirror))
+            sudo('echo "enabled=1" >> centos.repo')
+            sudo('echo "gpgcheck=1" >> centos.repo')
+            sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
+        sudo('yum update-minimal --security -y')
+        sudo('yum install -y protobuf-devel leveldb-devel snappy-devel boost-devel hdf5-devel gcc gcc-c++')
+        sudo('yum install -y gflags-devel glog-devel lmdb-devel yum-utils && package-cleanup --cleandupes')
         sudo('yum install -y openblas-devel gflags-devel glog-devel lmdb-devel')
-        sudo('yum install -y http://mirror.centos.org/centos/7/os/x86_64/Packages/snappy-devel-1.1.0-3.el7.x86_64.rpm')
         sudo('git clone https://github.com/BVLC/caffe.git')
         with cd('/home/{}/caffe/'.format(os_user)):
             sudo('pip2 install -r python/requirements.txt --no-cache-dir')
             sudo('pip3.5 install -r python/requirements.txt --no-cache-dir')
-            sudo('cp Makefile.config.example Makefile.config')
-            sudo('sed -i \'/^PYTHON_INCLUDE \:=/d\' Makefile.config')
-            sudo('sed -i \'/\/usr\/lib\/python2.7\/dist-packages\/numpy\/core\/include/d\' Makefile.config')
+            sudo('echo "CUDA_DIR := /usr/local/cuda" > Makefile.config')
+            cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
+            sudo('echo "CUDA_ARCH := -gencode arch=compute_{0},code=sm_{0}" >> Makefile.config'.format(cuda_arch.replace('.', '')))
             sudo('echo "PYTHON_INCLUDE := /usr/include/python2.7 /usr/lib64/python2.7/site-packages/numpy/core/include" >> Makefile.config')
-            sudo('sed -i \'/BLAS \:=/d\' Makefile.config')
             sudo('echo "BLAS := open" >> Makefile.config')
             sudo('echo "BLAS_INCLUDE := /usr/include/openblas" >> Makefile.config')
             sudo('echo "OPENCV_VERSION := 3" >> Makefile.config')
-            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" '
-                 '>> Makefile.config')
-            sudo('sed -i \'/INCLUDE_DIRS \:=/s/$/ \/usr \/usr\/lib64 \/usr\/include\/python2.7 \/usr\/lib64\/python2.7\/site-packages\/numpy\/core\/include /g\' Makefile.config')
-            sudo('sed -i \'/LIBRARY_DIRS \:=/s/$/ \/usr \/usr\/lib64/g\' Makefile.config')
-            sudo('make all')
-            sudo('make test')
-            sudo('make runtest')
+            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" >> Makefile.config')
+            sudo('echo "PYTHON_LIB := /usr/lib" >> Makefile.config')
+            sudo('echo "INCLUDE_DIRS := \\\$(PYTHON_INCLUDE) /usr/local/include /usr /usr/lib64 /usr/include/python2.7 /usr/lib64/python2.7/site-packages/numpy/core/include" >> Makefile.config')
+            sudo('echo "LIBRARY_DIRS := \\\$(PYTHON_LIB) /usr/local/lib /usr/lib /usr /usr/lib64" >> Makefile.config')
+            sudo('echo "BUILD_DIR := build" >> Makefile.config')
+            sudo('echo "DISTRIBUTE_DIR := distribute" >> Makefile.config')
+            sudo('echo "TEST_GPUID := 0" >> Makefile.config')
+            sudo('echo "Q ?= @" >> Makefile.config')
+            sudo('make all -j$(nproc)')
+            sudo('make test -j$(nproc)')
+            run('make runtest')
             sudo('make pycaffe')
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
 
@@ -394,9 +408,8 @@ def install_caffe(os_user):
 def install_caffe2(os_user):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
-        sudo('yum update -y')
-        sudo('yum install -y automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel '
-             'python-devel snappy-devel')
+        sudo('yum update-minimal --security -y')
+        sudo('yum install -y automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
         sudo('pip2 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future --no-cache-dir')
         sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
@@ -404,14 +417,17 @@ def install_caffe2(os_user):
         sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
         sudo('git clone --recursive https://github.com/caffe2/caffe2')
+        cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
         with cd('/home/{}/caffe2/'.format(os_user)):
-            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_NAME=Manual -DCUDA_ARCH_BIN="35 52 60 61" -DCUDA_ARCH_PTX="61" && make "-j$(nproc)" install')
+            sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_BIN="{0}" -DCUDA_ARCH_PTX="{0}" && make "-j$(nproc)" install'.format(cuda_arch.replace('.', '')))
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
 def install_cntk(os_user):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
-        sudo('yum install -y openmpi openmpi-devel')
+        sudo('echo "exclude=*.i386 *.i686" >> /etc/yum.conf')
+        sudo('yum clean all && yum update-minimal --security -y')
+        sudo('yum install -y openmpi openmpi-devel --nogpgcheck')
         sudo('sed -i "s/LD_LIBRARY_PATH:/LD_LIBRARY_PATH:\/usr\/lib64\/openmpi\/lib:/g" /etc/systemd/system/jupyter-notebook.service')
         sudo('systemctl daemon-reload')
         sudo('systemctl restart jupyter-notebook')
@@ -438,7 +454,6 @@ def install_keras(os_user):
 
 def install_mxnet(os_user):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        sudo('yum install -y graphviz')
         sudo('pip2 install mxnet-cu80 opencv-python --no-cache-dir')
         sudo('pip3.5 install mxnet-cu80 opencv-python --no-cache-dir')
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))

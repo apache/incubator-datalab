@@ -144,7 +144,15 @@ server:
       trustStorePassword: ${TRUST_STORE_PASSWORD}
 
 userInfoPersistenceEnabled: true
+
+<#if CLOUD_TYPE == "aws">
 awsUserIdentificationEnabled: true
+loginAuthenticationTimeout: 10
+<#elseif CLOUD_TYPE == "azure">
+loginAuthenticationTimeout: 20
+</#if>
+
+
 
 logging:
   level: INFO

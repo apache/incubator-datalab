@@ -23,6 +23,7 @@ import { Response } from '@angular/http';
 import { ExploratoryEnvironmentCreateModel } from './';
 import { UserResourceService } from '../../../core/services';
 import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
   moduleId: module.id,
@@ -31,6 +32,8 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from '../../../core/util';
 })
 
 export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
+  readonly DICTIONARY = DICTIONARY;
+
   model: ExploratoryEnvironmentCreateModel;
   notebookExist: boolean = false;
   checkValidity: boolean = false;

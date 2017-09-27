@@ -26,17 +26,17 @@ from dlab.ssn_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--instance_name', type=str, default='')
+parser.add_argument('--instance_hostname', type=str, default='')
 parser.add_argument('--local_log_filepath', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
 
 def upload_response_file(instance_name, local_log_filepath, os_user):
-    instance_hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag', instance_name)
-    print 'Connect to SSN instance with hostname: ' + instance_hostname + 'and name: ' + instance_name
+    print 'Connect to SSN instance with hostname: ' + args.instance_hostname + 'and name: ' + instance_name
     env['connection_attempts'] = 100
-    env.key_filename = "/root/keys/%s.pem" % os.environ['conf_key_name']
-    env.host_string = '{}@{}'.format(os_user, instance_hostname)
+    env.key_filename = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+    env.host_string = '{}@{}'.format(os_user, args.instance_hostname)
     try:
         put('/root/result.json', '/home/{}/{}.json'.format(os_user, os.environ['request_id']))
         sudo('mv /home/{}/{}.json {}tmp/result/'.format(os_user, os.environ['request_id'], os.environ['ssn_dlab_path']))

@@ -19,6 +19,8 @@ limitations under the License.
 import { Component, ViewChild } from '@angular/core';
 import { DateUtils } from '../../../core/util';
 
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
+
 @Component({
   moduleId: module.id,
   selector: 'detail-computational-resources',
@@ -26,6 +28,8 @@ import { DateUtils } from '../../../core/util';
 })
 
 export class DetailComputationalResourcesComponent {
+  readonly DICTIONARY = DICTIONARY;
+
   resource: any;
   environment: any;
   @ViewChild('bindDialog') bindDialog;

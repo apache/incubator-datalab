@@ -23,5 +23,4 @@ public interface DockerAPI {
     String DOCKER_RUN = DOCKER + "/run";
     String DOCKER_EXPLORATORY = DOCKER + "/exploratory";
     String DOCKER_COMPUTATIONAL = DOCKER + "/computational";
-    String DOCKER_LIB_LIST = DOCKER + "/lib_list";
 }

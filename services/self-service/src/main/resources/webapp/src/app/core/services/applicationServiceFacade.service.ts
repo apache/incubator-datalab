@@ -31,8 +31,8 @@ export class ApplicationServiceFacade {
   private static readonly ACCESS_KEY = 'access_key';
   private static readonly PROVISIONED_RESOURCES = 'provisioned_resources';
   private static readonly EXPLORATORY_ENVIRONMENT = 'exploratory_environment';
-  private static readonly EXPLORATORY_ENVIRONMENT_TEMPLATES = 'exploratory_environment_templates';
-  private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_resources_templates';
+  private static readonly EXPLORATORY_ENVIRONMENT_TEMPLATES = 'exploratory_templates';
+  private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
   private static readonly COMPUTATIONAL_RESOURCES_CONFIGURATION = 'computational_resources_configuration';
   private static readonly USER_PREFERENCES = 'user_preferences';
@@ -268,18 +268,18 @@ export class ApplicationServiceFacade {
 
     // Exploratory Environment
     this.requestRegistry.Add(ApplicationServiceFacade.PROVISIONED_RESOURCES,
-      '/api/infrastructure_provision/provisioned_user_resources');
+      '/api/infrastructure/info');
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT,
       '/api/infrastructure_provision/exploratory_environment');
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES,
-      '/api/infrastructure_provision/exploratory_environment_templates');
+      '/api/infrastructure_templates/exploratory_templates');
 
 
     // Computational Resources
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES,
       '/api/infrastructure_provision/computational_resources');
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
-      '/api/infrastructure_provision/computational_resources_templates');
+      '/api/infrastructure_templates/computational_templates');
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_CONFIGURATION,
       '/api/infrastructure_provision/computational_resources/configuration');
 
@@ -293,8 +293,8 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_RECREATE, '/api/user/access_key/recover');
 
     // Libraries Installation
-    this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/lib_groups');
-    this.requestRegistry.Add(ApplicationServiceFacade.LIB_LIST, '/api/infrastructure_provision/lib_list');
+    this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/exploratory_environment/lib_groups');
+    this.requestRegistry.Add(ApplicationServiceFacade.LIB_LIST, '/api/infrastructure_provision/exploratory_environment/search/lib_list');
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_INSTALL, '/api/infrastructure_provision/exploratory_environment/lib_install');
     this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS, '/api/infrastructure_provision/exploratory_environment/lib_list');
 

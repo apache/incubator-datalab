@@ -40,6 +40,7 @@ spark_version = os.environ['notebook_spark_version']
 hadoop_version = os.environ['notebook_hadoop_version']
 tensorflow_version = os.environ['notebook_tensorflow_version']
 jupyter_version = os.environ['notebook_jupyter_version']
+nvidia_version = os.environ['notebook_nvidia_version']
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -48,7 +49,7 @@ else:
 pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/pyspark_local/'
 py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/py3spark_local/'
 local_spark_path = '/opt/spark/'
-s3_jars_dir = '/opt/jars/'
+jars_dir = '/opt/jars/'
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 jupyter_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_notebook_config.py'
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     ensure_python3_libraries(args.os_user)
 
     print "Install TensorFlow"
-    install_tensor(args.os_user, tensorflow_version, files_dir, templates_dir)
+    install_tensor(args.os_user, tensorflow_version, files_dir, templates_dir, nvidia_version)
 
     print "Install Jupyter"
     configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version)
@@ -93,7 +94,7 @@ if __name__ == "__main__":
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path )
 
     print "Install local jars"
-    ensure_local_jars(args.os_user, s3_jars_dir, files_dir, args.region, templates_dir)
+    ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
     print "Install pyspark local kernel for Jupyter"
     ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
@@ -103,6 +104,6 @@ if __name__ == "__main__":
 
     print "Install Ungit"
     install_nodejs(args.os_user)
-    install_ungit(args.os_user, gitlab_certfile)
+    install_ungit(args.os_user)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)

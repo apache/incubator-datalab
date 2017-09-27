@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.dao.SettingsDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,30 +45,31 @@ import io.dropwizard.lifecycle.Managed;
 @Singleton
 public class EnvStatusListener implements Managed, Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(EnvStatusListener.class);
-	
+	@Inject
+	private static SettingsDAO settingsDAO;
+
 	/** Environment status listener. */
 	private static EnvStatusListener listener;
-	
-	/** Append the status checker for user to environment status listener.
-	 * @param username the name of user.
-	 * @param accessToken the access token for user.
-	 * @param awsRegion the name of AWS region.
+
+	/**
+	 * Append the status checker for user to environment status listener.
+	 * @param userInfo authentication info of the current user
 	 */
-	public static synchronized void listen(String username, String accessToken, String awsRegion) {
-		if (listener.userMap.containsKey(username)) {
-			LOGGER.debug("EnvStatus listener the status checker for user {} already exist", username);
+	public static synchronized void listen(UserInfo userInfo) {
+		if (listener.userMap.containsKey(userInfo.getName())) {
+			LOGGER.debug("EnvStatus listener the status checker for user {} already exist", userInfo.getName());
 			return;
 		}
-		LOGGER.debug("EnvStatus listener will be added the status checker for user {}", username);
-		EnvStatusListenerUserInfo userInfo = new EnvStatusListenerUserInfo(username, accessToken, awsRegion);
-		listener.userMap.put(username, userInfo);
+		LOGGER.debug("EnvStatus listener will be added the status checker for user {}", userInfo.getName());
+		EnvStatusListenerUserInfo listenerUserInfo = new EnvStatusListenerUserInfo(userInfo);
+		listener.userMap.put(listenerUserInfo.getUsername(), listenerUserInfo);
 		if (listener.thread == null) {
 			LOGGER.info("EnvStatus listener not running and will be started ...");
 			listener.thread = new Thread(listener, listener.getClass().getSimpleName());
 			listener.thread.start();
 		}
 	}
-	
+
 	/** Remove the status checker for user from environment status listener.
 	 * @param username the name of user.
 	 */
@@ -84,7 +87,7 @@ public class EnvStatusListener implements Managed, Runnable {
 			}
 		}
 	}
-	
+
 	/** Return the user info by user name.
 	 * @param username the name of user.
 	 * @return the user info.
@@ -92,27 +95,26 @@ public class EnvStatusListener implements Managed, Runnable {
 	public static EnvStatusListenerUserInfo getUserInfo(String username) {
 		return (listener == null ? null : listener.userMap.get(username));
 	}
-	
 
 	/** Thread of the folder listener. */
 	private Thread thread;
 
 	/** Timeout for check the status of environment in milliseconds. */
 	private long checkStatusTimeoutMillis;
-	
+
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
-	
+
 	@Inject
 	private EnvStatusDAO dao;
-	
+
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
 
     /** Map of users for the checker. */
-	private Map<String, EnvStatusListenerUserInfo> userMap = new HashMap<String, EnvStatusListenerUserInfo>();
-	
+	private Map<String, EnvStatusListenerUserInfo> userMap = new HashMap<>();
+
 	@Override
 	public void start() throws Exception {
 		if (listener == null) {
@@ -135,25 +137,7 @@ public class EnvStatusListener implements Managed, Runnable {
 			LOGGER.info("EnvStatus listener has been stopped");
 		}
 	}
-	
-	/** Send request to docker for check the status of user environment.
-	 * @param userInfo user info.
-	 */
-	private void checkStatus(EnvStatusListenerUserInfo userInfo) {
-		try {
-			LOGGER.trace("EnvStatus listener check status for user {}", userInfo.getUsername());
-			EnvResourceList resourceList = dao.findEnvResources(userInfo.getUsername());
-			if (resourceList.getHostList() != null || resourceList.getClusterList() != null) {
-				userInfo.getDTO().withResourceList(resourceList);
-				LOGGER.trace("Ask docker for the status of resources for user {}: {}", userInfo.getUsername(), userInfo.getDTO());
-				String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_STATUS, userInfo.getAccessToken(), userInfo.getDTO(), String.class);
-                RequestId.put(userInfo.getUsername(), uuid);
-			}
-		} catch (Exception e) {
-			LOGGER.warn("Ask docker for the status of resources for user {} fails: {}", e.getLocalizedMessage(), e);
-		}
-	}
-	
+
 	@Override
 	public void run() {
 		while (true) {
@@ -166,7 +150,7 @@ public class EnvStatusListener implements Managed, Runnable {
 						checkStatus(userInfo);
 					}
 				}
-				
+
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				LOGGER.trace("EnvStatus listener has been interrupted");
@@ -174,6 +158,24 @@ public class EnvStatusListener implements Managed, Runnable {
 			} catch (Exception e) {
 				LOGGER.warn("EnvStatus listener unhandled error: {}", e.getLocalizedMessage(), e);
 			}
+		}
+	}
+
+	/** Send request to docker for check the status of user environment.
+	 * @param userInfo user info.
+	 */
+	private void checkStatus(EnvStatusListenerUserInfo userInfo) {
+		try {
+			EnvResourceList resourceList = dao.findEnvResources(userInfo.getUsername());
+			LOGGER.trace("EnvStatus listener check status for user {} with resource list {}", userInfo.getUsername(), resourceList);
+			if (resourceList.getHostList() != null || resourceList.getClusterList() != null) {
+				userInfo.getDTO().withResourceList(resourceList);
+				LOGGER.trace("Ask docker for the status of resources for user {}: {}", userInfo.getUsername(), userInfo.getDTO());
+				String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_STATUS, userInfo.getAccessToken(), userInfo.getDTO(), String.class);
+				RequestId.put(userInfo.getUsername(), uuid);
+			}
+		} catch (Exception e) {
+			LOGGER.warn("Ask docker for the status of resources for user {} fails: {}", e.getLocalizedMessage(), e);
 		}
 	}
 }

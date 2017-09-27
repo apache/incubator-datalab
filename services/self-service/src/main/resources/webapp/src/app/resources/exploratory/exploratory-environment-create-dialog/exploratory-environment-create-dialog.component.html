@@ -47,7 +47,7 @@ limitations under the License.
         </div>
         <div class="form-group row">
           <div  class="col-xs-4">
-            <label class="control-label">Instance shape</label>
+            <label class="control-label">{{ DICTIONARY.notebook_instance_size }}</label>
           </div>
           <div class="col-xs-8">
             <dropdown-list #shapesList (selectedItem)="onUpdate($event)"></dropdown-list>

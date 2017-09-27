@@ -272,7 +272,7 @@ if __name__ == "__main__":
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}".\
-            format(instance_name, ssn_ami_id, os.environ['aws_ssn_instance_size'], os.environ['conf_key_name'],
+            format(instance_name, ssn_ami_id, os.environ['ssn_instance_size'], os.environ['conf_key_name'],
                    os.environ['aws_security_groups_ids'], os.environ['aws_subnet_id'],
                    role_profile_name, tag_name, instance_name)
 

@@ -22,6 +22,8 @@ import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.StatusBaseDTO;
+import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
+import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.JsonParser;
@@ -35,8 +37,8 @@ import java.time.Instant;
 import java.util.Date;
 
 abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implements FileHandlerCallback {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceCallbackHandler.class);
-    protected ObjectMapper MAPPER = new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
+    private static final Logger log = LoggerFactory.getLogger(ResourceCallbackHandler.class);
+    final ObjectMapper MAPPER = new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 
     private static final String STATUS_FIELD = "status";
     protected static final String RESPONSE_NODE = "response";
@@ -60,31 +62,39 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
         this.resultType = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 
+    public ResourceCallbackHandler(RESTService selfService, String user, String uuid, DockerAction action, Class<T> resultType) {
+        this.selfService = selfService;
+        this.user = user;
+        this.uuid = uuid;
+        this.action = action;
+        this.resultType = resultType;
+    }
+
     @Override
     public String getUUID() {
     	return uuid;
     }
-    
+
     @Override
     public boolean checkUUID(String uuid) {
         return this.uuid.equals(uuid);
     }
-    
+
     public String getUser() {
     	return user;
     }
-    
+
     public DockerAction getAction() {
     	return action;
     }
-    
+
     private void selfServicePost(T object) throws DlabException {
     	debugMessage("Send post request to self service {} for UUID {}, object is {}",
         		getCallbackURI(), uuid, object);
         try {
         	selfService.post(getCallbackURI(), object, resultType);
         } catch (Throwable e) {
-        	LOGGER.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
+        	log.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
         	throw new DlabException("Send request or responce error for UUID " + uuid + ": " + e.getLocalizedMessage(), e);
         }
     }
@@ -97,16 +107,16 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
         boolean success = isSuccess(document);
         UserInstanceStatus status = calcStatus(action, success);
         T result = getBaseStatusDTO(status);
-        
+
         JsonNode resultNode = document.get(RESPONSE_NODE).get(RESULT_NODE);
         if (success) {
         	debugMessage("Did {} resource for user: {}, UUID: {}", action, user, uuid);
         } else {
-            LOGGER.error("Could not {} resource for user: {}, UUID: {}", action, user, uuid);
+            log.error("Could not {} resource for user: {}, UUID: {}", action, user, uuid);
             result.setErrorMessage(getTextValue(resultNode.get(ERROR_NODE)));
         }
         result = parseOutResponse(resultNode, result);
-        
+
         selfServicePost(result);
         return !UserInstanceStatus.FAILED.equals(status);
     }
@@ -121,7 +131,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
             throw new DlabException("Could not send error message to Self Service for UUID " + uuid + ", user " + user + ": " + errorMessage, t);
         }
     }
-    
+
     abstract protected String getCallbackURI();
 
     abstract protected T parseOutResponse(JsonNode document, T baseStatus) throws DlabException;
@@ -175,12 +185,13 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
     protected String getTextValue(JsonNode jsonNode) {
         return jsonNode != null ? jsonNode.textValue() : null;
     }
-    
+
     private void debugMessage(String format, Object... arguments) {
     	if (action == DockerAction.STATUS) {
-    		LOGGER.trace(format, arguments);
+    		log.trace(format, arguments);
     	} else {
-    		LOGGER.debug(format, arguments);
+    		log.debug(format, arguments);
     	}
     }
+
 }
