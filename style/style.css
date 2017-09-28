@@ -214,6 +214,11 @@ img.aligncenter, img.ac {
 ::-moz-focus-inner {
   border: 0; }
 
+:-webkit-full-screen-ancestor:not(iframe) {
+  transform: none !important;
+  animation: none !important;
+  opacity: 1 !important; }
+
 html {
   font: 300 24px/1.4 "Open Sans", "Arial", sans-serif;
   -webkit-font-smoothing: antialiased;

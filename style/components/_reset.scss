@@ -194,3 +194,9 @@ img.aligncenter, img.ac {display: block}
 ::-moz-focus-inner {
     border: 0
 }
+
+:-webkit-full-screen-ancestor:not(iframe) {
+    transform: none !important;
+    animation: none !important;
+    opacity: 1 !important;
+}
