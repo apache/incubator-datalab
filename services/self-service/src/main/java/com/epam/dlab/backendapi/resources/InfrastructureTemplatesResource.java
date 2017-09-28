@@ -35,8 +35,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Provides the REST API to retrieve exploratory/computational templates.
@@ -63,14 +63,12 @@ public class InfrastructureTemplatesResource implements DockerAPI {
         log.debug("Loading list of computational templates for user {}", userInfo.getName());
         try {
             ComputationalMetadataDTO[] array = provisioningService.get(DOCKER_COMPUTATIONAL, userInfo.getAccessToken(), ComputationalMetadataDTO[].class);
-            List<ComputationalMetadataDTO> list = new ArrayList<>();
-            for (int i = 0; i < array.length; i++) {
-                array[i].setImage(getSimpleImageName(array[i].getImage()));
-                if (UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, array[i].getImage())) {
-                    list.add(array[i]);
-                }
-            }
-            return list;
+
+            return Arrays.stream(array).map(e -> {
+                e.setImage(getSimpleImageName(e.getImage()));
+                return e;
+            }).filter(e -> UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, e.getImage())).collect(Collectors.toList());
+
         } catch (DlabException e) {
             log.error("Could not load list of computational templates for user: {}", userInfo.getName(), e);
             throw e;
@@ -88,14 +86,12 @@ public class InfrastructureTemplatesResource implements DockerAPI {
         log.debug("Loading list of exploratory templates for user {}", userInfo.getName());
         try {
             ExploratoryMetadataDTO[] array = provisioningService.get(DOCKER_EXPLORATORY, userInfo.getAccessToken(), ExploratoryMetadataDTO[].class);
-            List<ExploratoryMetadataDTO> list = new ArrayList<>();
-            for (int i = 0; i < array.length; i++) {
-                array[i].setImage(getSimpleImageName(array[i].getImage()));
-                if (UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, array[i].getImage())) {
-                    list.add(array[i]);
-                }
-            }
-            return list;
+
+            return Arrays.stream(array).map(e -> {
+                e.setImage(getSimpleImageName(e.getImage()));
+                return e;
+            }).filter(e -> UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, e.getImage())).collect(Collectors.toList());
+
         } catch (DlabException e) {
             log.error("Could not load list of exploratory templates for user: {}", userInfo.getName(), e);
             throw e;
