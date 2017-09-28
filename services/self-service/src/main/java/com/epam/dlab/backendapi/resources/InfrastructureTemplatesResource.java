@@ -17,11 +17,8 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
-import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
@@ -40,7 +37,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Provides the REST API to retrieve exploratory/computational templates.
@@ -55,12 +51,6 @@ public class InfrastructureTemplatesResource implements DockerAPI {
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
-
-    @Inject
-    private SettingsDAO settingsDAO;
-
-    @Inject
-    private SelfServiceApplicationConfiguration configuration;
 
     /**
      * Returns the list of the computational resources templates for user.
@@ -105,12 +95,6 @@ public class InfrastructureTemplatesResource implements DockerAPI {
                     list.add(array[i]);
                 }
             }
-
-            if (settingsDAO.getConfOsFamily().equals("redhat") && configuration.getCloudProvider() == CloudProvider.AZURE) {
-                return list.stream().filter(e -> !e.getImage().endsWith("deeplearning")
-                        && !e.getImage().endsWith("tensor")).collect(Collectors.toList());
-            }
-
             return list;
         } catch (DlabException e) {
             log.error("Could not load list of exploratory templates for user: {}", userInfo.getName(), e);
