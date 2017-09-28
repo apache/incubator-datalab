@@ -2,16 +2,16 @@
   "exploratory_environment_shapes" :
   {
     "GPU optimized": [
-      {"Size": "M", "Description": "g2.2xlarge", "Type": "g2.2xlarge","Ram": "15.0 GB","Cpu": "8"}
+      {"Size": "S", "Description": "p2.xlarge", "Type": "p2.xlarge","Ram": "61.0 GB","Cpu": "4"}
     ]
   },
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Deep Learning  1.5",
+      "template_name": "Deep Learning  1.7",
       "description": "Base image with Deep Learning and Jupyter",
       "environment_type": "exploratory",
-      "version": "deeplearning-1.5",
+      "version": "deeplearning-1.7",
       "vendor": "AWS"
     }
   ]

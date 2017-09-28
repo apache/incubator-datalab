@@ -129,7 +129,7 @@ Setting up Edge node is the first step that user is asked to do once logged into
 The next step is setting up a Notebook node (or a Notebook server). It is a server with pre-installed applications and libraries for data processing, data cleaning and transformations, numerical simulations, statistical modeling, machine learning, etc. Following analytical tools are currently supported in DLab and can be installed on a Notebook node:
 
 -   Jupyter
--   R-studio
+-   RStudio
 -   Zeppelin
 -   TensorFlow + Jupyter
 -   Deep Learning + Jupyter
