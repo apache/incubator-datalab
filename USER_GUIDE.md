@@ -280,7 +280,7 @@ Insert following “magics” before blocks of your code to start executing your
 -   interpreter\_name.%pyspark3 – for Python3;
 -   interpreter\_name.%sparkr – for R;
 
-**R-studio –** open R.environ and comment out /opt/spark/ to switch to Computational resource and vise versa to switch to local kernel:
+**RStudio –** open R.environ and comment out /opt/spark/ to switch to Computational resource and vise versa to switch to local kernel:
 
 ![RStudio](doc/rstudio.png)
 
