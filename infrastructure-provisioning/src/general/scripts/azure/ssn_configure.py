@@ -308,7 +308,7 @@ if __name__ == "__main__":
         print "VPC Name: " + ssn_conf['vpc_name']
         print "Subnet Name: " + ssn_conf['subnet_name']
         print "Firewall Names: " + ssn_conf['security_group_name']
-        print "SSN instance size: " + os.environ['ssn_instance_size']
+        print "SSN instance size: " + os.environ['azure_ssn_instance_size']
         print "SSN storage account name: " + ssn_storage_account_name
         print "SSN container name: " + ssn_conf['ssn_container_name']
         print "Shared storage account name: " + shared_storage_account_name
@@ -332,7 +332,7 @@ if __name__ == "__main__":
                    "vpc_id": ssn_conf['vpc_name'],
                    "subnet_id": ssn_conf['subnet_name'],
                    "security_id": ssn_conf['security_group_name'],
-                   "instance_shape": os.environ['ssn_instance_size'],
+                   "instance_shape": os.environ['azure_ssn_instance_size'],
                    "container_name": ssn_conf['ssn_container_name'],
                    "region": ssn_conf['region'],
                    "action": "Create SSN instance"}
