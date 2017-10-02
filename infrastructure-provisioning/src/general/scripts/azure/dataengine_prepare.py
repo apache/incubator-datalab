@@ -93,7 +93,8 @@ if __name__ == "__main__":
         data_engine['instance_storage_account_type'] = 'Premium_LRS'
         data_engine['notebook_name'] = os.environ['notebook_instance_name']
         data_engine['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-        tags = {"notebook_name": data_engine['notebook_name']}
+        data_engine['tags'] = [{"Name": data_engine['cluster_name']},
+                               {"notebook_name": data_engine['notebook_name']}]
     except Exception as err:
         print "Failed to generate variables dictionary."
         append_result("Failed to generate variables dictionary. Exception:" + str(err))
@@ -115,11 +116,9 @@ if __name__ == "__main__":
                    data_engine['master_security_group_name'], data_engine['private_subnet_name'],
                    data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
                    data_engine['public_ssh_key'], '32', 'dataengine', data_engine['user_name'],
-                   data_engine['instance_storage_account_type'], data_engine['ami_name'])
+                   data_engine['instance_storage_account_type'], data_engine['ami_name'], data_engine['tags'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
-            AzureActions().set_tag_to_instance(data_engine['resource_group_name'], data_engine['master_node_name'],
-                                               tags)
         except:
             traceback.print_exc()
             raise Exception
@@ -142,10 +141,9 @@ if __name__ == "__main__":
                        slave_nif_name, data_engine['slave_security_group_name'], data_engine['private_subnet_name'],
                        data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
                        data_engine['public_ssh_key'], '32', 'dataengine', data_engine['user_name'],
-                       data_engine['instance_storage_account_type'], data_engine['ami_name'])
+                       data_engine['instance_storage_account_type'], data_engine['ami_name'], data_engine['tags'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
-                AzureActions().set_tag_to_instance(data_engine['resource_group_name'], slave_name, tags)
             except:
                 traceback.print_exc()
                 raise Exception

@@ -399,7 +399,7 @@ class AzureActions:
 
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
-                        ami_full_name, user_name='', create_option='fromImage', disk_id='',
+                        ami_full_name, tags, user_name='', create_option='fromImage', disk_id='',
                         instance_storage_account_type='Premium_LRS'):
         ami_name = ami_full_name.split('_')
         publisher = ami_name[0]
@@ -409,6 +409,7 @@ class AzureActions:
             if instance_type == 'ssn':
                 parameters = {
                     'location': region,
+                    'tags': tags,
                     'hardware_profile': {
                         'vm_size': instance_size
                     },
@@ -454,6 +455,7 @@ class AzureActions:
                 if create_option == 'fromImage':
                     parameters = {
                         'location': region,
+                        'tags': tags,
                         'hardware_profile': {
                             'vm_size': instance_size
                         },
@@ -498,6 +500,7 @@ class AzureActions:
                 elif create_option == 'attach':
                     parameters = {
                         'location': region,
+                        'tags': tags,
                         'hardware_profile': {
                             'vm_size': instance_size
                         },
@@ -524,6 +527,7 @@ class AzureActions:
             elif instance_type == 'notebook':
                 parameters = {
                     'location': region,
+                    'tags': tags,
                     'hardware_profile': {
                         'vm_size': instance_size
                     },
@@ -579,6 +583,7 @@ class AzureActions:
             elif instance_type == 'dataengine':
                 parameters = {
                     'location': region,
+                    'tags': tags,
                     'hardware_profile': {
                         'vm_size': instance_size
                     },

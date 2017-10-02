@@ -67,6 +67,7 @@ if __name__ == "__main__":
         edge_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         edge_conf['instance_storage_account_type'] = 'Premium_LRS'
         edge_conf['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
+        edge_conf['tags'] = {"Name": edge_conf['instance_name']}
 
         # FUSE in case of absence of user's key
         fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
@@ -671,7 +672,8 @@ if __name__ == "__main__":
                    edge_conf['vpc_name'], edge_conf['network_interface_name'], edge_conf['edge_security_group_name'],
                    edge_conf['subnet_name'], edge_conf['service_base_name'], edge_conf['resource_group_name'],
                    initial_user, edge_conf['static_public_ip_name'], edge_conf['public_ssh_key'], '32', 'edge',
-                   edge_conf['user_name'], edge_conf['instance_storage_account_type'], edge_conf['ami_name'])
+                   edge_conf['user_name'], edge_conf['instance_storage_account_type'], edge_conf['ami_name'],
+                   edge_conf['tags'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
