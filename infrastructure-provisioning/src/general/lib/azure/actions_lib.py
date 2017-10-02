@@ -372,9 +372,7 @@ class AzureActions:
                         "domain_name_label": "host-" + instance_name.lower()
                     }
                 }
-            )
-            while meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).provisioning_state != 'Succeeded':
-                time.sleep(5)
+            ).wait()
             return meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).ip_address
         except Exception as err:
             logging.info(
@@ -389,9 +387,7 @@ class AzureActions:
             result = self.network_client.public_ip_addresses.delete(
                 resource_group_name,
                 ip_name
-            )
-            while meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name):
-                time.sleep(5)
+            ).wait()
             return result
         except Exception as err:
             logging.info(
@@ -640,10 +636,8 @@ class AzureActions:
 
     def stop_instance(self, resource_group_name, instance_name):
         try:
-            result = self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name)
-            while meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).provisioning_state != "Succeeded":
-                time.sleep(5)
-                print "Instance {} is being deallocated...".format(instance_name)
+            result = self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
+            print "Instance {} has been stopped".format(instance_name)
             return result
         except Exception as err:
             logging.info(
@@ -682,9 +676,7 @@ class AzureActions:
 
     def remove_instance(self, resource_group_name, instance_name):
         try:
-            result = self.compute_client.virtual_machines.delete(resource_group_name, instance_name)
-            while meta_lib.AzureMeta().get_instance(resource_group_name, instance_name):
-                time.sleep(5)
+            result = self.compute_client.virtual_machines.delete(resource_group_name, instance_name).wait()
             print "Instance {} has been removed".format(instance_name)
             # Removing instance disks
             disk_names = []

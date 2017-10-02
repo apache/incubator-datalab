@@ -36,10 +36,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.util.RequestBuilder;
-import com.epam.dlab.cloud.CloudProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +55,6 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryGitCredsDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
@@ -86,13 +82,6 @@ public class ExploratoryResource implements ExploratoryAPI {
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
 
-    @Inject
-    private SettingsDAO settingsDAO;
-
-    @Inject
-    private SelfServiceApplicationConfiguration configuration;
-
-
     /**
      * Creates the exploratory environment for user.
      *
@@ -110,14 +99,6 @@ public class ExploratoryResource implements ExploratoryAPI {
 			LOGGER.warn("Unauthorized attempt to create a {} by user {}", formDTO.getImage(), userInfo.getName());
 			throw new DlabException("You do not have the privileges to create a " + formDTO.getTemplateName());
 		}
-
-        if (settingsDAO.getConfOsFamily().equals("redhat") && configuration.getCloudProvider() == CloudProvider.AZURE) {
-
-		    if (formDTO.getImage().endsWith("deeplearning") || formDTO.getImage().endsWith("tensor")) {
-		        throw new UnsupportedOperationException("Deeplearning and TensorFlow are not supported for Red Hat instances on Azure yet");
-            }
-        }
-
         boolean isAdded = false;
         try {
             exploratoryDAO.insertExploratory(new UserInstanceDTO()
