@@ -268,7 +268,7 @@ class AzureActions:
                     "sku": {"name": "Standard_LRS"},
                     "kind": "BlobStorage",
                     "location":  region,
-                    "tags": {"account_name": tag_value},
+                    "tags": {"Name": tag_value},
                     "access_tier": "Hot",
                     "encryption": {
                         "services": {"blob": {"enabled": True}}
@@ -421,7 +421,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-ssn-primary-disk'.format(service_base_name),
+                            'name': '{}-ssn-disk0'.format(service_base_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'managed_disk': {
@@ -466,7 +466,7 @@ class AzureActions:
                             },
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-primary-disk'.format(service_base_name, user_name),
+                                'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
                                 'managed_disk': {
@@ -504,7 +504,7 @@ class AzureActions:
                         'storage_profile': {
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-primary-disk'.format(service_base_name, user_name),
+                                'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
                                 'managed_disk': {
@@ -536,7 +536,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-primary-disk'.format(instance_name),
+                            'name': '{}-disk0'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'managed_disk': {
@@ -546,7 +546,7 @@ class AzureActions:
                         'data_disks': [
                             {
                                 'lun': 1,
-                                'name': '{}-secondary-disk'.format(instance_name),
+                                'name': '{}-disk1'.format(instance_name),
                                 'create_option': 'empty',
                                 'disk_size_gb': 32,
                                 'managed_disk': {
@@ -591,7 +591,7 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-primary-disk'.format(instance_name),
+                            'name': '{}-disk0'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
                             'managed_disk': {
@@ -908,11 +908,11 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                 replace('_', '-')
             shared_storage_account_tag = os.environ['conf_service_base_name'] + 'shared'
             for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-                if user_storage_account_tag == storage_account.tags["account_name"]:
+                if user_storage_account_tag == storage_account.tags["Name"]:
                     user_storage_account_name = storage_account.name
                     user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
                                                                                       user_storage_account_name)[0]
-                if shared_storage_account_tag == storage_account.tags["account_name"]:
+                if shared_storage_account_tag == storage_account.tags["Name"]:
                     shared_storage_account_name = storage_account.name
                     shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
                                                                                         shared_storage_account_name)[0]

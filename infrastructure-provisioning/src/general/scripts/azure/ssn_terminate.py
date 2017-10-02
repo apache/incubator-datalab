@@ -65,7 +65,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     print "Removing storage accounts"
     try:
         for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
-            if service_base_name in storage_account.tags["account_name"]:
+            if service_base_name in storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(resource_group_name, storage_account.name)
                 print "Storage account {} has been terminated".format(storage_account.name)
     except:
@@ -91,7 +91,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
 
     print "Removing VPC"
     try:
-        if AzureMeta().get_vpc(resource_group_name, service_base_name + '-ssn-vpc'):
+        if AzureMeta().get_vpc(resource_group_name, service_base_name + '-vpc'):
             AzureActions().remove_vpc(resource_group_name, vpc_name)
             print "VPC {} has been terminated".format(vpc_name)
     except:

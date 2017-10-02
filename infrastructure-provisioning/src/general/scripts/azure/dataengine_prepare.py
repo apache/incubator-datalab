@@ -79,10 +79,10 @@ if __name__ == "__main__":
         data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-' \
                                                    + data_engine['user_name'] + '-dataengine-slave-sg'
         data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['user_name'] + \
-                                          '-dataengine-' + data_engine['exploratory_name'] + '-' + \
+                                          '-de-' + data_engine['exploratory_name'] + '-' + \
                                           data_engine['computational_name']
-        data_engine['master_node_name'] = data_engine['cluster_name'] + '-master'
-        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
+        data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
+        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
         data_engine['master_network_interface_name'] = data_engine['master_node_name'] + '-nif'
         data_engine['master_size'] = os.environ['azure_dataengine_master_size']
         ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'

@@ -75,7 +75,7 @@ if __name__ == "__main__":
                                                                             args.network_interface_name, args.region,
                                                                             args.security_group_name,
                                                                             args.public_ip_name)
-                disk = AzureMeta().get_disk(args.service_base_name, '{}-primary-disk'.format(
+                disk = AzureMeta().get_disk(args.service_base_name, '{}disk0'.format(
                     args.instance_name))
                 if disk:
                     create_option = 'attach'

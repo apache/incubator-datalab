@@ -38,7 +38,7 @@ if __name__ == "__main__":
     try:
         check_account = False
         for storage_account in AzureMeta().list_storage_accounts(args.resource_group_name):
-            if args.account_tag == storage_account.tags["account_name"]:
+            if args.account_tag == storage_account.tags["Name"]:
                 check_account = True
                 print "REQUESTED STORAGE ACCOUNT {} ALREADY EXISTS".format(storage_account.name)
         if not check_account:

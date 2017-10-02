@@ -32,7 +32,7 @@ def terminate_nb(resource_group_name, service_base_name, user_name, notebook_nam
     print "Terminating data engine cluster"
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if service_base_name + '-' + user_name + '-dataengine' in vm.name and notebook_name == \
+            if service_base_name + '-' + user_name + '-de-' in vm.name and notebook_name == \
                     vm.tags['notebook_name']:
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print "Instance {} has been terminated".format(vm.name)

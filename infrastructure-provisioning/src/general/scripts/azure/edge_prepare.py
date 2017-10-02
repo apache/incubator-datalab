@@ -51,7 +51,7 @@ if __name__ == "__main__":
         edge_conf['vpc_cidr'] = '10.10.0.0/16'
         edge_conf['private_subnet_prefix'] = os.environ['azure_private_subnet_prefix']
         edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge'
-        edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
+        edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-disk0'
         edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
         edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name']\
             + '-nb-sg'
@@ -652,7 +652,7 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+            if edge_conf['storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
@@ -691,7 +691,7 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+            if edge_conf['storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         append_result("Failed to create instance. Exception:" + str(err))
         sys.exit(1)

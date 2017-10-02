@@ -51,7 +51,7 @@ if __name__ == "__main__":
         ssn_conf['shared_storage_account_tag'] = ssn_conf['service_base_name'] + 'shared'
         ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared-container').lower()
         ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
-        ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
+        ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-vpc'
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
         ssn_conf['security_group_name'] = ssn_conf['service_base_name'] + '-ssn-sg'
         ssn_conf['ssh_key_path'] = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
@@ -133,9 +133,9 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
         AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Failed creating ssh user 'dlab-user'.", str(err))
@@ -163,9 +163,9 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
         AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Failed installing software: pip, packages.", str(err))
@@ -198,9 +198,9 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
         AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Failed configuring ssn.", str(err))
@@ -238,9 +238,9 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
         AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Unable to configure docker.", str(err))
@@ -282,9 +282,9 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
         AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         append_result("Unable to configure UI.", str(err))
@@ -295,9 +295,9 @@ if __name__ == "__main__":
         instance_hostname = AzureMeta().get_instance_public_ip_address(os.environ['azure_resource_group_name'],
                                                                        ssn_conf['instance_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["Name"]:
                 ssn_storage_account_name = storage_account.name
-            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["Name"]:
                 shared_storage_account_name = storage_account.name
         print('[SUMMARY]')
         print "Service base name: " + ssn_conf['service_base_name']

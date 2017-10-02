@@ -40,7 +40,7 @@ if __name__ == "__main__":
         pre_defined_sg = False
         ssn_conf = dict()
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'].replace('_', '-')
-        ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
+        ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-vpc'
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
         ssn_conf['region'] = os.environ['azure_region']
         ssn_conf['vpc_cidr'] = '10.10.0.0/16'

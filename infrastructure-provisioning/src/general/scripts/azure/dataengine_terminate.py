@@ -67,7 +67,7 @@ if __name__ == "__main__":
     data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
     data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
     data_engine['cluster_name'] = \
-        data_engine['service_base_name'] + '-' + data_engine['user_name'] + '-dataengine-' + \
+        data_engine['service_base_name'] + '-' + data_engine['user_name'] + '-de-' + \
         data_engine['exploratory_name'] + '-' + data_engine['computational_name']
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
     data_engine['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
