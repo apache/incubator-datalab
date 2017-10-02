@@ -954,19 +954,17 @@ footer {
 
 @media only screen and (min-width: 767px) {
     .social {
-        li {
-            &.social-twitter {
-                &:hover { background-image: url(../images/social/twitter.svg);}
-            }
-            &.social-slack {
-                &:hover { background-image: url(../images/social/slack.svg);}
-            }
-            &.social-youtube {
-                &:hover { background-image: url(../images/social/youtube.svg);}
-            }
-            &.social-github {
-                &:hover { background-image: url(../images/social/github.svg);}
-            }
+        .social-twitter {
+            &:hover { background-image: url(../images/social/twitter.svg);}
+        }
+        .social-slack {
+            &:hover { background-image: url(../images/social/slack.svg);}
+        }
+        .social-youtube {
+            &:hover { background-image: url(../images/social/youtube.svg);}
+        }
+        .social-github {
+            &:hover { background-image: url(../images/social/github.svg);}
         }
     }
     .overlay {
@@ -1118,6 +1116,15 @@ footer {
             visibility: hidden;
             overflow: hidden;
             position: relative;
+            ul.community {
+                padding: 20px 0;
+                ul.social {
+                    justify-content: space-around;
+                    li {
+                        margin: 0;
+                    }
+                }
+            }
             .get-started-nav {
                 margin-top: 10px;
                 a {
@@ -1162,15 +1169,6 @@ footer {
                     }
                     &::before {
                         display: none;
-                    }
-                    &.community {
-                        padding: 20px 0;
-                        .social {
-                            justify-content: space-between;
-                            li {
-                                margin: 0;
-                            }
-                        }
                     }
                 }
                 & + li {

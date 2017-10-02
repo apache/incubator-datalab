@@ -1215,13 +1215,13 @@ footer {
             padding: 15px; }
 
 @media only screen and (min-width: 767px) {
-  .social li.social-twitter:hover {
+  .social .social-twitter:hover {
     background-image: url(../images/social/twitter.svg); }
-  .social li.social-slack:hover {
+  .social .social-slack:hover {
     background-image: url(../images/social/slack.svg); }
-  .social li.social-youtube:hover {
+  .social .social-youtube:hover {
     background-image: url(../images/social/youtube.svg); }
-  .social li.social-github:hover {
+  .social .social-github:hover {
     background-image: url(../images/social/github.svg); }
   .overlay .sources .git-ref:hover {
     background-color: #0366D6;
@@ -1322,6 +1322,12 @@ footer {
     visibility: hidden;
     overflow: hidden;
     position: relative; }
+    header .menu ul.community {
+      padding: 20px 0; }
+      header .menu ul.community ul.social {
+        justify-content: space-around; }
+        header .menu ul.community ul.social li {
+          margin: 0; }
     header .menu .get-started-nav {
       margin-top: 10px; }
       header .menu .get-started-nav a {
@@ -1357,12 +1363,6 @@ footer {
             background: none; }
         header .menu > li .sub-menu::before {
           display: none; }
-        header .menu > li .sub-menu.community {
-          padding: 20px 0; }
-          header .menu > li .sub-menu.community .social {
-            justify-content: space-between; }
-            header .menu > li .sub-menu.community .social li {
-              margin: 0; }
       header .menu > li + li {
         margin-left: 0; }
   header #menu-toggle:checked ~ ul {
