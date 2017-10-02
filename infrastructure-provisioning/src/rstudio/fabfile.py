@@ -112,7 +112,7 @@ def configure():
 
     try:
         if os.environ['conf_resource'] == 'dataengine-service':
-            local("~/scripts/{}.py".format('common_configure_analytic_tool'))
+            local("~/scripts/{}.py".format('common_notebook_configure_dataengine-service'))
         elif os.environ['conf_resource'] == 'dataengine':
             local("~/scripts/{}.py".format('common_notebook_configure_dataengine'))
     except Exception as err:

@@ -20,35 +20,33 @@
 
 import argparse
 from fabric.api import *
-import boto3
 from dlab.meta_lib import *
 import os
+from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--bucket', type=str, default='')
 parser.add_argument('--cluster_name', type=str, default='')
-parser.add_argument('--dry_run', type=str, default='false')
-parser.add_argument('--emr_version', type=str, default='')
-parser.add_argument('--keyfile', type=str, default='')
+parser.add_argument('--spark_version', type=str, default='')
+parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--region', type=str, default='')
-parser.add_argument('--notebook_ip', type=str, default='')
-parser.add_argument('--scala_version', type=str, default='')
-parser.add_argument('--emr_excluded_spark_properties', type=str, default='')
-parser.add_argument('--edge_user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
-parser.add_argument('--edge_hostname', type=str, default='')
-parser.add_argument('--proxy_port', type=str, default='')
-parser.add_argument('--pip_mirror', type=str, default='')
-parser.add_argument('--application', type=str, default='')
+parser.add_argument('--spark_master', type=str, default='')
+parser.add_argument('--keyfile', type=str, default='')
+parser.add_argument('--notebook_ip', type=str, default='')
 args = parser.parse_args()
 
 
 def configure_notebook(args):
+    templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
-    put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application),
-        '/tmp/rstudio_dataengine-service_create_configs.py')
-    sudo('\cp /tmp/rsturio_dataengine-service_create_configs.py /usr/local/bin/rstudio_dataengine-service_create_configs.py')
-    sudo('chmod 755 /usr/local/bin/rstudio_dataengine-service_create_configs.py')
+    if os.environ['notebook_multiple_clusters'] == 'true':
+        put(templates_dir + 'dataengine_interpreter_livy.json', '/tmp/dataengine_interpreter.json')
+    else:
+        put(templates_dir + 'dataengine_interpreter_spark.json', '/tmp/dataengine_interpreter.json')
+    put(scripts_dir + 'zeppelin_dataengine_create_configs.py', '/tmp/zeppelin_dataengine_create_configs.py')
+    put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
+    sudo('\cp /tmp/zeppelin_dataengine_create_configs.py /usr/local/bin/zeppelin_dataengine_create_configs.py')
+    sudo('chmod 755 /usr/local/bin/zeppelin_dataengine_create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')
     run('mkdir -p /tmp/dlab_libs/')
     local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
@@ -64,9 +62,8 @@ if __name__ == "__main__":
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
     configure_notebook(args)
-    spark_version = get_spark_version(args.cluster_name)
-    hadoop_version = get_hadoop_version(args.cluster_name)
-    sudo("/usr/bin/python /usr/local/bin/rstudio_dataengine-service_create_configs.py --bucket " + args.bucket +
-         " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " +
-         spark_version + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
-         + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user)
+    livy_version = os.environ['notebook_livy_version']
+    sudo("/usr/bin/python /usr/local/bin/zeppelin_dataengine_create_configs.py "
+         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {} --livy_version {} --multiple_clusters {}".
+         format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master,
+                args.keyfile, args.notebook_ip, livy_version, os.environ['notebook_multiple_clusters']))

@@ -198,7 +198,8 @@ if __name__ == "__main__":
                              {"name": "zeppelin", "tag": "latest"},
                              {"name": "tensor", "tag": "latest"},
                              {"name": "deeplearning", "tag": "latest"},
-                             {"name": "dataengine-service", "tag": "latest"}]
+                             {"name": "dataengine-service", "tag": "latest"},
+                             {"name": "dataengine", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
             format(instance_hostname, "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name']),
                    json.dumps(additional_config), os.environ['conf_os_family'], dlab_ssh_user,
