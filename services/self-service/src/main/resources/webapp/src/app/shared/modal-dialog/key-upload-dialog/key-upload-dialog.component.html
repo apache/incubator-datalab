@@ -21,34 +21,36 @@ limitations under the License.
     <h4 class="modal-title">Create initial infrastructure</h4>
   </modal-header>
   <modal-content>
-    <form (submit)="uploadUserAccessKey_btnClick($event)" novalidate>
-      <div class="row upload-key">
-        <div  class="col-xs-7">
-          <label class="control-label">
-            Upload public key to start environment creation
-          </label>
-          <div>
-            <a href="#/help/publickeyguide" target="_blank">
-               <small class="helper_instruction">Where can I get public key?</small>
-            </a>
+    <div class="content-box">
+      <form (submit)="uploadUserAccessKey_btnClick($event)" novalidate>
+        <div class="row upload-key">
+          <div  class="col-xs-7">
+            <label class="control-label">
+              Upload public key to start environment creation
+            </label>
+            <div>
+              <a href="#/help/publickeyguide" target="_blank">
+                <small class="helper_instruction">Where can I get public key?</small>
+              </a>
+            </div>
+          </div>
+          <div class="col-xs-5 text-right">
+            <span md-raised-button class="butt butt-file">
+              <span class="upload-icon"></span> Upload
+              <input #userAccessKeyUploadControl (change)="uploadUserAccessKey_onChange($event)" type="file" name="file" accept=".pub" />
+            </span>
+            <div class="text-right" [class.danger_color]="!model.accessKeyFormValid">{{model.accessKeyLabel}}</div>
           </div>
         </div>
-        <div class="col-xs-5 text-right">
-          <span md-raised-button class="butt butt-file">
-            <span class="upload-icon"></span> Upload
-            <input #userAccessKeyUploadControl (change)="uploadUserAccessKey_onChange($event)" type="file" name="file" accept=".pub" />
-          </span>
-          <div class="text-right" [class.danger_color]="!model.accessKeyFormValid">{{model.accessKeyLabel}}</div>
+        <div class="text-right" *ngIf="processError">
+          <small class="danger_color">{{errorMessage}}</small>
         </div>
-      </div>
-      <div class="text-right" *ngIf="processError">
-        <small class="danger_color">{{errorMessage}}</small>
-      </div>
-      <div class="text-center m-top-30">
-        <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
-        <button md-raised-button type="submit" class="butt butt-success" [disabled]="!model.accessKeyFormValid">Create</button>
-      </div>
-    </form>
+        <div class="text-center m-top-30">
+          <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
+          <button md-raised-button type="submit" class="butt butt-success" [disabled]="!model.accessKeyFormValid">Create</button>
+        </div>
+      </form>
+    </div>
   </modal-content>
   <modal-footer></modal-footer>
 </modal-dialog>

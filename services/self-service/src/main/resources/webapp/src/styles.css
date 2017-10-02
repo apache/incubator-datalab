@@ -57,10 +57,6 @@ limitations under the License.
   border-radius: 0;
 }
 
-.cdk-overlay-container {
-    z-index: 9999 !important;
-}
-
 .install-libs .mat-tab-label,
 .manage-ungit .mat-tab-label {
     width: 50%;
@@ -125,7 +121,7 @@ limitations under the License.
 
 
 
-[hidden] {
+[hidden], .hidden {
   display: none !important;
 }
 
@@ -134,7 +130,9 @@ body {
   font-size: 16px;
   overflow-x: hidden;
   font-weight: 300;
-  display: flex;
+  /* display: flex; */
+  margin: 0;
+  padding: 0;
 }
 
 button {
@@ -159,19 +157,6 @@ button {
 
 .danger_color {
   color: #d9534f;
-}
-
-.sub_nav {
-  height: 60px;
-  padding: 12px 15px;
-}
-
-.modal .btn {
-  margin-top: 20px;
-}
-
-.modal .modal-footer .btn {
-  margin-top: 0;
 }
 
 .loader {
@@ -233,6 +218,20 @@ button {
     font-size: 16px;
     font-weight: 300;
     color: #35afd5;
+}
+
+.base-retreat {
+  margin: 12px 15px;
+}
+
+.sub-nav {
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+}
+
+.sub-nav div {
+  display: flex;
 }
 
 @-webkit-keyframes spin {
@@ -373,4 +372,27 @@ input[type=number] {
   -webkit-box-shadow: inset 1px 1px 6px #9a9393;
   background-color: #f6fafe;
   border-radius: 5px;
+}
+
+.warning-alert {
+  position: relative;
+  display: flex;
+  margin-top: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  color: #fff;
+  background: #E2747D;
+  word-break: break-word;
+}
+.warning-alert span {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border-radius: 50%;
+  background: #E2747D;
+  color: #fff;
+  box-shadow: 2px 5px 16px 5px rgba(88, 60, 60, 0.6)
 }

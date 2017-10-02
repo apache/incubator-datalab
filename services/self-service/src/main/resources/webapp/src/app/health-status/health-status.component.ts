@@ -23,7 +23,8 @@ import { HealthStatusService } from '../core/services';
 @Component({
     moduleId: module.id,
     selector: 'health-status',
-    templateUrl: 'health-status.component.html'
+    templateUrl: 'health-status.component.html',
+    styles: [`.sub-nav { justify-content: flex-end }`]
 })
 export class HealthStatusComponent implements OnInit {
 

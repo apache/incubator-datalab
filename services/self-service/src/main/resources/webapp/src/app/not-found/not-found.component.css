@@ -45,13 +45,13 @@ limitations under the License.
   width: 100%;
 }
 
-.not-found-page .message {
+.not-found-page .message-block {
   position: absolute;
   bottom: -20px;
   width: 300px;
   font-size: 14px;
 }
 
-.not-found-page .message a {
+.not-found-page .message-block a {
   text-decoration: none;
 }
