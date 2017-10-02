@@ -24,17 +24,17 @@ limitations under the License.
 }
 @keyframes hide {
   from { opacity: 1; transform: translateY(0%); }
-  35% { opacity: 0; }
-  to { opacity: 0; transform: translateY(-20%); }
+  35% { opacity: 0; transform: translateY(-20%)}
+  to { opacity: 0; transform: translateY(-25%); }
 }
 @keyframes showSlideSide {
   from { opacity: 0; transform: translateX(150%); }
-  20% { opacity: 0; transform: translateX(100%); }
+  35% { opacity: 0; transform: translateX(100%); }
   to { opacity: 1; transform: translateX(0%); }
 }
 @keyframes hideSlideSide {
   from { opacity: 1; transform: translateX(0%); }
-  50% { opacity: 0; transform: translateX(100%); }
+  35% { opacity: 0; }
   to { opacity: 0; transform: translateX(150%); }
 }
 
@@ -94,7 +94,7 @@ limitations under the License.
   animation-timing-function: ease;
 }
 
-.dialog.in .dialog-container.install-libs {
+/* .dialog.in .dialog-container.install-libs {
   animation-duration: .35s;
   animation-fill-mode: forwards;
   animation-name: showSlideSide;
@@ -108,11 +108,11 @@ limitations under the License.
 }
 
 .dialog.out .dialog-container.install-libs {
-  animation-duration: .35s;
+  animation-duration: .25s;
   animation-fill-mode: forwards;
   animation-name: hideSlideSide;
   animation-timing-function: ease;
-}
+} */
 
 .dialog-container {
   /* display: flex; */
