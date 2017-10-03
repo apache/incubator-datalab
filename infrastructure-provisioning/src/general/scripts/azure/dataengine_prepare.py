@@ -93,8 +93,8 @@ if __name__ == "__main__":
         data_engine['instance_storage_account_type'] = 'Premium_LRS'
         data_engine['notebook_name'] = os.environ['notebook_instance_name']
         data_engine['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-        data_engine['tags'] = [{"Name": data_engine['cluster_name']},
-                               {"notebook_name": data_engine['notebook_name']}]
+        data_engine['tags'] = {"Name": data_engine['cluster_name'],
+                               "notebook_name": data_engine['notebook_name']}
     except Exception as err:
         print "Failed to generate variables dictionary."
         append_result("Failed to generate variables dictionary. Exception:" + str(err))

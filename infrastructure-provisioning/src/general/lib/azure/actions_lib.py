@@ -409,7 +409,7 @@ class AzureActions:
             if instance_type == 'ssn':
                 parameters = {
                     'location': region,
-                    'tags': tags,
+                    'tags': {tags},
                     'hardware_profile': {
                         'vm_size': instance_size
                     },
