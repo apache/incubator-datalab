@@ -129,7 +129,7 @@ if __name__ == "__main__":
                    notebook_config['service_base_name'], notebook_config['resource_group_name'], initial_user,
                    'None', notebook_config['public_ssh_key'], '32', 'notebook',
                    notebook_config['user_name'], notebook_config['instance_storage_account_type'],
-                   notebook_config['ami_name'], notebook_config['tags'])
+                   notebook_config['ami_name'], json.dumps(notebook_config['tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

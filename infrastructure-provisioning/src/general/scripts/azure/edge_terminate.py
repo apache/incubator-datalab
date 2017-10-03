@@ -65,7 +65,7 @@ def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_na
     print "Removing storage account"
     try:
         for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
-            if storage_account_name == storage_account.tags["account_name"]:
+            if storage_account_name == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(resource_group_name, storage_account.name)
                 print "Storage account {} has been terminated".format(storage_account.name)
     except:

@@ -116,7 +116,8 @@ if __name__ == "__main__":
                    data_engine['master_security_group_name'], data_engine['private_subnet_name'],
                    data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
                    data_engine['public_ssh_key'], '32', 'dataengine', data_engine['user_name'],
-                   data_engine['instance_storage_account_type'], data_engine['ami_name'], data_engine['tags'])
+                   data_engine['instance_storage_account_type'], data_engine['ami_name'],
+                   json.dumps(data_engine['tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

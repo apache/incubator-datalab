@@ -246,7 +246,7 @@ if __name__ == "__main__":
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
         append_result("Failed to create SSN storage account and container. Exception:" + str(err))
         sys.exit(1)
@@ -271,9 +271,9 @@ if __name__ == "__main__":
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
         append_result("Failed to create SSN storage account and container. Exception:" + str(err))
         sys.exit(1)
@@ -293,7 +293,7 @@ if __name__ == "__main__":
                    ssn_conf['network_interface_name'], os.environ['azure_security_group_name'], os.environ['azure_subnet_name'],
                    ssn_conf['service_base_name'], os.environ['azure_resource_group_name'], initial_user,
                    ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '32', 'ssn',
-                   ssn_conf['instance_storage_account_type'], ssn_conf['ssn_ami_name'], ssn_conf['tags'])
+                   ssn_conf['instance_storage_account_type'], ssn_conf['ssn_ami_name'], json.dumps(ssn_conf['tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -310,9 +310,9 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
         try:
             AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
