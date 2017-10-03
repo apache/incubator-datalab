@@ -667,7 +667,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE EDGE INSTANCE]')
         print('[CREATE EDGE INSTANCE]')
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags {}".\
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags '{}'".\
             format(edge_conf['instance_name'], os.environ['azure_edge_instance_size'], edge_conf['region'],
                    edge_conf['vpc_name'], edge_conf['network_interface_name'], edge_conf['edge_security_group_name'],
                    edge_conf['subnet_name'], edge_conf['service_base_name'], edge_conf['resource_group_name'],
