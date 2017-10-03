@@ -122,7 +122,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
         print '[CREATE NOTEBOOK INSTANCE]'
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags{}". \
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags {}". \
             format(notebook_config['instance_name'], notebook_config['instance_size'], notebook_config['region'],
                    notebook_config['vpc_name'], notebook_config['network_interface_name'],
                    notebook_config['security_group_name'], notebook_config['private_subnet_name'],
