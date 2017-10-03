@@ -95,7 +95,7 @@ limitations under the License.
         <div class="text-right" *ngIf="processError">
           <small class="danger_color">{{errorMessage}}</small>
         </div>
-        <div class="text-center m-top-10">
+        <div class="text-center m-top-20">
           <button md-raised-button type="button" (click)="bindDialog.close()" class="butt">Cancel</button>
           <button md-raised-button type="submit" [disabled]="!createComputationalResourceForm.valid"
                   class="butt butt-success" [ngClass]="{'not-allowed': !createComputationalResourceForm.valid}">Create</button>

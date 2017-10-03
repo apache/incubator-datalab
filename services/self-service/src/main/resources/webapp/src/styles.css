@@ -352,6 +352,7 @@ input[type=number] {
 /* helper classes */
 .text-center { text-align: center!important; }
 .m-top-10 { margin-top: 10px; }
+.m-top-20 { margin-top: 20px; }
 .m-top-30 { margin-top: 30px; }
 .m-bott-10 { margin-bottom: 10px; }
 
