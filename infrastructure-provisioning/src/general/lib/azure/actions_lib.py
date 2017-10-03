@@ -266,7 +266,7 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_storage_account(self, resource_group_name, account_name, region, tag_value):
+    def create_storage_account(self, resource_group_name, account_name, region, tags):
         try:
             result = self.storage_client.storage_accounts.create(
                 resource_group_name,
@@ -275,9 +275,7 @@ class AzureActions:
                     "sku": {"name": "Standard_LRS"},
                     "kind": "BlobStorage",
                     "location":  region,
-                    "tags": {
-                        "Name": tag_value
-                    },
+                    "tags": tags,
                     "access_tier": "Hot",
                     "encryption": {
                         "services": {"blob": {"enabled": True}}
@@ -928,9 +926,9 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
         try:
             hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
-            user_storage_account_tag = os.environ['conf_service_base_name'] + (os.environ['edge_user_name']).\
-                replace('_', '-')
-            shared_storage_account_tag = os.environ['conf_service_base_name'] + 'shared'
+            user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
+                replace('_', '-') + '-storage'
+            shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
             for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
                 if user_storage_account_tag == storage_account.tags["Name"]:
                     user_storage_account_name = storage_account.name

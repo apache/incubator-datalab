@@ -59,17 +59,20 @@ if __name__ == "__main__":
                                                     + edge_conf['user_name'] + '-dataengine-master-sg'
         edge_conf['slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
                                                    + edge_conf['user_name'] + '-dataengine-slave-sg'
+        edge_conf['edge_storage_account_name'] = edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-storage'
         edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] +
                                             '-container').lower()
-        edge_conf['storage_account_tag'] = edge_conf['service_base_name'] + edge_conf['user_name']
         ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         edge_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         edge_conf['instance_storage_account_type'] = 'Premium_LRS'
         edge_conf['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-        edge_conf['tags'] = {"Name": edge_conf['instance_name'],
-                             "SBN": edge_conf['service_base_name'],
-                             "User": edge_conf['user_name']}
+        edge_conf['instance_tags'] = {"Name": edge_conf['instance_name'],
+                                      "SBN": edge_conf['service_base_name'],
+                                      "User": edge_conf['user_name']}
+        edge_conf['storage_account_tags'] = {"Name": edge_conf['edge_storage_account_name'],
+                                             "SBN": edge_conf['service_base_name'],
+                                             "User": edge_conf['user_name']}
 
         # FUSE in case of absence of user's key
         fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
@@ -303,7 +306,7 @@ if __name__ == "__main__":
         ]
         params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'". \
             format(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'], edge_conf['region'],
-                   json.dumps(edge_conf['tags']), json.dumps(list_rules))
+                   json.dumps(edge_conf['instance_tags']), json.dumps(list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except Exception as err:
@@ -406,7 +409,7 @@ if __name__ == "__main__":
             ]
         params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'". \
             format(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'], edge_conf['region'],
-                   json.dumps(edge_conf['tags']), json.dumps(list_rules))
+                   json.dumps(edge_conf['instance_tags']), json.dumps(list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
@@ -500,7 +503,7 @@ if __name__ == "__main__":
         ]
         params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'".format(
             edge_conf['resource_group_name'], edge_conf['master_security_group_name'], edge_conf['region'],
-            json.dumps(edge_conf['tags']), json.dumps(list_rules))
+            json.dumps(edge_conf['instance_tags']), json.dumps(list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
@@ -609,7 +612,7 @@ if __name__ == "__main__":
         ]
         params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'".format(
             edge_conf['resource_group_name'], edge_conf['slave_security_group_name'], edge_conf['region'],
-            json.dumps(edge_conf['tags']), json.dumps(list_rules))
+            json.dumps(edge_conf['instance_tags']), json.dumps(list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
@@ -636,8 +639,8 @@ if __name__ == "__main__":
         logging.info('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
         print('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
 
-        params = "--container_name {} --account_tag {} --resource_group_name {} --region {}". \
-            format(edge_conf['edge_container_name'], edge_conf['storage_account_tag'],
+        params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
+            format(edge_conf['edge_container_name'], json.dumps(edge_conf['storage_account_tags']),
                    edge_conf['resource_group_name'], edge_conf['region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_storage_account', params))
@@ -655,7 +658,7 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['storage_account_tag'] == storage_account.tags["Name"]:
+            if edge_conf['edge_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
@@ -675,7 +678,7 @@ if __name__ == "__main__":
                    edge_conf['subnet_name'], edge_conf['service_base_name'], edge_conf['resource_group_name'],
                    initial_user, edge_conf['static_public_ip_name'], edge_conf['public_ssh_key'], '32', 'edge',
                    edge_conf['user_name'], edge_conf['instance_storage_account_type'], edge_conf['ami_name'],
-                   json.dumps(edge_conf['tags']))
+                   json.dumps(edge_conf['instance_tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -695,7 +698,7 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['storage_account_tag'] == storage_account.tags["Name"]:
+            if edge_conf['edge_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         append_result("Failed to create instance. Exception:" + str(err))
         sys.exit(1)
