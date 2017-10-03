@@ -23,15 +23,12 @@ limitations under the License.
       <div class="detail-header-wrap">
         <table class="detail-header">
           <tr>
-            <td class="tooltip-wrap" (mouseover)="isEllipsisActive($event)">
-              <div class="hint-title">{{notebook.template_name}}</div>
-              <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{notebook.template_name}}</div>
+            <td>{{notebook.template_name}}</td>
+            <td>
+              <span class="status" ngClass="{{notebook.status || ''}}">
+                {{notebook.status}}
+              </span>
             </td>
-              <td>
-                <span class="status" ngClass="{{notebook.status || ''}}">
-                  {{notebook.status}}
-                </span>
-              </td>
             <td>{{notebook.shape}}</td>
           </tr>
         </table>

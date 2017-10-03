@@ -355,6 +355,20 @@ limitations under the License.
   text-align: center;
 }
 
+.detail-header td:first-child {
+  font-size: 16px;
+  font-weight: 600;
+  color: #455c74;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.detail-dialog .detail-header td:first-child{
+  background: #f6fafe;
+  cursor: default;
+}
+
 .modal-title {
   margin: 0;
   overflow: hidden;
