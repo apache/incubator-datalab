@@ -67,7 +67,9 @@ if __name__ == "__main__":
         edge_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         edge_conf['instance_storage_account_type'] = 'Premium_LRS'
         edge_conf['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-        edge_conf['tags'] = {"Name": edge_conf['instance_name']}
+        edge_conf['tags'] = {"Name": edge_conf['instance_name'],
+                             "SBN": edge_conf['service_base_name'],
+                             "User": edge_conf['user_name']}
 
         # FUSE in case of absence of user's key
         fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
@@ -299,9 +301,9 @@ if __name__ == "__main__":
                 "direction": "Outbound"
             }
         ]
-        params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'". \
+        params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'". \
             format(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'], edge_conf['region'],
-                   json.dumps(list_rules))
+                   json.dumps(edge_conf['tags']), json.dumps(list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except Exception as err:
@@ -402,9 +404,9 @@ if __name__ == "__main__":
                 "direction": "Outbound"
             }
             ]
-        params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'". \
+        params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'". \
             format(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'], edge_conf['region'],
-                   json.dumps(list_rules))
+                   json.dumps(edge_conf['tags']), json.dumps(list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
@@ -496,9 +498,9 @@ if __name__ == "__main__":
                 "direction": "Outbound"
             }
         ]
-        params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".format(
+        params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'".format(
             edge_conf['resource_group_name'], edge_conf['master_security_group_name'], edge_conf['region'],
-            json.dumps(list_rules))
+            json.dumps(edge_conf['tags']), json.dumps(list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
@@ -605,9 +607,9 @@ if __name__ == "__main__":
                 "direction": "Outbound"
             }
         ]
-        params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".format(
+        params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'".format(
             edge_conf['resource_group_name'], edge_conf['slave_security_group_name'], edge_conf['region'],
-            json.dumps(list_rules))
+            json.dumps(edge_conf['tags']), json.dumps(list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
@@ -638,7 +640,7 @@ if __name__ == "__main__":
             format(edge_conf['edge_container_name'], edge_conf['storage_account_tag'],
                    edge_conf['resource_group_name'], edge_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_container', params))
+            local("~/scripts/{}.py {}".format('common_create_storage_account', params))
         except:
             traceback.print_exc()
             raise Exception

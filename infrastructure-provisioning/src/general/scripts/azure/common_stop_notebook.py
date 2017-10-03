@@ -37,10 +37,10 @@ def stop_notebook(resource_group_name, service_base_name, user_name, notebook_na
     cluster_list = []
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if service_base_name + '-' + user_name + '-de-' in vm.name and notebook_name == \
+            if service_base_name + '-' + user_name + '-de-' == vm.tags["Name"] and notebook_name == \
                     vm.tags['notebook_name']:
-                if '-m' in vm.name:
-                    cluster_list.append(vm.name.replace('-m', ''))
+                if 'master' == vm.tags["Type"]:
+                    cluster_list.append(vm.tags["Name"])
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print "Instance {} has been terminated".format(vm.name)
     except:
@@ -57,7 +57,7 @@ def stop_notebook(resource_group_name, service_base_name, user_name, notebook_na
     print "Stopping notebook"
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if notebook_name in vm.name:
+            if notebook_name == vm.tags["Name"]:
                 AzureActions().stop_instance(resource_group_name, vm.name)
                 print "Instance {} has been terminated".format(vm.name)
     except:

@@ -93,8 +93,15 @@ if __name__ == "__main__":
         data_engine['instance_storage_account_type'] = 'Premium_LRS'
         data_engine['notebook_name'] = os.environ['notebook_instance_name']
         data_engine['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-        data_engine['tags'] = {"Name": data_engine['cluster_name'],
-                               "notebook_name": data_engine['notebook_name']}
+        data_engine['slave_tags'] = {"Name": data_engine['cluster_name'],
+                                     "SBN": data_engine['service_base_name'],
+                                     "User": data_engine['user_name'],
+                                     "notebook_name": data_engine['notebook_name']}
+        data_engine['master_tags'] = {"Name": data_engine['cluster_name'],
+                                      "SBN": data_engine['service_base_name'],
+                                      "User": data_engine['user_name'],
+                                      "Type": "master",
+                                      "notebook_name": data_engine['notebook_name']}
     except Exception as err:
         print "Failed to generate variables dictionary."
         append_result("Failed to generate variables dictionary. Exception:" + str(err))
@@ -117,7 +124,7 @@ if __name__ == "__main__":
                    data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
                    data_engine['public_ssh_key'], '32', 'dataengine', data_engine['user_name'],
                    data_engine['instance_storage_account_type'], data_engine['ami_name'],
-                   json.dumps(data_engine['tags']))
+                   json.dumps(data_engine['master_tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -142,7 +149,7 @@ if __name__ == "__main__":
                        slave_nif_name, data_engine['slave_security_group_name'], data_engine['private_subnet_name'],
                        data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
                        data_engine['public_ssh_key'], '32', 'dataengine', data_engine['user_name'],
-                       data_engine['instance_storage_account_type'], data_engine['ami_name'], data_engine['tags'])
+                       data_engine['instance_storage_account_type'], data_engine['ami_name'], data_engine['slave_tags'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
             except:

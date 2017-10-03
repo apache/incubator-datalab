@@ -64,7 +64,8 @@ if __name__ == "__main__":
                         print "Creating Static IP address {}".format(args.public_ip_name)
                         static_public_ip_address = \
                             AzureActions().create_static_public_ip(args.service_base_name, args.public_ip_name,
-                                                                   args.region, args.instance_name)
+                                                                   args.region, args.instance_name,
+                                                                   json.loads(args.tags))
                 if AzureMeta().get_network_interface(args.service_base_name, args.network_interface_name):
                     print "REQUESTED NETWORK INTERFACE {} ALREADY EXISTS.".format(args.network_interface_name)
                     network_interface_id = AzureMeta().get_network_interface(args.service_base_name,
@@ -75,6 +76,7 @@ if __name__ == "__main__":
                                                                             args.subnet_name,
                                                                             args.network_interface_name, args.region,
                                                                             args.security_group_name,
+                                                                            json.loads(args.tags),
                                                                             args.public_ip_name)
                 disk = AzureMeta().get_disk(args.service_base_name, '{}disk0'.format(
                     args.instance_name))

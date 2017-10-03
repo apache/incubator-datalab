@@ -58,7 +58,8 @@ if __name__ == "__main__":
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssn_conf['instance_storage_account_type'] = 'Premium_LRS'
         ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
-        ssn_conf['tags'] = {"Name": ssn_conf['instance_name']}
+        ssn_conf['tags'] = {"Name": ssn_conf['instance_name'],
+                            "SBN": ssn_conf['service_base_name']}
     except:
         print "Failed to generate variables dictionary."
         sys.exit(1)
@@ -207,9 +208,9 @@ if __name__ == "__main__":
                     "direction": "Outbound"
                 }
             ]
-            params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".\
+            params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}'  --list_rules '{}'".\
                 format(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'], ssn_conf['region'],
-                       json.dumps(list_rules))
+                       json.dumps(ssn_conf['tags']), json.dumps(list_rules))
             try:
                 local("~/scripts/{}.py {}".format('common_create_security_group', params))
             except:
@@ -233,7 +234,7 @@ if __name__ == "__main__":
                  format(ssn_conf['ssn_container_name'], ssn_conf['ssn_storage_account_tag'],
                         os.environ['azure_resource_group_name'], ssn_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_container', params))
+            local("~/scripts/{}.py {}".format('common_create_storage_account', params))
         except:
             traceback.print_exc()
             raise Exception
@@ -258,7 +259,7 @@ if __name__ == "__main__":
                  format(ssn_conf['shared_container_name'], ssn_conf['shared_storage_account_tag'],
                         os.environ['azure_resource_group_name'], ssn_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_container', params))
+            local("~/scripts/{}.py {}".format('common_create_storage_account', params))
         except:
             traceback.print_exc()
             raise Exception

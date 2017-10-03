@@ -25,11 +25,11 @@ from dlab.meta_lib import *
 from dlab.actions_lib import *
 
 
-def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_name, subnet_name, vpc_name):
-    print "Terminating EDGE and notebook instances"
+def terminate_edge_node(resource_group_name, user_name, subnet_name, vpc_name):
+    print "Terminating EDGE, notebook and dataengine virtual machines"
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if user_env_prefix in vm.name:
+            if user_name == vm.tags["User"]:
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print "Instance {} has been terminated".format(vm.name)
     except:
@@ -38,7 +38,7 @@ def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_na
     print "Removing network interfaces"
     try:
         for network_interface in AzureMeta().list_network_interfaces(resource_group_name):
-            if user_env_prefix in network_interface.name:
+            if user_name == network_interface.tags["User"]:
                 AzureActions().delete_network_if(resource_group_name, network_interface.name)
                 print "Network interface {} has been removed".format(network_interface.name)
     except:
@@ -47,7 +47,7 @@ def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_na
     print "Removing static public IPs"
     try:
         for static_public_ip in AzureMeta().list_static_ips(resource_group_name):
-            if user_env_prefix in static_public_ip.name:
+            if user_name in static_public_ip.tags["User"]:
                 AzureActions().delete_static_public_ip(resource_group_name, static_public_ip.name)
                 print "Static public IP {} has been removed".format(static_public_ip.name)
     except:
@@ -56,7 +56,7 @@ def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_na
     print "Removing disks"
     try:
         for disk in AzureMeta().list_disks(resource_group_name):
-            if user_env_prefix in disk.name:
+            if user_name in disk.tags["User"]:
                 AzureActions().remove_disk(resource_group_name, disk.name)
                 print "Disk {} has been removed".format(disk.name)
     except:
@@ -65,7 +65,7 @@ def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_na
     print "Removing storage account"
     try:
         for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
-            if storage_account_name == storage_account.tags["Name"]:
+            if user_name == storage_account.tags["User"]:
                 AzureActions().remove_storage_account(resource_group_name, storage_account.name)
                 print "Storage account {} has been terminated".format(storage_account.name)
     except:
@@ -74,7 +74,7 @@ def terminate_edge_node(resource_group_name, user_env_prefix, storage_account_na
     print "Removing security groups"
     try:
         for sg in AzureMeta().network_client.network_security_groups.list(resource_group_name):
-            if user_env_prefix in sg.name:
+            if user_name == sg.tags["User"]:
                 AzureActions().remove_security_group(resource_group_name, sg.name)
                 print "Security group {} has been terminated".format(sg.name)
     except:
@@ -99,8 +99,6 @@ if __name__ == "__main__":
     edge_conf = dict()
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
     edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-    edge_conf['user_env_prefix'] = os.environ['conf_service_base_name'] + "-" + edge_conf['user_name']
-    edge_conf['storage_account_name'] = os.environ['conf_service_base_name'] + edge_conf['user_name']
     edge_conf['private_subnet_name'] = os.environ['conf_service_base_name'] + "-" + edge_conf['user_name'] + '-subnet'
     edge_conf['vpc_name'] = os.environ['azure_vpc_name']
 
@@ -109,9 +107,8 @@ if __name__ == "__main__":
         logging.info('[TERMINATE EDGE]')
         print '[TERMINATE EDGE]'
         try:
-            terminate_edge_node(edge_conf['resource_group_name'], edge_conf['user_env_prefix'],
-                                edge_conf['storage_account_name'], edge_conf['private_subnet_name'],
-                                edge_conf['vpc_name'])
+            terminate_edge_node(edge_conf['resource_group_name'], edge_conf['user_name'],
+                                edge_conf['private_subnet_name'], edge_conf['vpc_name'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate edge.", str(err))

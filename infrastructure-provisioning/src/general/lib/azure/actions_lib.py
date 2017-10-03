@@ -160,16 +160,14 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_security_group(self, resource_group_name, network_security_group_name, region, list_rules):
+    def create_security_group(self, resource_group_name, network_security_group_name, region, tags, list_rules):
         try:
             result = self.network_client.network_security_groups.create_or_update(
                 resource_group_name,
                 network_security_group_name,
                 {
                     'location': region,
-                    'tags': {
-                        'Name': network_security_group_name
-                    },
+                    'tags': tags,
                 }
             ).wait()
             for rule in list_rules:
@@ -370,16 +368,14 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_static_public_ip(self, resource_group_name, ip_name, region, instance_name):
+    def create_static_public_ip(self, resource_group_name, ip_name, region, instance_name, tags):
         try:
             self.network_client.public_ip_addresses.create_or_update(
                 resource_group_name,
                 ip_name,
                 {
                     "location": region,
-                    'tags': {
-                        'Name': ip_name
-                    },
+                    'tags': tags,
                     "public_ip_allocation_method": "static",
                     "public_ip_address_version": "IPv4",
                     "dns_settings": {
@@ -439,9 +435,7 @@ class AzureActions:
                             'name': '{}-ssn-disk0'.format(service_base_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
-                            'tags': {
-                                'Name': '{}-ssn-disk0'.format(service_base_name)
-                            },
+                            'tags': tags,
                             'managed_disk': {
                                 'storage_account_type': instance_storage_account_type,
                             }
@@ -488,9 +482,7 @@ class AzureActions:
                                 'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
-                                'tags': {
-                                    'Name': '{}-{}-edge-disk0'.format(service_base_name, user_name)
-                                },
+                                'tags': tags,
                                 'managed_disk': {
                                     'storage_account_type': instance_storage_account_type
                                 }
@@ -530,9 +522,7 @@ class AzureActions:
                                 'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
-                                'tags': {
-                                    'Name': '{}-{}-edge-disk0'.format(service_base_name, user_name)
-                                },
+                                'tags': tags,
                                 'managed_disk': {
                                     'id': disk_id,
                                     'storage_account_type': instance_storage_account_type
@@ -566,9 +556,7 @@ class AzureActions:
                             'name': '{}-disk0'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
-                            'tags': {
-                                'Name': '{}-disk0'.format(instance_name)
-                            },
+                            'tags': tags,
                             'managed_disk': {
                                 'storage_account_type': instance_storage_account_type
                             }
@@ -628,9 +616,7 @@ class AzureActions:
                             'name': '{}-disk0'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
-                            'tags': {
-                                'Name': '{}-disk0'.format(instance_name)
-                            },
+                            'tags': tags,
                             'managed_disk': {
                                 'storage_account_type': instance_storage_account_type
                             }
@@ -756,7 +742,7 @@ class AzureActions:
             traceback.print_exc(file=sys.stdout)
 
     def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, security_group_name,
-                          public_ip_name="None"):
+                          tags, public_ip_name="None"):
         try:
             subnet_cidr = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
             private_ip = meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr).available_ip_addresses[0]
@@ -791,9 +777,7 @@ class AzureActions:
                 interface_name,
                 {
                     "location": region,
-                    'tags': {
-                        'Name': interface_name
-                    },
+                    "tags": tags,
                     "network_security_group": {
                         "id": security_group_id
                     },

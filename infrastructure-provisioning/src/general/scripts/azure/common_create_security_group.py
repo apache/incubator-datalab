@@ -28,19 +28,20 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--resource_group_name', type=str, default='')
 parser.add_argument('--security_group_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
+parser.add_argument('--tags', type=str, default='{"empty":"string"}')
 parser.add_argument('--list_rules', default='[]')
 args = parser.parse_args()
 
 
 if __name__ == "__main__":
     try:
-        list_rules = json.loads(args.list_rules)
         if AzureMeta().get_security_group(args.resource_group_name, args.security_group_name):
             print "REQUESTED SECURITY GROUP {} ALREADY EXISTS".format(args.security_group_name)
         else:
             print "Creating security group {}.".format(args.security_group_name)
             security_group = AzureActions().create_security_group(args.resource_group_name, args.security_group_name,
-                                                                    args.region, list_rules)
+                                                                  args.region, json.loads(args.tags),
+                                                                  json.loads(args.list_rules))
             print "SECURITY GROUP {} has been created".format(args.security_group_name)
     except:
         sys.exit(1)

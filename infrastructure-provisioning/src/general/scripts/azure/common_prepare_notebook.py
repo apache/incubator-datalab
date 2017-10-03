@@ -72,7 +72,9 @@ if __name__ == "__main__":
         notebook_config['instance_name'] = notebook_config['service_base_name'] + "-" + notebook_config['user_name'] +\
                                            "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
         notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-        notebook_config['tags'] = {"Name": notebook_config['instance_name']}
+        notebook_config['tags'] = {"Name": notebook_config['instance_name'],
+                                   "SBN": notebook_config['service_base_name'],
+                                   "User": notebook_config['user_name']}
         notebook_config['network_interface_name'] = notebook_config['instance_name'] + "-nif"
         notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + \
             notebook_config['user_name'] + '-nb-sg'
