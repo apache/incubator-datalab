@@ -54,7 +54,8 @@ class AzureActions:
             result = self.resource_client.resource_groups.create_or_update(
                 resource_group_name,
                 {
-                    'location': region
+                    'location': region,
+                    'tags': {'Name': resource_group_name}
                 }
             )
             return result
