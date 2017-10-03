@@ -55,7 +55,9 @@ class AzureActions:
                 resource_group_name,
                 {
                     'location': region,
-                    'tags': {'Name': resource_group_name}
+                    'tags': {
+                        'Name': resource_group_name
+                    }
                 }
             )
             return result
@@ -91,6 +93,9 @@ class AzureActions:
                 vpc_name,
                 {
                     'location': region,
+                    'tags': {
+                        'Name': vpc_name
+                    },
                     'address_space': {
                         'address_prefixes': [vpc_cidr]
                     }
@@ -161,7 +166,10 @@ class AzureActions:
                 resource_group_name,
                 network_security_group_name,
                 {
-                    'location': region
+                    'location': region,
+                    'tags': {
+                        'Name': network_security_group_name
+                    },
                 }
             ).wait()
             for rule in list_rules:
@@ -269,7 +277,9 @@ class AzureActions:
                     "sku": {"name": "Standard_LRS"},
                     "kind": "BlobStorage",
                     "location":  region,
-                    "tags": {"Name": tag_value},
+                    "tags": {
+                        "Name": tag_value
+                    },
                     "access_tier": "Hot",
                     "encryption": {
                         "services": {"blob": {"enabled": True}}
@@ -367,6 +377,9 @@ class AzureActions:
                 ip_name,
                 {
                     "location": region,
+                    'tags': {
+                        'Name': ip_name
+                    },
                     "public_ip_allocation_method": "static",
                     "public_ip_address_version": "IPv4",
                     "dns_settings": {
@@ -426,8 +439,11 @@ class AzureActions:
                             'name': '{}-ssn-disk0'.format(service_base_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
+                            'tags': {
+                                'Name': '{}-ssn-disk0'.format(service_base_name)
+                            },
                             'managed_disk': {
-                                'storage_account_type': instance_storage_account_type
+                                'storage_account_type': instance_storage_account_type,
                             }
                         }
                     },
@@ -472,6 +488,9 @@ class AzureActions:
                                 'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
+                                'tags': {
+                                    'Name': '{}-{}-edge-disk0'.format(service_base_name, user_name)
+                                },
                                 'managed_disk': {
                                     'storage_account_type': instance_storage_account_type
                                 }
@@ -511,6 +530,9 @@ class AzureActions:
                                 'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
+                                'tags': {
+                                    'Name': '{}-{}-edge-disk0'.format(service_base_name, user_name)
+                                },
                                 'managed_disk': {
                                     'id': disk_id,
                                     'storage_account_type': instance_storage_account_type
@@ -544,6 +566,9 @@ class AzureActions:
                             'name': '{}-disk0'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
+                            'tags': {
+                                'Name': '{}-disk0'.format(instance_name)
+                            },
                             'managed_disk': {
                                 'storage_account_type': instance_storage_account_type
                             }
@@ -554,6 +579,9 @@ class AzureActions:
                                 'name': '{}-disk1'.format(instance_name),
                                 'create_option': 'empty',
                                 'disk_size_gb': 32,
+                                'tags': {
+                                    'Name': '{}-disk1'.format(instance_name)
+                                },
                                 'managed_disk': {
                                     'storage_account_type': instance_storage_account_type
                                 }
@@ -600,6 +628,9 @@ class AzureActions:
                             'name': '{}-disk0'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
+                            'tags': {
+                                'Name': '{}-disk0'.format(instance_name)
+                            },
                             'managed_disk': {
                                 'storage_account_type': instance_storage_account_type
                             }
@@ -760,6 +791,9 @@ class AzureActions:
                 interface_name,
                 {
                     "location": region,
+                    'tags': {
+                        'Name': interface_name
+                    },
                     "network_security_group": {
                         "id": security_group_id
                     },
