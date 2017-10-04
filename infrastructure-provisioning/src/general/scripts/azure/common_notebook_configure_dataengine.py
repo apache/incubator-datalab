@@ -76,7 +76,7 @@ if __name__ == "__main__":
             application = os.environ['application']
     except Exception as err:
         for i in range(notebook_config['instance_count'] - 1):
-            slave_name = notebook_config['slave_node_name'] + '-{}'.format(i+1)
+            slave_name = notebook_config['slave_node_name'] + '{}'.format(i+1)
             AzureActions().remove_instance(notebook_config['resource_group_name'], slave_name)
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['master_node_name'])
         append_result("Failed to generate infrastructure names", str(err))
@@ -96,7 +96,7 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         for i in range(notebook_config['instance_count'] - 1):
-            slave_name = notebook_config['slave_node_name'] + '-{}'.format(i+1)
+            slave_name = notebook_config['slave_node_name'] + '{}'.format(i+1)
             AzureActions().remove_instance(notebook_config['resource_group_name'], slave_name)
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['master_node_name'])
         append_result("Failed installing Dataengine kernels.", str(err))

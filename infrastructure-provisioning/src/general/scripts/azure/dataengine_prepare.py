@@ -158,7 +158,7 @@ if __name__ == "__main__":
                 raise Exception
     except Exception as err:
         for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             try:
                 AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
             except:
