@@ -63,10 +63,6 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
     @JsonProperty
     private Duration fileLengthCheckDelay = Duration.seconds(3);
 
-    @NotEmpty
-    @JsonProperty
-    private String dataEngineImage;
-
     @NotEmpty(groups = AwsValidation.class)
     @JsonProperty
     private String emrEC2RoleDefault;
@@ -120,10 +116,6 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
 
     public Duration getFileLengthCheckDelay() {
         return fileLengthCheckDelay;
-    }
-
-    public String getDataEngineImage() {
-        return dataEngineImage;
     }
 
     public String getEmrEC2RoleDefault() {

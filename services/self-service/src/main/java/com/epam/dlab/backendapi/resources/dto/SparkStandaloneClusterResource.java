@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.resources.dto.azure;
+package com.epam.dlab.backendapi.resources.dto;
 
-import com.epam.dlab.backendapi.resources.dto.UserComputationalResource;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -27,26 +26,26 @@ import org.hibernate.validator.constraints.NotBlank;
 import java.util.Date;
 
 @Data
-@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class AzureComputationalResource extends UserComputationalResource {
+@ToString(callSuper = true)
+public class SparkStandaloneClusterResource extends UserComputationalResource {
     @NotBlank
     @JsonProperty("dataengine_instance_count")
     private String dataEngineInstanceCount;
 
     @NotBlank
-    @JsonProperty("azure_dataengine_slave_size")
+    @JsonProperty("dataengine_slave_size")
     private String dataEngineSlaveSize;
 
     @NotBlank
-    @JsonProperty("azure_dataengine_master_size")
+    @JsonProperty("dataengine_master_size")
     private String dataEngineMasterSize;
 
     @Builder
-    public AzureComputationalResource(String computationalName, String computationalId, String imageName,
-                                      String templateName, String status, Date uptime,
-                                      String dataEngineInstanceCount, String dataEngineSlaveSize,
-                                      String dataEngineMasterSize) {
+    public SparkStandaloneClusterResource(String computationalName, String computationalId, String imageName,
+                                          String templateName, String status, Date uptime,
+                                          String dataEngineInstanceCount, String dataEngineSlaveSize,
+                                          String dataEngineMasterSize) {
 
         super(computationalName, computationalId, imageName, templateName, status, uptime);
         this.dataEngineInstanceCount = dataEngineInstanceCount;

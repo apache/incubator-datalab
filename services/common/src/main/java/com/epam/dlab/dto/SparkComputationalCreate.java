@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.azure.computational;
+package com.epam.dlab.dto;
 
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
-public class ComputationalCreateAzure extends ComputationalBase<ComputationalCreateAzure> {
+public class SparkComputationalCreate extends ComputationalBase<SparkComputationalCreate> {
     @JsonProperty("dataengine_instance_count")
     private String dataEngineInstanceCount;
-    @JsonProperty("azure_dataengine_slave_size")
+    @JsonProperty("dataengine_slave_size")
     private String dataEngineSlaveSize;
-    @JsonProperty("azure_dataengine_master_size")
+    @JsonProperty("dataengine_master_size")
     private String dataEngineMasterSize;
 
-    public ComputationalCreateAzure withDataEngineInstanceCount(String dataEngineInstanceCount) {
+    public SparkComputationalCreate withDataEngineInstanceCount(String dataEngineInstanceCount) {
         this.dataEngineInstanceCount = dataEngineInstanceCount;
         return this;
     }
 
-    public ComputationalCreateAzure withDataEngineSlaveSize(String dataEngineSlaveSize) {
+    public SparkComputationalCreate withDataEngineSlaveSize(String dataEngineSlaveSize) {
         this.dataEngineSlaveSize = dataEngineSlaveSize;
         return this;
     }
 
-    public ComputationalCreateAzure withDataEngineMasterSize(String dataEngineMasterSize) {
+    public SparkComputationalCreate withDataEngineMasterSize(String dataEngineMasterSize) {
         this.dataEngineMasterSize = dataEngineMasterSize;
         return this;
     }
@@ -68,4 +68,3 @@ public class ComputationalCreateAzure extends ComputationalBase<ComputationalCre
         return toStringHelper(this).toString();
     }
 }
-
