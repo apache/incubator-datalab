@@ -23,15 +23,12 @@ limitations under the License.
       <div class="detail-header-wrap">
         <table class="detail-header">
           <tr>
-            <td class="tooltip-wrap" (mouseover)="isEllipsisActive($event)">
-              <div class="hint-title">{{notebook.template_name}}</div>
-              <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{notebook.template_name}}</div>
+            <td>{{notebook.template_name}}</td>
+            <td>
+              <span class="status" ngClass="{{notebook.status || ''}}">
+                {{notebook.status}}
+              </span>
             </td>
-              <td>
-                <span class="status" ngClass="{{notebook.status || ''}}">
-                  {{notebook.status}}
-                </span>
-              </td>
             <td>{{notebook.shape}}</td>
           </tr>
         </table>
@@ -47,13 +44,19 @@ limitations under the License.
               <a href="{{item.url}}" target="_blank">{{item.url}}</a>
             </p>
           </div>
-
           <p *ngIf="notebook.username">Node User: <strong>{{ notebook.username }}</strong></p>
           <p *ngIf="notebook.password">Password: <strong>{{ notebook.password }}</strong></p>
-          <p *ngIf="notebook.bucket_name">{{ DICTIONARY.personal_storage }}: <strong>{{ notebook.bucket_name }}</strong></p>
-          <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY.collaboration_storage}}: <strong>{{ notebook.shared_bucket_name }}</strong></p>
-          <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">Storage account name: <strong>{{ notebook.account_name }}</strong></p>
-          <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name">Shared storage account name: <strong>{{ notebook.shared_account_name }}</strong></p>
+
+          <p class="m-top-30">Personal storage: </p>
+          <div class="links_block">
+            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">&#9642; Account: <strong>{{ notebook.account_name}}</strong></p>
+            <p *ngIf="notebook.bucket_name">&#9642; Container: <strong>{{ notebook.bucket_name }}</strong></p>
+          </div>
+          <p>Shared storage: </p>
+          <div class="links_block">
+            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name">&#9642; Account: <strong>{{ notebook.shared_account_name}}</strong></p>
+            <p *ngIf="notebook.shared_bucket_name">&#9642; Container: <strong>{{ notebook.shared_bucket_name }}</strong></p>
+          </div>
           <br/>
           <p>
             <a href="#/help/accessnotebookguide" target="_blank">

@@ -16,15 +16,6 @@ limitations under the License.
 
 ****************************************************************************/
 
-.detail-header td:first-child {
-  font-size: 16px;
-  font-weight: 600;
-  color: #455c74;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  cursor: pointer;
-}
-
 .billing-detail table {
   width: 100%;
 }
