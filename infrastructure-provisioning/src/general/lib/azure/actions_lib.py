@@ -940,3 +940,10 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+
+def configure_dataengine_spark(jars_dir, spark_dir, local_spark_dir):
+    local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+          /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
+    local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
+    local('cp {0}conf/core-site.xml {1}conf/'.format(local_spark_dir, spark_dir))

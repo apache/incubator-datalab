@@ -1229,3 +1229,9 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         local('touch /home/' + os_user + '/.ensure_dir/dataengine-service_' + cluster_name + '_interpreter_ensured')
     except:
             sys.exit(1)
+
+
+def configure_dataengine_spark(jars_dir, spark_dir, local_spark_dir):
+    local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+          /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
+    local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))

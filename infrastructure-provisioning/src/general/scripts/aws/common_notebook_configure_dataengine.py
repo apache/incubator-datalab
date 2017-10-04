@@ -50,7 +50,7 @@ if __name__ == "__main__":
         except:
             notebook_config['computational_name'] = ''
         notebook_config['service_base_name'] = os.environ['conf_service_base_name']
-        notebook_config['region'] = os.environ['azure_region']
+        notebook_config['region'] = os.environ['aws_region']
         notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
         notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
         notebook_config['cluster_name'] = notebook_config['service_base_name'] + '-' + notebook_config['user_name'] + \
