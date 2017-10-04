@@ -67,6 +67,9 @@ if __name__ == "__main__":
         data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['region'] = os.environ['aws_region']
+        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
+                                      '-dataengine-' + data_engine['exploratory_name'] + '-' + \
+                                      data_engine['computational_name']
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-master'
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
         data_engine['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
