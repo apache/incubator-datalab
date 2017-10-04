@@ -59,7 +59,7 @@ def stop_notebook(resource_group_name, service_base_name, user_name, notebook_na
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
             if notebook_name == vm.tags["Name"]:
                 AzureActions().stop_instance(resource_group_name, vm.name)
-                print "Instance {} has been terminated".format(vm.name)
+                print "Instance {} has been stopped".format(vm.name)
     except:
         sys.exit(1)
 

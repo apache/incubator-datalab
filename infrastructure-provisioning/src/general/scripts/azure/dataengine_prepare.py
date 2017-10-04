@@ -142,14 +142,15 @@ if __name__ == "__main__":
         for i in range(data_engine['instance_count'] - 1):
             logging.info('[CREATE SLAVE NODE {}]'.format(i + 1))
             print '[CREATE SLAVE NODE {}]'.format(i + 1)
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             slave_nif_name = slave_name + '-nif'
             params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags '{}'". \
                 format(slave_name, data_engine['slave_size'], data_engine['region'], data_engine['vpc_name'],
                        slave_nif_name, data_engine['slave_security_group_name'], data_engine['private_subnet_name'],
                        data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
                        data_engine['public_ssh_key'], '32', 'dataengine', data_engine['user_name'],
-                       data_engine['instance_storage_account_type'], data_engine['ami_name'], data_engine['slave_tags'])
+                       data_engine['instance_storage_account_type'], data_engine['ami_name'],
+                       json.dumps(data_engine['slave_tags']))
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
             except:
