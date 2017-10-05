@@ -284,6 +284,10 @@ if __name__ == "__main__":
 
 
     try:
+        data_engine_instances_ids = []
+        cluster_instances_list = get_ec2_list('notebook_name', os.environ['notebook_instance_name'])
+        for instance in cluster_instances_list:
+            data_engine_instances_ids.append(instance.id)
         logging.info('[SUMMARY]')
         print '[SUMMARY]'
         print "Service base name: " + data_engine['service_base_name']
@@ -294,7 +298,7 @@ if __name__ == "__main__":
         print "Instance count: " + str(data_engine['instance_count'])
         with open("/root/result.json", 'w') as result:
             res = {"hostname": data_engine['cluster_name'],
-                   "instance_id": data_engine['master_node_name'],
+                   "instances_id": data_engine_instances_ids,
                    "key_name": data_engine['key_name'],
                    "Action": "Create new Data Engine"}
             print json.dumps(res)

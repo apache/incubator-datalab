@@ -536,10 +536,10 @@ def remove_all_iam_resources(instance_type, scientist=''):
                             print "There is no instance profile for " + iam_role
                             client.delete_role(RoleName=iam_role)
                             print "The IAM role " + iam_role + " has been deleted successfully"
-                if '-nb-Role' in iam_role:
+                if '-nb-de-Role' in iam_role:
                     if instance_type == 'notebook' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role)
-                        role_profile_name = os.environ['conf_service_base_name'].lower().replace('-', '_') + '-' + "{}".format(scientist) + '-nb-Profile'
+                        role_profile_name = os.environ['conf_service_base_name'].lower().replace('-', '_') + '-' + "{}".format(scientist) + '-nb-de-Profile'
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -577,7 +577,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                     if instance_type == 'all':
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
                         print "The instance profile " + instance_profile + " has been deleted successfully"
-                if '-nb-Profile' in instance_profile:
+                if '-nb-de-Profile' in instance_profile:
                     if instance_type == 'notebook' and scientist in instance_profile:
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
                         print "The instance profile " + instance_profile + " has been deleted successfully"
@@ -1235,3 +1235,76 @@ def configure_dataengine_spark(jars_dir, spark_dir, local_spark_dir):
     local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
     local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
+
+
+def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluster_name):
+    try:
+        private = get_instance_private_ip_address(tag_name, notebook_name)
+        env.hosts = "{}".format(private)
+        env.user = "{}".format(os_user)
+        env.key_filename = "{}".format(key_path)
+        env.host_string = env.user + "@" + env.hosts
+        sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
+        if exists('/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
+            if os.environ['notebook_multiple_clusters'] == 'true':
+                try:
+                    livy_port = sudo("cat /opt/" + cluster_name +
+                                     "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
+                    process_number = sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                                          "' | awk '{print $7}' | sed 's|/.*||g'")
+                    sudo('kill -9 ' + process_number)
+                    sudo('systemctl disable livy-server-' + livy_port)
+                except:
+                    print "Wasn't able to find Livy server for this EMR!"
+            sudo(
+                'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+            sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
+            zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
+            opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+            req = opener.open(urllib2.Request(zeppelin_url))
+            r_text = req.read()
+            interpreter_json = json.loads(r_text)
+            interpreter_prefix = cluster_name
+            for interpreter in interpreter_json['body']:
+                if interpreter_prefix in interpreter['name']:
+                    print "Interpreter with ID:", interpreter['id'], "and name:", interpreter['name'], \
+                        "will be removed from zeppelin!"
+                    request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
+                    request.get_method = lambda: 'DELETE'
+                    url = opener.open(request)
+                    print url.read()
+            sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
+            sudo('systemctl daemon-reload')
+            sudo("service zeppelin-notebook stop")
+            sudo("service zeppelin-notebook start")
+            zeppelin_restarted = False
+            while not zeppelin_restarted:
+                sudo('sleep 5')
+                result = sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                result = result[:1]
+                if result == '1':
+                    zeppelin_restarted = True
+            sudo('sleep 5')
+            sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
+        if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
+            sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Renviron".format(os_user))
+            sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Rprofile".format(os_user))
+            if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(os_user)):
+                sudo(
+                    "sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".
+                        format(os_user))
+            if not sudo("sed -n '/^master/p' /home/{}/.Rprofile".format(os_user)):
+                sudo(
+                    "sed -i '1!G;h;$!d;' /home/{0}/.Rprofile; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Rprofile".
+                        format(os_user))
+            sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
+            sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
+        sudo('rm -rf  /opt/' + cluster_name + '/')
+        print "Notebook's " + env.hosts + " kernels were removed"
+    except Exception as err:
+        logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to remove kernels on Notebook",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
