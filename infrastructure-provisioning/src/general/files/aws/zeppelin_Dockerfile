@@ -28,7 +28,7 @@ COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.p
 COPY general/templates/aws/dataengine-service_interpreter_* /root/templates/
 COPY general/templates/aws/interpreter_livy.json /root/templates/
 COPY general/templates/aws/interpreter_spark.json /root/templates/
-OPY general/templates/azure/dataengine_interpreter_livy.json /root/templates/
+СOPY general/templates/azure/dataengine_interpreter_livy.json /root/templates/
 COPY general/templates/azure/dataengine_interpreter_spark.json /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/
 COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
