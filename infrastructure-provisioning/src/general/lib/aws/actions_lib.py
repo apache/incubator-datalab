@@ -30,6 +30,7 @@ from dlab.meta_lib import *
 from dlab.fab import *
 import traceback
 import urllib2
+import meta_lib
 
 
 def put_to_bucket(bucket_name, local_file, destination_file):
@@ -1239,7 +1240,7 @@ def configure_dataengine_spark(jars_dir, spark_dir, local_spark_dir):
 
 def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluster_name):
     try:
-        private = get_instance_private_ip_address(tag_name, notebook_name)
+        private = meta_lib.get_instance_private_ip_address(tag_name, notebook_name)
         env.hosts = "{}".format(private)
         env.user = "{}".format(os_user)
         env.key_filename = "{}".format(key_path)

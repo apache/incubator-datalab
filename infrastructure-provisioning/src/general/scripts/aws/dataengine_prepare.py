@@ -87,7 +87,7 @@ if __name__ == "__main__":
                                                                    lower().replace('-', '_') + "-" + \
                                                                os.environ['edge_user_name'] + '-nb-de-Profile'
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
-        data_engine['cluster_nodes_tag'] = {"Key": "notebook_name", "Value": os.environ['notebook_instance_name']}
+        data_engine['cluster_nodes_tag'] = {"Key": "dataengine_notebook_name", "Value": os.environ['notebook_instance_name']}
         data_engine['notebook_id'] = get_instance_by_name(data_engine['tag_name'], os.environ['notebook_instance_name'])
 
     except Exception as err:
