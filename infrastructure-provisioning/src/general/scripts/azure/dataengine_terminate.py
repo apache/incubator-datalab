@@ -32,7 +32,7 @@ def terminate_data_engine(resource_group_name, notebook_name, os_user, key_path,
     print "Terminating data engine cluster"
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if cluster_name in vm.name:
+            if cluster_name == vm.tags["Name"]:
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print "Instance {} has been terminated".format(vm.name)
     except:
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
     data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
     data_engine['cluster_name'] = \
-        data_engine['service_base_name'] + '-' + data_engine['user_name'] + '-dataengine-' + \
+        data_engine['service_base_name'] + '-' + data_engine['user_name'] + '-de-' + \
         data_engine['exploratory_name'] + '-' + data_engine['computational_name']
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
     data_engine['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'

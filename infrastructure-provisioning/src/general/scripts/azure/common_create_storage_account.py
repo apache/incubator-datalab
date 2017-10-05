@@ -28,7 +28,7 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--container_name', type=str, default='')
-parser.add_argument('--account_tag', type=str, default='')
+parser.add_argument('--account_tags', type=str, default='{"empty":"string"}')
 parser.add_argument('--resource_group_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
@@ -37,8 +37,9 @@ args = parser.parse_args()
 if __name__ == "__main__":
     try:
         check_account = False
+        account_tags = json.loads(args.account_tags)
         for storage_account in AzureMeta().list_storage_accounts(args.resource_group_name):
-            if args.account_tag == storage_account.tags["account_name"]:
+            if account_tags["Name"] == storage_account.tags["Name"]:
                 check_account = True
                 print "REQUESTED STORAGE ACCOUNT {} ALREADY EXISTS".format(storage_account.name)
         if not check_account:
@@ -47,7 +48,7 @@ if __name__ == "__main__":
             if check.name_available:
                 print "Creating storage account {}.".format(account_name)
                 storage_account = AzureActions().create_storage_account(args.resource_group_name, account_name,
-                                                                        args.region, args.account_tag)
+                                                                        args.region, account_tags)
                 blob_container = AzureActions().create_blob_container(args.resource_group_name, account_name,
                                                                       args.container_name)
                 print "STORAGE ACCOUNT {} has been created".format(account_name)
