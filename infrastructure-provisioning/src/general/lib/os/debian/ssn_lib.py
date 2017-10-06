@@ -32,7 +32,7 @@ def ensure_docker_daemon(dlab_path, os_user, region):
             #    sudo('apt-get update')
             #    sudo('curl -sSL https://get.daocloud.io/docker | sh')
             #else:
-            docker_version = '17.04.0'
+            docker_version = '17.03.0'
             sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D')
             sudo('echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | sudo tee /etc/apt/sources.list.d/docker.list')
             sudo('apt-get update')
