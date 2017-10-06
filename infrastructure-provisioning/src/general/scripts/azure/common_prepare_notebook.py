@@ -86,16 +86,6 @@ if __name__ == "__main__":
             notebook_config['primary_disk_size'] = '30'
         else:
             notebook_config['primary_disk_size'] = '12'
-        if os.environ['application'] == 'zeppelin':
-            if os.environ['notebook_multiple_clusters'] == 'true':
-                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
-                    notebook_config['user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
-            else:
-                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
-                    notebook_config['user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
-        else:
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
-                notebook_config['user_name'] + '-' + os.environ['application'] + '-notebook-image'
         notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
             notebook_config['user_name'] + "-nb-Profile"
         notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + \
@@ -113,14 +103,17 @@ if __name__ == "__main__":
         notebook_config['ami_type'] = 'default'
         if os.environ['application'] == 'zeppelin':
             if os.environ['notebook_multiple_clusters'] == 'true':
-                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-                    'edge_user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
+                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
+                                                       notebook_config['user_name'] + '-' + os.environ['application'] \
+                                                       + '-livy-notebook-image'
             else:
-                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-                    'edge_user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
+                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
+                                                       notebook_config['user_name'] + '-' + os.environ['application'] \
+                                                       + '-spark-notebook-image'
         else:
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-                'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
+                                                   notebook_config['user_name'] + '-' + os.environ['application'] + \
+                                                   '-notebook-image'
         print 'Searching preconfigured images'
         if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name']):
             print 'Preconfigured image found. Using: ' + notebook_config['expected_ami_name']
@@ -129,9 +122,6 @@ if __name__ == "__main__":
         else:
             notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
             print 'No preconfigured image found. Using default one: ' + notebook_config['ami_name']
-
-
-
     except Exception as err:
             print "Failed to generate variables dictionary."
             append_result("Failed to generate variables dictionary.", str(err))

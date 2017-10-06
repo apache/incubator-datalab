@@ -415,7 +415,7 @@ class AzureActions:
             offer = ami_name[1]
             sku = ami_name[2]
         elif ami_type == 'pre-configured':
-            ami_id = meta_lib.AzureMeta().get_image(resource_group_name, ami_full_name)
+            ami_id = meta_lib.AzureMeta().get_image(resource_group_name, ami_full_name).id
         try:
             if instance_type == 'ssn':
                 parameters = {
@@ -546,10 +546,12 @@ class AzureActions:
                             'sku': sku,
                             'version': 'latest'
                         }
+                    second_disk_create_option = 'empty'
                 elif ami_type == 'pre-configured':
                     image_reference = {
                         'id': ami_id
                     }
+                    second_disk_create_option = 'fromImage'
                 parameters = {
                     'location': region,
                     'tags': tags,
@@ -572,7 +574,7 @@ class AzureActions:
                             {
                                 'lun': 1,
                                 'name': '{}-disk1'.format(instance_name),
-                                'create_option': 'empty',
+                                'create_option': second_disk_create_option,
                                 'disk_size_gb': 32,
                                 'tags': {
                                     'Name': '{}-disk1'.format(instance_name)

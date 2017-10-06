@@ -220,7 +220,7 @@ if __name__ == "__main__":
                                                       os.environ['azure_region'],
                                                       notebook_config['expected_ami_name'])
             print("Image was successfully created.")
-            local("~/scripts/{}.py {}".format('common_prepare_notebook', args.uuid))
+            local("~/scripts/{}.py --uuid {}".format('common_prepare_notebook', args.uuid))
     except Exception as err:
         append_result("Failed creating image.", str(err))
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
