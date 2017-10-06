@@ -71,6 +71,15 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     except:
         sys.exit(1)
 
+    print("Removing images")
+    try:
+        for image in AzureMeta().list_images():
+            if service_base_name == image.tags["SBN"]:
+                AzureActions().remove_image(resource_group_name, image.name)
+                print("Image {} has been removed".format(image.name))
+    except:
+        sys.exit(1)
+
     print "Removing security groups"
     try:
         for sg in AzureMeta().network_client.network_security_groups.list(resource_group_name):

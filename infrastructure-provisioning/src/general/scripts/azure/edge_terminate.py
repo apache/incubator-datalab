@@ -86,6 +86,15 @@ def terminate_edge_node(resource_group_name, user_name, subnet_name, vpc_name):
     except:
         sys.exit(1)
 
+    print("Removing images")
+    try:
+        for image in AzureMeta().list_images():
+            if user_name == image.tags["User"]:
+                AzureActions().remove_image(resource_group_name, image.name)
+                print("Image {} has been removed".format(image.name))
+    except:
+        sys.exit(1)
+
     print "Removing security groups"
     try:
         for sg in AzureMeta().network_client.network_security_groups.list(resource_group_name):
