@@ -33,7 +33,7 @@ import sys
 
 
 def stop_notebook(resource_group_name, notebook_name, os_user, key_path):
-    print "Terminating data engine cluster"
+    print("Terminating data engine cluster")
     cluster_list = []
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
@@ -42,7 +42,7 @@ def stop_notebook(resource_group_name, notebook_name, os_user, key_path):
                     if 'master' == vm.tags["Type"]:
                         cluster_list.append(vm.tags["Name"])
                     AzureActions().remove_instance(resource_group_name, vm.name)
-                    print "Instance {} has been terminated".format(vm.name)
+                    print("Instance {} has been terminated".format(vm.name))
             except:
                 pass
     except:

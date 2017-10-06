@@ -49,7 +49,7 @@ def ask(question):
             else:
                 return False
         except:
-            print "Incorrect answer. Try again..."
+            print("Incorrect answer. Try again...")
             continue
 
 
@@ -59,30 +59,30 @@ def restore_prepare():
             head, tail = os.path.split(args.file)
             temp_folder = "/tmp/{}/".format(tail.split(".")[0])
             if os.path.isdir(temp_folder):
-                print "Temporary folder with this backup already exist."
-                print "Use folder path '{}' in --file key".format(temp_folder)
+                print("Temporary folder with this backup already exist.")
+                print("Use folder path '{}' in --file key".format(temp_folder))
                 raise Exception
-            print "Backup acrhive will be unpacked to: {}".format(temp_folder)
+            print("Backup acrhive will be unpacked to: {}".format(temp_folder))
             local("mkdir {}".format(temp_folder))
             local("tar -xf {0} -C {1}".format(backup_file, temp_folder))
         elif os.path.isdir(backup_file):
             temp_folder = backup_file
         else:
-            print "Please, specify file or folder. Try --help for more details."
+            print("Please, specify file or folder. Try --help for more details.")
             raise Exception
-        print "Backup acrhive: {} contains following files (exclude logs):".format(backup_file)
+        print("Backup acrhive: {} contains following files (exclude logs):".format(backup_file))
         local("find {} -not -name '*log'".format(temp_folder))
     except Exception as err:
-        print "Failed to open backup.", str(err)
+        print("Failed to open backup.{}".format(str(err)))
         sys.exit(1)
 
     try:
         if ask("Maybe you want to create backup of existing configuration before restoring?"):
             with settings(hide('everything')):
-                print "Creating new backup..."
+                print("Creating new backup...")
                 local("python backup.py --configs all --keys all --certs all --jar all --db")
     except:
-        print "Failed to create new backup."
+        print("Failed to create new backup.")
         sys.exit(1)
 
     try:
@@ -91,7 +91,7 @@ def restore_prepare():
         else:
             raise Exception
     except:
-        print "Failed to stop all services. Can not continue."
+        print("Failed to stop all services. Can not continue.")
         sys.exit(1)
 
     return temp_folder
@@ -100,7 +100,7 @@ def restore_prepare():
 def restore_configs():
     try:
         if not os.path.isdir("{0}{1}".format(temp_folder, conf_folder)):
-            print "Config files are not available in this backup."
+            print("Config files are not available in this backup.")
             raise Exception
 
         configs = list()
@@ -108,12 +108,12 @@ def restore_configs():
             configs = [files for root, dirs, files in os.walk("{0}{1}".format(temp_folder, conf_folder))][0]
         else:
             configs = args.configs.split(",")
-        print "Restore configs: ", configs
+        print("Restore configs: {}".format(configs))
 
         if args.configs != "skip":
             for filename in configs:
                 if not os.path.isfile("{0}{1}{2}".format(temp_folder, conf_folder, filename)):
-                    print "Config {} are not available in this backup.".format(filename)
+                    print("Config {} are not available in this backup.".format(filename))
                 else:
                     if os.path.isfile("{0}{1}{2}".format(args.dlab_path, conf_folder, filename)):
                         backupfile = "{0}{1}{2}".format(temp_folder, conf_folder, filename)
@@ -122,21 +122,21 @@ def restore_configs():
                             if ask("Config {} was changed, rewrite it?".format(filename)):
                                 local("cp -f {0} {1}".format(backupfile, destfile))
                             else:
-                                print "Config {} was skipped.".format(destfile)
+                                print("Config {} was skipped.".format(destfile))
                         else:
-                            print "Config {} was not changed. Skipped.".format(filename)
+                            print("Config {} was not changed. Skipped.".format(filename))
                     else:
-                        print "Config {} does not exist. Creating.".format(filename)
+                        print("Config {} does not exist. Creating.".format(filename))
                         local("cp {0}{1}{2} {3}{1}{2}".format(temp_folder, conf_folder, filename, args.dlab_path))
     except:
-        print "Restore configs failed."
+        print("Restore configs failed.")
         pass
 
 
 def restore_keys():
     try:
         if not os.path.isdir("{}keys".format(temp_folder)):
-            print "Key files are not available in this backup."
+            print("Key files are not available in this backup.")
             raise Exception
 
         keys = list()

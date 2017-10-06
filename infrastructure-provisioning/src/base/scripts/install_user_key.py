@@ -45,7 +45,7 @@ def copy_key(config):
 # Run script #
 ##############
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     try:
         env['connection_attempts'] = 100
         env.key_filename = [args.keyfile]
@@ -54,16 +54,16 @@ if __name__ == "__main__":
     except:
         sys.exit(2)
 
-    print "Ensuring safest ssh ciphers"
+    print("Ensuring safest ssh ciphers")
     try:
         ensure_ciphers()
     except:
         sys.exit(1)
 
-    print "Installing users key..."
+    print("Installing users key...")
     if copy_key(deeper_config):
         sys.exit(0)
     else:
-        print "Users keyfile {0}.pub could not be found at {1}/{0}".format(args.keyfile, deeper_config['user_keydir'])
+        print("Users keyfile {0}.pub could not be found at {1}/{0}".format(args.keyfile, deeper_config['user_keydir']))
         sys.exit(1)
 

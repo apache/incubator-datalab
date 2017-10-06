@@ -45,7 +45,7 @@ def read_ini():
                         if var not in os.environ:
                             os.environ[var] = config.get(section, option)
     except Exception as err:
-        print 'Failed to read conf file.', str(err)
+        print('Failed to read conf file.{}'.format(str(err)))
         sys.exit(1)
 
 
@@ -66,14 +66,14 @@ def create_instance():
                                          InstanceType=os.environ['aws_instance_type'],
                                          SubnetId=os.environ['aws_subnet_id'])
         for instance in instances:
-            print 'Waiting for instance {} become running.'.format(instance.id)
+            print('Waiting for instance {} become running.'.format(instance.id))
             instance.wait_until_running()
             node_name = '{0}-{1}'.format(os.environ['conf_service_base_name'], os.environ['conf_node_name'])
             instance.create_tags(Tags=[{'Key': 'Name', 'Value': node_name}])
             return instance.id
         return ''
     except Exception as err:
-        print "Failed to create instance.", str(err)
+        print("Failed to create instance.{}".format(str(err)))
         sys.exit(1)
 
 
@@ -110,7 +110,7 @@ def get_ami_id(ami_name):
             raise Exception("Unable to find image id with name: " + ami_name)
         return image_id
     except Exception as err:
-        print "Failed to get AMI ID.", str(err)
+        print("Failed to get AMI ID.{}".format(str(err)))
 
 
 def create_elastic_ip(instance_id):
@@ -119,9 +119,9 @@ def create_elastic_ip(instance_id):
         response = client.allocate_address(Domain='vpc')
         allocation_id = response.get('AllocationId')
         response = client.associate_address(InstanceId=instance_id, AllocationId=allocation_id)
-        print 'Association ID: {}'.format(response.get('AssociationId'))
+        print('Association ID: {}'.format(response.get('AssociationId')))
     except Exception as err:
-        print 'Failed to allocate elastic IP.', str(err)
+        print('Failed to allocate elastic IP.{}'.format(str(err)))
         sys.exit(1)
 
 
@@ -133,7 +133,7 @@ def get_ec2_ip(instance_id):
         for instance in instances:
             return getattr(instance, 'public_dns_name')
     except Exception as e:
-        print 'Failed to get instance IP.', str(e)
+        print('Failed to get instance IP.{}'.format(str(e)))
         sys.exit(1)
 
 
@@ -143,7 +143,7 @@ def put_to_bucket(bucket_name, local_file, destination_file):
         with open(local_file, 'rb') as data:
             s3.upload_fileobj(data, bucket_name, destination_file)
     except Exception as err:
-        print 'Unable to upload files to S3 bucket.', str(err)
+        print('Unable to upload files to S3 bucket.{}'.format(str(err)))
         sys.exit(1)
 
 
@@ -152,7 +152,7 @@ def terminate_gitlab():
         ec2 = boto3.resource('ec2')
         client = boto3.client('ec2')
         node_name = '{0}-{1}'.format(os.environ['conf_service_base_name'], os.environ['conf_node_name'])
-        print 'Terminating "{}" instance...'.format(node_name)
+        print('Terminating "{}" instance...'.format(node_name))
         inst = ec2.instances.filter(
             Filters=[{'Name': 'instance-state-name', 'Values': ['running', 'stopped', 'pending', 'stopping']},
                      {'Name': 'tag:Name', 'Values': ['{}'.format(node_name)]}])
