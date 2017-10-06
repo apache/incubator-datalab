@@ -145,7 +145,7 @@ if __name__ == "__main__":
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
         data_engine['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
         data_engine['master_size'] = os.environ['aws_dataengine_master_size']
-        data_engine['slave_size'] = os.environ['aws_dataengine_slave_size']
+        data_engine['slave_size'] = os.environ['aws_dataengine_slave_shape']
         data_engine['dataengine_master_security_group_name'] = data_engine['service_base_name'] + '-' + \
                                                                os.environ['edge_user_name'] + '-dataengine-master-sg'
         data_engine['dataengine_slave_security_group_name'] = data_engine['service_base_name'] + '-' + \

@@ -7,8 +7,8 @@
     "dataengine_instance_count":"EIC",
     "conf_key_name":"KN",
     "aws_region":"CREG",
-    "aws_dataengine_master_size":"ADMS",
-    "aws_dataengine_slave_size":"ADSS",
+    "aws_dataengine_master_shape":"ADMS",
+    "aws_dataengine_slave_shape":"ADSS",
     "notebook_instance_name":"NNM",
     "computational_name": "CNAM",
     "application": "APP"
