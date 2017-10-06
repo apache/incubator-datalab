@@ -44,7 +44,7 @@ if __name__ == "__main__":
         print '[DERIVING NAMES]'
 
         ssn_conf = dict()
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'].replace('_', '-')
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'].replace('_', '-')[:13]
         ssn_conf['region'] = os.environ['azure_region']
         ssn_conf['ssn_storage_account_name'] = ssn_conf['service_base_name'] + '-ssn-storage'
         ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn-container').lower()
