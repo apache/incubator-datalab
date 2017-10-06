@@ -214,12 +214,13 @@ if __name__ == "__main__":
         logging.info('[CREATING AMI]')
         ami = AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name'])
         if ami == '':
-            print "Looks like it's first time we configure notebook server. Creating image."
-            image_id = AzureActions().create_image_from_instance(notebook_config['resource_group_name'],
-                                                                 notebook_config['instance_name'],
-                                                                 os.environ['azure_region'],
-                                                                 notebook_config['expected_ami_name'])
-            print "Image was successfully created. It's ID is " + image_id
+            print("Looks like it's first time we configure notebook server. Creating image.")
+            AzureActions().create_image_from_instance(notebook_config['resource_group_name'],
+                                                      notebook_config['instance_name'],
+                                                      os.environ['azure_region'],
+                                                      notebook_config['expected_ami_name'])
+            print("Image was successfully created.")
+            local("~/scripts/{}.py {}".format('common_prepare_notebook', args.uuid))
     except Exception as err:
         append_result("Failed creating image.", str(err))
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
