@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[DERIVING NAMES]')
-        print '[DERIVING NAMES]'
+        print('[DERIVING NAMES]')
 
         ssn_conf = dict()
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'].replace('_', '-')[:12]
@@ -92,7 +92,7 @@ if __name__ == "__main__":
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
     except:
-        print "Failed to generate variables dictionary."
+        print("Failed to generate variables dictionary.")
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -300,29 +300,29 @@ if __name__ == "__main__":
             if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
                 shared_storage_account_name = storage_account.name
         print('[SUMMARY]')
-        print "Service base name: " + ssn_conf['service_base_name']
-        print "SSN Name: " + ssn_conf['instance_name']
-        print "SSN Public IP address: " + instance_hostname
-        print "SSN Hostname: " + ssn_conf['instance_dns_name']
-        print "Key name: " + os.environ['conf_key_name']
-        print "VPC Name: " + ssn_conf['vpc_name']
-        print "Subnet Name: " + ssn_conf['subnet_name']
-        print "Firewall Names: " + ssn_conf['security_group_name']
-        print "SSN instance size: " + os.environ['azure_ssn_instance_size']
-        print "SSN storage account name: " + ssn_storage_account_name
-        print "SSN container name: " + ssn_conf['ssn_container_name']
-        print "Shared storage account name: " + shared_storage_account_name
-        print "Shared container name: " + ssn_conf['shared_container_name']
-        print "Region: " + ssn_conf['region']
+        print("Service base name: {}".format(ssn_conf['service_base_name']))
+        print("SSN Name: {}".format(ssn_conf['instance_name']))
+        print("SSN Public IP address: {}".format(instance_hostname))
+        print("SSN Hostname: {}".format(ssn_conf['instance_dns_name']))
+        print("Key name: {}".format(os.environ['conf_key_name']))
+        print("VPC Name: {}".format(ssn_conf['vpc_name']))
+        print("Subnet Name: {}".format(ssn_conf['subnet_name']))
+        print("Firewall Names: {}".format(ssn_conf['security_group_name']))
+        print("SSN instance size: {}".format(os.environ['azure_ssn_instance_size']))
+        print("SSN storage account name: {}".format(ssn_storage_account_name))
+        print("SSN container name: {}".format(ssn_conf['ssn_container_name']))
+        print("Shared storage account name: {}".format(shared_storage_account_name))
+        print("Shared container name: {}".format(ssn_conf['shared_container_name']))
+        print("Region: {}".format(ssn_conf['region']))
         jenkins_url = "http://{}/jenkins".format(ssn_conf['instance_dns_name'])
         jenkins_url_https = "https://{}/jenkins".format(ssn_conf['instance_dns_name'])
-        print "Jenkins URL: " + jenkins_url
-        print "Jenkins URL HTTPS: " + jenkins_url_https
+        print("Jenkins URL: {}".format(jenkins_url))
+        print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
         try:
             with open('jenkins_crids.txt') as f:
-                print f.read()
+                print(f.read())
         except:
-            print "Jenkins is either configured already or have issues in configuration routine."
+            print("Jenkins is either configured already or have issues in configuration routine.")
 
         with open("/root/result.json", 'w') as f:
             res = {"service_base_name": ssn_conf['service_base_name'],
@@ -338,7 +338,7 @@ if __name__ == "__main__":
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))
 
-        print 'Upload response file'
+        print('Upload response file')
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}".\
             format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['dlab_ssh_user'], instance_hostname)
         local("~/scripts/{}.py {}".format('upload_response_file', params))

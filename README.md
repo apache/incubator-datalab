@@ -1558,7 +1558,7 @@ Path: *infrastructure-provisioning/src/general/scripts/aws/jupyter\_configure.py
 ```
     try:
         logging.info('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
-        print '[CONFIGURE JUPYTER NOTEBOOK INSTANCE]'
+        print('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {}".\
             format(instance_hostname, keyfile_name, os.environ['aws_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], os.environ['conf_os_user'],
@@ -1572,22 +1572,22 @@ In this step, the script *infrastructure-provisioning/src/jupyter/scripts/config
 Example of script *infrastructure-provisioning/src/jupyter/scripts/configure\_jupyter\_node.py:*
 ```
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
 
-    print "Configuring notebook server."
+    print("Configuring notebook server.")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
             sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
 
-    print "Mount additional volume"
+    print("Mount additional volume")
     prepare_disk(args.os_user)
 
-    print "Install Java"
+    print("Install Java")
     ensure_jre_jdk(args.os_user)
 ```
 

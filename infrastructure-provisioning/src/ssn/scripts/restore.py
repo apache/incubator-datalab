@@ -144,20 +144,20 @@ def restore_keys():
             keys = [files for root, dirs, files in os.walk("{}keys".format(temp_folder))][0]
         else:
             keys = args.keys.split(",")
-        print "Restore keys: ", keys
+        print("Restore keys: {}".format(keys))
 
         if args.keys != "skip":
             for filename in keys:
                 if not os.path.isfile("{0}keys/{1}".format(temp_folder, filename)):
-                    print "Key {} are not available in this backup.".format(filename)
+                    print("Key {} are not available in this backup.".format(filename))
                 else:
                     if os.path.isfile("{0}{1}".format(keys_folder, filename)):
-                        print "Key {} already exist.".format(filename)
+                        print("Key {} already exist.".format(filename))
                         if not filecmp.cmp("{0}keys/{1}".format(temp_folder, filename), "{0}{1}".format(keys_folder, filename)):
                             if ask("Key {} was changed, rewrite it?".format(filename)):
                                 local("cp -f {0}keys/{2} {1}{2}".format(temp_folder, keys_folder, filename))
                             else:
-                                print "Key {} was skipped.".format(filename)
+                                print("Key {} was skipped.".format(filename))
                         else:
                             print "Key {} was not changed. Skipped.".format(filename)
                     else:

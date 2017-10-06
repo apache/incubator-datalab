@@ -38,13 +38,13 @@ args = parser.parse_args()
 # Run script #
 ##############
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
     deeper_config = json.loads(args.additional_config)
 
-    print "Enabling proxy for notebook server for repositories access."
+    print("Enabling proxy for notebook server for repositories access.")
     enable_proxy(deeper_config['proxy_host'], deeper_config['proxy_port'])
 
 
