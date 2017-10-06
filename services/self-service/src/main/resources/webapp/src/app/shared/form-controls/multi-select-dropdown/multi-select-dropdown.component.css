@@ -35,6 +35,9 @@ limitations under the License.
 .dropdown-multiselect button .selected-items {
   color: #4eaf3e;
 }
+.selected-items strong {
+  font-weight: normal;
+}
 
 .dropdown-multiselect .caret-btn {
   position: absolute;

@@ -16,76 +16,69 @@ limitations under the License.
 
 ****************************************************************************/
 
-.navbar {
+.nav-bar {
   min-height: 48px;
   height: 48px;
+  background-color: #222;
+  border-color: #080808;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 0;
   border-radius: 0;
 }
 
-.navbar .navigation {
-  display: inline-block;
-  width: 54px;
-  margin: 0;
-  margin-right: 5px;
+.menu-area,
+.control-area {
+  display: flex;
+  align-items: center;
 }
 
-.navbar .navbar-toggle {
-  display: inline-block;
-  margin: 0;
-  padding: 16px;
-  border: 0;
-  border-radius: 0;
-  cursor: pointer;
+a.nav-item {
+  position: relative;
+  height: 56px;
+  padding: 5px 40px;
+  line-height: 48px;
+  font-family: "Open Sans", sans-serif;
   transition: all .45s ease-in-out;
-}
-
-.navbar .navigation .navbar-toggle:hover {
-  background: #36afd5;
-}
-
-.navbar .navbar-logo {
-  display: block;
-  width: 65px;
+  text-decoration: none;
+  font-size: 14px;
+  overflow: hidden;
+  color: #577289;
+  outline: none;
+ }
+ a.nav-item:not(:last-child)::after {
+  content: ' ';
   position: absolute;
-  top: 12px;
-  left: 65px;
+  bottom: 0;
+  left: calc(50% - 200px/2);
+  height: 1px;
+  width: 200px;
+  display: block;
+  background: #edf1f5;
 }
 
-.navbar .navbar-logo img {
+a.nav-item.active {
+  color: #36afd5;
+}
+a.nav-item:hover {
+  background: none !important;
+  color: #36afd5;
+}
+
+.nav-bar .navbar-logo {
+  width: 65px;
+  align-self: center;
+  margin-left: 10px;
+}
+
+.nav-bar .navbar-logo img {
   display: block;
   width: 100%;
 }
 
-.navbar .navigation .dropdown-menu {
-  padding: 10px 15px;
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, .175);
-  border: none;
-}
-
-.navbar .navigation .dropdown-menu li {
-  margin: 5px -5px;
-  font-size: 14px;
-  border-bottom: 1px solid #edf1f5;
-  cursor: pointer;
-}
-.navbar .navigation .dropdown-menu li:last-child {
-  border-bottom: 0;
-}
-.navbar .navigation .dropdown-menu li a {
-  padding: 15px 20px;
-}
-.navbar .navigation .dropdown-menu li a.active {
-  color: #36afd5;
-}
-.navbar .navigation .dropdown-menu li a:hover {
-  background: none;
-  color: #36afd5;
-}
-
-.navbar .statusbar {
+.nav-bar .statusbar {
   display: flex;
-  float: right;
   width: 60px;
   height: 46px;
   text-decoration: none;
@@ -93,7 +86,7 @@ limitations under the License.
   color: #f9fafb;
 }
 
-.navbar .statusbar span {
+.nav-bar .statusbar span {
   align-self: center;
   font-size: 18px;
 }
@@ -111,19 +104,77 @@ limitations under the License.
 .statusbar .error { color: #ef5c4b; }
 .statusbar .error:hover { color: #bd4146; }
 
-.navbar .btn-logout {
-  float: right;
+.nav-bar .btn-logout {
   height: 46px;
   padding: 0 28px;
   background: #383838;
   color: #cfdae6;
   border: 0;
   border-radius: 0;
+  font-size: 14px;
 }
 .btn-logout:hover .user-name { color: #3392b0; }
 
 .user-name { color: #36afd5; }
 
-.navbar-inverse .navbar-toggle:focus, .navbar-inverse .navbar-toggle:hover {
+.hamburger {
+  border: none;
+  padding: 0px;
   background: none;
+  outline: none;
+  width: 56px;
+  height: 46px;
+  cursor: pointer;
+  transition: all .45s ease-in-out;
+}
+.hamburger .line{
+  width: 22px;
+  height: 2px;
+  display: block;
+  margin: 4px auto;
+  border-radius: 1px;
+  background-color: #ecf0f1;
+  -webkit-transition: all .35s ease-in-out;
+  -o-transition: all .35s ease-in-out;
+  transition: all .35s ease-in-out;
+}
+
+.hamburger:hover {
+  background: #36afd5;
+}
+
+.hamburger:hover .line:nth-child(2) {
+  -webkit-transition: none;
+  -o-transition: none;
+  transition: none;
+}
+
+.hamburger .line:nth-child(2) {
+  -webkit-transition-delay: 0.3s;
+  -o-transition-delay: 0.3s;
+  transition-delay: 0.3s;
+}
+
+
+.hamburger:hover .line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger:hover .line:nth-child(1),
+.hamburger:hover .line:nth-child(3) {
+  width: 18px;
+}
+
+.hamburger:hover .line:nth-child(1){
+  -webkit-transform: translateY(8px) translateX(-6px) rotate(45deg);
+  -ms-transform: translateY(8px) translateX(-6px) rotate(45deg);
+  -o-transform: translateY(8px) translateX(-6px) rotate(45deg);
+  transform: translateY(8px) translateX(-6px) rotate(45deg);
+}
+
+.hamburger:hover .line:nth-child(3){
+  -webkit-transform: translateY(-4px) translateX(6px) rotate(-45deg);
+  -ms-transform: translateY(-4px) translateX(6px) rotate(-45deg);
+  -o-transform: translateY(-4px) translateX(6px) rotate(-45deg);
+  transform: translateY(-4px) translateX(6px) rotate(-45deg);
 }

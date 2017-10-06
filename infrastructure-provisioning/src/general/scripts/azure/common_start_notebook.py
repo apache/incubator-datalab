@@ -49,6 +49,7 @@ if __name__ == "__main__":
         try:
             print "Starting notebook"
             AzureActions().start_instance(notebook_config['resource_group_name'], notebook_config['notebook_name'])
+            print "Instance {} has been started".format(notebook_config['notebook_name'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to start notebook.", str(err))

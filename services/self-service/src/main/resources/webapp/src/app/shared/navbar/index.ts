@@ -20,13 +20,15 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from './navbar.component';
+import { MaterialModule } from '@angular/material';
 
 export * from './navbar.component';
 
 @NgModule({
   imports: [
     CommonModule,
-    RouterModule
+    RouterModule,
+    MaterialModule.forRoot()
   ],
   declarations: [NavbarComponent],
   exports: [

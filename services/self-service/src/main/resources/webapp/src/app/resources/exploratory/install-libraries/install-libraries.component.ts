@@ -80,7 +80,10 @@ export class InstallLibrariesComponent implements OnInit {
         this.query = newValue;
         this.filterList();
       });
-    this.bindDialog.onClosing = () => this.close();
+    this.bindDialog.onClosing = () => {
+      this.resetDialog();
+      this.buildGrid.emit();
+    };
   }
   
   uploadLibraries(): void {
@@ -131,9 +134,9 @@ export class InstallLibrariesComponent implements OnInit {
           this.resetDialog();
         }
       },
-      (response: Response) => {
+      (error: any) => {
         this.processError = true;
-        this.errorMessage = ErrorMapUtils.setErrorMessage(response);
+        this.errorMessage = error.message;
       },
       () => {
         this.bindDialog.open(param);

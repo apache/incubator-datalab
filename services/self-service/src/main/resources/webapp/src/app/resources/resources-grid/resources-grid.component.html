@@ -39,7 +39,7 @@ limitations under the License.
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'" [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
     </td>
     <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'shapes'" [items]="filterConfiguration.shapes" [model]="filterForm.shapes"></multi-select-dropdown>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="DICTIONARY.cloud_provider === 'aws' ? 'shapes': 'sizes'" [items]="filterConfiguration.shapes" [model]="filterForm.shapes"></multi-select-dropdown>
     </td>
     <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'" [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>

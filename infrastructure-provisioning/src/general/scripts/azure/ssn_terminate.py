@@ -29,7 +29,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     print "Terminating instances"
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if service_base_name in vm.name:
+            if service_base_name == vm.tags["SBN"]:
                 AzureActions().remove_instance(resource_group_name, vm.name)
                 print "Instance {} has been terminated".format(vm.name)
     except:
@@ -38,7 +38,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     print "Removing network interfaces"
     try:
         for network_interface in AzureMeta().list_network_interfaces(resource_group_name):
-            if service_base_name in network_interface.name:
+            if service_base_name == network_interface.tags["SBN"]:
                 AzureActions().delete_network_if(resource_group_name, network_interface.name)
                 print "Network interface {} has been removed".format(network_interface.name)
     except:
@@ -47,7 +47,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     print "Removing static public IPs"
     try:
         for static_public_ip in AzureMeta().list_static_ips(resource_group_name):
-            if service_base_name in static_public_ip.name:
+            if service_base_name == static_public_ip.tags["SBN"]:
                 AzureActions().delete_static_public_ip(resource_group_name, static_public_ip.name)
                 print "Static public IP {} has been removed".format(static_public_ip.name)
     except:
@@ -56,7 +56,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     print "Removing disks"
     try:
         for disk in AzureMeta().list_disks(resource_group_name):
-            if service_base_name in disk.name:
+            if service_base_name == disk.tags["SBN"]:
                 AzureActions().remove_disk(resource_group_name, disk.name)
                 print "Disk {} has been removed".format(disk.name)
     except:
@@ -65,7 +65,7 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     print "Removing storage accounts"
     try:
         for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
-            if service_base_name in storage_account.tags["account_name"]:
+            if service_base_name == storage_account.tags["SBN"]:
                 AzureActions().remove_storage_account(resource_group_name, storage_account.name)
                 print "Storage account {} has been terminated".format(storage_account.name)
     except:
@@ -74,24 +74,15 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     print "Removing security groups"
     try:
         for sg in AzureMeta().network_client.network_security_groups.list(resource_group_name):
-            if service_base_name in sg.name:
+            if service_base_name == sg.tags["SBN"]:
                 AzureActions().remove_security_group(resource_group_name, sg.name)
                 print "Security group {} has been terminated".format(sg.name)
     except:
         sys.exit(1)
 
-    print "Removing private subnets"
-    try:
-        for subnet in AzureMeta().network_client.subnets.list(resource_group_name, vpc_name):
-            if service_base_name in subnet.name:
-                AzureActions().remove_subnet(resource_group_name, vpc_name, subnet.name)
-                print "Private subnet {} has been terminated".format(subnet.name)
-    except:
-        sys.exit(1)
-
     print "Removing VPC"
     try:
-        if AzureMeta().get_vpc(resource_group_name, service_base_name + '-ssn-vpc'):
+        if AzureMeta().get_vpc(resource_group_name, service_base_name + '-vpc'):
             AzureActions().remove_vpc(resource_group_name, vpc_name)
             print "VPC {} has been terminated".format(vpc_name)
     except:

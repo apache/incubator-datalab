@@ -54,7 +54,10 @@ class AzureActions:
             result = self.resource_client.resource_groups.create_or_update(
                 resource_group_name,
                 {
-                    'location': region
+                    'location': region,
+                    'tags': {
+                        'Name': resource_group_name
+                    }
                 }
             )
             return result
@@ -90,6 +93,9 @@ class AzureActions:
                 vpc_name,
                 {
                     'location': region,
+                    'tags': {
+                        'Name': vpc_name
+                    },
                     'address_space': {
                         'address_prefixes': [vpc_cidr]
                     }
@@ -154,13 +160,14 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_security_group(self, resource_group_name, network_security_group_name, region, list_rules):
+    def create_security_group(self, resource_group_name, network_security_group_name, region, tags, list_rules):
         try:
             result = self.network_client.network_security_groups.create_or_update(
                 resource_group_name,
                 network_security_group_name,
                 {
-                    'location': region
+                    'location': region,
+                    'tags': tags,
                 }
             ).wait()
             for rule in list_rules:
@@ -259,7 +266,7 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_storage_account(self, resource_group_name, account_name, region, tag_value):
+    def create_storage_account(self, resource_group_name, account_name, region, tags):
         try:
             result = self.storage_client.storage_accounts.create(
                 resource_group_name,
@@ -268,7 +275,7 @@ class AzureActions:
                     "sku": {"name": "Standard_LRS"},
                     "kind": "BlobStorage",
                     "location":  region,
-                    "tags": {"account_name": tag_value},
+                    "tags": tags,
                     "access_tier": "Hot",
                     "encryption": {
                         "services": {"blob": {"enabled": True}}
@@ -359,13 +366,14 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_static_public_ip(self, resource_group_name, ip_name, region, instance_name):
+    def create_static_public_ip(self, resource_group_name, ip_name, region, instance_name, tags):
         try:
             self.network_client.public_ip_addresses.create_or_update(
                 resource_group_name,
                 ip_name,
                 {
                     "location": region,
+                    'tags': tags,
                     "public_ip_allocation_method": "static",
                     "public_ip_address_version": "IPv4",
                     "dns_settings": {
@@ -399,7 +407,7 @@ class AzureActions:
 
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
-                        ami_full_name, user_name='', create_option='fromImage', disk_id='',
+                        ami_full_name, tags, user_name='', create_option='fromImage', disk_id='',
                         instance_storage_account_type='Premium_LRS'):
         ami_name = ami_full_name.split('_')
         publisher = ami_name[0]
@@ -409,6 +417,7 @@ class AzureActions:
             if instance_type == 'ssn':
                 parameters = {
                     'location': region,
+                    'tags': tags,
                     'hardware_profile': {
                         'vm_size': instance_size
                     },
@@ -421,11 +430,12 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-ssn-primary-disk'.format(service_base_name),
+                            'name': '{}-ssn-disk0'.format(service_base_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
+                            'tags': tags,
                             'managed_disk': {
-                                'storage_account_type': instance_storage_account_type
+                                'storage_account_type': instance_storage_account_type,
                             }
                         }
                     },
@@ -454,6 +464,7 @@ class AzureActions:
                 if create_option == 'fromImage':
                     parameters = {
                         'location': region,
+                        'tags': tags,
                         'hardware_profile': {
                             'vm_size': instance_size
                         },
@@ -466,9 +477,10 @@ class AzureActions:
                             },
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-primary-disk'.format(service_base_name, user_name),
+                                'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
+                                'tags': tags,
                                 'managed_disk': {
                                     'storage_account_type': instance_storage_account_type
                                 }
@@ -498,15 +510,17 @@ class AzureActions:
                 elif create_option == 'attach':
                     parameters = {
                         'location': region,
+                        'tags': tags,
                         'hardware_profile': {
                             'vm_size': instance_size
                         },
                         'storage_profile': {
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-primary-disk'.format(service_base_name, user_name),
+                                'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
+                                'tags': tags,
                                 'managed_disk': {
                                     'id': disk_id,
                                     'storage_account_type': instance_storage_account_type
@@ -524,6 +538,7 @@ class AzureActions:
             elif instance_type == 'notebook':
                 parameters = {
                     'location': region,
+                    'tags': tags,
                     'hardware_profile': {
                         'vm_size': instance_size
                     },
@@ -536,9 +551,10 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-primary-disk'.format(instance_name),
+                            'name': '{}-disk0'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
+                            'tags': tags,
                             'managed_disk': {
                                 'storage_account_type': instance_storage_account_type
                             }
@@ -546,9 +562,12 @@ class AzureActions:
                         'data_disks': [
                             {
                                 'lun': 1,
-                                'name': '{}-secondary-disk'.format(instance_name),
+                                'name': '{}-disk1'.format(instance_name),
                                 'create_option': 'empty',
                                 'disk_size_gb': 32,
+                                'tags': {
+                                    'Name': '{}-disk1'.format(instance_name)
+                                },
                                 'managed_disk': {
                                     'storage_account_type': instance_storage_account_type
                                 }
@@ -579,6 +598,7 @@ class AzureActions:
             elif instance_type == 'dataengine':
                 parameters = {
                     'location': region,
+                    'tags': tags,
                     'hardware_profile': {
                         'vm_size': instance_size
                     },
@@ -591,9 +611,10 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-primary-disk'.format(instance_name),
+                            'name': '{}-disk0'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
+                            'tags': tags,
                             'managed_disk': {
                                 'storage_account_type': instance_storage_account_type
                             }
@@ -637,7 +658,6 @@ class AzureActions:
     def stop_instance(self, resource_group_name, instance_name):
         try:
             result = self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
-            print "Instance {} has been stopped".format(instance_name)
             return result
         except Exception as err:
             logging.info(
@@ -719,7 +739,7 @@ class AzureActions:
             traceback.print_exc(file=sys.stdout)
 
     def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, security_group_name,
-                          public_ip_name="None"):
+                          tags, public_ip_name="None"):
         try:
             subnet_cidr = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
             private_ip = meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr).available_ip_addresses[0]
@@ -754,6 +774,7 @@ class AzureActions:
                 interface_name,
                 {
                     "location": region,
+                    "tags": tags,
                     "network_security_group": {
                         "id": security_group_id
                     },
@@ -904,15 +925,15 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
         try:
             hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
-            user_storage_account_tag = os.environ['conf_service_base_name'] + (os.environ['edge_user_name']).\
-                replace('_', '-')
-            shared_storage_account_tag = os.environ['conf_service_base_name'] + 'shared'
+            user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
+                replace('_', '-') + '-storage'
+            shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
             for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-                if user_storage_account_tag == storage_account.tags["account_name"]:
+                if user_storage_account_tag == storage_account.tags["Name"]:
                     user_storage_account_name = storage_account.name
                     user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
                                                                                       user_storage_account_name)[0]
-                if shared_storage_account_tag == storage_account.tags["account_name"]:
+                if shared_storage_account_tag == storage_account.tags["Name"]:
                     shared_storage_account_name = storage_account.name
                     shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
                                                                                         shared_storage_account_name)[0]

@@ -44,7 +44,7 @@ if __name__ == "__main__":
     env.host_string = env.user + "@" + env.hosts
 
     for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
-        if ssn_storage_account_tag == storage_account.tags["account_name"]:
+        if ssn_storage_account_tag == storage_account.tags["Name"]:
             ssn_storage_account_name = storage_account.name
     if AzureActions().download_from_container(resource_group_name, ssn_storage_account_name, container_name, gitlab_certfile):
         put(gitlab_certfile, gitlab_certfile)
