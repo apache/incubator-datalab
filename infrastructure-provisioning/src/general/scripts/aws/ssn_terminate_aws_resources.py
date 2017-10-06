@@ -114,14 +114,14 @@ if __name__ == "__main__":
             try:
                 remove_vpc_endpoints(vpc_id)
             except:
-                print "There is no such VPC Endpoint"
+                print("There is no such VPC Endpoint")
             try:
                 remove_internet_gateways(vpc_id, args.tag_name, args.service_base_name)
             except:
-                print "There is no such Internet gateway"
+                print("There is no such Internet gateway")
             remove_route_tables(args.tag_name, True)
             remove_vpc(vpc_id)
         else:
-            print "There is no pre-defined SSN VPC"
+            print("There is no pre-defined SSN VPC")
     except:
         sys.exit(1)

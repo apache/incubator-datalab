@@ -89,7 +89,7 @@ def remove_vpc(vpc_id):
     try:
         client = boto3.client('ec2')
         client.delete_vpc(VpcId=vpc_id)
-        print "VPC " + vpc_id + " has been removed"
+        print("VPC {} has been removed".format(vpc_id))
     except Exception as err:
         logging.info("Unable to remove VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to remove VPC", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -141,7 +141,7 @@ def create_rt(vpc_id, infra_tag_name, infra_tag_value):
         rt = ec2.create_route_table(VpcId=vpc_id)
         rt_id = rt.get('RouteTable').get('RouteTableId')
         route_table.append(rt_id)
-        print 'Created Route-Table with ID: {}'.format(rt_id)
+        print('Created Route-Table with ID: {}'.format(rt_id))
         create_tag(route_table, json.dumps(tag))
         ig = ec2.create_internet_gateway()
         ig_id = ig.get('InternetGateway').get('InternetGatewayId')
@@ -178,7 +178,7 @@ def create_security_group(security_group_name, vpc_id, security_group_rules, egr
     try:
         group.revoke_egress(IpPermissions=[{"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}])
     except:
-        print "Mentioned rule does not exist"
+        print("Mentioned rule does not exist")
     for rule in security_group_rules:
         group.authorize_ingress(IpPermissions=[rule])
     for rule in egress:
@@ -245,7 +245,7 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
                                              IamInstanceProfile={'Name': definitions.iam_profile},
                                              UserData=user_data)
         for instance in instances:
-            print "Waiting for instance " + instance.id + " become running."
+            print("Waiting for instance {} become running.".format(instance.id))
             instance.wait_until_running()
             tag = {'Key': 'Name', 'Value': definitions.node_name}
             create_tag(instance.id, tag)
@@ -268,7 +268,7 @@ def create_iam_role(role_name, role_profile, region, service='ec2'):
             conn.create_role(RoleName=role_name, AssumeRolePolicyDocument='{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":["' + service + '.amazonaws.com"]},"Action":["sts:AssumeRole"]}]}')
     except botocore.exceptions.ClientError as e_role:
         if e_role.response['Error']['Code'] == 'EntityAlreadyExists':
-            print "IAM role already exists. Reusing..."
+            print("IAM role already exists. Reusing...")
         else:
             logging.info("Unable to create IAM role: " + str(e_role.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to create IAM role", "error_message": str(e_role.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -281,7 +281,7 @@ def create_iam_role(role_name, role_profile, region, service='ec2'):
             waiter.wait(InstanceProfileName=role_profile)
         except botocore.exceptions.ClientError as e_profile:
             if e_profile.response['Error']['Code'] == 'EntityAlreadyExists':
-                print "Instance profile already exists. Reusing..."
+                print("Instance profile already exists. Reusing...")
             else:
                 logging.info("Unable to create Instance Profile: " + str(e_profile.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
                 append_result(str({"error": "Unable to create Instance Profile", "error_message": str(e_profile.response['Error']['Message']) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -393,18 +393,18 @@ def remove_ec2(tag_name, tag_value):
                                     association_id = el_ip.get('AssociationId')
                                     disassociate_elastic_ip(association_id)
                                     release_elastic_ip(allocation_id)
-                                    print "Releasing Elastic IP: " + elastic_ip
+                                    print("Releasing Elastic IP: {}".format(elastic_ip))
                             except:
-                                print "There is no such Elastic IP: " + elastic_ip
+                                print("There is no such Elastic IP: {}".format(elastic_ip))
                 except Exception as err:
-                    print err
-                    print "There is no Elastic IP to disassociate from instance: " + instance.id
+                    print(err)
+                    print("There is no Elastic IP to disassociate from instance: {}".format(instance.id))
                 client.terminate_instances(InstanceIds=[instance.id])
                 waiter = client.get_waiter('instance_terminated')
                 waiter.wait(InstanceIds=[instance.id])
-                print "The instance " + instance.id + " has been terminated successfully"
+                print("The instance {} has been terminated successfully".format(instance.id))
         else:
-            print "There are no instances with '" + tag_name + "' tag to terminate"
+            print("There are no instances with '{}' tag to terminate".format(tag_name))
     except Exception as err:
         logging.info("Unable to remove EC2: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -424,9 +424,9 @@ def stop_ec2(tag_name, tag_value):
                 client.stop_instances(InstanceIds=[instance.id])
                 waiter = client.get_waiter('instance_stopped')
                 waiter.wait(InstanceIds=[instance.id])
-                print "The instance " + tag_value + " has been stopped successfully"
+                print("The instance {} has been stopped successfully".format(tag_value))
         else:
-            print "There are no instances with " + tag_value + " name to stop"
+            print("There are no instances with {} name to stop".format(tag_value))
     except Exception as err:
         logging.info("Unable to stop EC2: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to stop EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -446,9 +446,9 @@ def start_ec2(tag_name, tag_value):
                 client.start_instances(InstanceIds=[instance.id])
                 waiter = client.get_waiter('instance_status_ok')
                 waiter.wait(InstanceIds=[instance.id])
-                print "The instance " + tag_value + " has been started successfully"
+                print("The instance {} has been started successfully".format(tag_value))
         else:
-            print "There are no instances with " + tag_value + " name to start"
+            print("There are no instances with {} name to start".format(tag_value))
     except Exception as err:
         logging.info("Unable to start EC2: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to start EC2", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -462,10 +462,10 @@ def remove_detach_iam_policies(role_name, action=''):
         for i in policy_list:
             policy_arn = i.get('PolicyArn')
             client.detach_role_policy(RoleName=role_name, PolicyArn=policy_arn)
-            print "The IAM policy " + policy_arn + " has been detached successfully"
+            print("The IAM policy {} has been detached successfully".format(policy_arn))
             if action == 'delete':
                 client.delete_policy(PolicyArn=policy_arn)
-                print "The IAM policy " + policy_arn + " has been deleted successfully"
+                print("The IAM policy {} has been deleted successfully".format(policy_arn))
     except Exception as err:
         logging.info("Unable to remove/detach IAM policy: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to remove/detach IAM policy",
@@ -479,7 +479,7 @@ def remove_roles_and_profiles(role_name, role_profile_name):
         client.remove_role_from_instance_profile(InstanceProfileName=role_profile_name, RoleName=role_name)
         client.delete_instance_profile(InstanceProfileName=role_profile_name)
         client.delete_role(RoleName=role_name)
-        print "The IAM role " + role_name + " and instance profile " + role_profile_name + " have been deleted successfully"
+        print("The IAM role {0} and instance profile {1} have been deleted successfully".format(role_name, role_profile_name))
     except Exception as err:
         logging.info("Unable to remove IAM role/profile: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to remove IAM role/profile",
@@ -503,7 +503,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                         try:
                             client.delete_role_policy(RoleName=iam_role, PolicyName=service_base_name + '-ssn-Policy')
                         except:
-                            print 'There is no policy ' + service_base_name + '-ssn-Policy to delete'
+                            print('There is no policy {}-ssn-Policy to delete'.format(service_base_name))
                         role_profiles = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
                         if role_profiles:
                             for i in role_profiles:
@@ -511,9 +511,9 @@ def remove_all_iam_resources(instance_type, scientist=''):
                                 if role_profile_name == service_base_name + '-ssn-Profile':
                                     remove_roles_and_profiles(iam_role, role_profile_name)
                         else:
-                            print "There is no instance profile for " + iam_role
+                            print("There is no instance profile for {}".format(iam_role))
                             client.delete_role(RoleName=iam_role)
-                            print "The IAM role " + iam_role + " has been deleted successfully"
+                            print("The IAM role {} has been deleted successfully".format(iam_role))
                 if '-edge-Role' in iam_role:
                     if instance_type == 'edge' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role, 'delete')
@@ -522,9 +522,9 @@ def remove_all_iam_resources(instance_type, scientist=''):
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
                         except:
-                            print "There is no instance profile for " + iam_role
+                            print("There is no instance profile for {}".format(iam_role))
                             client.delete_role(RoleName=iam_role)
-                            print "The IAM role " + iam_role + " has been deleted successfully"
+                            print("The IAM role {} has been deleted successfully".format(iam_role))
                     if instance_type == 'all':
                         remove_detach_iam_policies(iam_role, 'delete')
                         role_profile_name = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
@@ -533,9 +533,9 @@ def remove_all_iam_resources(instance_type, scientist=''):
                                 role_profile_name = i.get('InstanceProfileName')
                                 remove_roles_and_profiles(iam_role, role_profile_name)
                         else:
-                            print "There is no instance profile for " + iam_role
+                            print("There is no instance profile for {}".format(iam_role))
                             client.delete_role(RoleName=iam_role)
-                            print "The IAM role " + iam_role + " has been deleted successfully"
+                            print("The IAM role {} has been deleted successfully".format(iam_role))
                 if '-nb-Role' in iam_role:
                     if instance_type == 'notebook' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role)
@@ -544,9 +544,9 @@ def remove_all_iam_resources(instance_type, scientist=''):
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
                         except:
-                            print "There is no instance profile for " + iam_role
+                            print("There is no instance profile for {}".format(iam_role))
                             client.delete_role(RoleName=iam_role)
-                            print "The IAM role " + iam_role + " has been deleted successfully"
+                            print("The IAM role {} has been deleted successfully".format(iam_role))
                     if instance_type == 'all':
                         remove_detach_iam_policies(iam_role)
                         role_profile_name = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
@@ -555,11 +555,11 @@ def remove_all_iam_resources(instance_type, scientist=''):
                                 role_profile_name = i.get('InstanceProfileName')
                                 remove_roles_and_profiles(iam_role, role_profile_name)
                         else:
-                            print "There is no instance profile for " + iam_role
+                            print("There is no instance profile for {}".format(iam_role))
                             client.delete_role(RoleName=iam_role)
-                            print "The IAM role " + iam_role + " has been deleted successfully"
+                            print("The IAM role {} has been deleted successfully".format(iam_role))
         else:
-            print "There are no IAM roles to delete. Checking instance profiles..."
+            print("There are no IAM roles to delete. Checking instance profiles...")
         profile_list = []
         for item in client.list_instance_profiles(MaxItems=250).get("InstanceProfiles"):
             if item.get("InstanceProfileName").startswith(service_base_name + '-'):
@@ -569,23 +569,23 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 if '-ssn-Profile' in instance_profile:
                     if instance_type == 'ssn' or instance_type == 'all':
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
-                        print "The instance profile " + instance_profile + " has been deleted successfully"
+                        print("The instance profile {} has been deleted successfully".format(instance_profile))
                 if '-edge-Profile' in instance_profile:
                     if instance_type == 'edge' and scientist in instance_profile:
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
-                        print "The instance profile " + instance_profile + " has been deleted successfully"
+                        print("The instance profile {} has been deleted successfully".format(instance_profile))
                     if instance_type == 'all':
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
-                        print "The instance profile " + instance_profile + " has been deleted successfully"
+                        print("The instance profile {} has been deleted successfully".format(instance_profile))
                 if '-nb-Profile' in instance_profile:
                     if instance_type == 'notebook' and scientist in instance_profile:
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
-                        print "The instance profile " + instance_profile + " has been deleted successfully"
+                        print("The instance profile {} has been deleted successfully".format(instance_profile))
                     if instance_type == 'all':
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
-                        print "The instance profile " + instance_profile + " has been deleted successfully"
+                        print("The instance profile {} has been deleted successfully".format(instance_profile))
         else:
-            print "There are no instance profiles to delete"
+            print("There are no instance profiles to delete")
     except Exception as err:
         logging.info("Unable to remove some of the IAM resources: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to remove some of the IAM resources", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -598,7 +598,7 @@ def s3_cleanup(bucket, cluster_name, user_name):
     try:
         client.head_bucket(Bucket=bucket)
     except:
-        print "There is no bucket " + bucket + " or you do not permission to access it"
+        print("There is no bucket {} or you do not permission to access it".format(bucket))
         sys.exit(0)
     try:
         resource = s3_res.Bucket(bucket)
@@ -633,7 +633,7 @@ def remove_s3(bucket_type='all', scientist=''):
             if s3bucket:
                 bucket = s3.Bucket(s3bucket)
                 bucket.objects.all().delete()
-                print "The S3 bucket {} has been cleaned".format(s3bucket)
+                print("The S3 bucket {} has been cleaned".format(s3bucket))
                 client.delete_bucket(Bucket=s3bucket)
                 print "The S3 bucket {} has been deleted successfully".format(s3bucket)
             else:
