@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.resources.dto.azure;
+package com.epam.dlab.backendapi.resources.dto;
 
-import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,7 +25,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class AzureComputationalCreateForm extends ComputationalCreateFormDTO {
+public class SparkStandaloneClusterCreateForm extends ComputationalCreateFormDTO {
 
     @NotBlank
     @JsonProperty("dataengine_instance_count")

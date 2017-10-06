@@ -18,6 +18,7 @@ package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.dto.SparkComputationalCreate;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -84,6 +85,14 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
         return super.getBaseStatusDTO(status)
                 .withExploratoryName(dto.getExploratoryName())
                 .withComputationalName(dto.getComputationalName());
+    }
+
+    private String configureAfterCreate(ComputationalStatusDTO baseStatus, ComputationalBase<?> dto) {
+        baseStatus.withStatus(UserInstanceStatus.CONFIGURING);
+        if (dto instanceof SparkComputationalCreate) {
+
+        }
+        return computationalConfigure.configure(getUUID(), getDto());
     }
 
 }

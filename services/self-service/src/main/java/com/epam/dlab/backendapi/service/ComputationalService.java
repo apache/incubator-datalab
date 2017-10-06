@@ -18,11 +18,17 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
+import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterResource;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.dto.SparkComputationalCreate;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -33,8 +39,7 @@ import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.epam.dlab.UserInstanceStatus.FAILED;
-import static com.epam.dlab.UserInstanceStatus.TERMINATING;
+import static com.epam.dlab.UserInstanceStatus.*;
 
 @Singleton
 @Slf4j
@@ -49,6 +54,49 @@ public class ComputationalService {
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
+
+    @Inject
+    private SelfServiceApplicationConfiguration configuration;
+
+
+    /**
+     * Asynchronously triggers creation of Spark cluster
+     *
+     * @param userInfo user authentication info
+     * @param form     input cluster parameters
+     * @return <code>true</code> if action is successfully triggered, <code>false</code>false if cluster with the same
+     * name already exists
+     * @throws IllegalArgumentException if input parameters exceed limits or docker image name is malformed
+     */
+    public boolean createSparkCluster(UserInfo userInfo, SparkStandaloneClusterCreateForm form) {
+
+        validateForm(form);
+
+        if (computationalDAO.addComputational(userInfo.getName(), form.getNotebookName(),
+                createInitialComputationalResource(form))) {
+
+            try {
+                UserInstanceDTO instance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), form.getNotebookName());
+
+                SparkComputationalCreate dto = RequestBuilder.newComputationalCreate(userInfo, instance, form);
+
+                String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_CREATE_SPARK, userInfo.getAccessToken(), dto, String.class);
+                RequestId.put(userInfo.getName(), uuid);
+                return true;
+            } catch (RuntimeException e) {
+                try {
+                    updateComputationalStatus(userInfo.getName(), form.getNotebookName(), form.getName(), FAILED);
+                } catch (DlabException d) {
+                    log.error("Could not update the status of computational resource {} for user {}",
+                            form.getName(), userInfo.getName(), d);
+                }
+                throw e;
+            }
+        } else {
+            log.debug("Computational with name {} is already existing for user {}", form.getName(), userInfo.getName());
+            return false;
+        }
+    }
 
 
     /**
@@ -83,7 +131,28 @@ public class ComputationalService {
 
             throw re;
         }
+    }
 
+    /**
+     * Validates if input form is correct
+     *
+     * @param form user input form
+     * @throws IllegalArgumentException if user typed wrong arguments
+     */
+
+    private void validateForm(SparkStandaloneClusterCreateForm form) {
+
+        int instanceCount = Integer.parseInt(form.getDataEngineInstanceCount());
+
+        if (instanceCount < configuration.getMinSparkInstanceCount()
+                || instanceCount > configuration.getMaxSparkInstanceCount()) {
+            throw new IllegalArgumentException(String.format("Instance count should be in range [%d..%d]",
+                    configuration.getMinSparkInstanceCount(), configuration.getMaxSparkInstanceCount()));
+        }
+
+        if (DataEngineType.fromDockerImageName(form.getImage()) != DataEngineType.SPARK_STANDALONE) {
+            throw new IllegalArgumentException(String.format("Unknown data engine %s", form.getImage()));
+        }
     }
 
     /**
@@ -102,6 +171,19 @@ public class ComputationalService {
                 .withStatus(status);
 
         computationalDAO.updateComputationalStatus(computationalStatus);
+    }
+
+    private SparkStandaloneClusterResource createInitialComputationalResource(SparkStandaloneClusterCreateForm form) {
+
+        return SparkStandaloneClusterResource.builder()
+                .computationalName(form.getName())
+                .imageName(form.getImage())
+                .templateName(form.getTemplateName())
+                .status(CREATING.toString())
+                .dataEngineInstanceCount(form.getDataEngineInstanceCount())
+                .dataEngineMasterSize(form.getDataEngineMasterSize())
+                .dataEngineSlaveSize(form.getDataEngineSlaveSize())
+                .build();
     }
 
 }
