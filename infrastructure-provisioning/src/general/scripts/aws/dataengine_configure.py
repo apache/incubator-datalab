@@ -178,7 +178,7 @@ if __name__ == "__main__":
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-master'
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
-        for i in range(data_engine['instance_count'] - 1):
+        for i in range(int(os.environ['dataengine_instance_count']) - 1):
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         print "Failed to generate variables dictionary."
