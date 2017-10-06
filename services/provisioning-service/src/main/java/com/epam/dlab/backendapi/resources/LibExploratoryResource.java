@@ -97,8 +97,9 @@ public class LibExploratoryResource implements DockerCommands {
                 return new LibInstallCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(), (ExploratoryLibInstallDTO) dto);
             case LIB_LIST:
                 return new LibListCallbackHandler(selfService, DockerAction.LIB_LIST, uuid, dto.getCloudSettings().getIamUser(), dto.getNotebookImage());
+            default:
+                throw new IllegalArgumentException("Unknown action " + action);
         }
-        throw new IllegalArgumentException("Unknown action " + action);
     }
 
     public String getResourceType() {
