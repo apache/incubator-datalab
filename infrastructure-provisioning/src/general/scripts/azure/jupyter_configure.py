@@ -197,6 +197,22 @@ if __name__ == "__main__":
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
+    try:
+        print '[CREATING AMI]'
+        logging.info('[CREATING AMI]')
+        ami = AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name'])
+        if ami == '':
+            print "Looks like it's first time we configure notebook server. Creating image."
+            image_id = AzureActions().create_image_from_instance(notebook_config['resource_group_name'],
+                                                                 notebook_config['instance_name'],
+                                                                 os.environ['azure_region'],
+                                                                 notebook_config['expected_ami_name'])
+            print "Image was successfully created. It's ID is " + image_id
+    except Exception as err:
+        append_result("Failed creating image.", str(err))
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     # generating output information
     try:
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],

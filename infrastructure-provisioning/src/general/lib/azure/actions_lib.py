@@ -408,11 +408,14 @@ class AzureActions:
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
                         ami_full_name, tags, user_name='', create_option='fromImage', disk_id='',
-                        instance_storage_account_type='Premium_LRS'):
-        ami_name = ami_full_name.split('_')
-        publisher = ami_name[0]
-        offer = ami_name[1]
-        sku = ami_name[2]
+                        instance_storage_account_type='Premium_LRS', ami_type='default'):
+        if ami_type == 'default':
+            ami_name = ami_full_name.split('_')
+            publisher = ami_name[0]
+            offer = ami_name[1]
+            sku = ami_name[2]
+        elif ami_type == 'pre-configured':
+            ami_id = meta_lib.AzureMeta().get_image(resource_group_name, ami_full_name)
         try:
             if instance_type == 'ssn':
                 parameters = {
@@ -536,6 +539,17 @@ class AzureActions:
                         }
                     }
             elif instance_type == 'notebook':
+                if ami_type == 'default':
+                    image_reference = {
+                            'publisher': publisher,
+                            'offer': offer,
+                            'sku': sku,
+                            'version': 'latest'
+                        }
+                elif ami_type == 'pre-configured':
+                    image_reference = {
+                        'id': ami_id
+                    }
                 parameters = {
                     'location': region,
                     'tags': tags,
@@ -543,12 +557,7 @@ class AzureActions:
                         'vm_size': instance_size
                     },
                     'storage_profile': {
-                        'image_reference': {
-                            'publisher': publisher,
-                            'offer': offer,
-                            'sku': sku,
-                            'version': 'latest'
-                        },
+                        'image_reference': image_reference,
                         'os_disk': {
                             'os_type': 'Linux',
                             'name': '{}-disk0'.format(instance_name),

@@ -202,7 +202,7 @@ if __name__ == "__main__":
             if image_id != '':
                 print "Image was successfully created. It's ID is " + image_id
     except Exception as err:
-        append_result("Failed installing users key.", str(err))
+        append_result("Failed creating image.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
