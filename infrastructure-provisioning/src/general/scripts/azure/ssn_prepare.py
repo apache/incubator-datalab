@@ -40,7 +40,7 @@ if __name__ == "__main__":
         pre_defined_sg = False
         ssn_conf = dict()
         # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'].replace('_', '-')[:13]
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'].replace('_', '-')[:12]
         ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-vpc'
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
         ssn_conf['region'] = os.environ['azure_region']
