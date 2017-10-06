@@ -920,6 +920,26 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def create_image_from_instance(self, resource_group_name, instance_name, region, image_name):
+        try:
+            instance_id = meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).id
+            self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
+            self.compute_client.virtual_machines.generalize(resource_group_name, instance_name)
+            self.compute_client.images.create_or_update(resource_group_name, image_name, parameters={
+                "location": region,
+                "source_virtual_machine": {
+                    "id": instance_id
+                }
+            }).wait()
+            AzureActions().remove_instance(resource_group_name, instance_name)
+        except Exception as err:
+            logging.info(
+                "Unable to create image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create image",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
 
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
