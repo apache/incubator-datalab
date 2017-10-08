@@ -171,19 +171,19 @@ def terminate_gitlab():
                                     association_id = el_ip.get('AssociationId')
                                     client.disassociate_address(AssociationId=association_id)
                                     client.release_address(AllocationId=allocation_id)
-                                    print 'Releasing Elastic IP: {}'.format(elastic_ip)
+                                    print('Releasing Elastic IP: {}'.format(elastic_ip))
                             except:
-                                print 'There is no such Elastic IP: {}'.format(elastic_ip)
+                                print('There is no such Elastic IP: {}'.format(elastic_ip))
                 except Exception as err:
-                    print 'There is no Elastic IP to disassociate from instance: {}'.format(instance.id), str(err)
+                    print('There is no Elastic IP to disassociate from instance: {}'.format(instance.id), str(err))
                 client.terminate_instances(InstanceIds=[instance.id])
                 waiter = client.get_waiter('instance_terminated')
                 waiter.wait(InstanceIds=[instance.id])
-                print 'The instance {} has been terminated successfully'.format(instance.id)
+                print('The instance {} has been terminated successfully'.format(instance.id))
         else:
-            print 'There are no instances with "{}" tag to terminate'.format(node_name)
+            print('There are no instances with "{}" tag to terminate'.format(node_name))
     except Exception as err:
-        print 'Failed to terminate gitlab instance.', str(err)
+        print('Failed to terminate gitlab instance. {}'.format(str(err)))
 
 
 if __name__ == "__main__":
@@ -192,11 +192,11 @@ if __name__ == "__main__":
 
     if args.action == 'create':
         instance_id = create_instance()
-        print 'Instance {} created.'.format(instance_id)
+        print('Instance {} created.'.format(instance_id))
         create_elastic_ip(instance_id)
         os.environ['instance_id'] = instance_id
         os.environ['instance_hostname'] = get_ec2_ip(instance_id)
-        print 'Instance hostname: {}'.format(os.environ['instance_hostname'])
+        print('Instance hostname: {}'.format(os.environ['instance_hostname']))
 
         keyfile = '{}'.format('{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name']))
         params = '--keyfile {0} --instance_ip {1}'.format(keyfile, os.environ['instance_hostname'])
@@ -206,7 +206,7 @@ if __name__ == "__main__":
         try:
             local('{0}/{1}.py {2}'.format(head, 'configure_gitlab', params))
         except Exception as err:
-            print 'Failed to configure gitlab.', str(err)
+            print('Failed to configure gitlab. {}'.format(str(err)))
             terminate_gitlab()
             sys.exit(1)
 
@@ -219,4 +219,4 @@ if __name__ == "__main__":
         terminate_gitlab()
 
     else:
-        print 'Unknown action. Try again.'
+        print('Unknown action. Try again.')

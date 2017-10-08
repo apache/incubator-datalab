@@ -38,13 +38,13 @@ if __name__ == "__main__":
         try:
             vpc_id = get_vpc_by_tag(args.infra_tag_name, args.infra_tag_value)
             if vpc_id == '':
-                print "Creating vpc %s in region %s with tag %s." % (args.vpc, args.region, json.dumps(tag))
+                print("Creating vpc {0} in region {1} with tag {2}".format(args.vpc, args.region, json.dumps(tag)))
                 vpc_id = create_vpc(args.vpc, tag)
                 enable_vpc_dns(vpc_id)
                 rt_id = create_rt(vpc_id, args.infra_tag_name, args.infra_tag_value)
             else:
-                print "REQUESTED VPC ALREADY EXISTS"
-            print "VPC_ID " + vpc_id
+                print("REQUESTED VPC ALREADY EXISTS")
+            print("VPC_ID: {}".format(vpc_id))
             args.vpc_id = vpc_id
             success = True
         except:

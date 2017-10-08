@@ -635,9 +635,9 @@ def remove_s3(bucket_type='all', scientist=''):
                 bucket.objects.all().delete()
                 print("The S3 bucket {} has been cleaned".format(s3bucket))
                 client.delete_bucket(Bucket=s3bucket)
-                print "The S3 bucket {} has been deleted successfully".format(s3bucket)
+                print("The S3 bucket {} has been deleted successfully".format(s3bucket))
             else:
-                print "There are no buckets to delete"
+                print("There are no buckets to delete")
     except Exception as err:
         logging.info("Unable to remove S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to remove S3 bucket", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -654,9 +654,9 @@ def remove_subnets(tag_value):
         if subnets:
             for subnet in subnets:
                 client.delete_subnet(SubnetId=subnet.id)
-                print "The subnet " + subnet.id + " has been deleted successfully"
+                print("The subnet {} has been deleted successfully".format(subnet.id))
         else:
-            print "There are no private subnets to delete"
+            print("There are no private subnets to delete")
     except Exception as err:
         logging.info("Unable to remove subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to remove subnet", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -673,9 +673,9 @@ def remove_sgroups(tag_value):
         if sgs:
             for sg in sgs:
                 client.delete_security_group(GroupId=sg.id)
-                print "The security group " + sg.id + " has been deleted successfully"
+                print("The security group {} has been deleted successfully".format(sg.id))
         else:
-            print "There are no security groups to delete"
+            print("There are no security groups to delete")
     except Exception as err:
         logging.info("Unable to remove SG: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to remove SG", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -691,8 +691,8 @@ def add_inbound_sg_rule(sg_id, rule):
         )
     except Exception as err:
         if err.response['Error']['Code'] == 'InvalidPermission.Duplicate':
-            print "The following inbound rule is already exist:"
-            print str(rule)
+            print("The following inbound rule is already exist:")
+            print(str(rule))
         else:
             logging.info("Unable to add inbound rule to SG: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to add inbound rule to SG", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -708,8 +708,8 @@ def add_outbound_sg_rule(sg_id, rule):
         )
     except Exception as err:
         if err.response['Error']['Code'] == 'InvalidPermission.Duplicate':
-            print "The following outbound rule is already exist:"
-            print str(rule)
+            print("The following outbound rule is already exist:")
+            print(str(rule))
         else:
             logging.info("Unable to add outbound rule to SG: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to add outbound rule to SG", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -726,9 +726,9 @@ def deregister_image(scientist):
         if images_list:
             for i in images_list:
                 client.deregister_image(ImageId=i.get('ImageId'))
-                print "Notebook AMI " + i.get('ImageId') + " has been deregistered successfully"
+                print("Notebook AMI {} has been deregistered successfully".format(i.get('ImageId')))
         else:
-            print "There is no notebook ami to deregister"
+            print("There is no notebook ami to deregister")
     except Exception as err:
         logging.info("Unable to de-register image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to de-register image", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -774,7 +774,7 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                             sudo('kill -9 ' + process_number)
                             sudo('systemctl disable livy-server-' + livy_port)
                         except:
-                            print "Wasn't able to find Livy server for this EMR!"
+                            print("Wasn't able to find Livy server for this EMR!")
                     sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
                     sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
                     zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
@@ -785,12 +785,12 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                     interpreter_prefix = emr_name
                     for interpreter in interpreter_json['body']:
                         if interpreter_prefix in interpreter['name']:
-                            print "Interpreter with ID:", interpreter['id'], "and name:", interpreter['name'], \
-                                "will be removed from zeppelin!"
+                            print("Interpreter with ID: {0} and name: {1} will be removed from zeppelin!".
+                                  format(interpreter['id'], interpreter['name']))
                             request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
                             request.get_method = lambda: 'DELETE'
                             url = opener.open(request)
-                            print url.read()
+                            print(url.read())
                     sudo('chown ' + ssh_user + ':' + ssh_user + ' -R /opt/zeppelin/')
                     sudo('systemctl daemon-reload')
                     sudo("service zeppelin-notebook stop")
@@ -812,9 +812,9 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                     sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user))
                     sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(ssh_user))
                 sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
-                print "Notebook's " + env.hosts + " kernels were removed"
+                print("Notebook's {} kernels were removed".format(env.hosts))
         else:
-            print "There are no notebooks to clean kernels."
+            print("There are no notebooks to clean kernels.")
     except Exception as err:
         logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to remove kernels on Notebook", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -832,11 +832,11 @@ def remove_route_tables(tag_name, ssn=False):
                 if ssn:
                     for association in rtable_associations:
                         client.disassociate_route_table(AssociationId=association.get('RouteTableAssociationId'))
-                        print "Association " + association.get('RouteTableAssociationId') + " has been removed"
+                        print("Association {} has been removed".format(association.get('RouteTableAssociationId')))
                 client.delete_route_table(RouteTableId=rtable)
-                print "Route table " + rtable + " has been removed"
+                print("Route table {} has been removed".format(rtable))
             else:
-                print "There are no route tables to remove"
+                print("There are no route tables to remove")
     except Exception as err:
         logging.info("Unable to remove route table: " + str(err) + "\n Traceback: " + traceback.print_exc(
             file=sys.stdout))
@@ -856,9 +856,9 @@ def remove_internet_gateways(vpc_id, tag_name, tag_value):
         for i in response:
             ig_id = i.get('InternetGatewayId')
         client.detach_internet_gateway(InternetGatewayId=ig_id,VpcId=vpc_id)
-        print "Internet gateway " + ig_id + " has been detached from VPC " + vpc_id
+        print("Internet gateway {0} has been detached from VPC {1}".format(ig_id, vpc_id.format))
         client.delete_internet_gateway(InternetGatewayId=ig_id)
-        print "Internet gateway " + ig_id + " has been deleted successfully"
+        print("Internet gateway {} has been deleted successfully".format(ig_id))
     except Exception as err:
         logging.info("Unable to remove internet gateway: " + str(err) + "\n Traceback: " + traceback.print_exc(
             file=sys.stdout))
@@ -873,7 +873,7 @@ def remove_vpc_endpoints(vpc_id):
         response = client.describe_vpc_endpoints(Filters=[{'Name': 'vpc-id', 'Values': [vpc_id]}]).get('VpcEndpoints')
         for i in response:
             client.delete_vpc_endpoints(VpcEndpointIds=[i.get('VpcEndpointId')])
-            print "VPC Endpoint " + i.get('VpcEndpointId') + " has been removed successfully"
+            print("VPC Endpoint {} has been removed successfully".format(i.get('VpcEndpointId')))
     except Exception as err:
         logging.info("Unable to remove VPC Endpoint: " + str(err) + "\n Traceback: " + traceback.print_exc(
             file=sys.stdout))
@@ -910,13 +910,13 @@ def install_emr_spark(args):
         local('rm -f /tmp/spark.tar.gz')
         s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark.tar.gz', '/tmp/spark.tar.gz')
         if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
-            print "The checksum of spark.tar.gz is mismatched. It could be caused by aws network issue."
+            print("The checksum of spark.tar.gz is mismatched. It could be caused by aws network issue.")
             sys.exit(1)
     local('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/' + args.emr_version + '/' + args.cluster_name + '/')
 
 
 def jars(args, emr_dir):
-    print "Downloading jars..."
+    print("Downloading jars...")
     s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
     s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars.tar.gz', '/tmp/jars.tar.gz')
     s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars-checksum.chk', '/tmp/jars-checksum.chk')
@@ -924,13 +924,13 @@ def jars(args, emr_dir):
         local('rm -f /tmp/jars.tar.gz')
         s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars.tar.gz', '/tmp/jars.tar.gz')
         if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
-            print "The checksum of jars.tar.gz is mismatched. It could be caused by aws network issue."
+            print("The checksum of jars.tar.gz is mismatched. It could be caused by aws network issue.")
             sys.exit(1)
     local('tar -zhxvf /tmp/jars.tar.gz -C ' + emr_dir)
 
 
 def yarn(args, yarn_dir):
-    print "Downloading yarn configuration..."
+    print("Downloading yarn configuration...")
     if args.region == 'cn-north-1':
         s3client = boto3.client('s3', config=Config(signature_version='s3v4'),
                                 endpoint_url='https://s3.cn-north-1.amazonaws.com.cn', region_name=args.region)

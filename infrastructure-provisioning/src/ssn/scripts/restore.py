@@ -159,19 +159,19 @@ def restore_keys():
                             else:
                                 print("Key {} was skipped.".format(filename))
                         else:
-                            print "Key {} was not changed. Skipped.".format(filename)
+                            print("Key {} was not changed. Skipped.".format(filename))
                     else:
-                        print "Key {} does not exist. Creating.".format(filename)
+                        print("Key {} does not exist. Creating.".format(filename))
                         local("cp {0}keys/{2} {1}{2}".format(temp_folder, keys_folder, filename))
     except:
-        print "Restore keys failed."
+        print("Restore keys failed.")
         pass
 
 
 def restore_certs():
     try:
         if not os.path.isdir("{}certs".format(temp_folder)):
-            print "Cert files are not available in this backup."
+            print("Cert files are not available in this backup.")
             raise Exception
 
         certs = list()
@@ -179,36 +179,36 @@ def restore_certs():
             certs = [files for root, dirs, files in os.walk("{}certs".format(temp_folder))][0]
         else:
             certs = args.certs.split(",")
-        print "Restore certs: ", certs
+        print("Restore certs: {}".format(certs))
 
         if args.certs != "skip":
             for filename in certs:
                 if not os.path.isfile("{0}certs/{1}".format(temp_folder, filename)):
-                    print "Cert {} are not available in this backup.".format(filename)
+                    print("Cert {} are not available in this backup.".format(filename))
                 else:
                     if os.path.isfile("{0}{1}".format(certs_folder, filename)):
-                        print "Cert {} already exist.".format(filename)
+                        print("Cert {} already exist.".format(filename))
                         if not filecmp.cmp("{0}certs/{1}".format(temp_folder, filename), "{0}{1}".format(certs_folder, filename)):
                             if ask("Cert {} was changed, rewrite it?".format(filename)):
                                 local("sudo cp -f {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename))
                                 local("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename))
                             else:
-                                print "Cert {} was skipped.".format(filename)
+                                print("Cert {} was skipped.".format(filename))
                         else:
-                            print "Cert {} was not changed. Skipped.".format(filename)
+                            print("Cert {} was not changed. Skipped.".format(filename))
                     else:
-                        print "Cert {} does not exist. Creating.".format(filename)
+                        print("Cert {} does not exist. Creating.".format(filename))
                         local("sudo cp {0}certs/{2} {1}{2}".format(temp_folder, certs_folder, filename))
                         local("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename))
     except:
-        print "Restore certs failed."
+        print("Restore certs failed.")
         pass
 
 
 def restore_jars():
     try:
         if not os.path.isdir("{0}jars".format(temp_folder)):
-            print "Jar files are not available in this backup."
+            print("Jar files are not available in this backup.")
             raise Exception
 
         jars = list()
@@ -216,12 +216,12 @@ def restore_jars():
             jars = [dirs for root, dirs, files in os.walk("{}jars".format(temp_folder))][0]
         else:
             jars = args.jars.split(",")
-        print "Restore jars: ", jars
+        print("Restore jars: {}".format(jars))
 
         if args.jars != "skip":
             for service in jars:
                 if not os.path.isdir("{0}jars/{1}".format(temp_folder, service)):
-                    print "Jar {} are not available in this backup.".format(service)
+                    print("Jar {} are not available in this backup.".format(service))
                 else:
                     for root, dirs, files in os.walk("{0}jars/{1}".format(temp_folder, service)):
                         for filename in files:
@@ -232,36 +232,36 @@ def restore_jars():
                                     if ask("Jar {} was changed, rewrite it?".format(filename)):
                                         local("cp -fP {0} {1}".format(backupfile, destfile))
                                     else:
-                                        print "Jar {} was skipped.".format(destfile)
+                                        print("Jar {} was skipped.".format(destfile))
                                 else:
-                                    print "Jar {} was not changed. Skipped.".format(filename)
+                                    print("Jar {} was not changed. Skipped.".format(filename))
                             else:
-                                print "Jar {} does not exist. Creating.".format(filename)
+                                print("Jar {} does not exist. Creating.".format(filename))
                                 local("cp -P {0}jars/{1}/{2} {3}{4}{1}".format(temp_folder, service, filename, args.dlab_path, jars_folder))
     except:
-        print "Restore jars failed."
+        print("Restore jars failed.")
         pass
 
 
 def restore_database():
     try:
-        print "Restore database: ", args.db
+        print("Restore database: {}".format(args.db))
         if args.db:
             if not os.path.isfile("{0}{1}".format(temp_folder, "mongo.db")):
-                print "File {} are not available in this backup.".format("mongo.db")
+                print("File {} are not available in this backup.".format("mongo.db"))
                 raise Exception
             else:
                 if ask("Do you want to drop existing database and restore another from backup?"):
                     ssn_conf = open(args.dlab_path + conf_folder + 'ssn.yml').read()
                     data = yaml.load("mongo" + ssn_conf.split("mongo")[-1])
-                    print "Restoring database from backup"
+                    print("Restoring database from backup")
                     local("mongorestore --drop --host {0} --port {1} --archive={2}/mongo.db --username {3} --password '{4}' --authenticationDatabase={5}" \
                             .format(data['mongo']['host'], data['mongo']['port'], temp_folder,
                                     data['mongo']['username'], data['mongo']['password'], data['mongo']['database']))
         else:
-            print "Restore database was skipped."
+            print("Restore database was skipped.")
     except:
-        print "Restore database failed."
+        print("Restore database failed.")
         pass
 
 
@@ -270,14 +270,14 @@ def restore_finalize():
         if ask("Start all services after restoring?"):
             local("sudo supervisorctl start all")
     except:
-        print "Failed to start all services."
+        print("Failed to start all services.")
 
     try:
         if ask("Clean temporary folder {}?".format(temp_folder)):
             if temp_folder != "/":
                 local("rm -rf {}".format(temp_folder))
     except Exception as err:
-        print "Clear temp folder failed.", str(err)
+        print("Clear temp folder failed. {}".format(str(err)))
 
 
 if __name__ == "__main__":
@@ -301,4 +301,4 @@ if __name__ == "__main__":
     # Starting services & cleaning tmp folder
     restore_finalize()
 
-    print "Restore is finished. Good luck."
+    print("Restore is finished. Good luck.")
