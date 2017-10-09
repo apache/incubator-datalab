@@ -126,7 +126,7 @@ def terminate_dlab(args):
 
 if __name__ == "__main__":
     if not args.workspace_path:
-        print "Workspace path isn't set, using current directory: " + os.environ['PWD']
+        print("Workspace path isn't set, using current directory: {}".format(os.environ['PWD']))
         args.workspace_path = os.environ['PWD']
     if args.action == 'build':
         build_front_end(args)

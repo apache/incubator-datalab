@@ -76,12 +76,12 @@ def install_itorch(args):
 
 
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
 
-    print "Configuring Deep Learning node."
+    print("Configuring Deep Learning node.")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
             sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
@@ -89,71 +89,71 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
-    print "Mount additional volume"
+    print("Mount additional volume")
     prepare_disk(args.os_user)
 
-    print "Install Java"
+    print("Install Java")
     ensure_jre_jdk(args.os_user)
 
-    print "Install Scala"
+    print("Install Scala")
     ensure_scala(scala_link, args.scala_version, args.os_user)
 
-    print "Install python2 libraries"
+    print("Install python2 libraries")
     ensure_python2_libraries(args.os_user)
 
-    print "Install python3 libraries"
+    print("Install python3 libraries")
     ensure_python3_libraries(args.os_user)
 
-    print "Install TensorFlow"
+    print("Install TensorFlow")
     install_tensor(args.os_user, args.tensorflow_version, files_dir, templates_dir, nvidia_version)
 
-    print "Installing Caffe"
+    print("Installing Caffe")
     install_caffe(args.os_user, args.region)
 
-    print "Installing Caffe2"
+    print("Installing Caffe2")
     install_caffe2(args.os_user)
 
-    print "Install Jupyter"
+    print("Install Jupyter")
     configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version)
 
-    print "Install local Spark"
+    print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
 
-    print "Install local jars"
+    print("Install local jars")
     ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
-    print "Install pyspark local kernel for Jupyter"
+    print("Install pyspark local kernel for Jupyter")
     ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
 
-    print "Install py3spark local kernel for Jupyter"
+    print("Install py3spark local kernel for Jupyter")
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
 
-    print "Install Toree-Scala kernel for Jupyter"
+    print("Install Toree-Scala kernel for Jupyter")
     ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
 
-    print "Installing R"
+    print("Installing R")
     ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
-    print "Install R kernel for Jupyter"
+    print("Install R kernel for Jupyter")
     ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
 
-    print "Install Ungit"
+    print("Install Ungit")
     install_nodejs(args.os_user)
     install_ungit(args.os_user)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
 
-    print "Installing Torch"
+    print("Installing Torch")
     install_torch(args.os_user)
 
-    print "Installing ITorch kernel"
+    print("Installing ITorch kernel")
     install_itorch(args)
 
-    print "Install CNTK Python library"
+    print("Install CNTK Python library")
     install_cntk(args.os_user)
 
-    print "Installing MXNET"
+    print("Installing MXNET")
     install_mxnet(args.os_user)
 
-    print "Installing Keras"
+    print("Installing Keras")
     install_keras(args.os_user)

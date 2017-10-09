@@ -50,7 +50,7 @@ if __name__ == "__main__":
                                                       notebook_config['user_name'] + '-edge')
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print 'ERROR: Edge node is unavailable! Aborting...'
+            print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = AzureMeta().get_instance_public_ip_address(os.environ['conf_service_base_name'],
                                                                       os.environ['conf_service_base_name'] + '-ssn')
             put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
@@ -58,7 +58,7 @@ if __name__ == "__main__":
             append_result("Edge node is unavailable")
             sys.exit(1)
 
-        print 'Generating infrastructure names and tags'
+        print('Generating infrastructure names and tags')
         try:
             notebook_config['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
         except:
@@ -123,9 +123,9 @@ if __name__ == "__main__":
             notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
             print 'No preconfigured image found. Using default one: ' + notebook_config['ami_name']
     except Exception as err:
-            print "Failed to generate variables dictionary."
-            append_result("Failed to generate variables dictionary.", str(err))
-            sys.exit(1)
+        print("Failed to generate variables dictionary.")
+        append_result("Failed to generate variables dictionary.", str(err))
+        sys.exit(1)
 
     with open('/root/result.json', 'w') as f:
         data = {"notebook_name": notebook_config['instance_name'], "error": ""}
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
-        print '[CREATE NOTEBOOK INSTANCE]'
+        print('[CREATE NOTEBOOK INSTANCE]')
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags '{}' --ami_type {}". \
             format(notebook_config['instance_name'], notebook_config['instance_size'], notebook_config['region'],
                    notebook_config['vpc_name'], notebook_config['network_interface_name'],
@@ -152,6 +152,6 @@ if __name__ == "__main__":
         try:
             AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         except:
-            print "The instance hasn't been created."
+            print("The instance hasn't been created.")
         append_result("Failed to create instance.", str(err))
         sys.exit(1)

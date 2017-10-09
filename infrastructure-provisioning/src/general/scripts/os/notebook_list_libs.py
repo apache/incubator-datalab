@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[GETTING ALL AVAILABLE PACKAGES]')
-        print '[GETTING ALL AVAILABLE PACKAGES]'
+        print('[GETTING ALL AVAILABLE PACKAGES]')
         notebook_config = dict()
         try:
             notebook_config['notebook_name'] = os.environ['notebook_instance_name']

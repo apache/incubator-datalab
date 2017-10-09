@@ -59,43 +59,43 @@ gitlab_certfile = os.environ['conf_gitlab_certfile']
 # Run script #
 ##############
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
 
-    print "Configuring notebook server."
+    print("Configuring notebook server.")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
             sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
 
-    print "Mount additional volume"
+    print("Mount additional volume")
     prepare_disk(args.os_user)
 
-    print "Install Java"
+    print("Install Java")
     ensure_jre_jdk(args.os_user)
 
-    print "Install python2 libraries"
+    print("Install python2 libraries")
     ensure_python2_libraries(args.os_user)
 
-    print "Install python3 libraries"
+    print("Install python3 libraries")
     ensure_python3_libraries(args.os_user)
 
-    print "Installing R"
+    print("Installing R")
     ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
-    print "Install RStudio"
+    print("Install RStudio")
     install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version)
 
-    print "Install local Spark"
+    print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
 
-    print "Install local jars"
+    print("Install local jars")
     ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
-    print "Install Ungit"
+    print("Install Ungit")
     install_nodejs(args.os_user)
     install_ungit(args.os_user)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):

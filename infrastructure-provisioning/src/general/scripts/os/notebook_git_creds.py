@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SETUP USER GIT CREDENTIALS]')
-        print '[SETUP USER GIT CREDENTIALS]'
+        print('[SETUP USER GIT CREDENTIALS]')
         notebook_config = dict()
         notebook_config['notebook_name'] = os.environ['notebook_instance_name']
         notebook_config['os_user'] = os.environ['conf_os_user']

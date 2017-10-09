@@ -34,12 +34,12 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     create_aws_config_files()
-    print 'Getting statuses of DLAB resources'
+    print('Getting statuses of DLAB resources')
     # Base config
 
     try:
         logging.info('[COLLECT DATA]')
-        print '[COLLECTING DATA]'
+        print('[COLLECTING DATA]')
         params = '--list_resources "{}"'.format(os.environ['edge_list_resources'])
         try:
             local("~/scripts/{}.py {}".format('common_collect_data', params))

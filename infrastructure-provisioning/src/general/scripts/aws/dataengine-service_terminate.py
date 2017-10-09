@@ -27,7 +27,7 @@ import os
 
 
 def terminate_emr_cluster(emr_name, bucket_name, tag_name, nb_tag_value, ssh_user, key_path):
-    print 'Terminating EMR cluster and cleaning EMR config from S3 bucket'
+    print('Terminating EMR cluster and cleaning EMR config from S3 bucket')
     try:
         clusters_list = get_emr_list(emr_name, 'Value')
         if clusters_list:
@@ -38,14 +38,14 @@ def terminate_emr_cluster(emr_name, bucket_name, tag_name, nb_tag_value, ssh_use
                 emr_name = cluster.get('Name')
                 emr_version = cluster.get('ReleaseLabel')
                 s3_cleanup(bucket_name, emr_name, os.environ['edge_user_name'])
-                print "The bucket " + bucket_name + " has been cleaned successfully"
+                print("The bucket {} has been cleaned successfully".format(bucket_name))
                 terminate_emr(cluster_id)
-                print "The EMR cluster " + emr_name + " has been terminated successfully"
-                print "Removing EMR kernels from notebook"
+                print("The EMR cluster {} has been terminated successfully".format(emr_name))
+                print("Removing EMR kernels from notebook")
                 remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path,
                                emr_version)
         else:
-            print "There are no EMR clusters to terminate."
+            print("There are no EMR clusters to terminate.")
     except:
         sys.exit(1)
 
@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     create_aws_config_files()
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     emr_conf = dict()
     emr_conf['service_base_name'] = os.environ['conf_service_base_name']
     emr_conf['emr_name'] = os.environ['emr_cluster_name']
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE EMR CLUSTER]')
-        print '[TERMINATE EMR CLUSTER]'
+        print('[TERMINATE EMR CLUSTER]')
         try:
             terminate_emr_cluster(emr_conf['emr_name'], emr_conf['bucket_name'], emr_conf['tag_name'],
                                   emr_conf['notebook_name'], os.environ['conf_os_user'], emr_conf['key_path'])
@@ -88,8 +88,8 @@ if __name__ == "__main__":
                    "notebook_name": emr_conf['notebook_name'],
                    "user_own_bucket_name": emr_conf['bucket_name'],
                    "Action": "Terminate EMR cluster"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)

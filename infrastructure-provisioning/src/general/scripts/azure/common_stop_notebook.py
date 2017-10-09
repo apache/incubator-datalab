@@ -33,7 +33,7 @@ import sys
 
 
 def stop_notebook(resource_group_name, notebook_name, os_user, key_path):
-    print "Terminating data engine cluster"
+    print("Terminating data engine cluster")
     cluster_list = []
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
@@ -42,13 +42,13 @@ def stop_notebook(resource_group_name, notebook_name, os_user, key_path):
                     if 'master' == vm.tags["Type"]:
                         cluster_list.append(vm.tags["Name"])
                     AzureActions().remove_instance(resource_group_name, vm.name)
-                    print "Instance {} has been terminated".format(vm.name)
+                    print("Instance {} has been terminated".format(vm.name))
             except:
                 pass
     except:
         sys.exit(1)
 
-    print "Removing Data Engine kernels from notebook"
+    print("Removing Data Engine kernels from notebook")
     try:
         for cluster_name in cluster_list:
             AzureActions().remove_dataengine_kernels(resource_group_name, notebook_name, os_user, key_path,
@@ -56,12 +56,12 @@ def stop_notebook(resource_group_name, notebook_name, os_user, key_path):
     except:
         sys.exit(1)
 
-    print "Stopping notebook"
+    print("Stopping notebook")
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
             if notebook_name == vm.tags["Name"]:
                 AzureActions().stop_instance(resource_group_name, vm.name)
-                print "Instance {} has been stopped".format(vm.name)
+                print("Instance {} has been stopped".format(vm.name))
     except:
         sys.exit(1)
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     notebook_config = dict()
     try:
         notebook_config['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
 
     logging.info('[STOP NOTEBOOK]')
-    print '[STOP NOTEBOOK]'
+    print('[STOP NOTEBOOK]')
     try:
         stop_notebook(notebook_config['resource_group_name'], notebook_config['notebook_name'],
                       os.environ['conf_os_user'], notebook_config['key_path'])
@@ -103,9 +103,9 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Action": "Stop notebook server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
 

@@ -151,7 +151,7 @@ def append_result(error, exception=''):
         data['error'] = data['error'] + " [Error-" + st + "]:" + error
     with open("/root/result.json", 'w') as f:
         json.dump(data, f)
-    print data
+    print(data)
 
 
 def put_resource_status(resource, status, dlab_path, os_user, hostname):

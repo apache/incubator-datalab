@@ -302,7 +302,7 @@ def get_emr_info(id, key=''):
             try:
                 result = info[key]
             except:
-                print "Cluster has no {} attribute".format(key)
+                print("Cluster has no {} attribute".format(key))
                 result = info
         else:
             result = info
@@ -470,7 +470,7 @@ def provide_index(resource_type, tag_name, tag_value=''):
                     if tag['Key'] == 'Name':
                         ids.append(int(tag['Value'].split('-')[-1]))
         else:
-            print "Incorrect resource type!"
+            print("Incorrect resource type!")
         index = 1
         while True:
             if index not in ids:
@@ -547,16 +547,16 @@ def get_iam_profile(profile_name, count=0):
             response = client.get_instance_profile(InstanceProfileName=profile_name)
             iam_profile = response.get('InstanceProfile').get('InstanceProfileName')
             time.sleep(5)
-            print 'IAM profile checked. Creating instance...'
+            print('IAM profile checked. Creating instance...')
         else:
-            print "Unable to find IAM profile by name: " + profile_name
+            print("Unable to find IAM profile by name: {}".format(profile_name))
             return False
     except:
         count += 1
-        print 'IAM profile is not available yet. Waiting...'
+        print('IAM profile is not available yet. Waiting...')
         time.sleep(5)
         get_iam_profile(profile_name, count)
-    print iam_profile
+    print(iam_profile)
     return iam_profile
 
 
@@ -568,7 +568,7 @@ def check_security_group(security_group_name, count=0):
                 while security_group.id == '':
                     count = count + 1
                     time.sleep(10)
-                    print "Security group is not available yet. Waiting..."
+                    print("Security group is not available yet. Waiting...")
                     check_security_group(security_group_name, count)
                 if security_group.id == '':
                     raise Exception("Unable to check Security group by name: " + security_group_name)

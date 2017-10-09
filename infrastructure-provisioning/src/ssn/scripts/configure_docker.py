@@ -70,7 +70,7 @@ def build_docker_images(image_list, region, dlab_path):
 # Run script #
 ##############
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     try:
         env['connection_attempts'] = 100
         env.key_filename = [args.keyfile]
@@ -79,11 +79,11 @@ if __name__ == "__main__":
     except:
         sys.exit(2)
 
-    print "Installing docker daemon"
+    print("Installing docker daemon")
     if not ensure_docker_daemon(args.dlab_path, args.os_user, args.region):
         sys.exit(1)
 
-    print "Building dlab images"
+    print("Building dlab images")
     if not build_docker_images(deeper_config, args.region, args.dlab_path):
         sys.exit(1)
 
