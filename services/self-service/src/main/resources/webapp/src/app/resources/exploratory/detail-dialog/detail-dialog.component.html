@@ -47,15 +47,15 @@ limitations under the License.
           <p *ngIf="notebook.username">Node User: <strong>{{ notebook.username }}</strong></p>
           <p *ngIf="notebook.password">Password: <strong>{{ notebook.password }}</strong></p>
 
-          <p class="m-top-30">Personal storage: </p>
+          <p class="m-top-30">{{ DICTIONARY.personal_storage }}: </p>
           <div class="links_block">
-            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">&#9642; Account: <strong>{{ notebook.account_name}}</strong></p>
-            <p *ngIf="notebook.bucket_name">&#9642; Container: <strong>{{ notebook.bucket_name }}</strong></p>
+            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">&#9642; {{ DICTIONARY.account }} <strong>{{ notebook.account_name}}</strong></p>
+            <p *ngIf="notebook.bucket_name">&#9642; {{ DICTIONARY.container }} <strong>{{ notebook.bucket_name }}</strong></p>
           </div>
-          <p>Shared storage: </p>
+          <p>{{ DICTIONARY.collaboration_storage }}: </p>
           <div class="links_block">
-            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name">&#9642; Account: <strong>{{ notebook.shared_account_name}}</strong></p>
-            <p *ngIf="notebook.shared_bucket_name">&#9642; Container: <strong>{{ notebook.shared_bucket_name }}</strong></p>
+            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name">&#9642; {{ DICTIONARY.account }} <strong>{{ notebook.shared_account_name}}</strong></p>
+            <p *ngIf="notebook.shared_bucket_name">&#9642; {{ DICTIONARY.container }} <strong>{{ notebook.shared_bucket_name }}</strong></p>
           </div>
           <br/>
           <p>
