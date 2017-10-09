@@ -121,6 +121,11 @@ def configure_dataengine_spark(jars_dir, spark_dir, local_spark_dir):
     local('cp {0}conf/core-site.xml {1}conf/'.format(local_spark_dir, spark_dir))
 
 
+def install_tensorflow_jars(jars_dir):
+    local('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
+         -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
+
+
 def prepare(dataengine_service_dir, yarn_dir):
     local('mkdir -p ' + dataengine_service_dir)
     local('mkdir -p ' + yarn_dir)
