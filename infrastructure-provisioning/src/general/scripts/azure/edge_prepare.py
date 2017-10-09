@@ -35,7 +35,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        print 'Generating infrastructure names and tags'
+        print('Generating infrastructure names and tags')
         edge_conf = dict()
         edge_conf['service_base_name'] = os.environ['conf_service_base_name']
         edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
@@ -77,20 +77,19 @@ if __name__ == "__main__":
         # FUSE in case of absence of user's key
         fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
         if not os.path.isfile(fname):
-            print "USERs PUBLIC KEY DOES NOT EXIST in {}".format(fname)
+            print("USERs PUBLIC KEY DOES NOT EXIST in {}".format(fname))
             sys.exit(1)
 
-        print "Will create exploratory environment with edge node as access point as following: " + \
-              json.dumps(edge_conf, sort_keys=True, indent=4, separators=(',', ': '))
+        print("Will create exploratory environment with edge node as access point as following: {}".format(json.dumps(edge_conf, sort_keys=True, indent=4, separators=(',', ': '))))
         logging.info(json.dumps(edge_conf))
     except Exception as err:
-        print "Failed to generate variables dictionary."
+        print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
     try:
         logging.info('[CREATE SUBNET]')
-        print '[CREATE SUBNET]'
+        print('[CREATE SUBNET]')
         params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
             format(edge_conf['resource_group_name'], edge_conf['vpc_name'], edge_conf['region'], edge_conf['vpc_cidr'],
                    edge_conf['private_subnet_name'], edge_conf['private_subnet_prefix'])
@@ -104,17 +103,17 @@ if __name__ == "__main__":
             AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                          edge_conf['private_subnet_name'])
         except:
-            print "Subnet hasn't been created."
+            print("Subnet hasn't been created.")
         append_result("Failed to create subnet.", str(err))
         sys.exit(1)
 
     edge_conf['private_subnet_cidr'] = AzureMeta().get_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                                               edge_conf['private_subnet_name']).address_prefix
-    print 'NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr'])
+    print('NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr']))
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
-        print '[CREATE SECURITY GROUP FOR EDGE]'
+        print('[CREATE SECURITY GROUP FOR EDGE]')
         list_rules = [
             {
                 "name": "in-1",
@@ -316,7 +315,7 @@ if __name__ == "__main__":
                 AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                      edge_conf['edge_security_group_name'])
             except:
-                print "Edge Security group hasn't been created."
+                print("Edge Security group hasn't been created.")
             traceback.print_exc()
             append_result("Failed creating security group for edge node.", str(err))
             raise Exception
@@ -325,7 +324,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
-        print '[CREATE SECURITY GROUP FOR PRIVATE SUBNET]'
+        print('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
         list_rules = [
             {
                 "name": "in-1",
@@ -423,11 +422,11 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['notebook_security_group_name'])
         except:
-            print "Notebook Security group hasn't been created."
+            print("Notebook Security group hasn't been created.")
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
-    print "[CREATING SECURITY GROUPS FOR MASTER NODE]"
+    print("[CREATING SECURITY GROUPS FOR MASTER NODE]")
     try:
         list_rules = [
             {
@@ -519,12 +518,12 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['master_security_group_name'])
         except:
-            print "Master Security group hasn't been created."
+            print("Master Security group hasn't been created.")
         append_result("Failed to create Security groups. Exception:" + str(err))
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
-    print "[CREATING SECURITY GROUPS FOR SLAVE NODES]"
+    print("[CREATING SECURITY GROUPS FOR SLAVE NODES]")
     try:
         list_rules = [
             {
@@ -630,7 +629,7 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
         except:
-            print "Slave Security group hasn't been created."
+            print("Slave Security group hasn't been created.")
         append_result("Failed to create Security groups. Exception:" + str(err))
         sys.exit(1)
 
@@ -688,7 +687,7 @@ if __name__ == "__main__":
         try:
             AzureActions().remove_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
         except:
-            print "The instance hasn't been created."
+            print("The instance hasn't been created.")
         AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
                                      edge_conf['private_subnet_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])

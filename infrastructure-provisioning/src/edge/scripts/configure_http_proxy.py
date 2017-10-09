@@ -36,7 +36,7 @@ args = parser.parse_args()
 # Run script #
 ##############
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     try:
         env['connection_attempts'] = 100
         env.key_filename = [args.keyfile]
@@ -45,7 +45,7 @@ if __name__ == "__main__":
     except:
         sys.exit(2)
 
-    print "Installing proxy for notebooks."
+    print("Installing proxy for notebooks.")
     if configure_http_proxy_server(deeper_config):
         sys.exit(0)
     else:

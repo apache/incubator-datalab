@@ -353,7 +353,7 @@ public class EnvStatusDAO extends BaseDAO {
     		return true;
     	}
 
-    	String accessToken = (userInfo == null ? null : userInfo.getAccessToken());
+    	String accessToken = userInfo.getAccessToken();
     	LOGGER.debug("Computational will be terminated for user {} with exploratory {} and computational {}",
     			user, exploratoryName, computationalName);
     	try {

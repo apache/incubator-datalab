@@ -31,7 +31,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge'
 
     logging.info('[STOP EDGE]')
-    print '[STOP EDGE]'
+    print('[STOP EDGE]')
     try:
         AzureActions().stop_instance(edge_conf['resource_group_name'], edge_conf['instance_name'])
     except Exception as err:
@@ -50,9 +50,9 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"instance_name": edge_conf['instance_name'],
                    "Action": "Stop edge server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
 

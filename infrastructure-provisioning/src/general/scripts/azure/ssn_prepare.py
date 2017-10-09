@@ -39,7 +39,8 @@ if __name__ == "__main__":
         pre_defined_subnet = False
         pre_defined_sg = False
         ssn_conf = dict()
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'].replace('_', '-')
+        # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'].replace('_', '-')[:12]
         ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-vpc'
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
         ssn_conf['region'] = os.environ['azure_region']
@@ -65,7 +66,7 @@ if __name__ == "__main__":
         ssn_conf['shared_storage_account_tags'] = {"Name": ssn_conf['shared_storage_account_name'],
                                                    "SBN": ssn_conf['service_base_name']}
     except:
-        print "Failed to generate variables dictionary."
+        print("Failed to generate variables dictionary.")
         sys.exit(1)
 
     try:
@@ -74,7 +75,7 @@ if __name__ == "__main__":
     except KeyError:
         pre_defined_resource_group = True
         logging.info('[CREATING RESOURCE GROUP]')
-        print "[CREATING RESOURCE GROUP]"
+        print("[CREATING RESOURCE GROUP]")
         try:
             params = "--resource_group_name {} --region {}".format(ssn_conf['service_base_name'], ssn_conf['region'])
             try:
@@ -87,7 +88,7 @@ if __name__ == "__main__":
             try:
                 AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
             except:
-                print "Resource group hasn't been created."
+                print("Resource group hasn't been created.")
             append_result("Failed to create Resource Group. Exception:" + str(err))
             sys.exit(1)
 
@@ -97,7 +98,7 @@ if __name__ == "__main__":
     except KeyError:
         pre_defined_vpc = True
         logging.info('[CREATING VIRTUAL NETWORK]')
-        print "[CREATING VIRTUAL NETWORK]"
+        print("[CREATING VIRTUAL NETWORK]")
         try:
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {}".format(
                 os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'])
@@ -113,7 +114,7 @@ if __name__ == "__main__":
             try:
                 AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             except:
-                print "Virtual Network hasn't been created."
+                print("Virtual Network hasn't been created.")
             append_result("Failed to create Virtual Network. Exception:" + str(err))
             sys.exit(1)
 
@@ -123,7 +124,7 @@ if __name__ == "__main__":
     except KeyError:
         pre_defined_vpc = True
         logging.info('[CREATING SUBNET]')
-        print "[CREATING SUBNET]"
+        print("[CREATING SUBNET]")
         try:
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
                 format(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'],
@@ -143,7 +144,7 @@ if __name__ == "__main__":
                 AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                              ssn_conf['subnet_name'])
             except:
-                print "Subnet hasn't been created."
+                print("Subnet hasn't been created.")
             append_result("Failed to create Subnet. Exception:" + str(err))
             sys.exit(1)
 
@@ -153,7 +154,7 @@ if __name__ == "__main__":
     except KeyError:
         pre_defined_sg = True
         logging.info('[CREATING SECURITY GROUPS]')
-        print "[CREATING SECURITY GROUPS]"
+        print("[CREATING SECURITY GROUPS]")
         try:
             list_rules = [
                 {
@@ -323,6 +324,6 @@ if __name__ == "__main__":
         try:
             AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         except:
-            print "The instance {} hasn't been created".format(ssn_conf['instance_name'])
+            print("The instance {} hasn't been created".format(ssn_conf['instance_name']))
         append_result("Failed to create instance. Exception:" + str(err))
         sys.exit(1)

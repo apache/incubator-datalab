@@ -39,14 +39,14 @@ args = parser.parse_args()
 # Run script #
 ##############
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
     deeper_config = json.loads(args.additional_config)
 
-    print "Installing additional Python libraries"
+    print("Installing additional Python libraries")
     ensure_additional_python_libs(args.os_user)
 
-    print "Installing notebook additions: matplotlib."
+    print("Installing notebook additions: matplotlib.")
     ensure_matplot(args.os_user)

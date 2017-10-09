@@ -32,7 +32,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['key_name'] = os.environ['conf_key_name']
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[INSTALLING PREREQUISITES]'
+        print('[INSTALLING PREREQUISITES]')
         logging.info('[INSTALLING PREREQUISITES]')
         params = "--hostname {} --keyfile {} --user {} --region {}".\
             format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], os.environ['aws_region'])
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[INSTALLING HTTP PROXY]'
+        print('[INSTALLING HTTP PROXY]')
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf"}
@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
 
     try:
-        print '[INSTALLING USERs KEY]'
+        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": edge_conf['user_keyname'],
                              "user_keydir": os.environ['conf_key_dir']}
@@ -156,20 +156,20 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[SUMMARY]'
+        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print "Instance name: " + edge_conf['instance_name']
-        print "Hostname: " + instance_hostname
-        print "Public IP: " + edge_conf['edge_public_ip']
-        print "Private IP: " + edge_conf['edge_private_ip']
-        print "Instance ID: " + get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name'])
-        print "Key name: " + edge_conf['key_name']
-        print "Bucket name: " + edge_conf['bucket_name']
-        print "Shared bucket name: " + edge_conf['shared_bucket_name']
-        print "Notebook SG: " + edge_conf['notebook_security_group_name']
-        print "Notebook profiles: " + edge_conf['notebook_role_profile_name']
-        print "Edge SG: " + edge_conf['edge_security_group_name']
-        print "Notebook subnet: " + edge_conf['private_subnet_cidr']
+        print("Instance name: {}".format(edge_conf['instance_name']))
+        print("Hostname: {}".format(instance_hostname))
+        print("Public IP: {}".format(edge_conf['edge_public_ip']))
+        print("Private IP: {}".format(edge_conf['edge_private_ip']))
+        print("Instance ID: {}".format(get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name'])))
+        print("Key name: {}".format(edge_conf['key_name']))
+        print("Bucket name: {}".format(edge_conf['bucket_name']))
+        print("Shared bucket name: {}".format(edge_conf['shared_bucket_name']))
+        print("Notebook SG: {}".format(edge_conf['notebook_security_group_name']))
+        print("Notebook profiles: {}".format(edge_conf['notebook_role_profile_name']))
+        print("Edge SG: {}".format(edge_conf['edge_security_group_name']))
+        print("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": instance_hostname,
                    "public_ip": edge_conf['edge_public_ip'],
@@ -186,10 +186,10 @@ if __name__ == "__main__":
                    "notebook_subnet": edge_conf['private_subnet_cidr'],
                    "full_edge_conf": edge_conf,
                    "Action": "Create new EDGE server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
 
     sys.exit(0)

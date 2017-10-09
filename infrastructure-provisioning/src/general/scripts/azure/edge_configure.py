@@ -32,7 +32,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        print 'Generating infrastructure names and tags'
+        print('Generating infrastructure names and tags')
         edge_conf = dict()
 
         edge_conf['service_base_name'] = os.environ['conf_service_base_name']
@@ -124,7 +124,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[INSTALLING PREREQUISITES]'
+        print('[INSTALLING PREREQUISITES]')
         logging.info('[INSTALLING PREREQUISITES]')
         params = "--hostname {} --keyfile {} --user {} --region {}".\
             format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], os.environ['azure_region'])
@@ -150,7 +150,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[INSTALLING HTTP PROXY]'
+        print('[INSTALLING HTTP PROXY]')
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf"}
@@ -179,7 +179,7 @@ if __name__ == "__main__":
 
 
     try:
-        print '[INSTALLING USERs KEY]'
+        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": edge_conf['user_keyname'],
                              "user_keydir": os.environ['conf_key_dir']}
@@ -212,20 +212,20 @@ if __name__ == "__main__":
                 user_storage_account_name = storage_account.name
             if edge_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
                 shared_storage_account_name = storage_account.name
-        print '[SUMMARY]'
+        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print "Instance name: " + edge_conf['instance_name']
-        print "Hostname: " + edge_conf['instance_dns_name']
-        print "Public IP: " + edge_conf['edge_public_ip']
-        print "Private IP: " + edge_conf['edge_private_ip']
-        print "Key name: " + edge_conf['key_name']
-        print "User storage account name: " + user_storage_account_name
-        print "User container name: " + edge_conf['user_container_name']
-        print "Shared storage account name: " + shared_storage_account_name
-        print "Shared container name: " + edge_conf['shared_container_name']
-        print "Notebook SG: " + edge_conf['notebook_security_group_name']
-        print "Edge SG: " + edge_conf['edge_security_group_name']
-        print "Notebook subnet: " + edge_conf['private_subnet_cidr']
+        print("Instance name: {}".format(edge_conf['instance_name']))
+        print("Hostname: {}".format(edge_conf['instance_dns_name']))
+        print("Public IP: {}".format(edge_conf['edge_public_ip']))
+        print("Private IP: {}".format(edge_conf['edge_private_ip']))
+        print("Key name: {}".format(edge_conf['key_name']))
+        print("User storage account name: {}".format(user_storage_account_name))
+        print("User container name: {}".format(edge_conf['user_container_name']))
+        print("Shared storage account name: {}".format(shared_storage_account_name))
+        print("Shared container name: {}".format(edge_conf['shared_container_name']))
+        print("Notebook SG: {}".format(edge_conf['notebook_security_group_name']))
+        print("Edge SG: {}".format(edge_conf['edge_security_group_name']))
+        print("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": edge_conf['instance_dns_name'],
                    "public_ip": edge_conf['edge_public_ip'],
@@ -243,10 +243,10 @@ if __name__ == "__main__":
                    "instance_id": edge_conf['instance_name'],
                    "full_edge_conf": edge_conf,
                    "Action": "Create new EDGE server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
 
     sys.exit(0)

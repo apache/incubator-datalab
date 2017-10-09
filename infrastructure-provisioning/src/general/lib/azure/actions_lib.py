@@ -697,7 +697,7 @@ class AzureActions:
     def remove_instance(self, resource_group_name, instance_name):
         try:
             result = self.compute_client.virtual_machines.delete(resource_group_name, instance_name).wait()
-            print "Instance {} has been removed".format(instance_name)
+            print("Instance {} has been removed".format(instance_name))
             # Removing instance disks
             disk_names = []
             resource_group_disks = self.compute_client.disks.list_by_resource_group(resource_group_name)
@@ -706,17 +706,17 @@ class AzureActions:
                     disk_names.append(disk.name)
             for i in disk_names:
                 self.remove_disk(resource_group_name, i)
-                print "Disk {} has been removed".format(i)
+                print("Disk {} has been removed".format(i))
             # Removing public static IP address and network interfaces
             network_interface_name = instance_name + '-nif'
             for j in meta_lib.AzureMeta().get_network_interface(resource_group_name,
                                                                 network_interface_name).ip_configurations:
                 self.delete_network_if(resource_group_name, network_interface_name)
-                print "Network interface {} has been removed".format(network_interface_name)
+                print("Network interface {} has been removed".format(network_interface_name))
                 if j.public_ip_address:
                     static_ip_name = j.public_ip_address.id.split('/')[-1]
                     self.delete_static_public_ip(resource_group_name, static_ip_name)
-                    print "Static IP address {} has been removed".format(static_ip_name)
+                    print("Static IP address {} has been removed".format(static_ip_name))
             return result
         except Exception as err:
             logging.info(
@@ -820,7 +820,7 @@ class AzureActions:
                         sudo('kill -9 ' + process_number)
                         sudo('systemctl disable livy-server-' + livy_port)
                     except:
-                        print "Wasn't able to find Livy server for this EMR!"
+                        print("Wasn't able to find Livy server for this dataengine!")
                 sudo(
                     'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
                 sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
@@ -832,12 +832,12 @@ class AzureActions:
                 interpreter_prefix = cluster_name
                 for interpreter in interpreter_json['body']:
                     if interpreter_prefix in interpreter['name']:
-                        print "Interpreter with ID:", interpreter['id'], "and name:", interpreter['name'], \
-                            "will be removed from zeppelin!"
+                        print("Interpreter with ID: {0} and name: {1} will be removed from zeppelin!".
+                              format(interpreter['id'], interpreter['name']))
                         request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
                         request.get_method = lambda: 'DELETE'
                         url = opener.open(request)
-                        print url.read()
+                        print(url.read())
                 sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
                 sudo('systemctl daemon-reload')
                 sudo("service zeppelin-notebook stop")
@@ -865,7 +865,7 @@ class AzureActions:
                 sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
                 sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
             sudo('rm -rf  /opt/' + cluster_name + '/')
-            print "Notebook's " + env.hosts + " kernels were removed"
+            print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
             logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
                 file=sys.stdout))
@@ -937,7 +937,7 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                     shared_storage_account_name = storage_account.name
                     shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
                                                                                         shared_storage_account_name)[0]
-            print "Downloading local jars for Azure"
+            print("Downloading local jars for Azure")
             sudo('mkdir -p ' + jars_dir)
             sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                  {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))

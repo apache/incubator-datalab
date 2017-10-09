@@ -32,7 +32,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     # generating variables dictionary
     create_aws_config_files(generate_full_config=True)
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     ssn_conf = dict()
     ssn_conf['service_base_name'] = os.environ['conf_service_base_name']
     ssn_conf['tag_name'] = ssn_conf['service_base_name'] + '-Tag'
@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE SSN]')
-        print '[TERMINATE SSN]'
+        print('[TERMINATE SSN]')
         params = "--tag_name {} --edge_sg {} --nb_sg {} --de_sg {} --service_base_name {}". \
                  format(ssn_conf['tag_name'], ssn_conf['edge_sg'], ssn_conf['nb_sg'], ssn_conf['de_sg'],
                         ssn_conf['service_base_name'])
@@ -59,8 +59,8 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": ssn_conf['service_base_name'],
                    "Action": "Terminate ssn with all service_base_name environment"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)

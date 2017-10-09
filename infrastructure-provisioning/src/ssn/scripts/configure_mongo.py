@@ -52,7 +52,7 @@ def add_2_yml_config(path, section, param, value):
             yaml.dump(config_orig, outfile_yml_w, default_flow_style=False)
         return True
     except:
-        print "Could not write the target file"
+        print("Could not write the target file")
         return False
 
 
@@ -63,7 +63,7 @@ def read_yml_conf(path, section, param):
         result = config[section][param]
         return result
     except:
-        print "File does not exist"
+        print("File does not exist")
         return ''
 
 
@@ -91,7 +91,7 @@ if __name__ == "__main__":
             command = ['service', 'mongod', 'restart']
             subprocess.call(command, shell=False)
     except:
-        print "Looks like MongoDB have already been secured"
+        print("Looks like MongoDB have already been secured")
         pass_upd = False
 
     # Generating output config

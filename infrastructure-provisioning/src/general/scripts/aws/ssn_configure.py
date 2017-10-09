@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[DERIVING NAMES]')
-        print '[DERIVING NAMES]'
+        print('[DERIVING NAMES]')
         service_base_name = os.environ['conf_service_base_name']
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
@@ -271,30 +271,30 @@ if __name__ == "__main__":
     try:
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
-        print "Service base name: " + service_base_name
-        print "SSN Name: " + instance_name
-        print "SSN Hostname: " + instance_hostname
-        print "Role name: " + role_name
-        print "Role profile name: " + role_profile_name
-        print "Policy name: " + policy_name
-        print "Key name: " + os.environ['conf_key_name']
-        print "VPC ID: " + os.environ['aws_vpc_id']
-        print "Subnet ID: " + os.environ['aws_subnet_id']
-        print "Security IDs: " + os.environ['aws_security_groups_ids']
-        print "SSN instance shape: " + os.environ['aws_ssn_instance_size']
-        print "SSN AMI name: " + ssn_ami_name
-        print "SSN bucket name: " + user_bucket_name
-        print "Shared bucket name: " + shared_bucket_name
-        print "Region: " + region
+        print("Service base name: {}".format(service_base_name))
+        print("SSN Name: {}".format(instance_name))
+        print("SSN Hostname: {}".format(instance_hostname))
+        print("Role name: {}".format(role_name))
+        print("Role profile name: {}".format(role_profile_name))
+        print("Policy name: {}".format(policy_name))
+        print("Key name: {}".format(os.environ['conf_key_name']))
+        print("VPC ID: {}".format(os.environ['aws_vpc_id']))
+        print("Subnet ID: {}".format(os.environ['aws_subnet_id']))
+        print("Security IDs: {}".format(os.environ['aws_security_groups_ids']))
+        print("SSN instance shape: {}".format(os.environ['aws_ssn_instance_size']))
+        print("SSN AMI name: {}".format(ssn_ami_name))
+        print("SSN bucket name: {}".format(user_bucket_name))
+        print("Shared bucket name: {}".format(shared_bucket_name))
+        print("Region: {}".format(region))
         jenkins_url = "http://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
         jenkins_url_https = "https://{}/jenkins".format(get_instance_hostname(tag_name, instance_name))
-        print "Jenkins URL: " + jenkins_url
-        print "Jenkins URL HTTPS: " + jenkins_url_https
+        print("Jenkins URL: {}".format(jenkins_url))
+        print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
         try:
             with open('jenkins_crids.txt') as f:
-                print f.read()
+                print(f.read())
         except:
-            print "Jenkins is either configured already or have issues in configuration routine."
+            print("Jenkins is either configured already or have issues in configuration routine.")
 
         with open("/root/result.json", 'w') as f:
             res = {"service_base_name": service_base_name,
@@ -314,7 +314,7 @@ if __name__ == "__main__":
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))
 
-        print 'Upload response file'
+        print('Upload response file')
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}".\
             format(instance_name, local_log_filepath, dlab_ssh_user, instance_hostname)
         local("~/scripts/{}.py {}".format('upload_response_file', params))

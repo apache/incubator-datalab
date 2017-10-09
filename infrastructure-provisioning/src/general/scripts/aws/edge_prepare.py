@@ -34,7 +34,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     create_aws_config_files()
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['key_name'] = os.environ['conf_key_name']
@@ -71,16 +71,16 @@ if __name__ == "__main__":
     # FUSE in case of absence of user's key
     fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
     if not os.path.isfile(fname):
-        print "USERs PUBLIC KEY DOES NOT EXIST in {}".format(fname)
+        print("USERs PUBLIC KEY DOES NOT EXIST in {}".format(fname))
         sys.exit(1)
 
-    print "Will create exploratory environment with edge node as access point as following: " + \
-          json.dumps(edge_conf, sort_keys=True, indent=4, separators=(',', ': '))
+    print("Will create exploratory environment with edge node as access point as following: {}".
+          format(json.dumps(edge_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(edge_conf))
 
     try:
         logging.info('[CREATE SUBNET]')
-        print '[CREATE SUBNET]'
+        print('[CREATE SUBNET]')
         params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {}" \
                  .format(edge_conf['vpc_id'], edge_conf['tag_name'], edge_conf['service_base_name'],
                          os.environ['edge_user_name'], edge_conf['private_subnet_prefix'])
@@ -95,11 +95,11 @@ if __name__ == "__main__":
 
     tag = {"Key": edge_conf['tag_name'], "Value": "{}-{}-subnet".format(edge_conf['service_base_name'], os.environ['edge_user_name'])}
     edge_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
-    print 'NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr'])
+    print('NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr']))
 
     try:
         logging.info('[CREATE EDGE ROLES]')
-        print '[CREATE EDGE ROLES]'
+        print('[CREATE EDGE ROLES]')
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
                  .format(edge_conf['role_name'], edge_conf['role_profile_name'],
                          edge_conf['policy_name'], os.environ['aws_region'])
@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
-        print '[CREATE BACKEND (NOTEBOOK) ROLES]'
+        print('[CREATE BACKEND (NOTEBOOK) ROLES]')
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
                  .format(edge_conf['notebook_dataengine_role_name'], edge_conf['notebook_dataengine_role_profile_name'],
                          edge_conf['notebook_dataengine_policy_name'], os.environ['aws_region'])
@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
-        print '[CREATE SECURITY GROUPS FOR EDGE]'
+        print('[CREATE SECURITY GROUPS FOR EDGE]')
         sg_rules_template = [
             {
                 "IpProtocol": "-1",
@@ -236,7 +236,7 @@ if __name__ == "__main__":
             raise Exception
 
         with hide('stderr', 'running', 'warnings'):
-            print 'Waiting for changes to propagate'
+            print('Waiting for changes to propagate')
             time.sleep(10)
     except:
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
@@ -245,7 +245,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
-        print '[CREATE SECURITY GROUP FOR PRIVATE SUBNET]'
+        print('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
         edge_group_id = check_security_group(edge_conf['edge_security_group_name'])
         sg_list = edge_conf['sg_ids'].replace(" ", "").split(',')
         rules_list = []
@@ -271,7 +271,7 @@ if __name__ == "__main__":
             raise Exception
 
         with hide('stderr', 'running', 'warnings'):
-            print 'Waiting for changes to propagate'
+            print('Waiting for changes to propagate')
             time.sleep(10)
     except Exception as err:
         append_result("Failed creating security group for private subnet.", str(err))
@@ -433,7 +433,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE EDGE INSTANCE]')
-        print '[CREATE EDGE INSTANCE]'
+        print('[CREATE EDGE INSTANCE]')
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} " \
                  "--subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
             .format(edge_conf['instance_name'], edge_conf['ami_id'], edge_conf['instance_size'], edge_conf['key_name'],
@@ -458,7 +458,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[ASSOCIATING ELASTIC IP]')
-        print '[ASSOCIATING ELASTIC IP]'
+        print('[ASSOCIATING ELASTIC IP]')
         edge_conf['edge_id'] = get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name'])
         try:
             edge_conf['elastic_ip'] = os.environ['edge_elastic_ip']
@@ -476,7 +476,7 @@ if __name__ == "__main__":
             edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
             edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
         except:
-            print "No Elastic IPs to release!"
+            print("No Elastic IPs to release!")
         remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])

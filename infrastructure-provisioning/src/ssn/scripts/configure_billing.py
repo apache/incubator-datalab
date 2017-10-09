@@ -55,7 +55,7 @@ def yml_billing(path):
         f.write(config_orig)
         f.close()
     except:
-        print "Could not write the target file " + path
+        print("Could not write the target file {}".format(path))
         sys.exit(1)
 
 
@@ -70,7 +70,7 @@ def yml_self_service(path):
         f.write(config_orig)
         f.close()
     except:
-        print "Could not write the target file " + path
+        print("Could not write the target file {}".format(path))
         sys.exit(1)
 
 
@@ -78,7 +78,7 @@ def yml_self_service(path):
 # Run script #
 ##############
 if __name__ == "__main__":
-    print "Configure billing"
+    print("Configure billing")
     # Check cloud provider
     # Access to the bucket without credentials?
     try:

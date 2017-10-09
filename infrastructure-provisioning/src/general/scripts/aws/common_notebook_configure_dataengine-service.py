@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     create_aws_config_files()
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
-        print '[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]'
+        print('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         params = "--bucket {} --cluster_name {} --emr_version {} --keyfile {} --notebook_ip {} --region {} --emr_excluded_spark_properties {} --edge_user_name {} --os_user {}  --edge_hostname {} --proxy_port {} --scala_version {} --application {} --pip_mirror {}" \
             .format(notebook_config['bucket_name'], notebook_config['cluster_name'], os.environ['emr_version'],
                     notebook_config['key_path'], notebook_config['notebook_ip'], os.environ['aws_region'],
@@ -85,8 +85,8 @@ if __name__ == "__main__":
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Tag_name": notebook_config['tag_name'],
                    "Action": "Configure notebook server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
