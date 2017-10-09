@@ -18,13 +18,15 @@ package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.dto.SparkComputationalCreate;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.fasterxml.jackson.databind.JsonNode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ComputationalCallbackHandler extends ResourceCallbackHandler<ComputationalStatusDTO> {
     private static final String INSTANCE_ID_FIELD = "instance_id";
@@ -62,7 +64,7 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
         switch (getAction()) {
             case CREATE:
                 baseStatus
-                        .withInstanceId(getTextValue(resultNode.get(INSTANCE_ID_FIELD)))
+                        .withInstanceId(instanceId(resultNode.get(INSTANCE_ID_FIELD)))
                         .withComputationalId(getTextValue(resultNode.get(COMPUTATIONAL_ID_FIELD)));
                 if (UserInstanceStatus.of(baseStatus.getStatus()) == UserInstanceStatus.RUNNING) {
                     baseStatus.withStatus(UserInstanceStatus.CONFIGURING);
@@ -87,13 +89,16 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
                 .withComputationalName(dto.getComputationalName());
     }
 
-    private String configureAfterCreate(ComputationalStatusDTO baseStatus, ComputationalBase<?> dto) {
-        baseStatus.withStatus(UserInstanceStatus.CONFIGURING);
-        if (dto instanceof SparkComputationalCreate) {
-
+    private String instanceId(JsonNode jsonNode) {
+        if (jsonNode != null && jsonNode.isArray()) {
+            List<String> ids = new ArrayList<>();
+            for (JsonNode id : jsonNode) {
+                ids.add(id.textValue());
+            }
+            return String.join(";", ids);
         }
-        return computationalConfigure.configure(getUUID(), getDto());
-    }
 
+        return getTextValue(jsonNode);
+    }
 }
 

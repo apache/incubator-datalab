@@ -25,7 +25,7 @@ import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecu
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
 import com.epam.dlab.backendapi.service.SparkClusterService;
-import com.epam.dlab.dto.SparkComputationalCreate;
+import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
@@ -142,7 +142,7 @@ public class ComputationalResourceAws implements DockerCommands {
 
     @POST
     @Path(ComputationalAPI.COMPUTATIONAL_CREATE_SPARK)
-    public String createSparkCluster(@Auth UserInfo ui, SparkComputationalCreate dto) {
+    public String createSparkCluster(@Auth UserInfo ui, SparkComputationalCreateAzure dto) {
         log.debug("Create computational Spark resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
 
         return sparkClusterService.create(ui, dto);

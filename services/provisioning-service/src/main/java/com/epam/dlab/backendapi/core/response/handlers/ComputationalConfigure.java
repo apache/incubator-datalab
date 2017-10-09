@@ -21,10 +21,7 @@ import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.dto.SparkComputationalCreate;
-import com.epam.dlab.dto.aws.computational.ComputationalConfigAws;
-import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
-import com.epam.dlab.dto.azure.computational.ComputationalConfigAzure;
+import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.exceptions.DlabException;
@@ -49,64 +46,20 @@ public class ComputationalConfigure implements DockerCommands {
     @Inject
     private RESTService selfService;
 
-    private String getComputationalType() {
-        switch (configuration.getCloudProvider()) {
-            case AWS:
-                return DataEngineType.CLOUD_SERVICE.getName();
-            case AZURE:
-                return DataEngineType.SPARK_STANDALONE.getName();
-            default:
-                throw new IllegalArgumentException("Unsupported cloud provider");
-
-        }
-    }
-
-
     public String configure(String uuid, ComputationalBase<?> dto) throws DlabException {
-        ComputationalBase<?> dtoConf;
-
-
         switch (configuration.getCloudProvider()) {
             case AWS:
-                dtoConf = new ComputationalConfigAws();
-                configure((ComputationalCreateAws) dto, (ComputationalConfigAws) dtoConf);
-                break;
+                if (dto instanceof SparkComputationalCreateAws) {
+                    return runConfigure(uuid, dto, DataEngineType.SPARK_STANDALONE);
+                } else {
+                    return runConfigure(uuid, dto, DataEngineType.CLOUD_SERVICE);
+                }
             case AZURE:
-                dtoConf = new ComputationalConfigAzure();
-                configure((SparkComputationalCreate) dto, (ComputationalConfigAzure) dtoConf);
-
+                return runConfigure(uuid, dto, DataEngineType.SPARK_STANDALONE);
+            default:
+                throw new IllegalStateException(String.format("Wrong configuration of cloud provider %s %s",
+                        configuration.getCloudProvider(), dto));
         }
-
-        return runConfigure(uuid, dto, null);
-    }
-
-    private void configure(ComputationalCreateAws dto, ComputationalConfigAws config) {
-        commonConfigure(dto, config);
-        config.withVersion(dto.getVersion());
-    }
-
-    private void configure(SparkComputationalCreate dto, ComputationalConfigAzure config) {
-        commonConfigure(dto, config);
-        config.withDataEngineInstanceCount(dto.getDataEngineInstanceCount());
-    }
-
-    private void commonConfigure(ComputationalBase<?> dto, ComputationalBase<?> dtoConf) {
-        dtoConf.withServiceBaseName(dto.getServiceBaseName())
-                .withApplicationName(dto.getApplicationName())
-                .withExploratoryName(dto.getExploratoryName())
-                .withComputationalName(dto.getComputationalName())
-                .withNotebookInstanceName(dto.getNotebookInstanceName())
-                .withEdgeUserName(dto.getEdgeUserName())
-                .withCloudSettings(dto.getCloudSettings());
-
-    }
-
-    private String runConfigure(String uuid, ComputationalConfigAws dto) {
-        return runConfigure(uuid, dto, DataEngineType.CLOUD_SERVICE);
-    }
-
-    private String runConfigure(String uuid, ComputationalConfigAzure dto) {
-        return runConfigure(uuid, dto, DataEngineType.SPARK_STANDALONE);
     }
 
     private String runConfigure(String uuid, ComputationalBase<?> dto, DataEngineType dataEngineType) throws DlabException {
@@ -145,6 +98,18 @@ public class ComputationalConfigure implements DockerCommands {
 
     private String nameContainer(String user, DockerAction action, String name) {
         return nameContainer(user, action.toString(), "computational", name);
+    }
+
+    private String getComputationalType() {
+        switch (configuration.getCloudProvider()) {
+            case AWS:
+                return DataEngineType.CLOUD_SERVICE.getName();
+            case AZURE:
+                return DataEngineType.SPARK_STANDALONE.getName();
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider");
+
+        }
     }
 
     private String getImageConfigure(String application, DataEngineType dataEngineType) throws DlabException {

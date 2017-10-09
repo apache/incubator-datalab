@@ -24,7 +24,7 @@ import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
-import com.epam.dlab.dto.SparkComputationalCreate;
+import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
@@ -55,7 +55,7 @@ public class SparkClusterService implements DockerCommands {
     @Inject
     private ComputationalConfigure computationalConfigure;
 
-    public String create(UserInfo ui, SparkComputationalCreate dto) {
+    public String create(UserInfo ui, SparkComputationalCreateAzure dto) {
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
@@ -121,7 +121,7 @@ public class SparkClusterService implements DockerCommands {
     }
 
     private String nameContainer(String user, DockerAction action, String name) {
-        return nameContainer(user, action.toString(), "spark_computational", name);
+        return nameContainer(user, action.toString(), "computational", name);
     }
 
     @Override

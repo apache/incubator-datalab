@@ -27,14 +27,15 @@ import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
-import com.epam.dlab.dto.SparkComputationalCreate;
 import com.epam.dlab.dto.UserEnvironmentResources;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
+import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
 import com.epam.dlab.dto.aws.exploratory.ExploratoryCreateAws;
 import com.epam.dlab.dto.aws.keyload.UploadFileAws;
 import com.epam.dlab.dto.azure.AzureCloudSettings;
+import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.dlab.dto.azure.edge.EdgeCreateAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
@@ -312,25 +313,37 @@ public class RequestBuilder {
                 .withNotebookInstanceName(userInstance.getExploratoryId());
     }
 
-    public static SparkComputationalCreate newComputationalCreate(UserInfo userInfo,
-                                                                  UserInstanceDTO userInstance,
-                                                                  SparkStandaloneClusterCreateForm form) {
+    @SuppressWarnings("unchecked")
+    public static <T extends ComputationalBase<T>> T newComputationalCreate(UserInfo userInfo,
+                                                                            UserInstanceDTO userInstance,
+                                                                            SparkStandaloneClusterCreateForm form) {
+
+        T computationalCreate;
 
         switch (cloudProvider()) {
             case AWS:
-            case AZURE:
-                return newResourceSysBaseDTO(userInfo, SparkComputationalCreate.class)
+                computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAws.class)
                         .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
                         .withDataEngineMasterSize(form.getDataEngineMasterSize())
-                        .withDataEngineSlaveSize(form.getDataEngineSlaveSize())
-                        .withExploratoryName(form.getNotebookName())
-                        .withComputationalName(form.getName())
-                        .withNotebookTemplateName(userInstance.getTemplateName())
-                        .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
-                        .withNotebookInstanceName(userInstance.getExploratoryId());
+                        .withDataEngineSlaveSize(form.getDataEngineSlaveSize());
+                break;
+            case AZURE:
+                computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
+                        .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
+                        .withDataEngineMasterSize(form.getDataEngineMasterSize())
+                        .withDataEngineSlaveSize(form.getDataEngineSlaveSize());
+                break;
+
             default:
                 throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
         }
+
+        return computationalCreate
+                .withExploratoryName(form.getNotebookName())
+                .withComputationalName(form.getName())
+                .withNotebookTemplateName(userInstance.getTemplateName())
+                .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+                .withNotebookInstanceName(userInstance.getExploratoryId());
     }
 
     @SuppressWarnings("unchecked")
