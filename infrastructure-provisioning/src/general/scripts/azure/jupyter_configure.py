@@ -201,7 +201,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[CREATING AMI]'
+        print('[CREATING AMI]')
         logging.info('[CREATING AMI]')
         ami = AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name'])
         if ami == '':

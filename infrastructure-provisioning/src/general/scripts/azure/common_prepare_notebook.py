@@ -114,14 +114,14 @@ if __name__ == "__main__":
             notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
                                                    notebook_config['user_name'] + '-' + os.environ['application'] + \
                                                    '-notebook-image'
-        print 'Searching preconfigured images'
+        print('Searching preconfigured images')
         if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name']):
-            print 'Preconfigured image found. Using: ' + notebook_config['expected_ami_name']
+            print('Preconfigured image found. Using: {}'.format(notebook_config['expected_ami_name']))
             notebook_config['ami_name'] = notebook_config['expected_ami_name']
             notebook_config['ami_type'] = 'pre-configured'
         else:
             notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-            print 'No preconfigured image found. Using default one: ' + notebook_config['ami_name']
+            print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_name']))
     except Exception as err:
         print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary.", str(err))
