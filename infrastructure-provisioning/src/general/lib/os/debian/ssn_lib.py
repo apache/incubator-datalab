@@ -147,7 +147,7 @@ def ensure_mongo():
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured'):
             sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927')
-            sudo('ver=`lsb_release -cs`; echo "deb http://repo.mongodb.org/apt/ubuntu $ver/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list; apt-get update')
+            sudo('ver=`lsb_release -cs`; echo "deb http://repo.mongodb.org/apt/ubuntu $ver/mongodb-org/3.5 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.5.list; apt-get update')
             sudo('apt-get -y install mongodb-org')
             sudo('systemctl enable mongod.service')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured')
