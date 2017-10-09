@@ -55,7 +55,7 @@ public class SparkClusterService implements DockerCommands {
     @Inject
     private ComputationalConfigure computationalConfigure;
 
-    public String create(UserInfo ui, SparkComputationalCreateAzure dto) {
+    public String create(UserInfo ui, ComputationalBase<?> dto) {
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),

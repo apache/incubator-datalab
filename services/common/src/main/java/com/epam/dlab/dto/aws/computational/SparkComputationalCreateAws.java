@@ -34,12 +34,12 @@ public class SparkComputationalCreateAws extends ComputationalBase<SparkComputat
         return this;
     }
 
-    public SparkComputationalCreateAws withDataEngineSlaveSize(String dataEngineSlaveSize) {
+    public SparkComputationalCreateAws withDataEngineSlaveShape(String dataEngineSlaveSize) {
         this.dataEngineSlaveShape = dataEngineSlaveSize;
         return this;
     }
 
-    public SparkComputationalCreateAws withDataEngineMasterSize(String dataEngineMasterSize) {
+    public SparkComputationalCreateAws withDataEngineMasterShape(String dataEngineMasterSize) {
         this.dataEngineMasterShape = dataEngineMasterSize;
         return this;
     }

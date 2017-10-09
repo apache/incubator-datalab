@@ -324,8 +324,8 @@ public class RequestBuilder {
             case AWS:
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAws.class)
                         .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
-                        .withDataEngineMasterSize(form.getDataEngineMasterSize())
-                        .withDataEngineSlaveSize(form.getDataEngineSlaveSize());
+                        .withDataEngineMasterShape(form.getDataEngineMasterSize())
+                        .withDataEngineSlaveShape(form.getDataEngineSlaveSize());
                 break;
             case AZURE:
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
