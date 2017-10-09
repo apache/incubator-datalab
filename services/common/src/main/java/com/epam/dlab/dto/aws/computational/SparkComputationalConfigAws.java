@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.azure.computational;
+package com.epam.dlab.dto.aws.computational;
 
+import com.epam.dlab.dto.azure.computational.SparkComputationalConfigAzure;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
-public class ComputationalConfigAzure extends ComputationalBase<ComputationalConfigAzure> {
+public class SparkComputationalConfigAws extends ComputationalBase<SparkComputationalConfigAzure> {
 
     @JsonProperty("dataengine_instance_count")
     private String dataEngineInstanceCount;
 
-    public ComputationalConfigAzure withDataEngineInstanceCount(String dataEngineInstanceCount) {
+    public SparkComputationalConfigAws withDataEngineInstanceCount(String dataEngineInstanceCount) {
         this.dataEngineInstanceCount = dataEngineInstanceCount;
         return this;
     }
@@ -40,4 +41,5 @@ public class ComputationalConfigAzure extends ComputationalBase<ComputationalCon
     public String toString() {
         return toStringHelper(this).toString();
     }
+
 }

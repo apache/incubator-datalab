@@ -14,32 +14,33 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto;
+package com.epam.dlab.dto.aws.computational;
 
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
-public class SparkComputationalCreate extends ComputationalBase<SparkComputationalCreate> {
+public class SparkComputationalCreateAws extends ComputationalBase<SparkComputationalCreateAws> {
+
     @JsonProperty("dataengine_instance_count")
     private String dataEngineInstanceCount;
-    @JsonProperty("dataengine_slave_size")
-    private String dataEngineSlaveSize;
-    @JsonProperty("dataengine_master_size")
-    private String dataEngineMasterSize;
+    @JsonProperty("aws_dataengine_slave_shape")
+    private String dataEngineSlaveShape;
+    @JsonProperty("aws_dataengine_master_shape")
+    private String dataEngineMasterShape;
 
-    public SparkComputationalCreate withDataEngineInstanceCount(String dataEngineInstanceCount) {
+    public SparkComputationalCreateAws withDataEngineInstanceCount(String dataEngineInstanceCount) {
         this.dataEngineInstanceCount = dataEngineInstanceCount;
         return this;
     }
 
-    public SparkComputationalCreate withDataEngineSlaveSize(String dataEngineSlaveSize) {
-        this.dataEngineSlaveSize = dataEngineSlaveSize;
+    public SparkComputationalCreateAws withDataEngineSlaveSize(String dataEngineSlaveSize) {
+        this.dataEngineSlaveShape = dataEngineSlaveSize;
         return this;
     }
 
-    public SparkComputationalCreate withDataEngineMasterSize(String dataEngineMasterSize) {
-        this.dataEngineMasterSize = dataEngineMasterSize;
+    public SparkComputationalCreateAws withDataEngineMasterSize(String dataEngineMasterSize) {
+        this.dataEngineMasterShape = dataEngineMasterSize;
         return this;
     }
 
@@ -47,20 +48,20 @@ public class SparkComputationalCreate extends ComputationalBase<SparkComputation
         return dataEngineInstanceCount;
     }
 
-    public String getDataEngineSlaveSize() {
-        return dataEngineSlaveSize;
+    public String getDataEngineSlaveShape() {
+        return dataEngineSlaveShape;
     }
 
-    public String getDataEngineMasterSize() {
-        return dataEngineMasterSize;
+    public String getDataEngineMasterShape() {
+        return dataEngineMasterShape;
     }
 
     @Override
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
                 .add("dataEngineInstanceCount", dataEngineInstanceCount)
-                .add("dataEngineSlaveSize", dataEngineSlaveSize)
-                .add("dataEngineMasterSize", dataEngineMasterSize);
+                .add("dataEngineSlaveShape", dataEngineSlaveShape)
+                .add("dataEngineMasterShape", dataEngineMasterShape);
     }
 
     @Override

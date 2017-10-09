@@ -18,7 +18,7 @@ package com.epam.dlab.backendapi.resources.azure;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.service.SparkClusterService;
-import com.epam.dlab.dto.SparkComputationalCreate;
+import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.google.inject.Inject;
@@ -42,7 +42,7 @@ public class ComputationalResourceAzure {
 
     @POST
     @Path(ComputationalAPI.COMPUTATIONAL_CREATE_SPARK)
-    public String create(@Auth UserInfo ui, SparkComputationalCreate dto) {
+    public String create(@Auth UserInfo ui, SparkComputationalCreateAzure dto) {
         log.debug("Create computational Spark resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
 
         return sparkClusterService.create(ui, dto);

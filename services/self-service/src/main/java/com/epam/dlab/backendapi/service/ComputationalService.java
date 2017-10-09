@@ -25,9 +25,10 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterResource;
+import com.epam.dlab.backendapi.resources.dto.UserComputationalResource;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.dto.SparkComputationalCreate;
+import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
@@ -78,7 +79,7 @@ public class ComputationalService {
             try {
                 UserInstanceDTO instance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), form.getNotebookName());
 
-                SparkComputationalCreate dto = RequestBuilder.newComputationalCreate(userInfo, instance, form);
+                SparkComputationalCreateAzure dto = RequestBuilder.newComputationalCreate(userInfo, instance, form);
 
                 String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_CREATE_SPARK, userInfo.getAccessToken(), dto, String.class);
                 RequestId.put(userInfo.getName(), uuid);
@@ -113,12 +114,12 @@ public class ComputationalService {
             updateComputationalStatus(userInfo.getName(), exploratoryName, computationalName, TERMINATING);
 
             String exploratoryId = exploratoryDAO.fetchExploratoryId(userInfo.getName(), exploratoryName);
-            String computationalId = computationalDAO.fetchComputationalId(userInfo.getName(), exploratoryName, computationalName);
+            UserComputationalResource computationalResource = computationalDAO.fetchComputationalFields(userInfo.getName(), exploratoryName, computationalName);
 
             ComputationalTerminateDTO dto = RequestBuilder.newComputationalTerminate(userInfo, exploratoryName,
-                    exploratoryId, computationalName, computationalId);
+                    exploratoryId, computationalName, computationalResource.getComputationalId());
 
-            String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_TERMINATE, userInfo.getAccessToken(), dto, String.class);
+            String uuid = provisioningService.post(getTerminateUrl(computationalResource), userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
         } catch (RuntimeException re) {
 
@@ -130,6 +131,21 @@ public class ComputationalService {
             }
 
             throw re;
+        }
+    }
+
+    private String getTerminateUrl(UserComputationalResource computationalResource) {
+
+        if (DataEngineType.fromDockerImageName(computationalResource.getImageName())
+                == DataEngineType.SPARK_STANDALONE) {
+
+            return ComputationalAPI.COMPUTATIONAL_TERMINATE_SPARK;
+        } else if (DataEngineType.fromDockerImageName(computationalResource.getImageName())
+                == DataEngineType.CLOUD_SERVICE) {
+
+            return ComputationalAPI.COMPUTATIONAL_TERMINATE_CLOUD_SPECIFIC;
+        } else {
+            throw new IllegalArgumentException("Unknown docker image for " + computationalResource);
         }
     }
 

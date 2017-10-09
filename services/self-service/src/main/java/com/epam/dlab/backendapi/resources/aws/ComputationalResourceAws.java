@@ -201,7 +201,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
      * @return 200 OK - if request success, 302 Found - for duplicates.
      */
 
-    @POST
+    @PUT
     @Path("dataengine")
     public Response createDataEngine(@Auth UserInfo userInfo, @Valid @NotNull SparkStandaloneClusterCreateForm form) {
         log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
