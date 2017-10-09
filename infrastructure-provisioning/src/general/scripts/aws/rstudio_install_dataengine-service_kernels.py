@@ -47,7 +47,7 @@ def configure_notebook(args):
     scripts_dir = '/root/scripts/'
     put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application),
         '/tmp/rstudio_dataengine-service_create_configs.py')
-    sudo('\cp /tmp/rsturio_dataengine-service_create_configs.py /usr/local/bin/rstudio_dataengine-service_create_configs.py')
+    sudo('\cp /tmp/rstudio_dataengine-service_create_configs.py /usr/local/bin/rstudio_dataengine-service_create_configs.py')
     sudo('chmod 755 /usr/local/bin/rstudio_dataengine-service_create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')
     run('mkdir -p /tmp/dlab_libs/')
