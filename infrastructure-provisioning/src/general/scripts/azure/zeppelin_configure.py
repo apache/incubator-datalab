@@ -66,6 +66,9 @@ if __name__ == "__main__":
         notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + \
             notebook_config['user_name'] + '-nb-sg'
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+        notebook_config['tags'] = {"Name": notebook_config['instance_name'],
+                                   "SBN": notebook_config['service_base_name'],
+                                   "User": notebook_config['user_name']}
 
         # generating variables regarding EDGE proxy on Notebook instance
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
@@ -206,6 +209,24 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to setup git credentials.", str(err))
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
+    try:
+        print('[CREATING AMI]')
+        logging.info('[CREATING AMI]')
+        ami = AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name'])
+        if ami == '':
+            print("Looks like it's first time we configure notebook server. Creating image.")
+            AzureActions().create_image_from_instance(notebook_config['resource_group_name'],
+                                                      notebook_config['instance_name'],
+                                                      os.environ['azure_region'],
+                                                      notebook_config['expected_ami_name'],
+                                                      json.dumps(notebook_config['tags']))
+            print("Image was successfully created.")
+            local("~/scripts/{}.py --uuid {}".format('common_prepare_notebook', args.uuid))
+    except Exception as err:
+        append_result("Failed creating image.", str(err))
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 

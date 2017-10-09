@@ -43,6 +43,7 @@ parser.add_argument('--tags', type=str, default='{"empty":"string"}')
 parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--resource_group_name', type=str, default='')
 parser.add_argument('--ami_name', type=str, default='')
+parser.add_argument('--ami_type', type=str, default='default')
 parser.add_argument('--instance_storage_account_type', type=str, default='')
 args = parser.parse_args()
 
@@ -88,7 +89,8 @@ if __name__ == "__main__":
                                                args.instance_name, args.dlab_ssh_user_name, args.public_key,
                                                network_interface_id, args.resource_group_name, args.primary_disk_size,
                                                args.instance_type, args.ami_name, json.loads(args.tags), args.user_name,
-                                               create_option, disk_id, args.instance_storage_account_type)
+                                               create_option, disk_id, args.instance_storage_account_type,
+                                               args.ami_type)
         except:
             sys.exit(1)
     else:
