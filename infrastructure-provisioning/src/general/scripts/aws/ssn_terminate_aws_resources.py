@@ -107,7 +107,7 @@ if __name__ == "__main__":
     except:
         print("There is no pre-defined SSN Subnet")
 
-    print"Removing SSN VPC"
+    print("Removing SSN VPC")
     try:
         vpc_id = get_vpc_by_tag(args.tag_name, args.service_base_name)
         if vpc_id != '':
