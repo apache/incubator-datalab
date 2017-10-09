@@ -1256,7 +1256,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
                     sudo('kill -9 ' + process_number)
                     sudo('systemctl disable livy-server-' + livy_port)
                 except:
-                    print "Wasn't able to find Livy server for this EMR!"
+                    print("Wasn't able to find Livy server for this EMR!")
             sudo(
                 'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
             sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
@@ -1268,8 +1268,8 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
             interpreter_prefix = cluster_name
             for interpreter in interpreter_json['body']:
                 if interpreter_prefix in interpreter['name']:
-                    print "Interpreter with ID:", interpreter['id'], "and name:", interpreter['name'], \
-                        "will be removed from zeppelin!"
+                    print("Interpreter with ID: {} and name: {} will be removed from zeppelin!".format(
+                        interpreter['id'], interpreter['name']))
                     request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
                     request.get_method = lambda: 'DELETE'
                     url = opener.open(request)
@@ -1301,7 +1301,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
             sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
             sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
         sudo('rm -rf  /opt/' + cluster_name + '/')
-        print "Notebook's " + env.hosts + " kernels were removed"
+        print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:
         logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
             file=sys.stdout))

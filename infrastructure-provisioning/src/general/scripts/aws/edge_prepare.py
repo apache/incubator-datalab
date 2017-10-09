@@ -282,7 +282,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
-    print "[CREATING SECURITY GROUPS FOR MASTER NODE]"
+    print("[CREATING SECURITY GROUPS FOR MASTER NODE]")
     try:
 
         sg_rules_template = [
@@ -333,7 +333,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
-    print "[CREATING SECURITY GROUPS FOR SLAVE NODES]"
+    print("[CREATING SECURITY GROUPS FOR SLAVE NODES]")
     try:
         sg_rules_template = [
             {
