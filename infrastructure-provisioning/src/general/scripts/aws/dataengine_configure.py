@@ -285,7 +285,7 @@ if __name__ == "__main__":
 
     try:
         data_engine_instances_ids = []
-        cluster_instances_list = get_ec2_list('dataengine_notebook_name:{}'.format(data_engine['cluster_name']),
+        cluster_instances_list = get_ec2_list('dataengine_notebook_name',
                                               os.environ['notebook_instance_name'])
         for instance in cluster_instances_list:
             data_engine_instances_ids.append(instance.id)
