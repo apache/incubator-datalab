@@ -33,9 +33,9 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if args.vpc_name != '':
         if AzureMeta().get_vpc(args.resource_group_name, args.vpc_name):
-            print "REQUESTED VIRTUAL NETWORK {} EXISTS".format(args.vpc_name)
+            print("REQUESTED VIRTUAL NETWORK {} EXISTS".format(args.vpc_name))
         else:
-            print "Creating Virtual Network {}".format(args.vpc_name)
+            print("Creating Virtual Network {}".format(args.vpc_name))
             AzureActions().create_vpc(args.resource_group_name, args.vpc_name, args.region, args.vpc_cidr)
     else:
         sys.exit(1)

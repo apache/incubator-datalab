@@ -57,7 +57,7 @@ def configure_slave(slave_number, data_engine):
 
     try:
         logging.info('[CONFIGURE PROXY ON SLAVE NODE]')
-        print '[CONFIGURE PROXY ON ON SLAVE NODE]'
+        print('[CONFIGURE PROXY ON ON SLAVE NODE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(slave_hostname, slave_name, keyfile_name, json.dumps(additional_config),
@@ -126,7 +126,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        print 'Generating infrastructure names and tags'
+        print('Generating infrastructure names and tags')
         data_engine = dict()
         try:
             data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
@@ -182,7 +182,7 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
-        print "Failed to generate variables dictionary."
+        print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary.", str(err))
         sys.exit(1)
 
@@ -208,7 +208,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CONFIGURE PROXY ON MASTER NODE]')
-        print '[CONFIGURE PROXY ON ON MASTER NODE]'
+        print('[CONFIGURE PROXY ON ON MASTER NODE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(master_node_hostname, data_engine['master_node_name'], keyfile_name, json.dumps(additional_config),
@@ -287,20 +287,20 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
-        print '[SUMMARY]'
-        print "Service base name: " + data_engine['service_base_name']
-        print "Region: " + data_engine['region']
-        print "Cluster name: " + data_engine['cluster_name']
-        print "Master node shape: " + data_engine['master_size']
-        print "Slave node shape: " + data_engine['slave_size']
-        print "Instance count: " + str(data_engine['instance_count'])
+        print('[SUMMARY]')
+        print("Service base name: {}".format(data_engine['service_base_name']))
+        print("Region: {}".format(data_engine['region']))
+        print("Cluster name: {}".format(data_engine['cluster_name']))
+        print("Master node shape: {}".format(data_engine['master_size']))
+        print("Slave node shape: {}".format(data_engine['slave_size']))
+        print("Instance count: {}".format(str(data_engine['instance_count'])))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": data_engine['cluster_name'],
                    "instance_id": data_engine['master_node_name'],
                    "key_name": data_engine['key_name'],
                    "Action": "Create new Data Engine"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)

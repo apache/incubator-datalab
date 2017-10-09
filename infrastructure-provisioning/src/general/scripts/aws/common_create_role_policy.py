@@ -39,24 +39,24 @@ if __name__ == "__main__":
         try:
             role_name = get_role_by_name(args.role_name)
             if role_name == '':
-                print "Creating role %s, profile name %s" % (args.role_name, args.role_profile_name)
+                print("Creating role {0}, profile name {1}".format(args.role_name, args.role_profile_name))
                 create_iam_role(args.role_name, args.role_profile_name, args.region)
             else:
-                print "ROLE AND ROLE PROFILE ARE ALREADY CREATED"
-            print "ROLE %s created. IAM group %s created" % (args.role_name, args.role_profile_name)
+                print("ROLE AND ROLE PROFILE ARE ALREADY CREATED")
+            print("ROLE {} created. IAM group {} created".format(args.role_name, args.role_profile_name))
 
-            print "ATTACHING POLICIES TO ROLE"
+            print("ATTACHING POLICIES TO ROLE")
             if args.policy_file_name != '':
                 create_attach_policy(args.policy_name, args.role_name, args.policy_file_name)
             else:
                 if args.policy_arn == '':
-                    print "POLICY ARN is empty, there is nothing to attach."
+                    print("POLICY ARN is empty, there is nothing to attach.")
                     success = True
                 else:
                     policy_arn_bits = eval(args.policy_arn)
                     for bit in policy_arn_bits:
                         attach_policy(args.role_name, bit)
-            print "POLICY %s created " % args.policy_name
+            print("POLICY {} created".format(args.policy_name))
             success = True
         except:
             success = False

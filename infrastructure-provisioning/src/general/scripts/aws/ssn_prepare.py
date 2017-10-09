@@ -37,7 +37,7 @@ if __name__ == "__main__":
     pre_defined_sg = False
     try:
         logging.info('[CREATE AWS CONFIG FILE]')
-        print '[CREATE AWS CONFIG FILE]'
+        print('[CREATE AWS CONFIG FILE]')
         if not create_aws_config_files(generate_full_config=True):
             logging.info('Unable to create configuration')
             append_result("Unable to create configuration")
@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[DERIVING NAMES]')
-        print '[DERIVING NAMES]'
+        print('[DERIVING NAMES]')
         service_base_name = os.environ['conf_service_base_name']
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
@@ -71,7 +71,7 @@ if __name__ == "__main__":
             try:
                 pre_defined_vpc = True
                 logging.info('[CREATE VPC AND ROUTE TABLE]')
-                print '[CREATE VPC AND ROUTE TABLE]'
+                print('[CREATE VPC AND ROUTE TABLE]')
                 params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {}".format(vpc_cidr, region, tag_name, service_base_name)
                 try:
                     local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
@@ -90,7 +90,7 @@ if __name__ == "__main__":
             try:
                 pre_defined_subnet = True
                 logging.info('[CREATE SUBNET]')
-                print '[CREATE SUBNET]'
+                print('[CREATE SUBNET]')
                 params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc_id'], 'ssn', tag_name, service_base_name, '20', True)
                 try:
                     local("~/scripts/{}.py {}".format('common_create_subnet', params))
@@ -108,7 +108,7 @@ if __name__ == "__main__":
                     try:
                         remove_subnets(service_base_name + "-subnet")
                     except:
-                        print "Subnet hasn't been created."
+                        print("Subnet hasn't been created.")
                     remove_vpc(os.environ['aws_vpc_id'])
                 sys.exit(1)
 
@@ -119,7 +119,7 @@ if __name__ == "__main__":
             try:
                 pre_defined_sg = True
                 logging.info('[CREATE SG FOR SSN]')
-                print '[CREATE SG FOR SSN]'
+                print('[CREATE SG FOR SSN]')
                 ingress_sg_rules_template = [
                     {
                         "PrefixListIds": [],
@@ -298,7 +298,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[ASSOCIATING ELASTIC IP]')
-        print '[ASSOCIATING ELASTIC IP]'
+        print('[ASSOCIATING ELASTIC IP]')
         ssn_id = get_instance_by_name(tag_name, instance_name)
         try:
             elastic_ip = os.environ['ssn_elastic_ip']

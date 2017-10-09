@@ -35,7 +35,7 @@ def cleanup(key_id):
         current_user = iam.CurrentUser()
         for user_key in current_user.access_keys.all():
             if user_key.id == key_id:
-                print "Deleted key " + user_key.id
+                print("Deleted key {}".format(user_key.id))
                 user_key.delete()
         return True
     except:

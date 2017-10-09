@@ -49,14 +49,14 @@ if __name__ == "__main__":
         try:
             instance_id = get_instance_by_name(args.infra_tag_name, args.node_name)
             if instance_id == '':
-                print "Creating instance %s of type %s in subnet %s with tag %s." % \
-                      (args.node_name, args.instance_type, args.subnet_id, json.dumps(instance_tag))
+                print("Creating instance {0} of type {1} in subnet {2} with tag {3}.".
+                      format(args.node_name, args.instance_type, args.subnet_id, json.dumps(instance_tag)))
                 instance_id = create_instance(args, instance_tag, args.primary_disk_size)
             else:
-                print "REQUESTED INSTANCE ALREADY EXISTS AND RUNNING"
-            print "Instance_id " + instance_id
-            print "Public_hostname " + get_instance_attr(instance_id, 'public_dns_name')
-            print "Private_hostname " + get_instance_attr(instance_id, 'private_dns_name')
+                print("REQUESTED INSTANCE ALREADY EXISTS AND RUNNING")
+            print("Instance_id {}".format(instance_id))
+            print("Public_hostname {}".format(get_instance_attr(instance_id, 'public_dns_name')))
+            print("Private_hostname {}".format(get_instance_attr(instance_id, 'private_dns_name')))
             success = True
         except:
             success = False

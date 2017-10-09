@@ -40,11 +40,11 @@ if __name__ == "__main__":
         try:
             bucket = get_bucket_by_name(args.bucket_name)
             if bucket == '':
-                print "Creating bucket %s with tag %s." % (args.bucket_name, json.dumps(tag))
+                print("Creating bucket {0} with tag {1}.".format(args.bucket_name, json.dumps(tag)))
                 bucket = create_s3_bucket(args.bucket_name, tag, args.region)
             else:
-                print "REQUESTED BUCKET ALREADY EXISTS"
-            print "BUCKET_NAME " + bucket
+                print("REQUESTED BUCKET ALREADY EXISTS")
+            print("BUCKET_NAME {}".format(bucket))
             success = True
         except:
             success = False
