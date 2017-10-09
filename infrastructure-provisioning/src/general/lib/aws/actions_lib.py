@@ -1232,9 +1232,16 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             sys.exit(1)
 
 
-def configure_dataengine_spark(jars_dir, spark_dir, local_spark_dir):
+def configure_dataengine_spark(jars_dir, spark_dir, region):
     local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
+    if region == 'us-east-1':
+        endpoint_url = 'https://s3.amazonaws.com'
+    elif region == 'cn-north-1':
+        endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
+    else:
+        endpoint_url = 'https://s3-' + region + '.amazonaws.com'
+    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/notebook_spark-defaults_local.conf'""")
     local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
 
 
