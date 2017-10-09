@@ -31,7 +31,7 @@ import uuid
 def terminate_data_engine(tag_name, notebook_name, os_user, key_path, cluster_name):
     print "Terminating data engine cluster"
     try:
-        remove_ec2('dataengine_notebook_name', notebook_name)
+        remove_ec2('dataengine_notebook_name:{}'.format(cluster_name), notebook_name)
     except:
         sys.exit(1)
 
