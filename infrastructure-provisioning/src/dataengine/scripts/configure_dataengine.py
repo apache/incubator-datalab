@@ -74,42 +74,42 @@ def start_spark_slave(os_user, master_ip):
 # Run script #
 ##############
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
 
-    print "Configuring notebook server."
+    print("Configuring notebook server.")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
             sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
 
-    print "Install Java"
+    print("Install Java")
     ensure_jre_jdk(args.os_user)
 
-    print "Install Spark"
+    print("Install Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
 
-    print "Install jars for storage"
+    print("Install jars for storage")
     ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
-    print "Install Scala"
+    print("Install Scala")
     ensure_scala(scala_link, args.scala_version, args.os_user)
 
-    print "Install python2 libraries"
+    print("Install python2 libraries")
     ensure_python2_libraries(args.os_user)
 
-    print "Install python3 libraries"
+    print("Install python3 libraries")
     ensure_python3_libraries(args.os_user)
 
-    print "Installing R"
+    print("Installing R")
     ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
     if args.node_type == 'master':
-        print "Configuring Spark"
+        print("Configuring Spark")
         configure_spark_master(args.os_user, args.hostname)
     elif args.node_type == 'slave':
-        print "Starting Spark"
+        print("Starting Spark")
         start_spark_slave(args.os_user, args.master_ip)

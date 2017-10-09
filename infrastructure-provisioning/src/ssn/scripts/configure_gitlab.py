@@ -57,7 +57,7 @@ def create_user(os_user):
         sudo('chmod 600 /home/{0}/.ssh/authorized_keys'.format(os_user))
         sudo('touch /home/{}/.ssh_user_ensured'.format(initial_user))
     except Exception as err:
-        print 'Failed to install gitlab.', str(err)
+        print('Failed to install gitlab.{}'.format(str(err)))
         sys.exit(1)
 
 
@@ -93,15 +93,15 @@ def prepare_config():
             local("sed -i 's/LDAP_ATTR_EMAIL/{}/g' gitlab.rb".format(os.environ['ldap_attr_email']))
 
             local("sed -i 's/GITLAB_ROOT_PASSWORD/{}/g' gitlab.rb".format(os.environ['gitlab_root_password']))
-        print 'Initial config is ready.'
+        print('Initial config is ready.')
     except Exception as err:
-        print 'Failed to install gitlab.', str(err)
+        print('Failed to install gitlab.{}'.format(str(err)))
         sys.exit(1)
 
 
 def install_gitlab():
     try:
-        print 'Installing gitlab...'
+        print('Installing gitlab...')
         if os.environ['conf_os_family'] == 'debian':
             sudo('curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash')
             sudo('apt install gitlab-ce -y')
@@ -109,7 +109,7 @@ def install_gitlab():
             sudo('curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash')
             sudo('yum install gitlab-ce -y')
         else:
-            print 'Failed to install gitlab.'
+            print('Failed to install gitlab.')
             raise Exception
 
         with lcd('{}tmp/gitlab'.format(os.environ['conf_dlab_path'])):
@@ -129,7 +129,7 @@ def install_gitlab():
 
         sudo('gitlab-ctl reconfigure')
     except Exception as err:
-        print 'Failed to install gitlab.', str(err)
+        print('Failed to install gitlab.{}'.format(str(err)))
         sys.exit(1)
 
 
@@ -146,15 +146,15 @@ def configure_gitlab():
                     .format(proto, os.environ['gitlab_root_password']))
             data = json.loads(raw)
             if not json.loads(os.environ['gitlab_signup_enabled']):
-                print 'Disabling signup...'
+                print('Disabling signup...')
                 run('curl -k --request PUT "{0}://localhost/api/v4/application/settings?private_token={1}&sudo=root&signup_enabled=false"'
                     .format(proto, data['private_token']))
             if not json.loads(os.environ['gitlab_public_repos']):
-                print 'Disabling public repos...'
+                print('Disabling public repos...')
                 run('curl -k --request PUT "{0}://localhost/api/v4/application/settings?private_token={1}&sudo=root&restricted_visibility_levels=public"'
                     .format(proto, data['private_token']))
     except Exception as err:
-        print "Failed to connect to GitLab via API..", str(err)
+        print("Failed to connect to GitLab via API..{}".format(str(err)))
         sys.exit(1)
 
 
@@ -170,9 +170,9 @@ def summary():
     data['os_family'] = os.environ['conf_os_family']
     data['os_user'] = os.environ['conf_os_user']
     data['key_name'] = os.environ['conf_key_name']
-    print '[SUMMARY]'
+    print('[SUMMARY]')
     for key in data:
-        print '{0}: {1}'.format(key, data[key])
+        print('{0}: {1}'.format(key, data[key]))
 
     with open('{}tmp/result/gitlab.json'.format(os.environ['conf_dlab_path']), 'w') as result:
         result.write(json.dumps(data))

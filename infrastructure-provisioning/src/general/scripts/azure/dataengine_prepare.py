@@ -47,14 +47,14 @@ if __name__ == "__main__":
                                                       data_engine['user_name'] + '-edge')
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print 'ERROR: Edge node is unavailable! Aborting...'
+            print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = AzureMeta().get_instance_public_ip_address(os.environ['conf_service_base_name'],
                                                                       os.environ['conf_service_base_name'] + '-ssn')
             put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
                                 ssn_hostname)
             append_result("Edge node is unavailable")
             sys.exit(1)
-        print 'Generating infrastructure names and tags'
+        print('Generating infrastructure names and tags')
         try:
             data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
         except:
@@ -103,7 +103,7 @@ if __name__ == "__main__":
                                       "Type": "master",
                                       "notebook_name": data_engine['notebook_name']}
     except Exception as err:
-        print "Failed to generate variables dictionary."
+        print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
 
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATE MASTER NODE]')
-        print '[CREATE MASTER NODE]'
+        print('[CREATE MASTER NODE]')
         params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags '{}'". \
             format(data_engine['master_node_name'], data_engine['master_size'], data_engine['region'],
                    data_engine['vpc_name'], data_engine['master_network_interface_name'],
@@ -134,14 +134,14 @@ if __name__ == "__main__":
         try:
             AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         except:
-            print "The instance hasn't been created."
+            print("The instance hasn't been created.")
         append_result("Failed to create master instance.", str(err))
         sys.exit(1)
 
     try:
         for i in range(data_engine['instance_count'] - 1):
             logging.info('[CREATE SLAVE NODE {}]'.format(i + 1))
-            print '[CREATE SLAVE NODE {}]'.format(i + 1)
+            print('[CREATE SLAVE NODE {}]'.format(i + 1))
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             slave_nif_name = slave_name + '-nif'
             params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags '{}'". \
@@ -162,7 +162,7 @@ if __name__ == "__main__":
             try:
                 AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
             except:
-                print "The slave instance {} hasn't been created.".format(slave_name)
+                print("The slave instance {} hasn't been created.".format(slave_name))
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         append_result("Failed to create slave instances.", str(err))
         sys.exit(1)

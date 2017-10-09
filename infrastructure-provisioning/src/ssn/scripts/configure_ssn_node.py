@@ -118,7 +118,7 @@ def generate_ssl(hostname):
 # Run script #
 ##############
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     try:
         env['connection_attempts'] = 100
         env.key_filename = [args.keyfile]
@@ -127,43 +127,43 @@ if __name__ == "__main__":
     except:
         sys.exit(2)
 
-    print "Creating service directories."
+    print("Creating service directories.")
     if not creating_service_directories(args.dlab_path, args.os_user):
         sys.exit(1)
 
-    print "Installing nginx as frontend."
+    print("Installing nginx as frontend.")
     if not ensure_nginx(args.dlab_path):
         sys.exit(1)
 
-    print "Generating ssl key and cert for nginx."
+    print("Generating ssl key and cert for nginx.")
     if not generate_ssl(args.hostname):
         sys.exit(1)
 
-    print "Configuring nginx."
+    print("Configuring nginx.")
     if not configure_nginx(deeper_config, args.dlab_path, args.hostname):
         sys.exit(1)
 
-    print "Installing jenkins."
+    print("Installing jenkins.")
     if not ensure_jenkins(args.dlab_path):
         sys.exit(1)
 
-    print "Configuring jenkins."
+    print("Configuring jenkins.")
     if not configure_jenkins(args.dlab_path, args.os_user, deeper_config, args.tag_resource_id):
         sys.exit(1)
 
-    print "Copying key"
+    print("Copying key")
     if not cp_key(args.keyfile, env.host_string, args.os_user):
         sys.exit(1)
 
-    print "Copying backup scripts"
+    print("Copying backup scripts")
     if not cp_backup_scripts(args.dlab_path):
         sys.exit(1)
 
-    print "Copying gitlab scripts & files"
+    print("Copying gitlab scripts & files")
     if not cp_gitlab_scripts(args.dlab_path):
         sys.exit(1)
 
-    print "Ensuring safest ssh ciphers"
+    print("Ensuring safest ssh ciphers")
     try:
         ensure_ciphers()
     except:

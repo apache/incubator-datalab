@@ -46,14 +46,14 @@ if __name__ == "__main__":
                                               'edge_user_name'] + '-edge')
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
-            print 'ERROR: Edge node is unavailable! Aborting...'
+            print('ERROR: Edge node is unavailable! Aborting...')
             ssn_hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag',
                                                  os.environ['conf_service_base_name'] + '-ssn')
             put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
                                 ssn_hostname)
             append_result("Edge node is unavailable")
             sys.exit(1)
-        print 'Generating infrastructure names and tags'
+        print('Generating infrastructure names and tags')
         data_engine = dict()
         try:
             data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
@@ -87,16 +87,17 @@ if __name__ == "__main__":
                                                                    lower().replace('-', '_') + "-" + \
                                                                os.environ['edge_user_name'] + '-nb-de-Profile'
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
-        data_engine['cluster_nodes_tag'] = {"Key": "dataengine_notebook_name", "Value": os.environ['notebook_instance_name']}
+        data_engine['cluster_nodes_tag'] = {"Key": "dataengine_notebook_name:{}".format(data_engine['cluster_name']),
+                                            "Value": os.environ['notebook_instance_name']}
 
     except Exception as err:
-        print "Failed to generate variables dictionary."
+        print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
 
     try:
         logging.info('[CREATE MASTER NODE]')
-        print '[CREATE MASTER NODE]'
+        print('[CREATE MASTER NODE]')
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
             .format(data_engine['master_node_name'], data_engine['ami_id'], data_engine['master_size'],
                     data_engine['key_name'],
@@ -118,7 +119,7 @@ if __name__ == "__main__":
     try:
         for i in range(data_engine['instance_count'] - 1):
             logging.info('[CREATE SLAVE NODE {}]'.format(i + 1))
-            print '[CREATE SLAVE NODE {}]'.format(i + 1)
+            print('[CREATE SLAVE NODE {}]'.format(i + 1))
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
             params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
                 .format(slave_name, data_engine['ami_id'], data_engine['slave_size'],
@@ -141,6 +142,6 @@ if __name__ == "__main__":
             try:
                 remove_ec2(data_engine['tag_name'], slave_name)
             except:
-                print "The slave instance {} hasn't been created.".format(slave_name)
+                print("The slave instance {} hasn't been created.".format(slave_name))
         append_result("Failed to create slave instances.", str(err))
         sys.exit(1)

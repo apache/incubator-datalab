@@ -34,7 +34,7 @@ import sys
 
 
 def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
-    print 'Terminating EMR cluster and cleaning EMR config from S3 bucket'
+    print('Terminating EMR cluster and cleaning EMR config from S3 bucket')
     try:
         clusters_list = get_emr_list(nb_tag_value, 'Value')
         if clusters_list:
@@ -45,36 +45,36 @@ def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
                 emr_name = cluster.get('Name')
                 emr_version = cluster.get('ReleaseLabel')
                 s3_cleanup(bucket_name, emr_name, os.environ['edge_user_name'])
-                print "The bucket " + bucket_name + " has been cleaned successfully"
+                print("The bucket {} has been cleaned successfully".format(bucket_name))
                 terminate_emr(cluster_id)
-                print "The EMR cluster " + emr_name + " has been terminated successfully"
+                print("The EMR cluster {} has been terminated successfully".format(emr_name))
                 remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_version)
-                print emr_name + " kernels have been removed from notebook successfully"
+                print("{} kernels have been removed from notebook successfully".format(emr_name))
         else:
-            print "There are no EMR clusters to terminate."
+            print("There are no EMR clusters to terminate.")
     except:
         sys.exit(1)
 
-    print "Terminating data engine cluster"
+    print("Terminating data engine cluster")
     try:
         cluster_list = []
-        cluster_instances_list = get_ec2_list('dataengine_notebook_name', nb_tag_value)
+        cluster_instances_list = get_ec2_list('dataengine_notebook_name:', nb_tag_value)
         for instance in cluster_instances_list:
             for tag in instance.tags:
                 if tag['Key'] == 'Name' and '-master' in tag['Value']:
                     cluster_list.append(tag['Value'].replace('-master', ''))
-        remove_ec2('dataengine_notebook_name', nb_tag_value)
+        remove_ec2('dataengine_notebook_name:*', nb_tag_value)
     except:
         sys.exit(1)
 
-    print "Removing Data Engine kernels from notebook"
+    print("Removing Data Engine kernels from notebook")
     try:
         for cluster_name in cluster_list:
             remove_dataengine_kernels(tag_name, nb_tag_value, ssh_user, key_path, cluster_name)
     except:
         sys.exit(1)
 
-    print "Stopping notebook"
+    print("Stopping notebook")
     try:
         stop_ec2(tag_name, nb_tag_value)
     except:
@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     create_aws_config_files()
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
 
     logging.info('[STOP NOTEBOOK]')
-    print '[STOP NOTEBOOK]'
+    print('[STOP NOTEBOOK]')
     try:
         stop_notebook(notebook_config['notebook_name'], notebook_config['bucket_name'], notebook_config['tag_name'],
                       os.environ['conf_os_user'], notebook_config['key_path'])
@@ -115,9 +115,9 @@ if __name__ == "__main__":
                    "Tag_name": notebook_config['tag_name'],
                    "user_own_bucket_name": notebook_config['bucket_name'],
                    "Action": "Stop notebook server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
 

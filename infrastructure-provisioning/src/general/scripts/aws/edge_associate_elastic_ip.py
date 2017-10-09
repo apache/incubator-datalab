@@ -39,12 +39,12 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     try:
         if args.elastic_ip == 'None':
-            print "Allocating Elastic IP"
+            print("Allocating Elastic IP")
             allocation_id = allocate_elastic_ip()
         else:
             allocation_id = get_allocation_id_by_elastic_ip(args.elastic_ip)
 
-        print "Associating Elastic IP to Edge"
+        print("Associating Elastic IP to Edge")
         associate_elastic_ip(args.edge_id, allocation_id)
     except:
         sys.exit(1)

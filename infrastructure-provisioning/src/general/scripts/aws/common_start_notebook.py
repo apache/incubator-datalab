@@ -38,7 +38,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     # generating variables dictionary
     create_aws_config_files()
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
@@ -46,10 +46,10 @@ if __name__ == "__main__":
 
     try:
         logging.info('[START NOTEBOOK]')
-        print '[START NOTEBOOK]'
+        print('[START NOTEBOOK]')
         params = "--tag_name {} --nb_tag_value {}".format(notebook_config['tag_name'], notebook_config['notebook_name'])
         try:
-            print "Starting notebook"
+            print("Starting notebook")
             start_ec2(notebook_config['tag_name'], notebook_config['notebook_name'])
         except Exception as err:
             traceback.print_exc()
@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SETUP USER GIT CREDENTIALS]')
-        print '[SETUP USER GIT CREDENTIALS]'
+        print('[SETUP USER GIT CREDENTIALS]')
         notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['tag_name'],
                                                                  notebook_config['notebook_name']).get('Private')
         notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
@@ -79,21 +79,21 @@ if __name__ == "__main__":
     try:
         ip_address = get_instance_ip_address(notebook_config['tag_name'], notebook_config['notebook_name']).get('Private')
         dns_name = get_instance_hostname(notebook_config['tag_name'], notebook_config['notebook_name'])
-        print '[SUMMARY]'
+        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print "Instance name: " + notebook_config['notebook_name']
-        print "Private DNS: " + dns_name
-        print "Private IP: " + ip_address
+        print("Instance name: {}".format(notebook_config['notebook_name']))
+        print("Private DNS: {}".format(dns_name))
+        print("Private IP: {}".format(ip_address))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": dns_name,
                    "ip": ip_address,
                    "notebook_name": notebook_config['notebook_name'],
                    "Tag_name": notebook_config['tag_name'],
                    "Action": "Start up notebook server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
 
 

@@ -101,7 +101,7 @@ def get_object_count(bucket, prefix):
                 file_list.append(file.get('Key'))
         count = len(file_list)
     except:
-        print prefix + " still not exist. Waiting..."
+        print("{} still not exist. Waiting...".format(prefix))
         count = 0
     return count
 
@@ -182,12 +182,12 @@ def parse_steps(step_string):
 def action_validate(id):
     state = get_emr_info(id, 'Status')['State']
     if state in ("TERMINATING", "TERMINATED", "TERMINATED_WITH_ERRORS"):
-        print "Cluster is alredy stopped. Bye"
+        print("Cluster is alredy stopped. Bye")
         return ["False", state]
     elif state in ("RUNNING", "WAITING"):
         return ["True", state]
     else:
-        print "Cluster is still being built."
+        print("Cluster is still being built.")
         return ["True", state]
 
 
@@ -228,17 +228,17 @@ def build_emr_cluster(args):
         steps = parse_steps(cp_config)
 
     if args.dry_run:
-        print "Build parameters are:"
-        print args
-        print "\n"
-        print "Applications to be installed:"
-        print names
-        print "\n"
-        print "Cluster tags:"
-        print tags
-        print "\n"
-        print "Cluster Jobs:"
-        print steps
+        print("Build parameters are:")
+        print(args)
+        print("\n")
+        print("Applications to be installed:")
+        print(names)
+        print("\n")
+        print("Cluster tags:")
+        print(tags)
+        print("\n")
+        print("Cluster Jobs:")
+        print(steps)
 
     if not args.dry_run:
         socket = boto3.client('emr')
@@ -284,7 +284,7 @@ def build_emr_cluster(args):
                 JobFlowRole=args.ec2_role,
                 ServiceRole=args.service_role,
                 Configurations=read_json(args.configurations))
-        print "Cluster_id " + result.get('JobFlowId')
+        print("Cluster_id {}".format(result.get('JobFlowId')))
         return result.get('JobFlowId')
 
 
@@ -303,12 +303,12 @@ if __name__ == "__main__":
         build_emr_cluster(args)
     else:
         if not get_role_by_name(args.service_role):
-            print "There is no default EMR service role. Creating..."
+            print("There is no default EMR service role. Creating...")
             create_iam_role(args.service_role, args.service_role, args.region, service='elasticmapreduce')
             attach_policy(args.service_role,
                           policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole')
         if not get_role_by_name(args.ec2_role):
-            print "There is no default EMR EC2 role. Creating..."
+            print("There is no default EMR EC2 role. Creating...")
             create_iam_role(args.ec2_role, args.ec2_role, args.region)
             attach_policy(args.ec2_role,
                           policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role')
@@ -326,7 +326,7 @@ if __name__ == "__main__":
             time.sleep(420)
             spot_instances_status = get_spot_instances_status(cluster_id)
             if spot_instances_status[0]:
-                print "Spot instances status: " + spot_instances_status[1]
+                print("Spot instances status: {}".format(spot_instances_status[1]))
             else:
                 append_result("Error with Spot request: " + spot_instances_status[1])
                 sys.exit(1)

@@ -48,12 +48,12 @@ if __name__ == "__main__":
         os.environ['conf_service_base_name'] + '-' + os.environ['edge_user_name'] + '-edge')
     if edge_status != 'running':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
-        print 'ERROR: Edge node is unavailable! Aborting...'
+        print('ERROR: Edge node is unavailable! Aborting...')
         ssn_hostname = get_instance_hostname(os.environ['conf_service_base_name'] + '-Tag', os.environ['conf_service_base_name'] + '-ssn')
         put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'], ssn_hostname)
         append_result("Edge node is unavailable")
         sys.exit(1)
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     emr_conf = dict()
     emr_conf['uuid'] = str(uuid.uuid4())[:5]
     try:
@@ -96,8 +96,8 @@ if __name__ == "__main__":
     except:
         emr_conf['emr_timeout'] = "1200"
 
-    print "Will create exploratory environment with edge node as access point as following: " + \
-          json.dumps(emr_conf, sort_keys=True, indent=4, separators=(',', ': '))
+    print("Will create exploratory environment with edge node as access point as following: {}".
+          format(json.dumps(emr_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(emr_conf))
 
     with open('/root/result.json', 'w') as f:
@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[Creating EMR Cluster]')
-        print '[Creating EMR Cluster]'
+        print('[Creating EMR Cluster]')
         params = "--name {} --applications '{}' --master_instance_type {} --slave_instance_type {} --instance_count {} --ssh_key {} --release_label {} --emr_timeout {} --subnet {} --service_role {} --ec2_role {} --nbs_ip {} --nbs_user {} --s3_bucket {} --region {} --tags '{}' --key_dir {} --edge_user_name {} --slave_instance_spot {} --bid_price {} --service_base_name {}"\
             .format(emr_conf['cluster_name'], emr_conf['apps'], emr_conf['master_instance_type'],
                     emr_conf['slave_instance_type'], emr_conf['instance_count'], emr_conf['key_name'],
@@ -143,28 +143,28 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
-        print '[SUMMARY]'
-        print "Service base name: " + emr_conf['service_base_name']
-        print "Cluster name: " + emr_conf['cluster_name']
-        print "Cluster id: " + get_emr_id_by_name(emr_conf['cluster_name'])
-        print "Key name: " + emr_conf['key_name']
-        print "Region: " + emr_conf['region']
-        print "EMR version: " + emr_conf['release_label']
-        print "EMR master node shape: " + emr_conf['master_instance_type']
-        print "EMR slave node shape: " + emr_conf['slave_instance_type']
-        print "Instance count: " + emr_conf['instance_count']
-        print "Notebook IP address: " + emr_conf['notebook_ip']
-        print "Bucket name: " + emr_conf['bucket_name']
+        print('[SUMMARY]')
+        print("Service base name: {}".format(emr_conf['service_base_name']))
+        print("Cluster name: {}".format(emr_conf['cluster_name']))
+        print("Cluster id: {}".format(get_emr_id_by_name(emr_conf['cluster_name'])))
+        print("Key name: {}".format(emr_conf['key_name']))
+        print("Region: {}".format(emr_conf['region']))
+        print("EMR version: {}".format(emr_conf['release_label']))
+        print("EMR master node shape: {}".format(emr_conf['master_instance_type']))
+        print("EMR slave node shape: {}".format(emr_conf['slave_instance_type']))
+        print("Instance count: {}".format(emr_conf['instance_count']))
+        print("Notebook IP address: {}".format(emr_conf['notebook_ip']))
+        print("Bucket name: {}".format(emr_conf['bucket_name']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": cluster_name,
                    "instance_id": get_emr_id_by_name(emr_conf['cluster_name']),
                    "key_name": emr_conf['key_name'],
                    "user_own_bucket_name": emr_conf['bucket_name'],
                    "Action": "Create new EMR cluster"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
 
     sys.exit(0)

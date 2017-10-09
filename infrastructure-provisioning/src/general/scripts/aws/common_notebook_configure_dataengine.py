@@ -39,7 +39,7 @@ if __name__ == "__main__":
     try:
         # generating variables dictionary
         create_aws_config_files()
-        print 'Generating infrastructure names and tags'
+        print('Generating infrastructure names and tags')
         notebook_config = dict()
         try:
             notebook_config['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
-        print '[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]'
+        print('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         params = "--cluster_name {} --spark_version {} --hadoop_version {} --region {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {}".\
             format(notebook_config['cluster_name'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['region'], notebook_config['dlab_ssh_user'],
@@ -110,5 +110,5 @@ if __name__ == "__main__":
             print json.dumps(res)
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
