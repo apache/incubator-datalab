@@ -47,7 +47,6 @@ import javax.ws.rs.core.MediaType;
 import static com.epam.dlab.backendapi.core.commands.DockerAction.CREATE;
 import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
 
-@Path("/computational")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
