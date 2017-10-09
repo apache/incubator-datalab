@@ -41,6 +41,7 @@ import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
 import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
 import com.epam.dlab.dto.base.CloudSettings;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
@@ -324,14 +325,14 @@ public class RequestBuilder {
             case AWS:
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAws.class)
                         .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
-                        .withDataEngineMasterShape(form.getDataEngineMasterSize())
-                        .withDataEngineSlaveShape(form.getDataEngineSlaveSize());
+                        .withDataEngineMasterShape(form.getDataEngineMaster())
+                        .withDataEngineSlaveShape(form.getDataEngineSlave());
                 break;
             case AZURE:
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
                         .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
-                        .withDataEngineMasterSize(form.getDataEngineMasterSize())
-                        .withDataEngineSlaveSize(form.getDataEngineSlaveSize());
+                        .withDataEngineMasterSize(form.getDataEngineMaster())
+                        .withDataEngineSlaveSize(form.getDataEngineSlave());
                 break;
 
             default:
@@ -351,13 +352,17 @@ public class RequestBuilder {
                                                                                String exploratoryName,
                                                                                String exploratoryId,
                                                                                String computationalName,
-                                                                               String computationalId) {
+                                                                               String computationalId,
+                                                                               DataEngineType dataEngineType) {
         T computationalTerminate;
 
         switch (cloudProvider()) {
             case AWS:
-                computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class)
-                        .withClusterName(computationalId);
+                ComputationalTerminateDTO terminateDTO = newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class);
+                if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
+                    terminateDTO.withClusterName(computationalId);
+                }
+                computationalTerminate = (T) terminateDTO;
                 break;
             case AZURE:
                 computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class);

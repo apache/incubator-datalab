@@ -33,9 +33,9 @@ public class SparkStandaloneClusterCreateForm extends ComputationalCreateFormDTO
 
     @NotBlank
     @JsonProperty("dataengine_slave")
-    private String dataEngineSlaveSize;
+    private String dataEngineSlave;
 
     @NotBlank
     @JsonProperty("dataengine_master")
-    private String dataEngineMasterSize;
+    private String dataEngineMaster;
 }

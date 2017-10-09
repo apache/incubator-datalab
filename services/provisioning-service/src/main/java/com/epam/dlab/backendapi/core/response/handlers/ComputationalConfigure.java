@@ -78,8 +78,8 @@ public class ComputationalConfigure implements DockerCommands {
                                     .withName(nameContainer(dto.getEdgeUserName(), CONFIGURE, dto.getComputationalName()))
                                     .withVolumeForRootKeys(configuration.getKeyDirectory())
                                     .withVolumeForResponse(configuration.getImagesDirectory())
-                                    .withVolumeForLog(configuration.getDockerLogDirectory(), getComputationalType())
-                                    .withResource(getComputationalType())
+                                    .withVolumeForLog(configuration.getDockerLogDirectory(), dataEngineType.getName())
+                                    .withResource(dataEngineType.getName())
                                     .withRequestId(uuid)
                                     .withConfKeyName(configuration.getAdminKey())
                                     .withActionConfigure(getImageConfigure(dto.getApplicationName(), dataEngineType)),
@@ -98,18 +98,6 @@ public class ComputationalConfigure implements DockerCommands {
 
     private String nameContainer(String user, DockerAction action, String name) {
         return nameContainer(user, action.toString(), "computational", name);
-    }
-
-    private String getComputationalType() {
-        switch (configuration.getCloudProvider()) {
-            case AWS:
-                return DataEngineType.CLOUD_SERVICE.getName();
-            case AZURE:
-                return DataEngineType.SPARK_STANDALONE.getName();
-            default:
-                throw new IllegalArgumentException("Unsupported cloud provider");
-
-        }
     }
 
     private String getImageConfigure(String application, DataEngineType dataEngineType) throws DlabException {
