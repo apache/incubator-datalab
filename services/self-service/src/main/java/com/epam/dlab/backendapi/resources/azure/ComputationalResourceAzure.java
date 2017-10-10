@@ -21,12 +21,10 @@ import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
-import com.epam.dlab.backendapi.resources.dto.SparkStandaloneConfiguration;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -39,8 +37,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Provides the REST API for the computational resource on Azure.
@@ -66,27 +62,6 @@ public class ComputationalResourceAzure {
 
     @Inject
     private ComputationalService computationalService;
-
-    /**
-     * Returns the limits for creation the computational resources.
-     *
-     * @param userInfo user info.
-     */
-    @GET
-    @Path("/configuration")
-    public Map<DataEngineType, Object> getConfiguration(@Auth UserInfo userInfo) {
-
-        Map<DataEngineType, Object> limits = new HashMap<>();
-
-        limits.put(DataEngineType.SPARK_STANDALONE, SparkStandaloneConfiguration.builder()
-                .maxSparkInstanceCount(configuration.getMaxSparkInstanceCount())
-                .minSparkInstanceCount(configuration.getMinSparkInstanceCount())
-                .build());
-
-
-        log.debug("Returns limits for user {}: {}", userInfo.getName(), limits);
-        return limits;
-    }
 
     /**
      * Asynchronously creates computational cluster.
