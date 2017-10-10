@@ -222,19 +222,14 @@ limitations under the License.
 }
 
 
-
-
-
-
 .dialog .btn {
   padding: 6px 15px;
   min-width: 140px;
   font-weight: 600;
 }
 
-
 .dialog-content .danger_color {
-  padding-left: 10px;
+  padding-top: 5px;
   font-size: 12px;
   display: inline-block;
 }

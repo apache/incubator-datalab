@@ -40,9 +40,10 @@ limitations under the License.
             <label class="control-label">Name</label>
           </div>
           <div class="col-xs-8">
-            <input [class.danger_field]="notebookExist" type="text" class="form-control" placeholder="Enter Name" formControlName="environment_name">
+            <input [class.danger_field]="notebookExist || !createExploratoryEnvironmentForm.controls['environment_name'].valid && createExploratoryEnvironmentForm.controls['environment_name'].dirty" type="text" class="form-control" placeholder="Enter Name" formControlName="environment_name">
             <span class="danger_color" *ngIf="notebookExist">This name already exists.</span>
-            <span class="danger_color" *ngIf="!createExploratoryEnvironmentForm.controls.environment_name.valid && checkValidity">Not a valid name</span>
+            <span class="danger_color" *ngIf="!createExploratoryEnvironmentForm.controls.environment_name.valid && createExploratoryEnvironmentForm.controls['environment_name'].dirty">
+              Name <span *ngIf="DICTIONARY.cloud_provider === 'azure'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_'</span>
           </div>
         </div>
         <div class="form-group row">
