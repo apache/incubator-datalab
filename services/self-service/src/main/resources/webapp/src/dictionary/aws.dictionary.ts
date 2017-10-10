@@ -21,6 +21,8 @@ export const NAMING_CONVENTION = {
     'notebook_instance_size': 'Instance shape',
     'personal_storage': 'Data bucket',
     'collaboration_storage': 'Collaboration bucket',
+    'account': '',
+    'container': '',
     'data_engine': 'Deploy Spark Server / Deploy EMR',
     'data_engine_master_instance_size': 'Master instance shape',
     'data_engine_slave_instance_size': 'Slave instance shape',

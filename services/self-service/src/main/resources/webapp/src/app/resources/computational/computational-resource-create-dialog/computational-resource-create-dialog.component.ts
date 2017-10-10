@@ -44,7 +44,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   spotInstance: boolean = false;
 
   computationalResourceExist: boolean = false;
-  checkValidity: boolean = false;
   clusterNamePattern: string = '[-_a-zA-Z0-9]+';
   nodeCountPattern: string = '^[1-9]\\d*$';
 
@@ -113,7 +112,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public createComputationalResource($event, data, shape_master: string, shape_slave: string) {
     this.computationalResourceExist = false;
-    this.checkValidity = true;
 
     if (this.containsComputationalResource(data.cluster_alias_name)) {
       this.computationalResourceExist = true;
@@ -197,7 +195,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private initFormModel(): void {
     this.createComputationalResourceForm = this._fb.group({
-      cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern)]],
+      cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern), this.providerMaxLength]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]]
     });
@@ -233,6 +231,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         : control.value;
   }
 
+  private providerMaxLength(control) {
+    if (DICTIONARY.cloud_provider === 'azure')
+      return control.value.length <=10 ? null : { valid: false };
+  }
+
   private setDefaultParams(): void {
     this.shapes = {
       master_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type'),
@@ -250,7 +253,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private resetDialog(): void {
     this.computationalResourceExist = false;
-    this.checkValidity = false;
     this.processError = false;
     this.errorMessage = '';
 
