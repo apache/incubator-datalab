@@ -278,8 +278,11 @@ export class ApplicationServiceFacade {
     // Computational Resources
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES,
       '/api/infrastructure_provision/computational_resources');
+    // this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
+    //   '/api/infrastructure_templates/computational_templates');
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
-      '/api/infrastructure_templates/computational_templates');
+      'assets/data.json');
+      
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_CONFIGURATION,
       '/api/infrastructure_provision/computational_resources/configuration');
 
