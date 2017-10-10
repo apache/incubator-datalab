@@ -54,16 +54,16 @@ if __name__ == "__main__":
     create_aws_config_files()
     data_engine = dict()
     try:
-        data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
+        data_engine['exploratory_name'] = os.environ['exploratory_name']
     except:
         data_engine['exploratory_name'] = ''
     try:
-        data_engine['computational_name'] = os.environ['computational_name'].replace('_', '-')
+        data_engine['computational_name'] = os.environ['computational_name']
     except:
         data_engine['computational_name'] = ''
     data_engine['service_base_name'] = os.environ['conf_service_base_name']
     data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
-    data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+    data_engine['user_name'] = os.environ['edge_user_name']
     data_engine['cluster_name'] = \
         data_engine['service_base_name'] + '-' + data_engine['user_name'] + '-dataengine-' + \
         data_engine['exploratory_name'] + '-' + data_engine['computational_name']
