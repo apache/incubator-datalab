@@ -26,8 +26,8 @@ RUN	apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install any python dependencies
-RUN pip install -U pip
-RUN pip install boto3 fabric fabvenv awscli argparse ujson jupyter pycrypto
+RUN pip install -U pip && \
+    pip install boto3 fabric fabvenv awscli argparse ujson jupyter pycrypto
 
 # Configuring ssh for user
 RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \
@@ -37,24 +37,24 @@ RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \
     echo "ConnectTimeout=30" >> /root/.ssh/config
 
 # Configuring log directories
-RUN mkdir -p /response; chmod a+rwx /response
-RUN mkdir -p /logs/ssn; chmod a+rwx /logs/ssn
-RUN mkdir -p /logs/edge; chmod a+rwx /logs/edge
-RUN mkdir -p /logs/notebook; chmod a+rwx /logs/notebook
-RUN mkdir -p /logs/dataengine; chmod a+rwx /logs/dataengine
-RUN mkdir -p /logs/dataengine-service; chmod a+rwx /logs/dataengine-service
+RUN mkdir -p /response; chmod a+rwx /response && \
+    mkdir -p /logs/ssn; chmod a+rwx /logs/ssn && \
+    mkdir -p /logs/edge; chmod a+rwx /logs/edge && \
+    mkdir -p /logs/notebook; chmod a+rwx /logs/notebook && \
+    mkdir -p /logs/dataengine; chmod a+rwx /logs/dataengine && \
+    mkdir -p /logs/dataengine-service; chmod a+rwx /logs/dataengine-service
 
 # Copying all base scripts to docker
 ENV PROVISION_CONFIG_DIR /root/conf/
 ENV KEYFILE_DIR /root/keys/
 ENV AWS_DIR /root/.aws
 
-RUN mkdir -p /root/conf
-RUN mkdir -p /root/scripts
-RUN mkdir -p /root/templates
-RUN mkdir -p /root/files
-RUN mkdir -p /usr/lib/python2.7/dlab
-RUN mkdir -p /root/keys/.ssh
+RUN mkdir -p /root/conf && \
+    mkdir -p /root/scripts && \
+    mkdir -p /root/templates && \
+    mkdir -p /root/files && \
+    mkdir -p /usr/lib/python2.7/dlab && \
+    mkdir -p /root/keys/.ssh
 
 COPY base/ /root
 COPY general/conf/* /root/conf/
@@ -65,8 +65,8 @@ COPY general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
 COPY general/lib/os/fab.py /usr/lib/python2.7/dlab/fab.py
 COPY general/files/os/${OS}/sources.list /root/files/
 
-RUN chmod a+x /root/*.py
-RUN chmod a+x /root/scripts/*
-RUN chmod a+x /bin/*.py
+RUN chmod a+x /root/*.py && \
+    chmod a+x /root/scripts/* && \
+    chmod a+x /bin/*.py
 
 ENTRYPOINT ["/root/entrypoint.py"]
