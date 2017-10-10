@@ -40,10 +40,10 @@ def configure_notebook(args):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
     put(templates_dir + 'pyspark_dataengine_template.json', '/tmp/pyspark_dataengine_template.json')
-    put(scripts_dir + 'jupyter_dataengine_create_configs.py', '/tmp/jupyter_dataengine_create_configs.py')
+    put(scripts_dir + 'tensor_dataengine_create_configs.py', '/tmp/tensor_dataengine_create_configs.py')
     put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
-    sudo('\cp /tmp/jupyter_dataengine_create_configs.py /usr/local/bin/jupyter_dataengine_create_configs.py')
-    sudo('chmod 755 /usr/local/bin/jupyter_dataengine_create_configs.py')
+    sudo('\cp /tmp/tensor_dataengine_create_configs.py /usr/local/bin/tensor_dataengine_create_configs.py')
+    sudo('chmod 755 /usr/local/bin/tensor_dataengine_create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')
     run('mkdir -p /tmp/dlab_libs/')
     local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
     configure_notebook(args)
-    sudo("/usr/bin/python /usr/local/bin/jupyter_dataengine_create_configs.py "
+    sudo("/usr/bin/python /usr/local/bin/tensor_dataengine_create_configs.py "
          "--cluster_name {} --spark_version {} --hadoop_version {} --region {} --os_user {} --spark_master {}".
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.region, args.os_user, args.spark_master
                 ))
