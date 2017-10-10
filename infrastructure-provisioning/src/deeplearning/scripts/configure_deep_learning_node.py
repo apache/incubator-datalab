@@ -48,6 +48,12 @@ scala_link = "http://www.scala-lang.org/files/archive/"
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 nvidia_version = os.environ['notebook_nvidia_version']
+caffe_version = os.environ['notebook_caffe_version']
+caffe2_version = os.environ['notebook_caffe2_version']
+cntk_version = os.environ['notebook_cntk_version']
+mxnet_version = os.environ['notebook_mxnet_version']
+keras_version = os.environ['notebook_keras_version']
+theano_version = os.environ['notebook_theano_version']
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -107,11 +113,14 @@ if __name__ == "__main__":
     print "Install TensorFlow"
     install_tensor(args.os_user, args.tensorflow_version, files_dir, templates_dir, nvidia_version)
 
+    print "Install Theano"
+    install_theano(args.os_user, theano_version)
+
     print "Installing Caffe"
-    install_caffe(args.os_user, args.region)
+    install_caffe(args.os_user, args.region, caffe_version)
 
     print "Installing Caffe2"
-    install_caffe2(args.os_user)
+    install_caffe2(args.os_user, caffe2_version)
 
     print "Install Jupyter"
     configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version)
@@ -150,10 +159,10 @@ if __name__ == "__main__":
     install_itorch(args)
 
     print "Install CNTK Python library"
-    install_cntk(args.os_user)
+    install_cntk(args.os_user, cntk_version)
 
     print "Installing MXNET"
-    install_mxnet(args.os_user)
+    install_mxnet(args.os_user, mxnet_version)
 
     print "Installing Keras"
-    install_keras(args.os_user)
+    install_keras(args.os_user, keras_version)

@@ -172,9 +172,9 @@ def ensure_additional_python_libs(os_user):
                 sudo('pip2 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
                 sudo('pip3 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
             if os.environ['application'] == 'tensor':
-                sudo('pip2 install keras opencv-python h5py --no-cache-dir')
+                sudo('pip2 install opencv-python h5py --no-cache-dir')
                 sudo('python2 -m ipykernel install')
-                sudo('pip3 install keras opencv-python h5py --no-cache-dir')
+                sudo('pip3 install opencv-python h5py --no-cache-dir')
                 sudo('python3 -m ipykernel install')
             sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
@@ -236,8 +236,8 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia
             sudo('echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf')
             sudo('echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf')
             sudo('update-initramfs -u')
-            sudo('shutdown -r 1')
-            time.sleep(90)
+            with settings(warn_only=True):
+                reboot(wait=90)
             sudo('apt-get -y install linux-image-extra-`uname -r`')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
@@ -269,9 +269,6 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia
             sudo("systemctl daemon-reload")
             sudo("systemctl enable tensorboard")
             sudo("systemctl start tensorboard")
-            # install Theano
-            sudo('python2.7 -m pip install Theano --no-cache-dir')
-            sudo('python3 -m pip install Theano --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/tensor_ensured')
         except:
             sys.exit(1)
@@ -351,38 +348,46 @@ def get_available_os_pkgs():
         sys.exit(1)
 
 
-def install_caffe(os_user, region):
+def install_caffe(os_user, region, caffe_version):
     if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         sudo('apt-get install -y python-dev')
         sudo('apt-get install -y python3-dev')
-        sudo('apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev '
-             'protobuf-compiler')
+        sudo('apt-get install -y libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler')
         sudo('apt-get install -y --no-install-recommends libboost-all-dev')
-        sudo('apt-get install -y libatlas-base-dev')
+        sudo('apt-get install -y libatlas-base-dev libopenblas-dev')
         sudo('apt-get install -y libgflags-dev libgoogle-glog-dev liblmdb-dev')
         with cd('/usr/lib/x86_64-linux-gnu/'):
             sudo('ln -s libhdf5_serial_hl.so.10.0.2 libhdf5_hl.so')
             sudo('ln -s libhdf5_serial.so.10.1.0 libhdf5.so')
         sudo('git clone https://github.com/BVLC/caffe.git')
         with cd('/home/{}/caffe/'.format(os_user)):
+            sudo('git checkout {}'.format(caffe_version))
             sudo('pip2 install -r python/requirements.txt --no-cache-dir')
             sudo('pip3 install -r python/requirements.txt --no-cache-dir')
-            sudo('cp Makefile.config.example Makefile.config')
-            sudo('sed -i "/INCLUDE_DIRS :=/d" Makefile.config')
-            sudo("echo 'INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ "
-                 "/usr/local/lib/python2.7/dist-packages/numpy/core/include/' >> Makefile.config")
-            sudo('sed -i "/LIBRARIES :=/d" Makefile.config')
-            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" '
-                 '>> Makefile.config')
-            sudo('make all')
-            sudo('make test')
-            sudo('make runtest')
+            sudo('echo "CUDA_DIR := /usr/local/cuda" > Makefile.config')
+            cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
+            sudo('echo "CUDA_ARCH := -gencode arch=compute_{0},code=sm_{0}" >> Makefile.config'.format(cuda_arch.replace('.', '')))
+            sudo('echo "PYTHON_INCLUDE := /usr/include/python2.7 /usr/local/lib/python2.7/dist-packages/numpy/core/include" >> Makefile.config')
+            sudo('echo "BLAS := open" >> Makefile.config')
+            sudo('echo "BLAS_INCLUDE := /usr/include/openblas" >> Makefile.config')
+            #sudo('echo "OPENCV_VERSION := 3" >> Makefile.config')
+            sudo('echo "LIBRARIES += glog gflags protobuf boost_system boost_filesystem m hdf5_serial_hl hdf5_serial" >> Makefile.config')
+            sudo('echo "PYTHON_LIB := /usr/lib" >> Makefile.config')
+            sudo('echo "INCLUDE_DIRS := \\\$(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial/ /usr /usr/lib /usr/include/python2.7 /usr/local/lib/python2.7/dist-packages/numpy/core/include" >> Makefile.config')
+            sudo('echo "LIBRARY_DIRS := \\\$(PYTHON_LIB) /usr/local/lib /usr/lib /usr /usr/lib" >> Makefile.config')
+            sudo('echo "BUILD_DIR := build" >> Makefile.config')
+            sudo('echo "DISTRIBUTE_DIR := distribute" >> Makefile.config')
+            sudo('echo "TEST_GPUID := 0" >> Makefile.config')
+            sudo('echo "Q ?= @" >> Makefile.config')
+            sudo('make all -j$(nproc)')
+            sudo('make test -j$(nproc)')
+            run('make runtest')
             sudo('make pycaffe')
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
 
 
-def install_caffe2(os_user):
+def install_caffe2(os_user, caffe2_version):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         sudo('apt-get update')
@@ -390,10 +395,6 @@ def install_caffe2(os_user):
              ' protobuf-compiler python-dev python-pip')
         sudo('pip2 install numpy protobuf --no-cache-dir')
         sudo('pip3 install numpy protobuf --no-cache-dir')
-        sudo('CUDNN_URL="http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-8.0-linux-x64-v5.1.tgz"; '
-             'wget ${CUDNN_URL}')
-        sudo('tar -xzf cudnn-8.0-linux-x64-v5.1.tgz -C /usr/local')
-        sudo('rm cudnn-8.0-linux-x64-v5.1.tgz && sudo ldconfig')
         sudo('apt-get install -y --no-install-recommends libgflags-dev')
         sudo('apt-get install -y --no-install-recommends libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
              'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
@@ -401,31 +402,43 @@ def install_caffe2(os_user):
              'scipy setuptools tornado --no-cache-dir')
         sudo('pip3 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
+        sudo('cp -f /opt/cudnn/include/* /opt/cuda-8.0/include/')
+        sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
         sudo('git clone --recursive https://github.com/caffe2/caffe2.git')
         cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
         with cd('/home/{}/caffe2/'.format(os_user)):
+            with settings(warn_only=True):
+                sudo('git checkout v{}'.format(caffe2_version))
+                sudo('git submodule update --recursive')
             sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_BIN="{0}" -DCUDA_ARCH_PTX="{0}" && make "-j$(nproc)" install'.format(cuda_arch.replace('.', '')))
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
-def install_cntk(os_user):
+def install_cntk(os_user, cntk_version):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
-        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl --no-cache-dir')
-        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
+        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
+        sudo('pip3 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
 
 
-def install_keras(os_user):
+def install_keras(os_user, keras_version):
     if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
-        sudo('pip2 install keras --no-cache-dir')
-        sudo('pip3 install keras --no-cache-dir')
+        sudo('pip2 install keras=={} --no-cache-dir'.format(keras_version))
+        sudo('pip3 install keras=={} --no-cache-dir'.format(keras_version))
         sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
 
 
-def install_mxnet(os_user):
+def install_theano(os_user, theano_version):
+    if not exists('/home/{}/.ensure_dir/theano_ensured'.format(os_user)):
+        sudo('python2.7 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
+        sudo('python3 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
+        sudo('touch /home/{}/.ensure_dir/theano_ensured'.format(os_user))
+
+
+def install_mxnet(os_user, mxnet_version):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        sudo('pip2 install mxnet-cu80 opencv-python --no-cache-dir')
-        sudo('pip3 install mxnet-cu80 opencv-python --no-cache-dir')
+        sudo('pip2 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
+        sudo('pip3 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 
 

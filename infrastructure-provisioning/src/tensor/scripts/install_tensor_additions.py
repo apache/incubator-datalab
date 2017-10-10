@@ -24,6 +24,7 @@ from fabric.contrib.files import exists
 import argparse
 import json
 import sys
+import os
 from dlab.notebook_lib import *
 
 parser = argparse.ArgumentParser()
@@ -33,7 +34,7 @@ parser.add_argument('--additional_config', type=str, default='{"empty":"string"}
 parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
-
+keras_version = os.environ['notebook_keras_version']
 ##############
 # Run script #
 ##############
@@ -50,3 +51,5 @@ if __name__ == "__main__":
     print "Installing notebook additions: matplotlib."
     ensure_matplot(args.os_user)
 
+    print "Installing Keras"
+    install_keras(args.os_user, keras_version)

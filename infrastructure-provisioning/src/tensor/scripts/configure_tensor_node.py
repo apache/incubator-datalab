@@ -41,6 +41,7 @@ hadoop_version = os.environ['notebook_hadoop_version']
 tensorflow_version = os.environ['notebook_tensorflow_version']
 jupyter_version = os.environ['notebook_jupyter_version']
 nvidia_version = os.environ['notebook_nvidia_version']
+theano_version = os.environ['notebook_theano_version']
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
@@ -86,6 +87,9 @@ if __name__ == "__main__":
 
     print "Install TensorFlow"
     install_tensor(args.os_user, tensorflow_version, files_dir, templates_dir, nvidia_version)
+
+    print "Install Theano"
+    install_theano(args.os_user, theano_version)
 
     print "Install Jupyter"
     configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version)
