@@ -74,7 +74,6 @@ def build_front_end(args):
     # Building front-end
     with lcd(args.workspace_path + '/services/self-service/src/main/resources/webapp/'):
         local('sed -i "s|CLOUD_PROVIDER|{}|g" src/dictionary/global.dictionary.ts'.format(args.conf_cloud_provider))
-        local('sudo npm install gulp')
         local('sudo npm install')
         local('sudo npm run build.prod')
         local('sudo chown -R {} {}/*'.format(os.environ['USER'], args.workspace_path))
