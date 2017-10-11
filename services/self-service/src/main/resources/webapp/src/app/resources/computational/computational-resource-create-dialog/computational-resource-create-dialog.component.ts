@@ -91,13 +91,13 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public onUpdate($event): void {
     if ($event.model.type === 'template') {
       this.model.setSelectedTemplate($event.model.index);
-      this.master_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-        this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
-      this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-        this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
+      this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+        this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
+      this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+        this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
 
-      this.shapes.master_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
-      this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
+      this.shapes.master_shape = this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type');
+      this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type');
     }
     if ($event.model.type === 'cluster_type') {
       this.model.setSelectedClusterType($event.model.index);
@@ -155,9 +155,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.spotInstance = this.shapePlaceholder(filtered, 'spot');
       this.resourceForm.controls['instance_price'].setValue(this.shapePlaceholder(filtered, 'price'));
     } else {
-      this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-        this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
-      this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
+      this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+        this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
+      this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type');
 
       this.spotInstance = false;
       this.resourceForm.controls['instance_price'].setValue(0);
@@ -239,8 +239,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private setDefaultParams(): void {
     this.shapes = {
-      master_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type'),
-      slave_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type')
+      master_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type'),
+      slave_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type')
     };
     if (DICTIONARY.cloud_provider === 'aws') {
       this.cluster_type.setDefaultOptions(this.model.resourceImages,
@@ -248,10 +248,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.templates_list.setDefaultOptions(this.model.templates,
         this.model.selectedItem.version, 'template', 'version', 'array');
     }
-    this.master_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-      this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
-    this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-      this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
+    this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+      this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
+    this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+      this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
   }
 
   private resetDialog(): void {

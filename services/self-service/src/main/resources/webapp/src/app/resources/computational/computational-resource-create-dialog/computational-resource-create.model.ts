@@ -144,7 +144,7 @@ export class ComputationalResourceCreateModel {
   }
 
   private createComputationalResource(): Observable<Response> {
-    if (DICTIONARY.cloud_provider === 'aws' && this.selectedItem.image === 'docker.dlab-dataengine-service') {
+    if (DICTIONARY.cloud_provider === 'aws' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
       return this.userResourceService.createComputationalResource_DataengineService({
         name: this.computational_resource_alias,
         emr_instance_count: this.computational_resource_count,
@@ -164,8 +164,8 @@ export class ComputationalResourceCreateModel {
         dataengine_master: this.computational_resource_master_shape,
         dataengine_slave: this.computational_resource_slave_shape,
         notebook_name: this.notebook_name,
-        image: this.selectedItem.image,
-        template_name: this.selectedItem.template_name,
+        image: this.selectedImage.image,
+        template_name: this.selectedImage.template_name,
       });
     }
   };
