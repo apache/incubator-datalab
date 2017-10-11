@@ -82,9 +82,7 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
 def prepare_disk(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
-            sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
-            sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
-            sudo('mount -a')
+            remount_azure_disk()
             disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
             sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
             sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
