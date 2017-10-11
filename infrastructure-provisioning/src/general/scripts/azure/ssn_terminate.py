@@ -68,35 +68,35 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     #     print(err)
     #     sys.exit(1)
 
-    print("Removing storage accounts")
-    try:
-        for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
-            if service_base_name == storage_account.tags["SBN"]:
-                AzureActions().remove_storage_account(resource_group_name, storage_account.name)
-                print("Storage account {} has been terminated".format(storage_account.name))
-    except Exception as err:
-        print(err)
-        sys.exit(1)
-
-    print("Removing images")
-    try:
-        for image in AzureMeta().list_images():
-            if service_base_name == image.tags["SBN"]:
-                AzureActions().remove_image(resource_group_name, image.name)
-                print("Image {} has been removed".format(image.name))
-    except Exception as err:
-        print(err)
-        sys.exit(1)
-
-    print("Removing security groups")
-    try:
-        for sg in AzureMeta().network_client.network_security_groups.list(resource_group_name):
-            if service_base_name == sg.tags["SBN"]:
-                AzureActions().remove_security_group(resource_group_name, sg.name)
-                print("Security group {} has been terminated".format(sg.name))
-    except Exception as err:
-        print(err)
-        sys.exit(1)
+    # print("Removing storage accounts")
+    # try:
+    #     for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
+    #         if service_base_name == storage_account.tags["SBN"]:
+    #             AzureActions().remove_storage_account(resource_group_name, storage_account.name)
+    #             print("Storage account {} has been terminated".format(storage_account.name))
+    # except Exception as err:
+    #     print(err)
+    #     sys.exit(1)
+    #
+    # print("Removing images")
+    # try:
+    #     for image in AzureMeta().list_images():
+    #         if service_base_name == image.tags["SBN"]:
+    #             AzureActions().remove_image(resource_group_name, image.name)
+    #             print("Image {} has been removed".format(image.name))
+    # except Exception as err:
+    #     print(err)
+    #     sys.exit(1)
+    #
+    # print("Removing security groups")
+    # try:
+    #     for sg in AzureMeta().network_client.network_security_groups.list(resource_group_name):
+    #         if service_base_name == sg.tags["SBN"]:
+    #             AzureActions().remove_security_group(resource_group_name, sg.name)
+    #             print("Security group {} has been terminated".format(sg.name))
+    # except Exception as err:
+    #     print(err)
+    #     sys.exit(1)
 
     print("Removing VPC")
     try:
