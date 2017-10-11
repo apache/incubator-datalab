@@ -1307,6 +1307,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
                         format(os_user))
             sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
             sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
+            local('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
         sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:
