@@ -34,7 +34,6 @@ export class ApplicationServiceFacade {
   private static readonly EXPLORATORY_ENVIRONMENT_TEMPLATES = 'exploratory_templates';
   private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
-  private static readonly COMPUTATIONAL_RESOURCES_CONFIGURATION = 'computational_resources_configuration';
   private static readonly USER_PREFERENCES = 'user_preferences';
   private static readonly ENVIRONMENT_HEALTH_STATUS = 'environment_health_status';
   private static readonly EDGE_NODE_START = 'edge_node_start';
@@ -106,13 +105,6 @@ export class ApplicationServiceFacade {
   public buildGetComputationalResourcesTemplatesRequest(): Observable<Response> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES),
-      null,
-      this.getRequestOptions(true, true));
-  }
-
-  public buildGetComputationalResourcesConfiguration(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_CONFIGURATION),
       null,
       this.getRequestOptions(true, true));
   }
@@ -283,8 +275,6 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
       'assets/data.json');
       
-    this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_CONFIGURATION,
-      '/api/infrastructure_provision/computational_resources/configuration');
 
     // Filtering Configuration
     this.requestRegistry.Add(ApplicationServiceFacade.USER_PREFERENCES, '/api/user/settings');
