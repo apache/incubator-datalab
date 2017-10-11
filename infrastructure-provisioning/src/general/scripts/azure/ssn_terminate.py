@@ -58,15 +58,15 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     #     print(err)
     #     sys.exit(1)
 
-    print("Removing disks")
-    try:
-        for disk in AzureMeta().list_disks(resource_group_name):
-            if service_base_name == disk.tags["SBN"]:
-                AzureActions().remove_disk(resource_group_name, disk.name)
-                print("Disk {} has been removed".format(disk.name))
-    except Exception as err:
-        print(err)
-        sys.exit(1)
+    # print("Removing disks")
+    # try:
+    #     for disk in AzureMeta().list_disks(resource_group_name):
+    #         if service_base_name == disk.tags["SBN"]:
+    #             AzureActions().remove_disk(resource_group_name, disk.name)
+    #             print("Disk {} has been removed".format(disk.name))
+    # except Exception as err:
+    #     print(err)
+    #     sys.exit(1)
 
     print("Removing storage accounts")
     try:
