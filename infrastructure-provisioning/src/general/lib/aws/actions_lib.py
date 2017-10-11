@@ -805,14 +805,13 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                             zeppelin_restarted = True
                     sudo('sleep 5')
                     sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, emr_name))
-                if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)) or exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(ssh_user)):
+                if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
                     sudo("sed -i '/" + emr_name + "/d' /home/{}/.Renviron".format(ssh_user))
                     if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(ssh_user)):
                         sudo("sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".format(ssh_user))
                     sudo("sed -i 's|/opt/" + emr_version + '/' + emr_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(ssh_user))
                     sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(ssh_user))
                     sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user))
-                    sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(ssh_user))
                 sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
                 print("Notebook's {} kernels were removed".format(env.hosts))
         else:
