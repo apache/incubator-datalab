@@ -29,24 +29,24 @@ import uuid
 
 
 def terminate_nb(resource_group_name, notebook_name):
-    print "Terminating data engine cluster"
+    print("Terminating data engine cluster")
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
             try:
                 if notebook_name == vm.tags['notebook_name']:
                     AzureActions().remove_instance(resource_group_name, vm.name)
-                    print "Instance {} has been terminated".format(vm.name)
+                    print("Instance {} has been terminated".format(vm.name))
             except:
                 pass
     except:
         sys.exit(1)
 
-    print "Terminating notebook"
+    print("Terminating notebook")
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
             if notebook_name == vm.tags["Name"]:
                 AzureActions().remove_instance(resource_group_name, vm.name)
-                print "Instance {} has been terminated".format(vm.name)
+                print("Instance {} has been terminated".format(vm.name))
     except:
         sys.exit(1)
 
@@ -59,7 +59,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     notebook_config = dict()
     try:
         notebook_config['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE NOTEBOOK]')
-        print '[TERMINATE NOTEBOOK]'
+        print('[TERMINATE NOTEBOOK]')
         try:
             terminate_nb(notebook_config['resource_group_name'], notebook_config['notebook_name'])
         except Exception as err:
@@ -88,8 +88,8 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Action": "Terminate notebook server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)

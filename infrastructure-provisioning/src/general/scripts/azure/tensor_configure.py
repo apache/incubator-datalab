@@ -62,6 +62,9 @@ if __name__ == "__main__":
             notebook_config['user_name'] + '-nb-sg'
         notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+        notebook_config['tags'] = {"Name": notebook_config['instance_name'],
+                                   "SBN": notebook_config['service_base_name'],
+                                   "User": notebook_config['user_name']}
 
         # generating variables regarding EDGE proxy on Notebook instance
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
@@ -102,7 +105,7 @@ if __name__ == "__main__":
     # configuring proxy on Notebook instance
     try:
         logging.info('[CONFIGURE PROXY ON TENSOR INSTANCE]')
-        print '[CONFIGURE PROXY ON TENSOR INSTANCE]'
+        print('[CONFIGURE PROXY ON TENSOR INSTANCE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config), notebook_config['dlab_ssh_user'])
@@ -135,7 +138,7 @@ if __name__ == "__main__":
     # installing and configuring TensorFlow and all dependencies
     try:
         logging.info('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
-        print '[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]'
+        print('[CONFIGURE TENSORFLOW NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --region {} --os_user {}" \
                  .format(instance_hostname, keyfile_name, os.environ['azure_region'], notebook_config['dlab_ssh_user'])
         try:
@@ -151,7 +154,7 @@ if __name__ == "__main__":
     # installing python2 and python3 libs
     try:
         logging.info('[CONFIGURE TENSOR ADDITIONS]')
-        print '[CONFIGURE TENSOR ADDITIONS]'
+        print('[CONFIGURE TENSOR ADDITIONS]')
         params = "--hostname {} --keyfile {} --os_user {}"\
             .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'])
         try:
@@ -165,7 +168,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[INSTALLING USERs KEY]'
+        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": notebook_config['user_keyname'],
                              "user_keydir": os.environ['conf_key_dir']}
@@ -182,7 +185,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[SETUP USER GIT CREDENTIALS]'
+        print('[SETUP USER GIT CREDENTIALS]')
         logging.info('[SETUP USER GIT CREDENTIALS]')
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
@@ -196,6 +199,24 @@ if __name__ == "__main__":
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
+    try:
+        print('[CREATING AMI]')
+        logging.info('[CREATING AMI]')
+        ami = AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name'])
+        if ami == '':
+            print("Looks like it's first time we configure notebook server. Creating image.")
+            AzureActions().create_image_from_instance(notebook_config['resource_group_name'],
+                                                      notebook_config['instance_name'],
+                                                      os.environ['azure_region'],
+                                                      notebook_config['expected_ami_name'],
+                                                      json.dumps(notebook_config['tags']))
+            print("Image was successfully created.")
+            local("~/scripts/{}.py --uuid {}".format('common_prepare_notebook', args.uuid))
+    except Exception as err:
+        append_result("Failed creating image.", str(err))
+        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
     # generating output information
     try:
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
@@ -203,20 +224,20 @@ if __name__ == "__main__":
         tensorboard_url = "http://" + ip_address + ":6006/"
         jupyter_ip_url = "http://" + ip_address + ":8888/"
         ungit_ip_url = "http://" + ip_address + ":8085/"
-        print '[SUMMARY]'
+        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print "Instance name: " + notebook_config['instance_name']
-        print "Private IP: " + ip_address
-        print "Instance type: " + notebook_config['instance_size']
-        print "Key name: " + notebook_config['key_name']
-        print "User key name: " + notebook_config['user_keyname']
-        print "SG name: " + notebook_config['security_group_name']
-        print "TensorBoard URL: " + tensorboard_url
-        print "TensorBoard log dir: /var/log/tensorboard"
-        print "Jupyter URL: " + jupyter_ip_url
-        print "Ungit URL: " + ungit_ip_url
-        print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
-            'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
+        print("Instance name: {}".format(notebook_config['instance_name']))
+        print("Private IP: {}".format(ip_address))
+        print("Instance type: {}".format(notebook_config['instance_size']))
+        print("Key name: {}".format(notebook_config['key_name']))
+        print("User key name: {}".format(notebook_config['user_keyname']))
+        print("SG name: {}".format(notebook_config['security_group_name']))
+        print("TensorBoard URL: {}".format(tensorboard_url))
+        print("TensorBoard log dir: /var/log/tensorboard")
+        print("Jupyter URL: {}".format(jupyter_ip_url))
+        print("Ungit URL: {}".format(ungit_ip_url))
+        print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.
+              format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address))
 
         with open("/root/result.json", 'w') as result:
             res = {"ip": ip_address,

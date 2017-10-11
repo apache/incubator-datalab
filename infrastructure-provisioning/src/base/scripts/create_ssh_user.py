@@ -47,12 +47,12 @@ def ensure_ssh_user(initial_user, os_user, sudo_group):
 
 
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = '{}@{}'.format(args.initial_user, args.hostname)
 
-    print "Creating ssh user: {}".format(args.os_user)
+    print("Creating ssh user: {}".format(args.os_user))
     try:
         ensure_ssh_user(args.initial_user, args.os_user, args.sudo_group)
     except:

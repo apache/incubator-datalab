@@ -181,59 +181,59 @@ def install_r_packages(args):
 # Run script #
 ##############
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
     deeper_config = json.loads(args.additional_config)
 
-    print "Configuring notebook server."
+    print("Configuring notebook server.")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
             sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
 
-    print "Mount additional volume"
+    print("Mount additional volume")
     prepare_disk(args.os_user)
 
-    print "Install Java"
+    print("Install Java")
     ensure_jre_jdk(args.os_user)
 
-    print "Install local Spark"
+    print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, args.spark_version, args.hadoop_version, local_spark_path)
 
-    print "Install local jars"
+    print("Install local jars")
     ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
-    print "Installing scala"
+    print("Installing scala")
     ensure_scala(scala_link, args.scala_version, args.os_user)
 
-    print "Installing R"
+    print("Installing R")
     ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
-    print "Install Zeppelin"
+    print("Install Zeppelin")
     configure_zeppelin(args.os_user)
 
-    print "Install python2 libraries"
+    print("Install python2 libraries")
     ensure_python2_libraries(args.os_user)
 
-    print "Install python3 libraries"
+    print("Install python3 libraries")
     ensure_python3_libraries(args.os_user)
     ensure_python3_specific_version(python3_version, args.os_user)
 
     if args.multiple_clusters == 'true':
-        print "Installing Livy for local kernels"
+        print("Installing Livy for local kernels")
         install_local_livy(args)
-        print "Configuring local kernels"
+        print("Configuring local kernels")
         configure_local_livy_kernels(args)
     else:
-        print "Installing additional R packages"
+        print("Installing additional R packages")
         install_r_packages(args)
-        print "Configuring local kernels"
+        print("Configuring local kernels")
         configure_local_spark_kernels(args)
 
-    print "Install Ungit"
+    print("Install Ungit")
     install_nodejs(args.os_user)
     install_ungit(args.os_user)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):

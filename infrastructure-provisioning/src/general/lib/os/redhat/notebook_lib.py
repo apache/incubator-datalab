@@ -312,7 +312,7 @@ def install_os_pkg(requisites):
     status = list()
     error_parser = "Could not|No matching|Error:|failed|Requires:|Errno"
     try:
-        print "Updating repositories and installing requested tools: ", requisites
+        print("Updating repositories and installing requested tools: {}".format(requisites))
         sudo('yum update-minimal --security -y --skip-broken')
         sudo('export LC_ALL=C')
         for os_pkg in requisites:
@@ -484,5 +484,5 @@ def install_gitlab_cert(os_user, certfile):
         sudo('mv -f /home/{0}/{1} /etc/pki/ca-trust/source/anchors/{1}'.format(os_user, certfile))
         sudo('update-ca-trust')
     except Exception as err:
-        print 'Failed to install gitlab certificate.', str(err)
+        print('Failed to install gitlab certificate.{}'.format(str(err)))
         pass

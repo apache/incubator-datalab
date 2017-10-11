@@ -21,6 +21,8 @@ export const NAMING_CONVENTION = {
     'notebook_instance_size': 'Virtual machine size',
     'personal_storage': 'Personal storage',
     'collaboration_storage': 'Collaboration storage',
+    'account': 'Account:',
+    'container': 'Container:',
     'data_engine': 'Deploy Spark Server / Deploy HDInsight',
     'data_engine_master_instance_size': 'Head node size',
     'data_engine_slave_instance_size': 'Worker node size',

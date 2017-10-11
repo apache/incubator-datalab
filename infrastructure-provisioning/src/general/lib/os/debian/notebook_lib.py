@@ -41,7 +41,7 @@ def enable_proxy(proxy_host, proxy_port):
             sudo("echo 'Acquire::http::Proxy \"" + proxy_string + "\";' >> /etc/apt/apt.conf")
             sudo('touch /tmp/proxy_enabled ')
 
-            print "Renewing gpg key"
+            print("Renewing gpg key")
             renew_gpg_key()
         except:
             sys.exit(1)
@@ -312,7 +312,7 @@ def install_os_pkg(requisites):
     status = list()
     error_parser = "Could not|No matching|Error:|failed|Requires:"
     try:
-        print "Updating repositories and installing requested tools:", requisites
+        print("Updating repositories and installing requested tools: {}".format(requisites))
         sudo('apt-get update')
         for os_pkg in requisites:
             sudo('DEBIAN_FRONTEND=noninteractive apt-get -y install {0} 2>&1 | if ! grep -w -E  "({1})" >  /tmp/os_install_{0}.log; then  echo "" > /tmp/os_install_{0}.log;fi'.format(os_pkg, error_parser))
@@ -456,5 +456,5 @@ def install_gitlab_cert(os_user, certfile):
     try:
         sudo('mv -f /home/{0}/{1} /etc/ssl/certs/{1}'.format(os_user, certfile))
     except Exception as err:
-        print 'Failed to install gitlab certificate.', str(err)
+        print('Failed to install gitlab certificate. {}'.format(str(err)))
         pass

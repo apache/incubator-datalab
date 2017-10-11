@@ -50,7 +50,7 @@ def create_china_pip_conf_file():
 
 
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
     env.host_string = '{}@{}'.format(args.user, args.hostname)
@@ -60,11 +60,11 @@ if __name__ == "__main__":
         change_pkg_repos()
         create_china_pip_conf_file()
 
-    print "Updating repositories and installing requested tools."
+    print("Updating repositories and installing requested tools.")
     if not ensure_pkg(args.user):
         sys.exit(1)
 
-    print "Installing python packages: " + args.pip_packages
+    print("Installing python packages: {}".format(args.pip_packages))
     if not ensure_pip(args.pip_packages):
         sys.exit(1)
 

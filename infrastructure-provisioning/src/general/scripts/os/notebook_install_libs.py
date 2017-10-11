@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]')
-        print '[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]'
+        print('[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]')
         notebook_config = dict()
         try:
             notebook_config['notebook_name'] = os.environ['notebook_instance_name']

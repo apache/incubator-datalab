@@ -408,11 +408,14 @@ class AzureActions:
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
                         ami_full_name, tags, user_name='', create_option='fromImage', disk_id='',
-                        instance_storage_account_type='Premium_LRS'):
-        ami_name = ami_full_name.split('_')
-        publisher = ami_name[0]
-        offer = ami_name[1]
-        sku = ami_name[2]
+                        instance_storage_account_type='Premium_LRS', ami_type='default'):
+        if ami_type == 'default':
+            ami_name = ami_full_name.split('_')
+            publisher = ami_name[0]
+            offer = ami_name[1]
+            sku = ami_name[2]
+        elif ami_type == 'pre-configured':
+            ami_id = meta_lib.AzureMeta().get_image(resource_group_name, ami_full_name).id
         try:
             if instance_type == 'ssn':
                 parameters = {
@@ -536,6 +539,19 @@ class AzureActions:
                         }
                     }
             elif instance_type == 'notebook':
+                if ami_type == 'default':
+                    image_reference = {
+                            'publisher': publisher,
+                            'offer': offer,
+                            'sku': sku,
+                            'version': 'latest'
+                        }
+                    second_disk_create_option = 'empty'
+                elif ami_type == 'pre-configured':
+                    image_reference = {
+                        'id': ami_id
+                    }
+                    second_disk_create_option = 'fromImage'
                 parameters = {
                     'location': region,
                     'tags': tags,
@@ -543,12 +559,7 @@ class AzureActions:
                         'vm_size': instance_size
                     },
                     'storage_profile': {
-                        'image_reference': {
-                            'publisher': publisher,
-                            'offer': offer,
-                            'sku': sku,
-                            'version': 'latest'
-                        },
+                        'image_reference': image_reference,
                         'os_disk': {
                             'os_type': 'Linux',
                             'name': '{}-disk0'.format(instance_name),
@@ -563,7 +574,7 @@ class AzureActions:
                             {
                                 'lun': 1,
                                 'name': '{}-disk1'.format(instance_name),
-                                'create_option': 'empty',
+                                'create_option': second_disk_create_option,
                                 'disk_size_gb': 32,
                                 'tags': {
                                     'Name': '{}-disk1'.format(instance_name)
@@ -697,7 +708,7 @@ class AzureActions:
     def remove_instance(self, resource_group_name, instance_name):
         try:
             result = self.compute_client.virtual_machines.delete(resource_group_name, instance_name).wait()
-            print "Instance {} has been removed".format(instance_name)
+            print("Instance {} has been removed".format(instance_name))
             # Removing instance disks
             disk_names = []
             resource_group_disks = self.compute_client.disks.list_by_resource_group(resource_group_name)
@@ -706,17 +717,17 @@ class AzureActions:
                     disk_names.append(disk.name)
             for i in disk_names:
                 self.remove_disk(resource_group_name, i)
-                print "Disk {} has been removed".format(i)
+                print("Disk {} has been removed".format(i))
             # Removing public static IP address and network interfaces
             network_interface_name = instance_name + '-nif'
             for j in meta_lib.AzureMeta().get_network_interface(resource_group_name,
                                                                 network_interface_name).ip_configurations:
                 self.delete_network_if(resource_group_name, network_interface_name)
-                print "Network interface {} has been removed".format(network_interface_name)
+                print("Network interface {} has been removed".format(network_interface_name))
                 if j.public_ip_address:
                     static_ip_name = j.public_ip_address.id.split('/')[-1]
                     self.delete_static_public_ip(resource_group_name, static_ip_name)
-                    print "Static IP address {} has been removed".format(static_ip_name)
+                    print("Static IP address {} has been removed".format(static_ip_name))
             return result
         except Exception as err:
             logging.info(
@@ -820,7 +831,7 @@ class AzureActions:
                         sudo('kill -9 ' + process_number)
                         sudo('systemctl disable livy-server-' + livy_port)
                     except:
-                        print "Wasn't able to find Livy server for this EMR!"
+                        print("Wasn't able to find Livy server for this dataengine!")
                 sudo(
                     'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
                 sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
@@ -832,12 +843,12 @@ class AzureActions:
                 interpreter_prefix = cluster_name
                 for interpreter in interpreter_json['body']:
                     if interpreter_prefix in interpreter['name']:
-                        print "Interpreter with ID:", interpreter['id'], "and name:", interpreter['name'], \
-                            "will be removed from zeppelin!"
+                        print("Interpreter with ID: {0} and name: {1} will be removed from zeppelin!".
+                              format(interpreter['id'], interpreter['name']))
                         request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
                         request.get_method = lambda: 'DELETE'
                         url = opener.open(request)
-                        print url.read()
+                        print(url.read())
                 sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
                 sudo('systemctl daemon-reload')
                 sudo("service zeppelin-notebook stop")
@@ -865,7 +876,7 @@ class AzureActions:
                 sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
                 sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
             sudo('rm -rf  /opt/' + cluster_name + '/')
-            print "Notebook's " + env.hosts + " kernels were removed"
+            print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
             logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
                 file=sys.stdout))
@@ -920,6 +931,38 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def create_image_from_instance(self, resource_group_name, instance_name, region, image_name, tags):
+        try:
+            instance_id = meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).id
+            self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
+            self.compute_client.virtual_machines.generalize(resource_group_name, instance_name)
+            self.compute_client.images.create_or_update(resource_group_name, image_name, parameters={
+                "location": region,
+                "tags": json.loads(tags),
+                "source_virtual_machine": {
+                    "id": instance_id
+                }
+            }).wait()
+            AzureActions().remove_instance(resource_group_name, instance_name)
+        except Exception as err:
+            logging.info(
+                "Unable to create image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create image",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def remove_image(self, resource_group_name, image_name):
+        try:
+            return self.compute_client.images.delete(resource_group_name, image_name)
+        except Exception as err:
+            logging.info(
+                "Unable to remove image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove image",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
 
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
@@ -937,7 +980,7 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                     shared_storage_account_name = storage_account.name
                     shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
                                                                                         shared_storage_account_name)[0]
-            print "Downloading local jars for Azure"
+            print("Downloading local jars for Azure")
             sudo('mkdir -p ' + jars_dir)
             sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                  {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))

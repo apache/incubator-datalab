@@ -41,20 +41,20 @@ if __name__ == "__main__":
         for storage_account in AzureMeta().list_storage_accounts(args.resource_group_name):
             if account_tags["Name"] == storage_account.tags["Name"]:
                 check_account = True
-                print "REQUESTED STORAGE ACCOUNT {} ALREADY EXISTS".format(storage_account.name)
+                print("REQUESTED STORAGE ACCOUNT {} ALREADY EXISTS".format(storage_account.name))
         if not check_account:
             account_name = id_generator().lower()
             check = AzureMeta().check_account_availability(account_name)
             if check.name_available:
-                print "Creating storage account {}.".format(account_name)
+                print("Creating storage account {}.".format(account_name))
                 storage_account = AzureActions().create_storage_account(args.resource_group_name, account_name,
                                                                         args.region, account_tags)
                 blob_container = AzureActions().create_blob_container(args.resource_group_name, account_name,
                                                                       args.container_name)
-                print "STORAGE ACCOUNT {} has been created".format(account_name)
-                print "CONTAINER {} has been created".format(args.container_name)
+                print("STORAGE ACCOUNT {} has been created".format(account_name))
+                print("CONTAINER {} has been created".format(args.container_name))
             else:
-                print "STORAGE ACCOUNT with name {} could not be created. ".format(account_name), check.message
+                print("STORAGE ACCOUNT with name {0} could not be created. {1}".format(account_name, check.message))
                 sys.exit(1)
     except:
         sys.exit(1)
