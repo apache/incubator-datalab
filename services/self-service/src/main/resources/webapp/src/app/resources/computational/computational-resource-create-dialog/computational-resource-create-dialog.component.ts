@@ -55,7 +55,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public minSpotPrice: number = 0;
   public maxSpotPrice: number = 0;
 
-  public createComputationalResourceForm: FormGroup;
+  public resourceForm: FormGroup;
 
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('name') name;
@@ -154,14 +154,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.shapes.slave_shape = this.shapePlaceholder(filtered, 'type');
 
       this.spotInstance = this.shapePlaceholder(filtered, 'spot');
-      this.createComputationalResourceForm.controls['instance_price'].setValue(this.shapePlaceholder(filtered, 'price'));
+      this.resourceForm.controls['instance_price'].setValue(this.shapePlaceholder(filtered, 'price'));
     } else {
       this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
         this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
       this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
 
       this.spotInstance = false;
-      this.createComputationalResourceForm.controls['instance_price'].setValue(0);
+      this.resourceForm.controls['instance_price'].setValue(0);
     }
   }
 
@@ -198,7 +198,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private initFormModel(): void {
-    this.createComputationalResourceForm = this._fb.group({
+    this.resourceForm = this._fb.group({
       cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern), this.providerMaxLength]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]]
@@ -218,7 +218,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.maxSpotPrice = this.model.selectedImage.limits.max_emr_spot_instance_bid_pct;
       }
 
-      this.createComputationalResourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
+      this.resourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
     }
   }
 
@@ -244,9 +244,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       slave_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type')
     };
     if (DICTIONARY.cloud_provider === 'aws') {
-      this.cluster_type.setDefaultOptions(this.model.computationalResourceImages,
+      this.cluster_type.setDefaultOptions(this.model.resourceImages,
         this.model.selectedItem.template_name, 'cluster_type', 'template_name', 'array');
-      this.templates_list.setDefaultOptions(this.model.computationalResourceApplicationTemplates,
+      this.templates_list.setDefaultOptions(this.model.templates,
         this.model.selectedItem.version, 'template', 'version', 'array');
     }
     this.master_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
