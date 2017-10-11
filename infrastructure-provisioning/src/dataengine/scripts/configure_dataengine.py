@@ -42,6 +42,8 @@ args = parser.parse_args()
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
+tensorflow_version = os.environ['notebook_tensorflow_version']
+nvidia_version = os.environ['notebook_nvidia_version']
 scala_link = "http://www.scala-lang.org/files/archive/"
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
@@ -106,6 +108,16 @@ if __name__ == "__main__":
 
     print("Installing R")
     ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
+
+    if os.environ['application'] == 'tensor':
+        print("Installing TensorFlow")
+        install_tensor(args.os_user, tensorflow_version, files_dir, templates_dir, nvidia_version)
+        print("Installing keras")
+        install_keras(args.os_user)
+        print("Installing opencv-python, h5py")
+        ensure_additional_python_libs(args.os_user)
+        print("Installing matplotlib.")
+        ensure_matplot(args.os_user)
 
     if args.node_type == 'master':
         print("Configuring Spark")
