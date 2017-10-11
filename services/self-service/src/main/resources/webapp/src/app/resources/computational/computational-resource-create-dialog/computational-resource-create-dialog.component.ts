@@ -54,7 +54,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public maxInstanceNumber: number;
   public minSpotPrice: number = 0;
   public maxSpotPrice: number = 0;
-
   public resourceForm: FormGroup;
 
   @ViewChild('bindDialog') bindDialog;
