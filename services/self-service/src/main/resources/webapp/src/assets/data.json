@@ -131,6 +131,12 @@
               "SpotPctPrice": 70
             }
           ]
+        },
+        "limits": {
+          "min_emr_instance_count": 2,
+          "max_emr_instance_count": 14,
+          "min_emr_spot_instance_bid_pct": 20,
+          "max_emr_spot_instance_bid_pct": 90
         }
       },
       {
@@ -211,6 +217,10 @@
               "SpotPctPrice": 70
             }
           ]
+        },
+        "limits": {
+          "min_spark_instance_count": 2,
+          "max_spark_instance_count": 14
         }
       }
     ]
