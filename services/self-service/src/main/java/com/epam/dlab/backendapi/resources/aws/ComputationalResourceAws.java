@@ -26,10 +26,8 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
-import com.epam.dlab.backendapi.resources.dto.SparkStandaloneConfiguration;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalResource;
-import com.epam.dlab.backendapi.resources.dto.aws.AwsEmrConfiguration;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ComputationalService;
@@ -51,8 +49,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.epam.dlab.UserInstanceStatus.CREATING;
 import static com.epam.dlab.UserInstanceStatus.FAILED;
@@ -79,33 +75,6 @@ public class ComputationalResourceAws implements ComputationalAPI {
     private SelfServiceApplicationConfiguration configuration;
     @Inject
     private ComputationalService computationalService;
-
-
-    /**
-     * Returns the limits for creation the computational resources.
-     *
-     * @param userInfo user info.
-     */
-    @GET
-    @Path("/configuration")
-    public Map<DataEngineType, Object> getConfiguration(@Auth UserInfo userInfo) {
-
-        Map<DataEngineType, Object> limits = new HashMap<>();
-
-        limits.put(DataEngineType.CLOUD_SERVICE, AwsEmrConfiguration.builder()
-                .minEmrInstanceCount(configuration.getMinEmrInstanceCount())
-                .maxEmrInstanceCount(configuration.getMaxEmrInstanceCount())
-                .maxEmrSpotInstanceBidPct(configuration.getMaxEmrSpotInstanceBidPct())
-                .minEmrSpotInstanceBidPct(configuration.getMinEmrSpotInstanceBidPct()).build());
-
-        limits.put(DataEngineType.SPARK_STANDALONE, SparkStandaloneConfiguration.builder()
-                .maxSparkInstanceCount(configuration.getMaxSparkInstanceCount())
-                .minSparkInstanceCount(configuration.getMinSparkInstanceCount()).build());
-
-        log.debug("Returns limits for user {}: {}", userInfo.getName(), limits);
-
-        return limits;
-    }
 
     /**
      * Sends request to provisioning service for creation the computational resource for user.
