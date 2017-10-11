@@ -23,8 +23,6 @@ import { ReportingConfigModel }  from './reporting-data.model';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
-import * as moment from 'moment';
-
 @Component({
   selector: 'dlab-reporting',
   template: `
