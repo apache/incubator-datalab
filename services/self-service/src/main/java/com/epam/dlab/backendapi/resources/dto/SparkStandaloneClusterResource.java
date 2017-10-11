@@ -34,22 +34,22 @@ public class SparkStandaloneClusterResource extends UserComputationalResource {
     private String dataEngineInstanceCount;
 
     @NotBlank
-    @JsonProperty("dataengine_slave_size")
-    private String dataEngineSlaveSize;
+    @JsonProperty("dataengine_slave")
+    private String dataEngineSlave;
 
     @NotBlank
-    @JsonProperty("dataengine_master_size")
-    private String dataEngineMasterSize;
+    @JsonProperty("dataengine_master")
+    private String dataEngineMaster;
 
     @Builder
     public SparkStandaloneClusterResource(String computationalName, String computationalId, String imageName,
                                           String templateName, String status, Date uptime,
-                                          String dataEngineInstanceCount, String dataEngineSlaveSize,
-                                          String dataEngineMasterSize) {
+                                          String dataEngineInstanceCount, String dataEngineSlave,
+                                          String dataEngineMaster) {
 
         super(computationalName, computationalId, imageName, templateName, status, uptime);
         this.dataEngineInstanceCount = dataEngineInstanceCount;
-        this.dataEngineSlaveSize = dataEngineSlaveSize;
-        this.dataEngineMasterSize = dataEngineMasterSize;
+        this.dataEngineSlave = dataEngineSlave;
+        this.dataEngineMaster = dataEngineMaster;
     }
 }

@@ -28,8 +28,8 @@ import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterResource;
 import com.epam.dlab.backendapi.resources.dto.UserComputationalResource;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.dlab.dto.base.DataEngineType;
+import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -79,7 +79,7 @@ public class ComputationalService {
             try {
                 UserInstanceDTO instance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), form.getNotebookName());
 
-                SparkComputationalCreateAzure dto = RequestBuilder.newComputationalCreate(userInfo, instance, form);
+                ComputationalBase<?> dto = RequestBuilder.newComputationalCreate(userInfo, instance, form);
 
                 String uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_CREATE_SPARK, userInfo.getAccessToken(), dto, String.class);
                 RequestId.put(userInfo.getName(), uuid);
@@ -117,7 +117,8 @@ public class ComputationalService {
             UserComputationalResource computationalResource = computationalDAO.fetchComputationalFields(userInfo.getName(), exploratoryName, computationalName);
 
             ComputationalTerminateDTO dto = RequestBuilder.newComputationalTerminate(userInfo, exploratoryName,
-                    exploratoryId, computationalName, computationalResource.getComputationalId());
+                    exploratoryId, computationalName, computationalResource.getComputationalId(),
+                    DataEngineType.fromDockerImageName(computationalResource.getImageName()));
 
             String uuid = provisioningService.post(getTerminateUrl(computationalResource), userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
@@ -197,8 +198,8 @@ public class ComputationalService {
                 .templateName(form.getTemplateName())
                 .status(CREATING.toString())
                 .dataEngineInstanceCount(form.getDataEngineInstanceCount())
-                .dataEngineMasterSize(form.getDataEngineMasterSize())
-                .dataEngineSlaveSize(form.getDataEngineSlaveSize())
+                .dataEngineMaster(form.getDataEngineMaster())
+                .dataEngineSlave(form.getDataEngineSlave())
                 .build();
     }
 
