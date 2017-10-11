@@ -25,6 +25,17 @@ limitations under the License.
       <form [formGroup]="createComputationalResourceForm" novalidate (submit)="createComputationalResource($event, createComputationalResourceForm.value, shapes.master_shape, shapes.slave_shape)">
         <div class="form-group row" *ngIf="PROVIDER === 'aws'">
           <div  class="col-xs-4">
+            <label class="control-label">Select cluster type</label>
+          </div>
+          <div class="col-xs-8">
+            <dropdown-list #clusterType (selectedItem)="onUpdate($event)"></dropdown-list>
+          </div>
+          <div class="col-xs-12" *ngIf="model.computationalResourceImages">
+            <small *ngIf="model.selectedImage">{{ model.selectedImage.description }}</small>
+          </div>
+        </div>
+        <div class="form-group row" *ngIf="PROVIDER === 'aws'" [hidden]="!model.computationalResourceApplicationTemplates.length">
+          <div  class="col-xs-4">
             <label class="control-label">Select template</label>
           </div>
           <div class="col-xs-8">
@@ -74,7 +85,7 @@ limitations under the License.
             <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
           </div>
         </div>
-        <div class="checkbox-group row" *ngIf="PROVIDER === 'aws'">
+        <div class="checkbox-group row" *ngIf="PROVIDER === 'aws'" [hidden]="!model.computationalResourceApplicationTemplates.length">
           <label>
             <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" /> Spot instance
           </label>

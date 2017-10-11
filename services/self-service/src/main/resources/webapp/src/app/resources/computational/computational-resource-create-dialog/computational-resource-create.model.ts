@@ -41,6 +41,7 @@ export class ComputationalResourceCreateModel {
 
   selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({},
     new ResourceShapeTypesModel({}), '', '', '');
+  selectedImage: ComputationalResourceImage;
   computationalResourceImages: Array<ComputationalResourceImage> = [];
   computationalResourceApplicationTemplates: Array<ComputationalResourceApplicationTemplate> = [];
 
@@ -94,17 +95,15 @@ export class ComputationalResourceCreateModel {
           for (let parentIndex = 0; parentIndex < data.computational_templates.length; parentIndex++) {
             computationalResourceImage = new ComputationalResourceImage(data.computational_templates[parentIndex]);
             
-            if (DICTIONARY.cloud_provider === 'aws') {
+            if (DICTIONARY.cloud_provider === 'aws')
               this.computationalResourceImages.push(computationalResourceImage);
-              for (let index = 0; index < computationalResourceImage.application_templates.length; index++)
-                this.computationalResourceApplicationTemplates.push(computationalResourceImage.application_templates[index]);
-            }
           }
-
+          
           if (this.computationalResourceImages.length > 0 && DICTIONARY.cloud_provider === 'aws') {
-            this.setSelectedTemplate(0);
+            this.setSelectedClusterType(0);
           } else if (DICTIONARY.cloud_provider !== 'aws') {
             this.selectedItem = computationalResourceImage;
+            this.selectedImage = computationalResourceImage;
           }
 
           if (this.continueWith)
@@ -112,11 +111,23 @@ export class ComputationalResourceCreateModel {
         });
   }
 
+  public setSelectedClusterType(index) {
+    this.selectedImage = this.computationalResourceImages[index];
+    this.computationalResourceApplicationTemplates = [];
+    
+    for (let index = 0; index < this.selectedImage.application_templates.length; index++)
+      this.computationalResourceApplicationTemplates.push(this.selectedImage.application_templates[index]);
+
+    this.setSelectedTemplate(0);
+  }
+
   public setSelectedTemplate(index: number): void {
     if (this.computationalResourceApplicationTemplates && this.computationalResourceApplicationTemplates[index]) {
       this.selectedItem = this.computationalResourceApplicationTemplates[index];
       if (this.selectedItemChanged)
         this.selectedItemChanged();
+    } else {
+      this.selectedItem = null;
     }
   }
 

@@ -60,6 +60,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('name') name;
   @ViewChild('count') count;
+  @ViewChild('clusterType') cluster_type;
   @ViewChild('templatesList') templates_list;
   @ViewChild('masterShapesList') master_shapes_list;
   @ViewChild('shapesSlaveList') slave_shapes_list;
@@ -76,7 +77,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   ngOnInit() {
     this.initFormModel();
-    this.getComputationalResourceLimits();
     this.bindDialog.onClosing = () => this.resetDialog();
   }
 
@@ -99,6 +99,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
       this.shapes.master_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
       this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
+    }
+    if ($event.model.type === 'cluster_type') {
+      this.model.setSelectedClusterType($event.model.index);
     }
 
     if (this.shapes[$event.model.type])
@@ -182,6 +185,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         () => {
           this.bindDialog.open(params);
           this.setDefaultParams();
+          this.getComputationalResourceLimits();
         },
         this.userResourceService);
 
@@ -206,18 +210,16 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private getComputationalResourceLimits(): void {
-    this.userResourceService.getComputationalResourcesConfiguration()
-      .subscribe((limits) => {
-        this.minInstanceNumber = limits[DICTIONARY.total_instance_number_min];
-        this.maxInstanceNumber = limits[DICTIONARY.total_instance_number_max];
+    if (this.model.selectedImage) {
+      this.minInstanceNumber = this.model.selectedImage.limits[DICTIONARY.total_instance_number_min];
+      this.maxInstanceNumber = this.model.selectedImage.limits[DICTIONARY.total_instance_number_max];
+      if (this.PROVIDER === 'aws') {
+        this.minSpotPrice = this.model.selectedImage.limits.min_emr_spot_instance_bid_pct;
+        this.maxSpotPrice = this.model.selectedImage.limits.max_emr_spot_instance_bid_pct;
+      }
 
-        if (this.PROVIDER === 'aws') {
-          this.minSpotPrice = limits.min_emr_spot_instance_bid_pct;
-          this.maxSpotPrice = limits.max_emr_spot_instance_bid_pct;
-        }
-
-        this.createComputationalResourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
-      });
+      this.createComputationalResourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
+    }
   }
 
   private validInstanceNumberRange(control) {
@@ -242,6 +244,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       slave_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type')
     };
     if (DICTIONARY.cloud_provider === 'aws') {
+      this.cluster_type.setDefaultOptions(this.model.computationalResourceImages,
+        this.model.selectedItem.template_name, 'cluster_type', 'template_name', 'array');
       this.templates_list.setDefaultOptions(this.model.computationalResourceApplicationTemplates,
         this.model.selectedItem.version, 'template', 'version', 'array');
     }
