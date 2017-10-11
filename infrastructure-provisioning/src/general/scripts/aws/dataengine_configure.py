@@ -299,7 +299,7 @@ if __name__ == "__main__":
         print("Instance count: {}".format(str(data_engine['instance_count'])))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": data_engine['cluster_name'],
-                   "instances_id": data_engine_instances_ids,
+                   "instance_id": data_engine_instances_ids,
                    "key_name": data_engine['key_name'],
                    "Action": "Create new Data Engine"}
             print json.dumps(res)
