@@ -48,15 +48,15 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     #     print(err)
     #     sys.exit(1)
 
-    print("Removing static public IPs")
-    try:
-        for static_public_ip in AzureMeta().list_static_ips(resource_group_name):
-            if service_base_name == static_public_ip.tags["SBN"]:
-                AzureActions().delete_static_public_ip(resource_group_name, static_public_ip.name)
-                print("Static public IP {} has been removed".format(static_public_ip.name))
-    except Exception as err:
-        print(err)
-        sys.exit(1)
+    # print("Removing static public IPs")
+    # try:
+    #     for static_public_ip in AzureMeta().list_static_ips(resource_group_name):
+    #         if service_base_name == static_public_ip.tags["SBN"]:
+    #             AzureActions().delete_static_public_ip(resource_group_name, static_public_ip.name)
+    #             print("Static public IP {} has been removed".format(static_public_ip.name))
+    # except Exception as err:
+    #     print(err)
+    #     sys.exit(1)
 
     print("Removing disks")
     try:
