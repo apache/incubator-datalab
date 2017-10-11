@@ -101,6 +101,6 @@ if __name__ == "__main__":
     else:
         dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
         install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
-        install_tensorflow_jars(local_jars_dir)
+        ensure_dataengine_tensorflow_jars(local_jars_dir)
         configure_dataengine_spark(local_jars_dir, spark_dir, local_spark_dir)
         pyspark_kernel(args)

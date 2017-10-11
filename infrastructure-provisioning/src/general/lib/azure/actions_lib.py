@@ -986,6 +986,9 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                  {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
             sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/2.2.0/azure-storage-2.2.0.jar \
                  -O {}azure-storage-2.2.0.jar'.format(jars_dir))
+            if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
+                sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
+                     -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
             put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
             sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
             sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))

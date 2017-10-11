@@ -13,5 +13,6 @@
     "azure_dataengine_master_size":"ADMS",
     "azure_dataengine_slave_size":"ADSS",
     "notebook_instance_name":"NNM",
-    "computational_name": "CNAM"
+    "computational_name": "CNAM",
+    "application": "APP"
 }
