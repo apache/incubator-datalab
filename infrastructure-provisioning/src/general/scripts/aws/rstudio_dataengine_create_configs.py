@@ -60,6 +60,7 @@ def configure_rstudio():
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
                   args.os_user + '/.Rprofile')
+            local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
             local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine_ensured')
         except:
             sys.exit(1)
@@ -71,6 +72,7 @@ def configure_rstudio():
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
                   args.os_user + '/.Rprofile')
+            local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
         except:
             sys.exit(1)
 
