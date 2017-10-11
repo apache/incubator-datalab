@@ -89,10 +89,10 @@ if __name__ == "__main__":
     print("Install TensorFlow")
     install_tensor(args.os_user, tensorflow_version, files_dir, templates_dir, nvidia_version)
 
-    print "Install Theano"
+    print("Install Theano")
     install_theano(args.os_user, theano_version)
 
-    print "Installing Keras"
+    print("Installing Keras")
     install_keras(args.os_user, keras_version)
 
     print("Install Jupyter")
