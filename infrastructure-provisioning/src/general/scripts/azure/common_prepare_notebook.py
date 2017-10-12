@@ -71,7 +71,6 @@ if __name__ == "__main__":
         notebook_config['key_name'] = os.environ['conf_key_name']
         notebook_config['instance_name'] = notebook_config['service_base_name'] + "-" + notebook_config['user_name'] +\
                                            "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
-        notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],
                                    "User": notebook_config['user_name']}
@@ -87,16 +86,6 @@ if __name__ == "__main__":
             notebook_config['primary_disk_size'] = '30'
         else:
             notebook_config['primary_disk_size'] = '12'
-        if os.environ['application'] == 'zeppelin':
-            if os.environ['notebook_multiple_clusters'] == 'true':
-                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
-                    notebook_config['user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
-            else:
-                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
-                    notebook_config['user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
-        else:
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
-                notebook_config['user_name'] + '-' + os.environ['application'] + '-notebook-image'
         notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
             notebook_config['user_name'] + "-nb-Profile"
         notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + \
@@ -111,6 +100,28 @@ if __name__ == "__main__":
         if os.environ['conf_os_family'] == 'redhat':
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
+        notebook_config['ami_type'] = 'default'
+        if os.environ['application'] == 'zeppelin':
+            if os.environ['notebook_multiple_clusters'] == 'true':
+                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
+                                                       notebook_config['user_name'] + '-' + os.environ['application'] \
+                                                       + '-livy-notebook-image'
+            else:
+                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
+                                                       notebook_config['user_name'] + '-' + os.environ['application'] \
+                                                       + '-spark-notebook-image'
+        else:
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
+                                                   notebook_config['user_name'] + '-' + os.environ['application'] + \
+                                                   '-notebook-image'
+        print('Searching preconfigured images')
+        if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name']):
+            print('Preconfigured image found. Using: {}'.format(notebook_config['expected_ami_name']))
+            notebook_config['ami_name'] = notebook_config['expected_ami_name']
+            notebook_config['ami_type'] = 'pre-configured'
+        else:
+            notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
+            print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_name']))
     except Exception as err:
         print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary.", str(err))
@@ -124,14 +135,14 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
         print('[CREATE NOTEBOOK INSTANCE]')
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags '{}'". \
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags '{}' --ami_type {}". \
             format(notebook_config['instance_name'], notebook_config['instance_size'], notebook_config['region'],
                    notebook_config['vpc_name'], notebook_config['network_interface_name'],
                    notebook_config['security_group_name'], notebook_config['private_subnet_name'],
                    notebook_config['service_base_name'], notebook_config['resource_group_name'], initial_user,
                    'None', notebook_config['public_ssh_key'], '32', 'notebook',
                    notebook_config['user_name'], notebook_config['instance_storage_account_type'],
-                   notebook_config['ami_name'], json.dumps(notebook_config['tags']))
+                   notebook_config['ami_name'], json.dumps(notebook_config['tags']), notebook_config['ami_type'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

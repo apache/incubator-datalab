@@ -26,6 +26,7 @@ export class ComputationalResourceImage {
   environment_type: ImageType;
   shapes: ResourceShapeTypesModel;
   application_templates: Array<ComputationalResourceApplicationTemplate>;
+  limits: any;
 
   constructor(jsonModel: any) {
     this.image = jsonModel.image;
@@ -33,7 +34,7 @@ export class ComputationalResourceImage {
     this.description = jsonModel.description;
     this.environment_type = ImageType.СOMPUTATIONAL;
     this.application_templates = [];
-
+    this.limits = jsonModel.limits;
     this.shapes = new ResourceShapeTypesModel(SortUtil.shapesSort(jsonModel.computation_resources_shapes));
 
     if (jsonModel.templates && jsonModel.templates.length > 0)

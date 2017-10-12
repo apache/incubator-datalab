@@ -22,17 +22,24 @@ limitations under the License.
   </modal-header>
   <modal-content>
     <div class="content-box">
-      <form [formGroup]="createComputationalResourceForm" novalidate (submit)="createComputationalResource($event, createComputationalResourceForm.value, shapes.master_shape, shapes.slave_shape)">
+      <form [formGroup]="resourceForm" novalidate (submit)="createComputationalResource($event, resourceForm.value, shapes.master_shape, shapes.slave_shape)">
         <div class="form-group row" *ngIf="PROVIDER === 'aws'">
+          <div  class="col-xs-4">
+            <label class="control-label">Select cluster type</label>
+          </div>
+          <div class="col-xs-8">
+            <dropdown-list #clusterType (selectedItem)="onUpdate($event)"></dropdown-list>
+          </div>
+          <div class="col-xs-12" *ngIf="model.resourceImages">
+            <small *ngIf="model.selectedImage">{{ model.selectedImage.description }}</small>
+          </div>
+        </div>
+        <div class="form-group row" *ngIf="PROVIDER === 'aws'" [hidden]="!model.templates.length">
           <div  class="col-xs-4">
             <label class="control-label">Select template</label>
           </div>
           <div class="col-xs-8">
             <dropdown-list #templatesList (selectedItem)="onUpdate($event)"></dropdown-list>
-          </div>
-          <div class="col-xs-12" *ngIf="model.computationalResourceApplicationTemplates">
-            <small *ngIf="model.computationalResourceApplicationTemplates && model.computationalResourceApplicationTemplates.length > 0 && !template_description">{{model.computationalResourceApplicationTemplates[0].description}}</small>
-            <small *ngIf="template_description">{{template_description}}</small>
           </div>
         </div>
         <div class="form-group row">
@@ -40,9 +47,11 @@ limitations under the License.
             <label class="control-label">Cluster alias</label>
           </div>
           <div class="col-xs-8">
-              <input [class.danger_field]="computationalResourceExist" type="text" class="form-control" placeholder="Enter cluster alias" formControlName="cluster_alias_name" />
+              <input [class.danger_field]="computationalResourceExist || !resourceForm.controls['cluster_alias_name'].valid && resourceForm.controls['cluster_alias_name'].dirty" type="text" class="form-control" placeholder="Enter cluster alias" formControlName="cluster_alias_name" />
               <span class="danger_color" *ngIf="computationalResourceExist">This cluster name already exists.</span>
-              <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.cluster_alias_name.valid && checkValidity">Not a valid name</span>
+              <span class="danger_color" *ngIf="!resourceForm.controls.cluster_alias_name.valid && resourceForm.controls['cluster_alias_name'].dirty">
+                Cluster name <span *ngIf="DICTIONARY.cloud_provider === 'azure'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_'
+              </span>
           </div>
         </div>
         <div class="form-group row">
@@ -51,15 +60,14 @@ limitations under the License.
           </div>
           <div class="col-xs-8">
             <input type="number" class="form-control" min="{{minInstanceNumber}}" max="{{maxInstanceNumber}}" formControlName="instance_number" (keypress)="isNumberKey($event)" />
-            <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.instance_number.valid">
+            <span class="danger_color" *ngIf="!resourceForm.controls.instance_number.valid">
               Only integer values greater than or equal to {{minInstanceNumber}} and less than {{maxInstanceNumber}} are allowed
             </span>
           </div>
         </div>
         <div class="form-group row">
           <div  class="col-xs-4">
-            <label class="control-label">{{ DICTIONARY.data_engine_master_instance_size}}</label>
-            <!-- <label class="control-label">Master Instance shape</label> -->
+            <label class="control-label" *ngIf="model.selectedImage">{{ DICTIONARY[model.selectedImage.image].data_engine_master_instance_size}}</label>
           </div>
           <div class="col-xs-8">
             <dropdown-list #masterShapesList (selectedItem)="onUpdate($event)"></dropdown-list>
@@ -67,13 +75,13 @@ limitations under the License.
         </div>
         <div class="row">
           <div  class="col-xs-4">
-            <label class="control-label">{{ DICTIONARY.data_engine_slave_instance_size }}</label>
+            <label class="control-label" *ngIf="model.selectedImage">{{ DICTIONARY[model.selectedImage.image].data_engine_slave_instance_size }}</label>
           </div>
           <div class="col-xs-8">
             <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
           </div>
         </div>
-        <div class="checkbox-group row" *ngIf="PROVIDER === 'aws'">
+        <div class="checkbox-group row" *ngIf="PROVIDER === 'aws'" [hidden]="!model.templates.length">
           <label>
             <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" /> Spot instance
           </label>
@@ -84,7 +92,7 @@ limitations under the License.
               </div>
               <div class="col-xs-8">
                 <input type="number" class="form-control" step="5" min="{{minSpotPrice}}" max="{{maxSpotPrice}}" formControlName="instance_price" (keypress)="isNumberKey($event)">
-                <span class="danger_color" *ngIf="!createComputationalResourceForm.controls.instance_price.valid">
+                <span class="danger_color" *ngIf="!resourceForm.controls.instance_price.valid">
                   Only integer values greater than or equal to {{minSpotPrice}} and less than {{maxSpotPrice}} are allowed
                 </span>
               </div>
@@ -97,8 +105,8 @@ limitations under the License.
         </div>
         <div class="text-center m-top-20">
           <button md-raised-button type="button" (click)="bindDialog.close()" class="butt">Cancel</button>
-          <button md-raised-button type="submit" [disabled]="!createComputationalResourceForm.valid"
-                  class="butt butt-success" [ngClass]="{'not-allowed': !createComputationalResourceForm.valid}">Create</button>
+          <button md-raised-button type="submit" [disabled]="!resourceForm.valid"
+                  class="butt butt-success" [ngClass]="{'not-allowed': !resourceForm.valid}">Create</button>
         </div>
       </form>
     </div>

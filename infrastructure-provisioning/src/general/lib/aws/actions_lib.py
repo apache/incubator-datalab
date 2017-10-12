@@ -97,7 +97,7 @@ def remove_vpc(vpc_id):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_tag(resource, tag):
+def create_tag(resource, tag, with_tag_res_id=True):
     try:
         ec2 = boto3.client('ec2')
         if type(tag) == dict:
@@ -108,16 +108,24 @@ def create_tag(resource, tag):
             resource_tag = json.loads(tag)
         if type(resource) != list:
             resource = [resource]
-        ec2.create_tags(
-            Resources=resource,
-            Tags=[
-                resource_tag,
-                {
-                    'Key': os.environ['conf_tag_resource_id'],
-                    'Value': os.environ['conf_service_base_name'] + ':' + resource_name
-                }
-            ]
-        )
+        if with_tag_res_id:
+            ec2.create_tags(
+                Resources=resource,
+                Tags=[
+                    resource_tag,
+                    {
+                        'Key': os.environ['conf_tag_resource_id'],
+                        'Value': os.environ['conf_service_base_name'] + ':' + resource_name
+                    }
+                ]
+            )
+        else:
+            ec2.create_tags(
+                Resources=resource,
+                Tags=[
+                    resource_tag
+                ]
+            )
     except Exception as err:
         logging.info("Unable to create Tag: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to create Tag", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))

@@ -1,0 +1,227 @@
+{
+    "computational_templates":
+    [
+      {
+        "description": "Image for EMR provisioning",
+        "templates": [
+          {
+            "version": "emr-5.2.0",
+            "applications": [
+              {
+                "Version": "2.7.3",
+                "Name": "Hadoop"
+              },
+              {
+                "Version": "2.0.2",
+                "Name": "Spark"
+              },
+              {
+                "Version": "2.1.0",
+                "Name": "Hive"
+              }
+            ]
+          },
+          {
+            "version": "emr-5.3.1",
+            "applications": [
+              {
+                "Version": "2.7.3",
+                "Name": "Hadoop"
+              },
+              {
+                "Version": "2.1.0",
+                "Name": "Spark"
+              },
+              {
+                "Version": "2.1.1",
+                "Name": "Hive"
+              }
+            ]
+          },
+          {
+            "version": "emr-5.6.0",
+            "applications": [
+              {
+                "Version": "2.7.3",
+                "Name": "Hadoop"
+              },
+              {
+                "Version": "2.1.0",
+                "Name": "Spark"
+              },
+              {
+                "Version": "2.1.1",
+                "Name": "Hive"
+              }
+            ]
+          }
+        ],
+        "image": "docker.dlab-dataengine-service",
+        "image_type": "COMPUTATIONAL",
+        "template_name": "DLab AWS EMR",
+        "environment_type": "computational",
+        "request_id": "7426e0b3-982a-4645-a1d6-24a2e26dff11",
+        "computation_resources_shapes": {
+          "Memory optimized": [
+            {
+              "Type": "r3.xlarge",
+              "Size": "S",
+              "Description": "r3.xlarge",
+              "Ram": "30.5 GB",
+              "Cpu": 4,
+              "Spot": true,
+              "SpotPctPrice": 70
+            },
+            {
+              "Type": "r3.4xlarge",
+              "Size": "M",
+              "Description": "r3.4xlarge",
+              "Ram": "122 GB",
+              "Cpu": 16,
+              "Spot": true,
+              "SpotPctPrice": 70
+            },
+            {
+              "Type": "r3.8xlarge",
+              "Size": "L",
+              "Description": "r3.8xlarge",
+              "Ram": "244 GB",
+              "Cpu": 32,
+              "Spot": true,
+              "SpotPctPrice": 70
+            }
+          ],
+          "Compute optimized": [
+            {
+              "Type": "c4.large",
+              "Size": "S",
+              "Description": "c4.large",
+              "Ram": "3.75 GB",
+              "Cpu": 2,
+              "Spot": true,
+              "SpotPctPrice": 70
+            },
+            {
+              "Type": "c4.2xlarge",
+              "Size": "M",
+              "Description": "c4.2xlarge",
+              "Ram": "15.0 GB",
+              "Cpu": 8,
+              "Spot": true,
+              "SpotPctPrice": 70
+            },
+            {
+              "Type": "c4.8xlarge",
+              "Size": "L",
+              "Description": "c4.8xlarge",
+              "Ram": "60.0 GB",
+              "Cpu": 36,
+              "Spot": true,
+              "SpotPctPrice": 70
+            }
+          ],
+          "For testing": [
+            {
+              "Type": "c4.large",
+              "Size": "S",
+              "Description": "c4.large",
+              "Ram": "3.75 GB",
+              "Cpu": 2,
+              "Spot": true,
+              "SpotPctPrice": 70
+            }
+          ]
+        },
+        "limits": {
+          "min_emr_instance_count": 2,
+          "max_emr_instance_count": 14,
+          "min_emr_spot_instance_bid_pct": 20,
+          "max_emr_spot_instance_bid_pct": 90
+        }
+      },
+      {
+        "description": "Spark standalone cluster",
+        "templates": [],
+        "image": "docker.dlab-dataengine",
+        "image_type": "COMPUTATIONAL",
+        "template_name": "Data Engine",
+        "environment_type": "computational",
+        "request_id": "9c37133b-32e1-49a9-8b14-3665cb7d8bbd",
+        "computation_resources_shapes": {
+          "Memory optimized": [
+            {
+              "Type": "r3.xlarge",
+              "Size": "S",
+              "Description": "r3.xlarge",
+              "Ram": "30.5 GB",
+              "Cpu": 4,
+              "Spot": false,
+              "SpotPctPrice": 70
+            },
+            {
+              "Type": "r3.4xlarge",
+              "Size": "M",
+              "Description": "r3.4xlarge",
+              "Ram": "122 GB",
+              "Cpu": 16,
+              "Spot": false,
+              "SpotPctPrice": 70
+            },
+            {
+              "Type": "r3.8xlarge",
+              "Size": "L",
+              "Description": "r3.8xlarge",
+              "Ram": "244 GB",
+              "Cpu": 32,
+              "Spot": false,
+              "SpotPctPrice": 70
+            }
+          ],
+          "Compute optimized": [
+            {
+              "Type": "c4.large",
+              "Size": "S",
+              "Description": "c4.large",
+              "Ram": "3.75 GB",
+              "Cpu": 2,
+              "Spot": false,
+              "SpotPctPrice": 70
+            },
+            {
+              "Type": "c4.2xlarge",
+              "Size": "M",
+              "Description": "c4.2xlarge",
+              "Ram": "15.0 GB",
+              "Cpu": 8,
+              "Spot": false,
+              "SpotPctPrice": 70
+            },
+            {
+              "Type": "c4.8xlarge",
+              "Size": "L",
+              "Description": "c4.8xlarge",
+              "Ram": "60.0 GB",
+              "Cpu": 36,
+              "Spot": false,
+              "SpotPctPrice": 70
+            }
+          ],
+          "For testing": [
+            {
+              "Type": "c4.large",
+              "Size": "S",
+              "Description": "c4.large",
+              "Ram": "3.75 GB",
+              "Cpu": 2,
+              "Spot": false,
+              "SpotPctPrice": 70
+            }
+          ]
+        },
+        "limits": {
+          "min_spark_instance_count": 2,
+          "max_spark_instance_count": 14
+        }
+      }
+    ]
+}

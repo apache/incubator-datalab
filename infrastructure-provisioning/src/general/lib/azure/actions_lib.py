@@ -408,11 +408,14 @@ class AzureActions:
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
                         ami_full_name, tags, user_name='', create_option='fromImage', disk_id='',
-                        instance_storage_account_type='Premium_LRS'):
-        ami_name = ami_full_name.split('_')
-        publisher = ami_name[0]
-        offer = ami_name[1]
-        sku = ami_name[2]
+                        instance_storage_account_type='Premium_LRS', ami_type='default'):
+        if ami_type == 'default':
+            ami_name = ami_full_name.split('_')
+            publisher = ami_name[0]
+            offer = ami_name[1]
+            sku = ami_name[2]
+        elif ami_type == 'pre-configured':
+            ami_id = meta_lib.AzureMeta().get_image(resource_group_name, ami_full_name).id
         try:
             if instance_type == 'ssn':
                 parameters = {
@@ -536,6 +539,19 @@ class AzureActions:
                         }
                     }
             elif instance_type == 'notebook':
+                if ami_type == 'default':
+                    image_reference = {
+                            'publisher': publisher,
+                            'offer': offer,
+                            'sku': sku,
+                            'version': 'latest'
+                        }
+                    second_disk_create_option = 'empty'
+                elif ami_type == 'pre-configured':
+                    image_reference = {
+                        'id': ami_id
+                    }
+                    second_disk_create_option = 'fromImage'
                 parameters = {
                     'location': region,
                     'tags': tags,
@@ -543,12 +559,7 @@ class AzureActions:
                         'vm_size': instance_size
                     },
                     'storage_profile': {
-                        'image_reference': {
-                            'publisher': publisher,
-                            'offer': offer,
-                            'sku': sku,
-                            'version': 'latest'
-                        },
+                        'image_reference': image_reference,
                         'os_disk': {
                             'os_type': 'Linux',
                             'name': '{}-disk0'.format(instance_name),
@@ -563,7 +574,7 @@ class AzureActions:
                             {
                                 'lun': 1,
                                 'name': '{}-disk1'.format(instance_name),
-                                'create_option': 'empty',
+                                'create_option': second_disk_create_option,
                                 'disk_size_gb': 32,
                                 'tags': {
                                     'Name': '{}-disk1'.format(instance_name)
@@ -917,6 +928,38 @@ class AzureActions:
             logging.info(
                 "Unable to create service principal: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to create service principal",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def create_image_from_instance(self, resource_group_name, instance_name, region, image_name, tags):
+        try:
+            instance_id = meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).id
+            self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
+            self.compute_client.virtual_machines.generalize(resource_group_name, instance_name)
+            self.compute_client.images.create_or_update(resource_group_name, image_name, parameters={
+                "location": region,
+                "tags": json.loads(tags),
+                "source_virtual_machine": {
+                    "id": instance_id
+                }
+            }).wait()
+            AzureActions().remove_instance(resource_group_name, instance_name)
+        except Exception as err:
+            logging.info(
+                "Unable to create image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create image",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def remove_image(self, resource_group_name, image_name):
+        try:
+            return self.compute_client.images.delete(resource_group_name, image_name)
+        except Exception as err:
+            logging.info(
+                "Unable to remove image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove image",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
