@@ -58,18 +58,14 @@ jars_dir = '/opt/jars/'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
 
 
-def configure_spark_master(os_user, master_ip):
-    if not exists('/home/{}/.ensure_dir/spark_master_ensured'.format(os_user)):
+def start_spark(os_user, master_ip, node):
+    if not exists('/home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node)):
         run('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        run('''echo "SPARK_MASTER_IP='{}'"'''.format(master_ip))
+        run('''echo "SPARK_MASTER_HOST='{}'" >> /opt/spark/conf/spark-env.sh'''.format(master_ip))
+        if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
+            run('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
         run('/opt/spark/sbin/start-master.sh')
-        sudo('touch /home/{}/.ensure_dir/spark_master_ensured'.format(os_user))
-
-
-def start_spark_slave(os_user, master_ip):
-    if not exists('/home/{}/.ensure_dir/spark_slave_ensured'.format(os_user)):
-        run('/opt/spark/sbin/start-slave.sh spark://{}:7077'.format(master_ip))
-        sudo('touch /home/{}/.ensure_dir/spark_slave_ensured'.format(os_user))
+        sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
 
 
 ##############
@@ -120,8 +116,8 @@ if __name__ == "__main__":
         ensure_matplot(args.os_user)
 
     if args.node_type == 'master':
-        print("Configuring Spark")
-        configure_spark_master(args.os_user, args.hostname)
+        print("Starting Spark master")
+        start_spark(args.os_user, args.hostname, node='master')
     elif args.node_type == 'slave':
-        print("Starting Spark")
-        start_spark_slave(args.os_user, args.master_ip)
+        print("Starting Spark slave")
+        start_spark(args.os_user, args.master_ip, node='slave')
