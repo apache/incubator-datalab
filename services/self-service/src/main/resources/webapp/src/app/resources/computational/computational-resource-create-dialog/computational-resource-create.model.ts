@@ -92,8 +92,8 @@ export class ComputationalResourceCreateModel {
         data => {
           let computationalResourceImage;
 
-          for (let parentIndex = 0; parentIndex < data.computational_templates.length; parentIndex++) {
-            computationalResourceImage = new ComputationalResourceImage(data.computational_templates[parentIndex]);
+          for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
+            computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
             
             if (DICTIONARY.cloud_provider === 'aws')
               this.resourceImages.push(computationalResourceImage);

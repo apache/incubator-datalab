@@ -101,6 +101,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     }
     if ($event.model.type === 'cluster_type') {
       this.model.setSelectedClusterType($event.model.index);
+      this.setDefaultParams();
+      this.getComputationalResourceLimits();
     }
 
     if (this.shapes[$event.model.type])
@@ -209,10 +211,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private getComputationalResourceLimits(): void {
+    let activeImage = DICTIONARY[this.model.selectedImage.image];
+
     if (this.model.selectedImage) {
-      this.minInstanceNumber = this.model.selectedImage.limits[DICTIONARY.total_instance_number_min];
-      this.maxInstanceNumber = this.model.selectedImage.limits[DICTIONARY.total_instance_number_max];
-      if (this.PROVIDER === 'aws') {
+      this.minInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_min];
+      this.maxInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_max];
+      if (this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
         this.minSpotPrice = this.model.selectedImage.limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = this.model.selectedImage.limits.max_emr_spot_instance_bid_pct;
       }
@@ -244,9 +248,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     };
     if (DICTIONARY.cloud_provider === 'aws') {
       this.cluster_type.setDefaultOptions(this.model.resourceImages,
-        this.model.selectedItem.template_name, 'cluster_type', 'template_name', 'array');
-      this.templates_list.setDefaultOptions(this.model.templates,
-        this.model.selectedItem.version, 'template', 'version', 'array');
+        this.model.selectedImage.template_name, 'cluster_type', 'template_name', 'array');
+      if (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
+        this.templates_list.setDefaultOptions(this.model.templates,
+          this.model.selectedItem.version, 'template', 'version', 'array');
     }
     this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
       this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');

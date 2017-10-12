@@ -283,13 +283,9 @@ export class ApplicationServiceFacade {
       '/api/infrastructure_provision/computational_resources/dataengine-service'); // emr(aws)
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE,
       '/api/infrastructure_provision/computational_resources/dataengine'); // spark (azure|aws)
-      // dataengine-service | dataengine
 
-    // this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
-    //   '/api/infrastructure_templates/computational_templates');
-
-    this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
-      'assets/data.json');
+      this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
+        '/api/infrastructure_templates/computational_templates');
 
     // Filtering Configuration
     this.requestRegistry.Add(ApplicationServiceFacade.USER_PREFERENCES, '/api/user/settings');
