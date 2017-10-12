@@ -38,6 +38,10 @@ limitations under the License.
       </div>
       <div class="detail-info content-box" *ngIf="!resource.error_message">
         <div class="row">
+          <div class="col-xs-6"><p>Cluster type:</p></div>
+          <div class="col-xs-6"><span>{{ resource.template_name }}</span></div>
+        </div>
+        <div class="row">
          <div class="col-xs-6"><p>Cluster alias:</p></div>
          <div class="col-xs-6 tooltip-wrap" (mouseover)="isEllipsisActive($event)">
            <span>{{resource.computational_name}}</span>
