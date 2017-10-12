@@ -100,7 +100,7 @@ public class ComputationalResourceAws implements DockerCommands {
                             dto
                     )
             );
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new DlabException("Could not create computational resource cluster", t);
         }
         return uuid;

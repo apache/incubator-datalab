@@ -49,7 +49,7 @@ public class ProvisioningHealthChecker implements HealthChecker {
                 LOGGER.error("Provisioning service is not available");
             }
             return alive;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             LOGGER.error("Provisioning service is not available", t);
             return false;
         }

@@ -25,15 +25,15 @@ public class DlabProcessException extends RuntimeException {
         super(message);
     }
 
-    public DlabProcessException(String message, Throwable cause) {
+    public DlabProcessException(String message, Exception cause) {
         super(message, cause);
     }
 
-    public DlabProcessException(Throwable cause) {
+    public DlabProcessException(Exception cause) {
         super(cause);
     }
 
-    public DlabProcessException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public DlabProcessException(String message, Exception cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

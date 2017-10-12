@@ -132,7 +132,7 @@ public class ComputationalDAO extends BaseDAO {
                                     and(eq(COMPUTATIONAL_NAME, dto.getComputationalName()),
                                             not(eq(STATUS, TERMINATED.toString()))))),
                     new Document(SET, values));
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new DlabException("Could not update computational resource status", t);
         }
     }
@@ -191,7 +191,7 @@ public class ComputationalDAO extends BaseDAO {
                             and(eq(COMPUTATIONAL_NAME, dto.getComputationalName()),
                                     not(eq(STATUS, TERMINATED.toString()))))),
                     new Document(SET, values));
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new DlabException("Could not update computational resource status", t);
         }
     }

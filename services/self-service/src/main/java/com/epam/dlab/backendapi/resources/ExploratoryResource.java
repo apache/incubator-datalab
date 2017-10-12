@@ -116,7 +116,7 @@ public class ExploratoryResource implements ExploratoryAPI {
             String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return Response.ok(uuid).build();
-        } catch (Throwable t) {
+        } catch (Exception t) {
             LOGGER.error("Could not update the status of exploratory environment {} with name {} for user {}",
                     formDTO.getImage(), formDTO.getName(), userInfo.getName(), t);
             if (isAdded) {
@@ -195,7 +195,7 @@ public class ExploratoryResource implements ExploratoryAPI {
             String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return uuid;
-        } catch (Throwable t) {
+        } catch (Exception t) {
         	LOGGER.error("Could not " + action + " exploratory environment {} for user {}", exploratoryName, userInfo.getName(), t);
         	updateExploratoryStatusSilent(userInfo.getName(), exploratoryName, FAILED);
             throw new DlabException("Could not " + action + " exploratory environment " + exploratoryName + ": " + t.getLocalizedMessage(), t);
