@@ -142,7 +142,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
     }
 
     /**
-     * Asynchronously creation of EMR cluster
+     * Asynchronously creates EMR cluster
      *
      * @param userInfo user info.
      * @param form     DTO info about creation of the computational resource.
