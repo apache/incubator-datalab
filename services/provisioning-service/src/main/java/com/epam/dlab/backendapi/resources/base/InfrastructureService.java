@@ -67,7 +67,7 @@ public abstract class InfrastructureService implements DockerCommands {
                             dto
                     )
             );
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new DlabException("Docker's command \"" + getResourceType() + "\" is fail: " + e.getLocalizedMessage(), e);
         }
         return uuid;

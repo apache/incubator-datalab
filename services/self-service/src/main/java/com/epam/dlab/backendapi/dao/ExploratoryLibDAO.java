@@ -180,7 +180,7 @@ public class ExploratoryLibDAO extends BaseDAO {
 	            		and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
 	            			libraryCondition(lib.getGroup(), lib.getName())),
 	                    new Document(SET, values));
-	        } catch (Throwable t) {
+	        } catch (Exception t) {
 	            throw new DlabException("Could not update librariy " + lib.getGroup() + "." + lib.getName() +
 	            		" for exploratory " + dto.getExploratoryName(), t);
 	        }

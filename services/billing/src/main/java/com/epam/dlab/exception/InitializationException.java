@@ -34,7 +34,7 @@ public class InitializationException extends GenericException {
 	/** Constructs a new exception.
 	 * @param cause the cause.
 	 */
-	public InitializationException(Throwable cause) {
+	public InitializationException(Exception cause) {
 		super(cause);
 	}
 
@@ -42,7 +42,7 @@ public class InitializationException extends GenericException {
 	 * @param message error message.
 	 * @param cause the cause.
 	 */
-	public InitializationException(String message, Throwable cause) {
+	public InitializationException(String message, Exception cause) {
 		super(message, cause);
 	}
 }

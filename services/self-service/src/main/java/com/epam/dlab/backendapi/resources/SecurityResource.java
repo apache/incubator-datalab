@@ -76,7 +76,7 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
         try {
             dao.writeLoginAttempt(credential);
 			return securityService.post(LOGIN, credential, Response.class);
-        } catch (Throwable t) {
+        } catch (Exception t) {
         	LOGGER.error("Try login for user {} fail", credential.getUsername(), t);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(t.getLocalizedMessage()).build();
         }
@@ -119,7 +119,7 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
         try {
         	EnvStatusListener.listenStop(userInfo.getName());
             return securityService.post(LOGOUT, userInfo.getAccessToken(), Response.class);
-        } catch(Throwable t) {
+        } catch(Exception t) {
         	LOGGER.error("Try logout for accessToken {}", userInfo.getAccessToken(), t.getLocalizedMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(t.getLocalizedMessage()).build();
         }

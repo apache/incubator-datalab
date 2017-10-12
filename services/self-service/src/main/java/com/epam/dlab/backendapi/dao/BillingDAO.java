@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.epam.dlab.dto.base.DataEngineType;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -67,7 +68,13 @@ public class BillingDAO extends BaseDAO {
 
     private static final String MASTER_NODE_SHAPE = "master_node_shape";
     private static final String SLAVE_NODE_SHAPE = "slave_node_shape";
-    private static final String TOTAL_INSTANCE_NUMBER = "total_instance_number";
+	private static final String TOTAL_INSTANCE_NUMBER = "total_instance_number";
+
+	private static final String DATAENGINE_SLAVE = "dataengine_slave";
+	private static final String DATAENGINE_MASTER = "dataengine_master";
+	private static final String DATAENGINE_INSTANCE_COUNT = "dataengine_instance_count";
+
+	private static final String DATAENGINE_DOCKER_IMAGE = "image";
 
 	public static final String SHAPE = "shape";
     public static final String DLAB_RESOURCE_TYPE = "dlab_resource_type";
@@ -124,7 +131,11 @@ public class BillingDAO extends BaseDAO {
     													COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_ID,
     													COMPUTATIONAL_RESOURCES + "." + MASTER_NODE_SHAPE,
     													COMPUTATIONAL_RESOURCES + "." + SLAVE_NODE_SHAPE,
-    													COMPUTATIONAL_RESOURCES + "." + TOTAL_INSTANCE_NUMBER
+    													COMPUTATIONAL_RESOURCES + "." + TOTAL_INSTANCE_NUMBER,
+														COMPUTATIONAL_RESOURCES + "." + DATAENGINE_MASTER,
+														COMPUTATIONAL_RESOURCES + "." + DATAENGINE_SLAVE,
+														COMPUTATIONAL_RESOURCES + "." + DATAENGINE_INSTANCE_COUNT,
+														COMPUTATIONAL_RESOURCES + "." + DATAENGINE_DOCKER_IMAGE
     													)));
     	Map<String, ShapeInfo> shapes = new HashMap<>();
     	for (Document d : docs) {
@@ -136,12 +147,22 @@ public class BillingDAO extends BaseDAO {
 			@SuppressWarnings("unchecked")
 			List<Document> comp = (List<Document>) d.get(COMPUTATIONAL_RESOURCES);
 			for (Document c : comp) {
-				name = c.getString(MASTER_NODE_SHAPE);
-				String slaveName = c.getString(SLAVE_NODE_SHAPE);
-				if (shapeNames == null || shapeNames.isEmpty() ||
-					shapeNames.contains(name) || shapeNames.contains(slaveName)) {
-					shapes.put(c.getString(COMPUTATIONAL_ID),
-							new ShapeInfo(name, slaveName, c.getString(TOTAL_INSTANCE_NUMBER)));
+				if (DataEngineType.fromDockerImageName(c.getString(DATAENGINE_DOCKER_IMAGE)) == DataEngineType.SPARK_STANDALONE) {
+					name = c.getString(DATAENGINE_MASTER);
+					String slaveName = c.getString(DATAENGINE_SLAVE);
+					if (shapeNames == null || shapeNames.isEmpty() ||
+							shapeNames.contains(name) || shapeNames.contains(slaveName)) {
+						shapes.put(c.getString(COMPUTATIONAL_ID),
+								new ShapeInfo(name, slaveName, c.getString(DATAENGINE_INSTANCE_COUNT)));
+					}
+				} else {
+					name = c.getString(MASTER_NODE_SHAPE);
+					String slaveName = c.getString(SLAVE_NODE_SHAPE);
+					if (shapeNames == null || shapeNames.isEmpty() ||
+							shapeNames.contains(name) || shapeNames.contains(slaveName)) {
+						shapes.put(c.getString(COMPUTATIONAL_ID),
+								new ShapeInfo(name, slaveName, c.getString(TOTAL_INSTANCE_NUMBER)));
+					}
 				}
 			}
 		}

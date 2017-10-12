@@ -25,15 +25,16 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalResource;
-import com.epam.dlab.backendapi.resources.dto.aws.AwsEmrConfiguration;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ComputationalService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
@@ -64,9 +65,9 @@ public class ComputationalResourceAws implements ComputationalAPI {
     @Inject
     private SettingsDAO settingsDAO;
     @Inject
-    private ExploratoryDAO infExpDAO;
+    private ExploratoryDAO exploratoryDAO;
     @Inject
-    private ComputationalDAO infCompDAO;
+    private ComputationalDAO computationalDAO;
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
@@ -74,24 +75,6 @@ public class ComputationalResourceAws implements ComputationalAPI {
     private SelfServiceApplicationConfiguration configuration;
     @Inject
     private ComputationalService computationalService;
-
-
-    /**
-     * Returns the limits for creation the computational resources.
-     *
-     * @param userInfo user info.
-     */
-    @GET
-    @Path("/configuration")
-    public AwsEmrConfiguration getConfiguration(@Auth UserInfo userInfo) {
-        AwsEmrConfiguration emrConfiguration = AwsEmrConfiguration.builder()
-                .minEmrInstanceCount(configuration.getMinEmrInstanceCount())
-                .maxEmrInstanceCount(configuration.getMaxEmrInstanceCount())
-                .maxEmrSpotInstanceBidPct(configuration.getMaxEmrSpotInstanceBidPct())
-                .minEmrSpotInstanceBidPct(configuration.getMinEmrSpotInstanceBidPct()).build();
-        log.debug("Returns limits for user {}: {}", userInfo.getName(), emrConfiguration);
-        return emrConfiguration;
-    }
 
     /**
      * Sends request to provisioning service for creation the computational resource for user.
@@ -101,6 +84,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
      * @return 200 OK - if request success, 302 Found - for duplicates, otherwise throws exception.
      */
     @PUT
+    @Deprecated
     public Response create(@Auth UserInfo userInfo, @Valid @NotNull AwsComputationalCreateForm formDTO) {
         log.debug("Send request for creation the computational resource {} for user {}", formDTO.getName(), userInfo.getName());
         if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, formDTO.getImage())) {
@@ -124,7 +108,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
                     ", maximum is " + configuration.getMaxEmrSpotInstanceBidPct() + ".");
         }
 
-        boolean isAdded = infCompDAO.addComputational(userInfo.getName(), formDTO.getNotebookName(),
+        boolean isAdded = computationalDAO.addComputational(userInfo.getName(), formDTO.getNotebookName(),
                 AwsComputationalResource.builder()
                         .computationalName(formDTO.getName())
                         .imageName(formDTO.getImage())
@@ -138,12 +122,12 @@ public class ComputationalResourceAws implements ComputationalAPI {
                         .version(formDTO.getVersion()).build());
         if (isAdded) {
             try {
-                UserInstanceDTO instance = infExpDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
+                UserInstanceDTO instance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
                 ComputationalCreateAws dto = RequestBuilder.newComputationalCreate(userInfo, instance, formDTO);
-                String uuid = provisioningService.post(COMPUTATIONAL_CREATE, userInfo.getAccessToken(), dto, String.class);
+                String uuid = provisioningService.post(COMPUTATIONAL_CREATE_CLOUD_SPECIFIC, userInfo.getAccessToken(), dto, String.class);
                 RequestId.put(userInfo.getName(), uuid);
                 return Response.ok().build();
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 try {
                     updateComputationalStatus(userInfo.getName(), formDTO.getNotebookName(), formDTO.getName(), FAILED);
                 } catch (DlabException e) {
@@ -155,6 +139,50 @@ public class ComputationalResourceAws implements ComputationalAPI {
             log.debug("Used existing computational resource {} for user {}", formDTO.getName(), userInfo.getName());
             return Response.status(Response.Status.FOUND).build();
         }
+    }
+
+    /**
+     * Asynchronously creates EMR cluster
+     *
+     * @param userInfo user info.
+     * @param form     DTO info about creation of the computational resource.
+     * @return 200 OK - if request success, 302 Found - for duplicates.
+     * @throws IllegalArgumentException if docker image name is malformed
+     */
+    @PUT
+    @Path("dataengine-service")
+    public Response createDataEngineService(@Auth UserInfo userInfo, @Valid @NotNull AwsComputationalCreateForm form) {
+
+        log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
+
+        if (DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(form.getImage())) {
+            return create(userInfo, form);
+        }
+
+        throw new IllegalArgumentException("Malformed image " + form.getImage());
+    }
+
+    /**
+     * Asynchronously triggers creation of Spark cluster
+     *
+     * @param userInfo user info.
+     * @param form     DTO info about creation of the computational resource.
+     * @return 200 OK - if request success, 302 Found - for duplicates.
+     */
+
+    @PUT
+    @Path("dataengine")
+    public Response createDataEngine(@Auth UserInfo userInfo, @Valid @NotNull SparkStandaloneClusterCreateForm form) {
+        log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
+
+        if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage())) {
+            log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
+            throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
+        }
+
+        return computationalService.createSparkCluster(userInfo, form)
+                ? Response.ok().build()
+                : Response.status(Response.Status.FOUND).build();
     }
 
     /**
@@ -191,6 +219,6 @@ public class ComputationalResourceAws implements ComputationalAPI {
                 .withExploratoryName(exploratoryName)
                 .withComputationalName(computationalName)
                 .withStatus(status);
-        infCompDAO.updateComputationalStatus(computationalStatus);
+        computationalDAO.updateComputationalStatus(computationalStatus);
     }
 }

@@ -50,12 +50,13 @@ def configure_notebook(args):
     put(templates_dir + 'pyspark_dataengine-service_template.json', '/tmp/pyspark_dataengine-service_template.json')
     put(templates_dir + 'r_dataengine-service_template.json', '/tmp/r_dataengine-service_template.json')
     put(templates_dir + 'toree_dataengine-service_template.json','/tmp/toree_dataengine-service_template.json')
-    put(scripts_dir + '{}_create_configs.py'.format(args.application), '/tmp/create_configs.py')
+    put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application),
+        '/tmp/jupyter_dataengine-service_create_configs.py')
     put(files_dir + 'toree_kernel.tar.gz', '/tmp/toree_kernel.tar.gz')
     put(templates_dir + 'toree_dataengine-service_templatev2.json', '/tmp/toree_dataengine-service_templatev2.json')
     put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')
-    sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
-    sudo('chmod 755 /usr/local/bin/create_configs.py')
+    sudo('\cp /tmp/jupyter_dataengine-service_create_configs.py /usr/local/bin/jupyter_dataengine-service_create_configs.py')
+    sudo('chmod 755 /usr/local/bin/jupyter_dataengine-service_create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')
     run('mkdir -p /tmp/dlab_libs/')
     local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
@@ -73,8 +74,8 @@ if __name__ == "__main__":
     configure_notebook(args)
     spark_version = get_spark_version(args.cluster_name)
     hadoop_version = get_hadoop_version(args.cluster_name)
-    sudo("/usr/bin/python /usr/local/bin/create_configs.py --bucket " + args.bucket + " --cluster_name "
-         + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " + spark_version
-         + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
+    sudo("/usr/bin/python /usr/local/bin/jupyter_dataengine-service_create_configs.py --bucket " + args.bucket +
+         " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " +
+         spark_version + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
          + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user +
          " --pip_mirror " + args.pip_mirror + " --application " + args.application)

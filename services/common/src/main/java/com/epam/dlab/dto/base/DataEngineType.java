@@ -48,6 +48,10 @@ public enum DataEngineType {
         return INTERNAL_MAP.get(name.replace(DOCKER_IMAGE_PREFIX, ""));
     }
 
+    public static String getDockerImageName(DataEngineType dataEngineType) {
+        return DOCKER_IMAGE_PREFIX + dataEngineType.getName();
+    }
+
     @JsonValue
     public String getName() {
         return name;
