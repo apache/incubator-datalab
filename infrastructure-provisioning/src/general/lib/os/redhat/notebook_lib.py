@@ -114,8 +114,8 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
 def ensure_matplot(os_user):
     if not exists('/home/{}/.ensure_dir/matplot_ensured'.format(os_user)):
         try:
-            sudo('pip2 install matplotlib==1.5.3 --no-cache-dir')
-            sudo('python3.5 -m pip install matplotlib==1.5.3 --no-cache-dir')
+            sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
+            sudo('python3.5 -m pip install matplotlib==2.0.2 --no-cache-dir')
             if os.environ['application'] == 'tensor':
                 sudo('rm -rf  /usr/lib64/python2.7/site-packages/numpy*')
                 sudo('python2.7 -m pip install -U numpy --no-cache-dir')
@@ -408,9 +408,9 @@ def install_caffe2(os_user, caffe2_version):
         env.shell = "/bin/bash -l -c -i"
         sudo('yum update-minimal --security -y')
         sudo('yum install -y automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
-        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==1.5.3 numpy protobuf pydot python-nvd3 pyyaml '
+        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future --no-cache-dir')
-        sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib==1.5.3 numpy protobuf pydot python-nvd3 pyyaml '
+        sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future --no-cache-dir')
         sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
@@ -446,7 +446,7 @@ def install_keras(os_user, keras_version):
         sudo('pip2 install ipython --no-cache-dir')
         sudo('pip2 uninstall -y matplotlib')
         sudo('pip2 uninstall -y matplotlib')
-        sudo('pip2 install matplotlib==1.5.3 --no-cache-dir')
+        sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
         sudo('pip2 uninstall -y numpy')
         sudo('pip2 uninstall -y numpy ')
         sudo('pip2 install numpy --no-cache-dir')
