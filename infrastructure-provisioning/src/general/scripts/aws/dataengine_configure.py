@@ -302,7 +302,7 @@ if __name__ == "__main__":
                    "instance_id": data_engine_instances_ids,
                    "key_name": data_engine['key_name'],
                    "Action": "Create new Data Engine"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
         print("Failed writing results.")

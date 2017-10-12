@@ -1290,7 +1290,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
                     request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
                     request.get_method = lambda: 'DELETE'
                     url = opener.open(request)
-                    print url.read()
+                    print(url.read())
             sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
             sudo('systemctl daemon-reload')
             sudo("service zeppelin-notebook stop")

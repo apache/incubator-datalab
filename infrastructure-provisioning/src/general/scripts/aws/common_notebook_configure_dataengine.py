@@ -107,7 +107,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Action": "Configure notebook server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
         print("Failed writing results.")

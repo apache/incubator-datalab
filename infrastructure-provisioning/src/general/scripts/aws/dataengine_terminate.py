@@ -88,7 +88,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": data_engine['service_base_name'],
                    "Action": "Terminate Data Engine"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
         print("Failed writing results.")
