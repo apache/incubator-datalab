@@ -64,7 +64,7 @@ public class ComputationalResourceAzure {
     private ComputationalService computationalService;
 
     /**
-     * Asynchronously creates computational cluster.
+     * Asynchronously creates computational Spark cluster.
      *
      * @param userInfo user info.
      * @param form     user info about creation of the computational resource.
@@ -72,6 +72,7 @@ public class ComputationalResourceAzure {
      * @throws IllegalArgumentException if input is not valid or exceeds configuration limits
      */
     @PUT
+    @Path("dataengine")
     public Response createDataEngine(@Auth UserInfo userInfo, @Valid @NotNull SparkStandaloneClusterCreateForm form) {
         log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
