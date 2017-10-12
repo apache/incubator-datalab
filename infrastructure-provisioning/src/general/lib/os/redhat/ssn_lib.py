@@ -28,7 +28,7 @@ import os
 def ensure_docker_daemon(dlab_path, os_user, region):
     try:
         if not exists('{}tmp/docker_daemon_ensured'.format(dlab_path)):
-            docker_version = '17.06.2'
+            docker_version = os.environ['ssn_docker_version']
             if region == 'cn-north-1':
                 mirror = 'mirror.lzu.edu.cn'
             else:
