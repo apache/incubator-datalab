@@ -137,13 +137,15 @@ if __name__ == "__main__":
 
     # installing and configuring R_STUDIO and all dependencies
     try:
-        logging.info('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
-        print('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
+        logging.info('[CONFIGURE RSTUDIO NOTEBOOK INSTANCE]')
+        print('[CONFIGURE RSTUDIO NOTEBOOK INSTANCE]')
         params = "--hostname {}  --keyfile {} --region {} --rstudio_pass {} --rstudio_version {} --os_user {} --r_mirror {}" \
             .format(instance_hostname, keyfile_name, os.environ['azure_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'], os.environ['notebook_r_mirror'])
         try:
             local("~/scripts/{}.py {}".format('configure_rstudio_node', params))
+            remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
+                               os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
         except:
             traceback.print_exc()
             raise Exception
@@ -197,6 +199,8 @@ if __name__ == "__main__":
                                                       json.dumps(notebook_config['tags']))
             print("Image was successfully created.")
             local("~/scripts/{}.py --uuid {}".format('common_prepare_notebook', args.uuid))
+            remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
+                               os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
     except Exception as err:
         append_result("Failed creating image.", str(err))
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])

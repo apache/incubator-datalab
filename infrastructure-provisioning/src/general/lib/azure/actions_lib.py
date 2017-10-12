@@ -540,26 +540,13 @@ class AzureActions:
                     }
             elif instance_type == 'notebook':
                 if ami_type == 'default':
-                    image_reference = {
+                    storage_profile = {
+                        'image_reference': {
                             'publisher': publisher,
                             'offer': offer,
                             'sku': sku,
                             'version': 'latest'
-                        }
-                    second_disk_create_option = 'empty'
-                elif ami_type == 'pre-configured':
-                    image_reference = {
-                        'id': ami_id
-                    }
-                    second_disk_create_option = 'fromImage'
-                parameters = {
-                    'location': region,
-                    'tags': tags,
-                    'hardware_profile': {
-                        'vm_size': instance_size
-                    },
-                    'storage_profile': {
-                        'image_reference': image_reference,
+                        },
                         'os_disk': {
                             'os_type': 'Linux',
                             'name': '{}-disk0'.format(instance_name),
@@ -574,7 +561,7 @@ class AzureActions:
                             {
                                 'lun': 1,
                                 'name': '{}-disk1'.format(instance_name),
-                                'create_option': second_disk_create_option,
+                                'create_option': 'empty',
                                 'disk_size_gb': 32,
                                 'tags': {
                                     'Name': '{}-disk1'.format(instance_name)
@@ -584,7 +571,30 @@ class AzureActions:
                                 }
                             }
                         ]
+                    }
+                elif ami_type == 'pre-configured':
+                    storage_profile = {
+                        'image_reference': {
+                            'id': ami_id
+                        },
+                        'os_disk': {
+                            'os_type': 'Linux',
+                            'name': '{}-disk0'.format(instance_name),
+                            'create_option': 'fromImage',
+                            'disk_size_gb': int(primary_disk_size),
+                            'tags': tags,
+                            'managed_disk': {
+                                'storage_account_type': instance_storage_account_type
+                            }
+                        }
+                    }
+                parameters = {
+                    'location': region,
+                    'tags': tags,
+                    'hardware_profile': {
+                        'vm_size': instance_size
                     },
+                    'storage_profile': storage_profile,
                     'os_profile': {
                         'computer_name': instance_name,
                         'admin_username': dlab_ssh_user_name,
@@ -1007,3 +1017,13 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+
+def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
+    if creds:
+        env['connection_attempts'] = 100
+        env.key_filename = [keyfile]
+        env.host_string = os_user + '@' + hostname
+    sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
+    sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
+    sudo('mount -a')
