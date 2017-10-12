@@ -163,9 +163,9 @@ def ensure_additional_python_libs(os_user):
                 sudo('pip2 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
                 sudo('python3.5 -m pip install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
             if os.environ['application'] == 'tensor':
-                sudo('python2.7 -m pip install keras opencv-python h5py --no-cache-dir')
+                sudo('python2.7 -m pip install opencv-python h5py --no-cache-dir')
                 sudo('python2.7 -m ipykernel install')
-                sudo('python3.5 -m pip install keras opencv-python h5py --no-cache-dir')
+                sudo('python3.5 -m pip install opencv-python h5py --no-cache-dir')
                 sudo('python3.5 -m ipykernel install')
             sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
@@ -230,8 +230,8 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia
             sudo('echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf')
             sudo('echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf')
             sudo('dracut --force')
-            sudo('shutdown -r 1')
-            time.sleep(90)
+            with settings(warn_only=True):
+                reboot(wait=90)
             sudo('yum -y install gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
@@ -267,9 +267,6 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia
             sudo("systemctl daemon-reload")
             sudo("systemctl enable tensorboard")
             sudo("systemctl start tensorboard")
-            # install Theano
-            sudo('python2.7 -m pip install Theano --no-cache-dir')
-            sudo('python3.5 -m pip install Theano --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/tensor_ensured')
         except:
             sys.exit(1)
@@ -360,7 +357,7 @@ def install_opencv(os_user):
         sudo('touch /home/' + os_user + '/.ensure_dir/opencv_ensured')
 
 
-def install_caffe(os_user, region):
+def install_caffe(os_user, region, caffe_version):
     if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         install_opencv(os_user)
@@ -381,6 +378,7 @@ def install_caffe(os_user, region):
         sudo('yum install -y openblas-devel gflags-devel glog-devel lmdb-devel')
         sudo('git clone https://github.com/BVLC/caffe.git')
         with cd('/home/{}/caffe/'.format(os_user)):
+            sudo('git checkout {}'.format(caffe_version))
             sudo('pip2 install -r python/requirements.txt --no-cache-dir')
             sudo('pip3.5 install -r python/requirements.txt --no-cache-dir')
             sudo('echo "CUDA_DIR := /usr/local/cuda" > Makefile.config')
@@ -405,7 +403,7 @@ def install_caffe(os_user, region):
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
 
 
-def install_caffe2(os_user):
+def install_caffe2(os_user, caffe2_version):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         sudo('yum update-minimal --security -y')
@@ -419,11 +417,14 @@ def install_caffe2(os_user):
         sudo('git clone --recursive https://github.com/caffe2/caffe2')
         cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
         with cd('/home/{}/caffe2/'.format(os_user)):
+            with settings(warn_only=True):
+                sudo('git checkout v{}'.format(caffe2_version))
+                sudo('git submodule update --recursive')
             sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_BIN="{0}" -DCUDA_ARCH_PTX="{0}" && make "-j$(nproc)" install'.format(cuda_arch.replace('.', '')))
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
-def install_cntk(os_user):
+def install_cntk(os_user, cntk_version):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
         sudo('echo "exclude=*.i386 *.i686" >> /etc/yum.conf')
         sudo('yum clean all && yum update-minimal --security -y')
@@ -431,15 +432,15 @@ def install_cntk(os_user):
         sudo('sed -i "s/LD_LIBRARY_PATH:/LD_LIBRARY_PATH:\/usr\/lib64\/openmpi\/lib:/g" /etc/systemd/system/jupyter-notebook.service')
         sudo('systemctl daemon-reload')
         sudo('systemctl restart jupyter-notebook')
-        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl --no-cache-dir')
-        sudo('pip3.5 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
+        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
+        sudo('pip3.5 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
 
 
-def install_keras(os_user):
+def install_keras(os_user, keras_version):
     if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
-        sudo('pip2 install keras --no-cache-dir')
-        sudo('pip3.5 install keras --no-cache-dir')
+        sudo('pip2 install keras=={} --no-cache-dir'.format(keras_version))
+        sudo('pip3.5 install keras=={} --no-cache-dir'.format(keras_version))
         sudo('pip2 uninstall -y ipython')
         sudo('pip2 uninstall -y ipython')
         sudo('pip2 install ipython --no-cache-dir')
@@ -452,10 +453,17 @@ def install_keras(os_user):
         sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
 
 
-def install_mxnet(os_user):
+def install_theano(os_user, theano_version):
+    if not exists('/home/{}/.ensure_dir/theano_ensured'.format(os_user)):
+        sudo('python2.7 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
+        sudo('python3.5 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
+        sudo('touch /home/{}/.ensure_dir/theano_ensured'.format(os_user))
+
+
+def install_mxnet(os_user, mxnet_version):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        sudo('pip2 install mxnet-cu80 opencv-python --no-cache-dir')
-        sudo('pip3.5 install mxnet-cu80 opencv-python --no-cache-dir')
+        sudo('pip2 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
+        sudo('pip3.5 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 
 

@@ -49,4 +49,3 @@ if __name__ == "__main__":
 
     print("Installing notebook additions: matplotlib.")
     ensure_matplot(args.os_user)
-

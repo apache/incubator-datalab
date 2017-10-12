@@ -143,6 +143,8 @@ if __name__ == "__main__":
                  .format(instance_hostname, keyfile_name, os.environ['azure_region'], notebook_config['dlab_ssh_user'])
         try:
             local("~/scripts/{}.py {}".format('configure_tensor_node', params))
+            remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
+                               os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
         except:
             traceback.print_exc()
             raise Exception
@@ -212,6 +214,8 @@ if __name__ == "__main__":
                                                       json.dumps(notebook_config['tags']))
             print("Image was successfully created.")
             local("~/scripts/{}.py --uuid {}".format('common_prepare_notebook', args.uuid))
+            remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
+                               os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
     except Exception as err:
         append_result("Failed creating image.", str(err))
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
