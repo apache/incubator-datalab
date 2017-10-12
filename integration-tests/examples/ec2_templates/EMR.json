@@ -1,5 +1,5 @@
 {
-  "image" : "docker.dlab-emr",
+  "image" : "docker.dlab-dataengine-service",
   "name" : "set the name",
   "emr_instance_count" : "3",
   "emr_master_instance_type" : "c4.large",
