@@ -105,8 +105,6 @@ limitations under the License.
                 *ngIf="env.status != 'stopping'
                 && env.status != 'stopped'
                 && env.status != 'starting'
-                && env.template_name.toLowerCase().indexOf('tensorflow') === -1
-                && env.template_name.toLowerCase().indexOf('deep learning') === -1
                 ">Add computational resources</li>
             <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
           </ul>
