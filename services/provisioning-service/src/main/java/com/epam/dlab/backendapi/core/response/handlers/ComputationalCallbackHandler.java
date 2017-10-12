@@ -25,6 +25,9 @@ import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ComputationalCallbackHandler extends ResourceCallbackHandler<ComputationalStatusDTO> {
     private static final String INSTANCE_ID_FIELD = "instance_id";
     private static final String COMPUTATIONAL_ID_FIELD = "hostname";
@@ -61,7 +64,7 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
         switch (getAction()) {
             case CREATE:
                 baseStatus
-                        .withInstanceId(getTextValue(resultNode.get(INSTANCE_ID_FIELD)))
+                        .withInstanceId(instanceId(resultNode.get(INSTANCE_ID_FIELD)))
                         .withComputationalId(getTextValue(resultNode.get(COMPUTATIONAL_ID_FIELD)));
                 if (UserInstanceStatus.of(baseStatus.getStatus()) == UserInstanceStatus.RUNNING) {
                     baseStatus.withStatus(UserInstanceStatus.CONFIGURING);
@@ -86,5 +89,16 @@ public class ComputationalCallbackHandler extends ResourceCallbackHandler<Comput
                 .withComputationalName(dto.getComputationalName());
     }
 
+    private String instanceId(JsonNode jsonNode) {
+        if (jsonNode != null && jsonNode.isArray()) {
+            List<String> ids = new ArrayList<>();
+            for (JsonNode id : jsonNode) {
+                ids.add(id.textValue());
+            }
+            return String.join(";", ids);
+        }
+
+        return getTextValue(jsonNode);
+    }
 }
 

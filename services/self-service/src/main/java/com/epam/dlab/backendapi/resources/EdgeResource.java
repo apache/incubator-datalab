@@ -118,7 +118,7 @@ public class EdgeResource implements EdgeAPI {
             String uuid = provisioningService.post(action, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return uuid;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             keyDAO.updateEdgeStatus(userInfo.getName(), FAILED.toString());
             throw new DlabException("Could not " + action + " EDGE node " + ": " + t.getLocalizedMessage(), t);
         }

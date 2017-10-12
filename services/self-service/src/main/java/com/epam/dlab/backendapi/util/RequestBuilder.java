@@ -22,24 +22,26 @@ import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
-import com.epam.dlab.backendapi.resources.dto.azure.AzureComputationalCreateForm;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.dto.UserEnvironmentResources;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
+import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
 import com.epam.dlab.dto.aws.exploratory.ExploratoryCreateAws;
 import com.epam.dlab.dto.aws.keyload.UploadFileAws;
 import com.epam.dlab.dto.azure.AzureCloudSettings;
-import com.epam.dlab.dto.azure.computational.ComputationalCreateAzure;
+import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.dlab.dto.azure.edge.EdgeCreateAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
 import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
 import com.epam.dlab.dto.base.CloudSettings;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
@@ -300,13 +302,39 @@ public class RequestBuilder {
                         .withSlaveInstanceSpotPctPrice(awsForm.getSlaveInstanceSpotPctPrice())
                         .withVersion(awsForm.getVersion());
                 break;
-            case AZURE:
-                AzureComputationalCreateForm azureForm = (AzureComputationalCreateForm) form;
-                computationalCreate = (T) newResourceSysBaseDTO(userInfo, ComputationalCreateAzure.class)
-                        .withDataEngineInstanceCount(azureForm.getDataEngineInstanceCount())
-                        .withDataEngineMasterSize(azureForm.getDataEngineMasterSize())
-                        .withDataEngineSlaveSize(azureForm.getDataEngineSlaveSize());
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+        }
+
+        return computationalCreate
+                .withExploratoryName(form.getNotebookName())
+                .withComputationalName(form.getName())
+                .withNotebookTemplateName(userInstance.getTemplateName())
+                .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+                .withNotebookInstanceName(userInstance.getExploratoryId());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends ComputationalBase<T>> T newComputationalCreate(UserInfo userInfo,
+                                                                            UserInstanceDTO userInstance,
+                                                                            SparkStandaloneClusterCreateForm form) {
+
+        T computationalCreate;
+
+        switch (cloudProvider()) {
+            case AWS:
+                computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAws.class)
+                        .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
+                        .withDataEngineMasterShape(form.getDataEngineMaster())
+                        .withDataEngineSlaveShape(form.getDataEngineSlave());
                 break;
+            case AZURE:
+                computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
+                        .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
+                        .withDataEngineMasterSize(form.getDataEngineMaster())
+                        .withDataEngineSlaveSize(form.getDataEngineSlave());
+                break;
+
             default:
                 throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
         }
@@ -324,13 +352,17 @@ public class RequestBuilder {
                                                                                String exploratoryName,
                                                                                String exploratoryId,
                                                                                String computationalName,
-                                                                               String computationalId) {
+                                                                               String computationalId,
+                                                                               DataEngineType dataEngineType) {
         T computationalTerminate;
 
         switch (cloudProvider()) {
             case AWS:
-                computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class)
-                        .withClusterName(computationalId);
+                ComputationalTerminateDTO terminateDTO = newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class);
+                if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
+                    terminateDTO.withClusterName(computationalId);
+                }
+                computationalTerminate = (T) terminateDTO;
                 break;
             case AZURE:
                 computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class);

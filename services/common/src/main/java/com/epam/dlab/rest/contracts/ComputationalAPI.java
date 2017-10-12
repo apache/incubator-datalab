@@ -19,5 +19,9 @@ package com.epam.dlab.rest.contracts;
 public interface ComputationalAPI {
     String COMPUTATIONAL = "computational";
     String COMPUTATIONAL_CREATE = COMPUTATIONAL + "/create";
+    String COMPUTATIONAL_CREATE_SPARK = COMPUTATIONAL_CREATE + "/spark";
+    String COMPUTATIONAL_CREATE_CLOUD_SPECIFIC = COMPUTATIONAL_CREATE + "/cloud";
     String COMPUTATIONAL_TERMINATE = COMPUTATIONAL + "/terminate";
+    String COMPUTATIONAL_TERMINATE_SPARK = COMPUTATIONAL_TERMINATE + "/spark";
+    String COMPUTATIONAL_TERMINATE_CLOUD_SPECIFIC = COMPUTATIONAL_TERMINATE + "/cloud";
 }

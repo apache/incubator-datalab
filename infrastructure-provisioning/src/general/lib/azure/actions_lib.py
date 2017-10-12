@@ -884,6 +884,7 @@ class AzureActions:
                         "sed -i '1!G;h;$!d;' /home/{0}/.Rprofile; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Rprofile".
                             format(os_user))
                 sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
+                sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
                 sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
             sudo('rm -rf  /opt/' + cluster_name + '/')
             print("Notebook's {} kernels were removed".format(env.hosts))
@@ -1014,6 +1015,13 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+
+def configure_dataengine_spark(jars_dir, spark_dir, local_spark_dir):
+    local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+          /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
+    local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
+    local('cp {0}conf/core-site.xml {1}conf/'.format(local_spark_dir, spark_dir))
 
 
 def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):

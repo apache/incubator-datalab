@@ -55,11 +55,11 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @JsonProperty
     private int maxEmrSpotInstanceBidPct;
 
-    @Min(value = 2, groups = AzureValidation.class)
+    @Min(value = 2, groups = {AzureValidation.class, AwsValidation.class})
     @JsonProperty
     private int minSparkInstanceCount;
 
-    @Max(value = 1000, groups = AzureValidation.class)
+    @Max(value = 1000, groups = {AzureValidation.class, AwsValidation.class})
     @JsonProperty
     private int maxSparkInstanceCount;
 

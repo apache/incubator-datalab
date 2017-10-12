@@ -69,7 +69,7 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
     public boolean handle(String fileName, byte[] content) throws Exception {
         try {
             return super.handle(fileName, content);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.warn("Could not retrive the status of resources for UUID {} and user {}: {}",
                     getUUID(), getUser(), e.getLocalizedMessage(), e);
         }

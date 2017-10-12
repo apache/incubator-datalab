@@ -34,7 +34,7 @@ public abstract class GenericException extends Exception {
 	/** Constructs a new exception.
 	 * @param cause the cause.
 	 */
-	public GenericException(Throwable cause) {
+	public GenericException(Exception cause) {
 		super(cause);
 	}
 
@@ -42,7 +42,7 @@ public abstract class GenericException extends Exception {
 	 * @param message error message.
 	 * @param cause the cause.
 	 */
-	public GenericException(String message, Throwable cause) {
+	public GenericException(String message, Exception cause) {
 		super(message, cause);
 	}
 }

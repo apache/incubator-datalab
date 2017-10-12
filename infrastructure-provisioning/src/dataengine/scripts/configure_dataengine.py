@@ -92,7 +92,7 @@ if __name__ == "__main__":
     print("Install Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
 
-    print("Install jars for azure storage")
+    print("Install jars for storage")
     ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
     print("Install Scala")
