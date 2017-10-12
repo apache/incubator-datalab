@@ -34,7 +34,7 @@ public class ParseException extends GenericException {
 	/** Constructs a new exception.
 	 * @param cause the cause.
 	 */
-	public ParseException(Throwable cause) {
+	public ParseException(Exception cause) {
 		super(cause);
 	}
 
@@ -42,7 +42,7 @@ public class ParseException extends GenericException {
 	 * @param message error message.
 	 * @param cause the cause.
 	 */
-	public ParseException(String message, Throwable cause) {
+	public ParseException(String message, Exception cause) {
 		super(message, cause);
 	}
 

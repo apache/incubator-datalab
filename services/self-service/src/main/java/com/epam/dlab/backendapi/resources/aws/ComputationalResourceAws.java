@@ -127,7 +127,7 @@ public class ComputationalResourceAws implements ComputationalAPI {
                 String uuid = provisioningService.post(COMPUTATIONAL_CREATE_CLOUD_SPECIFIC, userInfo.getAccessToken(), dto, String.class);
                 RequestId.put(userInfo.getName(), uuid);
                 return Response.ok().build();
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 try {
                     updateComputationalStatus(userInfo.getName(), formDTO.getNotebookName(), formDTO.getName(), FAILED);
                 } catch (DlabException e) {

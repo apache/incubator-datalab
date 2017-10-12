@@ -26,7 +26,7 @@ public class DlabException extends RuntimeException {
         super(message);
     }
 
-    public DlabException(String message, Throwable cause) {
+    public DlabException(String message, Exception cause) {
         super(message, cause);
     }
 
