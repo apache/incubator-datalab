@@ -124,8 +124,8 @@ def ensure_matplot(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/matplot_ensured'):
         try:
             sudo('apt-get build-dep -y python-matplotlib')
-            sudo('pip2 install matplotlib --no-cache-dir')
-            sudo('pip3 install matplotlib --no-cache-dir')
+            sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
+            sudo('pip3 install matplotlib==2.0.2 --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/matplot_ensured')
         except:
             sys.exit(1)
@@ -398,9 +398,9 @@ def install_caffe2(os_user, caffe2_version):
         sudo('apt-get install -y --no-install-recommends libgflags-dev')
         sudo('apt-get install -y --no-install-recommends libgtest-dev libiomp-dev libleveldb-dev liblmdb-dev '
              'libopencv-dev libopenmpi-dev libsnappy-dev openmpi-bin openmpi-doc python-pydot')
-        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
+        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
-        sudo('pip3 install flask graphviz hypothesis jupyter matplotlib pydot python-nvd3 pyyaml requests scikit-image '
+        sudo('pip3 install flask graphviz hypothesis jupyter matplotlib==2.0.2 pydot python-nvd3 pyyaml requests scikit-image '
              'scipy setuptools tornado --no-cache-dir')
         sudo('cp -f /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp -f /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
