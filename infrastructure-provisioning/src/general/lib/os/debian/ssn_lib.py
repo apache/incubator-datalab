@@ -33,8 +33,8 @@ def ensure_docker_daemon(dlab_path, os_user, region):
             sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
                   stable"')
             sudo('apt-get update')
-            sudo('apt-cache policy docker-engine')
-            sudo('apt-get install -y docker-engine={}~ce-0~ubuntu-xenial'.format(docker_version))
+            sudo('apt-cache policy docker-ce')
+            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
             sudo('usermod -a -G docker ' + os_user)
             sudo('update-rc.d docker defaults')
             sudo('update-rc.d docker enable')
