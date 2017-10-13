@@ -28,7 +28,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
-parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
@@ -60,6 +59,6 @@ if __name__ == "__main__":
     env.host_string = env.user + "@" + env.hosts
     configure_notebook(args)
     sudo("/usr/bin/python /usr/local/bin/tensor_dataengine_create_configs.py "
-         "--cluster_name {} --spark_version {} --hadoop_version {} --region {} --os_user {} --spark_master {}".
-         format(args.cluster_name, args.spark_version, args.hadoop_version, args.region, args.os_user, args.spark_master
+         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {}".
+         format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master
                 ))
