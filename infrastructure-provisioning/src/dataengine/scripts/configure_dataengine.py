@@ -42,6 +42,14 @@ args = parser.parse_args()
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
+tensorflow_version = os.environ['notebook_tensorflow_version']
+nvidia_version = os.environ['notebook_nvidia_version']
+theano_version = os.environ['notebook_theano_version']
+keras_version = os.environ['notebook_keras_version']
+caffe_version = os.environ['notebook_caffe_version']
+caffe2_version = os.environ['notebook_caffe2_version']
+cntk_version = os.environ['notebook_cntk_version']
+mxnet_version = os.environ['notebook_mxnet_version']
 scala_link = "http://www.scala-lang.org/files/archive/"
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
@@ -56,18 +64,17 @@ jars_dir = '/opt/jars/'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
 
 
-def configure_spark_master(os_user, master_ip):
-    if not exists('/home/{}/.ensure_dir/spark_master_ensured'.format(os_user)):
+def start_spark(os_user, master_ip, node):
+    if not exists('/home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node)):
         run('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        run('''echo "SPARK_MASTER_IP='{}'"'''.format(master_ip))
-        run('/opt/spark/sbin/start-master.sh')
-        sudo('touch /home/{}/.ensure_dir/spark_master_ensured'.format(os_user))
-
-
-def start_spark_slave(os_user, master_ip):
-    if not exists('/home/{}/.ensure_dir/spark_slave_ensured'.format(os_user)):
-        run('/opt/spark/sbin/start-slave.sh spark://{}:7077'.format(master_ip))
-        sudo('touch /home/{}/.ensure_dir/spark_slave_ensured'.format(os_user))
+        run('''echo "SPARK_MASTER_HOST='{}'" >> /opt/spark/conf/spark-env.sh'''.format(master_ip))
+        if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
+            run('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
+        if node == 'master':
+            run('/opt/spark/sbin/start-master.sh')
+        if node == 'slave':
+            run('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
+        sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
 
 
 ##############
@@ -107,9 +114,45 @@ if __name__ == "__main__":
     print("Installing R")
     ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
+    if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
+        print("Installing TensorFlow")
+        install_tensor(args.os_user, tensorflow_version, files_dir, templates_dir, nvidia_version)
+
+        print("Install Theano")
+        install_theano(args.os_user, theano_version)
+
+        print("Installing Keras")
+        install_keras(args.os_user, keras_version)
+
+    if os.environ['application'] == 'tensor':
+        print("Installing opencv-python, h5py")
+        ensure_additional_python_libs(args.os_user)
+
+        print("Installing matplotlib.")
+        ensure_matplot(args.os_user)
+
+    if os.environ['application'] == 'deeplearning':
+        print("Installing Caffe")
+        install_caffe(args.os_user, args.region, caffe_version)
+
+        print("Installing Caffe2")
+        install_caffe2(args.os_user, caffe2_version)
+
+        print("Installing Torch")
+        install_torch(args.os_user)
+
+        print("Installing ITorch kernel")
+        install_itorch(args)
+
+        print("Install CNTK Python library")
+        install_cntk(args.os_user, cntk_version)
+
+        print("Installing MXNET")
+        install_mxnet(args.os_user, mxnet_version)
+
     if args.node_type == 'master':
-        print("Configuring Spark")
-        configure_spark_master(args.os_user, args.hostname)
+        print("Starting Spark master")
+        start_spark(args.os_user, args.hostname, node='master')
     elif args.node_type == 'slave':
-        print("Starting Spark")
-        start_spark_slave(args.os_user, args.master_ip)
+        print("Starting Spark slave")
+        start_spark(args.os_user, args.master_ip, node='slave')

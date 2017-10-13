@@ -110,6 +110,12 @@ if __name__ == "__main__":
     print("Install py3spark local kernel for Jupyter")
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
 
+    print("Installing additional Python libraries")
+    ensure_additional_python_libs(args.os_user)
+
+    print("Installing notebook additions: matplotlib.")
+    ensure_matplot(args.os_user)
+
     print("Install Ungit")
     install_nodejs(args.os_user)
     install_ungit(args.os_user)
