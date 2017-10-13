@@ -14,29 +14,42 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.resources.dto.azure;
+package com.epam.dlab.backendapi.resources.dto;
 
-import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.validator.constraints.NotBlank;
 
+import java.util.Date;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class AzureComputationalCreateForm extends ComputationalCreateFormDTO {
-
+public class SparkStandaloneClusterResource extends UserComputationalResource {
     @NotBlank
     @JsonProperty("dataengine_instance_count")
     private String dataEngineInstanceCount;
 
     @NotBlank
-    @JsonProperty("dataengine_slave_size")
-    private String dataEngineSlaveSize;
+    @JsonProperty("dataengine_slave")
+    private String dataEngineSlave;
 
     @NotBlank
-    @JsonProperty("dataengine_master_size")
-    private String dataEngineMasterSize;
+    @JsonProperty("dataengine_master")
+    private String dataEngineMaster;
+
+    @Builder
+    public SparkStandaloneClusterResource(String computationalName, String computationalId, String imageName,
+                                          String templateName, String status, Date uptime,
+                                          String dataEngineInstanceCount, String dataEngineSlave,
+                                          String dataEngineMaster) {
+
+        super(computationalName, computationalId, imageName, templateName, status, uptime);
+        this.dataEngineInstanceCount = dataEngineInstanceCount;
+        this.dataEngineSlave = dataEngineSlave;
+        this.dataEngineMaster = dataEngineMaster;
+    }
 }

@@ -55,11 +55,18 @@ if __name__ == "__main__":
     edge_conf['policy_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Policy'
     edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-SG'
     edge_conf['notebook_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
-    edge_conf['notebook_role_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Role'
-    edge_conf['notebook_policy_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Policy'
-    edge_conf['notebook_role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-Profile'
+    edge_conf['dataengine_instances_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                             '-dataengine'
+    edge_conf['notebook_dataengine_role_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-de-Role'
+    edge_conf['notebook_dataengine_policy_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-de-Policy'
+    edge_conf['notebook_dataengine_role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-de-Profile'
     edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb-SG'
     edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
+    edge_conf['dataengine_master_security_group_name'] = edge_conf['service_base_name'] + '-' \
+                                                         + os.environ['edge_user_name'] + '-dataengine-master-sg'
+    edge_conf['dataengine_slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
+                                                        + os.environ['edge_user_name'] + '-dataengine-slave-sg'
+
 
     # FUSE in case of absence of user's key
     fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
@@ -109,8 +116,8 @@ if __name__ == "__main__":
         logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
         print('[CREATE BACKEND (NOTEBOOK) ROLES]')
         params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
-                 .format(edge_conf['notebook_role_name'], edge_conf['notebook_role_profile_name'],
-                         edge_conf['notebook_policy_name'], os.environ['aws_region'])
+                 .format(edge_conf['notebook_dataengine_role_name'], edge_conf['notebook_dataengine_role_profile_name'],
+                         edge_conf['notebook_dataengine_policy_name'], os.environ['aws_region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_role_policy', params))
         except:
@@ -179,6 +186,18 @@ if __name__ == "__main__":
                 "FromPort": 8088,
                 "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
                 "ToPort": 8088, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 8081,
+                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
+                "ToPort": 8081, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 4040,
+                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
+                "ToPort": 4040, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
@@ -274,6 +293,116 @@ if __name__ == "__main__":
         remove_sgroups(edge_conf['instance_name'])
         sys.exit(1)
 
+    logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
+    print("[CREATING SECURITY GROUPS FOR MASTER NODE]")
+    try:
+
+        sg_rules_template = [
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
+                "UserIdGroupPairs": [], "PrefixListIds": []
+            },
+            {
+                "PrefixListIds": [],
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(edge_conf['service_base_name'])).get('Private') + "/32"}],
+                "UserIdGroupPairs": []
+            }
+        ]
+        sg_rules_template_egress = [
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
+                "UserIdGroupPairs": [], "PrefixListIds": []
+            },
+            {
+                "PrefixListIds": [],
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'],
+                                                                '{}-ssn'.format(edge_conf['service_base_name'])).get(
+                    'Private') + "/32"}],
+                "UserIdGroupPairs": []
+            }
+        ]
+
+        params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
+            format(edge_conf['dataengine_master_security_group_name'], edge_conf['vpc_id'],
+                   json.dumps(ingress_sg_rules_template),
+                   json.dumps(egress_sg_rules_template), edge_conf['service_base_name'],
+                   edge_conf['dataengine_instances_name'], True)
+        try:
+            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed to create bucket.", str(err))
+        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
+        remove_all_iam_resources('edge', os.environ['edge_user_name'])
+        remove_sgroups(edge_conf['notebook_instance_name'])
+        remove_sgroups(edge_conf['instance_name'])
+        sys.exit(1)
+
+    logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
+    print("[CREATING SECURITY GROUPS FOR SLAVE NODES]")
+    try:
+        sg_rules_template = [
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
+                "UserIdGroupPairs": [], "PrefixListIds": []
+            },
+            {
+                "PrefixListIds": [],
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'],
+                                                                '{}-ssn'.format(edge_conf['service_base_name'])).get(
+                    'Private') + "/32"}],
+                "UserIdGroupPairs": []
+            }
+        ]
+        sg_rules_template_egress = [
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
+                "UserIdGroupPairs": [], "PrefixListIds": []
+            },
+            {
+                "PrefixListIds": [],
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'],
+                                                                '{}-ssn'.format(edge_conf['service_base_name'])).get(
+                    'Private') + "/32"}],
+                "UserIdGroupPairs": []
+            },
+            {
+                "PrefixListIds": [],
+                "FromPort": 443,
+                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            }
+        ]
+
+        params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
+            format(edge_conf['dataengine_slave_security_group_name'], edge_conf['vpc_id'],
+                   json.dumps(ingress_sg_rules_template),
+                   json.dumps(egress_sg_rules_template), edge_conf['service_base_name'],
+                   edge_conf['dataengine_instances_name'], True)
+        try:
+            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed to create bucket.", str(err))
+        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
+        remove_all_iam_resources('edge', os.environ['edge_user_name'])
+        remove_sgroups(edge_conf['dataengine_instances_name'])
+        remove_sgroups(edge_conf['notebook_instance_name'])
+        remove_sgroups(edge_conf['instance_name'])
+        sys.exit(1)
+
     try:
         logging.info('[CREATE BUCKETS]')
         print('[CREATE BUCKETS]')
@@ -289,6 +418,7 @@ if __name__ == "__main__":
         append_result("Failed to create bucket.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
+        remove_sgroups(edge_conf['dataengine_instances_name'])
         remove_sgroups(edge_conf['notebook_instance_name'])
         remove_sgroups(edge_conf['instance_name'])
         sys.exit(1)
@@ -298,7 +428,7 @@ if __name__ == "__main__":
         print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
         params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {}'.format(
             edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], edge_conf['shared_bucket_name'], os.environ['edge_user_name'],
-            edge_conf['role_name'], edge_conf['notebook_role_name'],  edge_conf['service_base_name'], edge_conf['region'])
+            edge_conf['role_name'], edge_conf['notebook_dataengine_role_name'],  edge_conf['service_base_name'], edge_conf['region'])
         try:
             local("~/scripts/{}.py {}".format('common_create_policy', params))
         except:
@@ -307,6 +437,7 @@ if __name__ == "__main__":
         append_result("Failed to create bucket policy.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
+        remove_sgroups(edge_conf['dataengine_instances_name'])
         remove_sgroups(edge_conf['notebook_instance_name'])
         remove_sgroups(edge_conf['instance_name'])
         remove_s3('edge', os.environ['edge_user_name'])
@@ -330,6 +461,7 @@ if __name__ == "__main__":
         append_result("Failed to create instance.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
+        remove_sgroups(edge_conf['dataengine_instances_name'])
         remove_sgroups(edge_conf['notebook_instance_name'])
         remove_sgroups(edge_conf['instance_name'])
         remove_s3('edge', os.environ['edge_user_name'])
@@ -360,6 +492,7 @@ if __name__ == "__main__":
         remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
+        remove_sgroups(edge_conf['dataengine_instances_name'])
         remove_sgroups(edge_conf['notebook_instance_name'])
         remove_sgroups(edge_conf['instance_name'])
         remove_s3('edge', os.environ['edge_user_name'])

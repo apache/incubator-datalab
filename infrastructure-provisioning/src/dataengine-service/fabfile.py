@@ -37,7 +37,7 @@ def run():
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
-        local("~/scripts/{}.py".format('common_prepare_hadoop_cluster'))
+        local("~/scripts/{}.py".format('common_prepare_dataengine-service'))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Notebook node.", str(err))

@@ -41,8 +41,9 @@ export class ComputationalResourceCreateModel {
 
   selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({},
     new ResourceShapeTypesModel({}), '', '', '');
-  computationalResourceImages: Array<ComputationalResourceImage> = [];
-  computationalResourceApplicationTemplates: Array<ComputationalResourceApplicationTemplate> = [];
+  selectedImage: ComputationalResourceImage;
+  resourceImages: Array<ComputationalResourceImage> = [];
+  templates: Array<ComputationalResourceApplicationTemplate> = [];
 
   private userResourceService: UserResourceService;
   private continueWith: Function;
@@ -85,7 +86,7 @@ export class ComputationalResourceCreateModel {
   }
 
   public loadTemplates(): void {
-    if (this.computationalResourceImages.length === 0)
+    if (this.resourceImages.length === 0)
       this.userResourceService.getComputationalResourcesTemplates()
         .subscribe(
         data => {
@@ -94,17 +95,15 @@ export class ComputationalResourceCreateModel {
           for (let parentIndex = 0; parentIndex < data.length; parentIndex++) {
             computationalResourceImage = new ComputationalResourceImage(data[parentIndex]);
             
-            if (DICTIONARY.cloud_provider === 'aws') {
-              this.computationalResourceImages.push(computationalResourceImage);
-              for (let index = 0; index < computationalResourceImage.application_templates.length; index++)
-                this.computationalResourceApplicationTemplates.push(computationalResourceImage.application_templates[index]);
-            }
+            if (DICTIONARY.cloud_provider === 'aws')
+              this.resourceImages.push(computationalResourceImage);
           }
-
-          if (this.computationalResourceImages.length > 0 && DICTIONARY.cloud_provider === 'aws') {
-            this.setSelectedTemplate(0);
+          
+          if (this.resourceImages.length > 0 && DICTIONARY.cloud_provider === 'aws') {
+            this.setSelectedClusterType(0);
           } else if (DICTIONARY.cloud_provider !== 'aws') {
             this.selectedItem = computationalResourceImage;
+            this.selectedImage = computationalResourceImage;
           }
 
           if (this.continueWith)
@@ -112,11 +111,23 @@ export class ComputationalResourceCreateModel {
         });
   }
 
+  public setSelectedClusterType(index) {
+    this.selectedImage = this.resourceImages[index];
+    this.templates = [];
+    
+    for (let index = 0; index < this.selectedImage.application_templates.length; index++)
+      this.templates.push(this.selectedImage.application_templates[index]);
+
+    this.setSelectedTemplate(0);
+  }
+
   public setSelectedTemplate(index: number): void {
-    if (this.computationalResourceApplicationTemplates && this.computationalResourceApplicationTemplates[index]) {
-      this.selectedItem = this.computationalResourceApplicationTemplates[index];
+    if (this.templates && this.templates[index]) {
+      this.selectedItem = this.templates[index];
       if (this.selectedItemChanged)
         this.selectedItemChanged();
+    } else {
+      this.selectedItem = null;
     }
   }
 
@@ -133,8 +144,8 @@ export class ComputationalResourceCreateModel {
   }
 
   private createComputationalResource(): Observable<Response> {
-    if (DICTIONARY.cloud_provider === 'aws') {
-      return this.userResourceService.createComputationalResource({
+    if (DICTIONARY.cloud_provider === 'aws' && this.selectedImage.image === 'docker.dlab-dataengine-service') {
+      return this.userResourceService.createComputationalResource_DataengineService({
         name: this.computational_resource_alias,
         emr_instance_count: this.computational_resource_count,
         emr_master_instance_type: this.computational_resource_master_shape,
@@ -147,14 +158,14 @@ export class ComputationalResourceCreateModel {
         emr_slave_instance_spot_pct_price: this.emr_slave_instance_price
       });
     } else {
-      return this.userResourceService.createComputationalResource({
+      return this.userResourceService.createComputationalResource_Dataengine({
         name: this.computational_resource_alias,
         dataengine_instance_count: this.computational_resource_count,
-        dataengine_master_size: this.computational_resource_master_shape,
-        dataengine_slave_size: this.computational_resource_slave_shape,
+        dataengine_master: this.computational_resource_master_shape,
+        dataengine_slave: this.computational_resource_slave_shape,
         notebook_name: this.notebook_name,
-        image: this.selectedItem.image,
-        template_name: this.selectedItem.template_name,
+        image: this.selectedImage.image,
+        template_name: this.selectedImage.template_name,
       });
     }
   };

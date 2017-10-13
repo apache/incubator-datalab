@@ -24,12 +24,16 @@ import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
+import com.epam.dlab.backendapi.service.SparkClusterService;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
+import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.ComputationalAPI;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
@@ -43,11 +47,13 @@ import javax.ws.rs.core.MediaType;
 import static com.epam.dlab.backendapi.core.commands.DockerAction.CREATE;
 import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
 
-@Path("/computational")
+@Path("/")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
 public class ComputationalResourceAws implements DockerCommands {
+
+    private static final DataEngineType EMR_DATA_ENGINE = DataEngineType.CLOUD_SERVICE;
 
     @Inject
     private ProvisioningServiceApplicationConfiguration configuration;
@@ -61,9 +67,11 @@ public class ComputationalResourceAws implements DockerCommands {
     private RESTService selfService;
     @Inject
     private ComputationalConfigure computationalConfigure;
+    @Inject
+    private SparkClusterService sparkClusterService;
 
-    @Path("/create")
     @POST
+    @Path(ComputationalAPI.COMPUTATIONAL_CREATE_CLOUD_SPECIFIC)
     public String create(@Auth UserInfo ui, ComputationalCreateAws dto) {
         log.debug("Create computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
@@ -81,26 +89,27 @@ public class ComputationalResourceAws implements DockerCommands {
                                     .withName(nameContainer(dto.getEdgeUserName(), CREATE, dto.getComputationalName()))
                                     .withVolumeForRootKeys(configuration.getKeyDirectory())
                                     .withVolumeForResponse(configuration.getImagesDirectory())
-                                    .withVolumeForLog(configuration.getDockerLogDirectory(), DataEngineType.CLOUD_SERVICE.getName())
-                                    .withResource(DataEngineType.CLOUD_SERVICE.getName())
+                                    .withVolumeForLog(configuration.getDockerLogDirectory(), EMR_DATA_ENGINE.getName())
+                                    .withResource(EMR_DATA_ENGINE.getName())
                                     .withRequestId(uuid)
                                     .withEc2Role(configuration.getEmrEC2RoleDefault())
                                     .withEmrTimeout(Long.toString(timeout))
                                     .withServiceRole(configuration.getEmrServiceRoleDefault())
                                     .withConfKeyName(configuration.getAdminKey())
-                                    .withActionCreate(configuration.getDataEngineImage()),
+                                    .withActionCreate(DataEngineType.getDockerImageName(EMR_DATA_ENGINE)),
                             dto
                     )
             );
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new DlabException("Could not create computational resource cluster", t);
         }
         return uuid;
     }
 
-    @Path("/terminate")
     @POST
+    @Path(ComputationalAPI.COMPUTATIONAL_TERMINATE_CLOUD_SPECIFIC)
     public String terminate(@Auth UserInfo ui, ComputationalTerminateDTO dto) {
+
         log.debug("Terminate computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
@@ -116,18 +125,36 @@ public class ComputationalResourceAws implements DockerCommands {
                                     .withName(nameContainer(dto.getEdgeUserName(), TERMINATE, dto.getComputationalName()))
                                     .withVolumeForRootKeys(configuration.getKeyDirectory())
                                     .withVolumeForResponse(configuration.getImagesDirectory())
-                                    .withVolumeForLog(configuration.getDockerLogDirectory(), DataEngineType.CLOUD_SERVICE.getName())
-                                    .withResource(DataEngineType.CLOUD_SERVICE.getName())
+                                    .withVolumeForLog(configuration.getDockerLogDirectory(), EMR_DATA_ENGINE.getName())
+                                    .withResource(EMR_DATA_ENGINE.getName())
                                     .withRequestId(uuid)
                                     .withConfKeyName(configuration.getAdminKey())
-                                    .withActionTerminate(configuration.getDataEngineImage()),
+                                    .withActionTerminate(DataEngineType.getDockerImageName(EMR_DATA_ENGINE)),
                             dto
                     )
             );
-        } catch (Throwable t) {
+        } catch (JsonProcessingException t) {
             throw new DlabException("Could not terminate computational resources cluster", t);
         }
+
         return uuid;
+    }
+
+    @POST
+    @Path(ComputationalAPI.COMPUTATIONAL_CREATE_SPARK)
+    public String createSparkCluster(@Auth UserInfo ui, SparkComputationalCreateAws dto) {
+        log.debug("Create computational Spark resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
+
+        return sparkClusterService.create(ui, dto);
+    }
+
+
+    @POST
+    @Path(ComputationalAPI.COMPUTATIONAL_TERMINATE_SPARK)
+    public String terminateSparkCluster(@Auth UserInfo ui, ComputationalTerminateDTO dto) {
+        log.debug("Terminate computational Spark resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
+
+        return sparkClusterService.terminate(ui, dto);
     }
 
     private FileHandlerCallback getFileHandlerCallback(DockerAction action, String uuid, ComputationalBase<?> dto) {

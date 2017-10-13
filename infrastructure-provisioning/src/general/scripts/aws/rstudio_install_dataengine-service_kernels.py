@@ -45,9 +45,10 @@ args = parser.parse_args()
 
 def configure_notebook(args):
     scripts_dir = '/root/scripts/'
-    put(scripts_dir + '{}_create_configs.py'.format(args.application), '/tmp/create_configs.py')
-    sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
-    sudo('chmod 755 /usr/local/bin/create_configs.py')
+    put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application),
+        '/tmp/rstudio_dataengine-service_create_configs.py')
+    sudo('\cp /tmp/rstudio_dataengine-service_create_configs.py /usr/local/bin/rstudio_dataengine-service_create_configs.py')
+    sudo('chmod 755 /usr/local/bin/rstudio_dataengine-service_create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')
     run('mkdir -p /tmp/dlab_libs/')
     local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
@@ -65,7 +66,7 @@ if __name__ == "__main__":
     configure_notebook(args)
     spark_version = get_spark_version(args.cluster_name)
     hadoop_version = get_hadoop_version(args.cluster_name)
-    sudo("/usr/bin/python /usr/local/bin/create_configs.py --bucket " + args.bucket + " --cluster_name "
-         + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " + spark_version
-         + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
+    sudo("/usr/bin/python /usr/local/bin/rstudio_dataengine-service_create_configs.py --bucket " + args.bucket +
+         " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " +
+         spark_version + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
          + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user)

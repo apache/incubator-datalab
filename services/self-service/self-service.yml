@@ -23,16 +23,15 @@ mocked: false
 # Minimum and maximum number of slave EMR instances than could be created
 minEmrInstanceCount: 2
 maxEmrInstanceCount: 14
-
 # Minimum and maximum percentage cost for slave EMR spot instances biding
 minEmrSpotInstanceBidPct: 20
 maxEmrSpotInstanceBidPct: 90
-<#elseif CLOUD_TYPE == "azure">
+</#if>
 
+# Boundaries for Spark cluster creation
 minSparkInstanceCount: 2
 maxSparkInstanceCount: 14
 
-</#if>
 # Timeout for check the status of environment via provisioning service
 checkEnvStatusTimeout: 5m
 

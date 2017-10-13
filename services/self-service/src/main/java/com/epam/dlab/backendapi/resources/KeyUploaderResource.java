@@ -134,7 +134,7 @@ public class KeyUploaderResource implements EdgeAPI {
 
         try {
             return Response.ok(startEdgeRecovery(userInfo)).build();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             LOGGER.error("Could not create the EDGE node for user {}", userInfo.getName(), e);
             keyDAO.updateEdgeStatus(userInfo.getName(), UserInstanceStatus.FAILED.toString());
             throw new DlabException("Could not create EDGE node: " + e.getLocalizedMessage(), e);

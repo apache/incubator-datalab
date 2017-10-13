@@ -30,6 +30,7 @@ from dlab.meta_lib import *
 from dlab.fab import *
 import traceback
 import urllib2
+import meta_lib
 
 
 def put_to_bucket(bucket_name, local_file, destination_file):
@@ -96,7 +97,7 @@ def remove_vpc(vpc_id):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_tag(resource, tag):
+def create_tag(resource, tag, with_tag_res_id=True):
     try:
         ec2 = boto3.client('ec2')
         if type(tag) == dict:
@@ -107,16 +108,24 @@ def create_tag(resource, tag):
             resource_tag = json.loads(tag)
         if type(resource) != list:
             resource = [resource]
-        ec2.create_tags(
-            Resources=resource,
-            Tags=[
-                resource_tag,
-                {
-                    'Key': os.environ['conf_tag_resource_id'],
-                    'Value': os.environ['conf_service_base_name'] + ':' + resource_name
-                }
-            ]
-        )
+        if with_tag_res_id:
+            ec2.create_tags(
+                Resources=resource,
+                Tags=[
+                    resource_tag,
+                    {
+                        'Key': os.environ['conf_tag_resource_id'],
+                        'Value': os.environ['conf_service_base_name'] + ':' + resource_name
+                    }
+                ]
+            )
+        else:
+            ec2.create_tags(
+                Resources=resource,
+                Tags=[
+                    resource_tag
+                ]
+            )
     except Exception as err:
         logging.info("Unable to create Tag: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to create Tag", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -536,10 +545,10 @@ def remove_all_iam_resources(instance_type, scientist=''):
                             print("There is no instance profile for {}".format(iam_role))
                             client.delete_role(RoleName=iam_role)
                             print("The IAM role {} has been deleted successfully".format(iam_role))
-                if '-nb-Role' in iam_role:
+                if '-nb-de-Role' in iam_role:
                     if instance_type == 'notebook' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role)
-                        role_profile_name = os.environ['conf_service_base_name'].lower().replace('-', '_') + '-' + "{}".format(scientist) + '-nb-Profile'
+                        role_profile_name = os.environ['conf_service_base_name'].lower().replace('-', '_') + '-' + "{}".format(scientist) + '-nb-de-Profile'
                         try:
                             client.get_instance_profile(InstanceProfileName=role_profile_name)
                             remove_roles_and_profiles(iam_role, role_profile_name)
@@ -577,7 +586,7 @@ def remove_all_iam_resources(instance_type, scientist=''):
                     if instance_type == 'all':
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
                         print("The instance profile {} has been deleted successfully".format(instance_profile))
-                if '-nb-Profile' in instance_profile:
+                if '-nb-de-Profile' in instance_profile:
                     if instance_type == 'notebook' and scientist in instance_profile:
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
                         print("The instance profile {} has been deleted successfully".format(instance_profile))
@@ -804,13 +813,13 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                             zeppelin_restarted = True
                     sudo('sleep 5')
                     sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, emr_name))
-                if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)) or exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(ssh_user)):
+                if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
                     sudo("sed -i '/" + emr_name + "/d' /home/{}/.Renviron".format(ssh_user))
                     if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(ssh_user)):
                         sudo("sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".format(ssh_user))
                     sudo("sed -i 's|/opt/" + emr_version + '/' + emr_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(ssh_user))
+                    sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(ssh_user))
                     sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user))
-                    sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(ssh_user))
                 sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
                 print("Notebook's {} kernels were removed".format(env.hosts))
         else:
@@ -1030,7 +1039,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
                       ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 ipython ipykernel --no-cache-dir'.
                       format(pip_mirror))
                 local(venv_command + ' && sudo -i ' + pip_command +
-                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir'.
+                      ' install -i https://{0}/simple --trusted-host {0} --timeout 60000 boto boto3 NumPy SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir'.
                       format(pip_mirror))
                 # Need to refactor when we add GPU cluster
                 if application == 'deeplearning':
@@ -1051,7 +1060,7 @@ def installing_python(region, bucket, user_name, cluster_name, application='', p
             local(venv_command + ' && sudo -i ' + pip_command + ' install -U pip --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command + ' install ipython ipykernel --no-cache-dir')
             local(venv_command + ' && sudo -i ' + pip_command +
-                  ' install boto boto3 NumPy SciPy Matplotlib pandas Sympy Pillow sklearn --no-cache-dir')
+                  ' install boto boto3 NumPy SciPy Matplotlib==2.0.2 pandas Sympy Pillow sklearn --no-cache-dir')
             # Need to refactor when we add GPU cluster
             if application == 'deeplearning':
                 local(venv_command + ' && sudo -i ' + pip_command +
@@ -1231,3 +1240,90 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
         local('touch /home/' + os_user + '/.ensure_dir/dataengine-service_' + cluster_name + '_interpreter_ensured')
     except:
             sys.exit(1)
+
+
+def configure_dataengine_spark(jars_dir, spark_dir, region):
+    local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+          /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
+    if region == 'us-east-1':
+        endpoint_url = 'https://s3.amazonaws.com'
+    elif region == 'cn-north-1':
+        endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
+    else:
+        endpoint_url = 'https://s3-' + region + '.amazonaws.com'
+    local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/notebook_spark-defaults_local.conf'""")
+    local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
+
+
+def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluster_name):
+    try:
+        private = meta_lib.get_instance_private_ip_address(tag_name, notebook_name)
+        env.hosts = "{}".format(private)
+        env.user = "{}".format(os_user)
+        env.key_filename = "{}".format(key_path)
+        env.host_string = env.user + "@" + env.hosts
+        sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
+        if exists('/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
+            if os.environ['notebook_multiple_clusters'] == 'true':
+                try:
+                    livy_port = sudo("cat /opt/" + cluster_name +
+                                     "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
+                    process_number = sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                                          "' | awk '{print $7}' | sed 's|/.*||g'")
+                    sudo('kill -9 ' + process_number)
+                    sudo('systemctl disable livy-server-' + livy_port)
+                except:
+                    print("Wasn't able to find Livy server for this EMR!")
+            sudo(
+                'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+            sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
+            zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
+            opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+            req = opener.open(urllib2.Request(zeppelin_url))
+            r_text = req.read()
+            interpreter_json = json.loads(r_text)
+            interpreter_prefix = cluster_name
+            for interpreter in interpreter_json['body']:
+                if interpreter_prefix in interpreter['name']:
+                    print("Interpreter with ID: {} and name: {} will be removed from zeppelin!".format(
+                        interpreter['id'], interpreter['name']))
+                    request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
+                    request.get_method = lambda: 'DELETE'
+                    url = opener.open(request)
+                    print(url.read())
+            sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
+            sudo('systemctl daemon-reload')
+            sudo("service zeppelin-notebook stop")
+            sudo("service zeppelin-notebook start")
+            zeppelin_restarted = False
+            while not zeppelin_restarted:
+                sudo('sleep 5')
+                result = sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                result = result[:1]
+                if result == '1':
+                    zeppelin_restarted = True
+            sudo('sleep 5')
+            sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
+        if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
+            sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Renviron".format(os_user))
+            sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Rprofile".format(os_user))
+            if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(os_user)):
+                sudo(
+                    "sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".
+                        format(os_user))
+            if not sudo("sed -n '/^master/p' /home/{}/.Rprofile".format(os_user)):
+                sudo(
+                    "sed -i '1!G;h;$!d;' /home/{0}/.Rprofile; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Rprofile".
+                        format(os_user))
+            sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
+            sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
+            sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
+        sudo('rm -rf  /opt/' + cluster_name + '/')
+        print("Notebook's {} kernels were removed".format(env.hosts))
+    except Exception as err:
+        logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to remove kernels on Notebook",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+

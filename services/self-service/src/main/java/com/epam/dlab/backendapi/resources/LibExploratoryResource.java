@@ -78,7 +78,7 @@ public class LibExploratoryResource {
         try {
             UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
             return ExploratoryLibCache.getCache().getLibGroupList(userInfo, userInstance);
-        } catch (Throwable t) {
+        } catch (Exception t) {
             log.error("Cannot load list of lib groups for user {} and exploratory {}", userInfo.getName(), exploratoryName, t);
             throw new DlabException("Cannot load list of libraries groups: " + t.getLocalizedMessage(), t);
         }
@@ -96,7 +96,7 @@ public class LibExploratoryResource {
         log.debug("Loading list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName);
         try {
             return libraryDAO.findLibraries(userInfo.getName(), exploratoryName);
-        } catch (Throwable t) {
+        } catch (Exception t) {
             log.error("Cannot load list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName, t);
             throw new DlabException("Cannot load list of libraries: " + t.getLocalizedMessage(), t);
         }
@@ -162,7 +162,7 @@ public class LibExploratoryResource {
         try {
             UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
             return ExploratoryLibCache.getCache().getLibList(userInfo, userInstance, formDTO.getGroup(), formDTO.getStartWith());
-        } catch (Throwable t) {
+        } catch (Exception t) {
             log.error("Cannot load list of libs for user {} with condition {}",
                     userInfo.getName(), formDTO, t);
             throw new DlabException("Cannot load list of libraries: " + t.getLocalizedMessage(), t);

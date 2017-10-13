@@ -32,11 +32,15 @@ limitations under the License.
                   {{resource.status}}
                 </span>
               </td>
-            <td>{{ resource[DICTIONARY.master_node_shape] }}</td>
+            <td>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</td>
           </tr>
         </table>
       </div>
       <div class="detail-info content-box" *ngIf="!resource.error_message">
+        <div class="row">
+          <div class="col-xs-6"><p>Cluster type:</p></div>
+          <div class="col-xs-6"><span>{{ resource.template_name }}</span></div>
+        </div>
         <div class="row">
          <div class="col-xs-6"><p>Cluster alias:</p></div>
          <div class="col-xs-6 tooltip-wrap" (mouseover)="isEllipsisActive($event)">
@@ -46,15 +50,15 @@ limitations under the License.
         </div>
         <div class="row">
           <div class="col-xs-6"><p>Total instance number:</p></div>
-          <div class="col-xs-6"><span>{{ resource[DICTIONARY.total_instance_number] }}</span></div>
+          <div class="col-xs-6"><span>{{ resource[DICTIONARY[resource.image].total_instance_number] }}</span></div>
         </div>
         <div class="row">
-         <div class="col-xs-6"><p>{{ DICTIONARY.data_engine_master_instance_size }}:</p></div>
-         <div class="col-xs-6"><span>{{ resource[DICTIONARY.master_node_shape] }}</span></div>
+         <div class="col-xs-6"><p>{{ DICTIONARY[resource.image].data_engine_master_instance_size }}:</p></div>
+         <div class="col-xs-6"><span>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</span></div>
         </div>
         <div class="row">
-         <div class="col-xs-6"><p>{{ DICTIONARY.data_engine_slave_instance_size }}:</p></div>
-         <div class="col-xs-6"><span>{{ resource[DICTIONARY.slave_node_shape] }}</span></div>
+         <div class="col-xs-6"><p>{{ DICTIONARY[resource.image].data_engine_slave_instance_size }}:</p></div>
+         <div class="col-xs-6"><span>{{ resource[DICTIONARY[resource.image].slave_node_shape] }}</span></div>
         </div>
         <div class="row">
           <div class="col-xs-12" *ngIf="resource.status === 'running'">
