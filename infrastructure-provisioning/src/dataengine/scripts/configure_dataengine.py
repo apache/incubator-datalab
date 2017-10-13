@@ -73,6 +73,7 @@ def start_spark(os_user, master_ip, node):
             run('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
         if node == 'master':
             run('/opt/spark/sbin/start-master.sh')
+            run('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
         if node == 'slave':
             run('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
         sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
