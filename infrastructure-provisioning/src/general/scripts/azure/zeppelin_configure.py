@@ -166,22 +166,6 @@ if __name__ == "__main__":
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    # installing python2 and python3 libs
-    try:
-        logging.info('[CONFIGURE ZEPPELIN ADDITIONS]')
-        print('[CONFIGURE ZEPPELIN ADDITIONS]')
-        params = "--hostname {} --keyfile {} --os_user {}" \
-            .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'])
-        try:
-            local("~/scripts/{}.py {}".format('install_zeppelin_additions', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed to install python libs.", str(err))
-        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
-        sys.exit(1)
-
     try:
         print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
