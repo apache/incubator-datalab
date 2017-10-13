@@ -63,7 +63,6 @@ def backup_configs():
                 local("cp {0}{2}{3} {1}{2}".format(args.dlab_path, temp_folder, conf_folder, conf_file))
     except:
         print("Backup configs failed.")
-        pass
 
 
 def backup_keys():
@@ -76,7 +75,6 @@ def backup_keys():
                 local("cp {0}{1} {2}keys".format(keys_folder, key_file, temp_folder))
     except:
         print("Backup keys failed.")
-        pass
 
 
 def backup_certs():
@@ -94,7 +92,6 @@ def backup_certs():
                 local("sudo chown {0}:{0} {1}certs/{2} ".format(os_user, temp_folder, cert))
     except:
         print("Backup certs failed.")
-        pass
 
 
 def backup_jars():
@@ -111,7 +108,6 @@ def backup_jars():
                 local("cp -RP {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
     except:
         print("Backup jars failed.")
-        pass
 
 
 def backup_database():
@@ -126,7 +122,6 @@ def backup_database():
                             data['mongo']['password'], data['mongo']['database'], temp_folder))
     except:
         print("Backup db failed.")
-        pass
 
 
 def backup_logs():
@@ -140,7 +135,6 @@ def backup_logs():
             local("sudo chown -R {0}:{0} {1}logs/docker".format(os_user, temp_folder))
     except:
         print("Backup logs failed.")
-        pass
 
 
 def backup_finalize():

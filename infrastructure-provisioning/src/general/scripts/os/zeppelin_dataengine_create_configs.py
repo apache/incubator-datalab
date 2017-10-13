@@ -107,7 +107,6 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, spark_dir, os_user, 
                     break
                 except:
                     local('sleep 5')
-                    pass
             local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-' + str(livy_port) +
                   '.service')
             local("sudo sed -i 's|OS_USER|" + os_user + "|' /etc/systemd/system/livy-server-" + str(livy_port) +
@@ -141,7 +140,6 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, spark_dir, os_user, 
                         break
                     except:
                         local('sleep 5')
-                        pass
         local('touch /home/' + os_user + '/.ensure_dir/dataengine_' + cluster_name + '_interpreter_ensured')
     except:
             sys.exit(1)

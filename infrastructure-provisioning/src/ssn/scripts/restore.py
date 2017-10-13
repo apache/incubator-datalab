@@ -130,7 +130,6 @@ def restore_configs():
                         local("cp {0}{1}{2} {3}{1}{2}".format(temp_folder, conf_folder, filename, args.dlab_path))
     except:
         print("Restore configs failed.")
-        pass
 
 
 def restore_keys():
@@ -165,7 +164,6 @@ def restore_keys():
                         local("cp {0}keys/{2} {1}{2}".format(temp_folder, keys_folder, filename))
     except:
         print("Restore keys failed.")
-        pass
 
 
 def restore_certs():
@@ -202,7 +200,6 @@ def restore_certs():
                         local("sudo chown {0}:{0} {1}{2}".format("root", certs_folder, filename))
     except:
         print("Restore certs failed.")
-        pass
 
 
 def restore_jars():
@@ -240,7 +237,6 @@ def restore_jars():
                                 local("cp -P {0}jars/{1}/{2} {3}{4}{1}".format(temp_folder, service, filename, args.dlab_path, jars_folder))
     except:
         print("Restore jars failed.")
-        pass
 
 
 def restore_database():
@@ -262,7 +258,6 @@ def restore_database():
             print("Restore database was skipped.")
     except:
         print("Restore database failed.")
-        pass
 
 
 def restore_finalize():
