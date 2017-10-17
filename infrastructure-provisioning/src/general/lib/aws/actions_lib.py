@@ -221,7 +221,7 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
                 f.close()
             except:
                 print("Error reading user-data file")
-        if definitions.instance_class == 'notebook':
+        if definitions.instance_class == 'notebook' or definitions.instance_class == 'dataengine':
             instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
                                              BlockDeviceMappings=[
                                                  {

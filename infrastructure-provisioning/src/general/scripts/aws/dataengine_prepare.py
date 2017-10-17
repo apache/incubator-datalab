@@ -55,6 +55,7 @@ if __name__ == "__main__":
             sys.exit(1)
         print('Generating infrastructure names and tags')
         data_engine = dict()
+        data_engine['instance_class'] = 'dataengine'
         try:
             data_engine['exploratory_name'] = os.environ['exploratory_name']
         except:
@@ -101,13 +102,13 @@ if __name__ == "__main__":
         data_engine['cluster_nodes_tag_master'] = {"Key": os.environ['conf_tag_resource_id'],
                                                    "Value": data_engine['service_base_name'] + ':' +
                                                             data_engine['master_node_name']}
-        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
+        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {} --instance_disk_size {} --instance_class {}" \
             .format(data_engine['master_node_name'], data_engine['ami_id'], data_engine['master_size'],
                     data_engine['key_name'],
                     get_security_group_by_name(data_engine['dataengine_master_security_group_name']),
                     get_subnet_by_cidr(data_engine['subnet_cidr']),
                     data_engine['notebook_dataengine_role_profile_name'], data_engine['tag_name'],
-                    data_engine['master_node_name'])
+                    data_engine['master_node_name'], os.environ['dataengine_disk_size'], data_engine['instance_class'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
             data_engine['master_id'] = get_instance_by_name(data_engine['tag_name'], data_engine['master_node_name'])
@@ -127,13 +128,13 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
             data_engine['cluster_nodes_tag_slave'] = {"Key": os.environ['conf_tag_resource_id'],
                                                       "Value": data_engine['service_base_name'] + ':' + slave_name}
-            params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
+            params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {} --instance_disk_size {} --instance_class {}" \
                 .format(slave_name, data_engine['ami_id'], data_engine['slave_size'],
                         data_engine['key_name'],
                         get_security_group_by_name(data_engine['dataengine_slave_security_group_name']),
                         get_subnet_by_cidr(data_engine['subnet_cidr']),
                         data_engine['notebook_dataengine_role_profile_name'], data_engine['tag_name'],
-                        slave_name)
+                        slave_name, os.environ['dataengine_disk_size'], data_engine['instance_class'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
                 data_engine['slave_id'] = get_instance_by_name(data_engine['tag_name'], slave_name)
