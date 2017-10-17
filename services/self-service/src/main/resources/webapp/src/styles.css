@@ -58,17 +58,19 @@ limitations under the License.
 }
 
 .install-libs .mat-tab-label,
+.install-libraries .mat-tab-label,
 .manage-ungit .mat-tab-label {
-    width: 50%;
     font-family: 'Open Sans',sans-serif !important;
 }
 .install-libs .mat-ink-bar,
+.install-libraries .mat-ink-bar,
 .manage-ungit .mat-ink-bar {
     background-color: #35afd5 !important;
     width: 50% !important;
 }
 
 .install-libs .mat-tab-labels .mat-tab-label:focus,
+.install-libraries .mat-tab-labels .mat-tab-label:focus,
 .manage-ungit .mat-tab-labels .mat-tab-label:focus {
     background-color: rgba(53, 175, 213, 0.11);
 }
