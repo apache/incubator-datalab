@@ -997,6 +997,9 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                  {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
             sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/2.2.0/azure-storage-2.2.0.jar \
                  -O {}azure-storage-2.2.0.jar'.format(jars_dir))
+            if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
+                sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
+                     -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
             put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
             sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
             sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
@@ -1032,3 +1035,17 @@ def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
     sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
     sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
     sudo('mount -a')
+
+
+def prepare_disk(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
+        try:
+            remount_azure_disk()
+            disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
+            sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
+            sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
+            sudo('mount /dev/{}1 /opt/'.format(disk_name))
+            sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
+            sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
+        except:
+            sys.exit(1)

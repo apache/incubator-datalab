@@ -16,6 +16,9 @@
         {"Size": "S", "Description": "Standard_F2s", "Type": "Standard_F2s","Ram": "4 GB","Cpu": "2"},
         {"Size": "M", "Description": "Standard_F8s", "Type": "Standard_F8s","Ram": "16.0 GB","Cpu": "8"},
         {"Size": "L", "Description": "Standard_F16s", "Type": "Standard_F16s","Ram": "32.0 GB","Cpu": "16"}
+      ],
+      "GPU optimized": [
+        {"Size": "S", "Description": "Standard_NC6", "Type": "Standard_NC6","Ram": "56.0 GB","Cpu": "6"}
       ]
     },
   "templates":
