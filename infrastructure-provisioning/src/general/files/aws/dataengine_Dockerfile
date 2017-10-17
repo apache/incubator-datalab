@@ -21,6 +21,8 @@ FROM docker.dlab-base:latest
 ARG OS
 
 COPY dataengine/ /root/
+COPY general/scripts/os/dataengine_* /root/scripts/
+COPY general/scripts/os/install_additional_libs.py /root/scripts/install_additional_libs.py
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
 COPY general/scripts/os/common_configure_proxy.py /root/scripts/
 COPY general/scripts/aws/dataengine_* /root/scripts/

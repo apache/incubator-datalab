@@ -29,7 +29,7 @@ import ast
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
-parser.add_argument('--notebook_ip', type=str, default='')
+parser.add_argument('--instance_ip', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--libs', type=str, default='')
 args = parser.parse_args()
