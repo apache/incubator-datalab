@@ -114,6 +114,26 @@ limitations under the License.
   animation-timing-function: ease;
 } */
 
+.dialog.in .dialog-container.install-libraries {
+  animation-duration: .35s;
+  animation-fill-mode: forwards;
+  animation-name: showSlideSide;
+  animation-timing-function: ease;
+  width: 100%;
+}
+
+.dialog.in .dialog-container.install-libraries .dialog-content {
+  height: 100vh;
+  width: 100%;
+}
+
+.dialog.out .dialog-container.install-libraries {
+  animation-duration: .35s;
+  animation-fill-mode: forwards;
+  animation-name: hideSlideSide;
+  animation-timing-function: ease;
+}
+
 .dialog-container {
   /* display: flex; */
   flex-direction: column;

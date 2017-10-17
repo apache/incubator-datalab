@@ -107,6 +107,7 @@ limitations under the License.
                 && env.status != 'starting'
                 ">Add computational resources</li>
             <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
+            <li (click)="exploratoryAction(env, 'libraries')">ALTERNATIVE</li>
           </ul>
         </div>
       </div>
@@ -119,3 +120,5 @@ limitations under the License.
 <detail-dialog #detailDialog></detail-dialog>
 <cost-details-dialog #costDetailsDialog></cost-details-dialog>
 <install-libraries #installLibs (buildGrid)="buildGrid($event)"></install-libraries>
+
+<dlab-manage-libs #manageLibraries></dlab-manage-libs>

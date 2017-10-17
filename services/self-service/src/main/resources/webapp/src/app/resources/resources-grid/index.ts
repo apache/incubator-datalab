@@ -29,6 +29,9 @@ import { FormControlsModule } from '../../shared/form-controls';
 import { CostDetailsDialogModule } from './../billing/cost-details-dialog';
 import { InstallLibrariesModule } from './../exploratory/install-libraries';
 
+// --------------------------------------------------------------
+import { InstallLibsModule } from './../exploratory/install-libs';
+
 export * from './resources-grid.component';
 export * from './resources-grid.model';
 export * from './create-resource.model';
@@ -45,6 +48,7 @@ export * from './filter-configuration.model';
     FormControlsModule,
     CostDetailsDialogModule,
     InstallLibrariesModule,
+    InstallLibsModule,
     MaterialModule.forRoot()
   ],
   declarations: [ResourcesGridComponent],

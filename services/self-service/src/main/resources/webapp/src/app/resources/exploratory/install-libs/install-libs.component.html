@@ -1,0 +1,46 @@
+<!--
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+
+<modal-dialog #bindDialog modalClass="install-libraries modal-xl">
+  <modal-header>
+    <h4 class="modal-title">Manage <b>{{ notebook?.name }}</b> Libraries</h4>
+  </modal-header>
+  <modal-content>
+    <div *ngIf="notebook">
+      <div class="detail-header-wrap">
+        <table class="detail-header">
+          <tr>
+            <td mdTooltip="{{ notebook.name }}" mdTooltipPosition="above">{{ notebook.name }}</td>
+            <td>{{ notebook.template_name }}</td>
+            <td class="status" ngClass="{{ notebook.status || ''}}">{{ notebook.status }}</td>
+            <td>{{ notebook.shape }}</td>
+          </tr>
+        </table>
+      </div>
+
+      <md-tab-group mat-stretch-tabs class="content-box">
+        <md-tab label="LIST">
+          LIST component
+        </md-tab>
+        <md-tab label="LIBRARIES INSTALLATION">
+          INSTALL component
+        </md-tab>
+      </md-tab-group>
+    </div>
+  </modal-content>
+</modal-dialog>
