@@ -221,7 +221,7 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
                 f.close()
             except:
                 print("Error reading user-data file")
-        if definitions.instance_class == 'notebook' or definitions.instance_class == 'dataengine':
+        if definitions.instance_class == 'notebook':
             instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
                                              BlockDeviceMappings=[
                                                  {
@@ -236,6 +236,22 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
                                                      "Ebs":
                                                          {
                                                              "VolumeSize": int(definitions.instance_disk_size)
+                                                         }
+                                                 }],
+                                             KeyName=definitions.key_name,
+                                             SecurityGroupIds=security_groups_ids,
+                                             InstanceType=definitions.instance_type,
+                                             SubnetId=definitions.subnet_id,
+                                             IamInstanceProfile={'Name': definitions.iam_profile},
+                                             UserData=user_data)
+        elif definitions.instance_class == 'dataengine':
+            instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
+                                             BlockDeviceMappings=[
+                                                 {
+                                                     "DeviceName": "/dev/sda1",
+                                                     "Ebs":
+                                                         {
+                                                             "VolumeSize": int(primary_disk_size)
                                                          }
                                                  }],
                                              KeyName=definitions.key_name,
