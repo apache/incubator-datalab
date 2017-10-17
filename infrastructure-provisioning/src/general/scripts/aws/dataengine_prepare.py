@@ -68,10 +68,10 @@ if __name__ == "__main__":
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['region'] = os.environ['aws_region']
         data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                      '-dataengine-' + data_engine['exploratory_name'] + '-' + \
+                                      '-de-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name']
-        data_engine['master_node_name'] = data_engine['cluster_name'] + '-master'
-        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
+        data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
+        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
         data_engine['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
         data_engine['master_size'] = os.environ['aws_dataengine_master_shape']
         data_engine['slave_size'] = os.environ['aws_dataengine_slave_shape']
@@ -101,6 +101,7 @@ if __name__ == "__main__":
         data_engine['cluster_nodes_tag_master'] = {"Key": os.environ['conf_tag_resource_id'],
                                                    "Value": data_engine['service_base_name'] + ':' +
                                                             data_engine['master_node_name']}
+        data_engine['cluster_nodes_tag_type'] = {"Key": "Type", "Value": "master"}
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
             .format(data_engine['master_node_name'], data_engine['ami_id'], data_engine['master_size'],
                     data_engine['key_name'],
@@ -113,6 +114,7 @@ if __name__ == "__main__":
             data_engine['master_id'] = get_instance_by_name(data_engine['tag_name'], data_engine['master_node_name'])
             create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag'], False)
             create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_master'], False)
+            create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_type'], False)
         except:
             traceback.print_exc()
             raise Exception
@@ -127,6 +129,7 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
             data_engine['cluster_nodes_tag_slave'] = {"Key": os.environ['conf_tag_resource_id'],
                                                       "Value": data_engine['service_base_name'] + ':' + slave_name}
+            data_engine['cluster_nodes_tag_type'] = {"Key": "Type", "Value": "slave"}
             params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
                 .format(slave_name, data_engine['ami_id'], data_engine['slave_size'],
                         data_engine['key_name'],
@@ -139,6 +142,7 @@ if __name__ == "__main__":
                 data_engine['slave_id'] = get_instance_by_name(data_engine['tag_name'], slave_name)
                 create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag'], False)
                 create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_slave'], False)
+                create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_type'], False)
             except:
                 traceback.print_exc()
                 raise Exception

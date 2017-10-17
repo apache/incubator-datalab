@@ -139,10 +139,10 @@ if __name__ == "__main__":
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['region'] = os.environ['aws_region']
         data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                      '-dataengine-' + data_engine['exploratory_name'] + '-' + \
+                                      '-de-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name']
-        data_engine['master_node_name'] = data_engine['cluster_name'] + '-master'
-        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
+        data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
+        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
         data_engine['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
         data_engine['master_size'] = os.environ['aws_dataengine_master_shape']
         data_engine['slave_size'] = os.environ['aws_dataengine_slave_shape']
@@ -173,10 +173,10 @@ if __name__ == "__main__":
     except Exception as err:
         data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
         data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                      '-dataengine-' + data_engine['exploratory_name'] + '-' + \
+                                      '-de-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name']
-        data_engine['master_node_name'] = data_engine['cluster_name'] + '-master'
-        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
+        data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
+        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(int(os.environ['dataengine_instance_count']) - 1):
             slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
