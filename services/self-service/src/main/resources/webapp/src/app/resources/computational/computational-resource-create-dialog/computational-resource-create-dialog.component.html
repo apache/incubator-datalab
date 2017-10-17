@@ -81,7 +81,7 @@ limitations under the License.
             <dropdown-list #shapesSlaveList (selectedItem)="onUpdate($event)"></dropdown-list>
           </div>
         </div>
-        <div class="checkbox-group row" *ngIf="PROVIDER === 'aws'" [hidden]="!model.templates.length">
+        <div class="checkbox-group row" *ngIf="PROVIDER === 'aws'" [hidden]="!model.templates.length || !isAvailableSpots()">
           <label>
             <input #spotInstancesCheck type="checkbox" (change)="selectSpotInstances($event)" /> Spot instance
           </label>
