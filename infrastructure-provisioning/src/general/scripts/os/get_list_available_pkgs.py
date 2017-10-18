@@ -71,12 +71,12 @@ if __name__ == "__main__":
     all_pkgs = dict()
     all_pkgs['os_pkg'] = get_available_os_pkgs()
 
-    if os.environ['application'] in ['jupyter', 'zeppelin', 'deeplearning', 'tensor']:
+    if os.environ['application'] in ['jupyter', 'zeppelin', 'deeplearning', 'tensor', 'dataengine']:
         all_pkgs['pip2'] = get_available_pip_pkgs("2.7")
         all_pkgs['pip3'] = get_available_pip_pkgs("3.5")
         all_pkgs['others'] = get_uncategorised_pip_pkgs(all_pkgs['pip2'], all_pkgs['pip3'])
 
-    if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
+    if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning', 'dataengine']:
         all_pkgs['r_pkg'] = get_available_r_pkgs()
 
     # Writing response file & json file with all pkgs

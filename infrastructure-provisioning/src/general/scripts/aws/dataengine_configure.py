@@ -33,7 +33,7 @@ import multiprocessing
 
 
 def configure_slave(slave_number, data_engine):
-    slave_name = data_engine['slave_node_name'] + '-{}'.format(slave_number + 1)
+    slave_name = data_engine['slave_node_name'] + '{}'.format(slave_number + 1)
     slave_hostname = get_instance_private_ip_address(data_engine['tag_name'], slave_name)
     try:
         logging.info('[CREATING DLAB SSH USER ON SLAVE NODE]')
