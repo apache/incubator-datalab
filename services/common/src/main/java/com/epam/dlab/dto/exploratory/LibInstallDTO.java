@@ -120,21 +120,31 @@ public class LibInstallDTO {
     	setErrorMessage(errorMessage);
         return this;
     }
-    
+
     @Override
-    public boolean equals(Object obj) {
-    	if (obj == null && !(obj instanceof LibInstallDTO)) {
-    		return false;
-    	}
-    	LibInstallDTO lib = (LibInstallDTO)obj;
-    	return (StringUtils.equals(group, lib.group) &&
-    			StringUtils.equals(name, lib.name) &&
-    			StringUtils.equals(version, lib.version) &&
-    			StringUtils.equals(status, lib.status) &&
-    			StringUtils.equals(errorMessage, lib.errorMessage));
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof LibInstallDTO)) return false;
+
+        LibInstallDTO that = (LibInstallDTO) o;
+
+    	return (StringUtils.equals(group, that.group) &&
+    			StringUtils.equals(name, that.name) &&
+    			StringUtils.equals(version, that.version) &&
+    			StringUtils.equals(status, that.status) &&
+    			StringUtils.equals(errorMessage, that.errorMessage));
     }
 
-    
+    @Override
+    public int hashCode() {
+        int result = getGroup() != null ? getGroup().hashCode() : 0;
+        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
+        result = 31 * result + (getVersion() != null ? getVersion().hashCode() : 0);
+        result = 31 * result + (getStatus() != null ? getStatus().hashCode() : 0);
+        result = 31 * result + (getErrorMessage() != null ? getErrorMessage().hashCode() : 0);
+        return result;
+    }
+
     @Override
     public String toString() {
     	return MoreObjects.toStringHelper(this)
