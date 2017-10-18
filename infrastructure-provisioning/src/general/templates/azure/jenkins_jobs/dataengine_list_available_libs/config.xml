@@ -18,7 +18,7 @@ limitations under the License.
 -->
 <project>
   <actions/>
-  <description>Installs libs on notebook server.</description>
+  <description>List available libs on notebook server.</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
@@ -29,9 +29,14 @@ limitations under the License.
           <defaultValue>SBN</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>Notebook_Name</name>
-          <description>name of the notebook to start</description>
-          <defaultValue></defaultValue>
+          <name>Resource_group_name</name>
+          <description>Azure resource group name</description>
+          <defaultValue>ARGN</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Cluster_name</name>
+          <description>Name of dataengine cluster</description>
+          <defaultValue>CNAM</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>Username</name>
@@ -61,27 +66,10 @@ limitations under the License.
           <description></description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>lib_install</string>
+              <string>lib_list</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>Libs</name>
-          <description>
-            List of additional libs in json format. For example:
-            [
-              {"group": "os_pkg", "name": "nmap"},
-              {"group": "os_pkg", "name": "htop"},
-              {"group": "pip2", "name": "requests"},
-              {"group": "pip3", "name": "configparser"},
-              {"group": "r_pkg", "name": "rmarkdown"},
-            ]
-            Types: for OS - os_pkg, for Python - pip2/pip3, for R - r_pkg
-            NOTE: You need to escape each double quote.
-            For Example: {\"group\": \"os_pkg\", \"name\": \"htop\"}
-          </description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -94,7 +82,7 @@ limitations under the License.
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rand=`openssl rand -hex 10`; echo $rand; sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -e "conf_resource=notebook" -e "request_id=$rand" -e "conf_service_base_name=$Service_base_name" -e "edge_user_name=$Username" -e "notebook_instance_name=$Notebook_Name" -e "conf_key_name=$SSH_Key_Name" -e "libs=$Libs" -e "application=$notebook_app" docker.dlab-$notebook_app --action $Action
+      <command>rand=`openssl rand -hex 10`; sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/dataengine_list_available_libs/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/notebook:/logs/notebook docker.dlab-dataengine --action $Action
       </command>
     </hudson.tasks.Shell>
   </builders>

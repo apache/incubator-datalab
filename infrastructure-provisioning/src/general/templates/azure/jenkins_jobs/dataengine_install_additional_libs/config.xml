@@ -18,7 +18,7 @@ limitations under the License.
 -->
 <project>
   <actions/>
-  <description>Installs libs on notebook server.</description>
+  <description>Installs libs on DataEngine.</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
@@ -29,14 +29,24 @@ limitations under the License.
           <defaultValue>SBN</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>Notebook_Name</name>
-          <description>name of the notebook to start</description>
+          <name>Resource_group_name</name>
+          <description>Azure resource group name</description>
+          <defaultValue>ARGN</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Cluster_name</name>
+          <description>Name of dataengine cluster</description>
+          <defaultValue>CNAM</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>User_name</name>
+          <description>name of the data scientist user</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>Username</name>
-          <description>name of the data scientist user</description>
-          <defaultValue></defaultValue>
+            <name>Nodes_Count</name>
+            <description>Number of nodes the new cluster will consist of</description>
+            <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>SSH_Key_Name</name>
@@ -44,17 +54,16 @@ limitations under the License.
           <defaultValue>AKEY</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>notebook_app</name>
-          <description>notebook application to be deployed</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>jupyter</string>
-              <string>rstudio</string>
-              <string>zeppelin</string>
-              <string>tensor</string>
-              <string>deeplearning</string>
-            </a>
-          </choices>
+                  <name>notebook_app</name>
+                  <description>notebook application to be deployed</description>
+                  <choices class="java.util.Arrays$ArrayList">
+                    <a class="string-array">
+                      <string>jupyter</string>
+                      <string>rstudio</string>
+                      <string>zeppelin</string>
+                      <string>tensor</string>
+                    </a>
+                  </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>Action</name>
@@ -94,8 +103,9 @@ limitations under the License.
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rand=`openssl rand -hex 10`; echo $rand; sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -e "conf_resource=notebook" -e "request_id=$rand" -e "conf_service_base_name=$Service_base_name" -e "edge_user_name=$Username" -e "notebook_instance_name=$Notebook_Name" -e "conf_key_name=$SSH_Key_Name" -e "libs=$Libs" -e "application=$notebook_app" docker.dlab-$notebook_app --action $Action
-      </command>
+      <command>rand=`openssl rand -hex 10`;
+                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/dataengine_install_additional_libs/template.json | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -e "libs=$Libs" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine  docker.dlab-dataengine --action $Action;
+            </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

@@ -18,7 +18,7 @@ limitations under the License.
 -->
 <project>
   <actions/>
-  <description>Installs libs on notebook server.</description>
+  <description>This job terminates emr cluster, cleans up s3 bucket, removes notebook kernels</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
@@ -29,13 +29,18 @@ limitations under the License.
           <defaultValue>SBN</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>Notebook_Name</name>
-          <description>name of the notebook to start</description>
+          <name>Username</name>
+          <description>name of the data scientist user</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>Username</name>
-          <description>name of the data scientist user</description>
+          <name>emr_name</name>
+          <description>name of the EMR cluster to terminate</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Notebook_Name</name>
+          <description>name of the notebook, EMR cluster is linked to</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
@@ -44,15 +49,14 @@ limitations under the License.
           <defaultValue>AKEY</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>notebook_app</name>
-          <description>notebook application to be deployed</description>
+          <name>Region</name>
+          <description>aws region where infrastructure was deployed</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>jupyter</string>
-              <string>rstudio</string>
-              <string>zeppelin</string>
-              <string>tensor</string>
-              <string>deeplearning</string>
+              <string>us-west-2</string>
+              <string>us-west-1</string>
+              <string>us-east-2</string>
+              <string>us-east-1</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -61,27 +65,10 @@ limitations under the License.
           <description></description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>lib_install</string>
+              <string>terminate</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>Libs</name>
-          <description>
-            List of additional libs in json format. For example:
-            [
-              {"group": "os_pkg", "name": "nmap"},
-              {"group": "os_pkg", "name": "htop"},
-              {"group": "pip2", "name": "requests"},
-              {"group": "pip3", "name": "configparser"},
-              {"group": "r_pkg", "name": "rmarkdown"},
-            ]
-            Types: for OS - os_pkg, for Python - pip2/pip3, for R - r_pkg
-            NOTE: You need to escape each double quote.
-            For Example: {\"group\": \"os_pkg\", \"name\": \"htop\"}
-          </description>
-          <defaultValue></defaultValue>
-        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -94,8 +81,8 @@ limitations under the License.
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rand=`openssl rand -hex 10`; echo $rand; sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -e "conf_resource=notebook" -e "request_id=$rand" -e "conf_service_base_name=$Service_base_name" -e "edge_user_name=$Username" -e "notebook_instance_name=$Notebook_Name" -e "conf_key_name=$SSH_Key_Name" -e "libs=$Libs" -e "application=$notebook_app" docker.dlab-$notebook_app --action $Action
-      </command>
+      <command>rand=`openssl rand -hex 10`;
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/terminate_dataengine-service/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/ECN/&apos;${emr_name}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service docker.dlab-dataengine-service --action $Action</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

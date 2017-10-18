@@ -1,0 +1,9 @@
+{
+    "conf_resource": "notebook",
+    "request_id":"RID",
+    "conf_service_base_name":"SBN",
+    "edge_user_name":"NUN",
+    "computational_name": "CNAM",
+    "conf_key_name":"CKN",
+    "application":"APP"
+}

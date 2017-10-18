@@ -29,7 +29,7 @@ import xmlrpclib
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--os_user', type=str, default='')
-parser.add_argument('--notebook_ip', type=str, default='')
+parser.add_argument('--instance_ip', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 args = parser.parse_args()
 
@@ -66,7 +66,7 @@ def get_uncategorised_pip_pkgs(all_pkgs_pip2, all_pkgs_pip3):
 if __name__ == "__main__":
     env['connection_attempts'] = 100
     env.key_filename = [args.keyfile]
-    env.host_string = '{}@{}'.format(args.os_user, args.notebook_ip)
+    env.host_string = '{}@{}'.format(args.os_user, args.instance_ip)
 
     all_pkgs = dict()
     all_pkgs['os_pkg'] = get_available_os_pkgs()

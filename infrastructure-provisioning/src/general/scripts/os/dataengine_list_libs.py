@@ -39,20 +39,32 @@ if __name__ == "__main__":
     try:
         logging.info('[GETTING ALL AVAILABLE PACKAGES]')
         print('[GETTING ALL AVAILABLE PACKAGES]')
-        notebook_config = dict()
+        data_engine = dict()
         try:
-            notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-            notebook_config['os_user'] = os.environ['conf_os_user']
-            notebook_config['service_base_name'] = os.environ['conf_service_base_name']
-            notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-            notebook_config['notebook_ip'] = get_instance_private_ip_address(
-                notebook_config['tag_name'], notebook_config['notebook_name'])
-            notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+            try:
+                data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
+            except:
+                data_engine['exploratory_name'] = ''
+            try:
+                data_engine['computational_name'] = os.environ['computational_name'].replace('_', '-')
+            except:
+                data_engine['computational_name'] = ''
+            data_engine['os_user'] = os.environ['conf_os_user']
+            data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
+            data_engine['service_base_name'] = os.environ['conf_service_base_name']
+            data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
+            data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['user_name'] + \
+                                          '-de-' + data_engine['exploratory_name'] + '-' + \
+                                          data_engine['computational_name']
+            data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
+            data_engine['master_ip'] = get_instance_private_ip_address(
+                data_engine['tag_name'], data_engine['master_node_name'])
+            data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
         params = "--os_user {} --instance_ip {} --keyfile '{}'" \
-            .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
+            .format(data_engine['os_user'], data_engine['master_ip'], data_engine['keyfile'])
         try:
             # Run script to get available libs
             local("~/scripts/{}.py {}".format('get_list_available_pkgs', params))
