@@ -50,6 +50,7 @@ caffe_version = os.environ['notebook_caffe_version']
 caffe2_version = os.environ['notebook_caffe2_version']
 cntk_version = os.environ['notebook_cntk_version']
 mxnet_version = os.environ['notebook_mxnet_version']
+python3_version = "3.4"
 scala_link = "http://www.scala-lang.org/files/archive/"
 if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
@@ -72,6 +73,7 @@ def start_spark(os_user, master_ip, node):
             run('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
         if node == 'master':
             run('/opt/spark/sbin/start-master.sh')
+            run('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
         if node == 'slave':
             run('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
         sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
@@ -114,7 +116,28 @@ if __name__ == "__main__":
     print("Installing R")
     ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
 
-    if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
+    if os.environ['application'] in ('jupyter', 'zeppelin', 'tensor'):
+        print("Installing opencv-python, h5py")
+        ensure_additional_python_libs(args.os_user)
+
+        print("Installing matplotlib.")
+        ensure_matplot(args.os_user)
+
+    if os.environ['application'] == 'jupyter':
+        print("Installing notebook additions: sbt.")
+        ensure_sbt(args.os_user)
+
+        print("Installing Breeze library")
+        add_breeze_library_local(args.os_user)
+
+    if os.environ['application'] == 'zeppelin':
+        print("Installing additional R packages")
+        install_r_packages(args.os_user)
+
+        print("Install python3 specific version")
+        ensure_python3_specific_version(python3_version, args.os_user)
+
+    if os.environ['application'] in ('tensor', 'deeplearning'):
         print("Installing TensorFlow")
         install_tensor(args.os_user, tensorflow_version, files_dir, templates_dir, nvidia_version)
 
@@ -123,13 +146,6 @@ if __name__ == "__main__":
 
         print("Installing Keras")
         install_keras(args.os_user, keras_version)
-
-    if os.environ['application'] == 'tensor':
-        print("Installing opencv-python, h5py")
-        ensure_additional_python_libs(args.os_user)
-
-        print("Installing matplotlib.")
-        ensure_matplot(args.os_user)
 
     if os.environ['application'] == 'deeplearning':
         print("Installing Caffe")

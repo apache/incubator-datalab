@@ -37,6 +37,7 @@ import java.util.List;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.bson.Document;
@@ -165,7 +166,9 @@ public class EnvStatusDAO extends BaseDAO {
 				continue;
 			}
 			for (Document comp : compList) {
-				addResource(clusterList, comp, STATUS);
+				if (DataEngineType.SPARK_STANDALONE != DataEngineType.fromDockerImageName(comp.getString("image"))) {
+					addResource(clusterList, comp, STATUS);
+				}
 			}
 		}
 

@@ -485,4 +485,3 @@ def install_gitlab_cert(os_user, certfile):
         sudo('update-ca-trust')
     except Exception as err:
         print('Failed to install gitlab certificate.{}'.format(str(err)))
-        pass

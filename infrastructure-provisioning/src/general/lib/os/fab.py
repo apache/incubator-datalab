@@ -79,20 +79,6 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-def prepare_disk(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
-        try:
-            remount_azure_disk()
-            disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
-            sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
-            sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
-            sudo('mount /dev/{}1 /opt/'.format(disk_name))
-            sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
-            sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
-        except:
-            sys.exit(1)
-
-
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
     if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
@@ -378,3 +364,40 @@ def install_ungit(os_user):
 def set_mongo_parameters(client, mongo_parameters):
     for i in mongo_parameters:
         client.dlabdb.settings.insert_one({"_id": i, "value": mongo_parameters[i]})
+
+
+def install_r_packages(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/r_packages_ensured'):
+        sudo('R -e "install.packages(\'devtools\', repos = \'http://cran.us.r-project.org\')"')
+        sudo('R -e "install.packages(\'knitr\', repos = \'http://cran.us.r-project.org\')"')
+        sudo('R -e "install.packages(\'ggplot2\', repos = \'http://cran.us.r-project.org\')"')
+        sudo('R -e "install.packages(c(\'devtools\',\'mplot\', \'googleVis\'), '
+             'repos = \'http://cran.us.r-project.org\'); require(devtools); install_github(\'ramnathv/rCharts\')"')
+        sudo('touch /home/' + os_user + '/.ensure_dir/r_packages_ensured')
+
+
+def add_breeze_library_local(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/breeze_local_ensured'):
+        try:
+            breeze_tmp_dir = '/tmp/breeze_tmp_local/'
+            jars_dir = '/opt/jars/'
+            sudo('mkdir -p ' + breeze_tmp_dir)
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze_2.11/0.12/breeze_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-natives_2.11/0.12/breeze-natives_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze-natives_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-viz_2.11/0.12/breeze-viz_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze-viz_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-macros_2.11/0.12/breeze-macros_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze-macros_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_2.11/0.12/breeze-parent_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze-parent_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/jfree/jfreechart/1.0.19/jfreechart-1.0.19.jar -O ' +
+                 breeze_tmp_dir + 'jfreechart-1.0.19.jar')
+            sudo('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
+                 breeze_tmp_dir + 'jcommon-1.0.24.jar')
+            sudo('wget https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
+                 breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
+            sudo('mv ' + breeze_tmp_dir + '* ' + jars_dir)
+        except:
+            sys.exit(1)

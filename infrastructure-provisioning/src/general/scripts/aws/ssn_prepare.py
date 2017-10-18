@@ -62,6 +62,7 @@ if __name__ == "__main__":
         ssn_ami_id = get_ami_id(ssn_ami_name)
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = '172.31.0.0/16'
+        all_ip_cidr = '0.0.0.0/0'
         sg_name = instance_name + '-SG'
 
         try:
@@ -124,19 +125,19 @@ if __name__ == "__main__":
                     {
                         "PrefixListIds": [],
                         "FromPort": 80,
-                        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                        "IpRanges": [{"CidrIp": all_ip_cidr}],
                         "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": 8080,
-                        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                        "IpRanges": [{"CidrIp": all_ip_cidr}],
                         "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": 22,
-                        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                        "IpRanges": [{"CidrIp": all_ip_cidr}],
                         "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
@@ -148,13 +149,13 @@ if __name__ == "__main__":
                     {
                         "PrefixListIds": [],
                         "FromPort": 443,
-                        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                        "IpRanges": [{"CidrIp": all_ip_cidr}],
                         "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": -1,
-                        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                        "IpRanges": [{"CidrIp": all_ip_cidr}],
                         "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
                     },
                     {
@@ -171,7 +172,7 @@ if __name__ == "__main__":
                     }
                 ]
                 egress_sg_rules_template = [
-                    {"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}
+                    {"IpProtocol": "-1", "IpRanges": [{"CidrIp": all_ip_cidr}], "UserIdGroupPairs": [], "PrefixListIds": []}
                 ]
                 params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {} --ssn {}". \
                     format(sg_name, os.environ['aws_vpc_id'], json.dumps(ingress_sg_rules_template), json.dumps(egress_sg_rules_template), service_base_name, tag_name, False, True)
