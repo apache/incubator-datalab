@@ -20,15 +20,14 @@
 
 import argparse
 from fabric.api import *
+from fabric.contrib.files import exists
 from dlab.meta_lib import *
 import os
-from fabric.contrib.files import exists
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
-parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
@@ -39,14 +38,11 @@ args = parser.parse_args()
 def configure_notebook(args):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
-    if os.environ['notebook_multiple_clusters'] == 'true':
-        put(templates_dir + 'dataengine_interpreter_livy.json', '/tmp/dataengine_interpreter.json')
-    else:
-        put(templates_dir + 'dataengine_interpreter_spark.json', '/tmp/dataengine_interpreter.json')
-    put(scripts_dir + 'zeppelin_dataengine_create_configs.py', '/tmp/zeppelin_dataengine_create_configs.py')
+    put(templates_dir + 'pyspark_dataengine_template.json', '/tmp/pyspark_dataengine_template.json')
+    put(scripts_dir + 'deeplearning_dataengine_create_configs.py', '/tmp/deeplearning_dataengine_create_configs.py')
     put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
-    sudo('\cp /tmp/zeppelin_dataengine_create_configs.py /usr/local/bin/zeppelin_dataengine_create_configs.py')
-    sudo('chmod 755 /usr/local/bin/zeppelin_dataengine_create_configs.py')
+    sudo('\cp /tmp/deeplearning_dataengine_create_configs.py /usr/local/bin/deeplearning_dataengine_create_configs.py')
+    sudo('chmod 755 /usr/local/bin/deeplearning_dataengine_create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')
     run('mkdir -p /tmp/dlab_libs/')
     local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
@@ -61,9 +57,11 @@ if __name__ == "__main__":
     env.user = args.os_user
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
+    try:
+        region = os.environ['aws_region']
+    except:
+        region = ''
     configure_notebook(args)
-    livy_version = os.environ['notebook_livy_version']
-    sudo("/usr/bin/python /usr/local/bin/zeppelin_dataengine_create_configs.py "
-         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {} --livy_version {} --multiple_clusters {} --region {}".
-         format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master,
-                args.keyfile, args.notebook_ip, livy_version, os.environ['notebook_multiple_clusters'], args.region))
+    sudo("/usr/bin/python /usr/local/bin/deeplearning_dataengine_create_configs.py "
+         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {}".
+         format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master, region))

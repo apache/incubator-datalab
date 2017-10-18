@@ -58,7 +58,7 @@
         ],
         "image": "docker.dlab-dataengine-service",
         "image_type": "COMPUTATIONAL",
-        "template_name": "DLab AWS EMR",
+        "template_name": "EMR cluster",
         "environment_type": "computational",
         "request_id": "7426e0b3-982a-4645-a1d6-24a2e26dff11",
         "computation_resources_shapes": {
@@ -144,7 +144,7 @@
         "templates": [],
         "image": "docker.dlab-dataengine",
         "image_type": "COMPUTATIONAL",
-        "template_name": "Data Engine",
+        "template_name": "Spark cluster",
         "environment_type": "computational",
         "request_id": "9c37133b-32e1-49a9-8b14-3665cb7d8bbd",
         "computation_resources_shapes": {

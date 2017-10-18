@@ -1,5 +1,5 @@
 {
-  "template_name": "DLab AWS EMR",
+  "template_name": "EMR cluster",
   "description": "Image for EMR provisioning",
   "environment_type": "computational",
   "computation_resources_shapes":
@@ -16,6 +16,9 @@
         {"Size": "S", "Description": "c4.large", "Type": "c4.large","Ram": "3.75 GB","Cpu": "2", "Spot": "true", "SpotPctPrice": "70"},
         {"Size": "M", "Description": "c4.2xlarge", "Type": "c4.2xlarge","Ram": "15.0 GB","Cpu": "8", "Spot": "true", "SpotPctPrice": "70"},
         {"Size": "L", "Description": "c4.8xlarge", "Type": "c4.8xlarge","Ram": "60.0 GB","Cpu": "36", "Spot": "true", "SpotPctPrice": "70"}
+      ],
+      "GPU optimized": [
+        {"Size": "S", "Description": "p2.xlarge", "Type": "p2.xlarge","Ram": "61.0 GB","Cpu": "4"}
       ]
     },
   "templates":

@@ -142,13 +142,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public selectSpotInstances($event): void {
     if ($event.target.checked) {
-      const filtered = JSON.parse(JSON.stringify(this.slave_shapes_list.items));
-      for (const item in this.slave_shapes_list.items) {
-          filtered[item] = filtered[item].filter(el => el.spot);
-          if (filtered[item].length <= 0) {
-            delete filtered[item];
-          }
-      }
+      const filtered = this.filterAvailableSpots();
 
       this.slave_shapes_list.setDefaultOptions(filtered, this.shapePlaceholder(filtered, 'description'),
         'slave_shape', 'description', 'json');
@@ -164,6 +158,21 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.spotInstance = false;
       this.resourceForm.controls['instance_price'].setValue(0);
     }
+  }
+
+  private filterAvailableSpots() {
+    const filtered = JSON.parse(JSON.stringify(this.slave_shapes_list.items));
+    for (const item in this.slave_shapes_list.items) {
+        filtered[item] = filtered[item].filter(el => el.spot);
+        if (filtered[item].length <= 0) {
+          delete filtered[item];
+        }
+    }
+    return filtered;
+  }
+
+  public isAvailableSpots(): boolean {
+    return !!Object.keys(this.filterAvailableSpots()).length;
   }
 
   public open(params, notebook_instance): void {
@@ -242,6 +251,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private setDefaultParams(): void {
+    this.filterShapes();
     this.shapes = {
       master_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type'),
       slave_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type')
@@ -257,6 +267,21 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
     this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
       this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
+  }
+
+  private filterShapes(): void {
+    if (this.notebook_instance.template_name.toLowerCase().indexOf('tensorflow') !== -1
+      || this.notebook_instance.template_name.toLowerCase().indexOf('deep learning') !== -1) {
+      const allowed = ['GPU optimized'];
+      const filtered = Object.keys(this.model.selectedImage.shapes.resourcesShapeTypes)
+        .filter(key => allowed.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = this.model.selectedImage.shapes.resourcesShapeTypes[key];
+          return obj;
+        }, {});
+
+      this.model.selectedImage.shapes.resourcesShapeTypes = filtered;
+    }
   }
 
   private resetDialog(): void {
