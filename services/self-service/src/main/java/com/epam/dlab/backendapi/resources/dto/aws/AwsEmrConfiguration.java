@@ -23,7 +23,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
- * Stores limits for creation of the computational resources for AWS EMR
+ * Stores limits for creation of the computational resources for EMR cluster
  */
 @Data
 @Builder
