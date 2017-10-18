@@ -69,11 +69,19 @@ public class ExploratoryURL {
     	
     	return 0;
       }
-	
-	@Override
-	public boolean equals(Object obj) {
-		return (obj instanceof ExploratoryURL ?
-				(this.compareTo((ExploratoryURL)obj) == 0) : false);
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof ExploratoryURL)) return false;
+		ExploratoryURL that = (ExploratoryURL) o;
+		return this.compareTo(that) == 0;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = getDescription() != null ? getDescription().hashCode() : 0;
+		result = 31 * result + (getUrl() != null ? getUrl().hashCode() : 0);
+		return result;
 	}
 }
