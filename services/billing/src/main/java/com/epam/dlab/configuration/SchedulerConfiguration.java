@@ -193,12 +193,20 @@ public class SchedulerConfiguration {
     	return toStringHelper(this)
     			.toString();
     }
-    
-    @Override
-    public boolean equals(Object obj) {
-    	if (obj instanceof SchedulerConfiguration) {
-    		return realSchedule.keySet().equals(((SchedulerConfiguration) obj).realSchedule.keySet()); 
-    	}
-    	return false;
-    }
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof SchedulerConfiguration)) return false;
+
+		SchedulerConfiguration that = (SchedulerConfiguration) o;
+
+		return getRealSchedule() != null ? getRealSchedule().keySet().equals(that.getRealSchedule().keySet())
+				: that.getRealSchedule() == null;
+	}
+
+	@Override
+	public int hashCode() {
+		return getRealSchedule() != null ? getRealSchedule().keySet().hashCode() : 0;
+	}
 }
