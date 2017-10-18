@@ -60,9 +60,13 @@ if __name__ == "__main__":
     env.user = args.os_user
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
+    try:
+        region = os.environ['aws_region']
+    except:
+        region = ''
     configure_notebook(args)
     livy_version = os.environ['notebook_livy_version']
     sudo("/usr/bin/python /usr/local/bin/zeppelin_dataengine_create_configs.py "
-         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {} --livy_version {} --multiple_clusters {}".
+         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {} --livy_version {} --multiple_clusters {} --region {}".
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master,
-                args.keyfile, args.notebook_ip, livy_version, os.environ['notebook_multiple_clusters']))
+                args.keyfile, args.notebook_ip, livy_version, os.environ['notebook_multiple_clusters'], region))

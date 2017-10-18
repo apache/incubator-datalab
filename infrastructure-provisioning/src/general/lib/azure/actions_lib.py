@@ -1020,7 +1020,7 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
             traceback.print_exc(file=sys.stdout)
 
 
-def configure_dataengine_spark(jars_dir, spark_dir):
+def configure_dataengine_spark(jars_dir, spark_dir, region):
     local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
     local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
