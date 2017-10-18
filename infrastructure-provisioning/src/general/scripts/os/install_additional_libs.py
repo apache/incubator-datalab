@@ -36,7 +36,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
+    env.hosts = "{}".format(args.instance_ip)
     env['connection_attempts'] = 100
     env.user = args.os_user
     env.key_filename = "{}".format(args.keyfile)

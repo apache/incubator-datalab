@@ -126,7 +126,7 @@ if __name__ == "__main__":
         for i in range(data_engine['instance_count'] - 1):
             logging.info('[CREATE SLAVE NODE {}]'.format(i + 1))
             print('[CREATE SLAVE NODE {}]'.format(i + 1))
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             data_engine['cluster_nodes_tag_slave'] = {"Key": os.environ['conf_tag_resource_id'],
                                                       "Value": data_engine['service_base_name'] + ':' + slave_name}
             data_engine['cluster_nodes_tag_type'] = {"Key": "Type", "Value": "slave"}

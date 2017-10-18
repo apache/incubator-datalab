@@ -3,8 +3,9 @@
     "request_id": "RID",
     "conf_service_base_name": "SBN",
     "dataengine_instance_count":"EIC",
-    "edge_user_name": "NUN",
+    "edge_user_name": "EUN",
     "aws_region": "CREG",
     "conf_key_name": "CKN",
-    "computational_name": "CNAM"
+    "computational_name": "CNAM",
+    "application": "APP"
 }
