@@ -36,73 +36,19 @@ parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--dry_run', type=str, default='false')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
-parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
+parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
 spark_dir = '/opt/' + args.cluster_name + '/spark/'
 local_jars_dir = '/opt/jars/'
-local_spark_dir = '/opt/spark/'
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 scala_link = "http://www.scala-lang.org/files/archive/"
 spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
-
-
-def r_kernel(args):
-    spark_path = '/opt/{}/spark/'.format(args.cluster_name)
-    local('mkdir -p {}/r_{}/'.format(kernels_dir, args.cluster_name))
-    kernel_path = "{}/r_{}/kernel.json".format(kernels_dir, args.cluster_name)
-    template_file = "/tmp/r_dataengine_template.json"
-    r_version = local("R --version | awk '/version / {print $3}'", capture = True)
-
-    with open(template_file, 'r') as f:
-        text = f.read()
-    text = text.replace('CLUSTER_NAME', args.cluster_name)
-    text = text.replace('SPARK_PATH', spark_path)
-    text = text.replace('SPARK_VERSION', 'Spark-' + args.spark_version)
-    text = text.replace('R_KERNEL_VERSION', 'R-{}'.format(str(r_version)))
-    text = text.replace('SPARK_ACTION', 'init()')
-    text = text.replace('MASTER', args.spark_master)
-    with open(kernel_path, 'w') as f:
-        f.write(text)
-
-
-def toree_kernel(args):
-    spark_path = '/opt/' + args.cluster_name + '/spark/'
-    scala_version = local("dpkg -l scala | grep scala | awk '{print $3}'", capture=True)
-
-    local('mkdir -p ' + kernels_dir + 'toree_' + args.cluster_name + '/')
-    local('tar zxvf /tmp/toree_kernel.tar.gz -C ' + kernels_dir + 'toree_' + args.cluster_name + '/')
-    kernel_path = kernels_dir + "toree_" + args.cluster_name + "/kernel.json"
-    template_file = "/tmp/toree_dataengine_template.json"
-    with open(template_file, 'r') as f:
-        text = f.read()
-    text = text.replace('CLUSTER_NAME', args.cluster_name)
-    text = text.replace('SPARK_VERSION', 'Spark-' + args.spark_version)
-    text = text.replace('SPARK_PATH', spark_path)
-    text = text.replace('OS_USER', args.os_user)
-    text = text.replace('MASTER', args.spark_master)
-    text = text.replace('SCALA_VERSION', scala_version)
-    with open(kernel_path, 'w') as f:
-        f.write(text)
-    local('touch /tmp/kernel_var.json')
-    local(
-        "PYJ=`find /opt/" + args.cluster_name +
-        "/spark/ -name '*py4j*.zip' | tr '\\n' ':' | sed 's|:$||g'`; cat " + kernel_path +
-        " | sed 's|PY4J|'$PYJ'|g' > /tmp/kernel_var.json")
-    local('sudo mv /tmp/kernel_var.json ' + kernel_path)
-    run_sh_path = kernels_dir + "toree_" + args.cluster_name + "/bin/run.sh"
-    template_sh_file = '/tmp/run_template.sh'
-    with open(template_sh_file, 'r') as f:
-        text = f.read()
-    text = text.replace('CLUSTER_NAME', args.cluster_name)
-    text = text.replace('OS_USER', args.os_user)
-    with open(run_sh_path, 'w') as f:
-        f.write(text)
 
 
 def pyspark_kernel(args):
@@ -154,7 +100,6 @@ if __name__ == "__main__":
     else:
         dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
         install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
-        configure_dataengine_spark(local_jars_dir, spark_dir, local_spark_dir)
+        ensure_dataengine_tensorflow_jars(local_jars_dir)
+        configure_dataengine_spark(local_jars_dir, spark_dir, args.region)
         pyspark_kernel(args)
-        toree_kernel(args)
-        r_kernel(args)

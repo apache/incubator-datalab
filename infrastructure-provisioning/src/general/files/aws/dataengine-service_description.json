@@ -1,5 +1,5 @@
 {
-  "template_name": "DLab AWS EMR",
+  "template_name": "EMR cluster",
   "description": "Image for EMR provisioning",
   "environment_type": "computational",
   "computation_resources_shapes":

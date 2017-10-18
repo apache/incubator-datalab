@@ -8,5 +8,5 @@
   "emr_slave_instance_spot_pct_price":40,
   "emr_version" : "emr-5.6.0",
   "notebook_name" : "set noteboork name",
-  "template_name" : "DLab AWS EMR"
+  "template_name" : "EMR cluster"
 }

@@ -36,15 +36,14 @@ parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--dry_run', type=str, default='false')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
-parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
+parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
 spark_dir = '/opt/' + args.cluster_name + '/spark/'
 local_jars_dir = '/opt/jars/'
-local_spark_dir = '/opt/spark/'
 
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
