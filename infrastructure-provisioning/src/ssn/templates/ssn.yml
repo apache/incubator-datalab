@@ -24,11 +24,11 @@
 <#assign TRUST_STORE_PASSWORD="changeit">
 
 # Available options are aws, azure, gcp
-<#assign CLOUD_TYPE="CLOUD_PROVIDER">
+<#assign CLOUD_TYPE="aws">
 cloudProvider: ${CLOUD_TYPE}
 
 #Switch on/off developer mode here
-<#assign DEV_MODE="false">
+<#assign DEV_MODE="true">
 devMode: ${DEV_MODE}
 
 mongo:
