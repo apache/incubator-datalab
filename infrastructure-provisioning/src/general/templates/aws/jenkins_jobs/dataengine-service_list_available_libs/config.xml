@@ -18,25 +18,15 @@ limitations under the License.
 -->
 <project>
   <actions/>
-  <description>List available libs on DataEngine.</description>
+  <description>List available libs on Data Engine service.</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
-          <name>Service_base_name</name>
-          <description>unique infrastructure value that previously was used when ssn being provisioned</description>
-          <defaultValue>SBN</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
           <name>Cluster_name</name>
           <description>Name of dataengine cluster</description>
-          <defaultValue>CNAM</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>Username</name>
-          <description>name of the data scientist user</description>
-          <defaultValue></defaultValue>
+          <defaultValue>ECN</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>SSH_Key_Name</name>
@@ -48,7 +38,7 @@ limitations under the License.
           <description>application to be deployed</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>dataengine</string>
+              <string>dataengine-service</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -73,7 +63,7 @@ limitations under the License.
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rand=`openssl rand -hex 10`; sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/dataengine_list_available_libs/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/APP/&apos;${application}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine docker.dlab-dataengine --action $Action
+      <command>rand=`openssl rand -hex 10`; sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/dataengine-service_list_available_libs/template.json | sed &apos;s/ECN/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/APP/&apos;${application}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service docker.dlab-dataengine-service --action $Action
       </command>
     </hudson.tasks.Shell>
   </builders>

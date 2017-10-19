@@ -63,7 +63,8 @@ if __name__ == "__main__":
     except KeyError:
         pass
 
-    if os.environ['application'] in ['jupyter', 'zeppelin', 'deeplearning', 'tensor', 'dataengine']:
+    if os.environ['application'] in ['jupyter', 'zeppelin', 'deeplearning', 'tensor', 'dataengine',
+                                     'dataengine-service']:
         try:
             print('Installing pip2 packages: {}'.format(pkgs['libraries']['pip2']))
             status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2')
@@ -90,7 +91,8 @@ if __name__ == "__main__":
         except KeyError:
             pass
 
-    if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning', 'dataengine']:
+    if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning', 'dataengine',
+                                     'dataengine-service']:
         try:
             print('Installing R packages: {}'.format(pkgs['libraries']['r_pkg']))
             status = install_r_pkg(pkgs['libraries']['r_pkg'])

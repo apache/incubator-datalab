@@ -1,0 +1,7 @@
+{
+    "conf_resource": "notebook",
+    "request_id":"RID",
+    "emr_cluster_name":"ECN",
+    "conf_key_name":"CKN",
+    "application":"APP"
+}

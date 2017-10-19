@@ -18,25 +18,15 @@ limitations under the License.
 -->
 <project>
   <actions/>
-  <description>List available libs on DataEngine.</description>
+  <description>Installs libs on DataEngine service.</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
-          <name>Service_base_name</name>
-          <description>unique infrastructure value that previously was used when ssn being provisioned</description>
-          <defaultValue>SBN</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
           <name>Cluster_name</name>
-          <description>Name of dataengine cluster</description>
-          <defaultValue>CNAM</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>Username</name>
-          <description>name of the data scientist user</description>
-          <defaultValue></defaultValue>
+          <description>Name of dataengine-service cluster</description>
+          <defaultValue>ECN</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>SSH_Key_Name</name>
@@ -44,23 +34,40 @@ limitations under the License.
           <defaultValue>AKEY</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>application</name>
-          <description>application to be deployed</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>dataengine</string>
-            </a>
-          </choices>
+            <name>application</name>
+            <description>application to be deployed</description>
+            <choices class="java.util.Arrays$ArrayList">
+              <a class="string-array">
+                <string>dataengine-service</string>
+              </a>
+            </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>Action</name>
           <description></description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>lib_list</string>
+              <string>lib_install</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Libs</name>
+          <description>
+            List of additional libs in json format. For example:
+            [
+              {"group": "os_pkg", "name": "nmap"},
+              {"group": "os_pkg", "name": "htop"},
+              {"group": "pip2", "name": "requests"},
+              {"group": "pip3", "name": "configparser"},
+              {"group": "r_pkg", "name": "rmarkdown"},
+            ]
+            Types: for OS - os_pkg, for Python - pip2/pip3, for R - r_pkg
+            NOTE: You need to escape each double quote.
+            For Example: {\"group\": \"os_pkg\", \"name\": \"htop\"}
+          </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -73,8 +80,9 @@ limitations under the License.
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rand=`openssl rand -hex 10`; sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/dataengine_list_available_libs/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/APP/&apos;${application}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine docker.dlab-dataengine --action $Action
-      </command>
+      <command>rand=`openssl rand -hex 10`;
+                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/dataengine-service_install_additional_libs/template.json | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/APP/&apos;${application}&apos;/g&apos; | sed &apos;s/ECN/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -e "libs=$Libs" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service  docker.dlab-dataengine-service --action $Action;
+            </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
