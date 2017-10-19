@@ -119,11 +119,11 @@ public class ExploratoryGitCreds implements Comparable<ExploratoryGitCreds> {
       }
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof ExploratoryGitCreds)) return false;
-		ExploratoryGitCreds that = (ExploratoryGitCreds) o;
-		return getHostname() != null ? (this.compareTo(that) == 0) : that.getHostname() == null;
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		return (obj instanceof ExploratoryGitCreds ?
+				(this.compareTo((ExploratoryGitCreds)obj) == 0) : false);
+
 	}
 
 	@Override
