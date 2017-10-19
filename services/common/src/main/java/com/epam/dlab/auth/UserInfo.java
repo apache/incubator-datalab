@@ -152,8 +152,8 @@ public class UserInfo implements Principal {
         if (username != null ? !username.equals(userInfo.username) : userInfo.username != null) return false;
         if (accessToken != null ? !accessToken.equals(userInfo.accessToken) : userInfo.accessToken != null)
             return false;
-        if (roles != null ? !roles.equals(userInfo.roles) : userInfo.roles != null) return false;
-        if (keys != null ? !keys.equals(userInfo.keys) : userInfo.keys != null) return false;
+        if (!roles.equals(userInfo.roles)) return false;
+        if (!keys.equals(userInfo.keys)) return false;
         if (firstName != null ? !firstName.equals(userInfo.firstName) : userInfo.firstName != null) return false;
         if (lastName != null ? !lastName.equals(userInfo.lastName) : userInfo.lastName != null) return false;
         return remoteIp != null ? remoteIp.equals(userInfo.remoteIp) : userInfo.remoteIp == null;
