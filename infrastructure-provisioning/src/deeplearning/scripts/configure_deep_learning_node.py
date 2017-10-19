@@ -71,6 +71,16 @@ scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 
+def install_itorch(os_user):
+    if not exists('/home/{}/.ensure_dir/itorch_ensured'.format(os_user)):
+        run('git clone https://github.com/facebook/iTorch.git')
+        with cd('/home/{}/iTorch/'.format(os_user)):
+            run('luarocks make')
+        sudo('cp -rf /home/{0}/.ipython/kernels/itorch/ /home/{0}/.local/share/jupyter/kernels/'.format(os_user))
+        sudo('chown -R {0}:{0} /home/{0}/.local/share/jupyter/'.format(os_user))
+        sudo('touch /home/{}/.ensure_dir/itorch_ensured'.format(os_user))
+
+
 if __name__ == "__main__":
     print("Configure connections")
     env['connection_attempts'] = 100
