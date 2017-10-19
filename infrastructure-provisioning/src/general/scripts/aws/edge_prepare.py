@@ -66,7 +66,7 @@ if __name__ == "__main__":
                                                          + os.environ['edge_user_name'] + '-dataengine-master-sg'
     edge_conf['dataengine_slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
                                                         + os.environ['edge_user_name'] + '-dataengine-slave-sg'
-
+    edge_conf['all_ip_cidr'] = '0.0.0.0/0'
 
     # FUSE in case of absence of user's key
     fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
@@ -140,7 +140,7 @@ if __name__ == "__main__":
             {
                 "PrefixListIds": [],
                 "FromPort": 22,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
         ]
@@ -214,19 +214,19 @@ if __name__ == "__main__":
             {
                 "PrefixListIds": [],
                 "FromPort": 53,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 53, "IpProtocol": "udp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
                 "FromPort": 80,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
                 "FromPort": 443,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
@@ -271,7 +271,7 @@ if __name__ == "__main__":
         ]
         egress_sg_rules_template = [
             {"IpProtocol": "-1", "IpRanges": [], "UserIdGroupPairs": [{"GroupId": edge_group_id}], "PrefixListIds": []},
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "PrefixListIds": []}
+            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}], "PrefixListIds": []}
         ]
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}".\
             format(edge_conf['notebook_security_group_name'], edge_conf['vpc_id'], json.dumps(ingress_sg_rules_template),
@@ -379,7 +379,7 @@ if __name__ == "__main__":
             {
                 "PrefixListIds": [],
                 "FromPort": 443,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
         ]

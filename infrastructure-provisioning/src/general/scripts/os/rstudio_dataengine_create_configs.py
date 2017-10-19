@@ -36,14 +36,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--cluster_name', type=str, default='')
 parser.add_argument('--spark_version', type=str, default='')
 parser.add_argument('--hadoop_version', type=str, default='')
-parser.add_argument('--region', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
+parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 spark_dir = '/opt/' + args.cluster_name + '/spark/'
 local_jars_dir = '/opt/jars/'
-local_spark_dir = '/opt/spark/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"

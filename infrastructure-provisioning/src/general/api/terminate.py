@@ -45,7 +45,6 @@ if __name__ == "__main__":
             reply['response']['result'] = json.loads(f.read())
     except:
         reply['response']['result'] = {"error": "Failed to open result.json"}
-        pass
 
     if os.environ['conf_resource'] == 'ssn':
         reply['response']['log'] = "/response/{}.log".format(os.environ['request_id'])

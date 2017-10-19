@@ -117,14 +117,20 @@ public class ExploratoryGitCreds implements Comparable<ExploratoryGitCreds> {
     	}
     	return StringUtils.compareIgnoreCase(this.hostname, obj.hostname);
       }
-	
+
 	@Override
 	public boolean equals(Object obj) {
+		if (this == obj) return true;
 		return (obj instanceof ExploratoryGitCreds ?
 				(this.compareTo((ExploratoryGitCreds)obj) == 0) : false);
 
 	}
-	
+
+	@Override
+	public int hashCode() {
+		return getHostname() != null ? getHostname().hashCode() : 0;
+	}
+
 	@Override
     public String toString() {
     	return MoreObjects.toStringHelper(this)

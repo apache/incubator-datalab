@@ -457,4 +457,3 @@ def install_gitlab_cert(os_user, certfile):
         sudo('mv -f /home/{0}/{1} /etc/ssl/certs/{1}'.format(os_user, certfile))
     except Exception as err:
         print('Failed to install gitlab certificate. {}'.format(str(err)))
-        pass

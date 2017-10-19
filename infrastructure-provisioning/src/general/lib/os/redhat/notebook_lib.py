@@ -442,13 +442,9 @@ def install_keras(os_user, keras_version):
         sudo('pip2 install keras=={} --no-cache-dir'.format(keras_version))
         sudo('pip3.5 install keras=={} --no-cache-dir'.format(keras_version))
         sudo('pip2 uninstall -y ipython')
-        sudo('pip2 uninstall -y ipython')
         sudo('pip2 install ipython --no-cache-dir')
-        sudo('pip2 uninstall -y matplotlib')
-        sudo('pip2 uninstall -y matplotlib')
         sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
         sudo('pip2 uninstall -y numpy')
-        sudo('pip2 uninstall -y numpy ')
         sudo('pip2 install numpy --no-cache-dir')
         sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
 
@@ -485,4 +481,3 @@ def install_gitlab_cert(os_user, certfile):
         sudo('update-ca-trust')
     except Exception as err:
         print('Failed to install gitlab certificate.{}'.format(str(err)))
-        pass

@@ -244,6 +244,22 @@ def create_instance(definitions, instance_tag, primary_disk_size=12):
                                              SubnetId=definitions.subnet_id,
                                              IamInstanceProfile={'Name': definitions.iam_profile},
                                              UserData=user_data)
+        elif definitions.instance_class == 'dataengine':
+            instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
+                                             BlockDeviceMappings=[
+                                                 {
+                                                     "DeviceName": "/dev/sda1",
+                                                     "Ebs":
+                                                         {
+                                                             "VolumeSize": int(primary_disk_size)
+                                                         }
+                                                 }],
+                                             KeyName=definitions.key_name,
+                                             SecurityGroupIds=security_groups_ids,
+                                             InstanceType=definitions.instance_type,
+                                             SubnetId=definitions.subnet_id,
+                                             IamInstanceProfile={'Name': definitions.iam_profile},
+                                             UserData=user_data)
         else:
             get_iam_profile(definitions.iam_profile)
             instances = ec2.create_instances(ImageId=definitions.ami_id, MinCount=1, MaxCount=1,
@@ -1201,7 +1217,6 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                     break
                 except:
                     local('sleep 5')
-                    pass
             local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-' + str(livy_port) +
                   '.service')
             local("sudo sed -i 's|OS_USER|" + os_user + "|' /etc/systemd/system/livy-server-" + str(livy_port) +
@@ -1236,7 +1251,6 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
                         break
                     except:
                         local('sleep 5')
-                        pass
         local('touch /home/' + os_user + '/.ensure_dir/dataengine-service_' + cluster_name + '_interpreter_ensured')
     except:
             sys.exit(1)

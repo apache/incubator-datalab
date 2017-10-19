@@ -42,11 +42,11 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--notebook_ip', type=str, default='')
 parser.add_argument('--livy_version', type=str, default='')
 parser.add_argument('--multiple_clusters', type=str, default='')
+parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 spark_dir = '/opt/' + args.cluster_name + '/spark/'
 local_jars_dir = '/opt/jars/'
-local_spark_dir = '/opt/spark/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
@@ -108,7 +108,6 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, spark_dir, os_user, 
                     break
                 except:
                     local('sleep 5')
-                    pass
             local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-' + str(livy_port) +
                   '.service')
             local("sudo sed -i 's|OS_USER|" + os_user + "|' /etc/systemd/system/livy-server-" + str(livy_port) +
@@ -142,7 +141,6 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, spark_dir, os_user, 
                         break
                     except:
                         local('sleep 5')
-                        pass
         local('touch /home/' + os_user + '/.ensure_dir/dataengine_' + cluster_name + '_interpreter_ensured')
     except:
             sys.exit(1)
@@ -167,7 +165,7 @@ def install_remote_livy(args):
 if __name__ == "__main__":
     dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
     install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
-    configure_dataengine_spark(local_jars_dir, spark_dir, local_spark_dir)
+    configure_dataengine_spark(local_jars_dir, spark_dir, args.region)
     if args.multiple_clusters == 'true':
         install_remote_livy(args)
     configure_zeppelin_dataengine_interpreter(args.cluster_name, spark_dir, args.os_user,
