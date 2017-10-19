@@ -158,7 +158,7 @@ if __name__ == "__main__":
         install_torch(args.os_user)
 
         print("Installing ITorch kernel")
-        install_itorch(args)
+        install_itorch(args.os_user)
 
         print("Install CNTK Python library")
         install_cntk(args.os_user, cntk_version)
