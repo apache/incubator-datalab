@@ -58,7 +58,7 @@ if __name__ == "__main__":
         try:
             data_engine['os_user'] = 'ec2-user'
             data_engine['cluster_name'] = os.environ['emr_cluster_name']
-            data_engine['cluster_id'] = get_emr_id_by_name(data_engine['cluster_id'])
+            data_engine['cluster_id'] = get_emr_id_by_name(data_engine['cluster_name'])
             data_engine['cluster_instances'] = get_emr_instances_list(data_engine['cluster_id'])
             data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
             data_engine['libs'] = os.environ['libs']

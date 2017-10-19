@@ -2,6 +2,8 @@
     "conf_resource": "dataengine",
     "request_id": "RID",
     "emr_cluster_name":"ECN",
+    "edge_user_name":"EUN",
+    "aws_region":"CREG",
     "conf_key_name": "CKN",
     "application": "APP"
 }
