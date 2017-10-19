@@ -89,6 +89,9 @@ if __name__ == "__main__":
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['cluster_nodes_tag'] = {"Key": "dataengine_notebook_name",
                                             "Value": os.environ['notebook_instance_name']}
+        data_engine['cluster_nodes_resource_tag'] = {"Key": os.environ['conf_tag_resource_id'],
+                                                     "Value": data_engine['service_base_name'] + ':' +
+                                                              data_engine['cluster_name']}
         data_engine['primary_disk_size'] = '30'
         data_engine['instance_class'] = 'dataengine'
 
@@ -100,9 +103,6 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE MASTER NODE]')
         print('[CREATE MASTER NODE]')
-        data_engine['cluster_nodes_tag_master'] = {"Key": os.environ['conf_tag_resource_id'],
-                                                   "Value": data_engine['service_base_name'] + ':' +
-                                                            data_engine['master_node_name']}
         data_engine['cluster_nodes_tag_type'] = {"Key": "Type", "Value": "master"}
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {} --primary_disk_size {} --instance_class {}" \
             .format(data_engine['master_node_name'], data_engine['ami_id'], data_engine['master_size'],
@@ -115,7 +115,7 @@ if __name__ == "__main__":
             local("~/scripts/{}.py {}".format('common_create_instance', params))
             data_engine['master_id'] = get_instance_by_name(data_engine['tag_name'], data_engine['master_node_name'])
             create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag'], False)
-            create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_master'], False)
+            create_tag(data_engine['master_id'], data_engine['cluster_nodes_resource_tag'], False)
             create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_type'], False)
         except:
             traceback.print_exc()
@@ -129,8 +129,6 @@ if __name__ == "__main__":
             logging.info('[CREATE SLAVE NODE {}]'.format(i + 1))
             print('[CREATE SLAVE NODE {}]'.format(i + 1))
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
-            data_engine['cluster_nodes_tag_slave'] = {"Key": os.environ['conf_tag_resource_id'],
-                                                      "Value": data_engine['service_base_name'] + ':' + slave_name}
             data_engine['cluster_nodes_tag_type'] = {"Key": "Type", "Value": "slave"}
             params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {} --primary_disk_size {} --instance_class {}" \
                 .format(slave_name, data_engine['ami_id'], data_engine['slave_size'],
@@ -143,7 +141,7 @@ if __name__ == "__main__":
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
                 data_engine['slave_id'] = get_instance_by_name(data_engine['tag_name'], slave_name)
                 create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag'], False)
-                create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_slave'], False)
+                create_tag(data_engine['master_id'], data_engine['cluster_nodes_resource_tag'], False)
                 create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_type'], False)
             except:
                 traceback.print_exc()
