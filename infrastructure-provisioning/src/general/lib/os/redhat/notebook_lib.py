@@ -373,7 +373,7 @@ def install_caffe(os_user, region, caffe_version):
             sudo('echo "gpgcheck=1" >> centos.repo')
             sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
         sudo('yum update-minimal --security -y')
-        sudo('yum install -y protobuf-devel leveldb-devel snappy-devel boost-devel hdf5-devel gcc gcc-c++')
+        sudo('yum install -y --nogpgcheck protobuf-devel leveldb-devel snappy-devel boost-devel hdf5-devel gcc gcc-c++')
         sudo('yum install -y gflags-devel glog-devel lmdb-devel yum-utils && package-cleanup --cleandupes')
         sudo('yum install -y openblas-devel gflags-devel glog-devel lmdb-devel')
         sudo('git clone https://github.com/BVLC/caffe.git')
