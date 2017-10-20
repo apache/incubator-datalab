@@ -363,7 +363,7 @@ public class AdapterS3File extends AdapterBase {
 			entry = zipInputStream.getNextEntry();
 			if (entry != null) {
 				entryName = filename + ":" + entry.getName();
-				LOGGER.debug("Next the zip entry {}", (entry == null ? null : entry.getName()));
+				LOGGER.debug("Next the zip entry {}", entry.getName());
 				reader = new BufferedReader(new InputStreamReader(zipInputStream));
 			} else {
 				LOGGER.debug("Zip file have no more entries");
