@@ -58,11 +58,16 @@ def stop_notebook(nb_tag_value, bucket_name, tag_name, ssh_user, key_path):
     print("Terminating data engine cluster")
     try:
         cluster_list = []
+        master_ids = []
         cluster_instances_list = get_ec2_list('dataengine_notebook_name', nb_tag_value)
         for instance in cluster_instances_list:
             for tag in instance.tags:
-                if tag['Key'] == 'Name' and '-master' in tag['Value']:
-                    cluster_list.append(tag['Value'].replace('-master', ''))
+                if tag['Key'] == 'Type' and tag['Value'] == 'master':
+                    master_ids.append(instance.id)
+        for id in master_ids:
+            for tag in get_instance_attr(id, 'tags'):
+                if tag['Key'] == 'Name':
+                    cluster_list.append(tag['Value'].replace(' ', '')[:-2])
         remove_ec2('dataengine_notebook_name', nb_tag_value)
     except:
         sys.exit(1)

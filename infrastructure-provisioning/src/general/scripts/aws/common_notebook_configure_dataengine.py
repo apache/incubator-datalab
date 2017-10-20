@@ -54,10 +54,10 @@ if __name__ == "__main__":
         notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
         notebook_config['user_name'] = os.environ['edge_user_name']
         notebook_config['cluster_name'] = notebook_config['service_base_name'] + '-' + notebook_config['user_name'] + \
-                                          '-dataengine-' + notebook_config['exploratory_name'] + '-' + \
+                                          '-de-' + notebook_config['exploratory_name'] + '-' + \
                                           notebook_config['computational_name']
-        notebook_config['master_node_name'] = notebook_config['cluster_name'] + '-master'
-        notebook_config['slave_node_name'] = notebook_config['cluster_name'] + '-slave'
+        notebook_config['master_node_name'] = notebook_config['cluster_name'] + '-m'
+        notebook_config['slave_node_name'] = notebook_config['cluster_name'] + '-s'
         notebook_config['notebook_name'] = os.environ['notebook_instance_name']
         notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']

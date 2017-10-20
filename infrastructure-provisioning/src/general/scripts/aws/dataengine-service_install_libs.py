@@ -26,6 +26,21 @@ from dlab.fab import *
 from dlab.meta_lib import *
 from dlab.actions_lib import *
 from fabric.api import *
+import multiprocessing
+
+
+def install_libs(instance, data_engine):
+    data_engine['instance_ip'] = instance.get('PrivateIpAddress')
+    params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}"'\
+        .format(data_engine['os_user'], data_engine['instance_ip'],
+                data_engine['keyfile'], data_engine['libs'])
+    try:
+        # Run script to install additional libs
+        local("~/scripts/{}.py {}".format('install_additional_libs', params))
+    except:
+        traceback.print_exc()
+        raise Exception
+
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -37,28 +52,33 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        logging.info('[GETTING ALL AVAILABLE PACKAGES]')
-        print('[GETTING ALL AVAILABLE PACKAGES]')
-        notebook_config = dict()
+        logging.info('[INSTALLING ADDITIONAL LIBRARIES ON DATAENGINE-SERVICE]')
+        print('[INSTALLING ADDITIONAL LIBRARIES ON DATAENGINE-SERVICE]')
+        data_engine = dict()
         try:
-            notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-            notebook_config['os_user'] = os.environ['conf_os_user']
-            notebook_config['service_base_name'] = os.environ['conf_service_base_name']
-            notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-            notebook_config['notebook_ip'] = get_instance_private_ip_address(
-                notebook_config['tag_name'], notebook_config['notebook_name'])
-            notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+            data_engine['os_user'] = 'ec2-user'
+            data_engine['cluster_name'] = os.environ['emr_cluster_name']
+            data_engine['cluster_id'] = get_emr_id_by_name(data_engine['cluster_name'])
+            data_engine['cluster_instances'] = get_emr_instances_list(data_engine['cluster_id'])
+            data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+            data_engine['libs'] = os.environ['libs']
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
-        params = "--os_user {} --instance_ip {} --keyfile '{}'" \
-            .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
-            # Run script to get available libs
-            local("~/scripts/{}.py {}".format('get_list_available_pkgs', params))
+            jobs = []
+            for instance in data_engine['cluster_instances']:
+                p = multiprocessing.Process(target=install_libs, args=(instance, data_engine))
+                jobs.append(p)
+                p.start()
+            for job in jobs:
+                job.join()
+            for job in jobs:
+                if job.exitcode != 0:
+                    raise Exception
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to get available libraries.", str(err))
+        append_result("Failed to install additional libraries.", str(err))
         sys.exit(1)

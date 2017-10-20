@@ -39,20 +39,19 @@ if __name__ == "__main__":
     try:
         logging.info('[GETTING ALL AVAILABLE PACKAGES]')
         print('[GETTING ALL AVAILABLE PACKAGES]')
-        notebook_config = dict()
+        data_engine = dict()
         try:
-            notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-            notebook_config['os_user'] = os.environ['conf_os_user']
-            notebook_config['service_base_name'] = os.environ['conf_service_base_name']
-            notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-            notebook_config['notebook_ip'] = get_instance_private_ip_address(
-                notebook_config['tag_name'], notebook_config['notebook_name'])
-            notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+            data_engine['os_user'] = 'ec2-user'
+            data_engine['cluster_name'] = os.environ['emr_cluster_name']
+            data_engine['cluster_id'] = get_emr_id_by_name(data_engine['cluster_name'])
+            data_engine['cluster_instances'] = get_emr_instances_list(data_engine['cluster_id'], True)
+            data_engine['master_ip'] = data_engine['cluster_instances'][0].get('PrivateIpAddress')
+            data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
         params = "--os_user {} --instance_ip {} --keyfile '{}'" \
-            .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
+            .format(data_engine['os_user'], data_engine['master_ip'], data_engine['keyfile'])
         try:
             # Run script to get available libs
             local("~/scripts/{}.py {}".format('get_list_available_pkgs', params))
