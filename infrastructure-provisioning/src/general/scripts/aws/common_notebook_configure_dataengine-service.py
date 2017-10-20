@@ -78,6 +78,7 @@ if __name__ == "__main__":
         terminate_emr(emr_id)
         remove_kernels(notebook_config['cluster_name'], notebook_config['tag_name'], os.environ['notebook_instance_name'],
                        os.environ['conf_os_user'], notebook_config['key_path'], os.environ['emr_version'])
+        remove_sgroups(notebook_config['cluster_name'])
         sys.exit(1)
 
     try:

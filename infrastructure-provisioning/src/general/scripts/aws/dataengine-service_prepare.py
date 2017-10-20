@@ -85,6 +85,10 @@ if __name__ == "__main__":
     tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']), "Value": "{}-{}-subnet".format(emr_conf['service_base_name'], os.environ['edge_user_name'])}
     emr_conf['subnet_cidr'] = get_subnet_by_tag(tag)
     emr_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
+    emr_conf['all_ip_cidr'] = '0.0.0.0/0'
+    emr_conf['additional_emr_sg_name'] = '{}-{}-emr-additional-sg'.format(emr_conf['service_base_name'],
+                                                                          os.environ['edge_user_name'])
+    emr_conf['vpc_id'] = os.environ['aws_vpc_id']
     if os.environ['emr_slave_instance_spot'] == 'True':
         emr_conf['slave_bid_price'] = (float(get_ec2_price(emr_conf['slave_instance_type'], emr_conf['region'])) *
                                        int(os.environ['emr_slave_instance_spot_pct_price']))/100
@@ -112,19 +116,56 @@ if __name__ == "__main__":
         append_result("EMR waiter fail.", str(err))
         sys.exit(1)
 
+    logging.info('[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]')
+    print("[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]")
+    try:
+
+        sg_rules_template = [
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
+                "UserIdGroupPairs": [], "PrefixListIds": []
+            },
+            {
+                "PrefixListIds": [],
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": get_instance_ip_address(emr_conf['tag_name'],
+                                                                '{}-ssn'.format(emr_conf['service_base_name'])).get(
+                    'Private') + "/32"}],
+                "UserIdGroupPairs": []
+            }
+        ]
+        sg_rules_template_egress = [
+            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": emr_conf['all_ip_cidr']}], "UserIdGroupPairs": [], "PrefixListIds": []}
+        ]
+
+        params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
+            format(emr_conf['additional_emr_sg_name'], emr_conf['vpc_id'],
+                   json.dumps(sg_rules_template),
+                   json.dumps(sg_rules_template_egress), emr_conf['service_base_name'],
+                   emr_conf['cluster_name'], True)
+        try:
+            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed to create sg.", str(err))
+        sys.exit(1)
+
     local("echo Waiting for changes to propagate; sleep 10")
 
     try:
         logging.info('[Creating EMR Cluster]')
         print('[Creating EMR Cluster]')
-        params = "--name {} --applications '{}' --master_instance_type {} --slave_instance_type {} --instance_count {} --ssh_key {} --release_label {} --emr_timeout {} --subnet {} --service_role {} --ec2_role {} --nbs_ip {} --nbs_user {} --s3_bucket {} --region {} --tags '{}' --key_dir {} --edge_user_name {} --slave_instance_spot {} --bid_price {} --service_base_name {}"\
+        params = "--name {} --applications '{}' --master_instance_type {} --slave_instance_type {} --instance_count {} --ssh_key {} --release_label {} --emr_timeout {} --subnet {} --service_role {} --ec2_role {} --nbs_ip {} --nbs_user {} --s3_bucket {} --region {} --tags '{}' --key_dir {} --edge_user_name {} --slave_instance_spot {} --bid_price {} --service_base_name {} --additional_emr_sg {}"\
             .format(emr_conf['cluster_name'], emr_conf['apps'], emr_conf['master_instance_type'],
                     emr_conf['slave_instance_type'], emr_conf['instance_count'], emr_conf['key_name'],
                     emr_conf['release_label'], emr_conf['emr_timeout'], emr_conf['subnet_cidr'],
                     emr_conf['role_service_name'], emr_conf['role_ec2_name'], emr_conf['notebook_ip'],
                     os.environ['conf_os_user'], emr_conf['bucket_name'], emr_conf['region'], emr_conf['tags'],
                     os.environ['conf_key_dir'], os.environ['edge_user_name'], os.environ['emr_slave_instance_spot'],
-                    str(emr_conf['slave_bid_price']), emr_conf['service_base_name'])
+                    str(emr_conf['slave_bid_price']), emr_conf['service_base_name'], emr_conf['additional_emr_sg_name'])
         try:
             local("~/scripts/{}.py {}".format('dataengine-service_create', params))
         except:
@@ -139,6 +180,7 @@ if __name__ == "__main__":
         local('rm /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
         emr_id = get_emr_id_by_name(emr_conf['cluster_name'])
         terminate_emr(emr_id)
+        remove_sgroups(emr_conf['cluster_name'])
         sys.exit(1)
 
     try:

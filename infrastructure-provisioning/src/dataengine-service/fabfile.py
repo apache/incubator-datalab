@@ -37,7 +37,7 @@ def run():
                         level=logging.INFO,
                         filename=local_log_filepath)
     try:
-        local("~/scripts/{}.py".format('common_prepare_dataengine-service'))
+        local("~/scripts/{}.py".format('dataengine-service_prepare'))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed configuring Notebook node.", str(err))

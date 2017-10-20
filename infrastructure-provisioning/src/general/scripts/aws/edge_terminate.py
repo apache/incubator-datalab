@@ -25,7 +25,7 @@ import sys, time, os
 from dlab.actions_lib import *
 
 
-def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, allocation_id):
+def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg, allocation_id):
     print('Terminating EMR cluster')
     try:
         clusters_list = get_emr_list(tag_name)
@@ -69,6 +69,7 @@ def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, a
 
     print("Removing security groups")
     try:
+        remove_sgroups(emr_sg)
         remove_sgroups(de_sg)
         remove_sgroups(nb_sg)
         remove_sgroups(edge_sg)
@@ -105,13 +106,15 @@ if __name__ == "__main__":
     edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
     edge_conf['de_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
                                              '-dataengine'
+    edge_conf['emr_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
+                          '-emr'
 
     try:
         logging.info('[TERMINATE EDGE]')
         print('[TERMINATE EDGE]')
         try:
             terminate_edge_node(edge_conf['tag_name'], edge_conf['user_name'], edge_conf['tag_value'],
-                                edge_conf['nb_sg'], edge_conf['edge_sg'], edge_conf['de_sg'],
+                                edge_conf['nb_sg'], edge_conf['edge_sg'], edge_conf['de_sg'], edge_conf['emr_sg'],
                                 edge_conf['allocation_id'])
         except Exception as err:
             traceback.print_exc()
