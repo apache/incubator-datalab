@@ -149,7 +149,7 @@ if __name__ == "__main__":
     except Exception as err:
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             try:
                 remove_ec2(data_engine['tag_name'], slave_name)
             except:

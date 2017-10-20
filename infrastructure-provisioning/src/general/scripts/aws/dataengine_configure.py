@@ -50,7 +50,7 @@ def configure_slave(slave_number, data_engine):
     except Exception as err:
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         append_result("Failed to create ssh user on slave.", str(err))
         sys.exit(1)
@@ -70,7 +70,7 @@ def configure_slave(slave_number, data_engine):
     except Exception as err:
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         append_result("Failed to configure proxy on slave.", str(err))
         sys.exit(1)
@@ -88,7 +88,7 @@ def configure_slave(slave_number, data_engine):
     except Exception as err:
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         append_result("Failed to install prerequisites on slave.", str(err))
         sys.exit(1)
@@ -109,7 +109,7 @@ def configure_slave(slave_number, data_engine):
     except Exception as err:
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         append_result("Failed to configure slave node.", str(err))
         sys.exit(1)
@@ -179,7 +179,7 @@ if __name__ == "__main__":
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(int(os.environ['dataengine_instance_count']) - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary.", str(err))
@@ -200,7 +200,7 @@ if __name__ == "__main__":
     except Exception as err:
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         append_result("Failed to create ssh user on master.", str(err))
         sys.exit(1)
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     except Exception as err:
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         append_result("Failed to configure proxy on master.", str(err))
         sys.exit(1)
@@ -238,7 +238,7 @@ if __name__ == "__main__":
     except Exception as err:
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         append_result("Failed to install prerequisites on master.", str(err))
         sys.exit(1)
@@ -260,7 +260,7 @@ if __name__ == "__main__":
         append_result("Failed to configure master node", str(err))
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         sys.exit(1)
 
@@ -278,7 +278,7 @@ if __name__ == "__main__":
     except Exception as err:
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         sys.exit(1)
 
