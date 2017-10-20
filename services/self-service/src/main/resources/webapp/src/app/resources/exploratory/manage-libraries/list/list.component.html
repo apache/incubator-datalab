@@ -1,0 +1,74 @@
+<!--
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+
+<md-list>
+    <md-list-item class="list-header">
+      <div class="lib-name">Name</div>
+      <div class="lib-group">Group</div>
+      <div class="lib-status">Status</div>
+    </md-list-item>
+
+    <div class="scrollingList" id="scrolling" *ngIf="data?.length">
+      <!--  && notebookFailedLibs.length > 0 -->
+      <div *ngIf="notebook?.status !== 'running'" class="info message">
+        <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>
+      </div>
+      <md-list-item *ngFor="let lib of data  | libStatusSort">
+        <div class="lib-name">
+          <strong>{{ lib.name }}</strong>
+          <span *ngIf="lib.version  && lib.version !== 'N/A'">v.{{ lib.version }}</span>
+        </div>
+        <div class="lib-group">{{ groups[lib.group] }}</div>
+        <div class="lib-status status" ngClass="{{lib.status.toLowerCase() || ''}}">
+          {{ lib.status }}
+          <div class="warn-action" *ngIf="lib.status === 'failed' && notebook?.status === 'running'">
+            <!-- <div>
+              <span *ngIf="!installingInProgress"
+                mdTooltip="Retry installation"
+                mdTooltipPosition="above"
+                (click)="model.confirmAction([{group: lib.group, name: lib.name, version: lib.version}])">
+                <i class="material-icons">replay</i>
+              </span>
+              <span class="not-allowed"
+                *ngIf="installingInProgress"
+                mdTooltip="You can't reinstall library until previous process will be completed"
+                  mdTooltipPosition="above">
+                <i class="material-icons">replay</i>
+              </span>
+            </div>
+            <div *ngIf="lib.status === 'failed' && lib.error_message"
+               class="lib-error"
+               mdTooltip="{{ lib.error_message }}"
+               mdTooltipPosition="above">
+               <i class="material-icons">error_outline</i>
+            </div> -->
+          </div>
+        </div>
+      </md-list-item>
+    </div>
+    <div *ngIf="!data?.length" class="scrollingList info">
+      <p>You have no libraries installed</p>
+    </div>
+    <!-- <div *ngIf="notebookFailedLibs.length > 1 && notebook?.status === 'running'" class="reinstall-all">
+      <button md-raised-button type="button" class="butt"
+              (click)="model.confirmAction(notebookFailedLibs)"
+              [disabled]="installingInProgress">
+        <i class="material-icons">replay</i>Reinstall all
+      </button>
+    </div> -->
+  </md-list>

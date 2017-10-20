@@ -23,10 +23,12 @@ import { MaterialModule } from '@angular/material';
 
 import { ModalModule } from '../../../shared';
 import { KeysPipeModule, UnderscorelessPipeModule, LibSortPipeModule } from '../../../core/pipes';
-import { InstallLibsComponent } from './install-libs.component';
+import { ManageLibsComponent } from './manage-libraries.component';
+import { InstallLibsComponent } from './install-libs/install-libs.component';
+import { ListModule } from './list';
 
-export * from './install-libs.component';
-// export * from './install-libs.model';
+export * from './manage-libraries.component';
+export * from './manage-libraries.model';
 
 @NgModule({
   imports: [
@@ -36,9 +38,10 @@ export * from './install-libs.component';
     ModalModule,
     KeysPipeModule,
     LibSortPipeModule,
+    ListModule,
     MaterialModule.forRoot()
   ],
-  declarations: [InstallLibsComponent],
-  exports: [InstallLibsComponent],
+  declarations: [ManageLibsComponent, InstallLibsComponent],
+  exports: [ManageLibsComponent],
 })
 export class InstallLibsModule { }

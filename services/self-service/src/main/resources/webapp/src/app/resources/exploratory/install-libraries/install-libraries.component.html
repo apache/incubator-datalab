@@ -1,4 +1,4 @@
-<!------------------------------------------------------------------------------------------------------------
+<!--
 
 Copyright (c) 2016, EPAM SYSTEMS INC
 
@@ -14,15 +14,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
------------------------------------------------------------------------------------------------------------ -->
+-->
 
-<modal-dialog #bindDialog  modalClass="install-libs modal-xl">
+<modal-dialog #bindDialog  modalClass="install-libraries modal-xl">
   <modal-header>
     <h4 class="modal-title" id="myModalLabel">Manage <b>{{ notebook?.name }}</b> Libraries</h4>
   </modal-header>
   <modal-content>
    
-   <md-tab-group #tabGroup class="content-box">
+   <md-tab-group mat-stretch-tabs #tabGroup class="content-box">
       <md-tab label="INFO">
         <div>
           <md-list>
@@ -92,11 +92,23 @@ limitations under the License.
         <p class="info message" *ngIf="notebook?.status !== 'running'">Cannot install libraries: Exploratory {{ notebook?.name }} is not running</p>
         <div *ngIf="notebook?.status === 'running'" class="tab-content">
           <div class="search-box col" *ngIf="libs_uploaded && !uploading">
-            <md-select [(ngModel)]="group" (change)="filterList()" placeholder="Select group">
+            <!-- <md-select [(ngModel)]="destination" placeholder="Select installation destination">
+              <md-option *ngFor="let item of resourcesList" [value]="destination">
+                {{ item }}
+              </md-option>
+            </md-select> -->
+            <!-- <md-select [(ngModel)]="group" (change)="filterList()" placeholder="Select group">
               <md-option *ngFor="let group of groupsList" [value]="group">
                 {{ groupsListMap[group] }}
               </md-option>
-            </md-select>
+            </md-select> -->
+            <div class="form-group">
+              <label class="control-label">Select resource</label>
+              <div>
+                <dropdown-list #resourceSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+              </div>
+            </div>
+            <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
             <md-input-container>
               <input mdInput
                      [formControl]="libSearch" [value]="query"
@@ -141,7 +153,7 @@ limitations under the License.
         <div class="info message error" *ngIf="processError">
           <small>{{ errorMessage }}</small>
         </div>
-        <div class="text-center m-top-30 m-bott-10">
+        <div class="text-center m-top-30 m-bott-10 actions">
           <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
           <button md-raised-button type="submit" class="butt butt-success" (click)="model.confirmAction()" [disabled]="!model.selectedLibs.length || installingInProgress">Install</button>
         </div>

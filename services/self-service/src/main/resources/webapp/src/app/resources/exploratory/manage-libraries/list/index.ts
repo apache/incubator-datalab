@@ -16,30 +16,23 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MaterialModule } from '@angular/material';
+import { KeysPipeModule, UnderscorelessPipeModule, LibSortPipeModule } from '../../../../core/pipes';
+import { ListComponent } from './list.component';
 
-@Component({
-  selector: 'dlab-manage-libs',
-  templateUrl: './install-libs.component.html',
-  styleUrls: ['./install-libs.component.css']
+@NgModule({
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    KeysPipeModule,
+    LibSortPipeModule,
+    MaterialModule.forRoot()
+  ],
+  declarations: [ListComponent],
+  exports: [ListComponent],
 })
-export class InstallLibsComponent implements OnInit {
-  notebook: any;
-
-  @ViewChild('bindDialog') bindDialog;
-  constructor() { }
-
-  ngOnInit() { }
-
-  public open(params, notebook): void {
-    this.notebook = notebook;
-
-    console.log(this.notebook);
-    this.bindDialog.open(params);
-  }
-
-  public close(): void {
-    if (this.bindDialog.isOpened)
-      this.bindDialog.close();
-  }
-}
+export class ListModule { }

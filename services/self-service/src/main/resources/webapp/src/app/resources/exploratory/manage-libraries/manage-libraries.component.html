@@ -25,7 +25,7 @@ limitations under the License.
       <div class="detail-header-wrap">
         <table class="detail-header">
           <tr>
-            <td mdTooltip="{{ notebook.name }}" mdTooltipPosition="above">{{ notebook.name }}</td>
+            <td>{{ notebook.name }}</td>
             <td>{{ notebook.template_name }}</td>
             <td class="status" ngClass="{{ notebook.status || ''}}">{{ notebook.status }}</td>
             <td>{{ notebook.shape }}</td>
@@ -35,10 +35,10 @@ limitations under the License.
 
       <md-tab-group mat-stretch-tabs class="content-box">
         <md-tab label="LIST">
-          LIST component
+          <dlab-list [data]="notebookLibs" [groups]="groupsListMap" [notebook]="notebook"></dlab-list>
         </md-tab>
         <md-tab label="LIBRARIES INSTALLATION">
-          INSTALL component
+          <dlab-install-libs></dlab-install-libs>
         </md-tab>
       </md-tab-group>
     </div>

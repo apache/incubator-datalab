@@ -30,7 +30,7 @@ import { CostDetailsDialogModule } from './../billing/cost-details-dialog';
 import { InstallLibrariesModule } from './../exploratory/install-libraries';
 
 // --------------------------------------------------------------
-import { InstallLibsModule } from './../exploratory/install-libs';
+import { InstallLibsModule } from './../exploratory/manage-libraries';
 
 export * from './resources-grid.component';
 export * from './resources-grid.model';
