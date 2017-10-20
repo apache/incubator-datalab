@@ -72,9 +72,6 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
     private String emrServiceRoleDefault;
 
     @JsonProperty
-    private boolean mocked;
-
-    @JsonProperty
     private int processMaxThreadsPerJvm = 50;
 
     @JsonProperty
@@ -140,10 +137,6 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
 
     public String getDockerLogDirectory() {
         return dockerLogDirectory;
-    }
-
-    public boolean isMocked() {
-        return mocked;
     }
 
     public int getProcessMaxThreadsPerJvm() {
