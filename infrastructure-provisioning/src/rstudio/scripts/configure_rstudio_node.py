@@ -64,7 +64,7 @@ if __name__ == "__main__":
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
 
-    print('[PREPARE DISK]')
+    # PREPARE DISK
     print("Prepare .ensure directory")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     print("Mount additional volume")
     prepare_disk(args.os_user)
 
-    print('[INSTALL LANGUAGES]')
+    # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
     print("Install R")
@@ -84,17 +84,17 @@ if __name__ == "__main__":
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
-    print('[INSTALL RSTUDIO]')
+    # INSTALL RSTUDIO
     print("Install RStudio")
     install_rstudio(args.os_user, local_spark_path, args.rstudio_pass, args.rstudio_version)
 
-    print('[INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK]')
+    # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
     print("Install storage jars")
     ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
-    print('[INSTALL UNGIT]')
+    # INSTALL UNGIT
     print("Install nodejs")
     install_nodejs(args.os_user)
     print("Install Ungit")

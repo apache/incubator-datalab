@@ -88,7 +88,7 @@ if __name__ == "__main__":
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
 
-    print('[PREPARE DISK]')
+    # PREPARE DISK
     print("Prepare .ensure directory")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
-    print('[INSTALL LANGUAGES]')
+    # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
     print("Install Scala")
@@ -111,13 +111,13 @@ if __name__ == "__main__":
         print("Install python3 specific version")
         ensure_python3_specific_version(python3_version, args.os_user)
 
-    print('[INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK]')
+    # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
     print("Install storage and tensorflow connection jars")
     ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
-    print('[INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES]')
+    # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     if os.environ['application'] in ('tensor', 'deeplearning'):
         print("Installing TensorFlow")
         install_tensor(args.os_user, tensorflow_version, templates_dir, nvidia_version)
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         print("Installing Keras")
         install_keras(args.os_user, keras_version)
 
-    print('[INSTALL DEEP LEARNING FRAMEWORKS]')
+    # INSTALL DEEP LEARNING FRAMEWORKS
     if os.environ['application'] == 'deeplearning':
         print("Installing Caffe")
         install_caffe(args.os_user, args.region, caffe_version)
@@ -139,7 +139,7 @@ if __name__ == "__main__":
         print("Installing MXNET")
         install_mxnet(args.os_user, mxnet_version)
 
-    print('[START SPARK CLUSTER]')
+    # START SPARK CLUSTER
     if args.node_type == 'master':
         print("Starting Spark master")
         start_spark(args.os_user, args.hostname, node='master')
@@ -147,7 +147,7 @@ if __name__ == "__main__":
         print("Starting Spark slave")
         start_spark(args.os_user, args.master_ip, node='slave')
 
-    print('[INSTALL OPTIONAL PACKAGES]')
+    # INSTALL OPTIONAL PACKAGES
     if os.environ['application'] in ('jupyter', 'zeppelin', 'tensor', 'deeplearning'):
         print("Install additional Python packages")
         ensure_additional_python_libs(args.os_user)
