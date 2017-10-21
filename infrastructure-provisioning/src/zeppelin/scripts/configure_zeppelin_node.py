@@ -179,44 +179,41 @@ if __name__ == "__main__":
     env.host_string = args.os_user + '@' + args.hostname
     deeper_config = json.loads(args.additional_config)
 
-    print("Configuring notebook server.")
+    print('[PREPARE DISK]')
+    print("Prepare .ensure directory")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
             sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
-
     print("Mount additional volume")
     prepare_disk(args.os_user)
 
+    print('[INSTALL LANGUAGES]')
     print("Install Java")
     ensure_jre_jdk(args.os_user)
-
-    print("Install local Spark")
-    ensure_local_spark(args.os_user, spark_link, args.spark_version, args.hadoop_version, local_spark_path)
-
-    print("Install local jars")
-    ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
-
-    print("Installing scala")
+    print("Installing Scala")
     ensure_scala(scala_link, args.scala_version, args.os_user)
-
     print("Installing R")
     ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
+    print("Install Python 2 modules")
+    ensure_python2_libraries(args.os_user)
+    print("Install Python 3 modules")
+    ensure_python3_libraries(args.os_user)
+    print("Install Python 3 specific version")
+    ensure_python3_specific_version(python3_version, args.os_user)
 
-    print("Installing additional R packages")
-    install_r_packages(args.os_user)
+    print('[INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK]')
+    print("Install local Spark")
+    ensure_local_spark(args.os_user, spark_link, args.spark_version, args.hadoop_version, local_spark_path)
+    print("Install storage jars")
+    ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
+    print("INSTALL ZEPPELIN")
     print("Install Zeppelin")
     configure_zeppelin(args.os_user)
 
-    print("Install python2 libraries")
-    ensure_python2_libraries(args.os_user)
-
-    print("Install python3 libraries")
-    ensure_python3_libraries(args.os_user)
-    ensure_python3_specific_version(python3_version, args.os_user)
-
+    print('[INSTALL ZEPPELIN KERNELS]')
     if args.multiple_clusters == 'true':
         print("Installing Livy for local kernels")
         install_local_livy(args)
@@ -226,14 +223,18 @@ if __name__ == "__main__":
         print("Configuring local kernels")
         configure_local_spark_kernels(args)
 
-    print("Installing additional Python libraries")
-    ensure_additional_python_libs(args.os_user)
-
-    print("Installing notebook additions: matplotlib.")
-    ensure_matplot(args.os_user)
-
-    print("Install Ungit")
+    print('[INSTALL UNGIT]')
+    print("Install nodejs")
     install_nodejs(args.os_user)
+    print("Install Ungit")
     install_ungit(args.os_user)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
+
+    print('[INSTALL OPTIONAL PACKAGES]')
+    print("Install additional R packages")
+    install_r_packages(args.os_user)
+    print("Install additional Python packages")
+    ensure_additional_python_libs(args.os_user)
+    print("Install Matplotlib.")
+    ensure_matplot(args.os_user)

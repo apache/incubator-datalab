@@ -116,7 +116,7 @@ def ensure_matplot(os_user):
         try:
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('python3.5 -m pip install matplotlib==2.0.2 --no-cache-dir')
-            if os.environ['application'] == 'tensor':
+            if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('rm -rf  /usr/lib64/python2.7/site-packages/numpy*')
                 sudo('python2.7 -m pip install -U numpy --no-cache-dir')
             sudo('touch /home/{}/.ensure_dir/matplot_ensured'.format(os_user))
@@ -159,10 +159,10 @@ def ensure_additional_python_libs(os_user):
         try:
             sudo('yum clean all')
             sudo('yum install -y zlib-devel libjpeg-turbo-devel --nogpgcheck')
-            if os.environ['application'] == 'jupyter' or os.environ['application'] == 'zeppelin':
+            if os.environ['application'] in ('jupyter', 'zeppelin'):
                 sudo('pip2 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
                 sudo('python3.5 -m pip install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
-            if os.environ['application'] == 'tensor':
+            if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('python2.7 -m pip install opencv-python h5py --no-cache-dir')
                 sudo('python2.7 -m ipykernel install')
                 sudo('python3.5 -m pip install opencv-python h5py --no-cache-dir')
@@ -223,7 +223,7 @@ def ensure_python3_libraries(os_user):
             sys.exit(1)
 
 
-def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia_version):
+def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
     if not exists('/home/' + os_user + '/.ensure_dir/tensor_ensured'):
         try:
             # install nvidia drivers
@@ -441,11 +441,6 @@ def install_keras(os_user, keras_version):
     if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
         sudo('pip2 install keras=={} --no-cache-dir'.format(keras_version))
         sudo('pip3.5 install keras=={} --no-cache-dir'.format(keras_version))
-        sudo('pip2 uninstall -y ipython')
-        sudo('pip2 install ipython --no-cache-dir')
-        sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
-        sudo('pip2 uninstall -y numpy')
-        sudo('pip2 install numpy --no-cache-dir')
         sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
 
 
