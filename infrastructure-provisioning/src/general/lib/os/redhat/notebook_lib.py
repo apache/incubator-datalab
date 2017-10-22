@@ -164,9 +164,7 @@ def ensure_additional_python_libs(os_user):
                 sudo('python3.5 -m pip install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
             if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('python2.7 -m pip install opencv-python h5py --no-cache-dir')
-                sudo('python2.7 -m ipykernel install')
                 sudo('python3.5 -m pip install opencv-python h5py --no-cache-dir')
-                sudo('python3.5 -m ipykernel install')
             sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
             sys.exit(1)
@@ -467,7 +465,7 @@ def install_torch(os_user):
         with cd('/home/{}/torch/'.format(os_user)):
             sudo('yum install -y --nogpgcheck cmake curl readline-devel ncurses-devel gcc-c++ gcc-gfortran git '
                  'gnuplot unzip libjpeg-turbo-devel libpng-devel ImageMagick GraphicsMagick-devel fftw-devel '
-                 'sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld ipython qt-devel')
+                 'sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld qt-devel')
             run('./install.sh -b')
         run('source /home/{}/.bashrc'.format(os_user))
         sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
