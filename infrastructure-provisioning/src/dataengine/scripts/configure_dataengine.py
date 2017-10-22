@@ -69,8 +69,10 @@ def start_spark(os_user, master_ip, node):
     if not exists('/home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node)):
         run('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
         run('''echo "SPARK_MASTER_HOST='{}'" >> /opt/spark/conf/spark-env.sh'''.format(master_ip))
-        if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
+        if os.environ['application'] == 'tensor':
             run('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
+        if os.environ['application'] == 'deeplearning':
+            run('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib" >> /opt/spark/conf/spark-env.sh''')
         if node == 'master':
             run('/opt/spark/sbin/start-master.sh')
             run('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))

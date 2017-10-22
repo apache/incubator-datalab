@@ -427,13 +427,7 @@ def install_cntk(os_user, cntk_version):
         sudo('echo "exclude=*.i386 *.i686" >> /etc/yum.conf')
         sudo('yum clean all && yum update-minimal --security -y')
         sudo('yum install -y openmpi openmpi-devel --nogpgcheck')
-        sudo('sed -i "s|LD_LIBRARY_PATH:|LD_LIBRARY_PATH:/usr/lib64/openmpi/lib:|g" /home/{}/.bashrc'.format(os_user))
-        try:
-            sudo('sed -i "s|LD_LIBRARY_PATH:|LD_LIBRARY_PATH:/usr/lib64/openmpi/lib:|g" /etc/systemd/system/jupyter-notebook.service')
-            sudo('systemctl daemon-reload')
-            sudo('systemctl restart jupyter-notebook')
-        except:
-            pass
+        sudo('sed -i "s|LD_LIBRARY_PATH=|LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:|g" /home/{}/.bashrc'.format(os_user))
         sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('pip3.5 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
