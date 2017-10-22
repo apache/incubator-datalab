@@ -399,3 +399,24 @@ input[type=number] {
   color: #fff;
   box-shadow: 2px 5px 16px 5px rgba(88, 60, 60, 0.6)
 }
+
+/* controls */
+input[type=text] {
+
+}
+
+.control-group {
+  display: flex;
+  padding-bottom: 20px;
+}
+.control-group .label {
+  width: 30%;
+  color: #718ba6;
+  font-size: 15px;
+  font-weight: 600;
+  align-self: flex-end;
+  text-align: left;
+}
+.control-group .control {
+  width: 70%;
+}

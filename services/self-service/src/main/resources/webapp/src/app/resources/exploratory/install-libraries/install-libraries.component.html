@@ -92,28 +92,35 @@ limitations under the License.
         <p class="info message" *ngIf="notebook?.status !== 'running'">Cannot install libraries: Exploratory {{ notebook?.name }} is not running</p>
         <div *ngIf="notebook?.status === 'running'" class="tab-content">
           <div class="search-box col" *ngIf="libs_uploaded && !uploading">
-            <!-- <md-select [(ngModel)]="destination" placeholder="Select installation destination">
-              <md-option *ngFor="let item of resourcesList" [value]="destination">
-                {{ item }}
-              </md-option>
-            </md-select> -->
             <!-- <md-select [(ngModel)]="group" (change)="filterList()" placeholder="Select group">
               <md-option *ngFor="let group of groupsList" [value]="group">
                 {{ groupsListMap[group] }}
               </md-option>
-            </md-select> -->
-            <div class="form-group">
-              <label class="control-label">Select resource</label>
-              <div>
-                <dropdown-list #resourceSelect (selectedItem)="onUpdate($event)"></dropdown-list>
-              </div>
-            </div>
+            </md-select>
             <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
             <md-input-container>
               <input mdInput
-                     [formControl]="libSearch" [value]="query"
-                     placeholder="Enter library name">
-            </md-input-container>
+                    [formControl]="libSearch" [value]="query"
+                    placeholder="Enter library name">
+            </md-input-container> -->
+
+            <div class="control-group">
+              <label class="label">Select resource</label>
+              <div class="control">
+                <dropdown-list #resourceSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="label">Select group</label>
+              <div class="control">
+                <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="label">Search</label>
+              <input class="form-control control" [formControl]="libSearch" [value]="query" placeholder="Enter library name">
+            </div>
+
             <div class="list-container" id="scrolling">
               <!--<div class="loader-wrap" *ngIf="isFilteringProc && !model.isEmpty(filteredList)">
                 <div class="loader-lib">Loading...</div>
