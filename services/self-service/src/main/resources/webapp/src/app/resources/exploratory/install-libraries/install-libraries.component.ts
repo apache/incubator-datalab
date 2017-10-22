@@ -58,9 +58,6 @@ export class InstallLibrariesComponent implements OnInit {
   public libSearch: FormControl = new FormControl();
   public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum', 'others': 'Others'};
 
-  public cancelButtonLabel: string = 'Cancel';
-  public submitButtonLabel: string = 'Install';
-
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
   private clear: number;
   private clearCheckInstalling = undefined;
@@ -100,12 +97,19 @@ export class InstallLibrariesComponent implements OnInit {
           this.changeDetector.detectChanges();
 
           this.group_select && this.group_select.setDefaultOptions(this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
-          this.resource_select && this.resource_select.setDefaultOptions(this.notebook.resources, 'Select resource', 'destination', 'computational_name', 'array');
+          this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'name', 'array');
         },
         error => {
           this.processError = true;
           this.errorMessage = JSON.parse(error.message).message;
         });
+  }
+
+  private getResourcesList() {
+    return [this.notebook].concat(this.notebook.resources.map(item => {
+      item['name'] = item.computational_name;
+      return item;
+    }));
   }
 
   public filterList(): void { // FIXME:
