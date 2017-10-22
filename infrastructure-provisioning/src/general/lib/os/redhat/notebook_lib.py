@@ -427,8 +427,9 @@ def install_cntk(os_user, cntk_version):
         sudo('echo "exclude=*.i386 *.i686" >> /etc/yum.conf')
         sudo('yum clean all && yum update-minimal --security -y')
         sudo('yum install -y openmpi openmpi-devel --nogpgcheck')
+        sudo('sed -i "s|LD_LIBRARY_PATH:|LD_LIBRARY_PATH:/usr/lib64/openmpi/lib:|g" /home/{}/.bashrc'.format(os_user))
         try:
-            sudo('sed -i "s/LD_LIBRARY_PATH:/LD_LIBRARY_PATH:\/usr\/lib64\/openmpi\/lib:/g" /etc/systemd/system/jupyter-notebook.service')
+            sudo('sed -i "s|LD_LIBRARY_PATH:|LD_LIBRARY_PATH:/usr/lib64/openmpi/lib:|g" /etc/systemd/system/jupyter-notebook.service')
             sudo('systemctl daemon-reload')
             sudo('systemctl restart jupyter-notebook')
         except:
