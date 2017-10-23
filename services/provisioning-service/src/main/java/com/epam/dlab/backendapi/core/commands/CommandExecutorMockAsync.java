@@ -19,7 +19,6 @@ limitations under the License.
 package com.epam.dlab.backendapi.core.commands;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
@@ -27,6 +26,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import com.epam.dlab.cloud.CloudProvider;
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import org.apache.commons.codec.Charsets;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ import com.google.common.io.Resources;
 public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutorMockAsync.class);
 
-    private ObjectMapper MAPPER = new ObjectMapper()
+    private ObjectMapper mapper = new ObjectMapper()
     		.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
     		.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
@@ -145,6 +145,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			case LIB_INSTALL:
 				parser.getVariables().put("lib_install", getResponseLibInstall(true));
 				action(user, action);
+				break;
 			default:
 				break;
 			}
@@ -156,7 +157,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	}
     }
 
-    private static void copyFile(String sourceFilePath, String destinationFileName, String destinationFolder) throws URISyntaxException, IOException {
+    private static void copyFile(String sourceFilePath, String destinationFileName, String destinationFolder) throws IOException {
 		File to = new File(getAbsolutePath(destinationFolder , destinationFileName));
 
 		try (InputStream inputStream = CommandExecutorMockAsync.class.getClassLoader().getResourceAsStream(sourceFilePath);
@@ -219,7 +220,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     /** Describe action.
      * @throws FileNotFoundException
      */
-    private void describe() throws DlabException {
+    private void describe() {
     	String templateFileName;
 		try {
 			templateFileName = getAbsolutePath(findTemplatesDir(),parser.getImageType() + "_description.json");
@@ -251,8 +252,8 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
      */
     private void action(String user, DockerAction action) {
     	String resourceType = parser.getResourceType();
-		String prefixFileName = (resourceType.equals("edge") || resourceType.equals("dataengine")
-				|| resourceType.equals("dataengine-service") ?
+
+		String prefixFileName = (Lists.newArrayList("edge", "dataengine", "dataengine-service").contains(resourceType) ?
     			resourceType : "notebook") + "_";
     	String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + prefixFileName + action.toString() + ".json";
     	responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" + parser.getRequestId() + ".json");
@@ -267,9 +268,9 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	}
     	EnvResourceList resourceList;
     	try {
-        	JsonNode json = MAPPER.readTree(parser.getJson());
+        	JsonNode json = mapper.readTree(parser.getJson());
 			json = json.get("edge_list_resources");
-			resourceList = MAPPER.readValue(json.toString(), EnvResourceList.class);
+			resourceList = mapper.readValue(json.toString(), EnvResourceList.class);
 		} catch (IOException e) {
 			throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
 		}
@@ -286,7 +287,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	}
 
     	try {
-			return MAPPER.writeValueAsString(resourceList);
+			return mapper.writeValueAsString(resourceList);
 		} catch (JsonProcessingException e) {
 			throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
 		}
@@ -297,9 +298,9 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private String getResponseLibInstall(boolean isSucces) {
     	List<LibInstallDTO> list;
     	try {
-        	JsonNode json = MAPPER.readTree(parser.getJson());
+        	JsonNode json = mapper.readTree(parser.getJson());
 			json = json.get("libs");
-			list = MAPPER.readValue(json.toString(), new TypeReference<List<LibInstallDTO>>() {});
+			list = mapper.readValue(json.toString(), new TypeReference<List<LibInstallDTO>>() {});
 		} catch (IOException e) {
 			throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
 		}
@@ -314,7 +315,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		}
 
     	try {
-			return MAPPER.writeValueAsString(list);
+			return mapper.writeValueAsString(list);
 		} catch (JsonProcessingException e) {
 			throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
 		}
@@ -325,7 +326,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
      * @param targetFileName response file name.
      * @throws DlabException if can't read template or write response files.
      */
-    private void setResponse(String sourceFileName, String targetFileName) throws DlabException {
+    private void setResponse(String sourceFileName, String targetFileName) {
     	String content;
     	URL url = Resources.getResource(sourceFileName);
     	try {

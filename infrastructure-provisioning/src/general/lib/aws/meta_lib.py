@@ -425,6 +425,22 @@ def get_emr_id_by_name(name):
         traceback.print_exc(file=sys.stdout)
 
 
+def get_emr_instances_list(cluster_id, only_master=False):
+    try:
+        emr = boto3.client('emr')
+        if only_master:
+            instances = emr.list_instances(ClusterId=cluster_id, InstanceGroupTypes=['MASTER'])
+        else:
+            instances = emr.list_instances(ClusterId=cluster_id)
+        return instances.get('Instances')
+    except Exception as err:
+        logging.error("Error with getting EMR instances list: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with getting EMR instances list",
+                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
 def get_ec2_list(tag_name, value=''):
     try:
         ec2 = boto3.resource('ec2')

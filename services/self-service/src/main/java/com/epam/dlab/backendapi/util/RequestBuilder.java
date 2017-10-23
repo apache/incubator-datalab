@@ -53,11 +53,15 @@ import com.google.inject.Inject;
 import java.util.ArrayList;
 
 public class RequestBuilder {
-    @Inject
-    private static SelfServiceApplicationConfiguration configuration;
+    private static final String UNSUPPORTED_CLOUD_PROVIDER_MESSAGE = "Unsupported cloud provider ";
 
     @Inject
+    private static SelfServiceApplicationConfiguration configuration;
+    @Inject
     private static SettingsDAO settingsDAO;
+
+    private RequestBuilder() {
+    }
 
     private static CloudSettings cloudSettings(UserInfo userInfo) {
         switch (cloudProvider()) {
@@ -78,7 +82,7 @@ public class RequestBuilder {
                         .azureVpcName(settingsDAO.getAzureVpcName())
                         .azureIamUser(userInfo.getName()).build();
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -93,7 +97,7 @@ public class RequestBuilder {
                             .withEdgeUserName(userInfo.getSimpleName())
                             .withCloudSettings(cloudSettings(userInfo));
                 default:
-                    throw new DlabException("Unknown cloud provider " + cloudProvider());
+                    throw new DlabException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
             }
         } catch (Exception e) {
             throw new DlabException("Cannot create instance of resource class " + resourceClass.getName() + ". " +
@@ -135,7 +139,7 @@ public class RequestBuilder {
 
             case GCP:
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -148,7 +152,7 @@ public class RequestBuilder {
 
             case GCP:
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -159,7 +163,7 @@ public class RequestBuilder {
                 return newResourceSysBaseDTO(userInfo, UserEnvironmentResources.class);
             case GCP:
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -179,7 +183,7 @@ public class RequestBuilder {
                         .withNotebookInstanceSize(formDTO.getShape());
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
 
         return exploratoryCreate.withExploratoryName(formDTO.getName())
@@ -204,7 +208,7 @@ public class RequestBuilder {
                         .withExploratoryName(userInstance.getExploratoryName());
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
 
         return exploratoryStart;
@@ -223,7 +227,7 @@ public class RequestBuilder {
                 exploratoryStop = (T) newResourceSysBaseDTO(userInfo, ExploratoryActionStopAzure.class);
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
 
         return exploratoryStop
@@ -247,7 +251,7 @@ public class RequestBuilder {
                         .withGitCreds(exploratoryGitCredsDTO.getGitCreds());
 
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -264,7 +268,7 @@ public class RequestBuilder {
                         .withLibs(new ArrayList<>());
 
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -281,7 +285,7 @@ public class RequestBuilder {
                         .withExploratoryName(userInstance.getExploratoryName());
 
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -293,6 +297,7 @@ public class RequestBuilder {
 
         switch (cloudProvider()) {
             case AWS:
+            case AZURE:
                 AwsComputationalCreateForm awsForm = (AwsComputationalCreateForm) form;
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo, ComputationalCreateAws.class)
                         .withInstanceCount(awsForm.getInstanceCount())
@@ -303,7 +308,7 @@ public class RequestBuilder {
                         .withVersion(awsForm.getVersion());
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
 
         return computationalCreate
@@ -336,7 +341,7 @@ public class RequestBuilder {
                 break;
 
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
 
         return computationalCreate
@@ -368,7 +373,7 @@ public class RequestBuilder {
                 computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class);
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
 
         return computationalTerminate

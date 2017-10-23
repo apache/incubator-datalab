@@ -196,7 +196,9 @@ public class BillingToolConfiguration {
 		parser.setModuleData(moduleData);
 		in.setModuleData(moduleData);
 		out.setModuleData(moduleData);
-		f.setModuleData(moduleData);
+		if (f != null) {
+			f.setModuleData(moduleData);
+		}
 		
 		if (scheduler != null) {
 			try {

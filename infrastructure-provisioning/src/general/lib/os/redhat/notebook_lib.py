@@ -116,7 +116,7 @@ def ensure_matplot(os_user):
         try:
             sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
             sudo('python3.5 -m pip install matplotlib==2.0.2 --no-cache-dir')
-            if os.environ['application'] == 'tensor':
+            if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('rm -rf  /usr/lib64/python2.7/site-packages/numpy*')
                 sudo('python2.7 -m pip install -U numpy --no-cache-dir')
             sudo('touch /home/{}/.ensure_dir/matplot_ensured'.format(os_user))
@@ -159,14 +159,12 @@ def ensure_additional_python_libs(os_user):
         try:
             sudo('yum clean all')
             sudo('yum install -y zlib-devel libjpeg-turbo-devel --nogpgcheck')
-            if os.environ['application'] == 'jupyter' or os.environ['application'] == 'zeppelin':
+            if os.environ['application'] in ('jupyter', 'zeppelin'):
                 sudo('pip2 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
                 sudo('python3.5 -m pip install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
-            if os.environ['application'] == 'tensor':
+            if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('python2.7 -m pip install opencv-python h5py --no-cache-dir')
-                sudo('python2.7 -m ipykernel install')
                 sudo('python3.5 -m pip install opencv-python h5py --no-cache-dir')
-                sudo('python3.5 -m ipykernel install')
             sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
             sys.exit(1)
@@ -223,7 +221,7 @@ def ensure_python3_libraries(os_user):
             sys.exit(1)
 
 
-def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia_version):
+def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
     if not exists('/home/' + os_user + '/.ensure_dir/tensor_ensured'):
         try:
             # install nvidia drivers
@@ -373,7 +371,7 @@ def install_caffe(os_user, region, caffe_version):
             sudo('echo "gpgcheck=1" >> centos.repo')
             sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
         sudo('yum update-minimal --security -y')
-        sudo('yum install -y protobuf-devel leveldb-devel snappy-devel boost-devel hdf5-devel gcc gcc-c++')
+        sudo('yum install -y --nogpgcheck protobuf-devel leveldb-devel snappy-devel boost-devel hdf5-devel gcc gcc-c++')
         sudo('yum install -y gflags-devel glog-devel lmdb-devel yum-utils && package-cleanup --cleandupes')
         sudo('yum install -y openblas-devel gflags-devel glog-devel lmdb-devel')
         sudo('git clone https://github.com/BVLC/caffe.git')
@@ -407,7 +405,7 @@ def install_caffe2(os_user, caffe2_version):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         sudo('yum update-minimal --security -y')
-        sudo('yum install -y automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
+        sudo('yum install -y --nogpgcheck automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
         sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future --no-cache-dir')
         sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy protobuf pydot python-nvd3 pyyaml '
@@ -429,9 +427,7 @@ def install_cntk(os_user, cntk_version):
         sudo('echo "exclude=*.i386 *.i686" >> /etc/yum.conf')
         sudo('yum clean all && yum update-minimal --security -y')
         sudo('yum install -y openmpi openmpi-devel --nogpgcheck')
-        sudo('sed -i "s/LD_LIBRARY_PATH:/LD_LIBRARY_PATH:\/usr\/lib64\/openmpi\/lib:/g" /etc/systemd/system/jupyter-notebook.service')
-        sudo('systemctl daemon-reload')
-        sudo('systemctl restart jupyter-notebook')
+        sudo('sed -i "s|LD_LIBRARY_PATH=|LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:|g" /home/{}/.bashrc'.format(os_user))
         sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('pip3.5 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
@@ -441,15 +437,6 @@ def install_keras(os_user, keras_version):
     if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
         sudo('pip2 install keras=={} --no-cache-dir'.format(keras_version))
         sudo('pip3.5 install keras=={} --no-cache-dir'.format(keras_version))
-        sudo('pip2 uninstall -y ipython')
-        sudo('pip2 uninstall -y ipython')
-        sudo('pip2 install ipython --no-cache-dir')
-        sudo('pip2 uninstall -y matplotlib')
-        sudo('pip2 uninstall -y matplotlib')
-        sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
-        sudo('pip2 uninstall -y numpy')
-        sudo('pip2 uninstall -y numpy ')
-        sudo('pip2 install numpy --no-cache-dir')
         sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
 
 
@@ -473,7 +460,7 @@ def install_torch(os_user):
         with cd('/home/{}/torch/'.format(os_user)):
             sudo('yum install -y --nogpgcheck cmake curl readline-devel ncurses-devel gcc-c++ gcc-gfortran git '
                  'gnuplot unzip libjpeg-turbo-devel libpng-devel ImageMagick GraphicsMagick-devel fftw-devel '
-                 'sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld ipython qt-devel')
+                 'sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld qt-devel')
             run('./install.sh -b')
         run('source /home/{}/.bashrc'.format(os_user))
         sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
@@ -485,4 +472,3 @@ def install_gitlab_cert(os_user, certfile):
         sudo('update-ca-trust')
     except Exception as err:
         print('Failed to install gitlab certificate.{}'.format(str(err)))
-        pass

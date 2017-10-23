@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
 
@@ -69,7 +69,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   constructor(
     private userResourceService: UserResourceService,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private ref: ChangeDetectorRef
   ) {
     this.model = ComputationalResourceCreateModel.getDefault(userResourceService);
   }
@@ -142,13 +143,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public selectSpotInstances($event): void {
     if ($event.target.checked) {
-      const filtered = JSON.parse(JSON.stringify(this.slave_shapes_list.items));
-      for (const item in this.slave_shapes_list.items) {
-          filtered[item] = filtered[item].filter(el => el.spot);
-          if (filtered[item].length <= 0) {
-            delete filtered[item];
-          }
-      }
+      const filtered = this.filterAvailableSpots();
 
       this.slave_shapes_list.setDefaultOptions(filtered, this.shapePlaceholder(filtered, 'description'),
         'slave_shape', 'description', 'json');
@@ -164,6 +159,24 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.spotInstance = false;
       this.resourceForm.controls['instance_price'].setValue(0);
     }
+  }
+
+  private filterAvailableSpots() {
+    const filtered = JSON.parse(JSON.stringify(this.slave_shapes_list.items));
+    for (const item in this.slave_shapes_list.items) {
+        filtered[item] = filtered[item].filter(el => el.spot);
+        if (filtered[item].length <= 0) {
+          delete filtered[item];
+        }
+    }
+    return filtered;
+  }
+
+  public isAvailableSpots(): boolean {
+    if (this.slave_shapes_list && this.slave_shapes_list.items)
+      return !!Object.keys(this.filterAvailableSpots()).length;
+
+    return false;
   }
 
   public open(params, notebook_instance): void {
@@ -185,11 +198,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         },
         () => {
           this.bindDialog.open(params);
+          this.ref.detectChanges();
+
           this.setDefaultParams();
           this.getComputationalResourceLimits();
         },
         this.userResourceService);
-
     }
   }
 
@@ -242,6 +256,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private setDefaultParams(): void {
+    this.filterShapes();
     this.shapes = {
       master_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type'),
       slave_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type')
@@ -257,6 +272,23 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
     this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
       this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
+  }
+
+  private filterShapes(): void {
+    if (this.notebook_instance.template_name.toLowerCase().indexOf('tensorflow') !== -1
+      || this.notebook_instance.template_name.toLowerCase().indexOf('deep learning') !== -1) {
+      const allowed = ['GPU optimized'];
+      const filtered = Object.keys(this.model.selectedImage.shapes.resourcesShapeTypes)
+        .filter(key => allowed.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = this.model.selectedImage.shapes.resourcesShapeTypes[key];
+          return obj;
+        }, {});
+
+      this.model.resourceImages = this.model.resourceImages.filter(image => image.image === 'docker.dlab-dataengine');
+      this.model.setSelectedClusterType(0);
+      this.model.selectedImage.shapes.resourcesShapeTypes = filtered;
+    }
   }
 
   private resetDialog(): void {

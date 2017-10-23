@@ -25,6 +25,9 @@ import io.dropwizard.setup.Environment;
 
 public class ModuleFactory {
 
+    private ModuleFactory() {
+    }
+
     /**
      * Instantiates an application configuration of SelfService for production or tests if
      * the mock property of configuration is set to <b>true</b> and method {@link SelfServiceApplicationConfiguration#isMocked()}
@@ -34,11 +37,9 @@ public class ModuleFactory {
      * @param environment   environment of SelfService.
      */
     public static AbstractModule getModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
-        return (configuration.isDevMode() ?
-                new DevModule(configuration, environment) :
-                (configuration.isMocked() ?
-                        new MockModule(configuration, environment) :
-                        new ProductionModule(configuration, environment)));
+        return configuration.isDevMode()
+                ? new DevModule(configuration, environment)
+                : new ProductionModule(configuration, environment);
     }
 
     public static CloudModule getCloudProviderModule(SelfServiceApplicationConfiguration configuration) {

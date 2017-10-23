@@ -26,6 +26,7 @@ import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
 import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.rest.contracts.EdgeAPI;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,20 +54,20 @@ public class EdgeResourceAzure extends EdgeService {
 
     @POST
     @Path("/create")
-    public String create(@Auth UserInfo ui, UploadFileAzure dto) throws IOException, InterruptedException {
+    public String create(@Auth UserInfo ui, UploadFileAzure dto) throws IOException {
         saveKeyToFile(dto.getEdge().getEdgeUserName(), dto.getContent());
         return action(ui.getName(), dto.getEdge(), dto.getEdge().getCloudSettings().getIamUser(), KEY_LOADER, DockerAction.CREATE);
     }
 
     @POST
     @Path("/start")
-    public String start(@Auth UserInfo ui, ResourceSysBaseDTO<?> dto) throws IOException, InterruptedException {
+    public String start(@Auth UserInfo ui, ResourceSysBaseDTO<?> dto) throws JsonProcessingException {
         return action(ui.getName(), dto, dto.getCloudSettings().getIamUser(), EDGE + STATUS_URI, DockerAction.START);
     }
 
     @POST
     @Path("/stop")
-    public String stop(@Auth UserInfo ui, ResourceSysBaseDTO<?> dto) throws IOException, InterruptedException {
+    public String stop(@Auth UserInfo ui, ResourceSysBaseDTO<?> dto) throws JsonProcessingException {
         return action(ui.getName(), dto, dto.getCloudSettings().getIamUser(), EDGE + STATUS_URI, DockerAction.STOP);
     }
 

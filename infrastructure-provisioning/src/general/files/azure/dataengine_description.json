@@ -1,5 +1,5 @@
 {
-  "template_name": "Data Engine",
+  "template_name": "Spark cluster",
   "description": "Spark standalone cluster",
   "environment_type": "computational",
     "computation_resources_shapes":
