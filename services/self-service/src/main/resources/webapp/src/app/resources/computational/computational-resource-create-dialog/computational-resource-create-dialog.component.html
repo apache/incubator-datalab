@@ -21,7 +21,7 @@ limitations under the License.
     <h4 class="modal-title">Add computational resources</h4>
   </modal-header>
   <modal-content>
-    <div class="content-box" *ngIf="bindDialog.isOpened">
+    <div class="content-box" *ngIf="model.selectedImage">
       <form [formGroup]="resourceForm" novalidate (submit)="createComputationalResource($event, resourceForm.value, shapes.master_shape, shapes.slave_shape)">
         <div class="form-group row" *ngIf="PROVIDER === 'aws'">
           <div  class="col-xs-4">
