@@ -173,7 +173,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public isAvailableSpots(): boolean {
-    return this.slave_shapes_list.items && !!Object.keys(this.filterAvailableSpots()).length;
+    if (this.slave_shapes_list && this.slave_shapes_list.items)
+      return !!Object.keys(this.filterAvailableSpots()).length;
+
+    return false;
   }
 
   public open(params, notebook_instance): void {
