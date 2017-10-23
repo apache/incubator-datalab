@@ -172,7 +172,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public isAvailableSpots(): boolean {
-    return !!Object.keys(this.filterAvailableSpots()).length;
+    return this.slave_shapes_list.items && !!Object.keys(this.filterAvailableSpots()).length;
   }
 
   public open(params, notebook_instance): void {
@@ -198,7 +198,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           this.getComputationalResourceLimits();
         },
         this.userResourceService);
-
     }
   }
 
@@ -280,6 +279,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           return obj;
         }, {});
 
+      this.model.resourceImages = this.model.resourceImages.filter(image => image.image === 'docker.dlab-dataengine');
+      this.model.setSelectedClusterType(0);
       this.model.selectedImage.shapes.resourcesShapeTypes = filtered;
     }
   }
