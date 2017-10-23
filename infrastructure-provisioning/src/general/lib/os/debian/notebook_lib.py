@@ -168,14 +168,12 @@ def ensure_additional_python_libs(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/additional_python_libs_ensured'):
         try:
             sudo('apt-get install -y libjpeg8-dev zlib1g-dev')
-            if os.environ['application'] == 'jupyter' or os.environ['application'] == 'zeppelin':
+            if os.environ['application'] in ('jupyter', 'zeppelin'):
                 sudo('pip2 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
                 sudo('pip3 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
-            if os.environ['application'] == 'tensor':
+            if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('pip2 install opencv-python h5py --no-cache-dir')
-                sudo('python2 -m ipykernel install')
                 sudo('pip3 install opencv-python h5py --no-cache-dir')
-                sudo('python3 -m ipykernel install')
             sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
             sys.exit(1)
@@ -229,7 +227,7 @@ def ensure_python3_libraries(os_user):
             sys.exit(1)
 
 
-def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia_version):
+def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
     if not exists('/home/' + os_user + '/.ensure_dir/tensor_ensured'):
         try:
             # install nvidia drivers
