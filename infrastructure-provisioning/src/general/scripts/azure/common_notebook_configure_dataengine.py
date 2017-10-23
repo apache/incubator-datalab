@@ -70,10 +70,6 @@ if __name__ == "__main__":
             sys.exit(1)
         notebook_config['spark_master_url'] = 'spark://{}:7077'.format(notebook_config['spark_master_ip'])
 
-        if os.environ['application'] == 'deeplearning':
-            application = 'jupyter'
-        else:
-            application = os.environ['application']
     except Exception as err:
         for i in range(notebook_config['instance_count'] - 1):
             slave_name = notebook_config['slave_node_name'] + '{}'.format(i+1)
@@ -90,7 +86,7 @@ if __name__ == "__main__":
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
                    notebook_config['spark_master_url'], notebook_config['key_path'], notebook_config['notebook_ip'])
         try:
-            local("~/scripts/{}_{}.py {}".format(application, 'install_dataengine_kernels', params))
+            local("~/scripts/{}_{}.py {}".format(os.environ['application'], 'install_dataengine_kernels', params))
         except:
             traceback.print_exc()
             raise Exception

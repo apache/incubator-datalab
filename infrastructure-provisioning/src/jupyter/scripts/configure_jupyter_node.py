@@ -70,66 +70,62 @@ if __name__ == "__main__":
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
 
-    print("Configuring notebook server.")
+    # PREPARE DISK
+    print("Prepare .ensure directory")
     try:
         if not exists('/home/' + args.os_user + '/.ensure_dir'):
             sudo('mkdir /home/' + args.os_user + '/.ensure_dir')
     except:
         sys.exit(1)
-
     print("Mount additional volume")
     prepare_disk(args.os_user)
 
+    # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
-
     print("Install Scala")
     ensure_scala(scala_link, args.scala_version, args.os_user)
-
-    print("Install python2 libraries")
+    print("Installing R")
+    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
+    print("Install Python 2 modules")
     ensure_python2_libraries(args.os_user)
-
-    print("Install python3 libraries")
+    print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
+    # INSTALL JUPYTER NOTEBOOK
     print("Install Jupyter")
     configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, jupyter_version)
 
+    # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
-
-    print("Install local jars")
+    print("Install storage jars")
     ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
 
+    # INSTALL JUPYTER KERNELS
     print("Install pyspark local kernel for Jupyter")
     ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
-
     print("Install py3spark local kernel for Jupyter")
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
-
     print("Install Toree-Scala kernel for Jupyter")
     ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
-
-    print("Installing R")
-    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
-
     print("Install R kernel for Jupyter")
     ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
 
-    print("Installing additional Python libraries")
-    ensure_additional_python_libs(args.os_user)
-
-    print("Installing notebook additions: matplotlib.")
-    ensure_matplot(args.os_user)
-
-    print("Installing notebook additions: sbt.")
-    ensure_sbt(args.os_user)
-
-    print("Installing Breeze library")
-    add_breeze_library_local(args.os_user)
-
-    print("Install Ungit")
+    # INSTALL UNGIT
+    print("Install nodejs")
     install_nodejs(args.os_user)
+    print("Install ungit")
     install_ungit(args.os_user)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
+
+    # INSTALL OPTIONAL PACKAGES
+    print("Installing additional Python packages")
+    ensure_additional_python_libs(args.os_user)
+    print("Install Matplotlib")
+    ensure_matplot(args.os_user)
+    print("Install SBT")
+    ensure_sbt(args.os_user)
+    print("Install Breeze")
+    add_breeze_library_local(args.os_user)

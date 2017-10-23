@@ -20,6 +20,7 @@
 
 import argparse
 from fabric.api import *
+from fabric.contrib.files import exists
 from dlab.meta_lib import *
 import os
 from fabric.contrib.files import exists
@@ -35,7 +36,7 @@ parser.add_argument('--notebook_ip', type=str, default='')
 args = parser.parse_args()
 
 
-def configure_notebook(args):
+def configure_notebook(keyfile, hoststring):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
     if os.environ['notebook_multiple_clusters'] == 'true':
@@ -48,7 +49,7 @@ def configure_notebook(args):
     sudo('chmod 755 /usr/local/bin/zeppelin_dataengine_create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')
     run('mkdir -p /tmp/dlab_libs/')
-    local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
+    local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(keyfile, hoststring))
     run('chmod a+x /tmp/dlab_libs/*')
     sudo('mv /tmp/dlab_libs/* /usr/lib/python2.7/dlab/')
     if exists('/usr/lib64'):
@@ -64,7 +65,7 @@ if __name__ == "__main__":
         region = os.environ['aws_region']
     except:
         region = ''
-    configure_notebook(args)
+    configure_notebook(args.keyfile, env.host_string)
     livy_version = os.environ['notebook_livy_version']
     sudo("/usr/bin/python /usr/local/bin/zeppelin_dataengine_create_configs.py "
          "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {} --livy_version {} --multiple_clusters {} --region {}".
