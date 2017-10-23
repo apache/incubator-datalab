@@ -110,6 +110,10 @@ if __name__ == "__main__":
     print("Install Python 3 modules")
     ensure_python3_libraries(args.os_user)
 
+    # INSTALL JUPYTER NOTEBOOK
+    print("Install Jupyter")
+    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version)
+
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES AND FRAMEWORKS
     print("Install TensorFlow")
     install_tensor(args.os_user, args.tensorflow_version, templates_dir, nvidia_version)
@@ -127,10 +131,6 @@ if __name__ == "__main__":
     install_cntk(args.os_user, cntk_version)
     print("Installing MXNET")
     install_mxnet(args.os_user, mxnet_version)
-
-    # INSTALL JUPYTER NOTEBOOK
-    print("Install Jupyter")
-    configure_jupyter(args.os_user, jupyter_conf_file, templates_dir, args.jupyter_version)
 
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
