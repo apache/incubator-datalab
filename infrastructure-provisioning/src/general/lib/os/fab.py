@@ -51,9 +51,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
     error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:"
     try:
-        if pip_version == 'pip3':
-            if not exists('/bin/pip3'):
-                sudo('ln -s /bin/pip3.5 /bin/pip3')
+        if pip_version == 'pip3' and not exists('/bin/pip3'):
+            sudo('ln -s /bin/pip3.5 /bin/pip3')
         sudo('{} install -U pip setuptools'.format(pip_version))
         sudo('{} install -U pip --no-cache-dir'.format(pip_version))
         sudo('{} install --upgrade pip'.format(pip_version))
@@ -401,3 +400,15 @@ def add_breeze_library_local(os_user):
             sudo('mv ' + breeze_tmp_dir + '* ' + jars_dir)
         except:
             sys.exit(1)
+
+
+def configure_data_engine_service_pip(hostname, os_user, keyfile):
+    env['connection_attempts'] = 100
+    env.key_filename = [keyfile]
+    env.host_string = os_user + '@' + hostname
+    if not exists('/usr/bin/pip2'):
+        sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
+    if not exists('/usr/bin/pip3') and sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')

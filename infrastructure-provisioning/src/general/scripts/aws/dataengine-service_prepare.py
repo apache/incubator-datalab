@@ -24,10 +24,15 @@ from fabric.api import *
 from dlab.fab import *
 from dlab.meta_lib import *
 from dlab.actions_lib import *
+import argparse
 import sys
 import os
-import uuid
 import logging
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--uuid', type=str, default='')
+args = parser.parse_args()
 
 
 if __name__ == "__main__":
@@ -55,7 +60,6 @@ if __name__ == "__main__":
         sys.exit(1)
     print('Generating infrastructure names and tags')
     emr_conf = dict()
-    emr_conf['uuid'] = str(uuid.uuid4())[:5]
     try:
         emr_conf['exploratory_name'] = os.environ['exploratory_name']
     except:
@@ -76,10 +80,10 @@ if __name__ == "__main__":
     emr_conf['notebook_ip'] = get_instance_ip_address(emr_conf['tag_name'], os.environ['notebook_instance_name']).get('Private')
     emr_conf['role_service_name'] = os.environ['emr_service_role']
     emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
-    emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + emr_conf['uuid'] + ', ' \
-                       + emr_conf['service_base_name'] + '-Tag=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + emr_conf['uuid']\
+    emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + args.uuid + ', ' \
+                       + emr_conf['service_base_name'] + '-Tag=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + args.uuid\
                        + ', Notebook=' + os.environ['notebook_instance_name'] + ', State=not-configured'
-    emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + emr_conf['uuid']
+    emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + args.uuid
     emr_conf['bucket_name'] = (emr_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
 
     tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']), "Value": "{}-{}-subnet".format(emr_conf['service_base_name'], os.environ['edge_user_name'])}
@@ -182,31 +186,4 @@ if __name__ == "__main__":
         terminate_emr(emr_id)
         remove_sgroups(emr_conf['cluster_name'])
         sys.exit(1)
-
-    try:
-        logging.info('[SUMMARY]')
-        print('[SUMMARY]')
-        print("Service base name: {}".format(emr_conf['service_base_name']))
-        print("Cluster name: {}".format(emr_conf['cluster_name']))
-        print("Cluster id: {}".format(get_emr_id_by_name(emr_conf['cluster_name'])))
-        print("Key name: {}".format(emr_conf['key_name']))
-        print("Region: {}".format(emr_conf['region']))
-        print("EMR version: {}".format(emr_conf['release_label']))
-        print("EMR master node shape: {}".format(emr_conf['master_instance_type']))
-        print("EMR slave node shape: {}".format(emr_conf['slave_instance_type']))
-        print("Instance count: {}".format(emr_conf['instance_count']))
-        print("Notebook IP address: {}".format(emr_conf['notebook_ip']))
-        print("Bucket name: {}".format(emr_conf['bucket_name']))
-        with open("/root/result.json", 'w') as result:
-            res = {"hostname": cluster_name,
-                   "instance_id": get_emr_id_by_name(emr_conf['cluster_name']),
-                   "key_name": emr_conf['key_name'],
-                   "user_own_bucket_name": emr_conf['bucket_name'],
-                   "Action": "Create new EMR cluster"}
-            print(json.dumps(res))
-            result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(0)
-
     sys.exit(0)
