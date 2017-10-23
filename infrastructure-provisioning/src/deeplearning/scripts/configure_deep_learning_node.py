@@ -143,10 +143,6 @@ if __name__ == "__main__":
     ensure_pyspark_local_kernel(args.os_user, pyspark_local_path_dir, templates_dir, spark_version)
     print("Install py3spark local kernel for Jupyter")
     ensure_py3spark_local_kernel(args.os_user, py3spark_local_path_dir, templates_dir, spark_version)
-    print("Install Toree-Scala kernel for Jupyter")
-    ensure_toree_local_kernel(args.os_user, toree_link, scala_kernel_path, files_dir, args.scala_version, spark_version)
-    print("Install R kernel for Jupyter")
-    ensure_r_local_kernel(spark_version, args.os_user, templates_dir, r_kernels_dir)
     print("Installing ITorch kernel for Jupyter")
     install_itorch(args.os_user)
 
