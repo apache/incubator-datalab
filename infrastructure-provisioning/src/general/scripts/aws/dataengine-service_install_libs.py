@@ -43,6 +43,7 @@ def install_libs(instance, data_engine):
 
 
 if __name__ == "__main__":
+    create_aws_config_files()
     instance_class = 'notebook'
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])

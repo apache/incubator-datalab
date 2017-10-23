@@ -37,6 +37,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
+        create_aws_config_files()
         logging.info('[GETTING ALL AVAILABLE PACKAGES]')
         print('[GETTING ALL AVAILABLE PACKAGES]')
         data_engine = dict()

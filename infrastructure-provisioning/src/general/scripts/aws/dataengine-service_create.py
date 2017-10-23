@@ -354,16 +354,7 @@ if __name__ == "__main__":
             sg_list.extend([sg_master, sg_slave])
             out.write('Updating SGs for Notebook to: {}\n'.format(sg_list))
             nbs_id.modify_attribute(Groups=sg_list)
-            out.write('Updating SGs for SSN node\n')
             out.close()
-            ssn_ip = get_instance_private_ip_address(args.service_base_name + '-Tag', args.service_base_name + '-ssn')
-            ssn_instance = get_instance_by_ip(ssn_ip)
-            ssn_current_sg = ssn_instance.security_groups
-            ssn_sg_list = []
-            for i in ssn_current_sg:
-                ssn_sg_list.append(i['GroupId'])
-            ssn_sg_list.extend([sg_master, sg_slave])
-            ssn_instance.modify_attribute(Groups=ssn_sg_list)
         else:
             out.write("Timeout of {} seconds reached. Please increase timeout period and try again. Now terminating the cluster...".format(args.emr_timeout))
             out.close()
