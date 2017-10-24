@@ -285,8 +285,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           return obj;
         }, {});
 
-      this.model.resourceImages = this.model.resourceImages.filter(image => image.image === 'docker.dlab-dataengine');
-      this.model.setSelectedClusterType(0);
+      if (DICTIONARY.cloud_provider === 'aws') {
+        this.model.resourceImages = this.model.resourceImages.filter(image => image.image === 'docker.dlab-dataengine');
+        this.model.setSelectedClusterType(0);
+      }
       this.model.selectedImage.shapes.resourcesShapeTypes = filtered;
     }
   }
