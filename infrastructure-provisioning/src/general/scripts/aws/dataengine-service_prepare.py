@@ -189,6 +189,5 @@ if __name__ == "__main__":
         local('rm /response/.emr_creating_{}'.format(os.environ['exploratory_name']))
         emr_id = get_emr_id_by_name(emr_conf['cluster_name'])
         terminate_emr(emr_id)
-        remove_sgroups(emr_conf['cluster_name'])
         sys.exit(1)
     sys.exit(0)

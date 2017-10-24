@@ -54,7 +54,6 @@ def configure_dataengine_service(instance, emr_conf):
     except Exception as err:
         append_result("Failed to configure proxy.", str(err))
         terminate_emr(emr_conf['cluster_id'])
-        remove_sgroups(emr_conf['cluster_name'])
         sys.exit(1)
 
     # updating repositories & installing python packages
@@ -71,7 +70,6 @@ def configure_dataengine_service(instance, emr_conf):
     except Exception as err:
         append_result("Failed installing apps: yum & pip.", str(err))
         terminate_emr(emr_conf['cluster_id'])
-        remove_sgroups(emr_conf['cluster_name'])
         sys.exit(1)
 
     try:
@@ -85,7 +83,6 @@ def configure_dataengine_service(instance, emr_conf):
     except Exception as err:
         append_result("Failed to configure dataengine service.", str(err))
         terminate_emr(emr_conf['cluster_id'])
-        remove_sgroups(emr_conf['cluster_name'])
         sys.exit(1)
 
 
