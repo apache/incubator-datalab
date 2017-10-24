@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.mongo;
 
+import com.epam.dlab.billing.DlabResourceType;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.MoreObjects;

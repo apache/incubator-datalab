@@ -20,6 +20,7 @@ package com.epam.dlab.mongo;
 
 import static junit.framework.TestCase.assertEquals;
 
+import com.epam.dlab.billing.DlabResourceType;
 import org.junit.Test;
 
 public class ResourceItemListTest {

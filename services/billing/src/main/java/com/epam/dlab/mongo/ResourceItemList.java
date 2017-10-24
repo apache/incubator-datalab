@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Vector;
 
+import com.epam.dlab.billing.DlabResourceType;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.MoreObjects;

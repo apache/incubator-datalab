@@ -54,7 +54,7 @@ import com.epam.dlab.backendapi.resources.dto.BillingFilterFormDTO;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.core.BillingUtils;
-import com.epam.dlab.mongo.DlabResourceType;
+import com.epam.dlab.billing.DlabResourceType;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;

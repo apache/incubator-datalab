@@ -40,6 +40,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.epam.dlab.billing.DlabResourceType;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
