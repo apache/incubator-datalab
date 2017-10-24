@@ -57,6 +57,23 @@ def configure_dataengine_service(instance, emr_conf):
         remove_sgroups(emr_conf['cluster_name'])
         sys.exit(1)
 
+    # updating repositories & installing python packages
+    try:
+        logging.info('[INSTALLING PREREQUISITES TO DATAENGINE SERVICE]')
+        print('[INSTALLING PREREQUISITES TO DATAENGINE SERVICE]')
+        params = "--hostname {} --keyfile {} --user {} --region {}". \
+            format(emr_conf['instance_ip'], emr_conf['key_path'], emr_conf['os_user'], os.environ['aws_region'])
+        try:
+            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed installing apps: yum & pip.", str(err))
+        terminate_emr(emr_conf['cluster_id'])
+        remove_sgroups(emr_conf['cluster_name'])
+        sys.exit(1)
+
     try:
         logging.info('[CONFIGURE DATAENGINE SERVICE]')
         print('[CONFIGURE DATAENGINE SERVICE]')
