@@ -33,7 +33,6 @@ limitations under the License.
 
 .tab-content {
     display: flex;
-    /*height: 340px;*/
 }
 .tab-content .col {
     width: 50%;

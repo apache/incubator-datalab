@@ -106,22 +106,24 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   private getResourcesList() {
-    return [this.notebook].concat(this.notebook.resources.map(item => {
-      item['name'] = item.computational_name;
-      return item;
-    }));
+    return [this.notebook].concat(this.notebook.resources
+      .filter(item => item.status === 'running')
+      .map(item => {
+        item['name'] = item.computational_name;
+        return item;
+      }));
   }
 
-  public filterList(): void { // FIXME:
+  public filterList(): void {
     (this.query.length >= 2 && this.group) ? this.getFilteredList() : this.filteredList = null;
   }
 
   public onUpdate($event) {
-    if($event.model.type === 'group_lib') {
+    if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
-      this.query.length >= 2 && this.group ? this.getFilteredList() : this.filteredList = null;
+      this.filterList();
     } else if ($event.model.type === 'destination') {
-      console.log($event.model.value.computational_name);
+      console.log($event.model.value);
     }
   }
 
