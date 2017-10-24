@@ -328,8 +328,8 @@ if __name__ == "__main__":
 
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
             format(edge_conf['dataengine_master_security_group_name'], edge_conf['vpc_id'],
-                   json.dumps(ingress_sg_rules_template),
-                   json.dumps(egress_sg_rules_template), edge_conf['service_base_name'],
+                   json.dumps(sg_rules_template),
+                   json.dumps(sg_rules_template_egress), edge_conf['service_base_name'],
                    edge_conf['dataengine_instances_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
@@ -337,7 +337,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to create bucket.", str(err))
+        append_result("Failed to create sg.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         remove_sgroups(edge_conf['notebook_instance_name'])
@@ -386,8 +386,8 @@ if __name__ == "__main__":
 
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
             format(edge_conf['dataengine_slave_security_group_name'], edge_conf['vpc_id'],
-                   json.dumps(ingress_sg_rules_template),
-                   json.dumps(egress_sg_rules_template), edge_conf['service_base_name'],
+                   json.dumps(sg_rules_template),
+                   json.dumps(sg_rules_template_egress), edge_conf['service_base_name'],
                    edge_conf['dataengine_instances_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))

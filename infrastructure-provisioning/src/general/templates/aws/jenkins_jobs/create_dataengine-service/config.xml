@@ -95,6 +95,11 @@ limitations under the License.
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
+          <name>vpc_id</name>
+          <description>id of VPC where infrastructure is being deployed </description>
+          <defaultValue>VPC</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
           <name>Service_role</name>
           <description></description>
           <defaultValue>EMR_DefaultRole</defaultValue>
@@ -170,7 +175,7 @@ limitations under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_dataengine-service/template_prepare.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/SPI/&apos;${slave_spot_instance}&apos;/g&apos; | sed &apos;s/SISPP/&apos;${slave_instance_spot_pct_price}&apos;/g&apos; | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ESR/&apos;${Service_role}&apos;/g&apos; | sed &apos;s/EE2R/&apos;${EMR_EC2_role}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | sed &apos;s/EMIT/&apos;${Master_node_size}&apos;/g&apos; | sed &apos;s/ESMT/&apos;${Slave_node_size}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/ETIM/&apos;${Timeout}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -e &quot;conf_tag_resource_id=CTUN&quot; -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service  docker.dlab-dataengine-service --action create;
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_dataengine-service/template_prepare.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_id}&apos;/g&apos; | sed &apos;s/SPI/&apos;${slave_spot_instance}&apos;/g&apos; | sed &apos;s/SISPP/&apos;${slave_instance_spot_pct_price}&apos;/g&apos; | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ESR/&apos;${Service_role}&apos;/g&apos; | sed &apos;s/EE2R/&apos;${EMR_EC2_role}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | sed &apos;s/EMIT/&apos;${Master_node_size}&apos;/g&apos; | sed &apos;s/ESMT/&apos;${Slave_node_size}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/ETIM/&apos;${Timeout}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -e &quot;conf_tag_resource_id=CTUN&quot; -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service  docker.dlab-dataengine-service --action create;
 rand=`openssl rand -hex 10`;
 sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_dataengine-service/template_configure.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/EVER/&apos;${Release_label}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -e &quot;conf_tag_resource_id=CTUN&quot; -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service  docker.dlab-${notebook_app} --action configure;
         </command>

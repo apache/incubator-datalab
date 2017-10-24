@@ -64,6 +64,7 @@ parser.add_argument('--edge_user_name', type=str, default='')
 parser.add_argument('--slave_instance_spot', type=str, default='False')
 parser.add_argument('--bid_price', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
+parser.add_argument('--additional_emr_sg', type=str, default='')
 args = parser.parse_args()
 
 if args.region == 'us-east-1':
@@ -258,7 +259,14 @@ def build_emr_cluster(args):
                                {'Market': 'ON_DEMAND',
                                 'InstanceRole': 'MASTER',
                                 'InstanceType': args.master_instance_type,
-                                'InstanceCount': 1}]},
+                                'InstanceCount': 1}],
+                           'AdditionalMasterSecurityGroups': [
+                               get_security_group_by_name(args.additional_emr_sg)
+                           ],
+                           'AdditionalSlaveSecurityGroups': [
+                               get_security_group_by_name(args.additional_emr_sg)
+                           ]
+                           },
                 Applications=names,
                 Tags=tags,
                 Steps=steps,
@@ -276,7 +284,14 @@ def build_emr_cluster(args):
                            'Ec2KeyName': args.ssh_key,
                            # 'Placement': {'AvailabilityZone': args.availability_zone},
                            'KeepJobFlowAliveWhenNoSteps': not args.auto_terminate,
-                           'Ec2SubnetId': get_subnet_by_cidr(args.subnet)},
+                           'Ec2SubnetId': get_subnet_by_cidr(args.subnet),
+                           'AdditionalMasterSecurityGroups': [
+                               get_security_group_by_name(args.additional_emr_sg)
+                           ],
+                           'AdditionalSlaveSecurityGroups': [
+                               get_security_group_by_name(args.additional_emr_sg)
+                           ]
+                           },
                 Applications=names,
                 Tags=tags,
                 Steps=steps,
@@ -339,16 +354,7 @@ if __name__ == "__main__":
             sg_list.extend([sg_master, sg_slave])
             out.write('Updating SGs for Notebook to: {}\n'.format(sg_list))
             nbs_id.modify_attribute(Groups=sg_list)
-            out.write('Updating SGs for SSN node\n')
             out.close()
-            ssn_ip = get_instance_private_ip_address(args.service_base_name + '-Tag', args.service_base_name + '-ssn')
-            ssn_instance = get_instance_by_ip(ssn_ip)
-            ssn_current_sg = ssn_instance.security_groups
-            ssn_sg_list = []
-            for i in ssn_current_sg:
-                ssn_sg_list.append(i['GroupId'])
-            ssn_sg_list.extend([sg_master, sg_slave])
-            ssn_instance.modify_attribute(Groups=ssn_sg_list)
         else:
             out.write("Timeout of {} seconds reached. Please increase timeout period and try again. Now terminating the cluster...".format(args.emr_timeout))
             out.close()

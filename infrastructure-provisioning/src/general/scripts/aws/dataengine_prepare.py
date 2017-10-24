@@ -100,6 +100,10 @@ if __name__ == "__main__":
         append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
 
+    with open('/root/result.json', 'w') as f:
+        data = {"hostname": data_engine['cluster_name'], "error": ""}
+        json.dump(data, f)
+
     try:
         logging.info('[CREATE MASTER NODE]')
         print('[CREATE MASTER NODE]')
@@ -141,8 +145,8 @@ if __name__ == "__main__":
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
                 data_engine['slave_id'] = get_instance_by_name(data_engine['tag_name'], slave_name)
                 create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag'], False)
-                create_tag(data_engine['master_id'], data_engine['cluster_nodes_resource_tag'], False)
-                create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_type'], False)
+                create_tag(data_engine['slave_id'], data_engine['cluster_nodes_resource_tag'], False)
+                create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag_type'], False)
             except:
                 traceback.print_exc()
                 raise Exception
