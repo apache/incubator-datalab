@@ -105,9 +105,9 @@ if __name__ == "__main__":
                                                           edge_conf['edge_instance_name']).get('Public')
     edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
     edge_conf['de_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
-                                             '-dataengine'
+                                             '-dataengine*'
     edge_conf['emr_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
-                          '-emr'
+                          '-emr*'
 
     try:
         logging.info('[TERMINATE EDGE]')
