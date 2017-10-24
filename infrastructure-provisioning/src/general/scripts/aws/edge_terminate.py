@@ -107,7 +107,7 @@ if __name__ == "__main__":
     edge_conf['de_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
                                              '-dataengine'
     edge_conf['emr_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
-                          '-emr'
+                          '-de-se-additional-sg'
 
     try:
         logging.info('[TERMINATE EDGE]')

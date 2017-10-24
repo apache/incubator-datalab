@@ -123,7 +123,7 @@ if __name__ == "__main__":
     emr_conf['subnet_cidr'] = get_subnet_by_tag(tag)
     emr_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
     emr_conf['all_ip_cidr'] = '0.0.0.0/0'
-    emr_conf['additional_emr_sg_name'] = '{}-{}-emr-additional-sg'.format(emr_conf['service_base_name'],
+    emr_conf['additional_emr_sg_name'] = '{}-{}-de-se-additional-sg'.format(emr_conf['service_base_name'],
                                                                           os.environ['edge_user_name'])
     emr_conf['vpc_id'] = os.environ['aws_vpc_id']
     emr_conf['cluster_id'] = get_emr_id_by_name(emr_conf['cluster_name'])

@@ -90,8 +90,8 @@ if __name__ == "__main__":
     emr_conf['subnet_cidr'] = get_subnet_by_tag(tag)
     emr_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
     emr_conf['all_ip_cidr'] = '0.0.0.0/0'
-    emr_conf['additional_emr_sg_name'] = '{}-{}-emr-additional-sg'.format(emr_conf['service_base_name'],
-                                                                          os.environ['edge_user_name'])
+    emr_conf['additional_emr_sg_name'] = '{}-{}-de-se-additional-sg'.format(emr_conf['service_base_name'],
+                                                                            os.environ['edge_user_name'])
     emr_conf['vpc_id'] = os.environ['aws_vpc_id']
     if os.environ['emr_slave_instance_spot'] == 'True':
         emr_conf['slave_bid_price'] = (float(get_ec2_price(emr_conf['slave_instance_type'], emr_conf['region'])) *
