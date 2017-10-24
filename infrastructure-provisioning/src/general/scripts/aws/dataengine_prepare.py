@@ -141,8 +141,8 @@ if __name__ == "__main__":
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
                 data_engine['slave_id'] = get_instance_by_name(data_engine['tag_name'], slave_name)
                 create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag'], False)
-                create_tag(data_engine['master_id'], data_engine['cluster_nodes_resource_tag'], False)
-                create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_type'], False)
+                create_tag(data_engine['slave_id'], data_engine['cluster_nodes_resource_tag'], False)
+                create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag_type'], False)
             except:
                 traceback.print_exc()
                 raise Exception
