@@ -100,6 +100,10 @@ if __name__ == "__main__":
         append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
 
+    with open('/root/result.json', 'w') as f:
+        data = {"hostname": data_engine['cluster_name'], "error": ""}
+        json.dump(data, f)
+
     try:
         logging.info('[CREATE MASTER NODE]')
         print('[CREATE MASTER NODE]')

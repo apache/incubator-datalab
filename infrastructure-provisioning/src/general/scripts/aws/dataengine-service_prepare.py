@@ -120,6 +120,11 @@ if __name__ == "__main__":
         append_result("EMR waiter fail.", str(err))
         sys.exit(1)
 
+    with open('/root/result.json', 'w') as f:
+        data = {"hostname": emr_conf['cluster_name'], "error": ""}
+        json.dump(data, f)
+
+
     logging.info('[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]')
     print("[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]")
     try:
