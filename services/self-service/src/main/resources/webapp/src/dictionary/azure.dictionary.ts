@@ -47,6 +47,7 @@ export const NAMING_CONVENTION = {
         'max_emr_spot_instance_bid_pct': 'max_emr_spot_instance_bid_pct',
         'data_engine_master_instance_size': 'Master instance shape',
         'data_engine_slave_instance_size': 'Slave instance shape',
+        'instance_number': 'Total instance number',
         'master_node_shape': 'master_node_shape',
         'slave_node_shape': 'slave_node_shape',
         'total_instance_number': 'total_instance_number',
@@ -56,6 +57,7 @@ export const NAMING_CONVENTION = {
         'total_instance_number_max': 'max_spark_instance_count',
         'data_engine_master_instance_size': 'Head node size',
         'data_engine_slave_instance_size': 'Worker node size',
+        'instance_number': 'Total node number',
         'master_node_shape': 'dataengine_master',
         'slave_node_shape': 'dataengine_slave',
         'total_instance_number': 'dataengine_instance_count'

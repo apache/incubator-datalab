@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
 
@@ -69,7 +69,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   constructor(
     private userResourceService: UserResourceService,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private ref: ChangeDetectorRef
   ) {
     this.model = ComputationalResourceCreateModel.getDefault(userResourceService);
   }
@@ -172,7 +173,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public isAvailableSpots(): boolean {
-    return !!Object.keys(this.filterAvailableSpots()).length;
+    if (this.slave_shapes_list && this.slave_shapes_list.items)
+      return !!Object.keys(this.filterAvailableSpots()).length;
+
+    return false;
   }
 
   public open(params, notebook_instance): void {
@@ -194,11 +198,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         },
         () => {
           this.bindDialog.open(params);
+          this.ref.detectChanges();
+
           this.setDefaultParams();
           this.getComputationalResourceLimits();
         },
         this.userResourceService);
-
     }
   }
 
@@ -280,6 +285,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           return obj;
         }, {});
 
+      this.model.resourceImages = this.model.resourceImages.filter(image => image.image === 'docker.dlab-dataengine');
+      this.model.setSelectedClusterType(0);
       this.model.selectedImage.shapes.resourcesShapeTypes = filtered;
     }
   }
