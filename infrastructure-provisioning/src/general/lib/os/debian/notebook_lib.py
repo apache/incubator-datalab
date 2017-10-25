@@ -302,7 +302,7 @@ def install_livy_dependencies_emr(os_user):
 
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
-        sudo('curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -y')
+        sudo('curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -')
         sudo('apt-get install -y nodejs')
         sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
