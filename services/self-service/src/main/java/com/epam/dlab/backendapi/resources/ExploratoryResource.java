@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.core.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;

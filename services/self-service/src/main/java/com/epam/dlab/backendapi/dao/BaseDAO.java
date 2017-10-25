@@ -34,7 +34,7 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.epam.dlab.backendapi.dao.databind.IsoDateModule;
+import com.epam.dlab.mongo.IsoDateModule;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.mongo.MongoService;
 import com.fasterxml.jackson.core.JsonParser;

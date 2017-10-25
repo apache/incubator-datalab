@@ -33,8 +33,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalResource;
-import com.epam.dlab.backendapi.core.UserInstanceDTO;
+import com.epam.dlab.dto.aws.computational.AwsComputationalResource;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusResource;

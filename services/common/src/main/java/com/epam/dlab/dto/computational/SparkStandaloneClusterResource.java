@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.resources.dto;
+package com.epam.dlab.dto.computational;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
