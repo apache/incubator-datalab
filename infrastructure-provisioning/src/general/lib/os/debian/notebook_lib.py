@@ -235,7 +235,7 @@ def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
             sudo('echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf')
             sudo('update-initramfs -u')
             with settings(warn_only=True):
-                reboot(wait=90)
+                reboot(wait=150)
             sudo('apt-get -y install linux-image-extra-`uname -r`')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
@@ -302,7 +302,8 @@ def install_livy_dependencies_emr(os_user):
 
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
-        sudo('apt-get -y install npm nodejs nodejs-legacy')
+        sudo('curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -')
+        sudo('apt-get install -y nodejs')
         sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
 
