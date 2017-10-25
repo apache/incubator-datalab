@@ -308,6 +308,16 @@ if __name__ == "__main__":
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(edge_conf['service_base_name'])).get('Private') + "/32"}],
                 "UserIdGroupPairs": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [],
+                "UserIdGroupPairs": [
+                    {
+                        "GroupId": edge_group_id
+                    }
+                ],
+                "PrefixListIds": []
             }
         ]
         sg_rules_template_egress = [
@@ -323,6 +333,16 @@ if __name__ == "__main__":
                                                                 '{}-ssn'.format(edge_conf['service_base_name'])).get(
                     'Private') + "/32"}],
                 "UserIdGroupPairs": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [],
+                "UserIdGroupPairs": [
+                    {
+                        "GroupId": edge_group_id
+                    }
+                ],
+                "PrefixListIds": []
             }
         ]
 
@@ -360,6 +380,16 @@ if __name__ == "__main__":
                                                                 '{}-ssn'.format(edge_conf['service_base_name'])).get(
                     'Private') + "/32"}],
                 "UserIdGroupPairs": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [],
+                "UserIdGroupPairs": [
+                    {
+                        "GroupId": edge_group_id
+                    }
+                ],
+                "PrefixListIds": []
             }
         ]
         sg_rules_template_egress = [
@@ -381,6 +411,16 @@ if __name__ == "__main__":
                 "FromPort": 443,
                 "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [],
+                "UserIdGroupPairs": [
+                    {
+                        "GroupId": edge_group_id
+                    }
+                ],
+                "PrefixListIds": []
             }
         ]
 
