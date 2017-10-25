@@ -317,7 +317,8 @@ if __name__ == "__main__":
                         "GroupId": edge_group_id
                     }
                 ],
-                "PrefixListIds": []},
+                "PrefixListIds": []
+            }
         ]
         sg_rules_template_egress = [
             {
@@ -341,7 +342,8 @@ if __name__ == "__main__":
                         "GroupId": edge_group_id
                     }
                 ],
-                "PrefixListIds": []}
+                "PrefixListIds": []
+            }
         ]
 
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
@@ -378,6 +380,16 @@ if __name__ == "__main__":
                                                                 '{}-ssn'.format(edge_conf['service_base_name'])).get(
                     'Private') + "/32"}],
                 "UserIdGroupPairs": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [],
+                "UserIdGroupPairs": [
+                    {
+                        "GroupId": edge_group_id
+                    }
+                ],
+                "PrefixListIds": []
             }
         ]
         sg_rules_template_egress = [
@@ -399,6 +411,16 @@ if __name__ == "__main__":
                 "FromPort": 443,
                 "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [],
+                "UserIdGroupPairs": [
+                    {
+                        "GroupId": edge_group_id
+                    }
+                ],
+                "PrefixListIds": []
             }
         ]
 
