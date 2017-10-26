@@ -53,9 +53,7 @@ if __name__ == "__main__":
             data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
             data_engine['service_base_name'] = os.environ['conf_service_base_name']
             data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
-            data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['user_name'] + \
-                                          '-de-' + data_engine['exploratory_name'] + '-' + \
-                                          data_engine['computational_name']
+            data_engine['cluster_name'] = os.environ['cluster_name']
             data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
             data_engine['master_ip'] = get_instance_private_ip_address(
                 data_engine['tag_name'], data_engine['master_node_name'])
