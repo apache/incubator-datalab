@@ -67,6 +67,13 @@ def prepare_templates():
     local('mv /home/{0}/test_templates_deeplearning /home/{0}/test_templates'.format(args.os_user))
 
 
+def run_tensor():
+    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    for i in interpreters:
+        prepare_ipynb(i, '/home/{}/test_templates/template_tensor.ipynb'.format(args.os_user), 'test_tensor')
+        run_ipynb('test_tensor')
+
+
 def run_caffe():
     interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
     for i in interpreters:
@@ -117,6 +124,7 @@ def run_torch():
 
 
 prepare_templates()
+run_tensor()
 run_caffe()
 run_caffe2()
 run_cntk()

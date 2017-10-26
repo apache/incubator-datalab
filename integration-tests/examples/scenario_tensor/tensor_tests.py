@@ -55,7 +55,7 @@ def prepare_ipynb(kernel_name, template_path, ipynb_name):
 
 
 def run_ipynb(ipynb_name):
-    local('export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib; ' \
+    local('export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; ' \
             'jupyter nbconvert --ExecutePreprocessor.timeout=-1 --ExecutePreprocessor.startup_timeout=300 --execute /home/{}/{}.ipynb'.format(args.os_user, ipynb_name))
 
 
@@ -70,8 +70,8 @@ def prepare_templates():
 def run_tensor():
     interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
     for i in interpreters:
-        prepare_ipynb(i, '/home/{}/test_templates/template_tensor.ipynb'.format(args.os_user), 'tensor')
-        run_ipynb('tensor')
+        prepare_ipynb(i, '/home/{}/test_templates/template_tensor.ipynb'.format(args.os_user), 'test_tensor')
+        run_ipynb('test_tensor')
 
 
 prepare_templates()
