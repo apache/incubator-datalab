@@ -41,14 +41,6 @@ if __name__ == "__main__":
         print('[GETTING ALL AVAILABLE PACKAGES]')
         data_engine = dict()
         try:
-            try:
-                data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
-            except:
-                data_engine['exploratory_name'] = ''
-            try:
-                data_engine['computational_name'] = os.environ['computational_name'].replace('_', '-')
-            except:
-                data_engine['computational_name'] = ''
             data_engine['os_user'] = os.environ['conf_os_user']
             data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
             data_engine['service_base_name'] = os.environ['conf_service_base_name']
