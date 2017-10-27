@@ -42,7 +42,6 @@ if __name__ == "__main__":
         data_engine = dict()
         try:
             data_engine['os_user'] = os.environ['conf_os_user']
-            data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
             data_engine['service_base_name'] = os.environ['conf_service_base_name']
             data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
             data_engine['cluster_name'] = os.environ['cluster_name']
