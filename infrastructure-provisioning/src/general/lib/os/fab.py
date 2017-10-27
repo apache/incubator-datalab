@@ -407,3 +407,38 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile):
         sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
+
+
+def remove_rstudio_dataengines_kernel(cluster_name, os_user):
+    try:
+        get('/home/{}/.Rprofile'.format(os_user), 'Rprofile')
+        data = open('Rprofile').read()
+        conf = [i for i in data.split('\n') if i != '']
+        conf = [i for i in conf if cluster_name not in i]
+        last_spark = max([conf.index(i) for i in conf if 'master=' in i] or [1])
+        conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")]
+        with open('.Rprofile', 'w') as f:
+            for line in conf:
+                f.write('{}\n'.format(line))
+        sudo('rm -f /home/{}/.Rprofile'.format(os_user))
+        put('.Rprofile', '/home/{}/.Rprofile'.format(os_user))
+        get('/home/{}/.Renviron'.format(os_user), 'Renviron')
+        data = open('Renviron').read()
+        conf = [i for i in data.split('\n') if i != '']
+        f = lambda x: x if x.startswith('#') else '#{}'.format(x)
+        conf = [f(i) for i in conf]
+        conf = [i for i in conf if cluster_name not in i]
+        last_spark = max([conf.index(i) for i in conf if 'SPARK_HOME' in i])
+        conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")]
+        with open('.Renviron', 'w') as f:
+            for line in conf:
+                f.write('{}\n'.format(line))
+        sudo('rm -f /home/{}/.Renviron'.format(os_user))
+        put('.Renviron', '/home/{}/.Renviron'.format(os_user))
+        if len(conf) == 1:
+            sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
+            sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(os_user))
+        sudo("sed -i 's|/opt/{0}/spark//R/lib:||g' /home/{1}/.bashrc".format(cluster_name, os_user))
+        sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
+    except:
+        sys.exit(1)
