@@ -5,6 +5,6 @@
     "dataengine_instance_count":"EIC",
     "edge_user_name": "EUN",
     "conf_key_name": "CKN",
-    "computational_name": "CNAM",
+    "cluster_name": "CNAM",
     "application": "APP"
 }
