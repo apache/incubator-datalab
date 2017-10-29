@@ -17,14 +17,17 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, Input, Output, EventEmitter, HostBinding,
-         ChangeDetectorRef, ElementRef, OnInit, OnDestroy } from '@angular/core';
+         ChangeDetectorRef, ElementRef, OnInit, OnDestroy,
+         ViewEncapsulation } from '@angular/core';
 import { BubblesCollector, BubbleService } from './bubble.service';
 
 @Component({
   moduleId: module.id,
   selector: 'bubble-up',
   template: '<ng-content></ng-content>',
-  host: {'class': 'bubble-up'}
+  styleUrls: ['./bubble.component.css'],
+  host: {'class': 'bubble-up'},
+  encapsulation: ViewEncapsulation.None
 })
 export class BubbleComponent implements OnDestroy {
   @Input('position') public position: string;
