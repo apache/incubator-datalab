@@ -37,7 +37,7 @@ def put_to_bucket(bucket_name, local_file, destination_file):
     try:
         s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
         with open(local_file, 'rb') as data:
-            s3.upload_fileobj(data, bucket_name, destination_file, extra_args={'ServerSideEncryption': "AES256"})
+            s3.upload_fileobj(data, bucket_name, destination_file, ExtraArgs={'SSECustomerAlgorithm': "AES256"})
         return True
     except Exception as err:
         logging.info("Unable to upload files to S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -930,13 +930,13 @@ def create_image_from_instance(tag_name='', instance_name='', image_name=''):
 def install_emr_spark(args):
     s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
     s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark.tar.gz',
-                            '/tmp/spark.tar.gz', extra_args={'ServerSideEncryption': "AES256"})
+                            '/tmp/spark.tar.gz', ExtraArgs={'SSECustomerAlgorithm': "AES256"})
     s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark-checksum.chk',
-                            '/tmp/spark-checksum.chk', extra_args={'ServerSideEncryption': "AES256"})
+                            '/tmp/spark-checksum.chk', ExtraArgs={'SSECustomerAlgorithm': "AES256"})
     if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
         local('rm -f /tmp/spark.tar.gz')
         s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark.tar.gz',
-                                '/tmp/spark.tar.gz', extra_args={'ServerSideEncryption': "AES256"})
+                                '/tmp/spark.tar.gz', ExtraArgs={'SSECustomerAlgorithm': "AES256"})
         if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
             print("The checksum of spark.tar.gz is mismatched. It could be caused by aws network issue.")
             sys.exit(1)
@@ -947,13 +947,13 @@ def jars(args, emr_dir):
     print("Downloading jars...")
     s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
     s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars.tar.gz', '/tmp/jars.tar.gz',
-                            extra_args={'ServerSideEncryption': "AES256"})
+                            ExtraArgs={'SSECustomerAlgorithm': "AES256"})
     s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars-checksum.chk', '/tmp/jars-checksum.chk',
-                            extra_args={'ServerSideEncryption': "AES256"})
+                            ExtraArgs={'SSECustomerAlgorithm': "AES256"})
     if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
         local('rm -f /tmp/jars.tar.gz')
         s3_client.download_file(args.bucket, 'jars/' + args.emr_version + '/jars.tar.gz', '/tmp/jars.tar.gz',
-                                extra_args={'ServerSideEncryption': "AES256"})
+                                ExtraArgs={'SSECustomerAlgorithm': "AES256"})
         if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
             print("The checksum of jars.tar.gz is mismatched. It could be caused by aws network issue.")
             sys.exit(1)
@@ -986,20 +986,20 @@ def get_files(s3client, s3resource, dist, bucket, local):
                 if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
                     os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
                 s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'),
-                                                     extra_args={'ServerSideEncryption': "AES256"})
+                                                     ExtraArgs={'SSECustomerAlgorithm': "AES256"})
 
 
 def get_cluster_python_version(region, bucket, user_name, cluster_name):
     s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=region)
     s3_client.download_file(bucket, user_name + '/' + cluster_name + '/python_version', '/tmp/python_version',
-                            extra_args={'ServerSideEncryption': "AES256"})
+                            ExtraArgs={'SSECustomerAlgorithm': "AES256"})
 
 
 def get_gitlab_cert(bucket, certfile):
     try:
         s3 = boto3.resource('s3')
         s3.Bucket(bucket).download_file(certfile, certfile,
-                                        extra_args={'ServerSideEncryption': "AES256"})
+                                        ExtraArgs={'SSECustomerAlgorithm': "AES256"})
         return True
     except botocore.exceptions.ClientError as err:
         if err.response['Error']['Code'] == "404":

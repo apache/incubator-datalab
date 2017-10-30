@@ -44,7 +44,7 @@ def get_files(s3client, s3resource, dist, bucket, local):
                 if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
                     os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
                 s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'),
-                                                     extra_args={'ServerSideEncryption': "AES256"})
+                                                     ExtraArgs={'SSECustomerAlgorithm': "AES256"})
 
 
 def prepare_ipynb(kernel_name, template_path, ipynb_name):
