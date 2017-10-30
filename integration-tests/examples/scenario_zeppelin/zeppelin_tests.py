@@ -45,7 +45,8 @@ def get_files(s3client, s3resource, dist, bucket, local):
             for file in result.get('Contents'):
                 if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
                     os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
-                s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
+                s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'),
+                                                     extra_args={'ServerSideEncryption': "AES256"})
 
 
 def get_note_status(note_id, notebook_ip):
