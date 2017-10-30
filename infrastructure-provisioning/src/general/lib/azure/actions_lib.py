@@ -208,13 +208,14 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_datalake_store(self, resource_group_name, datalake_name, region):
+    def create_datalake_store(self, resource_group_name, datalake_name, region, tags):
         try:
             result = self.datalake_client.account.create(
                 resource_group_name,
                 datalake_name,
                 {
                     "location": region,
+                    "tags": tags,
                     "encryption_state": "Enabled",
                     "encryption_config": {
                         "type": "ServiceManaged"
