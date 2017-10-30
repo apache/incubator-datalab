@@ -174,7 +174,7 @@ class AzureMeta:
 
     def list_datalakes(self, resource_group_name):
         try:
-            result = self.resource_client.datalake_client.account.list_by_resource_group(resource_group_name)
+            result = self.datalake_client.account.list_by_resource_group(resource_group_name)
             return result
         except AzureExceptions.CloudError as err:
             if err.status_code == 404:
