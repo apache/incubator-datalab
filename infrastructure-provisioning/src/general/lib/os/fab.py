@@ -415,30 +415,37 @@ def remove_rstudio_dataengines_kernel(cluster_name, os_user):
         data = open('Rprofile').read()
         conf = [i for i in data.split('\n') if i != '']
         conf = [i for i in conf if cluster_name not in i]
-        last_spark = max([conf.index(i) for i in conf if 'master=' in i] or [1])
-        conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")]
+        comment_all = lambda x: x if x.startswith('#master') else '#{}'.format(x)
+        uncomment = lambda x: x[1:] if not x.startswith('#master') else x
+        conf =[comment_all(i) for i in conf]
+        conf =[uncomment(i) for i in conf]
+        last_spark = max([conf.index(i) for i in conf if 'master=' in i] or [0])
+        active_cluster = conf[last_spark].split('"')[-2] if last_spark != 0 else None
+        conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")] \
+                                 + [conf[l] for l in range(last_spark, len(conf)) if not conf[l].startswith('#')]
         with open('.Rprofile', 'w') as f:
             for line in conf:
                 f.write('{}\n'.format(line))
-        sudo('rm -f /home/{}/.Rprofile'.format(os_user))
         put('.Rprofile', '/home/{}/.Rprofile'.format(os_user))
         get('/home/{}/.Renviron'.format(os_user), 'Renviron')
         data = open('Renviron').read()
         conf = [i for i in data.split('\n') if i != '']
-        f = lambda x: x if x.startswith('#') else '#{}'.format(x)
-        conf = [f(i) for i in conf]
+        comment_all = lambda x: x if x.startswith('#') else '#{}'.format(x)
+        conf = [comment_all(i) for i in conf]
         conf = [i for i in conf if cluster_name not in i]
-        last_spark = max([conf.index(i) for i in conf if 'SPARK_HOME' in i])
-        conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")]
+        if active_cluster:
+            activate_cluster = lambda x: x[1:] if active_cluster in x else x
+            conf = [activate_cluster(i) for i in conf]
+        else:
+            last_spark = max([conf.index(i) for i in conf if 'SPARK_HOME' in i])
+            conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")]
         with open('.Renviron', 'w') as f:
             for line in conf:
                 f.write('{}\n'.format(line))
-        sudo('rm -f /home/{}/.Renviron'.format(os_user))
         put('.Renviron', '/home/{}/.Renviron'.format(os_user))
         if len(conf) == 1:
-            sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
-            sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(os_user))
-        sudo("sed -i 's|/opt/{0}/spark//R/lib:||g' /home/{1}/.bashrc".format(cluster_name, os_user))
+           sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
+           sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(os_user))
         sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
     except:
         sys.exit(1)
