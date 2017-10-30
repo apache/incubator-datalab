@@ -31,7 +31,7 @@ from dlab.fab import *
 import traceback
 import urllib2
 import meta_lib
-
+import dlab.fab
 
 def put_to_bucket(bucket_name, local_file, destination_file):
     try:
@@ -830,12 +830,7 @@ def remove_kernels(emr_name, tag_name, nb_tag_value, ssh_user, key_path, emr_ver
                     sudo('sleep 5')
                     sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, emr_name))
                 if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
-                    sudo("sed -i '/" + emr_name + "/d' /home/{}/.Renviron".format(ssh_user))
-                    if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(ssh_user)):
-                        sudo("sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".format(ssh_user))
-                    sudo("sed -i 's|/opt/" + emr_version + '/' + emr_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(ssh_user))
-                    sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(ssh_user))
-                    sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user))
+                    dlab.fab.remove_rstudio_dataengines_kernel(emr_name, ssh_user)
                 sudo('rm -rf  /opt/' + emr_version + '/' + emr_name + '/')
                 print("Notebook's {} kernels were removed".format(env.hosts))
         else:
@@ -1319,19 +1314,7 @@ def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluste
             sudo('sleep 5')
             sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
         if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-            sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Renviron".format(os_user))
-            sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Rprofile".format(os_user))
-            if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(os_user)):
-                sudo(
-                    "sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".
-                        format(os_user))
-            if not sudo("sed -n '/^master/p' /home/{}/.Rprofile".format(os_user)):
-                sudo(
-                    "sed -i '1!G;h;$!d;' /home/{0}/.Rprofile; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Rprofile".
-                        format(os_user))
-            sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
-            sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
-            sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
+            dlab.fab.remove_rstudio_dataengines_kernel(cluster_name, os_user)
         sudo('rm -rf  /opt/' + cluster_name + '/')
         print("Notebook's {} kernels were removed".format(env.hosts))
     except Exception as err:
