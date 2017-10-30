@@ -33,6 +33,7 @@ limitations under the License.
 
 .tab-content {
     display: flex;
+    height: 100%;
 }
 .tab-content .col {
     width: 50%;
@@ -168,7 +169,8 @@ limitations under the License.
 }
 
 .scrollingList {
-    max-height: 290px;
+    max-height: 85%;
+    height: 85%;
     overflow-y: auto;
 }
 .scrollingList.info p {

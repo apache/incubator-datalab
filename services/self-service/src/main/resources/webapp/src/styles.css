@@ -358,6 +358,9 @@ input[type=number] {
 .m-top-30 { margin-top: 30px; }
 .m-bott-10 { margin-bottom: 10px; }
 
+.full-height {
+  height: 100%;
+}
 
 #scrolling::-webkit-scrollbar {
   width: 8px;
@@ -401,9 +404,7 @@ input[type=number] {
 }
 
 /* controls */
-input[type=text] {
-
-}
+/* input[type=text] {} */
 
 .control-group {
   display: flex;

@@ -143,6 +143,7 @@ limitations under the License.
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  height: 100%;
 }
 
 .dialog.out .dialog-container.install-libraries {
@@ -219,7 +220,7 @@ limitations under the License.
 
 
 .dialog-body .content-box {
-  padding: 35px 50px 45px;
+  padding: 35px 50px 30px;
 }
 
 .install-libraries .dialog-body .content-box {
