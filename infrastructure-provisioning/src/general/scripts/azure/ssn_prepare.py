@@ -64,7 +64,7 @@ if __name__ == "__main__":
                                      "SBN": ssn_conf['service_base_name']}
         ssn_conf['ssn_storage_account_tags'] = {"Name": ssn_conf['ssn_storage_account_name'],
                                                 "SBN": ssn_conf['service_base_name']}
-        ssn_conf['shared_storage_accountdatalake_store_tags'] = {"Name": ssn_conf['shared_storage_account_name'],
+        ssn_conf['shared_storage_account_tags'] = {"Name": ssn_conf['shared_storage_account_name'],
                                                    "SBN": ssn_conf['service_base_name']}
         ssn_conf['datalake_store_tags'] = {"Name": ssn_conf['datalake_store_name'],
                                                 "SBN": ssn_conf['service_base_name']}
