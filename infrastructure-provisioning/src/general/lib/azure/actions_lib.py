@@ -18,16 +18,18 @@
 
 from azure.common.client_factory import get_client_from_auth_file
 import azure.common
+from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
-from azure.mgmt.authorization import AuthorizationManagementClient
-from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
-from azure.datalake.store import core, lib, multithread
 from azure.storage import CloudStorageAccount
 from azure.storage import SharedAccessSignature
 from azure.storage.blob import BlockBlobService
+from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
+from azure.datalake.store import core, lib
+from azure.graphrbac import GraphRbacManagementClient
+from azure.common.credentials import ServicePrincipalCredentials
 import azure.common.exceptions as AzureExceptions
 from fabric.api import *
 from fabric.contrib.files import exists
@@ -48,6 +50,11 @@ class AzureActions:
         self.storage_client = get_client_from_auth_file(StorageManagementClient)
         self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
         self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
+        sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
+        self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(sp_creds['tenantId']).replace('"', ''),
+                                            client_secret=json.dumps(sp_creds['clientSecret']).replace('"', ''),
+                                            client_id=json.dumps(sp_creds['clientId']).replace('"', ''),
+                                            resource='https://datalake.azure.net/')
 
     def create_resource_group(self, resource_group_name, region):
         try:
@@ -240,9 +247,8 @@ class AzureActions:
 
     def create_datalake_directory(self, datalake_name, dir_name):
         try:
-            token = lib.auth(tenant_id='', client_secret='', client_id='')
-            adlsFileSystemClient = core.AzureDLFileSystem(token, store_name=datalake_name)
-            result = adlsFileSystemClient.mkdir(dir_name)
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.mkdir(dir_name).wait()
             return result
         except Exception as err:
             logging.info(
@@ -254,14 +260,13 @@ class AzureActions:
 
     def remove_datalake_directory(self, datalake_name, dir_name):
         try:
-            token = lib.auth(tenant_id='', client_secret='', client_id='')
-            adlsFileSystemClient = core.AzureDLFileSystem(token, store_name=datalake_name)
-            result = adlsFileSystemClient.rm(dir_name, recursive=True)
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.rm(dir_name, recursive=True).wait()
             return result
         except Exception as err:
             logging.info(
                 "Unable to create Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to create Data Lake directory",
+            append_result(str({"error": "Unable to remove Data Lake directory",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
