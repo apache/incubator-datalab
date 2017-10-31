@@ -257,7 +257,7 @@ public class BillingSchedulerAzure {
                                 , new UpdateOptions().upsert(true)
                         );
 
-                log.error("Billing period save operation result is {}", updateResult);
+                log.debug("Billing period save operation result is {}", updateResult);
                 return true;
             } catch (JsonProcessingException e) {
                 log.error("Cannot save billing period", e);

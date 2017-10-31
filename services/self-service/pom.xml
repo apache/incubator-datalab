@@ -7,7 +7,32 @@
         <version>1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    
+
+    <profiles>
+        <profile>
+            <id>aws</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.epam.dlab</groupId>
+                    <artifactId>billing</artifactId>
+                    <version>${project.parent.version}</version>
+                    <scope>compile</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>azure</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.epam.dlab</groupId>
+                    <artifactId>billing-azure</artifactId>
+                    <version>${project.parent.version}</version>
+                    <scope>compile</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
     <artifactId>self-service</artifactId>
 
     <properties>
@@ -24,6 +49,13 @@
             <groupId>com.epam.dlab</groupId>
             <artifactId>billing</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>billing-azure</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -66,17 +98,17 @@
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.epam.dlab.backendapi.SelfServiceApplication</mainClass>
-									<manifestEntries>
-										<Created-By>&lt;EPAM&gt; Systems</Created-By>
-										<Name>com/epam/dlab</Name>
-										<Implementation-Title>DLab Self-Service</Implementation-Title>
-										<Implementation-Version>${dlab.version}</Implementation-Version>
-										<Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
-										<Build-Time>${maven.build.timestamp}</Build-Time>
-										<Build-OS>${os.name}</Build-OS>
-										<GIT-Branch>${scmBranch}</GIT-Branch>
-										<GIT-Commit>${buildNumber}</GIT-Commit>
-									</manifestEntries>
+                                    <manifestEntries>
+                                        <Created-By>&lt;EPAM&gt; Systems</Created-By>
+                                        <Name>com/epam/dlab</Name>
+                                        <Implementation-Title>DLab Self-Service</Implementation-Title>
+                                        <Implementation-Version>${dlab.version}</Implementation-Version>
+                                        <Implementation-Vendor>&lt;EPAM&gt; Systems</Implementation-Vendor>
+                                        <Build-Time>${maven.build.timestamp}</Build-Time>
+                                        <Build-OS>${os.name}</Build-OS>
+                                        <GIT-Branch>${scmBranch}</GIT-Branch>
+                                        <GIT-Commit>${buildNumber}</GIT-Commit>
+                                    </manifestEntries>
                                 </transformer>
                             </transformers>
                         </configuration>

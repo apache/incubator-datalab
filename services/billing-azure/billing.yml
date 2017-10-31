@@ -24,7 +24,7 @@ tenantId: TENANT_ID
 subscriptionId: SUBSCRIPTION_ID
 
 # Contains authentication info (clientId, clientSecret, tenantId, subscriptionId) received after Azure CLI authentication
-authenticationFile: /home/yu/kuznetsov.json
+authenticationFile: AUTHENTICATION_FILE
 
 # Billing configuration for RateCard API
 
