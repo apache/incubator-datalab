@@ -39,7 +39,7 @@ import logging
 import traceback
 import sys, time
 import os, json
-
+import dlab.fab
 
 class AzureActions:
     def __init__(self):
@@ -879,19 +879,7 @@ class AzureActions:
                 sudo('sleep 5')
                 sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-                sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Renviron".format(os_user))
-                sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Rprofile".format(os_user))
-                if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(os_user)):
-                    sudo(
-                        "sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".
-                            format(os_user))
-                if not sudo("sed -n '/^master/p' /home/{}/.Rprofile".format(os_user)):
-                    sudo(
-                        "sed -i '1!G;h;$!d;' /home/{0}/.Rprofile; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Rprofile".
-                            format(os_user))
-                sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
-                sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
-                sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
+                dlab.fab.remove_rstudio_dataengines_kernel(cluster_name, os_user)
             sudo('rm -rf  /opt/' + cluster_name + '/')
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
@@ -1041,6 +1029,14 @@ def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
     sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
     sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
     sudo('mount -a')
+
+
+def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
+    if creds:
+        env['connection_attempts'] = 100
+        env.key_filename = [keyfile]
+        env.host_string = os_user + '@' + hostname
+    sudo('waagent -deprovision -force')
 
 
 def prepare_disk(os_user):
