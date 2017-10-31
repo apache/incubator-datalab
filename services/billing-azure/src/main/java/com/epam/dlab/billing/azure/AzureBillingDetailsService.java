@@ -48,10 +48,10 @@ public class AzureBillingDetailsService {
         final List<String> users = new ArrayList<>();
         FindIterable<Document> iterable = mongoDbBillingClient.getDatabase()
                 .getCollection(MongoKeyWords.EDGE_COLLECTION)
-                .find().projection(Projections.include(MongoKeyWords._ID));
+                .find().projection(Projections.include(MongoKeyWords.MONGO_ID));
 
         for (Document document : iterable) {
-            String user = document.getString(MongoKeyWords._ID);
+            String user = document.getString(MongoKeyWords.MONGO_ID);
             if (StringUtils.isNotEmpty(user)) {
                 users.add(user);
             } else {
@@ -93,7 +93,12 @@ public class AzureBillingDetailsService {
                                     Accumulators.sum(MongoKeyWords.COST, MongoKeyWords.prepend$(MongoKeyWords.COST)),
                                     Accumulators.min(MongoKeyWords.USAGE_FROM, MongoKeyWords.prepend$(MongoKeyWords.USAGE_DAY)),
                                     Accumulators.max(MongoKeyWords.USAGE_TO, MongoKeyWords.prepend$(MongoKeyWords.USAGE_DAY))
-                            ))
+                            ),
+
+                            Aggregates.sort(Sorts.ascending(
+                                    MongoKeyWords.prependId(MongoKeyWords.RESOURCE_NAME),
+                                    MongoKeyWords.prependId(MongoKeyWords.METER_CATEGORY)))
+                            )
                     );
 
             updateBillingDetails(user, mapToDetails(aggregateIterable));
@@ -105,7 +110,7 @@ public class AzureBillingDetailsService {
     private List<Document> mapToDetails(AggregateIterable<Document> aggregateIterable) {
         List<Document> billingDetails = new ArrayList<>();
         for (Document document : aggregateIterable) {
-            Document oldRef = (Document) document.get(MongoKeyWords._ID);
+            Document oldRef = (Document) document.get(MongoKeyWords.MONGO_ID);
             Document newDocument = new Document();
 
             newDocument.append(MongoKeyWords.USAGE_FROM, document.getString(MongoKeyWords.USAGE_FROM));
@@ -169,10 +174,10 @@ public class AzureBillingDetailsService {
                                 updates
                         );
 
-                log.error("Update result {}", updateResult);
+                log.debug("Update result for {}/{} is {}", user, entry.getKey(), updateResult);
             }
         } else {
-            log.error("No billing details found for notebooks for user {}", user);
+            log.warn("No billing details found for notebooks for user {}", user);
         }
     }
 

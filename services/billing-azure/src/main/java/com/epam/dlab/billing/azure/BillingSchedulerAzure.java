@@ -250,10 +250,10 @@ public class BillingSchedulerAzure {
 
             try {
                 UpdateResult updateResult = client.getDatabase().getCollection(MongoKeyWords.AZURE_BILLING_SCHEDULER)
-                        .updateMany(Filters.eq(MongoKeyWords._ID, SCHEDULER_ID),
+                        .updateMany(Filters.eq(MongoKeyWords.MONGO_ID, SCHEDULER_ID),
                                 new BasicDBObject("$set",
                                         Document.parse(objectMapper.writeValueAsString(billingPeriod))
-                                                .append(MongoKeyWords._ID, SCHEDULER_ID))
+                                                .append(MongoKeyWords.MONGO_ID, SCHEDULER_ID))
                                 , new UpdateOptions().upsert(true)
                         );
 
@@ -271,7 +271,7 @@ public class BillingSchedulerAzure {
 
             try {
                 Document document = client.getDatabase().getCollection(MongoKeyWords.AZURE_BILLING_SCHEDULER)
-                        .find(Filters.eq(MongoKeyWords._ID, SCHEDULER_ID)).first();
+                        .find(Filters.eq(MongoKeyWords.MONGO_ID, SCHEDULER_ID)).first();
 
                 log.debug("Retrieved billing period document {}", document);
                 if (document != null) {

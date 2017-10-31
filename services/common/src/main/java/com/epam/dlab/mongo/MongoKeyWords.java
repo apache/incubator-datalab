@@ -28,7 +28,7 @@ public abstract class MongoKeyWords {
     /**
      * Mongo DB keywords related to billing functionality
      */
-    public static final String _ID = "_id";
+    public static final String MONGO_ID = "_id";
     public static final String DLAB_ID = "dlabId";
     public static final String DLAB_USER = "user";
     public static final String EXPLORATORY_ID = "exploratoryId";
@@ -49,5 +49,9 @@ public abstract class MongoKeyWords {
 
     public static String prepend$(String value) {
         return "$" + value;
+    }
+
+    public static String prependId(String value) {
+        return MongoKeyWords.MONGO_ID + "." + value;
     }
 }
