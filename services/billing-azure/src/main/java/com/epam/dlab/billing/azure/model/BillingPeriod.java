@@ -14,39 +14,19 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.base.edge;
+package com.epam.dlab.billing.azure.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class EdgeInfo {
-    @JsonProperty("_id")
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private String id;
-    @JsonProperty("instance_id")
-    private String instanceId;
+public class BillingPeriod {
     @JsonProperty
-    private String hostname;
-    @JsonProperty("public_ip")
-    private String publicIp;
+    private Date from;
     @JsonProperty
-    private String ip;
-    @JsonProperty("key_name")
-    private String keyName;
-    @JsonProperty("tunnel_port")
-    private String tunnelPort;
-    @JsonProperty("socks_port")
-    private String socksPort;
-    @JsonProperty("notebook_sg")
-    private String notebookSg;
-    @JsonProperty("edge_sg")
-    private String edgeSg;
-    @JsonProperty("notebook_subnet")
-    private String notebookSubnet;
-    @JsonProperty("edge_status")
-    private String edgeStatus;
+    private Date to;
 }
