@@ -69,9 +69,13 @@ def prepare_templates():
 
 def run_tensor():
     interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    local('tar -zxf train.tar.gz && test.tar.gz')
+    local('mkdir -p /home/{}/logs'.format(args.os_user))
     for i in interpreters:
-        prepare_ipynb(i, '/home/{}/test_templates/template_tensor.ipynb'.format(args.os_user), 'test_tensor')
-        run_ipynb('test_tensor')
+        prepare_ipynb(i, '/home/{}/test_templates/template_preparation_tensor.ipynb'.format(args.os_user), 'preparation_tensor')
+        run_ipynb('preparation_tensor')
+        prepare_ipynb(i, '/home/{}/test_templates/template_visualization_tensor.ipynb'.format(args.os_user), 'visualization_tensor')
+        run_ipynb('visualization_tensor')
 
 
 def run_caffe():
