@@ -1111,6 +1111,7 @@ def spark_defaults(args):
     else:
         endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
     local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> """ + spark_def_path + """'""")
+    local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> {}'.format(spark_def_path))
 
 
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
@@ -1265,6 +1266,7 @@ def configure_dataengine_spark(jars_dir, spark_dir, region):
     else:
         endpoint_url = 'https://s3-' + region + '.amazonaws.com'
     local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/notebook_spark-defaults_local.conf'""")
+    local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/notebook_spark-defaults_local.conf')
     local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
 
 
