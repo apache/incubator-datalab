@@ -1025,6 +1025,14 @@ def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
     sudo('mount -a')
 
 
+def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
+    if creds:
+        env['connection_attempts'] = 100
+        env.key_filename = [keyfile]
+        env.host_string = os_user + '@' + hostname
+    sudo('waagent -deprovision -force')
+
+
 def prepare_disk(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
         try:
