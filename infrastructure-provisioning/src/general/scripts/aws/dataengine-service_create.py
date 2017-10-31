@@ -110,15 +110,15 @@ def get_object_count(bucket, prefix):
 def upload_jars_parser(args):
     s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
     s3.meta.client.upload_file('/root/scripts/dataengine-service_jars_parser.py', args.s3_bucket, 'jars_parser.py',
-                               ExtraArgs={'SSECustomerAlgorithm': "AES256"})
+                               ExtraArgs={'ServerSideEncryption': 'AES256'})
 
 
 def upload_user_key(args):
     s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
     s3.meta.client.upload_file(args.key_dir + '/' + args.edge_user_name + '.pub', args.s3_bucket, args.edge_user_name +
-                               '/' + args.edge_user_name + '.pub', ExtraArgs={'SSECustomerAlgorithm': "AES256"})
+                               '/' + args.edge_user_name + '.pub', ExtraArgs={'ServerSideEncryption': 'AES256'})
     s3.meta.client.upload_file('/root/scripts/dataengine-service_key_importer.py', args.s3_bucket, 'key_importer.py',
-                               ExtraArgs={'SSECustomerAlgorithm': "AES256"})
+                               ExtraArgs={'ServerSideEncryption': 'AES256'})
 
 
 def remove_user_key(args):

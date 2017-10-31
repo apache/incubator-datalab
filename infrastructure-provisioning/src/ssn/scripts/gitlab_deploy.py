@@ -141,7 +141,7 @@ def put_to_bucket(bucket_name, local_file, destination_file):
     try:
         s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
         with open(local_file, 'rb') as data:
-            s3.upload_fileobj(data, bucket_name, destination_file, ExtraArgs={'SSECustomerAlgorithm': "AES256"})
+            s3.upload_fileobj(data, bucket_name, destination_file, ExtraArgs={'ServerSideEncryption': 'AES256'})
     except Exception as err:
         print('Unable to upload files to S3 bucket.{}'.format(str(err)))
         sys.exit(1)
