@@ -36,11 +36,20 @@ def run():
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.INFO,
                         filename=local_log_filepath)
+    dataengine_service_config = dict()
+    dataengine_service_config['uuid'] = str(uuid.uuid4())[:5]
     try:
-        local("~/scripts/{}.py".format('common_prepare_dataengine-service'))
+        local("~/scripts/{}.py --uuid {}".format('dataengine-service_prepare', dataengine_service_config['uuid']))
     except Exception as err:
         traceback.print_exc()
-        append_result("Failed configuring Notebook node.", str(err))
+        append_result("Failed preparing Data Engine service.", str(err))
+        sys.exit(1)
+
+    try:
+        local("~/scripts/{}.py --uuid {}".format('dataengine-service_configure', dataengine_service_config['uuid']))
+    except Exception as err:
+        traceback.print_exc()
+        append_result("Failed configuring Data Engine service.", str(err))
         sys.exit(1)
 
 

@@ -51,9 +51,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
     error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:"
     try:
-        if pip_version == 'pip3':
-            if not exists('/bin/pip3'):
-                sudo('ln -s /bin/pip3.5 /bin/pip3')
+        if pip_version == 'pip3' and not exists('/bin/pip3'):
+            sudo('ln -s /bin/pip3.5 /bin/pip3')
         sudo('{} install -U pip setuptools'.format(pip_version))
         sudo('{} install -U pip --no-cache-dir'.format(pip_version))
         sudo('{} install --upgrade pip'.format(pip_version))
@@ -396,3 +395,57 @@ def add_breeze_library_local(os_user):
             sudo('mv ' + breeze_tmp_dir + '* ' + jars_dir)
         except:
             sys.exit(1)
+
+
+def configure_data_engine_service_pip(hostname, os_user, keyfile):
+    env['connection_attempts'] = 100
+    env.key_filename = [keyfile]
+    env.host_string = os_user + '@' + hostname
+    if not exists('/usr/bin/pip2'):
+        sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
+    if not exists('/usr/bin/pip3') and sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
+
+
+def remove_rstudio_dataengines_kernel(cluster_name, os_user):
+    try:
+        get('/home/{}/.Rprofile'.format(os_user), 'Rprofile')
+        data = open('Rprofile').read()
+        conf = [i for i in data.split('\n') if i != '']
+        conf = [i for i in conf if cluster_name not in i]
+        comment_all = lambda x: x if x.startswith('#master') else '#{}'.format(x)
+        uncomment = lambda x: x[1:] if not x.startswith('#master') else x
+        conf =[comment_all(i) for i in conf]
+        conf =[uncomment(i) for i in conf]
+        last_spark = max([conf.index(i) for i in conf if 'master=' in i] or [0])
+        active_cluster = conf[last_spark].split('"')[-2] if last_spark != 0 else None
+        conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")] \
+                                 + [conf[l] for l in range(last_spark, len(conf)) if not conf[l].startswith('#')]
+        with open('.Rprofile', 'w') as f:
+            for line in conf:
+                f.write('{}\n'.format(line))
+        put('.Rprofile', '/home/{}/.Rprofile'.format(os_user))
+        get('/home/{}/.Renviron'.format(os_user), 'Renviron')
+        data = open('Renviron').read()
+        conf = [i for i in data.split('\n') if i != '']
+        comment_all = lambda x: x if x.startswith('#') else '#{}'.format(x)
+        conf = [comment_all(i) for i in conf]
+        conf = [i for i in conf if cluster_name not in i]
+        if active_cluster:
+            activate_cluster = lambda x: x[1:] if active_cluster in x else x
+            conf = [activate_cluster(i) for i in conf]
+        else:
+            last_spark = max([conf.index(i) for i in conf if 'SPARK_HOME' in i])
+            conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")]
+        with open('.Renviron', 'w') as f:
+            for line in conf:
+                f.write('{}\n'.format(line))
+        put('.Renviron', '/home/{}/.Renviron'.format(os_user))
+        if len(conf) == 1:
+           sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
+           sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(os_user))
+        sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
+    except:
+        sys.exit(1)

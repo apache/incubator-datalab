@@ -114,7 +114,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
         print('[CREATE SECURITY GROUP FOR EDGE]')
-        list_rules = [
+        edge_list_rules = [
             {
                 "name": "in-1",
                 "protocol": "*",
@@ -327,7 +327,7 @@ if __name__ == "__main__":
         ]
         params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'". \
             format(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'], edge_conf['region'],
-                   json.dumps(edge_conf['instance_tags']), json.dumps(list_rules))
+                   json.dumps(edge_conf['instance_tags']), json.dumps(edge_list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except Exception as err:
@@ -347,7 +347,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
         print('[CREATE SECURITY GROUP FOR PRIVATE SUBNET]')
-        list_rules = [
+        notebook_list_rules = [
             {
                 "name": "in-1",
                 "protocol": "*",
@@ -430,7 +430,7 @@ if __name__ == "__main__":
             ]
         params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'". \
             format(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'], edge_conf['region'],
-                   json.dumps(edge_conf['instance_tags']), json.dumps(list_rules))
+                   json.dumps(edge_conf['instance_tags']), json.dumps(notebook_list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
@@ -450,7 +450,7 @@ if __name__ == "__main__":
     logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
     print("[CREATING SECURITY GROUPS FOR MASTER NODE]")
     try:
-        list_rules = [
+        cluster_list_rules = [
             {
                 "name": "in-1",
                 "protocol": "*",
@@ -462,104 +462,6 @@ if __name__ == "__main__":
                 "priority": 100,
                 "direction": "Inbound"
             },
-            {
-                "name": "in-2",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "*",
-                "source_address_prefix": AzureMeta().get_subnet(edge_conf['resource_group_name'],
-                                                                edge_conf['vpc_name'],
-                                                                edge_conf['subnet_name']).address_prefix,
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 110,
-                "direction": "Inbound"
-            },
-            {
-                "name": "in-3",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "*",
-                "source_address_prefix": "*",
-                "destination_address_prefix": "*",
-                "access": "Deny",
-                "priority": 200,
-                "direction": "Inbound"
-            },
-            {
-                "name": "out-1",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "*",
-                "source_address_prefix": "*",
-                "destination_address_prefix": edge_conf['private_subnet_cidr'],
-                "access": "Allow",
-                "priority": 100,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-2",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "*",
-                "source_address_prefix": "*",
-                "destination_address_prefix": AzureMeta().get_subnet(edge_conf['resource_group_name'],
-                                                                     edge_conf['vpc_name'],
-                                                                     edge_conf['subnet_name']).address_prefix,
-                "access": "Allow",
-                "priority": 110,
-                "direction": "Outbound"
-            },
-            {
-                "name": "out-4",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "*",
-                "source_address_prefix": "*",
-                "destination_address_prefix": "*",
-                "access": "Deny",
-                "priority": 200,
-                "direction": "Outbound"
-            }
-        ]
-        params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'".format(
-            edge_conf['resource_group_name'], edge_conf['master_security_group_name'], edge_conf['region'],
-            json.dumps(edge_conf['instance_tags']), json.dumps(list_rules))
-        try:
-            local("~/scripts/{}.py {}".format('common_create_security_group', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
-                                     edge_conf['private_subnet_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
-        AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                                 edge_conf['notebook_security_group_name'])
-        try:
-            AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                                 edge_conf['master_security_group_name'])
-        except:
-            print("Master Security group hasn't been created.")
-        append_result("Failed to create Security groups. Exception:" + str(err))
-        sys.exit(1)
-
-    logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
-    print("[CREATING SECURITY GROUPS FOR SLAVE NODES]")
-    try:
-        list_rules = [
-            {
-                "name": "in-1",
-                "protocol": "*",
-                "source_port_range": "*",
-                "destination_port_range": "*",
-                "source_address_prefix": edge_conf['private_subnet_cidr'],
-                "destination_address_prefix": "*",
-                "access": "Allow",
-                "priority": 100,
-                "direction": "Inbound"
-            },
-
             {
                 "name": "in-2",
                 "protocol": "*",
@@ -632,8 +534,33 @@ if __name__ == "__main__":
             }
         ]
         params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'".format(
+            edge_conf['resource_group_name'], edge_conf['master_security_group_name'], edge_conf['region'],
+            json.dumps(edge_conf['instance_tags']), json.dumps(cluster_list_rules))
+        try:
+            local("~/scripts/{}.py {}".format('common_create_security_group', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
+                                     edge_conf['private_subnet_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['notebook_security_group_name'])
+        try:
+            AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['master_security_group_name'])
+        except:
+            print("Master Security group hasn't been created.")
+        append_result("Failed to create Security groups. Exception:" + str(err))
+        sys.exit(1)
+
+    logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
+    print("[CREATING SECURITY GROUPS FOR SLAVE NODES]")
+    try:
+        params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}' --list_rules '{}'".format(
             edge_conf['resource_group_name'], edge_conf['slave_security_group_name'], edge_conf['region'],
-            json.dumps(edge_conf['instance_tags']), json.dumps(list_rules))
+            json.dumps(edge_conf['instance_tags']), json.dumps(cluster_list_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:

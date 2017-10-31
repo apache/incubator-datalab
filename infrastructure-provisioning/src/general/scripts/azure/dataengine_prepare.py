@@ -96,6 +96,7 @@ if __name__ == "__main__":
         data_engine['slave_tags'] = {"Name": data_engine['cluster_name'],
                                      "SBN": data_engine['service_base_name'],
                                      "User": data_engine['user_name'],
+                                     "Type": "slave",
                                      "notebook_name": data_engine['notebook_name']}
         data_engine['master_tags'] = {"Name": data_engine['cluster_name'],
                                       "SBN": data_engine['service_base_name'],

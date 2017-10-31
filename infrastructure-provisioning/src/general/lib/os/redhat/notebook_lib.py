@@ -229,7 +229,7 @@ def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
             sudo('echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf')
             sudo('dracut --force')
             with settings(warn_only=True):
-                reboot(wait=90)
+                reboot(wait=150)
             sudo('yum -y install gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
@@ -427,7 +427,6 @@ def install_cntk(os_user, cntk_version):
         sudo('echo "exclude=*.i386 *.i686" >> /etc/yum.conf')
         sudo('yum clean all && yum update-minimal --security -y')
         sudo('yum install -y openmpi openmpi-devel --nogpgcheck')
-        sudo('sed -i "s|LD_LIBRARY_PATH=|LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:|g" /home/{}/.bashrc'.format(os_user))
         sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('pip3.5 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
