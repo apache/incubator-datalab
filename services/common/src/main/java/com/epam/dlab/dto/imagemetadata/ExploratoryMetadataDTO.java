@@ -27,7 +27,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 public class ExploratoryMetadataDTO extends ImageMetadataDTO {
     @JsonProperty
     protected String image;
