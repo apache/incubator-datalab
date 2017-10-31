@@ -19,7 +19,6 @@ limitations under the License.
 package com.epam.dlab.backendapi.core.commands;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
@@ -50,8 +49,9 @@ import com.google.common.io.Resources;
 
 public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutorMockAsync.class);
+    private static final String JSON_FILE_ENDING = ".json";
 
-    private ObjectMapper MAPPER = new ObjectMapper()
+    private static final ObjectMapper MAPPER = new ObjectMapper()
     		.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
     		.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
@@ -145,6 +145,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 			case LIB_INSTALL:
 				parser.getVariables().put("lib_install", getResponseLibInstall(true));
 				action(user, action);
+				break;
 			default:
 				break;
 			}
@@ -156,7 +157,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	}
     }
 
-    private static void copyFile(String sourceFilePath, String destinationFileName, String destinationFolder) throws URISyntaxException, IOException {
+    private static void copyFile(String sourceFilePath, String destinationFileName, String destinationFolder) throws IOException {
 		File to = new File(getAbsolutePath(destinationFolder , destinationFileName));
 
 		try (InputStream inputStream = CommandExecutorMockAsync.class.getClassLoader().getResourceAsStream(sourceFilePath);
@@ -216,17 +217,17 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 				"\".../infrastructure-provisioning/src/general/files/" + cloudProvider.getName() + "\" directory");
     }
 
-    /** Describe action.
-     * @throws FileNotFoundException
+    /**
+	 * Describe action.
      */
-    private void describe() throws DlabException {
+    private void describe() {
     	String templateFileName;
 		try {
 			templateFileName = getAbsolutePath(findTemplatesDir(),parser.getImageType() + "_description.json");
 		} catch (FileNotFoundException e) {
 			throw new DlabException("Cannot describe image " + parser.getImageType() + ". " + e.getLocalizedMessage(), e);
 		}
-    	responseFileName = getAbsolutePath(parser.getResponsePath(), parser.getRequestId() + ".json");
+    	responseFileName = getAbsolutePath(parser.getResponsePath(), parser.getRequestId() + JSON_FILE_ENDING);
 
     	LOGGER.debug("Create response file from {} to {}", templateFileName, responseFileName);
     	File fileResponse = new File(responseFileName);
@@ -254,8 +255,8 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		String prefixFileName = (resourceType.equals("edge") || resourceType.equals("dataengine")
 				|| resourceType.equals("dataengine-service") ?
     			resourceType : "notebook") + "_";
-    	String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + prefixFileName + action.toString() + ".json";
-    	responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" + parser.getRequestId() + ".json");
+    	String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + prefixFileName + action.toString() + JSON_FILE_ENDING;
+    	responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" + parser.getRequestId() + JSON_FILE_ENDING);
     	setResponse(templateFileName, responseFileName);
     }
 
@@ -320,12 +321,12 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		}
     }
 
-    /** Write response file.
+    /**
+	 * Write response file.
      * @param sourceFileName template file name.
      * @param targetFileName response file name.
-     * @throws DlabException if can't read template or write response files.
      */
-    private void setResponse(String sourceFileName, String targetFileName) throws DlabException {
+    private void setResponse(String sourceFileName, String targetFileName) {
     	String content;
     	URL url = Resources.getResource(sourceFileName);
     	try {
