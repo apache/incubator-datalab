@@ -57,37 +57,41 @@ limitations under the License.
   border-radius: 0;
 }
 
-.install-libs .mat-tab-label,
+.install-libraries .mat-tab-label,
 .install-libraries .mat-tab-label,
 .manage-ungit .mat-tab-label {
     font-family: 'Open Sans',sans-serif !important;
 }
-.install-libs .mat-ink-bar,
+.install-libraries .mat-ink-bar,
 .install-libraries .mat-ink-bar,
 .manage-ungit .mat-ink-bar {
     background-color: #35afd5 !important;
     width: 50% !important;
 }
 
-.install-libs .mat-tab-labels .mat-tab-label:focus,
+.install-libraries .mat-tab-labels .mat-tab-label:focus,
 .install-libraries .mat-tab-labels .mat-tab-label:focus,
 .manage-ungit .mat-tab-labels .mat-tab-label:focus {
     background-color: rgba(53, 175, 213, 0.11);
 }
 
-.install-libs md-chip.mat-chip {
+.install-libraries md-chip.mat-chip {
     outline: none;
     color: #758ea8;
+    font-size: 14px;
+    padding: 8px 18px;
 }
-.install-libs md-chip.mat-chip a {
+.install-libraries md-chip.mat-chip a {
     display: inline-block;
     width: 12px;
     cursor: pointer;
     text-align: right;
     text-decoration: none;
+    font-size: 20px;
+    vertical-align: middle;
 }
 
-.install-libs md-chip.mat-chip strong {
+.install-libraries md-chip.mat-chip strong {
     font-size: 10px;
     font-weight: 300;
 }
@@ -265,7 +269,7 @@ button {
 }
 
 .tooltip-wrap .tooltip {
-  background: #1496bb;
+  background: rgba(97, 97, 97, 0.9);
   bottom: 100%;
   color: #f3f3f3;
   display: block;
@@ -275,7 +279,8 @@ button {
   padding: 5px;
   white-space: pre-wrap;
   word-wrap: break-word;
-  border-radius: 5px;
+  border-radius: 2px;
+  font-size: 10px;
   pointer-events: none;
   position: absolute;
   width: 100%;
@@ -294,30 +299,6 @@ button {
   -ms-box-shadow: 2px 2px 6px rgba(0, 0, 0, .28);
   -o-box-shadow: 2px 2px 6px rgba(0, 0, 0, .28);
   box-shadow: 2px 2px 6px rgba(0, 0, 0, .28);
-}
-
-.tooltip-wrap .tooltip::before {
-  bottom: -20px;
-  content: " ";
-  display: block;
-  height: 20px;
-  left: 0;
-  position: absolute;
-  width: 100%;
-}
-
-.tooltip-wrap .tooltip::after {
-  content: " ";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -6px;
-  border-left: solid transparent 6px;
-  border-right: solid transparent 6px;
-  border-top: solid #1496bb 6px;
-  margin: 0 auto;
-  height: 0;
-  width: 0;
 }
 
 .tooltip-wrap:hover .tooltip {
@@ -362,18 +343,21 @@ input[type=number] {
   height: 100%;
 }
 
-#scrolling::-webkit-scrollbar {
+#scrolling::-webkit-scrollbar,
+.list-selected md-chip-list .md-chip-list-wrapper::-webkit-scrollbar{
   width: 8px;
 }
 
-#scrolling::-webkit-scrollbar-track {
+#scrolling::-webkit-scrollbar-track,
+.list-selected md-chip-list .md-chip-list-wrapper::-webkit-scrollbar-track {
   box-shadow: none;
   -webkit-box-shadow: none;
   border-radius: 5px;
   background-color: rgb(243, 243, 243);
 }
 
-#scrolling::-webkit-scrollbar-thumb {
+#scrolling::-webkit-scrollbar-thumb,
+.list-selected md-chip-list .md-chip-list-wrapper::-webkit-scrollbar-thumb {
   box-shadow: inset 1px 1px 6px #9a9393;
   -webkit-box-shadow: inset 1px 1px 6px #9a9393;
   background-color: #f6fafe;
