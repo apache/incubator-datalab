@@ -37,7 +37,7 @@ def put_to_bucket(bucket_name, local_file, destination_file):
     try:
         s3 = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=os.environ['aws_region'])
         with open(local_file, 'rb') as data:
-            s3.upload_fileobj(data, bucket_name, destination_file)
+            s3.upload_fileobj(data, bucket_name, destination_file, ExtraArgs={'ServerSideEncryption': 'AES256'})
         return True
     except Exception as err:
         logging.info("Unable to upload files to S3 bucket: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
@@ -924,11 +924,14 @@ def create_image_from_instance(tag_name='', instance_name='', image_name=''):
 
 def install_emr_spark(args):
     s3_client = boto3.client('s3', config=Config(signature_version='s3v4'), region_name=args.region)
-    s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark.tar.gz', '/tmp/spark.tar.gz')
-    s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark-checksum.chk', '/tmp/spark-checksum.chk')
+    s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark.tar.gz',
+                            '/tmp/spark.tar.gz')
+    s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark-checksum.chk',
+                            '/tmp/spark-checksum.chk')
     if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
         local('rm -f /tmp/spark.tar.gz')
-        s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark.tar.gz', '/tmp/spark.tar.gz')
+        s3_client.download_file(args.bucket, args.user_name + '/' + args.cluster_name + '/spark.tar.gz',
+                                '/tmp/spark.tar.gz')
         if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
             print("The checksum of spark.tar.gz is mismatched. It could be caused by aws network issue.")
             sys.exit(1)
@@ -1108,6 +1111,7 @@ def spark_defaults(args):
     else:
         endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
     local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> """ + spark_def_path + """'""")
+    local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> {}'.format(spark_def_path))
 
 
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
@@ -1128,6 +1132,7 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                  jars_dir + 'hadoop-lzo-0.4.20.jar')
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             sudo('echo "spark.hadoop.fs.s3a.endpoint     {}" >> /tmp/notebook_spark-defaults_local.conf'.format(endpoint_url))
+            sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/notebook_spark-defaults_local.conf')
             if os.environ['application'] == 'zeppelin':
                 sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
@@ -1261,6 +1266,7 @@ def configure_dataengine_spark(jars_dir, spark_dir, region):
     else:
         endpoint_url = 'https://s3-' + region + '.amazonaws.com'
     local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/notebook_spark-defaults_local.conf'""")
+    local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/notebook_spark-defaults_local.conf')
     local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
 
 
