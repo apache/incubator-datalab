@@ -187,6 +187,19 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def verify_datalake_directory(self, datalake_name, dir_name):
+        try:
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.exists(dir_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to verify Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to verify Data Lake directory",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_storage_account(self, resource_group_name, account_name):
         try:
             result = self.storage_client.storage_accounts.get_properties(

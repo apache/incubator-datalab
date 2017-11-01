@@ -296,7 +296,7 @@ if __name__ == "__main__":
                      format(ssn_conf['datalake_store_name'], json.dumps(ssn_conf['datalake_store_tags']),
                             os.environ['azure_resource_group_name'], ssn_conf['region'])
             try:
-                local("~/scripts/{}.py {}".format('common_create_datalake', params))
+                local("~/scripts/{}.py {}".format('ssn_create_datalake', params))
             except:
                 traceback.print_exc()
                 raise Exception
@@ -316,6 +316,7 @@ if __name__ == "__main__":
             for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                     AzureActions().delete_datalake_store(os.environ['azure_resource_group_name'], datalake.name)
+            append_result("Failed to create Data Lake Store. Exception:" + str(err))
             sys.exit(1)
 
     if os.environ['conf_os_family'] == 'debian':

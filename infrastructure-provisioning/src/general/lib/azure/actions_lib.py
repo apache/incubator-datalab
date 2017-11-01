@@ -41,6 +41,7 @@ import sys, time
 import os, json
 import dlab.fab
 
+
 class AzureActions:
     def __init__(self):
         os.environ['AZURE_AUTH_LOCATION'] = '/root/azure_auth.json'
