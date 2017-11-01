@@ -33,6 +33,7 @@ import logging
 import traceback
 import sys
 import os
+import json
 
 
 class AzureMeta:
@@ -44,6 +45,11 @@ class AzureMeta:
         self.storage_client = get_client_from_auth_file(StorageManagementClient)
         self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
         self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
+        sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
+        self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(sp_creds['tenantId']).replace('"', ''),
+                                            client_secret=json.dumps(sp_creds['clientSecret']).replace('"', ''),
+                                            client_id=json.dumps(sp_creds['clientId']).replace('"', ''),
+                                            resource='https://datalake.azure.net/')
 
     def get_resource_group(self, resource_group_name):
         try:
