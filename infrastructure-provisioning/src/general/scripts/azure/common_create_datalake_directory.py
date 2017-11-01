@@ -33,15 +33,17 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     try:
+        datalake_exists = False
         for datalake in AzureMeta().list_datalakes(args.resource_group_name):
             if args.datalake_name == datalake.tags["Name"]:
                 if AzureMeta().verify_datalake_directory(datalake.name, args.directory_name):
                     print("Data Lake Store Directory '{}' already exist".format(args.directory_name))
                 else:
-                    AzureAction().create_datalake_directory(datalake.name, args.directory_name)
+                    AzureActions().create_datalake_directory(datalake.name, args.directory_name)
                     print("Data Lake Store Directory '{}' has been created".format(args.directory_name))
-            else:
-                print("Requested Data Lake Store '{}' is missing".format(args.datalake.name))
-                sys.exit(1)
+                datalake_exists = True
+        if not datalake_exists:
+            print("Requested Data Lake Store '{}' is missing".format(datalake.name))
+            sys.exit(1)
     except:
         sys.exit(1)

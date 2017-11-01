@@ -250,7 +250,7 @@ class AzureActions:
     def create_datalake_directory(self, datalake_name, dir_name):
         try:
             datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
-            result = datalake_client.mkdir(dir_name).wait()
+            result = datalake_client.mkdir(dir_name)
             return result
         except Exception as err:
             logging.info(
