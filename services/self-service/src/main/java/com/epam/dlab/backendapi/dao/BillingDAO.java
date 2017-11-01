@@ -189,7 +189,7 @@ public class BillingDAO extends BaseDAO {
      * @param fieldName the name of field.
      * @param values the values.
      */
-    private <TItem> void addCondition(List<Bson> conditions, String fieldName, List<String> values) {
+    private void addCondition(List<Bson> conditions, String fieldName, List<String> values) {
     	if (values != null && !values.isEmpty()) {
     		conditions.add(in(fieldName, values));
     	}

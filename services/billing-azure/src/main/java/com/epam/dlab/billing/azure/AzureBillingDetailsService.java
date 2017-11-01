@@ -157,9 +157,13 @@ public class AzureBillingDetailsService {
 
             for (Map.Entry<String, List<Document>> entry : info.entrySet()) {
                 double sum = entry.getValue().stream().mapToDouble(e -> e.getDouble(MongoKeyWords.COST)).sum();
+                entry.getValue().forEach(e -> e.put(MongoKeyWords.COST_STRING,
+                        String.format("%.2f", e.getDouble(MongoKeyWords.COST))));
+
                 log.debug("Update billing for notebook {}, cost is {} {}", entry.getKey(), sum, currencyCode);
 
                 Bson updates = Updates.combine(
+                        Updates.set(MongoKeyWords.COST_STRING, String.format("%.2f", sum)),
                         Updates.set(MongoKeyWords.COST, sum),
                         Updates.set(MongoKeyWords.CURRENCY_CODE, currencyCode),
                         Updates.set(MongoKeyWords.BILLING_DETAILS, entry.getValue()));

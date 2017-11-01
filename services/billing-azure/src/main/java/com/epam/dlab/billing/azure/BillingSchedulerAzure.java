@@ -152,8 +152,10 @@ public class BillingSchedulerAzure {
                         if (hasNew) {
                             log.info("Updating billing details");
                             azureBillingDetailsService.updateBillingDetails();
-                            updateBillingPeriod(billingPeriod, currentTime);
                         }
+
+
+                        updateBillingPeriod(billingPeriod, currentTime, hasNew);
                     }
                 }
             } catch (RuntimeException e) {
@@ -218,11 +220,11 @@ public class BillingSchedulerAzure {
             }
         }
 
-        private void updateBillingPeriod(BillingPeriod billingPeriod, DateTime currentTime) {
+        private void updateBillingPeriod(BillingPeriod billingPeriod, DateTime currentTime, boolean updates) {
 
             try {
                 client.getDatabase().getCollection(MongoKeyWords.AZURE_BILLING_SCHEDULER_HISTORY).insertOne(
-                        Document.parse(objectMapper.writeValueAsString(billingPeriod)));
+                        Document.parse(objectMapper.writeValueAsString(billingPeriod)).append("updates", updates));
                 log.debug("History of billing periods is updated with {}",
                         objectMapper.writeValueAsString(billingPeriod));
             } catch (JsonProcessingException e) {

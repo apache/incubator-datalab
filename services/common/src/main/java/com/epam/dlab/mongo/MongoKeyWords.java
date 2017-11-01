@@ -38,6 +38,7 @@ public abstract class MongoKeyWords {
     public static final String COMPUTATIONAL_ID = "computationalId";
     public static final String METER_CATEGORY = "meterCategory";
     public static final String COST = "cost";
+    public static final String COST_STRING = "costString";
     public static final String USAGE_DAY = "day";
     public static final String USAGE_FROM = "from";
     public static final String USAGE_TO = "to";
