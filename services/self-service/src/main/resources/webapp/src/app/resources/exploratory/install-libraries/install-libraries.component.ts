@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
@@ -58,17 +58,20 @@ export class InstallLibrariesComponent implements OnInit {
   public libSearch: FormControl = new FormControl();
   public groupsListMap = {'r_pkg': 'R packages', 'pip2': 'Python 2', 'pip3': 'Python 3', 'os_pkg': 'Apt/Yum', 'others': 'Others'};
 
-
   private readonly CHECK_GROUPS_TIMEOUT: number = 5000;
   private clear: number;
   private clearCheckInstalling = undefined;
 
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('tabGroup') tabGroup;
+  @ViewChild('groupSelect') group_select;
+  @ViewChild('resourceSelect') resource_select;
 
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
-  constructor(private librariesInstallationService: LibrariesInstallationService) {
+  constructor(
+    private librariesInstallationService: LibrariesInstallationService,
+    private changeDetector : ChangeDetectorRef) {
     this.model = InstallLibrariesModel.getDefault(librariesInstallationService);
   }
 
@@ -89,15 +92,39 @@ export class InstallLibrariesComponent implements OnInit {
   uploadLibraries(): void {
      this.librariesInstallationService.getGroupsList(this.notebook.name)
       .subscribe(
-        response => this.libsUploadingStatus(response),
+        response => {
+          this.libsUploadingStatus(response);
+          this.changeDetector.detectChanges();
+
+          this.group_select && this.group_select.setDefaultOptions(this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
+          this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'name', 'array');
+        },
         error => {
           this.processError = true;
           this.errorMessage = JSON.parse(error.message).message;
         });
   }
 
+  private getResourcesList() {
+    return [this.notebook].concat(this.notebook.resources
+      .filter(item => item.status === 'running')
+      .map(item => {
+        item['name'] = item.computational_name;
+        return item;
+      }));
+  }
+
   public filterList(): void {
     (this.query.length >= 2 && this.group) ? this.getFilteredList() : this.filteredList = null;
+  }
+
+  public onUpdate($event) {
+    if ($event.model.type === 'group_lib') {
+      this.group = $event.model.value;
+      this.filterList();
+    } else if ($event.model.type === 'destination') {
+      console.log($event.model.value);
+    }
   }
 
   public isDuplicated(item) {
@@ -154,8 +181,8 @@ export class InstallLibrariesComponent implements OnInit {
     if (this.bindDialog.isOpened)
       this.bindDialog.close();
 
-    this.resetDialog();
     this.buildGrid.emit();
+    this.resetDialog();
   }
 
   public isInstallingInProgress(data): void {

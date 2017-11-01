@@ -33,10 +33,11 @@ limitations under the License.
 
 .tab-content {
     display: flex;
-    /*height: 340px;*/
+    height: 100%;
 }
 .tab-content .col {
     width: 50%;
+    height: 100%;
 }
 .search-box {
     padding: 40px 25px 0;
@@ -50,7 +51,7 @@ limitations under the License.
 }
 
 .list-container {
-    max-height: 150px;
+    max-height: 55%;
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -115,8 +116,8 @@ limitations under the License.
     font-weight: 400;
     color: #718ba6;
 }
-.list-selected md-chip-list .md-chip-list-wrapper{
-    max-height: 275px;;
+.list-selected md-chip-list .md-chip-list-wrapper {
+    max-height: 95%;
     overflow-y: auto;
 }
 
@@ -164,12 +165,15 @@ limitations under the License.
 }
 
 .reinstall-all {
-    text-align: right;
     margin: 10px 5px;
+    position: fixed;
+    right: 0;
+    bottom: 0;
 }
 
 .scrollingList {
-    max-height: 290px;
+    max-height: 85%;
+    height: 75%;
     overflow-y: auto;
 }
 .scrollingList.info p {
@@ -242,4 +246,10 @@ limitations under the License.
     box-shadow: 0 -2em;
     height: 5em;
   }
+}
+
+@media screen and (min-width: 1281px) {
+    .list-container {
+        max-height: 75%;
+    }
 }

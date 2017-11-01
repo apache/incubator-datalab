@@ -1,6 +1,6 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+Copyright (c) 2017, EPAM SYSTEMS INC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,11 +16,16 @@ limitations under the License.
 
 ****************************************************************************/
 
-export * from './navbar/index';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { BubbleComponent} from './bubble.component';
+import { BubblesCollector, BubbleService } from './bubble.service';
+import { MaterialModule } from '@angular/material';
 
-export * from './modal-dialog';
-export * from './modal-dialog/confirmation-dialog';
-export * from './modal-dialog/progress-dialog';
-export * from './modal-dialog/key-upload-dialog';
-
-export * from './bubble';
+@NgModule({
+    imports: [CommonModule, MaterialModule.forRoot()],
+    declarations: [BubbleComponent],
+    providers: [BubblesCollector, BubbleService],
+    exports: [BubbleComponent]
+})
+export class BubbleModule { }
