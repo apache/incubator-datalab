@@ -273,8 +273,6 @@ export class ResourcesGridComponent implements OnInit {
       this.confirmationDialog.open({ isFooter: false }, data, ConfirmationDialogType.TerminateExploratory);
     } else if (action === 'install') {
       this.installLibraries.open({ isFooter: false }, data);
-    } else if (action === 'libraries') {
-      this.manageLibs.open({ isFooter: false }, data);
     }
   }
 
