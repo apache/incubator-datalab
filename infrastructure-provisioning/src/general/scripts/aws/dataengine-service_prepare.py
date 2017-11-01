@@ -147,7 +147,7 @@ if __name__ == "__main__":
         cluster_sg_egress = [
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": emr_conf['private_subnet_cidr']}],
+                "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             },
