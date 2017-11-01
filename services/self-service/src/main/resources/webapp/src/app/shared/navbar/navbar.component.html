@@ -29,7 +29,7 @@ limitations under the License.
       <md-menu #menu="mdMenu" [overlapTrigger]="false">
         <a class="nav-item" md-menu-item [routerLink]="['/resources_list']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">List of Resources</a>
         <a class="nav-item" md-menu-item [routerLink]="['/environment_health_status']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Health Status</a>
-        <a *ngIf="PROVIDER === 'aws'" class="nav-item" md-menu-item [routerLink]="['/reporting']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Reporting</a>
+        <a class="nav-item" md-menu-item [routerLink]="['/reporting']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Reporting</a>
       </md-menu>
     </nav>
     <a [routerLink]="['/resources_list']" class="navbar-logo">
