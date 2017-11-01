@@ -32,6 +32,15 @@ export const NAMING_CONVENTION = {
     'total_instance_number': 'total_instance_number',
 
     'spot_instance': 'Spot instance ',
+    'billing': {
+        'resourceName': 'resource_name',
+        'cost': 'cost',
+        'currencyCode': 'currency_code',
+        'dateFrom': 'usage_date_start',
+        'dateTo': 'usage_date_end',
+        'service': 'product',
+        'type': 'resource_type'
+    },
     'service': 'Service',
     'type': 'Type',
     'instance_size': 'Shape',

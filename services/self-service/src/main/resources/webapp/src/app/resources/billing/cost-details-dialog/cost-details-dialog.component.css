@@ -62,6 +62,9 @@ limitations under the License.
   text-overflow: ellipsis;
   padding-right: 10px;
 }
+.billing-detail .wide-name-field {
+  width: 25%;
+}
 .billing-detail .resource-name {
   cursor: pointer;
 }
