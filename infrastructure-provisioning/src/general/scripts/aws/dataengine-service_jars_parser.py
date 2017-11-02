@@ -67,15 +67,15 @@ if __name__ == "__main__":
     md5sum = subprocess.check_output('md5sum /tmp/spark.tar.gz', shell=True)
     with open('/tmp/spark-checksum.chk', 'w') as outfile:
         outfile.write(md5sum)
-    os.system('aws s3 cp /tmp/jars.tar.gz s3://{}/jars/{}/ --endpoint-url {} --region {}'.
+    os.system('aws s3 cp /tmp/jars.tar.gz s3://{}/jars/{}/ --endpoint-url {} --region {} --sse AES256'.
               format(args.bucket, args.emr_version, endpoint, args.region))
-    os.system('aws s3 cp /tmp/jars-checksum.chk s3://{}/jars/{}/ --endpoint-url {} --region {}'.
+    os.system('aws s3 cp /tmp/jars-checksum.chk s3://{}/jars/{}/ --endpoint-url {} --region {} --sse AES256'.
               format(args.bucket, args.emr_version, endpoint, args.region))
-    os.system('aws s3 cp {} s3://{}/{}/{}/ --endpoint-url {} --region {}'.
+    os.system('aws s3 cp {} s3://{}/{}/{}/ --endpoint-url {} --region {} --sse AES256'.
               format(spark_def_path, args.bucket, args.user_name, args.cluster_name, endpoint, args.region))
-    os.system('aws s3 cp /tmp/python_version s3://{}/{}/{}/ --endpoint-url {} --region {}'.
+    os.system('aws s3 cp /tmp/python_version s3://{}/{}/{}/ --endpoint-url {} --region {} --sse AES256'.
               format(args.bucket, args.user_name, args.cluster_name, endpoint, args.region))
-    os.system('aws s3 cp /tmp/spark.tar.gz s3://{}/{}/{}/ --endpoint-url {} --region {}'.
+    os.system('aws s3 cp /tmp/spark.tar.gz s3://{}/{}/{}/ --endpoint-url {} --region {} --sse AES256'.
               format(args.bucket, args.user_name, args.cluster_name, endpoint, args.region))
-    os.system('aws s3 cp /tmp/spark-checksum.chk s3://{}/{}/{}/ --endpoint-url {} --region {}'.
+    os.system('aws s3 cp /tmp/spark-checksum.chk s3://{}/{}/{}/ --endpoint-url {} --region {} --sse AES256'.
               format(args.bucket, args.user_name, args.cluster_name, endpoint, args.region))
