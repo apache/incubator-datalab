@@ -263,12 +263,12 @@ class AzureActions:
     def remove_datalake_directory(self, datalake_name, dir_name):
         try:
             datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
-            result = datalake_client.rm(dir_name, recursive=True).wait()
+            result = datalake_client.rm(dir_name, recursive=True)
             return result
         except Exception as err:
             logging.info(
-                "Unable to create Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to remove Data Lake directory",
+                "Unable to delete Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to delete Data Lake directory",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
