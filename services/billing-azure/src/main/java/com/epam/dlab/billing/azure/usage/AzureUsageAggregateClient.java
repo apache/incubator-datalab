@@ -58,12 +58,12 @@ public class AzureUsageAggregateClient {
             return postProcess(usageAggregateResponse);
 
         } catch (ClientErrorException e) {
-            log.error("Cannot get rate card due to {}", (e.getResponse() != null && e.getResponse().hasEntity())
+            log.error("Cannot get usage details due to {}", (e.getResponse() != null && e.getResponse().hasEntity())
                     ? e.getResponse().readEntity(String.class) : "");
-            log.error("Error during using RateCard API", e);
+            log.error("Error during using Usage Details API", e);
             throw e;
         } catch (IOException | RuntimeException e) {
-            log.error("Cannot retrieve rate card due to ", e);
+            log.error("Cannot retrieve usage detail due to ", e);
             throw e;
         } finally {
             if (client != null) {
