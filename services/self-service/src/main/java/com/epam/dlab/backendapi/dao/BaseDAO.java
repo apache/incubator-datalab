@@ -51,13 +51,13 @@ import com.mongodb.client.result.UpdateResult;
 
 /** Implements the base API for Mongo database.
  */
-class BaseDAO implements MongoCollections {
+public class BaseDAO implements MongoCollections {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseDAO.class);
 
     protected static final ObjectMapper MAPPER = new ObjectMapper()
             .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
             .registerModule(new IsoDateModule());
-    public static final String FIELD_DELIMETER = ".";
+
     public static final String FIELD_SET_DELIMETER = ".$.";
     public static final String FIELD_PROJECTION_DELIMITER = "$";
     public static final String ID = "_id";
@@ -319,6 +319,14 @@ class BaseDAO implements MongoCollections {
         } catch (IOException e) {
             throw new DlabException("error converting from document with id " + document.get(ID), e);
         }
+    }
+
+    protected Document getGroupingFields(String ... fieldNames) {
+        Document d = new Document();
+        for (String name : fieldNames) {
+            d.put(name, "$" + name);
+        }
+        return d;
     }
 
     /** Returns a unique id. */
