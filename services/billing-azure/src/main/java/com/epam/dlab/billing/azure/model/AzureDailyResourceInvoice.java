@@ -52,6 +52,8 @@ public class AzureDailyResourceInvoice extends MongoDocument<AzureDailyResourceI
     private String day;
     @JsonProperty
     private double cost;
+    @JsonProperty
+    private String currencyCode;
 
     @Builder
     public AzureDailyResourceInvoice(AzureDlabBillableResource azureDlabBillableResource) {

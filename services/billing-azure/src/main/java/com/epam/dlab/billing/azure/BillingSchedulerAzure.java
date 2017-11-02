@@ -106,6 +106,7 @@ public class BillingSchedulerAzure {
 
     public void stop() {
         try {
+            log.info("Stopping Azure billing scheduler");
             if (!executorService.awaitTermination(30, TimeUnit.SECONDS)) {
                 log.error("Force shut down");
                 executorService.shutdownNow();

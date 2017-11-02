@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.resources;
+package com.epam.dlab.backendapi.resources.aws;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.dto.BillingFilterFormDTO;
+import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -38,7 +38,7 @@ import javax.ws.rs.core.Response;
  */
 @Path("/billing")
 @Consumes(MediaType.APPLICATION_JSON)
-public class BillingResource {
+public class BillingResourceAws {
 
     @Inject
     private BillingService billingService;
@@ -52,7 +52,8 @@ public class BillingResource {
     @POST
     @Path("/report")
     @Produces(MediaType.APPLICATION_JSON)
-    public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilterFormDTO formDTO) {
+    @SuppressWarnings("unchecked")
+    public Document getBillingReport(@Auth UserInfo userInfo, @Valid @NotNull AwsBillingFilter formDTO) {
         return billingService.getReport(userInfo, formDTO);
     }
 
@@ -66,7 +67,8 @@ public class BillingResource {
     @POST
     @Path("/report/download")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull BillingFilterFormDTO formDTO) {
+    @SuppressWarnings("unchecked")
+    public Response downloadBillingReport(@Auth UserInfo userInfo, @Valid @NotNull AwsBillingFilter formDTO) {
         return Response.ok(billingService.downloadReport(userInfo, formDTO))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + billingService.getReportFileName(userInfo, formDTO) + "\"")

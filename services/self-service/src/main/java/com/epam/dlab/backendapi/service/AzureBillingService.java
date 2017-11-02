@@ -17,24 +17,39 @@
 package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.dto.BillingFilterFormDTO;
+import com.epam.dlab.backendapi.dao.azure.AzureBillingDAO;
+import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
+import com.epam.dlab.exceptions.DlabException;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 
 @Slf4j
-public class AzureBillingService implements BillingService {
+@Singleton
+public class AzureBillingService implements BillingService<AzureBillingFilter> {
+
+    @Inject
+    private AzureBillingDAO billingDAO;
+
     @Override
-    public Document getReport(UserInfo userInfo, BillingFilterFormDTO filter) {
+    public Document getReport(UserInfo userInfo, AzureBillingFilter filter) {
+        log.trace("Get billing report for user {} with filter {}", userInfo.getName(), filter);
+        try {
+            return billingDAO.getReport(userInfo, filter);
+        } catch (RuntimeException t) {
+            log.error("Cannot load billing report for user {} with filter {}", userInfo.getName(), filter, t);
+            throw new DlabException("Cannot load billing report: " + t.getLocalizedMessage(), t);
+        }
+    }
+
+    @Override
+    public byte[] downloadReport(UserInfo userInfo, AzureBillingFilter filter) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public byte[] downloadReport(UserInfo userInfo, BillingFilterFormDTO filter) {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    @Override
-    public String getReportFileName(UserInfo userInfo, BillingFilterFormDTO filter) {
+    public String getReportFileName(UserInfo userInfo, AzureBillingFilter filter) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 }

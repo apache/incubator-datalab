@@ -17,13 +17,12 @@
 package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.dto.BillingFilterFormDTO;
 import org.bson.Document;
 
-public interface BillingService {
-    Document getReport(UserInfo userInfo, BillingFilterFormDTO filter);
+public interface BillingService<T> {
+    Document getReport(UserInfo userInfo, T filter);
 
-    byte[] downloadReport(UserInfo userInfo, BillingFilterFormDTO filter);
+    byte[] downloadReport(UserInfo userInfo, T filter);
 
-    String getReportFileName(UserInfo userInfo, BillingFilterFormDTO filter);
+    String getReportFileName(UserInfo userInfo, T filter);
 }

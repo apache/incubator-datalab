@@ -26,6 +26,7 @@ import com.epam.dlab.mongo.MongoKeyWords;
 import com.google.common.collect.Lists;
 import com.google.inject.Singleton;
 import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.model.Accumulators;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
@@ -42,6 +43,8 @@ import java.util.Map;
 import static com.epam.dlab.core.parser.ReportLine.FIELD_DLAB_ID;
 import static com.epam.dlab.core.parser.ReportLine.FIELD_USER_ID;
 import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.fields;
+import static com.mongodb.client.model.Projections.include;
 
 @Singleton
 @Slf4j
@@ -194,5 +197,20 @@ public class AzureBillingDAO extends BillingDAO {
     @Override
     protected void appendSsnAndEdgeNodeType(List<String> shapeNames, Map<String, ShapeInfo> shapes) {
 
+        String serviceBaseName = settings.getServiceBaseName().replace("_", "-").toLowerCase();
+
+        final String ssnSize = settings.getAzureSsnInstanceSize();
+        if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(ssnSize)) {
+            shapes.put(serviceBaseName + "-ssn", new BillingDAO.ShapeInfo(ssnSize));
+        }
+
+
+        final String edgeSize = settings.getAzureEdgeInstanceSize();
+        if (shapeNames == null || shapeNames.isEmpty() || shapeNames.contains(edgeSize)) {
+            FindIterable<Document> docs = getCollection(USER_EDGE).find().projection(fields(include(INSTANCE_ID)));
+            for (Document d : docs) {
+                shapes.put(d.getString(INSTANCE_ID), new BillingDAO.ShapeInfo(edgeSize));
+            }
+        }
     }
 }

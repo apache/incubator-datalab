@@ -193,6 +193,7 @@ public class AzureInvoiceCalculationService {
                     azureDailyResourceInvoice.setMeterCategory(record.getProperties().getMeterCategory());
                     azureDailyResourceInvoice.setCost(rate * record.getProperties().getQuantity());
                     azureDailyResourceInvoice.setDay(getDay(record.getProperties().getUsageStartTime()));
+                    azureDailyResourceInvoice.setCurrencyCode(billingConfigurationAzure.getCurrency());
 
                     log.trace("Generated invoice for azure resource {}", azureDailyResourceInvoice);
 
