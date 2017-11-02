@@ -213,6 +213,8 @@ if __name__ == "__main__":
                                                       json.dumps(notebook_config['tags']))
             print("Image was successfully created.")
             local("~/scripts/{}.py --uuid {}".format('common_prepare_notebook', args.uuid))
+            instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
+                                                                   notebook_config['instance_name'])
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
                                os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
     except Exception as err:
