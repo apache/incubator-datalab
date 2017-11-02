@@ -213,6 +213,11 @@ if __name__ == "__main__":
                                                       json.dumps(notebook_config['tags']))
             print("Image was successfully created.")
             local("~/scripts/{}.py --uuid {}".format('common_prepare_notebook', args.uuid))
+            instance_running = False
+            while not instance_running:
+                if AzureMeta().get_instance_status(notebook_config['resource_group_name'],
+                                                   notebook_config['instance_name']) == 'running':
+                    instance_running = True
             instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                    notebook_config['instance_name'])
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
