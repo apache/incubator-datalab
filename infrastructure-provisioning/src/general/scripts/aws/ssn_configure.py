@@ -235,7 +235,9 @@ if __name__ == "__main__":
             "aws_security_groups_ids": os.environ['aws_security_groups_ids'].replace(" ", ""),
             "conf_os_family": os.environ['conf_os_family'],
             "conf_tag_resource_id": os.environ['conf_tag_resource_id'],
-            "conf_key_dir": os.environ['conf_key_dir']
+            "conf_key_dir": os.environ['conf_key_dir'],
+            "ssn_instance_size": os.environ['aws_ssn_instance_size'],
+            "edge_instance_size": os.environ['aws_edge_instance_size']
         }
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
