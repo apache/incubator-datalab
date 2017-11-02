@@ -32,7 +32,16 @@ export const NAMING_CONVENTION = {
     'total_instance_number': 'dataengine_instance_count',
 
     'spot_instance': 'Low-priority virtual machines',
-    'service': '',
+    'billing': {
+        'resourceName': 'resourceName',
+        'cost': 'costString',
+        'currencyCode': 'currencyCode',
+        'dateFrom': 'from',
+        'dateTo': 'to',
+        'service': 'meterCategory',
+        'type': ''
+    },
+    'service': 'Category',
     'type': '',
     'instance_size': 'Size',
     'computational_resource': 'Computational resources',
