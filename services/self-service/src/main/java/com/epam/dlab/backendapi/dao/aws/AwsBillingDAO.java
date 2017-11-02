@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.epam.dlab.backendapi.dao.BillingDAO;
+import com.epam.dlab.billing.BillingCalculationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -153,7 +154,7 @@ public class AwsBillingDAO extends BillingDAO {
 			if (StringUtils.compare(usageDateEnd, dateEnd) < 0) {
 				usageDateEnd = dateEnd;
 			}
-			double cost = BillingUtils.round(d.getDouble(FIELD_COST), 2);
+			double cost = BillingCalculationUtils.round(d.getDouble(FIELD_COST), 2);
 			costTotal += cost;
 
 			Document item = new Document()
@@ -163,7 +164,7 @@ public class AwsBillingDAO extends BillingDAO {
 					.append(SHAPE, shapeName)
 					.append(FIELD_PRODUCT, id.getString(FIELD_PRODUCT))
 					.append(FIELD_RESOURCE_TYPE, id.getString(FIELD_RESOURCE_TYPE))
-					.append(FIELD_COST, BillingUtils.formatDouble(cost))
+					.append(FIELD_COST, BillingCalculationUtils.formatDouble(cost))
 					.append(FIELD_CURRENCY_CODE, id.getString(FIELD_CURRENCY_CODE))
 					.append(USAGE_DATE_START, dateStart)
 					.append(USAGE_DATE_END, dateEnd);
@@ -176,7 +177,7 @@ public class AwsBillingDAO extends BillingDAO {
 				.append(USAGE_DATE_START, usageDateStart)
 				.append(USAGE_DATE_END, usageDateEnd)
 				.append(ITEMS, reportItems)
-				.append(COST_TOTAL, BillingUtils.formatDouble(BillingUtils.round(costTotal, 2)))
+				.append(COST_TOTAL, BillingCalculationUtils.formatDouble(BillingCalculationUtils.round(costTotal, 2)))
 				.append(FIELD_CURRENCY_CODE, (reportItems.isEmpty() ? null :
 												reportItems.get(0).getString(FIELD_CURRENCY_CODE)))
 				.append(FULL_REPORT, isFullReport);

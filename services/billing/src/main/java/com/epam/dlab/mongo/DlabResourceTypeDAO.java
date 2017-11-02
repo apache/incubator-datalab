@@ -40,6 +40,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.epam.dlab.billing.BillingCalculationUtils;
 import com.epam.dlab.billing.DlabResourceType;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -307,7 +308,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	String currencyCode = null;
     	for(Document d : docs) {
     		Document id = (Document) d.get(FIELD_ID);
-    		double cost = BillingUtils.round(d.getDouble(ReportLine.FIELD_COST), 2);
+    		double cost = BillingCalculationUtils.round(d.getDouble(ReportLine.FIELD_COST), 2);
     		costTotal = (costTotal == null ? cost : costTotal + cost);
     		if (currencyCode == null) {
     			currencyCode = id.getString(ReportLine.FIELD_CURRENCY_CODE);
@@ -317,7 +318,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
     			.append(FIELD_RESOURCE_NAME, resources.getById(id.getString(FIELD_DLAB_RESOURCE_ID)).getResourceName())
         		.append(ReportLine.FIELD_PRODUCT, id.getString(ReportLine.FIELD_PRODUCT))
         		.append(ReportLine.FIELD_RESOURCE_TYPE, id.getString(ReportLine.FIELD_RESOURCE_TYPE))
-    			.append(ReportLine.FIELD_COST, BillingUtils.formatDouble(cost))
+    			.append(ReportLine.FIELD_COST, BillingCalculationUtils.formatDouble(cost))
     			.append(ReportLine.FIELD_CURRENCY_CODE, id.getString(ReportLine.FIELD_CURRENCY_CODE))
     			.append(FIELD_USAGE_DATE_START, d.getString(FIELD_USAGE_DATE_START))
     			.append(FIELD_USAGE_DATE_END, d.getString(FIELD_USAGE_DATE_END));
@@ -330,7 +331,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
 
 		MongoCollection<Document> cExploratory = connection.getCollection(COLLECTION_USER_INSTANCES);
     	Bson values = Updates.combine(
-				Updates.set(ReportLine.FIELD_COST, BillingUtils.formatDouble(costTotal)),
+				Updates.set(ReportLine.FIELD_COST, BillingCalculationUtils.formatDouble(costTotal)),
 				Updates.set(FIELD_CURRENCY_CODE, currencyCode),
 				Updates.set(COLLECTION_BILLING, (billing.size() > 0 ? billing : null)));
 		cExploratory.updateOne(
@@ -356,7 +357,7 @@ public class DlabResourceTypeDAO implements MongoConstants {
     	for(Document d : docs) {
     		Document id = (Document) d.get(FIELD_ID);
     		Bson values = Updates.combine(
-					Updates.set(ReportLine.FIELD_COST, BillingUtils.round(d.getDouble(ReportLine.FIELD_COST), 2)),
+					Updates.set(ReportLine.FIELD_COST, BillingCalculationUtils.round(d.getDouble(ReportLine.FIELD_COST), 2)),
 					Updates.set(FIELD_CURRENCY_CODE, id.get(ReportLine.FIELD_CURRENCY_CODE)));
     		cEdge.updateOne(
             	eq(FIELD_ID, user),

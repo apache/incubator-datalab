@@ -16,6 +16,7 @@
 
 package com.epam.dlab.billing.azure;
 
+import com.epam.dlab.billing.BillingCalculationUtils;
 import com.epam.dlab.billing.azure.config.BillingConfigurationAzure;
 import com.epam.dlab.billing.azure.model.AzureDailyResourceInvoice;
 import com.epam.dlab.billing.azure.model.AzureDlabBillableResource;
@@ -191,7 +192,8 @@ public class AzureInvoiceCalculationService {
                     azureDailyResourceInvoice.setUsageStartDate(record.getProperties().getUsageStartTime());
                     azureDailyResourceInvoice.setUsageEndDate(record.getProperties().getUsageEndTime());
                     azureDailyResourceInvoice.setMeterCategory(record.getProperties().getMeterCategory());
-                    azureDailyResourceInvoice.setCost(rate * record.getProperties().getQuantity());
+                    azureDailyResourceInvoice.setCost(
+                            BillingCalculationUtils.round(rate * record.getProperties().getQuantity(), 2));
                     azureDailyResourceInvoice.setDay(getDay(record.getProperties().getUsageStartTime()));
                     azureDailyResourceInvoice.setCurrencyCode(billingConfigurationAzure.getCurrency());
 

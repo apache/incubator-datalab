@@ -21,6 +21,7 @@ import com.epam.dlab.backendapi.dao.BillingDAO;
 import com.epam.dlab.backendapi.resources.dto.azure.AzureBillingFilter;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.billing.BillingCalculationUtils;
 import com.epam.dlab.billing.DlabResourceType;
 import com.epam.dlab.mongo.MongoKeyWords;
 import com.google.common.collect.Lists;
@@ -50,15 +51,6 @@ import static com.mongodb.client.model.Projections.include;
 @Slf4j
 public class AzureBillingDAO extends BillingDAO {
     public static final String SIZE = "size";
-
-    private static String formatDouble(Double value) {
-        return (value == null ? null : String.format("%,.2f", value));
-    }
-
-    private static double round(double value, int scale) {
-        int d = (int) Math.pow(10, scale);
-        return (double) (Math.round(value * d)) / d;
-    }
 
     public Document getReport(UserInfo userInfo, AzureBillingFilter filter) {
 
@@ -122,7 +114,7 @@ public class AzureBillingDAO extends BillingDAO {
                     .append(MongoKeyWords.RESOURCE_TYPE,
                             DlabResourceType.getResourceTypeName(id.getString(MongoKeyWords.RESOURCE_TYPE)))
                     .append(MongoKeyWords.COST, d.getDouble(MongoKeyWords.COST))
-                    .append(MongoKeyWords.COST_STRING, formatDouble(d.getDouble(MongoKeyWords.COST)))
+                    .append(MongoKeyWords.COST_STRING, BillingCalculationUtils.formatDouble(d.getDouble(MongoKeyWords.COST)))
                     .append(MongoKeyWords.CURRENCY_CODE, id.getString(MongoKeyWords.CURRENCY_CODE))
                     .append(MongoKeyWords.USAGE_FROM, dateStart)
                     .append(MongoKeyWords.USAGE_TO, dateEnd);
@@ -136,7 +128,7 @@ public class AzureBillingDAO extends BillingDAO {
                 .append(MongoKeyWords.USAGE_FROM, usageDateStart)
                 .append(MongoKeyWords.USAGE_TO, usageDateEnd)
                 .append(ITEMS, reportItems)
-                .append(COST_TOTAL, formatDouble(round(costTotal, 2)))
+                .append(COST_TOTAL, BillingCalculationUtils.formatDouble(BillingCalculationUtils.round(costTotal, 2)))
                 .append(MongoKeyWords.CURRENCY_CODE, (reportItems.isEmpty() ? null :
                         reportItems.get(0).getString(MongoKeyWords.CURRENCY_CODE)));
 
