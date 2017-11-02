@@ -27,9 +27,9 @@ public class ApiPath {
     public static final String EXP_ENVIRONMENT = "/api/infrastructure_provision/exploratory_environment";
     public static final String PROVISIONED_RES = "/api/infrastructure/info";
     public static final String COMPUTATIONAL_RES = "/api/infrastructure_provision/computational_resources/dataengine-service";
-    public static final String COMPUTATIONAL_RES_STANDALONE = "/api/infrastructure_provision/computational_resources/dataengine";
+    public static final String COMPUTATIONAL_RES_SPARK = "/api/infrastructure_provision/computational_resources/dataengine";
     public static final String STOP_NOTEBOOK = EXP_ENVIRONMENT + "/%s/stop";
-    public static final String TERMINATE_EMR = "/api/infrastructure_provision/computational_resources/%s/%s/terminate";
+    public static final String TERMINATE_CLUSTER = "/api/infrastructure_provision/computational_resources/%s/%s/terminate";
     public static final String TERMINATE_NOTEBOOK = EXP_ENVIRONMENT + "/%s/terminate";
     public static final String LIB_GROUPS = "/api/infrastructure_provision/exploratory_environment/lib_groups";
     public static final String LIB_LIST = "/api/infrastructure_provision/exploratory_environment/search/lib_list";
@@ -45,8 +45,8 @@ public class ApiPath {
         return ConfigureURL(STOP_NOTEBOOK, serviceBaseName);
     }
     
-    public static String getTerminateEMRUrl(String notebookName, String emrName) {
-        return ConfigureURL(TERMINATE_EMR, notebookName, emrName);
+    public static String getTerminateClusterUrl(String notebookName, String emrName) {
+        return ConfigureURL(TERMINATE_CLUSTER, notebookName, emrName);
     }
     
     public static String getTerminateNotebookUrl(String serviceBaseName) {

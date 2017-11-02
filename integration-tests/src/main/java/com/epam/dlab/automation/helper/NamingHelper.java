@@ -90,15 +90,15 @@ public class NamingHelper {
     	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
     }
     
-    public static String getEmrInstanceName(String notebookName, String emrName) {
-    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "emr", notebookName, emrName);
+    public static String getClusterInstanceName(String notebookName, String emrName) {
+    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "cluster", notebookName, emrName);
     }
 
     public static String getNotebookContainerName(String notebookName, String action) {
     	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "exploratory", notebookName);
     }
     
-    public static String getEmrContainerName(String emrName, String action) {
+    public static String getClusterContainerName(String emrName, String action) {
     	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "computational", emrName);
     }
     
