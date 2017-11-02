@@ -18,7 +18,10 @@ limitations under the License.
 
 package com.epam.dlab.automation.test;
 
+import static org.testng.Assert.fail;
+
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Random;
@@ -46,6 +49,7 @@ import com.epam.dlab.automation.http.HttpRequest;
 import com.epam.dlab.automation.http.HttpStatusCode;
 import com.epam.dlab.automation.model.CreateNotebookDto;
 import com.epam.dlab.automation.model.DeployEMRDto;
+import com.epam.dlab.automation.model.DeploySparkStandaloneDto;
 import com.epam.dlab.automation.model.JsonMapperDto;
 import com.jayway.restassured.response.Response;
 
@@ -56,10 +60,11 @@ public class TestCallable implements Callable<Boolean> {
     private final boolean fullTest;
     private final String token, ssnExpEnvURL, ssnProUserResURL;
     private final String bucketName;
-    private final String notebookName, emrName;
+    private final String notebookName, emrName, dataEngineType;
 
-    public TestCallable(String notebookTemplate, boolean fullTest) {
+    public TestCallable(String notebookTemplate,String dataEngineType, boolean fullTest) {
     	this.notebookTemplate = notebookTemplate;
+    	this.dataEngineType = dataEngineType;
         this.fullTest = fullTest;
 
         this.token = NamingHelper.getSsnToken();
@@ -77,10 +82,36 @@ public class TestCallable implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        final String notebookIp = createNotebook(notebookName);
-        testLibs();
+       
+        switch (dataEngineType) {
+		case "dataengine":
+			testEMR();
+			break;
+		case "dataengine-service":
+			testSparkStandalone();
+			break;
+		default:
+			LOGGER.error("illegal dataengine type {}",dataEngineType);
+			fail("illegal dataengine type"+dataEngineType, new IllegalArgumentException("illegal dataengine type"+dataEngineType));
+			break;
+		}
+        
 
-        final DeployEMRDto deployEMR = createEMR();
+       	// Create notebook from AMI
+       	String notebookNewName = "AMI" + notebookName;
+       	createNotebook(notebookNewName);
+
+       	terminateNotebook(notebookName);
+
+       	LOGGER.info("{} All tests finished successfully", notebookName);
+        return true;
+   }
+    
+    private void testEMR() throws Exception {
+		// TODO Auto-generated method stub
+    	final String notebookIp = createNotebook(notebookName);
+        testLibs();
+    	final DeployEMRDto deployEMR = createEMR();
 
         final String emrClusterName = NamingHelper.getEmrClusterName(NamingHelper.getEmrInstanceName(notebookName, emrName));
         if (!ConfigPropertyValue.isRunModeLocal()) {
@@ -99,18 +130,90 @@ public class TestCallable implements Callable<Boolean> {
         if (deployEMR != null) {
         	terminateNotebook(deployEMR);
         }
+	}
 
-       	// Create notebook from AMI
-       	String notebookNewName = "AMI" + notebookName;
-       	createNotebook(notebookNewName);
+   private void testSparkStandalone() throws Exception {
+		// TODO Auto-generated method stub
+	   final String notebookIp = createNotebook(notebookName);
+       testLibs();
+//   	final DeployEMRDto deployEMR = createEMR();
+   	final DeploySparkStandaloneDto dSparkStandaloneDto = createStandalone();
 
-       	terminateNotebook(notebookName);
+       final String emrClusterName = NamingHelper.getEmrClusterName(NamingHelper.getEmrInstanceName(notebookName, emrName));
+       if (!ConfigPropertyValue.isRunModeLocal()) {
+       	TestEmr test = new TestEmr();
+       	test.run(notebookName, emrClusterName);
 
-       	LOGGER.info("{} All tests finished successfully", notebookName);
-        return true;
-   }
+           String notebookFilesLocation = PropertiesResolver.getPropertyByName(String.format(PropertiesResolver.NOTEBOOK_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
+           test.run2(NamingHelper.getSsnIp(), notebookIp, emrClusterName, new File(notebookFilesLocation), notebookName);
+       }
 
-   private String  createNotebook(String notebookName) throws Exception {
+       stopEnvironment();
+
+       if (fullTest) {
+       	restartNotebookAndRedeployToTerminate(dSparkStandaloneDto);
+       }
+       if (dSparkStandaloneDto != null) {
+       	terminateNotebook(dSparkStandaloneDto);
+       }
+	}
+
+  
+
+private DeploySparkStandaloneDto createStandalone() throws Exception {
+	// TODO Auto-generated method stub
+	String gettingStatus;
+    LOGGER.info("7. SparkStamdalone {} will be deployed for {} ...", emrName, notebookName);
+    final String ssnCompResURL = NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES_STANDALONE);
+    LOGGER.info("  {} : SSN computational resources URL is {}", notebookName, ssnCompResURL);
+
+    DeploySparkStandaloneDto sparkStandaloneDto=
+            JsonMapperDto.readNode(
+                    Paths.get(PropertiesResolver.getClusterConfFileLocation(), "SparkStandalone.json").toString(),
+                    DeploySparkStandaloneDto.class);
+
+    //TODO: add parameter for switching from regular ec2 instances to spot instances
+    /*DeployEMRDto deployEMRSpot40 =
+            NodeReader.readNode(
+                    Paths.get(PropertiesResolver.getClusterConfFileLocation(), "EMR_spot.json").toString(),
+                    DeployEMRDto.class);*/
+
+    sparkStandaloneDto.setName(emrName);
+    sparkStandaloneDto.setNotebook_name(notebookName);
+    LOGGER.info("{}: SparkStamdalone = {}",notebookName, sparkStandaloneDto);
+    Response responseDeployingSparkStandalone = new HttpRequest().webApiPut(ssnCompResURL, ContentType.JSON,
+    		sparkStandaloneDto, token);
+    LOGGER.info("{}:   responseDeployingSparkStandalone.getBody() is {}",notebookName, responseDeployingSparkStandalone.getBody().asString());
+    Assert.assertEquals(responseDeployingSparkStandalone.statusCode(), HttpStatusCode.OK, "SparkStamdalone  " + emrName + " was not deployed");
+
+    gettingStatus = WaitForStatus.emr(ssnProUserResURL, token, notebookName, emrName, "creating", ConfigPropertyValue.getTimeoutEMRCreate());
+    if(!ConfigPropertyValue.isRunModeLocal()) {
+        if (!(gettingStatus.contains("configuring") || gettingStatus.contains("running")))
+            throw new Exception(notebookName + ": SparkStamdalone " + emrName + " has not been deployed. SparkStamdalone status is " + gettingStatus);
+        LOGGER.info("{}: SparkStamdalone {} has been deployed", notebookName, emrName);
+
+        AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.RUNNING);
+        Docker.checkDockerStatus(NamingHelper.getEmrContainerName(emrName, "create"), NamingHelper.getSsnIp());
+    }
+    LOGGER.info("{}:   Waiting until SparkStamdalone has been configured ...", notebookName);
+
+    gettingStatus = WaitForStatus.emr(ssnProUserResURL, token, notebookName, emrName, "configuring", ConfigPropertyValue.getTimeoutEMRCreate());
+    if (!gettingStatus.contains("running"))
+        throw new Exception(notebookName + ": SparkStamdalone " + emrName + " has not been configured. SparkStamdalone status is " + gettingStatus);
+    LOGGER.info(" {}:  SparkStamdalone {} has been configured", notebookName, emrName);
+
+    if(!ConfigPropertyValue.isRunModeLocal()) {
+        AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.RUNNING);
+        Docker.checkDockerStatus(NamingHelper.getEmrContainerName(emrName, "create"), NamingHelper.getSsnIp());
+    }
+
+    LOGGER.info("{}:   Check bucket {}", notebookName, bucketName);
+    AmazonHelper.printBucketGrants(bucketName);
+
+    return sparkStandaloneDto;
+}
+
+private String  createNotebook(String notebookName) throws Exception {
        LOGGER.info("6. Notebook {} will be created ...", notebookName);
        String notebookConfigurationFile = String.format(PropertiesResolver.NOTEBOOK_CONFIGURATION_FILE_TEMPLATE, notebookTemplate);
        LOGGER.info("{} notebook configuration file: {}", notebookName, notebookConfigurationFile);
@@ -245,8 +348,46 @@ public class TestCallable implements Callable<Boolean> {
 	   final String emrNewName = redeployEMR(deployEMR);
 	   terminateEMR(emrNewName);
    }
+   
 
-   private void restartNotebook() throws Exception {
+private void restartNotebookAndRedeployToTerminate(DeploySparkStandaloneDto dSparkStandaloneDto) throws Exception {
+	// TODO Auto-generated method stub
+	restartNotebook();
+	   final String emrNewName = redeploySparkStandalone(dSparkStandaloneDto);
+	   terminateEMR(emrNewName);
+}
+
+
+   private String redeploySparkStandalone(DeploySparkStandaloneDto dSparkStandaloneDto) throws Exception {
+	   final String emrNewName = "New" + emrName;
+       String gettingStatus;
+
+       LOGGER.info("10. New EMR {} will be deployed for termination for notebook {} ...", emrNewName, notebookName);
+
+       dSparkStandaloneDto.setName(emrNewName);
+       dSparkStandaloneDto.setNotebook_name(notebookName);
+       Response responseDeployingEMRNew = new HttpRequest().webApiPut(NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES_STANDALONE),
+                                                                      ContentType.JSON, dSparkStandaloneDto, token);
+       LOGGER.info("    responseDeployingEMRNew.getBody() is {}", responseDeployingEMRNew.getBody().asString());
+       Assert.assertEquals(responseDeployingEMRNew.statusCode(), HttpStatusCode.OK);
+
+       gettingStatus = WaitForStatus.emr(ssnProUserResURL, token, notebookName, emrNewName, "creating", ConfigPropertyValue.getTimeoutEMRCreate());
+       if (!(gettingStatus.contains("configuring") || gettingStatus.contains("running")))
+           throw new Exception("New EMR " + emrNewName + " has not been deployed. EMR status is " + gettingStatus);
+       LOGGER.info("    New EMR {} has been deployed", emrNewName);
+
+       LOGGER.info("   Waiting until EMR {} has been configured ...", emrNewName);
+       gettingStatus = WaitForStatus.emr(ssnProUserResURL, token, notebookName, emrNewName, "configuring", ConfigPropertyValue.getTimeoutEMRCreate());
+       if (!gettingStatus.contains(AmazonInstanceState.RUNNING.toString()))
+           throw new Exception("EMR " + emrNewName + " has not been configured. EMR status is " + gettingStatus);
+       LOGGER.info("   EMR {} has been configured", emrNewName);
+
+       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrNewName), AmazonInstanceState.RUNNING);
+       Docker.checkDockerStatus(NamingHelper.getEmrContainerName(emrNewName, "create"), NamingHelper.getSsnIp());
+       return emrNewName;
+}
+
+private void restartNotebook() throws Exception {
        LOGGER.info("9. Notebook {} will be re-started ...", notebookName);
        String requestBody = "{\"notebook_instance_name\":\"" + notebookName + "\"}";
        Response respStartNotebook = new HttpRequest().webApiPost(ssnExpEnvURL, ContentType.JSON, requestBody, token);
@@ -292,6 +433,22 @@ public class TestCallable implements Callable<Boolean> {
        LOGGER.info("    EMR {} has been terminated for Notebook {}", deployEmr.getName(), deployEmr.getNotebook_name());
 
        AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(deployEmr.getNotebook_name(), deployEmr.getName()), AmazonInstanceState.TERMINATED);
+   }
+   
+   private void terminateNotebook(DeploySparkStandaloneDto dSparkStandalone) throws Exception {
+       terminateNotebook(dSparkStandalone.getNotebook_name());
+
+       String gettingStatus = WaitForStatus.getEmrStatus(
+				new HttpRequest()
+					.webApiGet(ssnProUserResURL, token)
+					.getBody()
+					.jsonPath(),
+					dSparkStandalone.getNotebook_name(), dSparkStandalone.getName());
+       if (!gettingStatus.contains("terminated"))
+           throw new Exception("EMR has not been terminated for Notebook " + dSparkStandalone.getNotebook_name() + ". EMR status is " + gettingStatus);
+       LOGGER.info("    EMR {} has been terminated for Notebook {}", dSparkStandalone.getName(), dSparkStandalone.getNotebook_name());
+
+       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(dSparkStandalone.getNotebook_name(), dSparkStandalone.getName()), AmazonInstanceState.TERMINATED);
    }
 
    private void terminateEMR(String emrNewName) throws Exception {
