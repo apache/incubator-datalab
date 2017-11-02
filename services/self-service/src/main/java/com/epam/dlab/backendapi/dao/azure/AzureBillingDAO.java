@@ -49,7 +49,7 @@ import static com.mongodb.client.model.Projections.include;
 @Singleton
 @Slf4j
 public class AzureBillingDAO extends BillingDAO {
-    private static final String SIZE = "size";
+    public static final String SIZE = "size";
 
     private static String formatDouble(Double value) {
         return (value == null ? null : String.format("%,.2f", value));
