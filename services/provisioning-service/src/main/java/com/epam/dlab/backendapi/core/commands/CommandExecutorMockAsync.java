@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import com.epam.dlab.cloud.CloudProvider;
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import org.apache.commons.codec.Charsets;
 import org.slf4j.Logger;
@@ -252,8 +253,8 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
      */
     private void action(String user, DockerAction action) {
     	String resourceType = parser.getResourceType();
-		String prefixFileName = (resourceType.equals("edge") || resourceType.equals("dataengine")
-				|| resourceType.equals("dataengine-service") ?
+
+		String prefixFileName = (Lists.newArrayList("edge", "dataengine", "dataengine-service").contains(resourceType) ?
     			resourceType : "notebook") + "_";
     	String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + prefixFileName + action.toString() + JSON_FILE_ENDING;
     	responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" + parser.getRequestId() + JSON_FILE_ENDING);

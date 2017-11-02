@@ -68,10 +68,10 @@ if __name__ == "__main__":
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['region'] = os.environ['aws_region']
         data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
-                                      '-dataengine-' + data_engine['exploratory_name'] + '-' + \
+                                      '-de-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name']
-        data_engine['master_node_name'] = data_engine['cluster_name'] + '-master'
-        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-slave'
+        data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
+        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
         data_engine['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
         data_engine['master_size'] = os.environ['aws_dataengine_master_shape']
         data_engine['slave_size'] = os.environ['aws_dataengine_slave_shape']
@@ -89,30 +89,38 @@ if __name__ == "__main__":
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['cluster_nodes_tag'] = {"Key": "dataengine_notebook_name",
                                             "Value": os.environ['notebook_instance_name']}
+        data_engine['cluster_nodes_resource_tag'] = {"Key": os.environ['conf_tag_resource_id'],
+                                                     "Value": data_engine['service_base_name'] + ':' +
+                                                              data_engine['cluster_name']}
+        data_engine['primary_disk_size'] = '30'
+        data_engine['instance_class'] = 'dataengine'
 
     except Exception as err:
         print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary. Exception:" + str(err))
         sys.exit(1)
 
+    with open('/root/result.json', 'w') as f:
+        data = {"hostname": data_engine['cluster_name'], "error": ""}
+        json.dump(data, f)
+
     try:
         logging.info('[CREATE MASTER NODE]')
         print('[CREATE MASTER NODE]')
-        data_engine['cluster_nodes_tag_master'] = {"Key": os.environ['conf_tag_resource_id'],
-                                                   "Value": data_engine['service_base_name'] + ':' +
-                                                            data_engine['master_node_name']}
-        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
+        data_engine['cluster_nodes_tag_type'] = {"Key": "Type", "Value": "master"}
+        params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {} --primary_disk_size {} --instance_class {}" \
             .format(data_engine['master_node_name'], data_engine['ami_id'], data_engine['master_size'],
                     data_engine['key_name'],
                     get_security_group_by_name(data_engine['dataengine_master_security_group_name']),
                     get_subnet_by_cidr(data_engine['subnet_cidr']),
                     data_engine['notebook_dataengine_role_profile_name'], data_engine['tag_name'],
-                    data_engine['master_node_name'])
+                    data_engine['master_node_name'], data_engine['primary_disk_size'], data_engine['instance_class'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
             data_engine['master_id'] = get_instance_by_name(data_engine['tag_name'], data_engine['master_node_name'])
             create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag'], False)
-            create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_master'], False)
+            create_tag(data_engine['master_id'], data_engine['cluster_nodes_resource_tag'], False)
+            create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_type'], False)
         except:
             traceback.print_exc()
             raise Exception
@@ -124,28 +132,28 @@ if __name__ == "__main__":
         for i in range(data_engine['instance_count'] - 1):
             logging.info('[CREATE SLAVE NODE {}]'.format(i + 1))
             print('[CREATE SLAVE NODE {}]'.format(i + 1))
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i + 1)
-            data_engine['cluster_nodes_tag_slave'] = {"Key": os.environ['conf_tag_resource_id'],
-                                                      "Value": data_engine['service_base_name'] + ':' + slave_name}
-            params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}" \
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            data_engine['cluster_nodes_tag_type'] = {"Key": "Type", "Value": "slave"}
+            params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {} --primary_disk_size {} --instance_class {}" \
                 .format(slave_name, data_engine['ami_id'], data_engine['slave_size'],
                         data_engine['key_name'],
                         get_security_group_by_name(data_engine['dataengine_slave_security_group_name']),
                         get_subnet_by_cidr(data_engine['subnet_cidr']),
                         data_engine['notebook_dataengine_role_profile_name'], data_engine['tag_name'],
-                        slave_name)
+                        slave_name, data_engine['primary_disk_size'], data_engine['instance_class'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
                 data_engine['slave_id'] = get_instance_by_name(data_engine['tag_name'], slave_name)
                 create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag'], False)
-                create_tag(data_engine['master_id'], data_engine['cluster_nodes_tag_slave'], False)
+                create_tag(data_engine['slave_id'], data_engine['cluster_nodes_resource_tag'], False)
+                create_tag(data_engine['slave_id'], data_engine['cluster_nodes_tag_type'], False)
             except:
                 traceback.print_exc()
                 raise Exception
     except Exception as err:
         remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
         for i in range(data_engine['instance_count'] - 1):
-            slave_name = data_engine['slave_node_name'] + '-{}'.format(i+1)
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
             try:
                 remove_ec2(data_engine['tag_name'], slave_name)
             except:

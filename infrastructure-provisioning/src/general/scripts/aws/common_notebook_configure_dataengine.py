@@ -54,10 +54,10 @@ if __name__ == "__main__":
         notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
         notebook_config['user_name'] = os.environ['edge_user_name']
         notebook_config['cluster_name'] = notebook_config['service_base_name'] + '-' + notebook_config['user_name'] + \
-                                          '-dataengine-' + notebook_config['exploratory_name'] + '-' + \
+                                          '-de-' + notebook_config['exploratory_name'] + '-' + \
                                           notebook_config['computational_name']
-        notebook_config['master_node_name'] = notebook_config['cluster_name'] + '-master'
-        notebook_config['slave_node_name'] = notebook_config['cluster_name'] + '-slave'
+        notebook_config['master_node_name'] = notebook_config['cluster_name'] + '-m'
+        notebook_config['slave_node_name'] = notebook_config['cluster_name'] + '-s'
         notebook_config['notebook_name'] = os.environ['notebook_instance_name']
         notebook_config['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
@@ -71,10 +71,6 @@ if __name__ == "__main__":
             sys.exit(1)
         notebook_config['spark_master_url'] = 'spark://{}:7077'.format(notebook_config['spark_master_ip'])
 
-        if os.environ['application'] == 'deeplearning':
-            application = 'jupyter'
-        else:
-            application = os.environ['application']
     except Exception as err:
         remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
         for i in range(notebook_config['instance_count'] - 1):
@@ -86,12 +82,12 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
         print('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
-        params = "--cluster_name {} --spark_version {} --hadoop_version {} --region {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {}".\
+        params = "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {}".\
             format(notebook_config['cluster_name'], os.environ['notebook_spark_version'],
-                   os.environ['notebook_hadoop_version'], notebook_config['region'], notebook_config['dlab_ssh_user'],
+                   os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
                    notebook_config['spark_master_url'], notebook_config['key_path'], notebook_config['notebook_ip'])
         try:
-            local("~/scripts/{}_{}.py {}".format(application, 'install_dataengine_kernels', params))
+            local("~/scripts/{}_{}.py {}".format(os.environ['application'], 'install_dataengine_kernels', params))
         except:
             traceback.print_exc()
             raise Exception

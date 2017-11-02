@@ -29,14 +29,14 @@ import ast
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
-parser.add_argument('--notebook_ip', type=str, default='')
+parser.add_argument('--instance_ip', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--libs', type=str, default='')
 args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
+    env.hosts = "{}".format(args.instance_ip)
     env['connection_attempts'] = 100
     env.user = args.os_user
     env.key_filename = "{}".format(args.keyfile)
@@ -63,7 +63,8 @@ if __name__ == "__main__":
     except KeyError:
         pass
 
-    if os.environ['application'] in ['jupyter', 'zeppelin', 'deeplearning', 'tensor']:
+    if os.environ['application'] in ['jupyter', 'zeppelin', 'deeplearning', 'tensor', 'dataengine',
+                                     'dataengine-service']:
         try:
             print('Installing pip2 packages: {}'.format(pkgs['libraries']['pip2']))
             status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2')
@@ -90,7 +91,8 @@ if __name__ == "__main__":
         except KeyError:
             pass
 
-    if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
+    if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'dataengine',
+                                     'dataengine-service']:
         try:
             print('Installing R packages: {}'.format(pkgs['libraries']['r_pkg']))
             status = install_r_pkg(pkgs['libraries']['r_pkg'])

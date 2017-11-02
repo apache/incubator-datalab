@@ -18,8 +18,6 @@
 
 <#include "ssn.yml">
 
-mocked: false
-
 keyDirectory: ${KEYS_DIR}
 responseDirectory: /opt/dlab/tmp
 dockerLogDirectory: ${LOG_ROOT_DIR}
@@ -27,7 +25,7 @@ warmupPollTimeout: 25s
 resourceStatusPollTimeout: 300m
 keyLoaderPollTimeout: 20m
 requestEnvStatusTimeout: 30s
-adminKey: BDCC-DSS-POC
+adminKey: KEYNAME
 edgeImage: docker.dlab-edge
 fileLengthCheckDelay: 500ms
 

@@ -52,6 +52,7 @@ export class ResourcesGridComponent implements OnInit {
   @ViewChild('detailDialog') detailDialog;
   @ViewChild('costDetailsDialog') costDetailsDialog;
   @ViewChild('installLibs') installLibraries;
+  @ViewChild('manageLibraries') manageLibs;
 
 
   public filteringColumns: Array<any> = [

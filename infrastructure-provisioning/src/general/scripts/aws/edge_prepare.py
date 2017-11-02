@@ -66,7 +66,7 @@ if __name__ == "__main__":
                                                          + os.environ['edge_user_name'] + '-dataengine-master-sg'
     edge_conf['dataengine_slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
                                                         + os.environ['edge_user_name'] + '-dataengine-slave-sg'
-
+    edge_conf['all_ip_cidr'] = '0.0.0.0/0'
 
     # FUSE in case of absence of user's key
     fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SECURITY GROUP FOR EDGE NODE]')
         print('[CREATE SECURITY GROUPS FOR EDGE]')
-        sg_rules_template = [
+        edge_sg_ingress = [
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
@@ -140,11 +140,11 @@ if __name__ == "__main__":
             {
                 "PrefixListIds": [],
                 "FromPort": 22,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
         ]
-        sg_rules_template_egress = [
+        edge_sg_egress = [
             {
                 "PrefixListIds": [],
                 "FromPort": 22,
@@ -214,19 +214,19 @@ if __name__ == "__main__":
             {
                 "PrefixListIds": [],
                 "FromPort": 53,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 53, "IpProtocol": "udp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
                 "FromPort": 80,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
                 "FromPort": 443,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
@@ -237,8 +237,8 @@ if __name__ == "__main__":
             }
         ]
         params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} --egress '{}' --force {} --nb_sg_name {} --resource {}".\
-            format(edge_conf['edge_security_group_name'], edge_conf['vpc_id'], json.dumps(sg_rules_template),
-                   edge_conf['service_base_name'], edge_conf['instance_name'], json.dumps(sg_rules_template_egress),
+            format(edge_conf['edge_security_group_name'], edge_conf['vpc_id'], json.dumps(edge_sg_ingress),
+                   edge_conf['service_base_name'], edge_conf['instance_name'], json.dumps(edge_sg_egress),
                    True, edge_conf['notebook_instance_name'], 'edge')
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
@@ -263,19 +263,59 @@ if __name__ == "__main__":
         rules_list = []
         for i in sg_list:
             rules_list.append({"GroupId": i})
-        ingress_sg_rules_template = [
-            {"IpProtocol": "-1", "IpRanges": [], "UserIdGroupPairs": [{"GroupId": edge_group_id}], "PrefixListIds": []},
-            #{"IpProtocol": "-1", "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['instance_name']).get('Private') + "/32"}], "UserIdGroupPairs": [], "PrefixListIds": []},
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}], "UserIdGroupPairs": [], "PrefixListIds": []},
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(edge_conf['service_base_name'])).get('Private') + "/32"}], "UserIdGroupPairs": [], "PrefixListIds": []}
+        private_sg_ingress = [
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [],
+                "UserIdGroupPairs": [{"GroupId": edge_group_id}],
+                "PrefixListIds": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
+                "UserIdGroupPairs": [],
+                "PrefixListIds": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(edge_conf['service_base_name'])).get('Private') + "/32"}],
+                "UserIdGroupPairs": [],
+                "PrefixListIds": []
+            }
         ]
-        egress_sg_rules_template = [
-            {"IpProtocol": "-1", "IpRanges": [], "UserIdGroupPairs": [{"GroupId": edge_group_id}], "PrefixListIds": []},
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "PrefixListIds": []}
+
+        private_sg_egress = [
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
+                "UserIdGroupPairs": [],
+                "PrefixListIds": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(edge_conf['service_base_name'])).get('Private') + "/32"}],
+                "UserIdGroupPairs": [],
+                "PrefixListIds": [],
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [],
+                "UserIdGroupPairs": [{"GroupId": edge_group_id}],
+                "PrefixListIds": []
+            },
+            {
+                "IpProtocol": "tcp",
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
+                "FromPort": 443,
+                "ToPort": 443,
+                "UserIdGroupPairs": [],
+                "PrefixListIds": [],
+            }
         ]
+
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}".\
-            format(edge_conf['notebook_security_group_name'], edge_conf['vpc_id'], json.dumps(ingress_sg_rules_template),
-                   json.dumps(egress_sg_rules_template), edge_conf['service_base_name'], edge_conf['notebook_instance_name'], True)
+            format(edge_conf['notebook_security_group_name'], edge_conf['vpc_id'], json.dumps(private_sg_ingress),
+                   json.dumps(private_sg_egress), edge_conf['service_base_name'], edge_conf['notebook_instance_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
         except:
@@ -296,40 +336,9 @@ if __name__ == "__main__":
     logging.info('[CREATING SECURITY GROUPS FOR MASTER NODE]')
     print("[CREATING SECURITY GROUPS FOR MASTER NODE]")
     try:
-
-        sg_rules_template = [
-            {
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "UserIdGroupPairs": [], "PrefixListIds": []
-            },
-            {
-                "PrefixListIds": [],
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'], '{}-ssn'.format(edge_conf['service_base_name'])).get('Private') + "/32"}],
-                "UserIdGroupPairs": []
-            }
-        ]
-        sg_rules_template_egress = [
-            {
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "UserIdGroupPairs": [], "PrefixListIds": []
-            },
-            {
-                "PrefixListIds": [],
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'],
-                                                                '{}-ssn'.format(edge_conf['service_base_name'])).get(
-                    'Private') + "/32"}],
-                "UserIdGroupPairs": []
-            }
-        ]
-
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
             format(edge_conf['dataengine_master_security_group_name'], edge_conf['vpc_id'],
-                   json.dumps(ingress_sg_rules_template),
-                   json.dumps(egress_sg_rules_template), edge_conf['service_base_name'],
+                   json.dumps(private_sg_ingress), json.dumps(private_sg_egress), edge_conf['service_base_name'],
                    edge_conf['dataengine_instances_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))
@@ -337,7 +346,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to create bucket.", str(err))
+        append_result("Failed to create sg.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])
         remove_all_iam_resources('edge', os.environ['edge_user_name'])
         remove_sgroups(edge_conf['notebook_instance_name'])
@@ -347,47 +356,9 @@ if __name__ == "__main__":
     logging.info('[CREATING SECURITY GROUPS FOR SLAVE NODES]')
     print("[CREATING SECURITY GROUPS FOR SLAVE NODES]")
     try:
-        sg_rules_template = [
-            {
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "UserIdGroupPairs": [], "PrefixListIds": []
-            },
-            {
-                "PrefixListIds": [],
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'],
-                                                                '{}-ssn'.format(edge_conf['service_base_name'])).get(
-                    'Private') + "/32"}],
-                "UserIdGroupPairs": []
-            }
-        ]
-        sg_rules_template_egress = [
-            {
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": edge_conf['private_subnet_cidr']}],
-                "UserIdGroupPairs": [], "PrefixListIds": []
-            },
-            {
-                "PrefixListIds": [],
-                "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(edge_conf['tag_name'],
-                                                                '{}-ssn'.format(edge_conf['service_base_name'])).get(
-                    'Private') + "/32"}],
-                "UserIdGroupPairs": []
-            },
-            {
-                "PrefixListIds": [],
-                "FromPort": 443,
-                "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
-                "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
-            }
-        ]
-
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
             format(edge_conf['dataengine_slave_security_group_name'], edge_conf['vpc_id'],
-                   json.dumps(ingress_sg_rules_template),
-                   json.dumps(egress_sg_rules_template), edge_conf['service_base_name'],
+                   json.dumps(private_sg_ingress), json.dumps(private_sg_egress), edge_conf['service_base_name'],
                    edge_conf['dataengine_instances_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))

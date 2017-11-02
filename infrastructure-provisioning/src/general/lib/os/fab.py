@@ -51,9 +51,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
     error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:"
     try:
-        if pip_version == 'pip3':
-            if not exists('/bin/pip3'):
-                sudo('ln -s /bin/pip3.5 /bin/pip3')
+        if pip_version == 'pip3' and not exists('/bin/pip3'):
+            sudo('ln -s /bin/pip3.5 /bin/pip3')
         sudo('{} install -U pip setuptools'.format(pip_version))
         sudo('{} install -U pip --no-cache-dir'.format(pip_version))
         sudo('{} install --upgrade pip'.format(pip_version))
@@ -167,8 +166,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                 sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
             elif os.environ['application'] == 'deeplearning':
                 sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:"
-                     "/usr/local/cuda/lib64 ; export PYTHONPATH=/home/" + os_user + "/caffe/python:/home/" + os_user +
-                     "/caffe2/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
+                     "/usr/local/cuda/lib64:/usr/lib64/openmpi/lib: ; export PYTHONPATH=/home/" + os_user +
+                     "/caffe/python:/home/" + os_user + "/caffe2/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
             sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
             sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
             sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
@@ -181,11 +180,6 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo("systemctl daemon-reload")
             sudo("systemctl enable jupyter-notebook")
             sudo("systemctl start jupyter-notebook")
-            #run('mkdir -p ~/.git')
-            #put('/root/scripts/ipynb_output_filter.py', '~/.git/ipynb_output_filter.py', mode=0755)
-            #run('echo "*.ipynb    filter=clear_output_ipynb" > ~/.gitattributes')
-            #run('git config --global core.attributesfile ~/.gitattributes')
-            #run('git config --global filter.clear_output_ipynb.clean ~/.git/ipynb_output_filter.py')
             sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -364,3 +358,94 @@ def install_ungit(os_user):
 def set_mongo_parameters(client, mongo_parameters):
     for i in mongo_parameters:
         client.dlabdb.settings.insert_one({"_id": i, "value": mongo_parameters[i]})
+
+
+def install_r_packages(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/r_packages_ensured'):
+        sudo('R -e "install.packages(\'devtools\', repos = \'http://cran.us.r-project.org\')"')
+        sudo('R -e "install.packages(\'knitr\', repos = \'http://cran.us.r-project.org\')"')
+        sudo('R -e "install.packages(\'ggplot2\', repos = \'http://cran.us.r-project.org\')"')
+        sudo('R -e "install.packages(c(\'devtools\',\'mplot\', \'googleVis\'), '
+             'repos = \'http://cran.us.r-project.org\'); require(devtools); install_github(\'ramnathv/rCharts\')"')
+        sudo('touch /home/' + os_user + '/.ensure_dir/r_packages_ensured')
+
+
+def add_breeze_library_local(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/breeze_local_ensured'):
+        try:
+            breeze_tmp_dir = '/tmp/breeze_tmp_local/'
+            jars_dir = '/opt/jars/'
+            sudo('mkdir -p ' + breeze_tmp_dir)
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze_2.11/0.12/breeze_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-natives_2.11/0.12/breeze-natives_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze-natives_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-viz_2.11/0.12/breeze-viz_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze-viz_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-macros_2.11/0.12/breeze-macros_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze-macros_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_2.11/0.12/breeze-parent_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze-parent_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/jfree/jfreechart/1.0.19/jfreechart-1.0.19.jar -O ' +
+                 breeze_tmp_dir + 'jfreechart-1.0.19.jar')
+            sudo('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
+                 breeze_tmp_dir + 'jcommon-1.0.24.jar')
+            sudo('wget https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
+                 breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
+            sudo('mv ' + breeze_tmp_dir + '* ' + jars_dir)
+        except:
+            sys.exit(1)
+
+
+def configure_data_engine_service_pip(hostname, os_user, keyfile):
+    env['connection_attempts'] = 100
+    env.key_filename = [keyfile]
+    env.host_string = os_user + '@' + hostname
+    if not exists('/usr/bin/pip2'):
+        sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
+    if not exists('/usr/bin/pip3') and sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
+
+
+def remove_rstudio_dataengines_kernel(cluster_name, os_user):
+    try:
+        get('/home/{}/.Rprofile'.format(os_user), 'Rprofile')
+        data = open('Rprofile').read()
+        conf = [i for i in data.split('\n') if i != '']
+        conf = [i for i in conf if cluster_name not in i]
+        comment_all = lambda x: x if x.startswith('#master') else '#{}'.format(x)
+        uncomment = lambda x: x[1:] if not x.startswith('#master') else x
+        conf =[comment_all(i) for i in conf]
+        conf =[uncomment(i) for i in conf]
+        last_spark = max([conf.index(i) for i in conf if 'master=' in i] or [0])
+        active_cluster = conf[last_spark].split('"')[-2] if last_spark != 0 else None
+        conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")] \
+                                 + [conf[l] for l in range(last_spark, len(conf)) if not conf[l].startswith('#')]
+        with open('.Rprofile', 'w') as f:
+            for line in conf:
+                f.write('{}\n'.format(line))
+        put('.Rprofile', '/home/{}/.Rprofile'.format(os_user))
+        get('/home/{}/.Renviron'.format(os_user), 'Renviron')
+        data = open('Renviron').read()
+        conf = [i for i in data.split('\n') if i != '']
+        comment_all = lambda x: x if x.startswith('#') else '#{}'.format(x)
+        conf = [comment_all(i) for i in conf]
+        conf = [i for i in conf if cluster_name not in i]
+        if active_cluster:
+            activate_cluster = lambda x: x[1:] if active_cluster in x else x
+            conf = [activate_cluster(i) for i in conf]
+        else:
+            last_spark = max([conf.index(i) for i in conf if 'SPARK_HOME' in i])
+            conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")]
+        with open('.Renviron', 'w') as f:
+            for line in conf:
+                f.write('{}\n'.format(line))
+        put('.Renviron', '/home/{}/.Renviron'.format(os_user))
+        if len(conf) == 1:
+           sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
+           sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(os_user))
+        sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
+    except:
+        sys.exit(1)

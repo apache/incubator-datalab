@@ -51,7 +51,7 @@ if __name__ == "__main__":
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
-        params = "--os_user {} --notebook_ip {} --keyfile '{}'" \
+        params = "--os_user {} --instance_ip {} --keyfile '{}'" \
             .format(notebook_config['os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
             # Run script to get available libs

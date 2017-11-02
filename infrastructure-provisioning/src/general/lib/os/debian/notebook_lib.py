@@ -168,14 +168,12 @@ def ensure_additional_python_libs(os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/additional_python_libs_ensured'):
         try:
             sudo('apt-get install -y libjpeg8-dev zlib1g-dev')
-            if os.environ['application'] == 'jupyter' or os.environ['application'] == 'zeppelin':
+            if os.environ['application'] in ('jupyter', 'zeppelin'):
                 sudo('pip2 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
                 sudo('pip3 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
-            if os.environ['application'] == 'tensor':
+            if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('pip2 install opencv-python h5py --no-cache-dir')
-                sudo('python2 -m ipykernel install')
                 sudo('pip3 install opencv-python h5py --no-cache-dir')
-                sudo('python3 -m ipykernel install')
             sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
             sys.exit(1)
@@ -229,7 +227,7 @@ def ensure_python3_libraries(os_user):
             sys.exit(1)
 
 
-def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia_version):
+def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
     if not exists('/home/' + os_user + '/.ensure_dir/tensor_ensured'):
         try:
             # install nvidia drivers
@@ -237,7 +235,7 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia
             sudo('echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf')
             sudo('update-initramfs -u')
             with settings(warn_only=True):
-                reboot(wait=90)
+                reboot(wait=150)
             sudo('apt-get -y install linux-image-extra-`uname -r`')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
@@ -304,7 +302,8 @@ def install_livy_dependencies_emr(os_user):
 
 def install_nodejs(os_user):
     if not exists('/home/{}/.ensure_dir/nodejs_ensured'.format(os_user)):
-        sudo('apt-get -y install npm nodejs nodejs-legacy')
+        sudo('curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -')
+        sudo('apt-get install -y nodejs')
         sudo('touch /home/{}/.ensure_dir/nodejs_ensured'.format(os_user))
 
 
@@ -457,4 +456,3 @@ def install_gitlab_cert(os_user, certfile):
         sudo('mv -f /home/{0}/{1} /etc/ssl/certs/{1}'.format(os_user, certfile))
     except Exception as err:
         print('Failed to install gitlab certificate. {}'.format(str(err)))
-        pass
