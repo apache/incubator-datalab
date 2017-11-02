@@ -91,7 +91,7 @@ if __name__ == "__main__":
         except KeyError:
             pass
 
-    if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning', 'dataengine',
+    if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'dataengine',
                                      'dataengine-service']:
         try:
             print('Installing R packages: {}'.format(pkgs['libraries']['r_pkg']))
