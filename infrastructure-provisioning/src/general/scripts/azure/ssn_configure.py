@@ -257,7 +257,9 @@ if __name__ == "__main__":
             "conf_os_family": os.environ['conf_os_family'],
             "conf_key_dir": os.environ['conf_key_dir'],
             "ssn_instance_size": os.environ['azure_ssn_instance_size'],
-            "edge_instance_size": os.environ['azure_edge_instance_size']
+            "edge_instance_size": os.environ['azure_edge_instance_size'],
+            "ssn_storage_account_tag_name": ssn_conf['ssn_storage_account_name'],
+            "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name']
         }
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
