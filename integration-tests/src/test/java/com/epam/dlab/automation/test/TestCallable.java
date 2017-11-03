@@ -76,22 +76,18 @@ public class TestCallable implements Callable<Boolean> {
         final String suffixName = NamingHelper.generateRandomValue(notebookTemplate);
         notebookName = "nb" + suffixName;
         
-        switch (dataEngineType) {
-		case "dataengine":
-			this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES_SPARK);
+        if ("dataengine".equals(dataEngineType)) {
+        	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES_SPARK);
 			clusterName = "spark"+suffixName;
-			break;
-		case "dataengine-service":
-			this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
+        } else if ("dataengine-service".equals(dataEngineType)) {
+        	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
 			clusterName = "eimr"+suffixName;
-			break;
-		default:
-			LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service",dataEngineType);
-			fail("illegal argument dataEngineType "+dataEngineType +" , should be dataengine or dataengine-service");
-			ssnCompResURL="";
+        } else {
+        	ssnCompResURL="";
 			clusterName="";
-			break;
-		}
+        	LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
+			fail("illegal argument dataEngineType "+dataEngineType +" , should be dataengine or dataengine-service");
+        }
 
         LOGGER.info("   SSN exploratory environment URL is {}", ssnExpEnvURL);
         LOGGER.info("   SSN provisioned user resources URL is {}", ssnProUserResURL);
@@ -145,19 +141,19 @@ private DeployClusterDto createClusterDto() throws Exception {
     LOGGER.info("7. {} cluster {} will be deployed for {} ...",dataEngineType, clusterName, notebookName);
     LOGGER.info("  {} : SSN computational resources URL is {}", notebookName, ssnCompResURL);
 
-    DeployClusterDto clusterDto;
-    if("dataengine-service".equals(dataEngineType)) {
-    	clusterDto =
-        		JsonMapperDto.readNode(
-        			Paths.get(PropertiesResolver.getClusterConfFileLocation(), "EMR.json").toString(),
-        			DeployEMRDto.class);
-    	
-    }else {
-    	clusterDto =
-                JsonMapperDto.readNode(
-                	Paths.get(PropertiesResolver.getClusterConfFileLocation(), "SparkStandalone.json").toString(),
-                    DeploySparkDto.class);
-    }
+    DeployClusterDto clusterDto = null;
+    if ("dataengine".equals(dataEngineType)) {
+		clusterDto = JsonMapperDto.readNode(
+					Paths.get(PropertiesResolver.getClusterConfFileLocation(), "SparkStandalone.json").toString(),
+					DeploySparkDto.class);
+    } else if ("dataengine-service".equals(dataEngineType)) {
+		clusterDto = JsonMapperDto.readNode(
+					Paths.get(PropertiesResolver.getClusterConfFileLocation(), "EMR.json").toString(),
+					DeployEMRDto.class);
+    } else {
+		LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
+		fail("illegal argument dataEngineType "+dataEngineType +" , should be dataengine or dataengine-service");
+	}
 
     clusterDto.setName(clusterName);
     clusterDto.setNotebook_name(notebookName);
