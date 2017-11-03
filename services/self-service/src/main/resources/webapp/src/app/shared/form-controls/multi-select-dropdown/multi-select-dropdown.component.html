@@ -18,7 +18,7 @@ limitations under the License.
 
 <div class="dropdown-multiselect btn-group" ngClass="{{type || ''}}" click-outside (clickOutside)="onClickOutside($event)">
 
-  <button data-toggle="dropdown" type="button" class="dropdown-toggle btn" (click)="toggleDropdown()">
+  <button data-toggle="dropdown" type="button" class="dropdown-toggle btn" (click)="toggleDropdown()" *ngIf="model">
     <span *ngIf="model.length == 0">Select {{type}}</span>
     <span class="selected-items" *ngIf="model.length != 0">
       Selected {{model.length}} item<strong *ngIf="model.length > 1">s</strong>
@@ -38,7 +38,7 @@ limitations under the License.
       </a>
     </li>
       <template let-item ngFor [ngForOf]="items">
-        <li role="presentation">
+        <li role="presentation" *ngIf="model">
           <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
             <span class="material-icons" *ngIf="model.indexOf(item) >= 0">done</span>
             {{item}}
