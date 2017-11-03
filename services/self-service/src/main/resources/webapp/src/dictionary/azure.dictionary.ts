@@ -42,7 +42,8 @@ export const NAMING_CONVENTION = {
         'service_filter_key': 'category',
         'type': '',
         'resourceType': 'resourceType',
-        'instance_size': 'size'
+        'instance_size': 'size',
+        'dlabId': 'dlabId'
     },
     'service': 'Category',
     'type': '',

@@ -42,7 +42,8 @@ export const NAMING_CONVENTION = {
         'service_filter_key': 'product',
         'type': 'resource_type',
         'resourceType': 'dlab_resource_type',
-        'instance_size': 'shape'
+        'instance_size': 'shape',
+        'dlabId': 'dlab_id'
     },
     'service': 'Service',
     'type': 'Type',
