@@ -43,7 +43,7 @@ limitations under the License.
 
     <modules>
         <module>services/common</module>
-        <module>services/billing</module>
+        <module>services/billing-aws</module>
         <module>services/security-service</module>
         <module>services/provisioning-service</module>
         <module>services/self-service</module>

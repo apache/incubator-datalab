@@ -119,8 +119,8 @@ def deploy_dlab(args):
         local('cp {0}/services/billing-azure/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
         local('cp {0}/services/billing-azure/target/billing-azure*.jar {0}/web_app/billing/'.format(args.workspace_path))
     elif args.conf_cloud_provider == 'aws':
-        local('cp {0}/services/billing/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
-        local('cp {0}/services/billing/target/billing-*.jar {0}/web_app/billing/'.format(args.workspace_path))
+        local('cp {0}/services/billing-aws/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
+        local('cp {0}/services/billing-aws/target/billing-aws*.jar {0}/web_app/billing/'.format(args.workspace_path))
 
     # Creating SSN node
     docker_command = generate_docker_command()

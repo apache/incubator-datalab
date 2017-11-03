@@ -41,8 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.epam.dlab.core.parser.ReportLine.FIELD_DLAB_ID;
-import static com.epam.dlab.core.parser.ReportLine.FIELD_USER_ID;
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Projections.fields;
 import static com.mongodb.client.model.Projections.include;

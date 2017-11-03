@@ -27,7 +27,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     
-    <artifactId>billing</artifactId>
+    <artifactId>billing-aws</artifactId>
 
     <properties>
         <org.apache.jexl3.version>3.0</org.apache.jexl3.version>
