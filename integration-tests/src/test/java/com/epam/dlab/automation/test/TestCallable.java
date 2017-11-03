@@ -102,13 +102,13 @@ public class TestCallable implements Callable<Boolean> {
     	final String notebookIp = createNotebook(notebookName);
         testLibs();
         
-        final String emrClusterName = NamingHelper.getEmrClusterName(NamingHelper.getClusterInstanceName(notebookName, clusterName));
+        final String actualClusterName = NamingHelper.getClusterName(NamingHelper.getClusterInstanceName(notebookName, clusterName));
         if (!ConfigPropertyValue.isRunModeLocal()) {
         	TestEmr test = new TestEmr();
-        	test.run(notebookName, emrClusterName);
+        	test.run(notebookName, actualClusterName);
 
             String notebookFilesLocation = PropertiesResolver.getPropertyByName(String.format(PropertiesResolver.NOTEBOOK_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
-            test.run2(NamingHelper.getSsnIp(), notebookIp, emrClusterName, new File(notebookFilesLocation), notebookName);
+            test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File(notebookFilesLocation), notebookName);
         }
         
         final DeployClusterDto deployClusterDto = createClusterDto();

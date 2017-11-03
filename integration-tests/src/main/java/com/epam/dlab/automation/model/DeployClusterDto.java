@@ -18,7 +18,6 @@ limitations under the License.
 
 package com.epam.dlab.automation.model;
 
-import com.google.common.base.MoreObjects;
 
 public abstract class DeployClusterDto {
 

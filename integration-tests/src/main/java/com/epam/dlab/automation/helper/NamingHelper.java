@@ -121,13 +121,13 @@ public class NamingHelper {
     	return String.format("%s-%s-bucket", serviceBaseName, ConfigPropertyValue.getUsernameSimple()).replace('_', '-').toLowerCase();
     }
     
-    public static String getEmrClusterName(String emrName) throws Exception {
-        Instance instance = AmazonHelper.getInstance(emrName);
+    public static String getClusterName(String clusterInstanceName) throws Exception {
+        Instance instance = AmazonHelper.getInstance(clusterInstanceName);
         for (Tag tag : instance.getTags()) {
 			if (tag.getKey().equals("Name")) {
 		        return tag.getValue();
 			}
 		}
-        throw new Exception("Could not detect cluster name for EMR " + emrName);
+        throw new Exception("Could not detect cluster name for cluster instance " + clusterInstanceName);
     }
 }
