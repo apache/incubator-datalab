@@ -24,7 +24,7 @@ import io.dropwizard.lifecycle.Managed;
 import java.nio.file.Paths;
 
 /**
- * Managed bean that schedules aws billing job
+ * Managed bean that schedules azure billing job
  */
 public class BillingSchedulerManagerAzure implements Managed {
 
