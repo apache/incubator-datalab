@@ -449,3 +449,12 @@ def remove_rstudio_dataengines_kernel(cluster_name, os_user):
         sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
     except:
         sys.exit(1)
+
+
+def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
+    if creds:
+        env['connection_attempts'] = 100
+        env.key_filename = [keyfile]
+        env.host_string = os_user + '@' + hostname
+    sudo("systemctl daemon-reload")
+    sudo("systemctl restart zeppelin-notebook")

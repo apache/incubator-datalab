@@ -222,6 +222,8 @@ if __name__ == "__main__":
                                                                    notebook_config['instance_name'])
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
                                os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
+            restart_zeppelin(True, notebook_config['dlab_ssh_user'], instance_hostname,
+                             os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
     except Exception as err:
         append_result("Failed creating image.", str(err))
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
