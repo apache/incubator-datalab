@@ -237,8 +237,6 @@ public class TestServices {
 	}
 
 	private void runTestsInNotebooks() throws Exception {
-		// List<String> notebookTemplates =
-		// Arrays.asList(ConfigPropertyValue.getNotebookTemplates().split(","));
 		ArrayList<NotebookConfig> notebookConfigs;
 		ObjectMapper mapper = new ObjectMapper();
 		notebookConfigs = mapper.readValue(ConfigPropertyValue.getNotebookTemplates(),
@@ -249,17 +247,13 @@ public class TestServices {
 				ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads() : N_THREADS);
 		List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
 
-//		for (Entry<String, ArrayList<String>> entry: dataEngineNotebookTemlates.entrySet()) {			
-//			String notebookTemplate=entry.getKey();
-//			ArrayList<String> dataEndineTypes = entry.getValue();
-			boolean fullTest = true;
-			for (NotebookConfig notebookConfig : notebookConfigs) {
-				FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig, fullTest));
-				fullTest = false;
-				futureTasks.add(runScenarioTask);
-				executor.execute(runScenarioTask);
-			}
-//		}
+		boolean fullTest = true;
+		for (NotebookConfig notebookConfig : notebookConfigs) {
+			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig, fullTest));
+			fullTest = false;
+			futureTasks.add(runScenarioTask);
+			executor.execute(runScenarioTask);
+		}
 		final long checkThreadTimeout = ConfigPropertyValue.isRunModeLocal() ? 1000 : 5000;
 		while (true) {
 			boolean done = true;
