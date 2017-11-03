@@ -39,7 +39,9 @@ export const NAMING_CONVENTION = {
         'dateFrom': 'from',
         'dateTo': 'to',
         'service': 'meterCategory',
-        'type': ''
+        'type': '',
+        'resourceType': 'resourceType',
+        'instance_size': 'size'
     },
     'service': 'Category',
     'type': '',

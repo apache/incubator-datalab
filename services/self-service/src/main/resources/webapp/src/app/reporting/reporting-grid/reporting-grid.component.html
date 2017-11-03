@@ -63,10 +63,12 @@ limitations under the License.
     <tr *ngFor="let line of reportData">
       <td *ngIf="full_report">{{ line.user }}</td>
       <td class="env_name">{{ line.dlab_id }}</td>
-      <td>{{ line.dlab_resource_type }}</td>
-      <td><span [outerHTML]="line.shape | lineBreak"></span></td>
-      <td>{{ line.product }} ({{ line.resource_type}})</td>
-      <td>{{ line.cost }} {{ line.currency_code }}</td>
+      <td>{{ line[DICTIONARY.billing.resourceType] }}</td>
+      <td><span [outerHTML]="line[DICTIONARY.billing.instance_size] | lineBreak"></span></td>
+      <td>{{ line[DICTIONARY.billing.service] }}
+        <span *ngIf="line.resource_type">({{ line.resource_type }})</span>
+      </td>
+      <td>{{ line.cost }} {{ line[DICTIONARY.billing.currencyCode] }}</td>
     </tr>
   </template>
 </table>

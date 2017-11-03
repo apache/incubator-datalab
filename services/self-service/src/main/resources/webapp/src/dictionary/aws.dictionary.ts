@@ -39,7 +39,9 @@ export const NAMING_CONVENTION = {
         'dateFrom': 'usage_date_start',
         'dateTo': 'usage_date_end',
         'service': 'product',
-        'type': 'resource_type'
+        'type': 'resource_type',
+        'resourceType': 'dlab_resource_type',
+        'instance_size': 'shape'
     },
     'service': 'Service',
     'type': 'Type',

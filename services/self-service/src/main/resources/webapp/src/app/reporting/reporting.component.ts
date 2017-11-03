@@ -22,6 +22,7 @@ import { BillingReportService, HealthStatusService }  from './../core/services';
 import { ReportingConfigModel }  from './reporting-data.model';
 import { ReportingGridComponent } from './reporting-grid/reporting-grid.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
+import { DICTIONARY } from '../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-reporting',
@@ -29,8 +30,8 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
   <dlab-navbar [healthStatus]="healthStatus"></dlab-navbar>
   <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)" (exportReport)="exportBillingReport()" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
   <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
-  <footer>
-    Total {{data?.cost_total}} {{data?.currency_code}}
+  <footer *ngIf="data">
+    Total {{ data.cost_total }} {{ data[DICTIONARY.billing.currencyCode] }}
   </footer>
   `,
   styles: [`
@@ -49,6 +50,7 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
   `]
 })
 export class ReportingComponent implements OnInit, OnDestroy {
+  readonly DICTIONARY = DICTIONARY;
 
   @ViewChild(ReportingGridComponent) reportingGrid: ReportingGridComponent;
   @ViewChild(ToolbarComponent) reportingToolbar: ToolbarComponent;
