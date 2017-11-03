@@ -107,8 +107,8 @@ public class AzureBillingDAO extends BillingDAO {
             costTotal += d.getDouble(MongoKeyWords.COST);
 
             Document item = new Document()
-                    .append(FIELD_USER_ID, id.getString(USER))
-                    .append(FIELD_DLAB_ID, resourceId)
+                    .append(MongoKeyWords.DLAB_USER, id.getString(USER))
+                    .append(MongoKeyWords.DLAB_ID, resourceId)
                     .append(SIZE, generateShapeName(shape))
                     .append(MongoKeyWords.METER_CATEGORY, id.getString(MongoKeyWords.METER_CATEGORY))
                     .append(MongoKeyWords.RESOURCE_TYPE,
@@ -128,7 +128,7 @@ public class AzureBillingDAO extends BillingDAO {
                 .append(MongoKeyWords.USAGE_FROM, usageDateStart)
                 .append(MongoKeyWords.USAGE_TO, usageDateEnd)
                 .append(ITEMS, reportItems)
-                .append(COST_TOTAL, BillingCalculationUtils.formatDouble(BillingCalculationUtils.round(costTotal, 2)))
+                .append(MongoKeyWords.COST_STRING, BillingCalculationUtils.formatDouble(BillingCalculationUtils.round(costTotal, 2)))
                 .append(MongoKeyWords.CURRENCY_CODE, (reportItems.isEmpty() ? null :
                         reportItems.get(0).getString(MongoKeyWords.CURRENCY_CODE)));
 
