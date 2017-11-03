@@ -48,6 +48,10 @@ parser.add_argument('--aws_billing_bucket', type=str, default='', help='The name
 parser.add_argument('--aws_report_path', type=str, default='', help='The path to billing reports directory in S3 bucket')
 parser.add_argument('--azure_resource_group_name', type=str, default='', help='Name of Resource group in Azure')
 parser.add_argument('--azure_auth_path', type=str, default='', help='Full path to Azure credentials JSON file')
+parser.add_argument('--azure_offer_number', type=str, default='', help='Azure offer number')
+parser.add_argument('--azure_currency', type=str, default='', help='Azure currency code')
+parser.add_argument('--azure_locale', type=str, default='', help='Azure locale')
+parser.add_argument('--azure_region_info', type=str, default='', help='Azure region info')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()
@@ -81,7 +85,7 @@ def build_front_end(args):
 
 def build_services():
     # Building provisioning-service, security-service, self-service, billing
-    local('mvn -DskipTests package')
+    local('mvn -P{} -DskipTests package'.format(args.conf_cloud_provider))
 
 
 def build_docker_images(args):
@@ -110,9 +114,14 @@ def deploy_dlab(args):
     local('cp {0}/services/security-service/security.yml {0}/web_app/security-service/'.format(args.workspace_path))
     local('cp {0}/services/security-service/target/security-service-*.jar {0}/web_app/security-service/'.
           format(args.workspace_path))
-    local('cp {0}/services/billing/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
-    local('cp {0}/services/billing/target/billing-*.jar {0}/web_app/billing/'.
-          format(args.workspace_path))
+
+    if args.conf_cloud_provider == 'azure':
+        local('cp {0}/services/billing-azure/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
+        local('cp {0}/services/billing-azure/target/billing-azure*.jar {0}/web_app/billing/'.format(args.workspace_path))
+    elif args.conf_cloud_provider == 'aws':
+        local('cp {0}/services/billing-aws/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
+        local('cp {0}/services/billing-aws/target/billing-aws*.jar {0}/web_app/billing/'.format(args.workspace_path))
+
     # Creating SSN node
     docker_command = generate_docker_command()
     local(docker_command)

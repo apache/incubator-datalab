@@ -1,0 +1,48 @@
+#/*
+# * Copyright (c) 2017, EPAM SYSTEMS INC
+# *
+# * Licensed under the Apache License, Version 2.0 (the "License");
+# * you may not use this file except in compliance with the License.
+# * You may obtain a copy of the License at
+# *
+# *     http://www.apache.org/licenses/LICENSE-2.0
+# *
+# * Unless required by applicable law or agreed to in writing, software
+# * distributed under the License is distributed on an "AS IS" BASIS,
+# * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# * See the License for the specific language governing permissions and
+# * limitations under the License.
+# */
+
+# Authentication info
+
+# Explicit azure authentication parameters
+
+clientId: <CLIENT_ID>
+clientSecret: <CLIENT_SECRET>
+tenantId: <TENANT_ID>
+subscriptionId: <SUBSCRIPTION_ID>
+
+# Contains authentication info (clientId, clientSecret, tenantId, subscriptionId) received after Azure CLI authentication
+authenticationFile: <AUTHENTICATION_FILE>
+
+# Billing configuration for RateCard API
+
+offerNumber: <OFFER_NUMBER>
+currency: <CURRENCY>
+locale: <LOCALE>
+regionInfo: <REGION_INFO>
+
+# Azure provides with aggregated data by dat. Scheduler tries to retrieve data every <period> with <initialDelay> from ap startup in minutes
+# Scheduler retrieves data only for the past period of time from midnight of start day to midnight of end date.
+# Scheduler does not retrieve data for the current date
+initialDelay: 10
+period: 60
+
+aggregationOutputMongoDataSource:
+    host: localhost
+    port: 27017
+    username: admin
+    password: <MONGODB_PASSWORD>
+    database: dlabdb
+

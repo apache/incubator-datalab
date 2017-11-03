@@ -19,6 +19,7 @@ package com.epam.dlab.dto.azure.edge;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -26,6 +27,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EdgeInfoAzure extends EdgeInfo {
     @JsonProperty("user_storage_account_name")
@@ -36,4 +38,6 @@ public class EdgeInfoAzure extends EdgeInfo {
     private String sharedStorageAccountName;
     @JsonProperty("shared_container_name")
     private String sharedContainerName;
+    @JsonProperty("user_storage_account_tag_name")
+    private String userStorageAccountTagName;
 }

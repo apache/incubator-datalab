@@ -18,7 +18,7 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.backendapi.core.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryURL;
 import com.epam.dlab.exceptions.DlabException;

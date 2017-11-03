@@ -17,12 +17,16 @@
 package com.epam.dlab.dto.base.edge;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EdgeInfo {
+    @JsonProperty("_id")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String id;
     @JsonProperty("instance_id")
     private String instanceId;
     @JsonProperty
