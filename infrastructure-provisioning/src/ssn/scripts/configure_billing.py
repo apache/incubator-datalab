@@ -59,6 +59,7 @@ def yml_billing(path):
             config_orig = config_orig.replace('<SECRET_ACCESS_KEY>', args.secret_access_key)
             config_orig = config_orig.replace('<CONF_TAG_RESOURCE_ID>', args.tag_resource_id)
             config_orig = config_orig.replace('<CONF_SERVICE_BASE_NAME>', args.infrastructure_tag)
+            config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
         elif args.cloud_provider == 'azure':
             config_orig = config_orig.replace('<CLIENT_ID>', args.client_id)
             config_orig = config_orig.replace('<CLIENT_SECRET>', args.client_secret)
@@ -69,7 +70,7 @@ def yml_billing(path):
             config_orig = config_orig.replace('<CURRENCY>', args.currency)
             config_orig = config_orig.replace('<LOCALE>', args.locale)
             config_orig = config_orig.replace('<REGION_INFO>', args.region_info)
-        config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
+            config_orig = config_orig.replace('<MONGODB_PASSWORD>', args.mongo_password)
         f = open(path, 'w')
         f.write(config_orig)
         f.close()

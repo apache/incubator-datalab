@@ -43,6 +43,6 @@ aggregationOutputMongoDataSource:
     host: localhost
     port: 27017
     username: admin
-    password: <MONGO_PASSWORD>
+    password: <MONGODB_PASSWORD>
     database: dlabdb
 

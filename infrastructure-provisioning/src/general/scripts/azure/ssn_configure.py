@@ -75,8 +75,6 @@ if __name__ == "__main__":
         except KeyError:
             pre_defined_subnet = True
         try:
-            if os.environ['azure_authentication_file'] == '':
-                raise KeyError
             if os.environ['azure_offer_number'] == '':
                 raise KeyError
             if os.environ['azure_currency'] == '':
@@ -88,7 +86,6 @@ if __name__ == "__main__":
         except KeyError:
             billing_enabled = False
         if not billing_enabled:
-            os.environ['azure_authentication_file'] = 'None'
             os.environ['azure_offer_number'] = 'None'
             os.environ['azure_currency'] = 'None'
             os.environ['azure_locale'] = 'None'
@@ -269,14 +266,14 @@ if __name__ == "__main__":
         }
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
+        azure_auth_path = '/home/{}/keys/azure_auth.json'.format(ssn_conf['dlab_ssh_user'])
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} --authentication_file {} --offer_number {} --currency {} --locale {} --region_info {} --mongo_parameters '{}'". \
             format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
                    ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
                    os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
-                   billing_enabled, os.environ['azure_auth_path'], os.environ['azure_offer_number'],
+                   billing_enabled, azure_auth_path, os.environ['azure_offer_number'],
                    os.environ['azure_currency'], os.environ['azure_locale'], os.environ['azure_region_info'],
                    json.dumps(mongo_parameters))
-
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:
