@@ -5,5 +5,5 @@
   "dataengine_slave" : "c4.large",
   "dataengine_master" : "c4.large",
   "notebook_name" : "set noteboork name",
-  "template_name" : "EMR cluster"
+  "template_name" : "Spark cluster"
 }
