@@ -17,8 +17,9 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
-
 import { NgDateRangePickerOptions } from 'ng-daterangepicker';
+
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-toolbar',
@@ -27,6 +28,8 @@ import { NgDateRangePickerOptions } from 'ng-daterangepicker';
   encapsulation: ViewEncapsulation.None
 })
 export class ToolbarComponent implements OnInit, AfterViewInit {
+  readonly DICTIONARY = DICTIONARY;
+
   reportData: any;
   availablePeriodFrom: string;
   availablePeriodTo: string;

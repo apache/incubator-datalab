@@ -24,7 +24,7 @@ export const NAMING_CONVENTION = {
     'account': 'Account:',
     'container': 'Container:',
     'data_engine': 'Deploy Spark Server / Deploy HDInsight',
-    
+
     'data_engine_master_instance_size': 'Head node size',
     'data_engine_slave_instance_size': 'Worker node size',
     'master_node_shape': 'azure_dataengine_master_size',
@@ -39,9 +39,11 @@ export const NAMING_CONVENTION = {
         'dateFrom': 'from',
         'dateTo': 'to',
         'service': 'meterCategory',
+        'service_filter_key': 'category',
         'type': '',
         'resourceType': 'resourceType',
-        'instance_size': 'size'
+        'instance_size': 'size',
+        'dlabId': 'dlabId'
     },
     'service': 'Category',
     'type': '',
@@ -74,3 +76,30 @@ export const NAMING_CONVENTION = {
         'total_instance_number': 'dataengine_instance_count'
     }
 };
+
+export class ReportingConfigModel {
+
+    static getDefault(): ReportingConfigModel {
+        return new ReportingConfigModel([], [], [], [], '', '', '');
+    }
+
+    constructor(
+        public user: Array<string>,
+        public category: Array<string>,
+        public resource_type: Array<string>,
+        public size: Array<string>,
+        public date_start: string,
+        public date_end: string,
+        public dlab_id: string
+    ) { }
+
+    defaultConfigurations(): void {
+        this.user = [];
+        this.category = [];
+        this.resource_type = [];
+        this.size = [];
+        this.date_start = '';
+        this.date_end = '';
+        this.dlab_id = '';
+    }
+}
