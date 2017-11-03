@@ -68,7 +68,7 @@ if __name__ == "__main__":
                 data_engine['tag_name'], data_engine['master_node_name'])
             data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
             data_engine['libs'] = os.environ['libs']
-            data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
+            data_engine['instance_count'] = node_count(data_engine['cluster_name'])
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
