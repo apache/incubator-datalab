@@ -90,16 +90,16 @@ public class NamingHelper {
     	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
     }
     
-    public static String getClusterInstanceName(String notebookName, String emrName) {
-    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "cluster", notebookName, emrName);
+    public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
+    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), dataEngineType, notebookName, clusterName);
     }
 
     public static String getNotebookContainerName(String notebookName, String action) {
     	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "exploratory", notebookName);
     }
     
-    public static String getClusterContainerName(String emrName, String action) {
-    	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "computational", emrName);
+    public static String getClusterContainerName(String clusterName, String action) {
+    	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "computational", clusterName);
     }
     
     

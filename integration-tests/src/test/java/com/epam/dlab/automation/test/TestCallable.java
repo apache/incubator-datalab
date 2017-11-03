@@ -51,6 +51,7 @@ import com.epam.dlab.automation.model.DeployClusterDto;
 import com.epam.dlab.automation.model.DeployEMRDto;
 import com.epam.dlab.automation.model.DeploySparkDto;
 import com.epam.dlab.automation.model.JsonMapperDto;
+import com.epam.dlab.automation.model.NotebookConfig;
 import com.jayway.restassured.response.Response;
 
 public class TestCallable implements Callable<Boolean> {
@@ -86,7 +87,7 @@ public class TestCallable implements Callable<Boolean> {
 			break;
 		default:
 			LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service",dataEngineType);
-			fail();
+			fail("illegal argument dataEngineType "+dataEngineType +" , should be dataengine or dataengine-service");
 			ssnCompResURL="";
 			clusterName="";
 			break;
@@ -96,13 +97,17 @@ public class TestCallable implements Callable<Boolean> {
         LOGGER.info("   SSN provisioned user resources URL is {}", ssnProUserResURL);
     }
 
-    @Override
+    public TestCallable(NotebookConfig notebookConfig, boolean fullTest) {
+    	this(notebookConfig.getNotebook_template(), notebookConfig.getData_engine_type(), fullTest);
+    }
+
+	@Override
     public Boolean call() throws Exception {
        
     	final String notebookIp = createNotebook(notebookName);
         testLibs();
         
-        final String actualClusterName = NamingHelper.getClusterName(NamingHelper.getClusterInstanceName(notebookName, clusterName));
+        final String actualClusterName = NamingHelper.getClusterName(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType));
         if (!ConfigPropertyValue.isRunModeLocal()) {
         	TestEmr test = new TestEmr();
         	test.run(notebookName, actualClusterName);
@@ -168,7 +173,7 @@ private DeployClusterDto createClusterDto() throws Exception {
             throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been deployed. Cluster status is " + gettingStatus);
         LOGGER.info("{}: {} cluster {} has been deployed", notebookName, dataEngineType, clusterName);
 
-        AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName), AmazonInstanceState.RUNNING);
+        AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), AmazonInstanceState.RUNNING);
         Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
     LOGGER.info("{}:   Waiting until {} cluster {} has been configured ...", notebookName,dataEngineType,clusterName);
@@ -179,7 +184,7 @@ private DeployClusterDto createClusterDto() throws Exception {
     LOGGER.info(" {}: {} cluster {} has been configured", notebookName, dataEngineType , clusterName);
 
     if(!ConfigPropertyValue.isRunModeLocal()) {
-        AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName), AmazonInstanceState.RUNNING);
+        AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), AmazonInstanceState.RUNNING);
         Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
 
@@ -319,7 +324,7 @@ private void restartNotebook() throws Exception {
            throw new Exception(dataEngineType+" cluster "+ deployCluster.getName() + " has not been terminated for Notebook " + deployCluster.getNotebook_name() + ". Cluster status is " + gettingStatus);
        LOGGER.info("    {} cluster {} has been terminated for Notebook {}",dataEngineType, deployCluster.getName(), deployCluster.getNotebook_name());
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(deployCluster.getNotebook_name(), deployCluster.getName()), AmazonInstanceState.TERMINATED);
+       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(deployCluster.getNotebook_name(), deployCluster.getName(), dataEngineType), AmazonInstanceState.TERMINATED);
    }
    
    private void terminateCluster(String clusterNewName) throws Exception {
@@ -337,7 +342,7 @@ private void restartNotebook() throws Exception {
            throw new Exception("New "+dataEngineType+" cluster " + clusterNewName + " has not been terminated. Cluster status is " + gettingStatus);
        LOGGER.info("    New {} cluster {} has been terminated for notebook {}",dataEngineType, clusterNewName, notebookName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterNewName), AmazonInstanceState.TERMINATED);
+       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), AmazonInstanceState.TERMINATED);
        Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "terminate"), NamingHelper.getSsnIp());
    }
 
@@ -364,7 +369,7 @@ private void restartNotebook() throws Exception {
            throw new Exception("Cluster " + clusterNewName + " has not been configured. Cluster status is " + gettingStatus);
        LOGGER.info("   Cluster {} has been configured", clusterNewName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterNewName), AmazonInstanceState.RUNNING);
+       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), AmazonInstanceState.RUNNING);
        Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "create"), NamingHelper.getSsnIp());
        return clusterNewName;
    }
@@ -394,7 +399,7 @@ private void restartNotebook() throws Exception {
            throw new Exception("Computational resources has not been terminated for Notebook " + notebookName + ". EMR status is " + gettingStatus);
        LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName), AmazonInstanceState.TERMINATED);
+       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), AmazonInstanceState.TERMINATED);
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "stop"), NamingHelper.getSsnIp());
    }
 }
