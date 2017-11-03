@@ -18,20 +18,20 @@
 
 # Explicit azure authentication parameters
 
-clientId: CLIENT_ID
-clientSecret: CLIENT_SECRET
-tenantId: TENANT_ID
-subscriptionId: SUBSCRIPTION_ID
+clientId: <CLIENT_ID>
+clientSecret: <CLIENT_SECRET>
+tenantId: <TENANT_ID>
+subscriptionId: <SUBSCRIPTION_ID>
 
 # Contains authentication info (clientId, clientSecret, tenantId, subscriptionId) received after Azure CLI authentication
-authenticationFile: AUTHENTICATION_FILE
+authenticationFile: <AUTHENTICATION_FILE>
 
 # Billing configuration for RateCard API
 
-offerNumber: MS-AZR-0017p
-currency: USD
-locale: en-US
-regionInfo: US
+offerNumber: <OFFER_NUMBER>
+currency: <CURRENCY>
+locale: <LOCALE>
+regionInfo: <REGION_INFO>
 
 # Azure provides with aggregated data by dat. Scheduler tries to retrieve data every <period> with <initialDelay> from ap startup in minutes
 # Scheduler retrieves data only for the past period of time from midnight of start day to midnight of end date.
@@ -43,6 +43,6 @@ aggregationOutputMongoDataSource:
     host: localhost
     port: 27017
     username: admin
-    password: MONGO_PASSWORD
+    password: <MONGODB_PASSWORD>
     database: dlabdb
 
