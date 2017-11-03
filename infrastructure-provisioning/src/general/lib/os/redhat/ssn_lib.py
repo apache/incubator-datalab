@@ -172,8 +172,8 @@ def ensure_mongo():
 
 
 def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, keystore_passwd, cloud_provider,
-             service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path='',
-             authentication_file, offer_number, currency, locale, region_info):
+             service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled,
+             authentication_file, offer_number, currency, locale, region_info, report_path=''):
     try:
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_dlab_path'])):
             java_path = sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'")
