@@ -85,7 +85,7 @@ def build_front_end(args):
 
 def build_services():
     # Building provisioning-service, security-service, self-service, billing
-    local('mvn -DskipTests package')
+    local('mvn -P{} -DskipTests package'.format(args.conf_cloud_provider))
 
 
 def build_docker_images(args):
