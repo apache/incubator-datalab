@@ -38,4 +38,6 @@ public class EdgeInfoAzure extends EdgeInfo {
     private String sharedStorageAccountName;
     @JsonProperty("shared_container_name")
     private String sharedContainerName;
+    @JsonProperty("user_storage_account_tag_name")
+    private String userStorageAccountTagName;
 }

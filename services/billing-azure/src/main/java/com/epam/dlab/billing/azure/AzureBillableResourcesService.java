@@ -47,6 +47,8 @@ public class AzureBillableResourcesService {
 
     private MongoDbBillingClient mongoDbBillingClient;
     private String serviceBaseName;
+    private String sharedStorageAccountTagName;
+    private String ssnStorageAccountTagName;
 
     /**
      * Constructs the service class
@@ -56,19 +58,12 @@ public class AzureBillableResourcesService {
     public AzureBillableResourcesService(MongoDbBillingClient mongoDbBillingClient) {
         this.mongoDbBillingClient = mongoDbBillingClient;
 
-        Document document = mongoDbBillingClient.getDatabase().getCollection(MongoKeyWords.SETTINGS_COLLECTION)
-                .find(Filters.eq("_id", MongoKeyWords.SERVICE_BASE_NAME_KEY)).first();
+        this.serviceBaseName = getConfigurationSettingValue(MongoKeyWords.SERVICE_BASE_NAME_KEY)
+                .replace('_', '-').toLowerCase();
 
-        if (document != null) {
-            this.serviceBaseName = document.getString("value");
-            if (StringUtils.isEmpty(this.serviceBaseName)) {
-                throw new IllegalStateException("Configuration service base name is empty");
-            } else {
-                this.serviceBaseName = serviceBaseName.replace('_', '-').toLowerCase();
-            }
-        } else {
-            throw new IllegalStateException("Configuration service base name is not present in settings");
-        }
+        this.sharedStorageAccountTagName = getConfigurationSettingValue(MongoKeyWords.SHARED_STORAGE_ACCOUNT_TAG_KEY);
+        this.ssnStorageAccountTagName = getConfigurationSettingValue(MongoKeyWords.SSN_STORAGE_ACCOUNT_TAG_KEY);
+
     }
 
 
@@ -82,7 +77,7 @@ public class AzureBillableResourcesService {
         Set<AzureDlabBillableResource> billableResources = new HashSet<>();
 
         billableResources.addAll(getSsn());
-        billableResources.addAll(getEdgeAndContainers());
+        billableResources.addAll(getEdgeAndStorageAccount());
         billableResources.addAll(getNotebooksAndClusters());
 
         List<AzureDlabBillableResource> list = billableResources.stream().collect(Collectors.toList());
@@ -98,14 +93,34 @@ public class AzureBillableResourcesService {
         return billableResources;
     }
 
+    private String getConfigurationSettingValue(String key) {
+
+        Document document = mongoDbBillingClient.getDatabase().getCollection(MongoKeyWords.SETTINGS_COLLECTION)
+                .find(Filters.eq(MongoKeyWords.MONGO_ID, key)).first();
+
+        if (document != null) {
+            String value = document.getString("value");
+            if (StringUtils.isEmpty(value)) {
+                throw new IllegalStateException("Configuration " + key + " does not have value in settings");
+            }
+            log.info("Key {} has value {}", key, value);
+            return value;
+        } else {
+            throw new IllegalStateException("Configuration " + key + " is not present in settings");
+        }
+
+    }
+
     private Set<AzureDlabBillableResource> getSsn() {
 
         return Sets.newHashSet(
                 AzureDlabBillableResource.builder().id(serviceBaseName + "-ssn").type(DlabResourceType.SSN).build(),
-                AzureDlabBillableResource.builder().id(serviceBaseName + "-ssn-container").type(DlabResourceType.SSN_BUCKET).build());
+                AzureDlabBillableResource.builder().id(ssnStorageAccountTagName).type(DlabResourceType.SSN_STORAGE_ACCOUNT).build(),
+                AzureDlabBillableResource.builder().id(sharedStorageAccountTagName).type(DlabResourceType.COLLABORATION_STORAGE_ACCOUNT).build()
+        );
     }
 
-    private Set<AzureDlabBillableResource> getEdgeAndContainers() {
+    private Set<AzureDlabBillableResource> getEdgeAndStorageAccount() {
         Set<AzureDlabBillableResource> billableResources = new HashSet<>();
 
         try {
@@ -118,7 +133,7 @@ public class AzureBillableResourcesService {
 
             if (edgeInfoList != null && !edgeInfoList.isEmpty()) {
                 for (EdgeInfoAzure edgeInfoAzure : edgeInfoList) {
-                    billableResources.addAll(getEdgeAndContainers(edgeInfoAzure));
+                    billableResources.addAll(getEdgeAndStorageAccount(edgeInfoAzure));
                 }
             }
 
@@ -129,21 +144,14 @@ public class AzureBillableResourcesService {
         return billableResources;
     }
 
-    private Set<AzureDlabBillableResource> getEdgeAndContainers(EdgeInfoAzure edgeInfoAzure) {
+    private Set<AzureDlabBillableResource> getEdgeAndStorageAccount(EdgeInfoAzure edgeInfoAzure) {
 
         Set<AzureDlabBillableResource> billableResources = new HashSet<>();
 
-        if (StringUtils.isNotEmpty(edgeInfoAzure.getSharedContainerName())) {
-            billableResources.add(AzureDlabBillableResource.builder()
-                    .id(edgeInfoAzure.getSharedContainerName())
-                    .type(DlabResourceType.COLLABORATION_BUCKET)
-                    .user(edgeInfoAzure.getId()).build());
-        }
-
         if (StringUtils.isNotEmpty(edgeInfoAzure.getUserContainerName())) {
             billableResources.add(AzureDlabBillableResource.builder()
-                    .id(edgeInfoAzure.getUserContainerName())
-                    .type(DlabResourceType.EDGE_BUCKET)
+                    .id(edgeInfoAzure.getUserStorageAccountTagName())
+                    .type(DlabResourceType.EDGE_STORAGE_ACCOUNT)
                     .user(edgeInfoAzure.getId()).build());
         }
 
