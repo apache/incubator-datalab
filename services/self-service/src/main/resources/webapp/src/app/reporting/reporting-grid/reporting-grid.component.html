@@ -41,10 +41,10 @@ limitations under the License.
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resource_type'" [items]="filterConfiguration.resource_type" [model]="filteredReportData.resource_type"></multi-select-dropdown>
     </td>
     <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'shape'" [items]="filterConfiguration.shape" [model]="filteredReportData.shape"></multi-select-dropdown>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="[DICTIONARY.billing.instance_size]" [items]="filterConfiguration[DICTIONARY.billing.instance_size]" [model]="filteredReportData[DICTIONARY.billing.instance_size]"></multi-select-dropdown>
     </td>
     <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'product'" [items]="filterConfiguration.product" [model]="filteredReportData.product"></multi-select-dropdown>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="[DICTIONARY.billing.service_filter_key]" [items]="filterConfiguration[DICTIONARY.billing.service_filter_key]" [model]="filteredReportData[DICTIONARY.billing.service_filter_key]"></multi-select-dropdown>
     </td>
     <td>
       <div class="actions">
