@@ -84,7 +84,7 @@ export class ReportingComponent implements OnInit, OnDestroy {
 
         this.reportingToolbar.reportData = this.data;
         if (!localStorage.getItem('report_period')) {
-          localStorage.setItem('report_period' , JSON.stringify({start_date: this.data.usage_date_start, end_date: this.data.usage_date_end}));
+          localStorage.setItem('report_period' , JSON.stringify({start_date: this.data[DICTIONARY.billing.dateFrom], end_date: this.data[DICTIONARY.billing.dateTo]}));
           this.reportingToolbar.setDateRange();
         }
 
