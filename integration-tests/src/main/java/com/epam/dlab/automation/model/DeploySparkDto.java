@@ -47,7 +47,7 @@ public class DeploySparkDto extends DeployClusterDto{
 	
 	@Override
     public String toString() {
-        return super.toString()+MoreObjects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
         		.add("image", getImage())
         		.add("template_name", getTemplate_name())
         		.add("name", getName())
