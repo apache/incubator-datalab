@@ -761,9 +761,9 @@ def node_count(cluster_name):
         result = len(node_list)
         return result
     except Exception as err:
-        logging.error("Error with getting Spot instances status: " + str(err) + "\n Traceback: " +
+        logging.error("Error with counting nodes in cluster: " + str(err) + "\n Traceback: " +
                       traceback.print_exc(file=sys.stdout))
-        append_result(str({"error": "Error with getting Spot instances status",
+        append_result(str({"error": "Error with counting nodes in cluster",
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
