@@ -20,4 +20,6 @@ limitations under the License.
 
 import { NAMING_CONVENTION } from './CLOUD_PROVIDER.dictionary';
 
+export * from './CLOUD_PROVIDER.dictionary';
+
 export const DICTIONARY = Object.freeze(NAMING_CONVENTION);

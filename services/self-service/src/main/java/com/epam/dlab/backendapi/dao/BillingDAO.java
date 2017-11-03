@@ -22,6 +22,7 @@ import com.mongodb.client.FindIterable;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 
 import java.util.HashMap;
@@ -83,8 +84,10 @@ public abstract class BillingDAO extends BaseDAO {
                 if (DataEngineType.fromDockerImageName(c.getString(DATAENGINE_DOCKER_IMAGE)) == DataEngineType.SPARK_STANDALONE) {
                     name = c.getString(DATAENGINE_MASTER);
                     String slaveName = c.getString(DATAENGINE_SLAVE);
-                    if (shapeNames == null || shapeNames.isEmpty() ||
-                            shapeNames.contains(name) || shapeNames.contains(slaveName)) {
+                    if ((shapeNames == null || shapeNames.isEmpty() ||
+                            shapeNames.contains(name) || shapeNames.contains(slaveName))
+                            && StringUtils.isNotEmpty(c.getString(COMPUTATIONAL_ID))) {
+
                         shapes.put(c.getString(COMPUTATIONAL_ID),
                                 new BillingDAO.ShapeInfo(name, slaveName, c.getString(DATAENGINE_INSTANCE_COUNT)));
                     }

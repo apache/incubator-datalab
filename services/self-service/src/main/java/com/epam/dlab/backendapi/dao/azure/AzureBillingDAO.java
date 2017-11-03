@@ -72,7 +72,7 @@ public class AzureBillingDAO extends BillingDAO {
         pipeline.add(sortCriteria());
 
         return prepareReport(
-                filter.getNodeSize() != null && filter.getNodeSize().isEmpty(),
+                filter.getNodeSize() != null && !filter.getNodeSize().isEmpty(),
                 getCollection(MongoKeyWords.BILLING_DETAILS).aggregate(pipeline),
                 getShapes(filter.getNodeSize()))
                 .append(FULL_REPORT, isFullReport);
