@@ -92,6 +92,14 @@ public class SettingsDAO extends BaseDAO {
         return getSetting(AZURE_SECURITY_GROUP_NAME);
     }
 
+    public String getAzureEdgeInstanceSize() {
+        return getSetting(AZURE_EDGE_INSTANCE_SIZE);
+    }
+
+    public String getAzureSsnInstanceSize() {
+        return getSetting(AZURE_SSN_INSTANCE_SIZE);
+    }
+
 
     /** Returns the value of property from Mongo database.
      * @param setting the name of property.

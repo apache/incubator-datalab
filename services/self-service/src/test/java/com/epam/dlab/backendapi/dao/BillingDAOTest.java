@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi.dao;
 import static com.epam.dlab.backendapi.dao.MongoCollections.BILLING;
 import static org.junit.Assert.assertEquals;
 
+import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
 import org.bson.Document;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -28,12 +29,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.resources.dto.BillingFilterFormDTO;
+import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
 import com.google.common.collect.Lists;
 
 @Ignore
 public class BillingDAOTest extends DAOTestBase {
-    private BillingDAO dao;
+    private AwsBillingDAO dao;
     
     public BillingDAOTest() {
         super(BILLING);
@@ -41,7 +42,7 @@ public class BillingDAOTest extends DAOTestBase {
 
     @Before
     public void setup() {
-    	dao = new BillingDAO();
+    	dao = new AwsBillingDAO();
         testInjector.injectMembers(dao);
     }
 
@@ -57,7 +58,7 @@ public class BillingDAOTest extends DAOTestBase {
 
     @Test
     public void getReport() {
-    	BillingFilterFormDTO filter = new BillingFilterFormDTO();
+    	AwsBillingFilter filter = new AwsBillingFilter();
     	filter.setProduct(Lists.newArrayList("S3", "EC2"));
     	filter.setDateStart("2017-06-09");
     	UserInfo userInfo = new UserInfo("user", "accessToken");

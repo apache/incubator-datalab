@@ -74,15 +74,15 @@ elif args.region == 'cn-north-1':
 else:
     endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
 
-cp_config = "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hive/conf/hive-site.xml s3://{0}/{4}/{5}/config/hive-site.xml --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
-            "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hadoop/conf/ s3://{0}/{4}/{5}/config/ --recursive --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER, Jar=command-runner.jar; " \
+cp_config = "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hive/conf/hive-site.xml s3://{0}/{4}/{5}/config/hive-site.xml --sse AES256 --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
+            "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hadoop/conf/ s3://{0}/{4}/{5}/config/ --sse AES256 --recursive --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER, Jar=command-runner.jar; " \
             "Name=CUSTOM_JAR, Args=sudo -u hadoop hdfs dfs -mkdir /user/{2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
-            "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/{4}/{4}.pub /tmp/{4}.pub --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
+            "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/{4}/{4}.pub /tmp/{4}.pub --sse AES256 --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
             "Name=CUSTOM_JAR, Args=sudo -u hadoop hdfs dfs -chown -R {2}:{2} /user/{2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".format(
     args.s3_bucket, args.name, args.nbs_user, args.region, args.edge_user_name, args.name, endpoint_url)
 
-cp_jars = "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/jars_parser.py /tmp/jars_parser.py --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
-          "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/key_importer.py /tmp/key_importer.py --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
+cp_jars = "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/jars_parser.py /tmp/jars_parser.py --sse AES256 --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
+          "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/key_importer.py /tmp/key_importer.py --sse AES256 --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
           "Name=CUSTOM_JAR, Args=sudo /usr/bin/python /tmp/key_importer.py --user_name {4}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
           "Name=CUSTOM_JAR, Args=/usr/bin/python /tmp/jars_parser.py --bucket {0} --emr_version {3} --region {2} --user_name {4} --cluster_name {5}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".format(args.s3_bucket, args.release_label, args.region, args.release_label, args.edge_user_name, args.name, endpoint_url)
 

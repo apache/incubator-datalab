@@ -154,7 +154,8 @@ def ensure_mongo():
 
 
 def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, keystore_passwd, cloud_provider,
-             service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path=''):
+             service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled,
+             authentication_file, offer_number, currency, locale, region_info, report_path=''):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
@@ -195,11 +196,13 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                 append_result("Unable to upload webapp jars")
                 sys.exit(1)
             if billing_enabled:
-                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
-                                                                                                         host_string))
-                sudo('python /tmp/configure_billing.py --cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {}'.
-                     format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
-                            mongo_passwd, dlab_path))
+                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile, host_string))
+                params = '--cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} \
+                    --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {} \
+                         --authentication_file "{}" --offer_number {} --currency {} --locale {} --region_info {}'.\
+                            format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
+                                    mongo_passwd, dlab_path, authentication_file, offer_number, currency, locale, region_info)
+                sudo('python /tmp/configure_billing.py {}'.format(params))
             try:
                 sudo('keytool -genkeypair -alias dlab -keyalg RSA -storepass {1} -keypass {1} \
                      -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd))

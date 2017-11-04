@@ -32,6 +32,19 @@ export const NAMING_CONVENTION = {
     'total_instance_number': 'total_instance_number',
 
     'spot_instance': 'Spot instance ',
+    'billing': {
+        'resourceName': 'resource_name',
+        'cost': 'cost',
+        'currencyCode': 'currency_code',
+        'dateFrom': 'usage_date_start',
+        'dateTo': 'usage_date_end',
+        'service': 'product',
+        'service_filter_key': 'product',
+        'type': 'resource_type',
+        'resourceType': 'dlab_resource_type',
+        'instance_size': 'shape',
+        'dlabId': 'dlab_id'
+    },
     'service': 'Service',
     'type': 'Type',
     'instance_size': 'Shape',
@@ -63,3 +76,30 @@ export const NAMING_CONVENTION = {
         'total_instance_number': 'dataengine_instance_count',
     }
 };
+
+export class ReportingConfigModel {
+
+    static getDefault(): ReportingConfigModel {
+        return new ReportingConfigModel([], [], [], [], '', '', '');
+    }
+
+    constructor(
+        public user: Array<string>,
+        public product: Array<string>,
+        public resource_type: Array<string>,
+        public shape: Array<string>,
+        public date_start: string,
+        public date_end: string,
+        public dlab_id: string
+    ) { }
+
+    defaultConfigurations(): void {
+        this.user = [];
+        this.product = [];
+        this.resource_type = [];
+        this.shape = [];
+        this.date_start = '';
+        this.date_end = '';
+        this.dlab_id = '';
+    }
+}

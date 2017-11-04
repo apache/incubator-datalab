@@ -18,9 +18,9 @@ limitations under the License.
 
 <table class="dashboard_table">
   <tr>
+    <!-- [hidden]="DICTIONARY.cloud_provider !== 'aws' && column.name === 'cost'" -->
     <th *ngFor="let column of filteringColumns"
-        ngClass="{{column.className || ''}}"
-        [hidden]="DICTIONARY.cloud_provider !== 'aws' && column.name === 'cost'">
+        ngClass="{{column.className || ''}}">
       {{column.title}}
       <button md-icon-button *ngIf="column.filtering" aria-label="More" class="pull-right" (click)="toggleFilterRow()">
         <i class="material-icons">
@@ -44,7 +44,8 @@ limitations under the License.
     <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'" [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
     </td>
-    <td [hidden]="DICTIONARY.cloud_provider !== 'aws'"></td>
+    <!-- [hidden]="DICTIONARY.cloud_provider !== 'aws'" -->
+    <td></td>
     <td>
       <div class="actions">
         <button md-icon-button class="btn reset" (click)="resetFilterConfigurations()">
@@ -75,8 +76,8 @@ limitations under the License.
     <td>
       <computational-resources-list [resources]="env.resources" [environment]="env" (buildGrid)="buildGrid($event)"></computational-resources-list>
     </td>
-    <td [hidden]="DICTIONARY.cloud_provider !== 'aws'">
-      <span class="total_cost">{{env.cost || 'N/A'}} {{env.currency_code || ''}}</span>
+    <td>
+      <span class="total_cost">{{ env.cost || 'N/A' }} {{env.currency_code || ''}}</span>
       <!-- (click)="env.billing && printCostDetails(env)" -->
       <!-- [ngClass]="{'not-allowed' : !env.billing}" -->
       <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}"></span>

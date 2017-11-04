@@ -750,3 +750,20 @@ def get_spot_instances_status(cluster_id):
         append_result(str({"error": "Error with getting Spot instances status",
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
+
+
+def node_count(cluster_name):
+    try:
+        ec2 = boto3.client('ec2')
+        node_list = ec2.describe_instances(Filters=[
+            {'Name': 'instance-state-name', 'Values': ['running']},
+            {'Name': 'tag:Name', 'Values': [cluster_name + '*']}])
+        result = len(node_list)
+        return result
+    except Exception as err:
+        logging.error("Error with counting nodes in cluster: " + str(err) + "\n Traceback: " +
+                      traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Error with counting nodes in cluster",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+

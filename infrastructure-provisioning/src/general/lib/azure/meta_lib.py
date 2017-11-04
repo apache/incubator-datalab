@@ -505,3 +505,20 @@ def get_instance_private_ip_address(tag_name, instance_name):
                        "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
+
+
+def node_count(cluster_name):
+    try:
+        node_list = []
+        resource_group_name = os.environ['azure_resource_group_name']
+        for node in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+            if cluster_name == node.tags["Name"]:
+                node_list.append(node.name)
+        result = len(node_list)
+        return result
+    except Exception as err:
+        logging.info("Error with counting nodes in cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with counting nodes in cluster",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)

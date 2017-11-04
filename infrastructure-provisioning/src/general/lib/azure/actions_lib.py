@@ -1037,7 +1037,7 @@ def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
         env['connection_attempts'] = 100
         env.key_filename = [keyfile]
         env.host_string = os_user + '@' + hostname
-    sudo('waagent -deprovision+user -force')
+    sudo('waagent -deprovision -force')
 
 
 def prepare_disk(os_user):

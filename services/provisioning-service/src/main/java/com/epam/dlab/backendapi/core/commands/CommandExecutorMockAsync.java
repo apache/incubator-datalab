@@ -50,8 +50,9 @@ import com.google.common.io.Resources;
 
 public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutorMockAsync.class);
+    private static final String JSON_FILE_ENDING = ".json";
 
-    private ObjectMapper mapper = new ObjectMapper()
+    private static final ObjectMapper MAPPER = new ObjectMapper()
     		.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
     		.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
@@ -217,8 +218,8 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 				"\".../infrastructure-provisioning/src/general/files/" + cloudProvider.getName() + "\" directory");
     }
 
-    /** Describe action.
-     * @throws FileNotFoundException
+    /**
+	 * Describe action.
      */
     private void describe() {
     	String templateFileName;
@@ -227,7 +228,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		} catch (FileNotFoundException e) {
 			throw new DlabException("Cannot describe image " + parser.getImageType() + ". " + e.getLocalizedMessage(), e);
 		}
-    	responseFileName = getAbsolutePath(parser.getResponsePath(), parser.getRequestId() + ".json");
+    	responseFileName = getAbsolutePath(parser.getResponsePath(), parser.getRequestId() + JSON_FILE_ENDING);
 
     	LOGGER.debug("Create response file from {} to {}", templateFileName, responseFileName);
     	File fileResponse = new File(responseFileName);
@@ -255,8 +256,8 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 
 		String prefixFileName = (Lists.newArrayList("edge", "dataengine", "dataengine-service").contains(resourceType) ?
     			resourceType : "notebook") + "_";
-    	String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + prefixFileName + action.toString() + ".json";
-    	responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" + parser.getRequestId() + ".json");
+    	String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + prefixFileName + action.toString() + JSON_FILE_ENDING;
+    	responseFileName = getAbsolutePath(parser.getResponsePath(), prefixFileName + user + "_" + parser.getRequestId() + JSON_FILE_ENDING);
     	setResponse(templateFileName, responseFileName);
     }
 
@@ -268,9 +269,9 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	}
     	EnvResourceList resourceList;
     	try {
-        	JsonNode json = mapper.readTree(parser.getJson());
+        	JsonNode json = MAPPER.readTree(parser.getJson());
 			json = json.get("edge_list_resources");
-			resourceList = mapper.readValue(json.toString(), EnvResourceList.class);
+			resourceList = MAPPER.readValue(json.toString(), EnvResourceList.class);
 		} catch (IOException e) {
 			throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
 		}
@@ -287,7 +288,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     	}
 
     	try {
-			return mapper.writeValueAsString(resourceList);
+			return MAPPER.writeValueAsString(resourceList);
 		} catch (JsonProcessingException e) {
 			throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
 		}
@@ -298,9 +299,9 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private String getResponseLibInstall(boolean isSucces) {
     	List<LibInstallDTO> list;
     	try {
-        	JsonNode json = mapper.readTree(parser.getJson());
+        	JsonNode json = MAPPER.readTree(parser.getJson());
 			json = json.get("libs");
-			list = mapper.readValue(json.toString(), new TypeReference<List<LibInstallDTO>>() {});
+			list = MAPPER.readValue(json.toString(), new TypeReference<List<LibInstallDTO>>() {});
 		} catch (IOException e) {
 			throw new DlabException("Can't parse json content: " + e.getLocalizedMessage(), e);
 		}
@@ -315,16 +316,16 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
 		}
 
     	try {
-			return mapper.writeValueAsString(list);
+			return MAPPER.writeValueAsString(list);
 		} catch (JsonProcessingException e) {
 			throw new DlabException("Can't generate json content: " + e.getLocalizedMessage(), e);
 		}
     }
 
-    /** Write response file.
+    /**
+	 * Write response file.
      * @param sourceFileName template file name.
      * @param targetFileName response file name.
-     * @throws DlabException if can't read template or write response files.
      */
     private void setResponse(String sourceFileName, String targetFileName) {
     	String content;
