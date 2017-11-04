@@ -63,7 +63,7 @@ if __name__ == "__main__":
         edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] +
                                             '-container').lower()
         edge_conf['datalake_store_name'] = edge_conf['service_base_name'] + '-ssn-datalake'
-        edge_conf['datalake_user_directory_name'] = edge_conf['user_name'] + '-directory'
+        edge_conf['datalake_user_directory_name'] = edge_conf['service_base_name'] + edge_conf['user_name'] + '-directory'
         ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         edge_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")

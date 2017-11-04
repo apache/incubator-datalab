@@ -51,7 +51,7 @@ if __name__ == "__main__":
         ssn_conf['shared_storage_account_name'] = ssn_conf['service_base_name'] + '-shared-storage'
         ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared-container').lower()
         ssn_conf['datalake_store_name'] = ssn_conf['service_base_name'] + '-ssn-datalake'
-        ssn_conf['datalake_shared_directory_name'] = 'shared-directory'
+        ssn_conf['datalake_shared_directory_name'] = ssn_conf['service_base_name'] + '-shared-directory'
         ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
         ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-vpc'
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
@@ -269,20 +269,36 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        mongo_parameters = {
-            "azure_resource_group_name": os.environ['azure_resource_group_name'],
-            "azure_region": ssn_conf['region'],
-            "azure_vpc_name": ssn_conf['vpc_name'],
-            "azure_subnet_name": ssn_conf['subnet_name'],
-            "conf_service_base_name": ssn_conf['service_base_name'],
-            "azure_security_group_name": ssn_conf['security_group_name'],
-            "conf_os_family": os.environ['conf_os_family'],
-            "conf_key_dir": os.environ['conf_key_dir'],
-            "ssn_instance_size": os.environ['azure_ssn_instance_size'],
-            "edge_instance_size": os.environ['azure_edge_instance_size'],
-            "ssn_storage_account_tag_name": ssn_conf['ssn_storage_account_name'],
-            "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name']
-        }
+        if os.environ['azure_datalake_enable'] == 'false':
+            mongo_parameters = {
+                "azure_resource_group_name": os.environ['azure_resource_group_name'],
+                "azure_region": ssn_conf['region'],
+                "azure_vpc_name": ssn_conf['vpc_name'],
+                "azure_subnet_name": ssn_conf['subnet_name'],
+                "conf_service_base_name": ssn_conf['service_base_name'],
+                "azure_security_group_name": ssn_conf['security_group_name'],
+                "conf_os_family": os.environ['conf_os_family'],
+                "conf_key_dir": os.environ['conf_key_dir'],
+                "ssn_instance_size": os.environ['azure_ssn_instance_size'],
+                "edge_instance_size": os.environ['azure_edge_instance_size'],
+                "ssn_storage_account_tag_name": ssn_conf['ssn_storage_account_name'],
+                "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name']
+            }
+        else:
+            mongo_parameters = {
+                "azure_resource_group_name": os.environ['azure_resource_group_name'],
+                "azure_region": ssn_conf['region'],
+                "azure_vpc_name": ssn_conf['vpc_name'],
+                "azure_subnet_name": ssn_conf['subnet_name'],
+                "conf_service_base_name": ssn_conf['service_base_name'],
+                "azure_security_group_name": ssn_conf['security_group_name'],
+                "conf_os_family": os.environ['conf_os_family'],
+                "conf_key_dir": os.environ['conf_key_dir'],
+                "ssn_instance_size": os.environ['azure_ssn_instance_size'],
+                "edge_instance_size": os.environ['azure_edge_instance_size'],
+                "ssn_storage_account_tag_name": ssn_conf['ssn_storage_account_name'],
+                "datalake_tag_name": ssn_conf['datalake_store_name']
+            }
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
         azure_auth_path = '/home/{}/keys/azure_auth.json'.format(ssn_conf['dlab_ssh_user'])
@@ -327,8 +343,7 @@ if __name__ == "__main__":
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
             if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
                 ssn_storage_account_name = storage_account.name
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                shared_storage_account_name = storage_account.name
+
         print('[SUMMARY]')
         print("Service base name: {}".format(ssn_conf['service_base_name']))
         print("SSN Name: {}".format(ssn_conf['instance_name']))
@@ -342,6 +357,8 @@ if __name__ == "__main__":
         print("SSN storage account name: {}".format(ssn_storage_account_name))
         print("SSN container name: {}".format(ssn_conf['ssn_container_name']))
         if os.environ['azure_datalake_enable'] == 'false':
+            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
+                shared_storage_account_name = storage_account.name
             print("Shared storage account name: {}".format(shared_storage_account_name))
             print("Shared container name: {}".format(ssn_conf['shared_container_name']))
         else:
@@ -363,17 +380,36 @@ if __name__ == "__main__":
             print("Jenkins is either configured already or have issues in configuration routine.")
 
         with open("/root/result.json", 'w') as f:
-            res = {"service_base_name": ssn_conf['service_base_name'],
-                   "instance_name": ssn_conf['instance_name'],
-                   "instance_hostname": ssn_conf['instance_dns_name'],
-                   "master_keyname": os.environ['conf_key_name'],
-                   "vpc_id": ssn_conf['vpc_name'],
-                   "subnet_id": ssn_conf['subnet_name'],
-                   "security_id": ssn_conf['security_group_name'],
-                   "instance_shape": os.environ['azure_ssn_instance_size'],
-                   "container_name": ssn_conf['ssn_container_name'],
-                   "region": ssn_conf['region'],
-                   "action": "Create SSN instance"}
+            if os.environ['azure_datalake_enable'] == 'false':
+                res = {"service_base_name": ssn_conf['service_base_name'],
+                       "instance_name": ssn_conf['instance_name'],
+                       "instance_hostname": ssn_conf['instance_dns_name'],
+                       "master_keyname": os.environ['conf_key_name'],
+                       "vpc_id": ssn_conf['vpc_name'],
+                       "subnet_id": ssn_conf['subnet_name'],
+                       "security_id": ssn_conf['security_group_name'],
+                       "instance_shape": os.environ['azure_ssn_instance_size'],
+                       "ssn_storage_account_name": ssn_storage_account_name,
+                       "ssn_container_name": ssn_conf['ssn_container_name'],
+                       "shared_storage_account_name": shared_storage_account_name,
+                       "shared_container_name": ssn_conf['shared_container_name'],
+                       "region": ssn_conf['region'],
+                       "action": "Create SSN instance"}
+            else:
+                res = {"service_base_name": ssn_conf['service_base_name'],
+                       "instance_name": ssn_conf['instance_name'],
+                       "instance_hostname": ssn_conf['instance_dns_name'],
+                       "master_keyname": os.environ['conf_key_name'],
+                       "vpc_id": ssn_conf['vpc_name'],
+                       "subnet_id": ssn_conf['subnet_name'],
+                       "security_id": ssn_conf['security_group_name'],
+                       "instance_shape": os.environ['azure_ssn_instance_size'],
+                       "ssn_storage_account_name": ssn_storage_account_name,
+                       "ssn_container_name": ssn_conf['ssn_container_name'],
+                       "datalake_name": datalake_store_name,
+                       "datalake_shared_directory_name": ssn_conf['datalake_shared_directory_name'],
+                       "region": ssn_conf['region'],
+                       "action": "Create SSN instance"}
             f.write(json.dumps(res))
 
         print('Upload response file')
