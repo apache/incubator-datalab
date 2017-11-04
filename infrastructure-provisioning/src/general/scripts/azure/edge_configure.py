@@ -254,8 +254,6 @@ if __name__ == "__main__":
         else:
             print("Data Lake Store name: {}".format(edge_conf['datalake_store_name']))
             print("Data Lake Store directory name: {}".format(edge_conf['datalake_user_directory_name']))
-        print("Shared storage account name: {}".format(shared_storage_account_name))
-        print("Shared container name: {}".format(edge_conf['shared_container_name']))
         print("Notebook SG: {}".format(edge_conf['notebook_security_group_name']))
         print("Edge SG: {}".format(edge_conf['edge_security_group_name']))
         print("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
