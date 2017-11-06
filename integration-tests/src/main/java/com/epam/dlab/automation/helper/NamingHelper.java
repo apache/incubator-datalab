@@ -91,10 +91,12 @@ public class NamingHelper {
     }
     
     public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
-    	if("dataengine".equals(dataEngineType)) 
+    	if("dataengine".equals(dataEngineType)) {
     		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), dataEngineType, notebookName, clusterName, "master");
-    	else 
+    	}
+    	else {
     		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), dataEngineType, notebookName, clusterName);
+    	}
     }
 
     public static String getNotebookContainerName(String notebookName, String action) {

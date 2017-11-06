@@ -22,6 +22,7 @@ import static org.testng.Assert.fail;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -62,12 +63,15 @@ public class TestCallable implements Callable<Boolean> {
     private final String token, ssnExpEnvURL, ssnProUserResURL,ssnCompResURL;
     private final String bucketName;
     private final String notebookName, clusterName, dataEngineType;
+    private final NotebookConfig notebookConfig;
 
-    public TestCallable(String notebookTemplate,String dataEngineType, boolean fullTest) {
-    	this.notebookTemplate = notebookTemplate;
-    	this.dataEngineType = dataEngineType;
+    public TestCallable(NotebookConfig notebookConfig, boolean fullTest) {
+    	this.notebookTemplate = notebookConfig.getNotebook_template();
+    	this.dataEngineType = notebookConfig.getData_engine_type();
         this.fullTest = fullTest;
 
+        this.notebookConfig=notebookConfig;
+        
         this.token = NamingHelper.getSsnToken();
         this.ssnExpEnvURL = NamingHelper.getSelfServiceURL(ApiPath.EXP_ENVIRONMENT);
         this.ssnProUserResURL = NamingHelper.getSelfServiceURL(ApiPath.PROVISIONED_RES);
@@ -93,8 +97,8 @@ public class TestCallable implements Callable<Boolean> {
         LOGGER.info("   SSN provisioned user resources URL is {}", ssnProUserResURL);
     }
 
-    public TestCallable(NotebookConfig notebookConfig, boolean fullTest) {
-    	this(notebookConfig.getNotebook_template(), notebookConfig.getData_engine_type(), fullTest);
+    private static Duration getDuration(String duaration) {
+    	return Duration.parse("PT" + duaration);
     }
 
 	@Override
@@ -163,7 +167,7 @@ private DeployClusterDto createClusterDto() throws Exception {
     LOGGER.info("{}:   responseDeployingCluster.getBody() is {}",notebookName, responseDeployingCluster.getBody().asString());
     Assert.assertEquals(responseDeployingCluster.statusCode(), HttpStatusCode.OK, dataEngineType + " cluster " + clusterName + " was not deployed");
 
-    gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "creating", ConfigPropertyValue.getTimeoutEMRCreate());
+    gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "creating", getDuration(notebookConfig.getTimeout_cluster_create()));
     if(!ConfigPropertyValue.isRunModeLocal()) {
         if (!(gettingStatus.contains("configuring") || gettingStatus.contains("running")))
             throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been deployed. Cluster status is " + gettingStatus);
@@ -174,7 +178,7 @@ private DeployClusterDto createClusterDto() throws Exception {
     }
     LOGGER.info("{}:   Waiting until {} cluster {} has been configured ...", notebookName,dataEngineType,clusterName);
 
-    gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "configuring", ConfigPropertyValue.getTimeoutEMRCreate());
+    gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "configuring", getDuration(notebookConfig.getTimeout_cluster_create()));
     if (!gettingStatus.contains("running"))
         throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been configured. SparkStamdalone status is " + gettingStatus);
     LOGGER.info(" {}: {} cluster {} has been configured", notebookName, dataEngineType , clusterName);
@@ -207,7 +211,7 @@ private String  createNotebook(String notebookName) throws Exception {
        LOGGER.info(" {}:  responseCreateNotebook.getBody() is {}", notebookName, responseCreateNotebook.getBody().asString());
        Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not created");
 
-       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating", ConfigPropertyValue.getTimeoutNotebookCreate());
+       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating", getDuration(notebookConfig.getTimeout_cluster_create()));
        if (!gettingStatus.contains("running")) {
            LOGGER.error("Notebook {} is in state {}", notebookName, gettingStatus);
            throw new Exception("Notebook " + notebookName + " has not been created. Notebook status is " + gettingStatus);
@@ -230,7 +234,7 @@ private String  createNotebook(String notebookName) throws Exception {
        LOGGER.info("Install libraries  ...", notebookName);
 
        TestLibGroupStep testLibGroupStep = new TestLibGroupStep(ApiPath.LIB_GROUPS, token, notebookName,
-               ConfigPropertyValue.getTimeoutLibGroups().getSeconds(),
+               getDuration(notebookConfig.getTimeout_lib_groups()).getSeconds(),
                getTemplateTestLibFile("lib_groups.json"));
 
        testLibGroupStep.init();
@@ -241,7 +245,7 @@ private String  createNotebook(String notebookName) throws Exception {
 
        for (LibToSearchData libToSearchData : libToSearchDataList) {
            TestLibListStep testLibListStep = new TestLibListStep(ApiPath.LIB_LIST, token, notebookName,
-                   ConfigPropertyValue.getTimeoutLibList().getSeconds(), libToSearchData);
+        		   getDuration(notebookConfig.getTimeout_lib_list()).getSeconds(), libToSearchData);
 
            testLibListStep.init();
            testLibListStep.verify();
@@ -249,7 +253,7 @@ private String  createNotebook(String notebookName) throws Exception {
            Lib lib = testLibListStep.getLibs().get(new Random().nextInt(testLibListStep.getLibs().size()));
 
            TestLibInstallStep testLibInstallStep = new TestLibInstallStep(ApiPath.LIB_INSTALL, ApiPath.LIB_LIST_EXPLORATORY,
-                   token, notebookName, ConfigPropertyValue.getTimeoutLibInstall().getSeconds(), lib);
+                   token, notebookName, getDuration(notebookConfig.getTimeout_lib_install()).getSeconds(), lib);
 
            testLibInstallStep.init();
            testLibInstallStep.verify();
@@ -282,7 +286,7 @@ private void restartNotebook() throws Exception {
        LOGGER.info("    respStartNotebook.getBody() is {}", respStartNotebook.getBody().asString());
        Assert.assertEquals(respStartNotebook.statusCode(), HttpStatusCode.OK);
 
-       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "starting", ConfigPropertyValue.getTimeoutNotebookStartup());
+       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "starting", getDuration(notebookConfig.getTimeout_notebook_startup()));
        if (!gettingStatus.contains(AmazonInstanceState.RUNNING.toString())){
            throw new Exception("Notebook " + notebookName + " has not been started. Notebook status is " + gettingStatus);
        }
@@ -300,7 +304,7 @@ private void restartNotebook() throws Exception {
        LOGGER.info("    respTerminateNotebook.getBody() is {}", respTerminateNotebook.getBody().asString());
        Assert.assertEquals(respTerminateNotebook.statusCode(), HttpStatusCode.OK);
 
-       gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "terminating", ConfigPropertyValue.getTimeoutEMRTerminate());
+       gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "terminating", getDuration(notebookConfig.getTimeout_cluster_terminate()));
        if (!gettingStatus.contains("terminated"))
            throw new Exception("Notebook" + notebookName + " has not been terminated. Notebook status is " + gettingStatus);
        AmazonHelper.checkAmazonStatus(NamingHelper.getNotebookInstanceName(notebookName), AmazonInstanceState.TERMINATED);
@@ -333,7 +337,7 @@ private void restartNotebook() throws Exception {
        LOGGER.info("    respTerminateCluster.getBody() is {}", respTerminateCluster.getBody().asString());
        Assert.assertEquals(respTerminateCluster.statusCode(), HttpStatusCode.OK);
 
-       gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "terminating", ConfigPropertyValue.getTimeoutEMRTerminate());
+       gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "terminating", getDuration(notebookConfig.getTimeout_cluster_terminate()));
        if (!gettingStatus.contains("terminated"))
            throw new Exception("New "+dataEngineType+" cluster " + clusterNewName + " has not been terminated. Cluster status is " + gettingStatus);
        LOGGER.info("    New {} cluster {} has been terminated for notebook {}",dataEngineType, clusterNewName, notebookName);
@@ -354,13 +358,13 @@ private void restartNotebook() throws Exception {
        LOGGER.info("    responseDeployingClusterNew.getBody() is {}", responseDeployingClusterNew.getBody().asString());
        Assert.assertEquals(responseDeployingClusterNew.statusCode(), HttpStatusCode.OK);
 
-       gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "creating", ConfigPropertyValue.getTimeoutEMRCreate());
+       gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "creating", getDuration(notebookConfig.getTimeout_cluster_create()));
        if (!(gettingStatus.contains("configuring") || gettingStatus.contains("running")))
            throw new Exception("New cluster " + clusterNewName + " has not been deployed. Cluster status is " + gettingStatus);
        LOGGER.info("    New cluster {} has been deployed", clusterNewName);
 
        LOGGER.info("   Waiting until cluster {} has been configured ...", clusterNewName);
-       gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "configuring", ConfigPropertyValue.getTimeoutEMRCreate());
+       gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "configuring", getDuration(notebookConfig.getTimeout_cluster_create()));
        if (!gettingStatus.contains(AmazonInstanceState.RUNNING.toString()))
            throw new Exception("Cluster " + clusterNewName + " has not been configured. Cluster status is " + gettingStatus);
        LOGGER.info("   Cluster {} has been configured", clusterNewName);
@@ -380,7 +384,7 @@ private void restartNotebook() throws Exception {
        LOGGER.info("   responseStopNotebook.getBody() is {}", responseStopNotebook.getBody().asString());
        Assert.assertEquals(responseStopNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not stopped");
 
-       gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "stopping", ConfigPropertyValue.getTimeoutNotebookShutdown());
+       gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "stopping", getDuration(notebookConfig.getTimeout_notebook_shutdown()));
        if (!gettingStatus.contains("stopped"))
            throw new Exception("Notebook " + notebookName + " has not been stopped. Notebook status is " + gettingStatus);
        LOGGER.info("   Notebook {} has been stopped", notebookName);
