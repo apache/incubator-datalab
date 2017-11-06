@@ -5,6 +5,6 @@
     "azure_resource_group_name": "ARGN",
     "edge_user_name": "EUN",
     "conf_key_name": "CKN",
-    "computational_name": "CNAM",
+    "cluster_name": "CNAM",
     "application": "APP"
 }
