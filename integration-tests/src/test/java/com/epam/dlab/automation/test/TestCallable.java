@@ -78,7 +78,7 @@ public class TestCallable implements Callable<Boolean> {
         
         if ("dataengine".equals(dataEngineType)) {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES_SPARK);
-			clusterName = "spark" + suffixName + "-master";
+			clusterName = "spark" + suffixName;
         } else if ("dataengine-service".equals(dataEngineType)) {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
 			clusterName = "eimr" + suffixName;
