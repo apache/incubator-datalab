@@ -211,7 +211,7 @@ private String  createNotebook(String notebookName) throws Exception {
        LOGGER.info(" {}:  responseCreateNotebook.getBody() is {}", notebookName, responseCreateNotebook.getBody().asString());
        Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not created");
 
-       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating", getDuration(notebookConfig.getTimeout_cluster_create()));
+       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating", getDuration(notebookConfig.getTimeout_notebook_create()));
        if (!gettingStatus.contains("running")) {
            LOGGER.error("Notebook {} is in state {}", notebookName, gettingStatus);
            throw new Exception("Notebook " + notebookName + " has not been created. Notebook status is " + gettingStatus);
