@@ -57,11 +57,11 @@ if __name__ == "__main__":
             notebook_config['user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
 
         if os.environ['notebook_multiple_clusters'] == 'true':
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
-                notebook_config['user_name'] + '-' + os.environ['application'] + '-livy-notebook-image'
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
+                                                   os.environ['application'] + '-livy-notebook-image'
         else:
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
-                notebook_config['user_name'] + '-' + os.environ['application'] + '-spark-notebook-image'
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
+                                                   os.environ['application'] + '-spark-notebook-image'
 
         notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + \
             notebook_config['user_name'] + '-nb-sg'
