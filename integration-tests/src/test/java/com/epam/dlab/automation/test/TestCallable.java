@@ -78,10 +78,10 @@ public class TestCallable implements Callable<Boolean> {
         
         if ("dataengine".equals(dataEngineType)) {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES_SPARK);
-			clusterName = "spark"+suffixName;
+			clusterName = "spark" + suffixName + "-master";
         } else if ("dataengine-service".equals(dataEngineType)) {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
-			clusterName = "eimr"+suffixName;
+			clusterName = "eimr" + suffixName;
         } else {
         	ssnCompResURL="";
 			clusterName="";
@@ -103,6 +103,8 @@ public class TestCallable implements Callable<Boolean> {
     	final String notebookIp = createNotebook(notebookName);
         testLibs();
         
+        final DeployClusterDto deployClusterDto = createClusterDto();
+        
         final String actualClusterName = NamingHelper.getClusterName(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType));
         if (!ConfigPropertyValue.isRunModeLocal()) {
         	TestEmr test = new TestEmr();
@@ -111,8 +113,6 @@ public class TestCallable implements Callable<Boolean> {
             String notebookFilesLocation = PropertiesResolver.getPropertyByName(String.format(PropertiesResolver.NOTEBOOK_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
             test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File(notebookFilesLocation), notebookName);
         }
-        
-        final DeployClusterDto deployClusterDto = createClusterDto();
         
         stopEnvironment();
 
