@@ -51,8 +51,8 @@ if __name__ == "__main__":
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = AzureMeta().get_instance_public_ip_address(os.environ['conf_service_base_name'],
-                                                                      os.environ['conf_service_base_name'] + '-ssn')
+            ssn_hostname = AzureMeta().get_private_ip_address(os.environ['conf_service_base_name'],
+                                                              os.environ['conf_service_base_name'] + '-ssn')
             put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
                                 ssn_hostname)
             append_result("Edge node is unavailable")
