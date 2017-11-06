@@ -47,7 +47,6 @@ parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
 emr_dir = '/opt/' + args.emr_version + '/jars/'
-# kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
 spark_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/spark/'
 yarn_dir = '/opt/' + args.emr_version + '/' + args.cluster_name + '/conf/'
 
@@ -60,6 +59,7 @@ def configure_rstudio():
             local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
+            local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
             local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured')
         except:
@@ -70,6 +70,7 @@ def configure_rstudio():
             local("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron")
             local("sed -i 's/^YARN_CONF_DIR/#YARN_CONF_DIR/' /home/" + args.os_user + "/.Renviron")
             local("sed -i 's/^HADOOP_CONF_DIR/#HADOOP_CONF_DIR/' /home/" + args.os_user + "/.Renviron")
+            local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')

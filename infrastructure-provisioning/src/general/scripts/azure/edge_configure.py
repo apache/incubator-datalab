@@ -235,6 +235,7 @@ if __name__ == "__main__":
                    "user_container_name": edge_conf['user_container_name'],
                    "shared_storage_account_name": shared_storage_account_name,
                    "shared_container_name": edge_conf['shared_container_name'],
+                   "user_storage_account_tag_name": edge_conf['user_storage_account_name'],
                    "tunnel_port": "22",
                    "socks_port": "1080",
                    "notebook_sg": edge_conf['notebook_security_group_name'],

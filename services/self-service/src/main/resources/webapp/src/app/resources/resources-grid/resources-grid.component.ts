@@ -52,6 +52,7 @@ export class ResourcesGridComponent implements OnInit {
   @ViewChild('detailDialog') detailDialog;
   @ViewChild('costDetailsDialog') costDetailsDialog;
   @ViewChild('installLibs') installLibraries;
+  @ViewChild('manageLibraries') manageLibs;
 
 
   public filteringColumns: Array<any> = [
@@ -212,8 +213,8 @@ export class ResourcesGridComponent implements OnInit {
           sharedDataList[DICTIONARY.bucket_name],
           sharedDataList[DICTIONARY.shared_bucket_name],
           value.error_message,
-          value.cost,
-          value.currency_code,
+          value[DICTIONARY.billing.cost],
+          value[DICTIONARY.billing.currencyCode],
           value.billing,
           value.libs,
           sharedDataList[DICTIONARY.user_storage_account_name],

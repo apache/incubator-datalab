@@ -20,6 +20,11 @@ import java.util.List;
 
 public class CSVFormatter {
 
+    private CSVFormatter() {
+    }
+
+    public static final char SEPARATOR = ',';
+
     public static String formatLine(List<String> values, char separator) {
         boolean first = true;
         StringBuilder builder = new StringBuilder();

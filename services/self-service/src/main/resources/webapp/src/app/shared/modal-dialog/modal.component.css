@@ -114,6 +114,45 @@ limitations under the License.
   animation-timing-function: ease;
 } */
 
+.dialog.in .dialog-container.install-libraries {
+  animation-duration: .35s;
+  animation-fill-mode: forwards;
+  animation-name: showSlideSide;
+  animation-timing-function: ease;
+  width: 100%;
+  height: 100%;
+}
+
+.dialog.in .dialog-container.install-libraries .dialog-content {
+  width: 100%;
+  height: 100%;
+}
+.install-libraries .dialog-body {
+  height: calc(100% - 50px);
+}
+.install-libraries .mat-tab-body-wrapper {
+  flex-grow: 1;
+}
+
+.install-libraries .mat-tab-body {
+  display: flex !important;
+  flex-direction: column;
+}
+
+.install-libraries .mat-tab-body-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  height: 100%;
+}
+
+.dialog.out .dialog-container.install-libraries {
+  animation-duration: .35s;
+  animation-fill-mode: forwards;
+  animation-name: hideSlideSide;
+  animation-timing-function: ease;
+}
+
 .dialog-container {
   /* display: flex; */
   flex-direction: column;
@@ -181,7 +220,12 @@ limitations under the License.
 
 
 .dialog-body .content-box {
+  padding: 35px 50px 30px;
+}
+
+.install-libraries .dialog-body .content-box {
   padding: 35px 50px 45px;
+  height: 100%;
 }
 
 .dialog-header .modal-title i {

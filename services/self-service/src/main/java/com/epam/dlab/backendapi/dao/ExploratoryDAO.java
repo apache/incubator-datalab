@@ -19,7 +19,7 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.backendapi.core.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
@@ -47,11 +47,10 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
  */
 @Slf4j
 public class ExploratoryDAO extends BaseDAO {
-
     static final String EXPLORATORY_NAME = "exploratory_name";
-    static final String EXPLORATORY_ID = "exploratory_id";
     static final String UPTIME = "up_time";
-    static final String COMPUTATIONAL_RESOURCES = "computational_resources";
+    public static final String EXPLORATORY_ID = "exploratory_id";
+    public static final String COMPUTATIONAL_RESOURCES = "computational_resources";
     private static final String EXPLORATORY_URL = "exploratory_url";
     private static final String EXPLORATORY_URL_DESC = "description";
     private static final String EXPLORATORY_URL_URL = "url";

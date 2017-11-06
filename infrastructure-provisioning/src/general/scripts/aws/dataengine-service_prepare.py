@@ -74,6 +74,8 @@ if __name__ == "__main__":
     emr_conf['key_name'] = os.environ['conf_key_name']
     emr_conf['region'] = os.environ['aws_region']
     emr_conf['release_label'] = os.environ['emr_version']
+    emr_conf['edge_instance_name'] = emr_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
+    emr_conf['edge_security_group_name'] = emr_conf['edge_instance_name'] + '-SG'
     emr_conf['master_instance_type'] = os.environ['emr_master_instance_type']
     emr_conf['slave_instance_type'] = os.environ['emr_slave_instance_type']
     emr_conf['instance_count'] = os.environ['emr_instance_count']
@@ -124,34 +126,56 @@ if __name__ == "__main__":
         data = {"hostname": emr_conf['cluster_name'], "error": ""}
         json.dump(data, f)
 
-
     logging.info('[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]')
     print("[CREATING ADDITIONAL SECURITY GROUPS FOR EMR]")
     try:
-
-        sg_rules_template = [
+        edge_group_id = check_security_group(emr_conf['edge_security_group_name'])
+        cluster_sg_ingress = [
             {
                 "IpProtocol": "-1",
                 "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
-                "UserIdGroupPairs": [], "PrefixListIds": []
+                "UserIdGroupPairs": [],
+                "PrefixListIds": []
             },
             {
-                "PrefixListIds": [],
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(emr_conf['tag_name'],
-                                                                '{}-ssn'.format(emr_conf['service_base_name'])).get(
-                    'Private') + "/32"}],
-                "UserIdGroupPairs": []
+                "IpRanges": [{"CidrIp": get_instance_ip_address(emr_conf['tag_name'], '{}-ssn'.format(emr_conf['service_base_name'])).get('Private') + "/32"}],
+                "UserIdGroupPairs": [],
+                "PrefixListIds": []
             }
         ]
-        sg_rules_template_egress = [
-            {"IpProtocol": "-1", "IpRanges": [{"CidrIp": emr_conf['all_ip_cidr']}], "UserIdGroupPairs": [], "PrefixListIds": []}
+        cluster_sg_egress = [
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": emr_conf['subnet_cidr']}],
+                "UserIdGroupPairs": [],
+                "PrefixListIds": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": get_instance_ip_address(emr_conf['tag_name'], '{}-ssn'.format(emr_conf['service_base_name'])).get('Private') + "/32"}],
+                "UserIdGroupPairs": [],
+                "PrefixListIds": [],
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [],
+                "UserIdGroupPairs": [{"GroupId": edge_group_id}],
+                "PrefixListIds": []
+            },
+            {
+                "IpProtocol": "tcp",
+                "IpRanges": [{"CidrIp": emr_conf['all_ip_cidr']}],
+                "FromPort": 443,
+                "ToPort": 443,
+                "UserIdGroupPairs": [],
+                "PrefixListIds": [],
+            }
         ]
 
         params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {}". \
             format(emr_conf['additional_emr_sg_name'], emr_conf['vpc_id'],
-                   json.dumps(sg_rules_template),
-                   json.dumps(sg_rules_template_egress), emr_conf['service_base_name'],
+                   json.dumps(cluster_sg_ingress), json.dumps(cluster_sg_egress), emr_conf['service_base_name'],
                    emr_conf['cluster_name'], True)
         try:
             local("~/scripts/{}.py {}".format('common_create_security_group', params))

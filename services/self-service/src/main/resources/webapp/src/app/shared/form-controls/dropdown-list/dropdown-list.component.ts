@@ -34,11 +34,12 @@ export class DropdownListComponent {
   byField: string;
   listStructure: string;
   items: any;
+  map: any;
 
   @Output() selectedItem: EventEmitter<{}> = new EventEmitter();
 
   public selectOptions($event: Event, value: any, index: number): void {
-    this.label = value[this.byField];
+    this.label = this.map ? this.map[value] : value[this.byField];
     this.model.value = value;
     this.model.index = index;
 
@@ -46,13 +47,15 @@ export class DropdownListComponent {
     $event.preventDefault();
   }
 
-  public setDefaultOptions(items: any, label: string, type: string, byField: string, structure: string) {
+  public setDefaultOptions(items: any, label: string, type: string, byField: string, structure: string, map?: any) {
     this.model = new DropdownListModel(type, '', 0);
     this.items = items;
     this.label = label;
     this.type = type;
     this.byField = byField;
     this.listStructure = structure;
+
+    this.map = map;
   }
 
   private onUpdate(): void {

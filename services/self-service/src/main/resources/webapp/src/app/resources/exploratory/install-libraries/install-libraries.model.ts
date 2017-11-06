@@ -19,7 +19,7 @@ limitations under the License.
 import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
 
-import { LibrariesInstallationService} from '../../../core/services';
+import { LibrariesInstallationService } from '../../../core/services';
 
 interface Library {
     group: string;
@@ -81,7 +81,7 @@ export class InstallLibrariesModel {
     private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
         this.confirmAction = (retry?: Library) => this.installLibraries(retry)
             .subscribe(
-                (response: Response) => fnProcessResults(response),
-                (response: Response) => fnProcessErrors(response));
+            (response: Response) => fnProcessResults(response),
+            (response: Response) => fnProcessErrors(response));
     }
 }

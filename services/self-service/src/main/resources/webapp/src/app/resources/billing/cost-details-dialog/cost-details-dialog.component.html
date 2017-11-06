@@ -35,25 +35,25 @@ limitations under the License.
       <div class="billing-detail content-box">
         <md-list>
             <md-list-item class="list-header">
-              <div class="resource-name">Name</div>
+              <div class="resource-name" [ngClass]="{ 'wide-name-field' : DICTIONARY.cloud_provider === 'azure' }">Name</div>
               <div class="service">{{ DICTIONARY.service }}</div>
-              <div class="resource-type">{{ DICTIONARY.type }}</div>
+              <div class="resource-type" *ngIf="DICTIONARY.cloud_provider === 'aws'">{{ DICTIONARY.type }}</div>
               <div class="cost-currency">Cost</div>
               <div class="usage-date-start">Start</div>
               <div class="usage-date-end">End</div>
             </md-list-item>
             <div class="scrolling-content" id="scrolling">
               <md-list-item *ngFor="let item of notebook.billing">
-                <div class="resource-name"
-                     mdTooltip="{{ item.resource_name }}"
+                <div class="resource-name" [ngClass]="{ 'wide-name-field' : DICTIONARY.cloud_provider === 'azure' }"
+                     mdTooltip="{{ item[DICTIONARY.billing.resourceName] }}"
                      mdTooltipPosition="above">
-                     {{ item.resource_name }}
+                     {{ item[DICTIONARY.billing.resourceName] }}
                 </div>
-                <div class="service">{{ item.product }}</div>
-                <div class="resource-type">{{ item.resource_type }}</div>
-                <div class="cost-currency">{{ item.cost }} {{ item.currency_code }}</div>
-                <div class="usage-date-start">{{ item.usage_date_start | date }}</div>
-                <div class="usage-date-end">{{ item.usage_date_end | date }}</div>
+                <div class="service">{{ item[DICTIONARY.billing.service] }}</div>
+                <div class="resource-type" *ngIf="DICTIONARY.cloud_provider === 'aws'">{{ item[DICTIONARY.billing.type] }}</div>
+                <div class="cost-currency">{{ item[DICTIONARY.billing.cost] }} {{ item[DICTIONARY.billing.currencyCode] }}</div>
+                <div class="usage-date-start">{{ item[DICTIONARY.billing.dateFrom] | date }}</div>
+                <div class="usage-date-end">{{ item[DICTIONARY.billing.dateTo] | date }}</div>
               </md-list-item>
             </div>
         </md-list>

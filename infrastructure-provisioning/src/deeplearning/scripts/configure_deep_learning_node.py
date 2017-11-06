@@ -44,7 +44,6 @@ args = parser.parse_args()
 
 jupyter_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_notebook_config.py'
 templates_dir = '/root/templates/'
-scala_link = "http://www.scala-lang.org/files/archive/"
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
 nvidia_version = os.environ['notebook_nvidia_version']
@@ -64,10 +63,6 @@ jars_dir = '/opt/jars/'
 files_dir = '/root/files/'
 pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/pyspark_local/'
 py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/py3spark_local/'
-r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
-r_kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
-toree_link = 'https://dist.apache.org/repos/dist/dev/incubator/toree/0.2.0/snapshots/dev1/toree-pip/toree-0.2.0.dev1.tar.gz'
-scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
 
@@ -101,10 +96,6 @@ if __name__ == "__main__":
     # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
-    print("Install Scala")
-    ensure_scala(scala_link, args.scala_version, args.os_user)
-    print("Installing R")
-    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
     print("Install Python 2 modules")
     ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
