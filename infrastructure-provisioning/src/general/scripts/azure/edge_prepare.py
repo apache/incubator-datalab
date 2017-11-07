@@ -60,7 +60,7 @@ if __name__ == "__main__":
         edge_conf['slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
                                                    + edge_conf['user_name'] + '-dataengine-slave-sg'
         edge_conf['edge_storage_account_name'] = edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-storage'
-        edge_conf['edge_container_name'] = AzureMeta().replace_multi_symbols(
+        edge_conf['edge_container_name'] = replace_multi_symbols(
             (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-container').lower(), '-')
         ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
