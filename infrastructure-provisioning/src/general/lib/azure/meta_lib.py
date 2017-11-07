@@ -511,9 +511,8 @@ def replace_multi_symbols(string, symbol, symbol_cut=False):
         while symbol_amount > 1:
             string = string.replace(symbol + symbol, symbol)
             symbol_amount = symbol_amount - 1
-        if symbol_cut:
-            if string[:-1] == symbol:
-                string = string[:-2]
+        if symbol_cut and string[-1] == symbol:
+            string = string[:-1]
         return string
     except Exception as err:
         logging.info("Error with replacing multi symbols: " + str(err) + "\n Traceback: " + traceback.print_exc(
