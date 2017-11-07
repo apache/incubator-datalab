@@ -70,7 +70,7 @@ public class LibExploratoryResource {
      * @param userInfo        user info.
      * @param exploratoryName name of exploratory image.
      */
-    @POST
+    @GET
     @Path("/lib_groups")
     public Iterable<String> getLibGroupList(@Auth UserInfo userInfo,
                                             @QueryParam("exploratory_name") @NotNull String exploratoryName,
