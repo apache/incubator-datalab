@@ -97,8 +97,8 @@ public class TestCallable implements Callable<Boolean> {
         LOGGER.info("   SSN provisioned user resources URL is {}", ssnProUserResURL);
     }
 
-    private static Duration getDuration(String duaration) {
-    	return Duration.parse("PT" + duaration);
+    private static Duration getDuration(String duration) {
+    	return Duration.parse("PT" + duration);
     }
 
 	@Override
