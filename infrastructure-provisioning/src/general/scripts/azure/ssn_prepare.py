@@ -41,7 +41,8 @@ if __name__ == "__main__":
         pre_defined_sg = False
         ssn_conf = dict()
         # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'].replace('_', '-')[:12]
+        ssn_conf['service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
         ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-vpc'
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
         ssn_conf['region'] = os.environ['azure_region']
@@ -50,10 +51,10 @@ if __name__ == "__main__":
         ssn_conf['ssn_ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
         ssn_conf['ssn_storage_account_name'] = ssn_conf['service_base_name'] + '-ssn-storage'
         ssn_conf['ssn_container_name'] = replace_multi_symbols(
-            (ssn_conf['service_base_name'] + '-ssn-container').lower(), '-')
+            (ssn_conf['service_base_name'] + '-ssn-container').lower(), '-', True)
         ssn_conf['shared_storage_account_name'] = ssn_conf['service_base_name'] + '-shared-storage'
         ssn_conf['shared_container_name'] = replace_multi_symbols(
-            (ssn_conf['service_base_name'] + '-shared-container').lower(), '-')
+            (ssn_conf['service_base_name'] + '-shared-container').lower(), '-', True)
         ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
         ssn_conf['network_interface_name'] = ssn_conf['service_base_name'] + '-ssn-nif'
         ssn_conf['static_public_ip_name'] = ssn_conf['service_base_name'] + '-ssn-ip'
