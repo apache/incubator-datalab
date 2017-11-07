@@ -4,7 +4,7 @@
     "conf_service_base_name":"SBN",
     "azure_resource_group_name": "ARGN",
     "edge_user_name":"NUN",
-    "computational_name": "CNAM",
+    "computational_id": "CNAM",
     "conf_key_name":"CKN",
     "application":"APP"
 }

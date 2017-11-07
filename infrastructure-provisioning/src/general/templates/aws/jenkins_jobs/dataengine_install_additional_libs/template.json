@@ -4,6 +4,6 @@
     "conf_service_base_name": "SBN",
     "edge_user_name": "EUN",
     "conf_key_name": "CKN",
-    "cluster_name": "CNAM",
+    "computational_id": "CNAM",
     "application": "APP"
 }
