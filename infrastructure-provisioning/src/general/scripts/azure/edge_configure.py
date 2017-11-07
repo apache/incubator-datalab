@@ -51,8 +51,7 @@ if __name__ == "__main__":
         edge_conf['instance_dns_name'] = 'host-' + edge_conf['instance_name'] + '.' + edge_conf['region'] + '.cloudapp.azure.com'
         edge_conf['user_storage_account_name'] = edge_conf['service_base_name'] + '-' + edge_conf[
             'user_name'] + '-storage'
-        edge_conf['user_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-container').\
-            lower()
+        edge_conf['user_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-container').lower()
         edge_conf['shared_storage_account_name'] = edge_conf['service_base_name'] + '-shared-storage'
         edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared-container').lower()
         edge_conf['datalake_store_name'] = edge_conf['service_base_name'] + '-ssn-datalake'
