@@ -1021,8 +1021,8 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
             sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
         except Exception as err:
             logging.info(
-                "Unable to download local jars: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to download local jars",
+                "Unable to configure Spark: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to configure Spark",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
