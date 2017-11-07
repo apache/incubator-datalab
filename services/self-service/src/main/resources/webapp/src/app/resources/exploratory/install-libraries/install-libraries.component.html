@@ -62,7 +62,7 @@ limitations under the License.
                     <div #libError *ngIf="lib.status === 'failed' && lib.error_message"
                          class="lib-error" (click)="errorBubble.toggle($event, libError)">
                         <i class="material-icons">error_outline</i>
-                        <bubble-up #errorBubble [style.width.px]="300" position="bottom-left">
+                        <bubble-up #errorBubble id="scrolling" [style.width.px]="300" position="bottom-left">
                             {{ lib.error_message }}
                         </bubble-up>
                     </div>
