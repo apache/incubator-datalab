@@ -67,15 +67,11 @@ public class ExploratoryDAO extends BaseDAO {
         return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));
     }
 
-    static Bson runningExploratoryAndComputationalCondition(String user, String exploratoryName, String computationalName) {
+    private static Bson runningExploratoryAndComputationalCondition(String user, String exploratoryName, String computationalName) {
         return and(eq(USER, user), and(eq(EXPLORATORY_NAME, exploratoryName),
                 eq(STATUS, "running"),
                 eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, computationalName),
                 eq(COMPUTATIONAL_RESOURCES + "." + STATUS, "running")));
-    }
-
-    static Bson exploratoryIdCondition(String user, String exploratoryId) {
-        return and(eq(USER, user), eq(EXPLORATORY_ID, exploratoryId));
     }
 
     /**
@@ -114,22 +110,6 @@ public class ExploratoryDAO extends BaseDAO {
         return UserInstanceStatus.of(
                 findOne(USER_INSTANCES,
                         exploratoryCondition(user, exploratoryName),
-                        fields(include(STATUS), excludeId()))
-                        .orElse(new Document())
-                        .getOrDefault(STATUS, EMPTY).toString());
-    }
-
-    /**
-     * Finds and returns the status of exploratory.
-     *
-     * @param user          user name.
-     * @param exploratoryId the id of exploratory.
-     * @throws DlabException
-     */
-    public UserInstanceStatus fetchExploratoryStatusByExploratoryId(String user, String exploratoryId) throws DlabException {
-        return UserInstanceStatus.of(
-                findOne(USER_INSTANCES,
-                        exploratoryIdCondition(user, exploratoryId),
                         fields(include(STATUS), excludeId()))
                         .orElse(new Document())
                         .getOrDefault(STATUS, EMPTY).toString());

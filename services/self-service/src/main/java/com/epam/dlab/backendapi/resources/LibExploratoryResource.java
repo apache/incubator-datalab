@@ -39,6 +39,7 @@ import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -73,7 +74,7 @@ public class LibExploratoryResource {
     @GET
     @Path("/lib_groups")
     public Iterable<String> getLibGroupList(@Auth UserInfo userInfo,
-                                            @QueryParam("exploratory_name") @NotNull String exploratoryName,
+                                            @QueryParam("exploratory_name") @NotEmpty String exploratoryName,
                                             @QueryParam("computational_name") String computationalName) {
 
         log.trace("Loading list of lib groups for user {} and exploratory {}, computational {}", userInfo.getName(),
@@ -104,9 +105,11 @@ public class LibExploratoryResource {
      * @param userInfo        user info.
      * @param exploratoryName of exploratory image.
      */
-    @POST
+    @GET
     @Path("/lib_list")
-    public Iterable<Document> getLibList(@Auth UserInfo userInfo, @NotNull String exploratoryName) {
+    public Document getLibList(@Auth UserInfo userInfo,
+                                         @QueryParam("exploratory_name") @NotEmpty String exploratoryName) {
+
         log.debug("Loading list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName);
         try {
             return libraryDAO.findLibraries(userInfo.getName(), exploratoryName);

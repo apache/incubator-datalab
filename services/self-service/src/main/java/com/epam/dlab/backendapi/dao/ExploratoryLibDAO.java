@@ -44,12 +44,12 @@ import com.epam.dlab.exceptions.DlabException;
  */
 public class ExploratoryLibDAO extends BaseDAO {
     private static final String EXPLORATORY_LIBS = "libs";
+    private static final String COMPUTATIONAL_LIBS = "computational_libs";
     private static final String LIB_GROUP = "group";
     private static final String LIB_NAME = "name";
     private static final String LIB_VERSION = "version";
     private static final String LIB_INSTALL_DATE = "install_date";
     private static final String LIB_ERROR_MESSAGE = "error_message";
-	private static final Bson LIB_FIELDS = fields(excludeId(), include(EXPLORATORY_LIBS + ".$"));
 
 	/** Return condition for search library into exploratory data.
 	 * @param libraryGroup the name of group.
@@ -70,7 +70,7 @@ public class ExploratoryLibDAO extends BaseDAO {
         return elemMatch(EXPLORATORY_LIBS,
                 and(eq(LIB_GROUP, libraryGroup), eq(LIB_NAME, libraryName), eq(LIB_VERSION, libraryVersion)));
     }
-    
+
     /** Return field filter for libraries properties in exploratory data.
      * @param fieldName
      * @return
@@ -80,35 +80,15 @@ public class ExploratoryLibDAO extends BaseDAO {
     }
 
 
-    /** Finds and returns the list of user libraries. 
+    /** Finds and returns the list of user libraries.
      * @param user user name.
      * @param exploratoryName the name of exploratory.
      */
     @SuppressWarnings("unchecked")
-	public Iterable<Document> findLibraries(String user, String exploratoryName) {
-    	Optional<Document> opt = findOne(USER_INSTANCES,
-        								exploratoryCondition(user, exploratoryName));
-    	Object libs = (opt.isPresent() ? opt.get().get(EXPLORATORY_LIBS) : null);
-    	return (libs == null ? null : (List<Document>)libs);
-    }
-
-    /** Finds and returns the info about library.
-     * @param user user name.
-     * @param exploratoryName the name of exploratory.
-     * @param libraryGroup the group name of library.
-     * @param libraryName the name of library.
-     * @exception DlabException
-     */
-    public LibInstallDTO fetchLibraryFields(String user, String exploratoryName, String libraryGroup, String libraryName) throws DlabException {
-        Optional<LibInstallDTO> opt = findOne(USER_INSTANCES,
-        		and(exploratoryCondition(user, exploratoryName),
-        			libraryCondition(libraryGroup, libraryName)),
-        			LIB_FIELDS,
-        		LibInstallDTO.class);
-        if( opt.isPresent() ) {
-            return opt.get();
-        }
-        throw new DlabException("Library " + libraryGroup + "." + libraryName + " not found.");
+	public Document findLibraries(String user, String exploratoryName) {
+    	return findOne(USER_INSTANCES,
+                exploratoryCondition(user, exploratoryName),
+                fields(include(EXPLORATORY_LIBS, COMPUTATIONAL_LIBS))).orElse(new Document());
     }
 
     /** Finds and returns the status of library.
@@ -116,10 +96,9 @@ public class ExploratoryLibDAO extends BaseDAO {
      * @param exploratoryName the name of exploratory.
      * @param libraryGroup the group name of library.
      * @param libraryName the name of library.
-     * @exception DlabException
      */
     public LibStatus fetchLibraryStatus(String user, String exploratoryName,
-                                        String libraryGroup, String libraryName, String version) throws DlabException {
+                                        String libraryGroup, String libraryName, String version) {
     	Optional<Document> libraryStatus = findOne(USER_INSTANCES,
 				and(exploratoryCondition(user, exploratoryName), libraryCondition(libraryGroup, libraryName, version)),
 				Projections.fields(excludeId(), Projections.include("libs.status")));
@@ -139,9 +118,8 @@ public class ExploratoryLibDAO extends BaseDAO {
      * @param exploratoryName name of exploratory.
      * @param library library.
      * @return <b>true</b> if operation was successful, otherwise <b>false</b>.
-     * @exception DlabException
      */
-    public boolean addLibrary(String user, String exploratoryName, LibInstallDTO library, boolean reinstall) throws DlabException {
+    public boolean addLibrary(String user, String exploratoryName, LibInstallDTO library, boolean reinstall) {
     	Optional<Document> opt = findOne(USER_INSTANCES,
         								and(exploratoryCondition(user, exploratoryName),
         									libraryCondition(library.getGroup(), library.getName())));
