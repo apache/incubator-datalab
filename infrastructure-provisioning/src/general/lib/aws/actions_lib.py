@@ -1114,15 +1114,9 @@ def spark_defaults(args):
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> {}'.format(spark_def_path))
 
 
-def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
-    if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
+def ensure_local_jars(os_user, jars_dir):
+    if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            if region == 'us-east-1':
-                endpoint_url = 'https://s3.amazonaws.com'
-            elif region == 'cn-north-1':
-                endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
-            else:
-                endpoint_url = 'https://s3-' + region + '.amazonaws.com'
             sudo('mkdir -p ' + jars_dir)
             sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.4/hadoop-aws-2.7.4.jar -O ' +
                  jars_dir + 'hadoop-aws-2.7.4.jar')
@@ -1130,13 +1124,27 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                  jars_dir + 'aws-java-sdk-1.7.4.jar')
             sudo('wget http://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/0.4.20/hadoop-lzo-0.4.20.jar -O ' +
                  jars_dir + 'hadoop-lzo-0.4.20.jar')
+            sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
+        except:
+            sys.exit(1)
+
+
+def configure_local_spark(os_user, jars_dir, region, templates_dir):
+    if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
+        try:
+            if region == 'us-east-1':
+                endpoint_url = 'https://s3.amazonaws.com'
+            elif region == 'cn-north-1':
+                endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
+            else:
+                endpoint_url = 'https://s3-' + region + '.amazonaws.com'
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             sudo('echo "spark.hadoop.fs.s3a.endpoint     {}" >> /tmp/notebook_spark-defaults_local.conf'.format(endpoint_url))
             sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/notebook_spark-defaults_local.conf')
             if os.environ['application'] == 'zeppelin':
                 sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-            sudo('touch /home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
         except:
             sys.exit(1)
 

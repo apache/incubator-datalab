@@ -970,10 +970,32 @@ class AzureActions:
             traceback.print_exc(file=sys.stdout)
 
 
-def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
-    if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
+def ensure_local_jars(os_user, jars_dir):
+    if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
             hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
+            print("Downloading local jars for Azure")
+            sudo('mkdir -p ' + jars_dir)
+            sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
+                 {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
+            sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/2.2.0/azure-storage-2.2.0.jar \
+                 -O {}azure-storage-2.2.0.jar'.format(jars_dir))
+            if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
+                sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
+                     -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
+            sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
+        except Exception as err:
+            logging.info(
+                "Unable to download local jars: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to download local jars",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+
+def configure_local_spark(os_user, jars_dir, region, templates_dir):
+    if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
+        try:
             user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
                 replace('_', '-') + '-storage'
             shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
@@ -986,15 +1008,6 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                     shared_storage_account_name = storage_account.name
                     shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
                                                                                         shared_storage_account_name)[0]
-            print("Downloading local jars for Azure")
-            sudo('mkdir -p ' + jars_dir)
-            sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
-                 {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
-            sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/2.2.0/azure-storage-2.2.0.jar \
-                 -O {}azure-storage-2.2.0.jar'.format(jars_dir))
-            if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
-                sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
-                     -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
             put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
             sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
             sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
@@ -1005,7 +1018,7 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
             sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
                   /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-            sudo('touch /home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
         except Exception as err:
             logging.info(
                 "Unable to download local jars: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
