@@ -167,7 +167,7 @@ public class EnvStatusDAO extends BaseDAO {
 				continue;
 			}
 			for (Document comp : compList) {
-				if (DataEngineType.SPARK_STANDALONE != DataEngineType.fromDockerImageName(comp.getString("image"))) {
+				if (DataEngineType.SPARK_STANDALONE != DataEngineType.fromDockerImageName(comp.getString(IMAGE))) {
 					addResource(clusterList, comp, STATUS);
 				}
 			}
