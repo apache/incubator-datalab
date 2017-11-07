@@ -20,6 +20,7 @@
 
 from dlab.fab import *
 from dlab.actions_lib import *
+from dlab.meta_lib import *
 import sys, os, json
 from fabric.api import *
 from dlab.ssn_lib import *
