@@ -6,6 +6,8 @@
     "azure_resource_group_name": "ARGN",
     "azure_vpc_name": "VPC",
     "azure_region":"CREG",
+    "azure_user_id":"AUI",
+    "azure_user_refresh_token":"AURT",
     "conf_key_name":"CKN",
     "azure_notebook_instance_size":"NIT",
     "edge_user_name":"NUN",

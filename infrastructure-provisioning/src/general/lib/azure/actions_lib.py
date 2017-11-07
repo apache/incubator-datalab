@@ -1009,11 +1009,17 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
                         shared_storage_account_name = storage_account.name
                         shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
                                                                                             shared_storage_account_name)[0]
-                put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
+                put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
                 sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
                 sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
                 sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
                 sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
+            else:
+                client_id = os.environ['azure_user_id']
+                refresh_token = os.environ['azure_user_refresh_token']
+                put(templates_dir + 'core-site-datalake.xml', '/tmp/core-site.xml')
+                sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
+                sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
             sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \

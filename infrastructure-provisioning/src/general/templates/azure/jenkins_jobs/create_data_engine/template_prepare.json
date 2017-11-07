@@ -12,6 +12,8 @@
     "azure_region":"CREG",
     "azure_dataengine_master_size":"ADMS",
     "azure_dataengine_slave_size":"ADSS",
+    "azure_user_id":"AUI",
+    "azure_user_refresh_token":"AURT",
     "notebook_instance_name":"NNM",
     "computational_name": "CNAM",
     "application": "APP"
