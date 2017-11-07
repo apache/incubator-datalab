@@ -996,23 +996,24 @@ def ensure_local_jars(os_user, jars_dir):
 def configure_local_spark(os_user, jars_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
         try:
-            user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
-                replace('_', '-') + '-storage'
-            shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
-            for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-                if user_storage_account_tag == storage_account.tags["Name"]:
-                    user_storage_account_name = storage_account.name
-                    user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
-                                                                                      user_storage_account_name)[0]
-                if shared_storage_account_tag == storage_account.tags["Name"]:
-                    shared_storage_account_name = storage_account.name
-                    shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
-                                                                                        shared_storage_account_name)[0]
-            put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
-            sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
-            sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
-            sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
-            sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
+            if os.environ['azure_datalake_enable'] == 'false':
+                user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
+                    replace('_', '-') + '-storage'
+                shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
+                for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
+                    if user_storage_account_tag == storage_account.tags["Name"]:
+                        user_storage_account_name = storage_account.name
+                        user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
+                                                                                          user_storage_account_name)[0]
+                    if shared_storage_account_tag == storage_account.tags["Name"]:
+                        shared_storage_account_name = storage_account.name
+                        shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
+                                                                                            shared_storage_account_name)[0]
+                put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
+                sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
+                sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
+                sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
+                sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
             sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
