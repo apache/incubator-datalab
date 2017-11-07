@@ -61,7 +61,7 @@ public class TestCallable implements Callable<Boolean> {
     private final boolean fullTest;
     private final String token, ssnExpEnvURL, ssnProUserResURL,ssnCompResURL;
     private final String bucketName;
-    private final String notebookName, clusterName, dataEngineType;
+    private final String notebookName, clusterName, dataEngineType, clusterNamePrefix;
 
     public TestCallable(String notebookTemplate,String dataEngineType, boolean fullTest) {
     	this.notebookTemplate = notebookTemplate;
@@ -79,12 +79,15 @@ public class TestCallable implements Callable<Boolean> {
         if ("dataengine".equals(dataEngineType)) {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES_SPARK);
 			clusterName = "spark" + suffixName;
+			clusterNamePrefix="de";
         } else if ("dataengine-service".equals(dataEngineType)) {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
 			clusterName = "eimr" + suffixName;
+			clusterNamePrefix="emr";
         } else {
         	ssnCompResURL="";
 			clusterName="";
+			clusterNamePrefix="";
         	LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
 			fail("illegal argument dataEngineType "+dataEngineType +" , should be dataengine or dataengine-service");
         }
@@ -105,7 +108,7 @@ public class TestCallable implements Callable<Boolean> {
         
         final DeployClusterDto deployClusterDto = createClusterDto();
         
-        final String actualClusterName = NamingHelper.getClusterName(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType));
+        final String actualClusterName = NamingHelper.getClusterName(NamingHelper.getClusterInstanceName(notebookName, clusterName, clusterNamePrefix));
         if (!ConfigPropertyValue.isRunModeLocal()) {
         	TestEmr test = new TestEmr();
         	test.run(notebookName, actualClusterName);
@@ -169,7 +172,7 @@ private DeployClusterDto createClusterDto() throws Exception {
             throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been deployed. Cluster status is " + gettingStatus);
         LOGGER.info("{}: {} cluster {} has been deployed", notebookName, dataEngineType, clusterName);
 
-        AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), AmazonInstanceState.RUNNING);
+        AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, clusterNamePrefix), AmazonInstanceState.RUNNING);
         Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
     LOGGER.info("{}:   Waiting until {} cluster {} has been configured ...", notebookName,dataEngineType,clusterName);
@@ -180,7 +183,7 @@ private DeployClusterDto createClusterDto() throws Exception {
     LOGGER.info(" {}: {} cluster {} has been configured", notebookName, dataEngineType , clusterName);
 
     if(!ConfigPropertyValue.isRunModeLocal()) {
-        AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), AmazonInstanceState.RUNNING);
+        AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, clusterNamePrefix), AmazonInstanceState.RUNNING);
         Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
 

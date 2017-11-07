@@ -90,11 +90,11 @@ public class NamingHelper {
     	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
     }
     
-    public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
-    	if("dataengine".equals(dataEngineType)) 
-    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), dataEngineType, notebookName, clusterName, "master");
+    public static String getClusterInstanceName(String notebookName, String clusterName, String clusterNamePrefix) {
+    	if("de".equals(clusterNamePrefix)) 
+    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), clusterNamePrefix, notebookName, clusterName, "m");
     	else 
-    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), dataEngineType, notebookName, clusterName);
+    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), clusterNamePrefix, notebookName, clusterName);
     }
 
     public static String getNotebookContainerName(String notebookName, String action) {
@@ -112,8 +112,7 @@ public class NamingHelper {
     }
 
     public static String generateRandomValue(String notebokTemplateName) {
-        SimpleDateFormat df = new SimpleDateFormat("YYYYMMddhmmss");
-        return String.join("_",  "ITest", notebokTemplateName, df.format(new Date()), String.valueOf(idCounter.incrementAndGet()));
+        return String.join("_",  "ITest", notebokTemplateName, String.valueOf(idCounter.incrementAndGet()));
     }
     
     public static String getSelfServiceURL(String path) {
