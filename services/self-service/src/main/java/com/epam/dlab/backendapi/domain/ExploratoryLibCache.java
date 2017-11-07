@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.dto.LibComputationalDTO;
+import com.epam.dlab.dto.computational.UserComputationalResource;
+import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,18 +47,18 @@ import io.dropwizard.lifecycle.Managed;
 @Singleton
 public class ExploratoryLibCache implements Managed, Runnable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExploratoryLibCache.class);
-	
+
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
-	
+
     /** Instance of cache.
      */
 	private static ExploratoryLibCache libCache;
-	
+
 	/** Thread of the cache. */
 	private Thread thread;
-	
+
 	/** List of libraries.
 	 */
 	private Map<String, ExploratoryLibList> cache = new HashMap<>();
@@ -94,7 +97,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 			}
 		}
 	}
-	
+
 	/** Return the list of libraries groups from cache.
 	 * @param userInfo the user info.
 	 * @param userInstance the notebook info.
@@ -115,27 +118,48 @@ public class ExploratoryLibCache implements Managed, Runnable {
 		ExploratoryLibList libs = getLibs(userInfo, userInstance);
 		return libs.getLibs(group, startWith);
 	}
-	
+
 	/** Return the list of libraries for docker image from cache.
 	 * @param userInfo the user info.
 	 * @param userInstance the notebook info.
 	 */
 	public ExploratoryLibList getLibs(UserInfo userInfo, UserInstanceDTO userInstance) {
 		ExploratoryLibList libs;
+		String cacheKey = libraryCacheKey(userInstance);
 		synchronized (cache) {
-			libs = cache.get(userInstance.getImageName());
+			libs = cache.get(cacheKey);
 			if (libs == null) {
-				libs = new ExploratoryLibList(userInstance.getImageName(), null);
-				cache.put(userInstance.getImageName(), libs);
+				libs = new ExploratoryLibList(cacheKey, null);
+				cache.put(cacheKey, libs);
 			}
 			if (libs.isUpdateNeeded() && !libs.isUpdating()) {
 				libs.setUpdating();
 				requestLibList(userInfo, userInstance);
 			}
 		}
-		
+
 		return libs;
 	}
+
+	private String libraryCacheKey(UserInstanceDTO instanceDTO) {
+		if (instanceDTO.getResources() != null && !instanceDTO.getResources().isEmpty()) {
+			if (instanceDTO.getResources().size() > 1) {
+				throw new IllegalStateException("Several clusters in userInstance");
+			}
+
+			UserComputationalResource userComputationalResource = instanceDTO.getResources().get(0);
+
+			return libraryCacheKey(instanceDTO.getImageName(), userComputationalResource.getImageName());
+
+		} else {
+			return instanceDTO.getImageName();
+		}
+	}
+
+	public static String libraryCacheKey(String exploratoryImage, String computationalImage) {
+		return exploratoryImage + "/" + computationalImage;
+	}
+
 
 	/** Update the list of libraries for docker image in cache.
 	 * @param imageName the name of image.
@@ -164,16 +188,30 @@ public class ExploratoryLibCache implements Managed, Runnable {
 	 */
 	private void requestLibList(UserInfo userInfo, UserInstanceDTO userInstance) {
 		try {
-			LOGGER.debug("Ask docker for the list of libraries for user {} and exploratory {}", userInfo.getName(), userInstance.getExploratoryId());
-			ExploratoryActionDTO<?> dto = RequestBuilder.newLibExploratoryList(userInfo, userInstance);
-			String uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_LIST, userInfo.getAccessToken(), dto, String.class);
+
+			LOGGER.debug("Ask docker for the list of libraries for user {} and exploratory {} computational {}",
+					userInfo.getName(), userInstance.getExploratoryId(),
+					userInstance.getResources());
+
+            String uuid;
+			if (userInstance.getResources() != null && !userInstance.getResources().isEmpty()) {
+				UserComputationalResource userComputationalResource = userInstance.getResources().get(0);
+				LibComputationalDTO dto = RequestBuilder.newLibComputationalList(userInfo, userInstance, userComputationalResource);
+                uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_LIB_LIST, userInfo.getAccessToken(), dto, String.class);
+			} else {
+				ExploratoryActionDTO<?> dto = RequestBuilder.newLibExploratoryList(userInfo, userInstance);
+				uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_LIST, userInfo.getAccessToken(), dto, String.class);
+			}
+
             RequestId.put(userInfo.getName(), uuid);
+
 		} catch (Exception e) {
-			LOGGER.warn("Ask docker for the status of resources for user {} and exploratory {} fails: {}", userInfo.getName(), userInstance.getExploratoryName(), e.getLocalizedMessage(), e);
+			LOGGER.warn("Ask docker for the status of resources for user {} and exploratory {} fails: {}",
+					userInfo.getName(), userInstance, e.getLocalizedMessage(), e);
 		}
 	}
-	
-	
+
+
 	@Override
 	public void run() {
 		while (true) {

@@ -18,15 +18,15 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.resources.dto.ExploratoryGetLibsFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryLibInstallFormDTO;
+import com.epam.dlab.backendapi.resources.dto.SearchLibsFormDTO;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibStatus;
@@ -37,17 +37,16 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Path("/infrastructure_provision/exploratory_environment")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -73,11 +72,26 @@ public class LibExploratoryResource {
      */
     @POST
     @Path("/lib_groups")
-    public Iterable<String> getLibGroupList(@Auth UserInfo userInfo, @NotNull String exploratoryName) {
-        log.trace("Loading list of lib groups for user {} and exploratory {}", userInfo.getName(), exploratoryName);
+    public Iterable<String> getLibGroupList(@Auth UserInfo userInfo,
+                                            @QueryParam("exploratory_name") @NotNull String exploratoryName,
+                                            @QueryParam("computational_name") String computationalName) {
+
+        log.trace("Loading list of lib groups for user {} and exploratory {}, computational {}", userInfo.getName(),
+                exploratoryName, computationalName);
         try {
-            UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
-            return ExploratoryLibCache.getCache().getLibGroupList(userInfo, userInstance);
+            if (StringUtils.isEmpty(computationalName)) {
+                UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
+                return ExploratoryLibCache.getCache().getLibGroupList(userInfo, userInstance);
+            } else {
+                UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
+                        exploratoryName, computationalName);
+
+                userInstance.setResources(userInstance.getResources().stream()
+                        .filter(e -> e.getComputationalName().equals(computationalName))
+                        .collect(Collectors.toList()));
+
+                return ExploratoryLibCache.getCache().getLibGroupList(userInfo, userInstance);
+            }
         } catch (Exception t) {
             log.error("Cannot load list of lib groups for user {} and exploratory {}", userInfo.getName(), exploratoryName, t);
             throw new DlabException("Cannot load list of libraries groups: " + t.getLocalizedMessage(), t);
@@ -157,10 +171,25 @@ public class LibExploratoryResource {
      */
     @POST
     @Path("search/lib_list")
-    public Map<String, String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryGetLibsFormDTO formDTO) {
+    public Map<String, String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull SearchLibsFormDTO formDTO) {
         log.trace("Loading list of libs for user {} with condition {}", userInfo.getName(), formDTO);
         try {
-            UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
+
+            UserInstanceDTO userInstance;
+
+            if (StringUtils.isNotEmpty(formDTO.getComputationalName())) {
+
+                userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
+                        formDTO.getNotebookName(), formDTO.getComputationalName());
+
+                userInstance.setResources(userInstance.getResources().stream()
+                        .filter(e -> e.getComputationalName().equals(formDTO.getComputationalName()))
+                        .collect(Collectors.toList()));
+
+            } else {
+                userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
+            }
+
             return ExploratoryLibCache.getCache().getLibList(userInfo, userInstance, formDTO.getGroup(), formDTO.getStartWith());
         } catch (Exception t) {
             log.error("Cannot load list of libs for user {} with condition {}",

@@ -19,9 +19,9 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.mongodb.client.FindIterable;
@@ -47,22 +47,31 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
  */
 @Slf4j
 public class ExploratoryDAO extends BaseDAO {
-    static final String EXPLORATORY_NAME = "exploratory_name";
-    static final String UPTIME = "up_time";
     public static final String EXPLORATORY_ID = "exploratory_id";
     public static final String COMPUTATIONAL_RESOURCES = "computational_resources";
+    static final String EXPLORATORY_NAME = "exploratory_name";
+    static final String UPTIME = "up_time";
+    private static final String COMPUTATIONAL_NAME = "computational_name";
     private static final String EXPLORATORY_URL = "exploratory_url";
     private static final String EXPLORATORY_URL_DESC = "description";
     private static final String EXPLORATORY_URL_URL = "url";
     private static final String EXPLORATORY_USER = "exploratory_user";
     private static final String EXPLORATORY_PASSWORD = "exploratory_pass";
     private static final String EXPLORATORY_PRIVATE_IP = "private_ip";
+
     public ExploratoryDAO() {
         log.info("{} is initialized", getClass().getSimpleName());
     }
 
     static Bson exploratoryCondition(String user, String exploratoryName) {
         return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));
+    }
+
+    static Bson runningExploratoryAndComputationalCondition(String user, String exploratoryName, String computationalName) {
+        return and(eq(USER, user), and(eq(EXPLORATORY_NAME, exploratoryName),
+                eq(STATUS, "running"),
+                eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, computationalName),
+                eq(COMPUTATIONAL_RESOURCES + "." + STATUS, "running")));
     }
 
     static Bson exploratoryIdCondition(String user, String exploratoryId) {
@@ -148,9 +157,8 @@ public class ExploratoryDAO extends BaseDAO {
      *
      * @param user            user name.
      * @param exploratoryName the name of exploratory.
-     * @throws DlabException
      */
-    public UserInstanceDTO fetchExploratoryFields(String user, String exploratoryName) throws DlabException {
+    public UserInstanceDTO fetchExploratoryFields(String user, String exploratoryName) {
         Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
                 exploratoryCondition(user, exploratoryName),
                 fields(exclude(COMPUTATIONAL_RESOURCES)),
@@ -160,6 +168,25 @@ public class ExploratoryDAO extends BaseDAO {
             return opt.get();
         }
         throw new DlabException("Exploratory instance for user " + user + " with name " + exploratoryName + " not found.");
+    }
+
+    /**
+     * Finds and returns the info of exploratory.
+     *
+     * @param user              user name.
+     * @param exploratoryName   name of exploratory.
+     * @param computationalName name of cluster
+     */
+    public UserInstanceDTO fetchExploratoryFields(String user, String exploratoryName, String computationalName) {
+        Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
+                runningExploratoryAndComputationalCondition(user, exploratoryName, computationalName),
+                UserInstanceDTO.class);
+
+        if (opt.isPresent()) {
+            return opt.get();
+        }
+        throw new DlabException(String.format("Running notebook %s with cluster %s not found for user %s",
+                exploratoryName, computationalName, user));
     }
 
     /**
