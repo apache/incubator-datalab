@@ -14,48 +14,51 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto;
+package com.epam.dlab.dto.exploratory;
 
-import com.epam.dlab.dto.base.DataEngineType;
-import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
+/**
+ * Store info about libraries which user should be installed.
+ */
 @Getter
 @Setter
 @ToString(callSuper = true)
-public class LibComputationalDTO extends ExploratoryActionDTO<LibComputationalDTO> {
+public class LibraryInstallDTO extends ExploratoryActionDTO<LibraryInstallDTO> {
+    @JsonProperty("libs")
+    private List<LibInstallDTO> libs;
+
     @JsonProperty("computational_id")
     private String computationalId;
 
     @JsonProperty("computational_image")
     private String computationalImage;
 
-    @JsonProperty
-    private DataEngineType dataEngineType;
+    @JsonProperty("computational_name")
+    private String computationalName;
 
-    @JsonProperty
-    private String libCacheKey;
+    public LibraryInstallDTO withLibs(List<LibInstallDTO> libs) {
+        setLibs(libs);
+        return this;
+    }
 
-    public LibComputationalDTO withComputationalId(String computationalId) {
+    public LibraryInstallDTO withComputationalId(String computationalId) {
         setComputationalId(computationalId);
         return this;
     }
 
-    public LibComputationalDTO withComputationalImage(String computationalImage) {
+    public LibraryInstallDTO withComputationalImage(String computationalImage) {
         setComputationalImage(computationalImage);
         return this;
     }
 
-    public LibComputationalDTO withDataEngineType(String dataEngineType) {
-        setDataEngineType(DataEngineType.fromDockerImageName(dataEngineType));
-        return this;
-    }
-
-    public LibComputationalDTO withLibCacheKey(String libCacheKey) {
-        setLibCacheKey(libCacheKey);
+    public LibraryInstallDTO withComputationalName(String computationalName) {
+        setComputationalName(computationalName);
         return this;
     }
 }

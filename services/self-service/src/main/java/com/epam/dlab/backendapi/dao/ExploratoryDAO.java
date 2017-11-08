@@ -67,7 +67,7 @@ public class ExploratoryDAO extends BaseDAO {
         return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));
     }
 
-    private static Bson runningExploratoryAndComputationalCondition(String user, String exploratoryName, String computationalName) {
+    static Bson runningExploratoryAndComputationalCondition(String user, String exploratoryName, String computationalName) {
         return and(eq(USER, user), and(eq(EXPLORATORY_NAME, exploratoryName),
                 eq(STATUS, "running"),
                 eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, computationalName),
@@ -165,7 +165,7 @@ public class ExploratoryDAO extends BaseDAO {
         if (opt.isPresent()) {
             return opt.get();
         }
-        throw new DlabException(String.format("Running notebook %s with cluster %s not found for user %s",
+        throw new DlabException(String.format("Running notebook %s with running cluster %s not found for user %s",
                 exploratoryName, computationalName, user));
     }
 

@@ -24,10 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.epam.dlab.backendapi.util.RequestBuilder;
-import com.epam.dlab.dto.LibComputationalDTO;
+import com.epam.dlab.dto.LibListComputationalDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,7 +197,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
             String uuid;
 			if (userInstance.getResources() != null && !userInstance.getResources().isEmpty()) {
 				UserComputationalResource userComputationalResource = userInstance.getResources().get(0);
-				LibComputationalDTO dto = RequestBuilder.newLibComputationalList(userInfo, userInstance, userComputationalResource);
+				LibListComputationalDTO dto = RequestBuilder.newLibComputationalList(userInfo, userInstance, userComputationalResource);
                 uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_LIB_LIST, userInfo.getAccessToken(), dto, String.class);
 			} else {
 				ExploratoryActionDTO<?> dto = RequestBuilder.newLibExploratoryList(userInfo, userInstance);

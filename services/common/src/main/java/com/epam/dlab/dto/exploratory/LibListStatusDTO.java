@@ -18,16 +18,15 @@ package com.epam.dlab.dto.exploratory;
 
 import com.epam.dlab.dto.StatusBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
  * Stores the info about image libraries.
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-@ToString(callSuper = true)
 public class LibListStatusDTO extends StatusBaseDTO<LibListStatusDTO> {
 
     @JsonProperty
@@ -50,5 +49,12 @@ public class LibListStatusDTO extends StatusBaseDTO<LibListStatusDTO> {
     public LibListStatusDTO withImageName(String imageName) {
         setImageName(imageName);
         return this;
+    }
+
+    @Override
+    public MoreObjects.ToStringHelper toStringHelper(Object self) {
+        return MoreObjects.toStringHelper(self)
+                .add("imageName", imageName)
+                .add("libs", (libs != null) ? "..." : null);
     }
 }

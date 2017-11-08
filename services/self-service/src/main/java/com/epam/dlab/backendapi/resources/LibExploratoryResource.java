@@ -16,22 +16,20 @@
 
 package com.epam.dlab.backendapi.resources;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.resources.dto.ExploratoryLibInstallFormDTO;
+import com.epam.dlab.backendapi.resources.dto.LibInstallFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SearchLibsFormDTO;
-import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.backendapi.service.LibraryService;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
-import com.epam.dlab.dto.exploratory.LibInstallDTO;
-import com.epam.dlab.dto.exploratory.LibStatus;
+import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -39,7 +37,7 @@ import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -62,6 +60,9 @@ public class LibExploratoryResource {
     private ExploratoryLibDAO libraryDAO;
 
     @Inject
+    private LibraryService libraryService;
+
+    @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
     private RESTService provisioningService;
 
@@ -74,7 +75,7 @@ public class LibExploratoryResource {
     @GET
     @Path("/lib_groups")
     public Iterable<String> getLibGroupList(@Auth UserInfo userInfo,
-                                            @QueryParam("exploratory_name") @NotEmpty String exploratoryName,
+                                            @QueryParam("exploratory_name") @NotBlank String exploratoryName,
                                             @QueryParam("computational_name") String computationalName) {
 
         log.trace("Loading list of lib groups for user {} and exploratory {}, computational {}", userInfo.getName(),
@@ -107,8 +108,8 @@ public class LibExploratoryResource {
      */
     @GET
     @Path("/lib_list")
-    public Document getLibList(@Auth UserInfo userInfo,
-                                         @QueryParam("exploratory_name") @NotEmpty String exploratoryName) {
+    public Iterable<Document> getLibList(@Auth UserInfo userInfo,
+                                         @QueryParam("exploratory_name") @NotBlank String exploratoryName) {
 
         log.debug("Loading list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName);
         try {
@@ -128,35 +129,21 @@ public class LibExploratoryResource {
      */
     @POST
     @Path("/lib_install")
-    public Response libInstall(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryLibInstallFormDTO formDTO) {
-        log.debug("Installing libs to exploratory environment {} for user {}, libs {}",
-                formDTO.getNotebookName(), userInfo.getName(), formDTO);
+    public Response libInstall(@Auth UserInfo userInfo, @Valid @NotNull LibInstallFormDTO formDTO) {
+        log.debug("Installing libs to environment {} for user {}", formDTO, userInfo.getName());
         try {
-            UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
-            if (UserInstanceStatus.RUNNING != UserInstanceStatus.of(userInstance.getStatus())) {
-                throw new DlabException("Exploratory " + formDTO.getNotebookName() + " is not running");
+
+            LibraryInstallDTO dto = libraryService.generateLibraryInstallDTO(userInfo, formDTO);
+            String uuid;
+
+            if (StringUtils.isEmpty(formDTO.getComputationalName())) {
+                uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_INSTALL, userInfo.getAccessToken(),
+                        libraryService.prepareExploratoryLibInstallation(userInfo.getName(), formDTO, dto), String.class);
+            } else {
+                uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_LIB_INSTALL, userInfo.getAccessToken(),
+                        libraryService.prepareComputationalLibInstallation(userInfo.getName(), formDTO, dto), String.class);
             }
 
-            ExploratoryLibInstallDTO dto = RequestBuilder.newLibExploratoryInstall(userInfo, userInstance);
-
-            for (LibInstallDTO lib : formDTO.getLibs()) {
-                LibStatus status = libraryDAO.fetchLibraryStatus(userInfo.getName(), formDTO.getNotebookName(),
-                        lib.getGroup(), lib.getName(), lib.getVersion());
-
-                if (status == LibStatus.INSTALLING) {
-                    throw new DlabException("Library " + lib.getName() + " is already installing");
-                }
-
-                LibInstallDTO newLib = new LibInstallDTO(lib.getGroup(), lib.getName(), lib.getVersion());
-                if (dto.getLibs().contains(newLib)) {
-                    continue;
-                }
-                dto.getLibs().add(newLib);
-                lib.setStatus(LibStatus.INSTALLING.toString());
-                libraryDAO.addLibrary(userInfo.getName(), formDTO.getNotebookName(), lib, LibStatus.FAILED == status);
-            }
-
-            String uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_INSTALL, userInfo.getAccessToken(), dto, String.class);
             RequestId.put(userInfo.getName(), uuid);
             return Response.ok(uuid).build();
         } catch (DlabException e) {

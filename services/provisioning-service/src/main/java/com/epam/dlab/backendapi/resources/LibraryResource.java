@@ -24,11 +24,11 @@ import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
-import com.epam.dlab.dto.LibComputationalDTO;
+import com.epam.dlab.dto.LibListComputationalDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
+import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
@@ -43,7 +43,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-@Path("/")
+@Path("/library")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
@@ -60,26 +60,32 @@ public class LibraryResource implements DockerCommands {
     @Inject
     private RESTService selfService;
 
-    @Path(ExploratoryAPI.EXPLORATORY_LIB_LIST)
     @POST
+    @Path(ExploratoryAPI.EXPLORATORY + "/lib_list")
     public String getLibList(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws JsonProcessingException {
         return actionExploratory(ui.getName(), dto, DockerAction.LIB_LIST);
     }
 
-    @Path(ExploratoryAPI.EXPLORATORY_LIB_INSTALL)
     @POST
-    public String libInstall(@Auth UserInfo ui, ExploratoryLibInstallDTO dto) throws JsonProcessingException {
+    @Path(ExploratoryAPI.EXPLORATORY + "/lib_install")
+    public String libInstall(@Auth UserInfo ui, LibraryInstallDTO dto) throws JsonProcessingException {
         return actionExploratory(ui.getName(), dto, DockerAction.LIB_INSTALL);
     }
 
-    @Path(ComputationalAPI.COMPUTATIONAL_LIB_LIST)
     @POST
-    public String getLibList(@Auth UserInfo ui, LibComputationalDTO dto) throws JsonProcessingException {
+    @Path(ComputationalAPI.COMPUTATIONAL + "/lib_list")
+    public String getLibList(@Auth UserInfo ui, LibListComputationalDTO dto) throws JsonProcessingException {
         return actionComputational(ui.getName(), dto, DockerAction.LIB_LIST);
     }
 
+    @POST
+    @Path(ComputationalAPI.COMPUTATIONAL + "/lib_install")
+    public String getLibList(@Auth UserInfo ui, LibraryInstallDTO dto) throws JsonProcessingException {
+        return actionComputational(ui.getName(), dto, DockerAction.LIB_INSTALL);
+    }
+
     private String actionExploratory(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws JsonProcessingException {
-        log.debug("{} user {} exploratory environment", action, username);
+        log.debug("{} user {} exploratory environment {}", action, username, dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
@@ -91,8 +97,8 @@ public class LibraryResource implements DockerCommands {
         return uuid;
     }
 
-    private String actionComputational(String username, LibComputationalDTO dto, DockerAction action) throws JsonProcessingException {
-        log.debug("{} user {} exploratory environment", action, username);
+    private String actionComputational(String username, ExploratoryActionDTO<?> dto, DockerAction action) throws JsonProcessingException {
+        log.debug("{} user {} exploratory environment {}", action, username, dto);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
                 configuration.getResourceStatusPollTimeout(),
@@ -112,13 +118,30 @@ public class LibraryResource implements DockerCommands {
                 .withImage(dto.getNotebookImage());
     }
 
-    private RunDockerCommand getDockerCommandComputational(LibComputationalDTO dto, DockerAction action, String uuid) {
-        return getDockerCommand(action, uuid)
-                .withName(nameContainer(dto.getEdgeUserName(), action.toString(), "computational", dto.getComputationalId()))
-                .withVolumeForLog(configuration.getDockerLogDirectory(), dto.getDataEngineType().getName())
-                .withResource(dto.getDataEngineType().getName())
-                .withImage(DataEngineType.getDockerImageName(dto.getDataEngineType()))
-                .withAction(action);
+    private RunDockerCommand getDockerCommandComputational(ExploratoryActionDTO<?> dto, DockerAction action, String uuid) {
+        RunDockerCommand runDockerCommand = getDockerCommand(action, uuid);
+        if (dto instanceof LibraryInstallDTO) {
+            LibraryInstallDTO newDTO = (LibraryInstallDTO) dto;
+            runDockerCommand.withName(nameContainer(dto.getEdgeUserName(), action.toString(),
+                    "computational", newDTO.getComputationalId()))
+                    .withVolumeForLog(configuration.getDockerLogDirectory(),
+                            DataEngineType.fromDockerImageName(newDTO.getComputationalImage()).getName())
+                    .withResource(DataEngineType.fromDockerImageName(newDTO.getComputationalImage()).getName())
+
+                    .withImage(newDTO.getComputationalImage());
+
+        } else {
+            LibListComputationalDTO newDTO = (LibListComputationalDTO) dto;
+
+            runDockerCommand.withName(nameContainer(dto.getEdgeUserName(), action.toString(),
+                    "computational", newDTO.getComputationalId()))
+                    .withVolumeForLog(configuration.getDockerLogDirectory(),
+                            DataEngineType.fromDockerImageName(newDTO.getComputationalImage()).getName())
+                    .withResource(DataEngineType.fromDockerImageName(newDTO.getComputationalImage()).getName())
+                    .withImage(newDTO.getComputationalImage());
+
+        }
+        return runDockerCommand;
     }
 
     private RunDockerCommand getDockerCommand(DockerAction action, String uuid) {
@@ -136,7 +159,7 @@ public class LibraryResource implements DockerCommands {
         switch (action) {
             case LIB_INSTALL:
                 return new LibInstallCallbackHandler(selfService, action, uuid, dto.getCloudSettings().getIamUser(),
-                        (ExploratoryLibInstallDTO) dto);
+                        (LibraryInstallDTO) dto);
             case LIB_LIST:
                 return new LibListCallbackHandler(selfService, DockerAction.LIB_LIST, uuid,
                         dto.getCloudSettings().getIamUser(), dto.getNotebookImage());
@@ -145,11 +168,15 @@ public class LibraryResource implements DockerCommands {
         }
     }
 
-    private FileHandlerCallback getFileHandlerCallbackComputational(DockerAction action, String uuid, LibComputationalDTO dto) {
+    private FileHandlerCallback getFileHandlerCallbackComputational(DockerAction action, String uuid, ExploratoryBaseDTO<?> dto) {
         switch (action) {
             case LIB_LIST:
-                return new LibListCallbackHandler(selfService, DockerAction.LIB_LIST, uuid,
-                        dto.getCloudSettings().getIamUser(), dto.getLibCacheKey());
+                return new LibListCallbackHandler(selfService, action, uuid,
+                        dto.getCloudSettings().getIamUser(), ((LibListComputationalDTO) dto).getLibCacheKey());
+            case LIB_INSTALL:
+                return new LibInstallCallbackHandler(selfService, action, uuid,
+                        dto.getCloudSettings().getIamUser(), ((LibraryInstallDTO) dto));
+
             default:
                 throw new IllegalArgumentException("Unknown action " + action);
         }

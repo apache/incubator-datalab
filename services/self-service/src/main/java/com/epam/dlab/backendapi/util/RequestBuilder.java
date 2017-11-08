@@ -254,12 +254,12 @@ public class RequestBuilder {
         }
     }
 
-    public static ExploratoryLibInstallDTO newLibExploratoryInstall(UserInfo userInfo, UserInstanceDTO userInstance) {
+    public static LibraryInstallDTO newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance) {
 
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
-                return newResourceSysBaseDTO(userInfo, ExploratoryLibInstallDTO.class)
+                return newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
                         .withNotebookImage(userInstance.getImageName())
                         .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
                         .withNotebookInstanceName(userInstance.getExploratoryId())
@@ -289,16 +289,35 @@ public class RequestBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends LibComputationalDTO> T newLibComputationalList(UserInfo userInfo, UserInstanceDTO userInstance,
-                                                                            UserComputationalResource computationalResource) {
+    public static <T extends LibraryInstallDTO> T newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance,
+                                                                UserComputationalResource computationalResource) {
 
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
-                return (T) newResourceSysBaseDTO(userInfo, LibComputationalDTO.class)
+                return (T) newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
+                        .withComputationalId(computationalResource.getComputationalId())
+                        .withComputationalName(computationalResource.getComputationalName())
+                        .withExploratoryName(userInstance.getExploratoryName())
+                        .withComputationalImage(computationalResource.getImageName())
+                        .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+                        .withLibs(new ArrayList<>());
+
+            default:
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends LibListComputationalDTO> T newLibComputationalList(UserInfo userInfo, UserInstanceDTO userInstance,
+                                                                                UserComputationalResource computationalResource) {
+
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+                return (T) newResourceSysBaseDTO(userInfo, LibListComputationalDTO.class)
                         .withComputationalId(computationalResource.getComputationalId())
                         .withComputationalImage(computationalResource.getImageName())
-                        .withDataEngineType(computationalResource.getImageName())
                         .withLibCacheKey(ExploratoryLibCache.libraryCacheKey(userInstance.getImageName(),
                                 computationalResource.getImageName()))
                         .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()));

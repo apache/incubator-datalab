@@ -18,7 +18,7 @@ package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
+import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -52,7 +52,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
     /**
      * Exploratory DTO.
      */
-    private final ExploratoryLibInstallDTO dto;
+    private final LibraryInstallDTO dto;
 
     /**
      * Instantiate handler for process of docker response for libraries installation.
@@ -62,7 +62,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
      * @param uuid        request UID.
      * @param dto         contains libraries to instal
      */
-    public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, ExploratoryLibInstallDTO dto) {
+    public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, LibraryInstallDTO dto) {
         super(selfService, user, uuid, action);
         this.dto = dto;
     }
@@ -74,6 +74,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
 
     @Override
     protected ExploratoryLibInstallStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryLibInstallStatusDTO status) throws DlabException {
+
         if (UserInstanceStatus.FAILED == UserInstanceStatus.of(status.getStatus())) {
             for (LibInstallDTO lib : dto.getLibs()) {
                 lib.withStatus(status.getStatus()).withErrorMessage(status.getErrorMessage());
@@ -102,6 +103,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
     protected ExploratoryLibInstallStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
         return super.getBaseStatusDTO(status)
                 .withExploratoryName(dto.getExploratoryName())
-                .withUptime(Date.from(Instant.now()));
+                .withUptime(Date.from(Instant.now()))
+                .withComputationalName(dto.getComputationalName());
     }
 }

@@ -27,6 +27,6 @@ public class ApiCallbacks {
     public static final String INFRASTRUCTURE = API + "/infrastructure";
     public static final String EDGE = INFRASTRUCTURE + "/edge";
     public static final String STATUS_URI = "/status";
-    public static final String LIB_STATUS_URI = EXPLORATORY + "/lib_status";
+    public static final String LIB_STATUS_URI = LIBRARY + "/lib_status";
     public static final String GIT_CREDS = API + "/user/git_creds" + STATUS_URI;
 }
