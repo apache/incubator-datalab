@@ -31,16 +31,14 @@ import os, time
 
 
 def enable_proxy(proxy_host, proxy_port):
-    if not exists('/tmp/proxy_enabled'):
-        try:
-            proxy_string = "http://%s:%s" % (proxy_host, proxy_port)
-            sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
-            sudo('echo export https_proxy=' + proxy_string + ' >> /etc/profile')
-            sudo("echo 'proxy={}' >> /etc/yum.conf".format(proxy_string))
-            sudo('yum clean all')
-            sudo('touch /tmp/proxy_enabled ')
-        except:
-            sys.exit(1)
+    try:
+        proxy_string = "http://%s:%s" % (proxy_host, proxy_port)
+        sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
+        sudo('echo export https_proxy=' + proxy_string + ' >> /etc/profile')
+        sudo("echo 'proxy={}' >> /etc/yum.conf".format(proxy_string))
+        sudo('yum clean all')
+    except:
+        sys.exit(1)
 
 
 def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
