@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.resources.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class LibInfoRecord {
     @JsonProperty
     @JsonUnwrapped

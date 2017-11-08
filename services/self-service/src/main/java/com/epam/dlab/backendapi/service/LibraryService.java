@@ -86,7 +86,7 @@ public class LibraryService {
         String status = document.getString(ExploratoryLibDAO.STATUS);
         String error = document.getString(ExploratoryLibDAO.ERROR_MESSAGE);
 
-        LibKey libKey = new LibKey(String.format("%s:%s", name, version), group);
+        LibKey libKey = new LibKey(name, version, group);
         List<LibraryStatus> statuses = model.getOrDefault(libKey, new ArrayList<>());
 
         if (statuses.isEmpty()) {
