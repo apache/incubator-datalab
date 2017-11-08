@@ -8,6 +8,7 @@
     "azure_region":"CREG",
     "azure_user_id":"AUI",
     "azure_user_refresh_token":"AURT",
+    "azure_datalake_enable":"DLE",
     "conf_key_name":"CKN",
     "azure_notebook_instance_size":"NIT",
     "edge_user_name":"NUN",
