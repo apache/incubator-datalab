@@ -20,7 +20,10 @@ import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
+import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
 import com.epam.dlab.backendapi.resources.dto.LibInstallFormDTO;
+import com.epam.dlab.backendapi.resources.dto.LibKey;
+import com.epam.dlab.backendapi.resources.dto.LibraryStatus;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
@@ -32,8 +35,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -45,6 +49,63 @@ public class LibraryService {
 
     @Inject
     private ExploratoryLibDAO libraryDAO;
+
+    @SuppressWarnings("unchecked")
+    public List<LibInfoRecord> getLibInfo(String user, String exploratoryName) {
+        Document document = libraryDAO.findLibraries(user, exploratoryName);
+
+        Map<LibKey, List<LibraryStatus>> model = new TreeMap<>(Comparator.comparing(LibKey::getName));
+
+        if (document.get(ExploratoryLibDAO.EXPLORATORY_LIBS) != null) {
+            List<Document> exploratoryLibs = (List<Document>) document.get(ExploratoryLibDAO.EXPLORATORY_LIBS);
+            exploratoryLibs.forEach(e -> populateModel(exploratoryName, e, model));
+
+        }
+
+        if (document.get(ExploratoryLibDAO.COMPUTATIONAL_LIBS) != null) {
+            Document computationalLibs = (Document) document.get(ExploratoryLibDAO.COMPUTATIONAL_LIBS);
+            if (computationalLibs != null) {
+                populateComputational(computationalLibs, model);
+            }
+        }
+
+        List<LibInfoRecord> libInfoRecords = new ArrayList<>();
+
+        for (Map.Entry<LibKey, List<LibraryStatus>> entry : model.entrySet()) {
+            libInfoRecords.add(new LibInfoRecord(entry.getKey(), entry.getValue()));
+
+        }
+
+        return libInfoRecords;
+    }
+
+    private void populateModel(String exploratoryName, Document document, Map<LibKey, List<LibraryStatus>> model) {
+        String name = document.getString(ExploratoryLibDAO.LIB_NAME);
+        String version = document.getString(ExploratoryLibDAO.LIB_VERSION);
+        String group = document.getString(ExploratoryLibDAO.LIB_GROUP);
+        String status = document.getString(ExploratoryLibDAO.STATUS);
+        String error = document.getString(ExploratoryLibDAO.ERROR_MESSAGE);
+
+        LibKey libKey = new LibKey(String.format("%s:%s", name, version), group);
+        List<LibraryStatus> statuses = model.getOrDefault(libKey, new ArrayList<>());
+
+        if (statuses.isEmpty()) {
+            model.put(libKey, statuses);
+        }
+
+        statuses.add(new LibraryStatus(exploratoryName, status, error));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void populateComputational(Document computationalLibs, Map<LibKey, List<LibraryStatus>> model) {
+        for (Map.Entry<String, Object> entry : computationalLibs.entrySet()) {
+            if (entry.getValue() != null) {
+                List<Document> docs = (List<Document>) entry.getValue();
+                docs.forEach(e -> populateModel(entry.getKey(), e, model));
+            }
+        }
+    }
+
 
     public LibraryInstallDTO generateLibraryInstallDTO(UserInfo userInfo, LibInstallFormDTO formDTO) {
         UserInstanceDTO userInstance;
@@ -76,7 +137,7 @@ public class LibraryService {
     }
 
     public LibraryInstallDTO prepareExploratoryLibInstallation(String username, LibInstallFormDTO formDTO,
-                                                                LibraryInstallDTO dto) {
+                                                               LibraryInstallDTO dto) {
         for (LibInstallDTO lib : formDTO.getLibs()) {
             LibStatus status = libraryDAO.fetchLibraryStatus(username, formDTO.getNotebookName(),
                     lib.getGroup(), lib.getName(), lib.getVersion());
@@ -91,7 +152,7 @@ public class LibraryService {
     }
 
     public LibraryInstallDTO prepareComputationalLibInstallation(String username, LibInstallFormDTO formDTO,
-                                                              LibraryInstallDTO dto) {
+                                                                 LibraryInstallDTO dto) {
 
         for (LibInstallDTO lib : formDTO.getLibs()) {
             LibStatus status = libraryDAO.fetchLibraryStatus(username, formDTO.getNotebookName(),

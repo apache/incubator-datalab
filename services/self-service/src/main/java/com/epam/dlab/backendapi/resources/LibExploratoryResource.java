@@ -21,6 +21,7 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
 import com.epam.dlab.backendapi.resources.dto.LibInstallFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SearchLibsFormDTO;
 import com.epam.dlab.backendapi.service.LibraryService;
@@ -36,7 +37,6 @@ import com.google.inject.name.Named;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.Document;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.Valid;
@@ -44,6 +44,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -108,12 +109,12 @@ public class LibExploratoryResource {
      */
     @GET
     @Path("/lib_list")
-    public Iterable<Document> getLibList(@Auth UserInfo userInfo,
-                                         @QueryParam("exploratory_name") @NotBlank String exploratoryName) {
+    public List<LibInfoRecord> getLibList(@Auth UserInfo userInfo,
+                                          @QueryParam("exploratory_name") @NotBlank String exploratoryName) {
 
         log.debug("Loading list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName);
         try {
-            return libraryDAO.findLibraries(userInfo.getName(), exploratoryName);
+            return libraryService.getLibInfo(userInfo.getName(), exploratoryName);
         } catch (Exception t) {
             log.error("Cannot load list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName, t);
             throw new DlabException("Cannot load list of libraries: " + t.getLocalizedMessage(), t);
