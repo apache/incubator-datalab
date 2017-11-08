@@ -38,7 +38,7 @@ limitations under the License.
           <description>name of the scientist</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
           <name>DataLake_enable</name>
           <description>Provision DataLake storage instead of Blob storage</description>
           <choices class="java.util.Arrays$ArrayList">
@@ -47,7 +47,7 @@ limitations under the License.
               <string>true</string>
             </a>
           </choices>
-        </hudson.model.StringParameterDefinition>
+        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>SSH_Key_Name</name>
           <description>name of the uploaded ssh key file (without ".pem")</description>
