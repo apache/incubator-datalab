@@ -890,53 +890,6 @@ class AzureActions:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_application(self, app_name):
-        try:
-            result = graphrbac_client.applications.create(
-                {
-                    "available_to_other_tenants": False,
-                    "display_name": app_name,
-                    "identifier_uris": ["http://{}".format(app_name)]
-                }
-            )
-            return result
-        except Exception as err:
-            logging.info(
-                "Unable to create application: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to create application",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
-
-    def delete_application(self, application_object_id):
-        try:
-            graphrbac_client.applications.delete(application_object_id)
-            return ''
-        except Exception as err:
-            logging.info(
-                "Unable to delete application: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to delete application",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
-
-    def create_service_principal(self, application_id):
-        try:
-            result = graphrbac_client.service_principals.create(
-                {
-                    "app_id": application_id,
-                    "account_enabled": "True"
-                }
-            )
-            return result
-        except Exception as err:
-            logging.info(
-                "Unable to create service principal: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to create service principal",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
-
     def create_image_from_instance(self, resource_group_name, instance_name, region, image_name, tags):
         try:
             instance_id = meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).id
