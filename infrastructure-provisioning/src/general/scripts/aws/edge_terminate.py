@@ -42,12 +42,6 @@ def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, e
     except:
         sys.exit(1)
 
-    print("Deregistering notebook's AMI")
-    try:
-        deregister_image(user_name)
-    except:
-        sys.exit(1)
-
     print("Terminating EDGE and notebook instances")
     try:
         remove_ec2(tag_name, tag_value)
