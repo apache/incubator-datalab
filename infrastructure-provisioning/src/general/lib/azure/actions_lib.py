@@ -260,6 +260,34 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def chown_datalake_directory(self, datalake_name, dir_name, ad_user):
+        try:
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.chown(dir_name, owner=ad_user)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to chown Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to chown Data Lake directory",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def chmod_datalake_directory(self, datalake_name, dir_name, mod):
+        try:
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.chmod(dir_name, mod)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to chmod Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to chmod Data Lake directory",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def remove_datalake_directory(self, datalake_name, dir_name):
         try:
             datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
