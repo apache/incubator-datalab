@@ -22,8 +22,7 @@ import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.runningExploratoryAndComputationalCondition;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Projections.elemMatch;
-import static com.mongodb.client.model.Projections.excludeId;
+import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.push;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
@@ -43,11 +42,11 @@ import com.epam.dlab.exceptions.DlabException;
 /** DAO for user libraries.
  */
 public class ExploratoryLibDAO extends BaseDAO {
-    private static final String EXPLORATORY_LIBS = "libs";
-    private static final String COMPUTATIONAL_LIBS = "computational_libs";
-    private static final String LIB_GROUP = "group";
-    private static final String LIB_NAME = "name";
-    private static final String LIB_VERSION = "version";
+    public static final String EXPLORATORY_LIBS = "libs";
+    public static final String COMPUTATIONAL_LIBS = "computational_libs";
+    public static final String LIB_GROUP = "group";
+    public static final String LIB_NAME = "name";
+    public static final String LIB_VERSION = "version";
     private static final String LIB_INSTALL_DATE = "install_date";
     private static final String LIB_ERROR_MESSAGE = "error_message";
 
@@ -103,11 +102,13 @@ public class ExploratoryLibDAO extends BaseDAO {
      * @param exploratoryName the name of exploratory.
      */
     @SuppressWarnings("unchecked")
-    public Iterable<Document> findLibraries(String user, String exploratoryName) {
+    public Document findLibraries(String user, String exploratoryName) {
         Optional<Document> opt = findOne(USER_INSTANCES,
-                exploratoryCondition(user, exploratoryName));
-        Object libs = (opt.isPresent() ? opt.get().get(EXPLORATORY_LIBS) : null);
-        return (libs == null ? null : (List<Document>)libs);
+                exploratoryCondition(user, exploratoryName),
+                fields(excludeId(), include(EXPLORATORY_LIBS, COMPUTATIONAL_LIBS)));
+
+        return opt.orElseGet(Document::new);
+
     }
 
     /** Finds and returns the status of library.
