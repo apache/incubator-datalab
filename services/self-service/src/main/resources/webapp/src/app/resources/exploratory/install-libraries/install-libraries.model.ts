@@ -30,6 +30,7 @@ interface Library {
 export class InstallLibrariesModel {
     confirmAction: Function;
     notebook: any;
+    computational_name: string;
 
     public selectedLibs: Array<Library> = [];
     private continueWith: Function;
@@ -55,12 +56,11 @@ export class InstallLibrariesModel {
     }
 
     public getLibrariesList(group: string, query: string): Observable<Response> {
+        let lib_query: any = { exploratory_name: this.notebook.name, group: group, start_with: query };
+        if (this.computational_name) lib_query.computational_name = this.computational_name;
+
         return this.librariesInstallationService
-            .getAvailableLibrariesList({
-                notebook_name: this.notebook.name,
-                group: group,
-                start_with: query
-            });
+            .getAvailableLibrariesList(lib_query);
     }
 
     public getInstalledLibrariesList(): Observable<Response> {
@@ -68,10 +68,11 @@ export class InstallLibrariesModel {
     }
 
     private installLibraries(retry?: Library): Observable<Response> {
-        return this.librariesInstallationService.installLibraries({
-            notebook_name: this.notebook.name,
-            libs: (retry ? retry : this.selectedLibs)
-        });
+        let lib_list: any = { exploratory_name: this.notebook.name, libs: (retry ? retry : this.selectedLibs) };
+        if (this.computational_name) lib_list.computational_name = this.computational_name;
+
+        return this.librariesInstallationService
+            .installLibraries(lib_list);
     }
 
     public isEmpty(obj) {

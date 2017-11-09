@@ -45,6 +45,7 @@ export class InstallLibrariesComponent implements OnInit {
 
   public query: string = '';
   public group: string;
+  public destination: any;
   public uploading: boolean = false;
   public libs_uploaded: boolean = false;
 
@@ -90,7 +91,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
   
   uploadLibraries(): void {
-     this.librariesInstallationService.getGroupsList(this.notebook.name)
+     this.librariesInstallationService.getGroupsList(this.notebook.name, this.model.computational_name)
       .subscribe(
         response => {
           this.libsUploadingStatus(response);
@@ -106,10 +107,12 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   private getResourcesList() {
+    this.notebook.type = 'EXPLORATORY';
     return [this.notebook].concat(this.notebook.resources
       .filter(item => item.status === 'running')
       .map(item => {
         item['name'] = item.computational_name;
+        item['type'] = 'СOMPUTATIONAL';
         return item;
       }));
   }
@@ -121,10 +124,13 @@ export class InstallLibrariesComponent implements OnInit {
   public onUpdate($event) {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
-      this.filterList();
     } else if ($event.model.type === 'destination') {
-      console.log($event.model.value);
+      this.destination = $event.model.value;
+      this.model.computational_name = this.destination.name
     }
+
+    if (this.destination && this.destination.type === 'EXPLORATORY') this.model.computational_name = null;
+    this.filterList();
   }
 
   public isDuplicated(item) {
@@ -199,6 +205,7 @@ export class InstallLibrariesComponent implements OnInit {
       this.clearCheckInstalling = undefined;
     }
   }
+
   private getInstalledLibrariesList() {
     this.model.getInstalledLibrariesList()
       .subscribe((data: any) => {
