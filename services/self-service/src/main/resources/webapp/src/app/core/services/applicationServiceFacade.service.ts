@@ -203,7 +203,7 @@ export class ApplicationServiceFacade {
   }
 
   public buildGetGroupsList(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+    return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_GROUPS),
       data,
       this.getRequestOptions(true, true));
@@ -224,7 +224,7 @@ export class ApplicationServiceFacade {
   }
 
   public buildGetInstalledLibrariesList(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+    return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.INSTALLED_LIBS),
       data,
       this.getRequestOptions(true, true));
