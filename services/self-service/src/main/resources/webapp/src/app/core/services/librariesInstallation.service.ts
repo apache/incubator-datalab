@@ -30,41 +30,47 @@ export class LibrariesInstallationService {
 
     constructor(private applicationServiceFacade: ApplicationServiceFacade) { }
 
-    public getGroupsList(data): Observable<Response> {
+    public getGroupsList(exploratory, computational?): Observable<Response> {
+
+        let body = `?exploratory_name=${ exploratory }`;
+        if (computational) body += `&computational_name=' + ${ computational }`;
+
         return this.applicationServiceFacade
-        .buildGetGroupsList(data)
-        .map(response => response.json())
-        .catch((error: any) => {
-            return Observable.throw(
-                new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`)
-            )
-        });
+            .buildGetGroupsList(body)
+            .map(response => response.json())
+            .catch((error: any) => {
+                return Observable.throw(
+                    new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`)
+                )
+            });
     }
 
     public getAvailableLibrariesList(data): Observable<Response> {
         return this.applicationServiceFacade
-        .buildGetAvailableLibrariesList(data)
-        .map((response: Response) => response.json())
-        .catch((error: any) => {
-            return Observable.throw(new Error(`${ error.status } ${ error.statusText } ${ error._body }`));
-        });
+            .buildGetAvailableLibrariesList(data)
+            .map((response: Response) => response.json())
+            .catch((error: any) => {
+                return Observable.throw(new Error(`${ error.status } ${ error.statusText } ${ error._body }`));
+            });
     }
 
     public installLibraries(data): Observable<Response> {
         return this.applicationServiceFacade
-        .buildInstallLibraries(data)
-        .map((response: Response) => response)
-        .catch((error: any) => {
-            return Observable.throw(new Error(`${ error.status } ${ error.statusText }. ${ error._body }`));
-        });
+            .buildInstallLibraries(data)
+            .map((response: Response) => response)
+            .catch((error: any) => {
+                return Observable.throw(new Error(`${ error.status } ${ error.statusText }. ${ error._body }`));
+            });
     }
 
-    public getInstalledLibrariesList(data): Observable<Response> {
+    public getInstalledLibrariesList(exploratory): Observable<Response> {
+        let body = `?exploratory_name=${ exploratory }`;
+
         return this.applicationServiceFacade
-        .buildGetInstalledLibrariesList(data)
-        .map((response: Response) => response.json())
-        .catch((error: any) => {
-            return Observable.throw(new Error(`${ error.status } ${ error.statusText }. ${ error._body }`));
-        });
+            .buildGetInstalledLibrariesList(body)
+            .map((response: Response) => response.json())
+            .catch((error: any) => {
+                return Observable.throw(new Error(`${ error.status } ${ error.statusText }. ${ error._body }`));
+            });
     }
 }
