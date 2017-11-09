@@ -18,6 +18,8 @@
 
 package com.epam.dlab.automation.test.libs.models;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
@@ -31,9 +33,7 @@ public class LibStatusResponse {
     @JsonProperty
     private String version;
     @JsonProperty
-    private String status;
-    @JsonProperty("error_message")
-    private String errorMessage;
+    private List<LibraryStatus> status;
 
     public String getGroup() {
         return group;
@@ -47,13 +47,10 @@ public class LibStatusResponse {
         return version;
     }
 
-    public String getStatus() {
+    public List<LibraryStatus> getStatus() {
         return status;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -65,8 +62,7 @@ public class LibStatusResponse {
         if (group != null ? !group.equals(that.group) : that.group != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (version != null ? !version.equals(that.version) : that.version != null) return false;
-        if (status != null ? !status.equals(that.status) : that.status != null) return false;
-        return errorMessage != null ? errorMessage.equals(that.errorMessage) : that.errorMessage == null;
+        return status != null ? !status.equals(that.status) : that.status != null; 
     }
 
     @Override
@@ -75,7 +71,6 @@ public class LibStatusResponse {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (version != null ? version.hashCode() : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (errorMessage != null ? errorMessage.hashCode() : 0);
         return result;
     }
 
@@ -86,7 +81,6 @@ public class LibStatusResponse {
                 .add("name", name)
                 .add("version", version)
                 .add("status", status)
-                .add("errorMessage", errorMessage)
                 .toString();
     }
 }

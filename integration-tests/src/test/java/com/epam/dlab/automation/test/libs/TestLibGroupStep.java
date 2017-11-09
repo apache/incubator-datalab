@@ -29,7 +29,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @TestDescription("Test \"Show available library groups\" ")
@@ -49,7 +51,12 @@ public class TestLibGroupStep extends TestLibStep {
         long expiredTime = currentTime + initTimeoutSec;
 
         while (expiredTime > currentTime) {
-            Response groups = new HttpRequest().webApiPost(url, ContentType.JSON, notebookName, token);
+//            Response groups = new HttpRequest().webApiPost(url, ContentType.JSON, notebookName, token);
+            HttpRequest httpRequest = new HttpRequest();
+            
+            Map<String, Object> params = new HashMap<>();
+            params.put("exploratory_name", notebookName);
+			Response groups= httpRequest.webApiGet(url, token,params );
             if (groups.getStatusCode() != HttpStatusCode.OK) {
                 LOGGER.error("Response status {}, body {}", groups.getStatusCode(), groups.getBody().print());
                 Assert.fail("Cannot get lib groups " + notebookName);
@@ -72,8 +79,11 @@ public class TestLibGroupStep extends TestLibStep {
 
     @Override
     public void verify() {
-        Response response = new HttpRequest().webApiPost(url, ContentType.JSON, notebookName, token);
-
+        HttpRequest httpRequest = new HttpRequest();
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("exploratory_name", notebookName);
+		Response response= httpRequest.webApiGet(url, token,params );
         if (response.getStatusCode() == HttpStatusCode.OK) {
             List<String> availableGroups = response.getBody().jsonPath().getList("", String.class);
 
