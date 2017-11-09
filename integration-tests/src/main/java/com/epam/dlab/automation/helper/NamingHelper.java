@@ -92,7 +92,16 @@ public class NamingHelper {
     
     public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
     	if("dataengine".equals(dataEngineType)) {
-    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName, "m");
+    		return String.join("-", getClusterInstanceNameForTestEmr(notebookName,clusterName,dataEngineType), "m");
+    	}
+    	else {
+    		return getClusterInstanceNameForTestEmr(notebookName,clusterName,dataEngineType);
+    	}
+    }
+    
+    public static String getClusterInstanceNameForTestEmr(String notebookName, String clusterName, String dataEngineType) {
+    	if("dataengine".equals(dataEngineType)) {
+    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
     	}
     	else {
     		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "emr", notebookName, clusterName);
