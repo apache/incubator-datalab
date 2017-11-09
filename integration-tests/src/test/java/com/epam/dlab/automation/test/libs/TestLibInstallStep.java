@@ -116,7 +116,7 @@ public class TestLibInstallStep extends TestLibStep {
         if (response.getStatusCode() == HttpStatusCode.OK) {
 
             List<LibStatusResponse> actualStatuses = Arrays.asList(response.getBody().as(LibStatusResponse[].class));
-            LOGGER.error("Actual statuses {}", actualStatuses);
+            LOGGER.info("Actual statuses {}", actualStatuses);
 
             LibStatusResponse libStatusResponse = actualStatuses.stream()
                     .filter(e -> e.getGroup().equals(libToInstall.getGroup())
