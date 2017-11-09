@@ -51,7 +51,6 @@ public class TestLibGroupStep extends TestLibStep {
         long expiredTime = currentTime + initTimeoutSec;
 
         while (expiredTime > currentTime) {
-//            Response groups = new HttpRequest().webApiPost(url, ContentType.JSON, notebookName, token);
             HttpRequest httpRequest = new HttpRequest();
             
             Map<String, Object> params = new HashMap<>();
