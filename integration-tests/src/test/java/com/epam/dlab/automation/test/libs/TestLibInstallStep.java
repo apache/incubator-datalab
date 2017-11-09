@@ -87,14 +87,20 @@ public class TestLibInstallStep extends TestLibStep {
                         .findFirst().get();
 
                 LOGGER.info("Lib status is {}", s);
+                
+                boolean allLibStatusesDone = true;
+                
                 for (LibraryStatus libStatus : s.getStatus()) {
                 	if (libStatus.getStatus().equals("installing")) {
-                        LOGGER.info("Wait {} sec left for installation libs {}", expiredTime - currentTime, request);
-                        TimeUnit.SECONDS.sleep(ConfigPropertyValue.isRunModeLocal() ? 3L : 20L);
-                    } else {
-                        return;
-                    }
+                		allLibStatusesDone = false;
+                    } 
 				}
+                if(!allLibStatusesDone) {
+                	LOGGER.info("Wait {} sec left for installation libs {}", expiredTime - currentTime, request);
+                    TimeUnit.SECONDS.sleep(ConfigPropertyValue.isRunModeLocal() ? 3L : 20L);
+                } else {
+                    return;
+                }
                 
             } else {
                 LOGGER.error("Response status{}, body {}", response.getStatusCode(), response.getBody().print());
