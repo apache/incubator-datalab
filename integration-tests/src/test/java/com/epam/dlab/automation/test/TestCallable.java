@@ -105,7 +105,9 @@ public class TestCallable implements Callable<Boolean> {
         
         final DeployClusterDto deployClusterDto = createClusterDto();
         
-        final String actualClusterName = NamingHelper.getClusterName(NamingHelper.getClusterInstanceNameForTestEmr(notebookName, clusterName, dataEngineType));
+        final String actualClusterName = NamingHelper.getClusterName(NamingHelper.getClusterInstanceNameForTestEmr(notebookName,
+                clusterName, dataEngineType), dataEngineType);
+
         if (!ConfigPropertyValue.isRunModeLocal()) {
         	TestEmr test = new TestEmr();
         	test.run(notebookName, actualClusterName);

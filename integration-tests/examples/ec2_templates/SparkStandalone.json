@@ -1,7 +1,7 @@
 {
   "image" : "docker.dlab-dataengine",
   "name" : "set the name",
-  "dataengine_instance_count" : "3",
+  "dataengine_instance_count" : "2",
   "dataengine_slave" : "c4.xlarge",
   "dataengine_master" : "c4.xlarge",
   "notebook_name" : "set noteboork name",
