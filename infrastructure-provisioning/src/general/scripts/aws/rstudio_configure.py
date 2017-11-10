@@ -52,8 +52,8 @@ if __name__ == "__main__":
     notebook_config['user_keyname'] = os.environ['edge_user_name']
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
-    notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
+    notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + os.environ['application'] + \
+                                           '-notebook-image'
     notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
                                            os.environ['edge_user_name'] + "-nb-Profile"
     notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[

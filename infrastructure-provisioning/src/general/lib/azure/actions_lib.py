@@ -932,16 +932,18 @@ class AzureActions:
 
     def create_image_from_instance(self, resource_group_name, instance_name, region, image_name, tags):
         try:
+
             instance_id = meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).id
             self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
             self.compute_client.virtual_machines.generalize(resource_group_name, instance_name)
-            self.compute_client.images.create_or_update(resource_group_name, image_name, parameters={
-                "location": region,
-                "tags": json.loads(tags),
-                "source_virtual_machine": {
-                    "id": instance_id
-                }
-            }).wait()
+            if not meta_lib.AzureMeta().get_image(resource_group_name, image_name):
+                self.compute_client.images.create_or_update(resource_group_name, image_name, parameters={
+                    "location": region,
+                    "tags": json.loads(tags),
+                    "source_virtual_machine": {
+                        "id": instance_id
+                    }
+                }).wait()
             AzureActions().remove_instance(resource_group_name, instance_name)
         except Exception as err:
             logging.info(

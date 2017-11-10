@@ -20,6 +20,7 @@ package com.epam.dlab;
 
 import java.util.Arrays;
 
+import com.epam.dlab.exceptions.DlabException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,7 +159,7 @@ public class BillingTool {
 				new BillingTool().run(jsonNode);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new DlabException("Billing tool failed", e);
 		}
 	}
 }

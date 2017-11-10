@@ -184,7 +184,8 @@ public class BillingSchedulerAzure {
                     currentTime.toDateMidnight(),
                     dateTimeToFromBillingPeriod, dateTimeToFromBillingPeriod.toDateMidnight());
 
-            if (currentTime.toDateMidnight().isAfter(dateTimeToFromBillingPeriod.toDateMidnight())) {
+            if (currentTime.toDateMidnight().isAfter(dateTimeToFromBillingPeriod.toDateMidnight())
+                    || currentTime.toDateMidnight().isEqual(dateTimeToFromBillingPeriod.toDateMidnight())) {
                 log.info("Should trigger the job by time");
                 return true;
             }
