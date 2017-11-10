@@ -67,7 +67,9 @@ public class LibraryService {
     public List<LibInfoRecord> getLibInfo(String user, String exploratoryName) {
         Document document = libraryDAO.findAllLibraries(user, exploratoryName);
 
-        Map<LibKey, List<LibraryStatus>> model = new TreeMap<>(Comparator.comparing(LibKey::getName));
+        Map<LibKey, List<LibraryStatus>> model = new TreeMap<>(Comparator.comparing(LibKey::getName)
+                .thenComparing(LibKey::getVersion)
+                .thenComparing(LibKey::getGroup));
 
         if (document.get(ExploratoryLibDAO.EXPLORATORY_LIBS) != null) {
             List<Document> exploratoryLibs = (List<Document>) document.get(ExploratoryLibDAO.EXPLORATORY_LIBS);
