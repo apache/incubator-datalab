@@ -62,7 +62,7 @@ public class LibStatusResponse {
         if (group != null ? !group.equals(that.group) : that.group != null) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (version != null ? !version.equals(that.version) : that.version != null) return false;
-        return status != null ? !status.equals(that.status) : that.status != null; 
+        return status != null ? status.equals(that.status) : that.status == null; 
     }
 
     @Override
