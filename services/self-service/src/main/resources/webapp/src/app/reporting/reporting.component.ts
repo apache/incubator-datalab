@@ -32,7 +32,7 @@ import { DICTIONARY, ReportingConfigModel } from '../../dictionary/global.dictio
   <dlab-toolbar (rebuildReport)="rebuildBillingReport($event)" (exportReport)="exportBillingReport()" (setRangeOption)="setRangeOption($event)"></dlab-toolbar>
   <dlab-reporting-grid (filterReport)="filterReport($event)" (resetRangePicker)="resetRangePicker($event)"></dlab-reporting-grid>
   <footer *ngIf="data">
-    Total {{ data[DICTIONARY.billing.cost] }} {{ data[DICTIONARY.billing.currencyCode] }}
+    Total {{ data[DICTIONARY.billing.costTotal] }} {{ data[DICTIONARY.billing.currencyCode] }}
   </footer>
   `,
   styles: [`
