@@ -51,8 +51,8 @@ if __name__ == "__main__":
         if edge_status != 'running':
             logging.info('ERROR: Edge node is unavailable! Aborting...')
             print('ERROR: Edge node is unavailable! Aborting...')
-            ssn_hostname = AzureMeta().get_instance_public_ip_address(os.environ['conf_service_base_name'],
-                                                                      os.environ['conf_service_base_name'] + '-ssn')
+            ssn_hostname = AzureMeta().get_private_ip_address(os.environ['conf_service_base_name'],
+                                                              os.environ['conf_service_base_name'] + '-ssn')
             put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'],
                                 ssn_hostname)
             append_result("Edge node is unavailable")
@@ -103,17 +103,14 @@ if __name__ == "__main__":
         notebook_config['ami_type'] = 'default'
         if os.environ['application'] == 'zeppelin':
             if os.environ['notebook_multiple_clusters'] == 'true':
-                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
-                                                       notebook_config['user_name'] + '-' + os.environ['application'] \
-                                                       + '-livy-notebook-image'
+                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + \
+                                                       '-' + os.environ['application'] + '-livy-notebook-image'
             else:
-                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
-                                                       notebook_config['user_name'] + '-' + os.environ['application'] \
-                                                       + '-spark-notebook-image'
+                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
+                                                       os.environ['application'] + '-spark-notebook-image'
         else:
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
-                                                   notebook_config['user_name'] + '-' + os.environ['application'] + \
-                                                   '-notebook-image'
+            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
+                                                   os.environ['application'] + '-notebook-image'
         print('Searching preconfigured images')
         if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name']):
             print('Preconfigured image found. Using: {}'.format(notebook_config['expected_ami_name']))

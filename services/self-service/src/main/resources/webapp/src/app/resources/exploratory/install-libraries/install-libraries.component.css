@@ -56,9 +56,11 @@ limitations under the License.
 }
 
 .list-container {
-    max-height: 55%;
+    max-height: 45%;
     overflow-y: auto;
     overflow-x: hidden;
+    position: absolute;
+    width: calc(50% - 50px);
 }
 .suggestions {
     text-decoration: none;
@@ -186,8 +188,9 @@ limitations under the License.
 
 .scrollingList {
     max-height: 85%;
-    height: 75%;
+    height: 85%;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 .scrollingList.info p {
     text-align: center;
@@ -263,6 +266,6 @@ limitations under the License.
 
 @media screen and (min-width: 1281px) {
     .list-container {
-        max-height: 75%;
+        max-height: 60%;
     }
 }

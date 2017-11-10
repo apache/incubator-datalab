@@ -38,7 +38,8 @@ limitations under the License.
               <div *ngIf="notebook?.status !== 'running' && notebookFailedLibs.length > 0" class="info message">
                 <p>Cannot retry to reinstall failed libraries: Exploratory {{ notebook?.name }} is not running</p>
               </div>
-              <md-list-item *ngFor="let lib of notebookLibs | libStatusSort">
+              <!-- | libStatusSort -->
+              <md-list-item *ngFor="let lib of notebookLibs">
                 <div class="lib-name">
                   <strong>{{ lib.name }}</strong>
                   <span *ngIf="lib.version  && lib.version !== 'N/A'">v.{{ lib.version }}</span>
@@ -61,7 +62,7 @@ limitations under the License.
                           </div>
                           <div #libError *ngIf="item.status === 'failed' && item.error" class="lib-error" (click)="errorBubble.toggle($event, libError)">
                             <i class="material-icons">error_outline</i>
-                            <bubble-up #errorBubble [style.width.px]="300" position="bottom-left">
+                            <bubble-up #errorBubble id="scrolling" [style.width.px]="300" position="bottom-left">
                               {{ item.error }}
                             </bubble-up>
                           </div>
