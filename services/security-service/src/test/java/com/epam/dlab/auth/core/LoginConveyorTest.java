@@ -29,7 +29,7 @@ import java.util.concurrent.*;
 
 public class LoginConveyorTest {
 
-    LoginConveyor lc = new LoginConveyor();
+    LoginConveyor lc = new LoginConveyor(10);
 
     @Before
     public void createCOnveyor(){
