@@ -27,7 +27,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ExploratoryLibInstallStatusDTO extends StatusEnvBaseDTO<ExploratoryLibInstallStatusDTO> {
+public class LibInstallStatusDTO extends StatusEnvBaseDTO<LibInstallStatusDTO> {
     @JsonProperty
     private List<LibInstallDTO> libs;
 
@@ -35,12 +35,12 @@ public class ExploratoryLibInstallStatusDTO extends StatusEnvBaseDTO<Exploratory
     private String computationalName;
 
 
-    public ExploratoryLibInstallStatusDTO withLibs(List<LibInstallDTO> libs) {
+    public LibInstallStatusDTO withLibs(List<LibInstallDTO> libs) {
         setLibs(libs);
         return this;
     }
 
-    public ExploratoryLibInstallStatusDTO withComputationalName(String computationalName) {
+    public LibInstallStatusDTO withComputationalName(String computationalName) {
         setComputationalName(computationalName);
         return this;
     }

@@ -81,7 +81,9 @@ public class ExploratoryDAO extends BaseDAO {
      * @return
      */
     public Iterable<Document> findExploratory(String user) {
-        return find(USER_INSTANCES, eq(USER, user));
+        return find(USER_INSTANCES, eq(USER, user),
+                fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS,
+                        ExploratoryLibDAO.COMPUTATIONAL_LIBS)));
     }
 
     /**
@@ -214,21 +216,25 @@ public class ExploratoryDAO extends BaseDAO {
 
         if (dto.getExploratoryUrl() != null) {
             values.append(EXPLORATORY_URL, dto.getExploratoryUrl().stream()
-                    .map(url -> new LinkedHashMap<String, String>() {{
-                        put(EXPLORATORY_URL_DESC, url.getDescription());
-                        put(EXPLORATORY_URL_URL, url.getUrl());
-                    }})
-                    .collect(Collectors.toList()));
+                    .map(url -> {
+                                LinkedHashMap<String, String> map = new LinkedHashMap<>();
+                                map.put(EXPLORATORY_URL_DESC, url.getDescription());
+                                map.put(EXPLORATORY_URL_URL, url.getUrl());
+                                return map;
+                            }
+                    ).collect(Collectors.toList()));
         } else if (dto.getPrivateIp() != null) {
             UserInstanceDTO inst = fetchExploratoryFields(dto.getUser(), dto.getExploratoryName());
             if (!inst.getPrivateIp().equals(dto.getPrivateIp())) { // IP was changed
                 if (inst.getExploratoryUrl() != null) {
                     values.append(EXPLORATORY_URL, inst.getExploratoryUrl().stream()
-                            .map(url -> new LinkedHashMap<String, String>() {{
-                                put(EXPLORATORY_URL_DESC, url.getDescription());
-                                put(EXPLORATORY_URL_URL, url.getUrl().replace(inst.getPrivateIp(), dto.getPrivateIp()));
-                            }})
-                            .collect(Collectors.toList()));
+                            .map(url -> {
+                                        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+                                        map.put(EXPLORATORY_URL_DESC, url.getDescription());
+                                        map.put(EXPLORATORY_URL_URL, url.getUrl().replace(inst.getPrivateIp(), dto.getPrivateIp()));
+                                        return map;
+                                    }
+                            ).collect(Collectors.toList()));
                 }
             }
         }
