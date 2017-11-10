@@ -35,6 +35,7 @@ export const NAMING_CONVENTION = {
     'billing': {
         'resourceName': 'resourceName',
         'cost': 'costString',
+        'costTotal': 'costString',
         'currencyCode': 'currencyCode',
         'dateFrom': 'from',
         'dateTo': 'to',
