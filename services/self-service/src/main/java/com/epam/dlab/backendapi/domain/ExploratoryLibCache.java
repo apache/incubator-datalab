@@ -25,10 +25,10 @@ import java.util.Map;
 
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.dto.LibListComputationalDTO;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,8 +149,9 @@ public class ExploratoryLibCache implements Managed, Runnable {
 			}
 
 			UserComputationalResource userComputationalResource = instanceDTO.getResources().get(0);
-
-			return libraryCacheKey(instanceDTO.getImageName(), userComputationalResource.getImageName());
+			return (DataEngineType.fromDockerImageName(userComputationalResource.getImageName()) == DataEngineType.SPARK_STANDALONE)
+                    ? instanceDTO.getImageName()
+					: libraryCacheKey(instanceDTO.getImageName(), userComputationalResource.getImageName());
 
 		} else {
 			return instanceDTO.getImageName();
