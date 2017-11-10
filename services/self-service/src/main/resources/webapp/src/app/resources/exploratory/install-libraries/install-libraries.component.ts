@@ -89,7 +89,7 @@ export class InstallLibrariesComponent implements OnInit {
       this.buildGrid.emit();
     };
   }
-  
+
   uploadLibraries(): void {
      this.librariesInstallationService.getGroupsList(this.notebook.name, this.model.computational_name)
       .subscribe(
@@ -160,7 +160,6 @@ export class InstallLibrariesComponent implements OnInit {
   public open(param, notebook): void {
     if (!this.bindDialog.isOpened)
       this.notebook = notebook;
-      this.notebookLibs = notebook.libs || [];
       this.model = new InstallLibrariesModel(notebook, (response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
           this.getInstalledLibrariesList();
@@ -173,8 +172,8 @@ export class InstallLibrariesComponent implements OnInit {
       },
       () => {
         this.bindDialog.open(param);
-        this.isInstallingInProgress(this.notebookLibs);
 
+        this.getInstalledLibrariesList();
         if (!this.notebook.libs || !this.notebook.libs.length)
           this.tabGroup.selectedIndex = 1;
 
@@ -207,9 +206,10 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   private getInstalledLibrariesList() {
-    this.model.getInstalledLibrariesList()
+    this.model.getInstalledLibrariesList(this.notebook)
       .subscribe((data: any) => {
         this.notebookLibs = data ? data : [];
+        this.changeDetector.markForCheck();
         this.isInstallingInProgress(this.notebookLibs);
       });
   }

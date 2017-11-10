@@ -63,8 +63,8 @@ export class InstallLibrariesModel {
             .getAvailableLibrariesList(lib_query);
     }
 
-    public getInstalledLibrariesList(): Observable<Response> {
-        return this.librariesInstallationService.getInstalledLibrariesList(this.notebook.name)
+    public getInstalledLibrariesList(notebook): Observable<Response> {
+        return this.librariesInstallationService.getInstalledLibrariesList(notebook.name)
     }
 
     private installLibraries(retry?: Library): Observable<Response> {
