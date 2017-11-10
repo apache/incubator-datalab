@@ -51,8 +51,21 @@ public class LibraryService {
     private ExploratoryLibDAO libraryDAO;
 
     @SuppressWarnings("unchecked")
+    public List<Document> getLibs(String user, String exploratoryName, String computationalName) {
+        if (StringUtils.isEmpty(computationalName)) {
+            return (List<Document>) libraryDAO.findExploratoryLibraries(user, exploratoryName)
+                    .getOrDefault(ExploratoryLibDAO.EXPLORATORY_LIBS, new ArrayList<>());
+        } else {
+            Document document = (Document) libraryDAO.findComputationalLibraries(user, exploratoryName, computationalName)
+                    .getOrDefault(ExploratoryLibDAO.COMPUTATIONAL_LIBS, new Document());
+
+            return (List<Document>) document.getOrDefault(computationalName, new ArrayList<>());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     public List<LibInfoRecord> getLibInfo(String user, String exploratoryName) {
-        Document document = libraryDAO.findLibraries(user, exploratoryName);
+        Document document = libraryDAO.findAllLibraries(user, exploratoryName);
 
         Map<LibKey, List<LibraryStatus>> model = new TreeMap<>(Comparator.comparing(LibKey::getName));
 

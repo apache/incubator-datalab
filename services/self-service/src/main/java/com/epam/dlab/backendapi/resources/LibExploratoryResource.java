@@ -37,6 +37,7 @@ import com.google.inject.name.Named;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.Valid;
@@ -48,6 +49,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Manages libraries for exploratory and computational environment
+ */
 @Path("/infrastructure_provision/exploratory_environment")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -70,8 +74,10 @@ public class LibExploratoryResource {
     /**
      * Returns the list of libraries groups for exploratory.
      *
-     * @param userInfo        user info.
-     * @param exploratoryName name of exploratory image.
+     * @param userInfo          user info.
+     * @param exploratoryName   name of exploratory
+     * @param computationalName name of computational cluster
+     * @return library groups
      */
     @GET
     @Path("/lib_groups")
@@ -102,27 +108,55 @@ public class LibExploratoryResource {
     }
 
     /**
-     * Returns the list of installed libraries or libraries that were tried to be installed for exploratory with its's statuses.
+     * Returns list of installed/failed libraries for dlab resource <code>exploratoryName<code/>
+     * and <code>computationalName<code/> resource
      *
-     * @param userInfo        user info.
-     * @param exploratoryName of exploratory image.
+     * @param userInfo          user info
+     * @param exploratoryName   name of exploratory resource
+     * @param computationalName name of computational cluster
+     * @return list of libraries
      */
     @GET
     @Path("/lib_list")
-    public List<LibInfoRecord> getLibList(@Auth UserInfo userInfo,
-                                          @QueryParam("exploratory_name") @NotBlank String exploratoryName) {
+    public List<Document> getLibList(@Auth UserInfo userInfo,
+                                     @QueryParam("exploratory_name") @NotBlank String exploratoryName,
+                                     @QueryParam("computational_name") String computationalName) {
 
-        log.debug("Loading list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName);
+        log.debug("Loading list of libraries for user {} and exploratory {} and computational {}", userInfo.getName(),
+                exploratoryName, computationalName);
         try {
-            return libraryService.getLibInfo(userInfo.getName(), exploratoryName);
+            return libraryService.getLibs(userInfo.getName(), exploratoryName, computationalName);
+
         } catch (Exception t) {
-            log.error("Cannot load list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName, t);
-            throw new DlabException("Cannot load list of libraries: " + t.getLocalizedMessage(), t);
+            log.error("Cannot load installed libraries for user {} and exploratory {} an", userInfo.getName(), exploratoryName, t);
+            throw new DlabException("Cannot load installed libraries: " + t.getLocalizedMessage(), t);
         }
     }
 
     /**
-     * Install the libraries to the exploratory environment.
+     * Returns formatted representation of installed libraries or libraries that were tried to be installed for exploratory
+     * and computational resources that relate to <code>exploratoryName<code/> exploratory resource with its's statuses.
+     *
+     * @param userInfo        user info.
+     * @param exploratoryName name of exploratory resource.
+     * @return list of installed/failed libraries
+     */
+    @GET
+    @Path("/lib_list/formatted")
+    public List<LibInfoRecord> getLibListFormatted(@Auth UserInfo userInfo,
+                                                   @QueryParam("exploratory_name") @NotBlank String exploratoryName) {
+
+        log.debug("Loading formatted list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName);
+        try {
+            return libraryService.getLibInfo(userInfo.getName(), exploratoryName);
+        } catch (Exception t) {
+            log.error("Cannot load list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName, t);
+            throw new DlabException("Cannot load  formatted list of installed libraries: " + t.getLocalizedMessage(), t);
+        }
+    }
+
+    /**
+     * Install libraries to the exploratory environment.
      *
      * @param userInfo user info.
      * @param formDTO  description of libraries which will be installed to the exploratory environment.
@@ -159,11 +193,12 @@ public class LibExploratoryResource {
      *
      * @param userInfo user info.
      * @param formDTO  search condition for find libraries for the exploratory environment.
+     * @return found libraries
      */
     @POST
     @Path("search/lib_list")
     public Map<String, String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull SearchLibsFormDTO formDTO) {
-        log.trace("Loading list of libs for user {} with condition {}", userInfo.getName(), formDTO);
+        log.trace("Search list of libs for user {} with condition {}", userInfo.getName(), formDTO);
         try {
 
             UserInstanceDTO userInstance;
@@ -183,9 +218,9 @@ public class LibExploratoryResource {
 
             return ExploratoryLibCache.getCache().getLibList(userInfo, userInstance, formDTO.getGroup(), formDTO.getStartWith());
         } catch (Exception t) {
-            log.error("Cannot load list of libs for user {} with condition {}",
+            log.error("Cannot search libs for user {} with condition {}",
                     userInfo.getName(), formDTO, t);
-            throw new DlabException("Cannot load list of libraries: " + t.getLocalizedMessage(), t);
+            throw new DlabException("Cannot search libraries: " + t.getLocalizedMessage(), t);
         }
     }
 }

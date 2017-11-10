@@ -34,7 +34,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
-import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
+import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.exceptions.DlabException;
@@ -96,19 +96,25 @@ public class ExploratoryLibDAO extends BaseDAO {
         return COMPUTATIONAL_LIBS + "." + computational + FIELD_SET_DELIMETER + fieldName;
     }
 
-
-    /** Finds and returns the list of user libraries.
-     * @param user user name.
-     * @param exploratoryName the name of exploratory.
-     */
-    @SuppressWarnings("unchecked")
-    public Document findLibraries(String user, String exploratoryName) {
+    private Document findLibraries(String user, String exploratoryName, Bson include) {
         Optional<Document> opt = findOne(USER_INSTANCES,
                 exploratoryCondition(user, exploratoryName),
-                fields(excludeId(), include(EXPLORATORY_LIBS, COMPUTATIONAL_LIBS)));
+                fields(excludeId(), include));
 
         return opt.orElseGet(Document::new);
 
+    }
+
+    public Document findAllLibraries(String user, String exploratoryName) {
+        return findLibraries(user, exploratoryName, include(EXPLORATORY_LIBS, COMPUTATIONAL_LIBS));
+    }
+
+    public Document findExploratoryLibraries(String user, String exploratoryName) {
+        return findLibraries(user, exploratoryName, include(EXPLORATORY_LIBS));
+    }
+
+    public Document findComputationalLibraries(String user, String exploratoryName, String computationalName) {
+        return findLibraries(user, exploratoryName, include(COMPUTATIONAL_LIBS + "." + computationalName));
     }
 
     /** Finds and returns the status of library.
@@ -238,7 +244,7 @@ public class ExploratoryLibDAO extends BaseDAO {
     /** Updates the info about libraries for exploratory/computational in Mongo database.
      * @param dto object of computational resource status.
      */
-    public void updateLibraryFields(ExploratoryLibInstallStatusDTO dto) {
+    public void updateLibraryFields(LibInstallStatusDTO dto) {
     	if (dto.getLibs() == null) {
     		return;
     	}
@@ -250,7 +256,7 @@ public class ExploratoryLibDAO extends BaseDAO {
         }
     }
 
-    public void updateExploratoryLibraryFields(ExploratoryLibInstallStatusDTO dto) {
+    public void updateExploratoryLibraryFields(LibInstallStatusDTO dto) {
         for (LibInstallDTO lib : dto.getLibs()) {
             try {
                 Document values = updateLibraryFields(lib, dto.getUptime());
@@ -266,7 +272,7 @@ public class ExploratoryLibDAO extends BaseDAO {
         }
     }
 
-    public void updateComputationalLibraryFields(ExploratoryLibInstallStatusDTO dto) {
+    public void updateComputationalLibraryFields(LibInstallStatusDTO dto) {
         for (LibInstallDTO lib : dto.getLibs()) {
             try {
                 Document values = updateComputationalLibraryFields(dto.getComputationalName(), lib, dto.getUptime());

@@ -20,7 +20,7 @@ import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
+import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibListStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -50,7 +50,7 @@ public class LibraryCallback {
      */
     @POST
     @Path("/lib_status")
-    public Response libInstallStatus(ExploratoryLibInstallStatusDTO dto) {
+    public Response libInstallStatus(LibInstallStatusDTO dto) {
         log.debug("Updating status of libraries for exploratory environment {} for user {} to {}",
                 dto.getExploratoryName(), dto.getUser(), dto);
         RequestId.checkAndRemove(dto.getRequestId());

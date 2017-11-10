@@ -19,14 +19,14 @@ package com.epam.dlab.dto.exploratory;
 import com.epam.dlab.dto.StatusBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Stores the info about image libraries.
  */
-@Data
-@EqualsAndHashCode(callSuper = false)
+@Getter
+@Setter
 public class LibListStatusDTO extends StatusBaseDTO<LibListStatusDTO> {
 
     @JsonProperty

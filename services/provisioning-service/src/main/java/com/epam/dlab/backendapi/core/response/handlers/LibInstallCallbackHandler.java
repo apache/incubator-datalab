@@ -19,7 +19,7 @@ package com.epam.dlab.backendapi.core.response.handlers;
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
+import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
@@ -37,7 +37,7 @@ import java.util.List;
  * Handler of docker response for the request for libraries installation.
  */
 @Slf4j
-public class LibInstallCallbackHandler extends ResourceCallbackHandler<ExploratoryLibInstallStatusDTO> {
+public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstallStatusDTO> {
 
     /**
      * Name of node in response "Libs".
@@ -73,7 +73,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
     }
 
     @Override
-    protected ExploratoryLibInstallStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryLibInstallStatusDTO status) throws DlabException {
+    protected LibInstallStatusDTO parseOutResponse(JsonNode resultNode, LibInstallStatusDTO status) throws DlabException {
 
         if (UserInstanceStatus.FAILED == UserInstanceStatus.of(status.getStatus())) {
             for (LibInstallDTO lib : dto.getLibs()) {
@@ -100,7 +100,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
     }
 
     @Override
-    protected ExploratoryLibInstallStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
+    protected LibInstallStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
         return super.getBaseStatusDTO(status)
                 .withExploratoryName(dto.getExploratoryName())
                 .withUptime(Date.from(Instant.now()))
