@@ -20,6 +20,7 @@ import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, 
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
+import { MdDialog, MdDialogRef, MdDialogConfig } from '@angular/material';
 
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
@@ -71,6 +72,7 @@ export class InstallLibrariesComponent implements OnInit {
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
+    public dialog: MdDialog,
     private librariesInstallationService: LibrariesInstallationService,
     private changeDetector : ChangeDetectorRef) {
     this.model = InstallLibrariesModel.getDefault(librariesInstallationService);
@@ -190,6 +192,10 @@ export class InstallLibrariesComponent implements OnInit {
     this.resetDialog();
   }
 
+  public showErrorMessage(item): void {
+    const dialogRef: MdDialogRef<ErrorMessageDialog> = this.dialog.open(ErrorMessageDialog, { data: item.error, width: '550px' });
+  }
+
   public isInstallingInProgress(data): void {
     this.notebookFailedLibs = data
       .filter(el => el.status === 'failed')
@@ -252,4 +258,13 @@ export class InstallLibrariesComponent implements OnInit {
     clearInterval(this.clearCheckInstalling);
     this.clearCheckInstalling = undefined;
   }
+}
+
+@Component({
+  selector: 'error-message-dialog',
+  template: `<div class="content">{{ dialogRef.config.data }}</div>`,
+  styles: [`.content { color: #f1696e; padding: 20px 25px; font-size: 14px; font-weight: 400 }`]
+})
+export class ErrorMessageDialog {
+  constructor(public dialogRef: MdDialogRef<ErrorMessageDialog>) { }
 }
