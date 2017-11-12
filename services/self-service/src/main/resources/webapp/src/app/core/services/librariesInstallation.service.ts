@@ -33,7 +33,7 @@ export class LibrariesInstallationService {
     public getGroupsList(exploratory, computational?): Observable<Response> {
 
         let body = `?exploratory_name=${ exploratory }`;
-        if (computational) body += `&computational_name=' + ${ computational }`;
+        if (computational) body += `&computational_name=${ computational }`;
 
         return this.applicationServiceFacade
             .buildGetGroupsList(body)
