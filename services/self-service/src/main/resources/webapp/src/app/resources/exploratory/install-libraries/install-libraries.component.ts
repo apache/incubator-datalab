@@ -175,10 +175,7 @@ export class InstallLibrariesComponent implements OnInit {
       () => {
         this.bindDialog.open(param);
 
-        this.getInstalledLibrariesList();
-        if (!this.notebook.libs || !this.notebook.libs.length)
-          this.tabGroup.selectedIndex = 1;
-
+        this.getInstalledLibrariesList(true);
         this.uploadLibraries();
       },
       this.librariesInstallationService);
@@ -211,12 +208,14 @@ export class InstallLibrariesComponent implements OnInit {
     }
   }
 
-  private getInstalledLibrariesList() {
+  private getInstalledLibrariesList(init?: boolean) {
     this.model.getInstalledLibrariesList(this.notebook)
       .subscribe((data: any) => {
         this.notebookLibs = data ? data : [];
         this.changeDetector.markForCheck();
         this.isInstallingInProgress(this.notebookLibs);
+
+        if (init && !this.notebookLibs.length) this.tabGroup.selectedIndex = 1;
       });
   }
 
