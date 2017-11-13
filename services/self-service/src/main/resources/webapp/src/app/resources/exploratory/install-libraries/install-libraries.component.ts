@@ -127,6 +127,7 @@ export class InstallLibrariesComponent implements OnInit {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
     } else if ($event.model.type === 'destination') {
+      this.resetDialog(true);
 
       this.destination = $event.model.value;
       if (this.destination && this.destination.type === 'СOMPUTATIONAL') this.model.computational_name = this.destination.name;
@@ -252,7 +253,7 @@ export class InstallLibrariesComponent implements OnInit {
       });
   }
 
-  private resetDialog(): void {
+  private resetDialog(nActive?): void {
     this.group = '';
     this.query = '';
 
@@ -264,7 +265,10 @@ export class InstallLibrariesComponent implements OnInit {
     this.errorMessage = '';
     this.model.selectedLibs = [];
     this.filteredList = null ;
-    this.tabGroup.selectedIndex = 0;
+    this.destination = null;
+    this.groupsList = [];
+
+    if (!nActive) this.tabGroup.selectedIndex = 0;
     clearTimeout(this.clear);
     clearInterval(this.clearCheckInstalling);
     this.clearCheckInstalling = undefined;
