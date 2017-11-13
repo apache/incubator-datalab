@@ -964,9 +964,9 @@ def ensure_local_jars(os_user, jars_dir):
                     -O {}azure-storage-2.2.0.jar'.format(jars_dir))
             else:
                 sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-data-lake-store-sdk/2.2.3/azure-data-lake-store-sdk-2.2.3.jar \
-                    -O azure-data-lake-store-sdk-2.2.3.jar')
+                    -O {}azure-data-lake-store-sdk-2.2.3.jar'.format(jars_dir))
                 sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/3.0.0-beta1/hadoop-azure-datalake-3.0.0-beta1.jar \
-                    -O hadoop-azure-datalake-3.0.0-beta1.jar')
+                    -O {}hadoop-azure-datalake-3.0.0-beta1.jar'.format(jars_dir))
             if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
                 sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
                      -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
