@@ -146,7 +146,7 @@ private DeployClusterDto createClusterDto() throws Exception {
     DeployClusterDto clusterDto = null;
     if ("dataengine".equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
-					Paths.get(PropertiesResolver.getClusterConfFileLocation(), "SparkStandalone.json").toString(),
+					Paths.get(PropertiesResolver.getClusterConfFileLocation(), "spark_cluster.json").toString(),
 					DeploySparkDto.class);
     } else if ("dataengine-service".equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
@@ -178,7 +178,7 @@ private DeployClusterDto createClusterDto() throws Exception {
 
     gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "configuring", ConfigPropertyValue.getTimeoutEMRCreate());
     if (!gettingStatus.contains("running"))
-        throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been configured. SparkStamdalone status is " + gettingStatus);
+        throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been configured. Spark cluster status is " + gettingStatus);
     LOGGER.info(" {}: {} cluster {} has been configured", notebookName, dataEngineType , clusterName);
 
     if(!ConfigPropertyValue.isRunModeLocal()) {
