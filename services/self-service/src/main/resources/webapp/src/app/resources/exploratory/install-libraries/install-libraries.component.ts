@@ -182,9 +182,7 @@ export class InstallLibrariesComponent implements OnInit {
 
         this.getInstalledLibrariesList(true);
         this.changeDetector.detectChanges();
-
-        this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'name', 'array');
-        this.group_select && this.group_select.setDefaultOptions([], '', 'group_lib', null, 'array');
+        this.selectorsReset();
       },
       this.librariesInstallationService);
   }
@@ -261,6 +259,11 @@ export class InstallLibrariesComponent implements OnInit {
       });
   }
 
+  private selectorsReset():void {
+    this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'name', 'array');
+    this.group_select && this.group_select.setDefaultOptions([], '', 'group_lib', null, 'array');
+  }
+
   private resetDialog(nActive?): void {
     this.group = '';
     this.query = '';
@@ -280,6 +283,7 @@ export class InstallLibrariesComponent implements OnInit {
     clearTimeout(this.clear);
     clearInterval(this.clearCheckInstalling);
     this.clearCheckInstalling = undefined;
+    this.selectorsReset();
   }
 }
 
