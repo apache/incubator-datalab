@@ -1222,10 +1222,12 @@ mongoimport -u admin -p <password> -d <database_name> -c settings mongo_settings
 
 ### Setting up environment options
 
-  * Set option DEV\_MODE to **true**, mongo database name and password in configuration file dlab/infrastructure-provisioning/src/ssn/templates/ssn.yml
+  * Set option CLOUD_TYPE to aws/azure, DEV\_MODE to **true**, mongo database name and password in configuration file dlab/infrastructure-provisioning/src/ssn/templates/ssn.yml
 
 ```
-#DEV_MODE="true"
+<#assign CLOUD_TYPE="aws">
+...
+<#assign DEV_MODE="true">
 ...
 mongo:
   database: <database_name>
@@ -1261,7 +1263,7 @@ mklink ssn.yml ..\\..\\infrastructure-provisioning\\src\\ssn\\templates\\ssn.yml
   * Install latest packages
 
 ```
-npm install npm@latest –g
+npm install npm@latest -g
 ```
 
 ### Build Web UI components
@@ -1332,7 +1334,7 @@ Run application flow is following:
 
   * Run provisioning-service passing 2 arguments: server, self-service.yml
   * Run self-service passing 2 arguments: server, provisioning.yml
-  * Try to access self-service Web UI by http://localhost:8080
+  * Try to access self-service Web UI by https://localhost:8443
 
 ```
 User: test
