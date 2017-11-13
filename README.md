@@ -1220,7 +1220,7 @@ db.createUser(
 mongoimport -u admin -p <password> -d <database_name> -c settings mongo_settings.json
 ```
 
-  * Load collections form file /dlab/infrastructure-provisioning/src/ssn/files/mongo_roles.json
+  * Load collections form file dlab/infrastructure-provisioning/src/ssn/files/mongo_roles.json
 
 ```
 mongoimport -u admin -p <password> -d <database_name> --jsonArray -c roles mongo_roles.json
