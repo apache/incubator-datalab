@@ -82,7 +82,7 @@ limitations under the License.
         </div>
       </md-tab>
       <md-tab label="LIBRARIES INSTALLATION">
-        <div class="info message" *ngIf="!libs_uploaded && uploading && notebook?.status === 'running'">
+        <div class="info message m-top-10p" *ngIf="!libs_uploaded && uploading && notebook?.status === 'running'">
           <p>Please wait until DLab loads full list of available libraries for you...</p>
           <div class="uploading">
             <img src="assets/img/gif-spinner.gif" alt="loading">
@@ -91,21 +91,6 @@ limitations under the License.
         <p class="info message" *ngIf="notebook?.status !== 'running'">Cannot install libraries: Exploratory {{ notebook?.name }} is not running</p>
         <div *ngIf="notebook?.status === 'running'" class="tab-content">
           <div class="search-box col" *ngIf="!uploading">
-
-            <!-- *ngIf="libs_uploaded && !uploading" -->
-
-            <!-- <md-select [(ngModel)]="group" (change)="filterList()" placeholder="Select group">
-              <md-option *ngFor="let group of groupsList" [value]="group">
-                {{ groupsListMap[group] }}
-              </md-option>
-            </md-select>
-            <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
-            <md-input-container>
-              <input mdInput
-                    [formControl]="libSearch" [value]="query"
-                    placeholder="Enter library name">
-            </md-input-container> -->
-
             <div class="search-form">
               <div class="control-group">
                 <label class="label">Select resource</label>
