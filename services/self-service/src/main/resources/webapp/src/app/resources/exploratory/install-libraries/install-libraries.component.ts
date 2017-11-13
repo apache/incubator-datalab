@@ -92,7 +92,7 @@ export class InstallLibrariesComponent implements OnInit {
     };
   }
 
-  uploadLibraries(): void {
+  uploadLibGroups(): void {
      this.librariesInstallationService.getGroupsList(this.notebook.name, this.model.computational_name)
       .subscribe(
         response => {
@@ -100,7 +100,7 @@ export class InstallLibrariesComponent implements OnInit {
           this.changeDetector.detectChanges();
 
           this.group_select && this.group_select.setDefaultOptions(this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
-          this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'name', 'array');
+          this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), this.destination.name, 'destination', 'name', 'array');
         },
         error => {
           this.processError = true;
@@ -127,8 +127,11 @@ export class InstallLibrariesComponent implements OnInit {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
     } else if ($event.model.type === 'destination') {
+
       this.destination = $event.model.value;
-      this.model.computational_name = this.destination.name
+      if (this.destination && this.destination.type === 'СOMPUTATIONAL') this.model.computational_name = this.destination.name;
+
+      this.uploadLibGroups();
     }
 
     if (this.destination && this.destination.type === 'EXPLORATORY') this.model.computational_name = null;
@@ -176,7 +179,9 @@ export class InstallLibrariesComponent implements OnInit {
         this.bindDialog.open(param);
 
         this.getInstalledLibrariesList(true);
-        this.uploadLibraries();
+        this.changeDetector.detectChanges();
+
+        this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'name', 'array');
       },
       this.librariesInstallationService);
   }
@@ -227,7 +232,7 @@ export class InstallLibrariesComponent implements OnInit {
     } else {
       this.libs_uploaded = false;
       this.uploading = true;
-      this.clear = window.setTimeout(() => this.uploadLibraries(), this.CHECK_GROUPS_TIMEOUT);
+      this.clear = window.setTimeout(() => this.uploadLibGroups(), this.CHECK_GROUPS_TIMEOUT);
     }
   }
 

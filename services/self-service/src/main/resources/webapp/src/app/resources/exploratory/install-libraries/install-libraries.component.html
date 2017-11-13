@@ -90,7 +90,10 @@ limitations under the License.
         </div>
         <p class="info message" *ngIf="notebook?.status !== 'running'">Cannot install libraries: Exploratory {{ notebook?.name }} is not running</p>
         <div *ngIf="notebook?.status === 'running'" class="tab-content">
-          <div class="search-box col" *ngIf="libs_uploaded && !uploading">
+          <div class="search-box col" *ngIf="!uploading">
+
+            <!-- *ngIf="libs_uploaded && !uploading" -->
+
             <!-- <md-select [(ngModel)]="group" (change)="filterList()" placeholder="Select group">
               <md-option *ngFor="let group of groupsList" [value]="group">
                 {{ groupsListMap[group] }}
