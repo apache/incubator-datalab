@@ -129,7 +129,7 @@ public class TestCallable implements Callable<Boolean> {
        	String notebookNewName = "AMI" + notebookName;
        	createNotebook(notebookNewName);
 
-       	terminateNotebook(notebookName);
+       	terminateNotebook(notebookNewName);
 
        	LOGGER.info("{} All tests finished successfully", notebookName);
         return true;
