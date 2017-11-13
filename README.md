@@ -1220,6 +1220,12 @@ db.createUser(
 mongoimport -u admin -p <password> -d <database_name> -c settings mongo_settings.json
 ```
 
+  * Load collections form file dlab/services/settings/(aws|azure)/mongo_settings.json
+
+```
+mongoimport -u admin -p <password> -d <database_name> --jsonArray -c roles mongo_roles.json
+```
+
 ### Setting up environment options
 
   * Set option DEV\_MODE to **true**, mongo database name and password in configuration file dlab/infrastructure-provisioning/src/ssn/templates/ssn.yml
