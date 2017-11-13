@@ -81,7 +81,6 @@ export class InstallLibrariesComponent implements OnInit {
   ngOnInit() {
     this.libSearch.valueChanges
       .debounceTime(1000)
-      .distinctUntilChanged()
       .subscribe(newValue => {
         this.query = newValue;
         this.filterList();
@@ -272,6 +271,7 @@ export class InstallLibrariesComponent implements OnInit {
     this.isFilteringProc = false;
     this.isInstalled = false;
     this.isInSelectedList = false;
+    this.uploading = false;
 
     this.errorMessage = '';
     this.model.selectedLibs = [];
