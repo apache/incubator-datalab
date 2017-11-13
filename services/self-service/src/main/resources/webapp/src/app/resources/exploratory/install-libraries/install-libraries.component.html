@@ -52,7 +52,7 @@ limitations under the License.
                       <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || '' }}">{{item.status}}
                         <div class="warn-action" *ngIf="item.status === 'failed' && notebook?.status === 'running'">
                           <div>
-                            <span *ngIf="!installingInProgress" mdTooltip="Retry installation" mdTooltipPosition="above" (click)="model.confirmAction([{group: lib.group, name: lib.name, version: lib.version}])">
+                            <span *ngIf="!installingInProgress" mdTooltip="Retry installation" mdTooltipPosition="above" (click)="reinstallLibrary(item, lib)">
                               <i class="material-icons">replay</i>
                             </span>
                             <span class="not-allowed" *ngIf="installingInProgress" mdTooltip="You can't reinstall library until previous process will be completed"
@@ -60,11 +60,8 @@ limitations under the License.
                               <i class="material-icons">replay</i>
                             </span>
                           </div>
-                          <div #libError *ngIf="item.status === 'failed' && item.error" class="lib-error" (click)="errorBubble.toggle($event, libError)">
+                          <div *ngIf="item.status === 'failed' && item.error" class="lib-error" (click)="showErrorMessage(item)">
                             <i class="material-icons">error_outline</i>
-                            <bubble-up #errorBubble id="scrolling" [style.width.px]="300" position="bottom-left">
-                              {{ item.error }}
-                            </bubble-up>
                           </div>
                         </div>
                       </div>
@@ -76,16 +73,16 @@ limitations under the License.
             <div *ngIf="!notebookLibs?.length" class="scrollingList info">
               <p>You have no libraries installed</p>
             </div>
-            <div *ngIf="notebookFailedLibs.length > 1 && notebook?.status === 'running'" class="reinstall-all">
+            <!-- <div *ngIf="notebookFailedLibs.length > 1 && notebook?.status === 'running'" class="reinstall-all">
               <button md-raised-button type="button" class="butt" (click)="model.confirmAction(notebookFailedLibs)" [disabled]="installingInProgress">
                 <i class="material-icons">replay</i>Reinstall all
               </button>
-            </div>
+            </div> -->
           </md-list>
         </div>
       </md-tab>
       <md-tab label="LIBRARIES INSTALLATION">
-        <div class="info message" *ngIf="!libs_uploaded && uploading && notebook?.status === 'running'">
+        <div class="info message m-top-10p" *ngIf="!libs_uploaded && uploading && notebook?.status === 'running'">
           <p>Please wait until DLab loads full list of available libraries for you...</p>
           <div class="uploading">
             <img src="assets/img/gif-spinner.gif" alt="loading">
@@ -93,19 +90,7 @@ limitations under the License.
         </div>
         <p class="info message" *ngIf="notebook?.status !== 'running'">Cannot install libraries: Exploratory {{ notebook?.name }} is not running</p>
         <div *ngIf="notebook?.status === 'running'" class="tab-content">
-          <div class="search-box col" *ngIf="libs_uploaded && !uploading">
-            <!-- <md-select [(ngModel)]="group" (change)="filterList()" placeholder="Select group">
-              <md-option *ngFor="let group of groupsList" [value]="group">
-                {{ groupsListMap[group] }}
-              </md-option>
-            </md-select>
-            <dropdown-list #groupSelect (selectedItem)="onUpdate($event)"></dropdown-list>
-            <md-input-container>
-              <input mdInput
-                    [formControl]="libSearch" [value]="query"
-                    placeholder="Enter library name">
-            </md-input-container> -->
-
+          <div class="search-box col" *ngIf="!uploading">
             <div class="search-form">
               <div class="control-group">
                 <label class="label">Select resource</label>
@@ -121,7 +106,7 @@ limitations under the License.
               </div>
               <div class="control-group">
                 <label class="label">Search</label>
-                <input class="form-control control" [formControl]="libSearch" [value]="query" placeholder="Enter library name">
+                <input class="form-control control" [formControl]="libSearch" [value]="query" placeholder="Enter library name" [attr.disabled]="!destination ? true : null">
               </div>
             </div>
 

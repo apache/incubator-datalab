@@ -67,9 +67,10 @@ export class InstallLibrariesModel {
         return this.librariesInstallationService.getInstalledLibrariesList(notebook.name)
     }
 
-    private installLibraries(retry?: Library): Observable<Response> {
+    private installLibraries(retry?: Library, item?): Observable<Response> {
         let lib_list: any = { exploratory_name: this.notebook.name, libs: (retry ? retry : this.selectedLibs) };
         if (this.computational_name) lib_list.computational_name = this.computational_name;
+        if (item) lib_list.computational_name = item;
 
         return this.librariesInstallationService
             .installLibraries(lib_list);
@@ -80,7 +81,7 @@ export class InstallLibrariesModel {
     }
 
     private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
-        this.confirmAction = (retry?: Library) => this.installLibraries(retry)
+        this.confirmAction = (retry?: Library, item?) => this.installLibraries(retry, item)
             .subscribe(
             (response: Response) => fnProcessResults(response),
             (response: Response) => fnProcessErrors(response));

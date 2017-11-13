@@ -33,7 +33,7 @@ export class LibrariesInstallationService {
     public getGroupsList(exploratory, computational?): Observable<Response> {
 
         let body = `?exploratory_name=${ exploratory }`;
-        if (computational) body += `&computational_name=' + ${ computational }`;
+        if (computational) body += `&computational_name=${ computational }`;
 
         return this.applicationServiceFacade
             .buildGetGroupsList(body)
@@ -68,6 +68,18 @@ export class LibrariesInstallationService {
 
         return this.applicationServiceFacade
             .buildGetInstalledLibrariesList(body)
+            .map((response: Response) => response.json())
+            .catch((error: any) => {
+                return Observable.throw(new Error(`${ error.status } ${ error.statusText }. ${ error._body }`));
+            });
+    }
+
+    public getInstalledLibsByResource(exploratory, computational?): Observable<Response> {
+        let body = `?exploratory_name=${ exploratory }`;
+        if (computational) body += `&computational_name=${ computational }`;
+
+        return this.applicationServiceFacade
+            .buildGetInstalledLibsByResource(body)
             .map((response: Response) => response.json())
             .catch((error: any) => {
                 return Observable.throw(new Error(`${ error.status } ${ error.statusText }. ${ error._body }`));

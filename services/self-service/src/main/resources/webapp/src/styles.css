@@ -338,6 +338,7 @@ input[type=number] {
 .m-top-20 { margin-top: 20px; }
 .m-top-30 { margin-top: 30px; }
 .m-bott-10 { margin-bottom: 10px; }
+.m-top-10p { margin-top: 10%; }
 
 .full-height {
   height: 100%;
