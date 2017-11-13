@@ -44,7 +44,8 @@ export class ApplicationServiceFacade {
   private static readonly LIB_GROUPS = 'lib_groups';
   private static readonly LIB_LIST = 'lib_list';
   private static readonly LIB_INSTALL = 'lib_install';
-  private static readonly INSTALLED_LIBS_FORMAT = 'installed_libs';
+  private static readonly INSTALLED_LIBS_FORMAT = 'installed_libs_format';
+  private static readonly INSTALLED_LIBS = 'installed_libs';
   private static readonly GIT_CREDS = 'git_creds';
   private static readonly BILLING = 'billing';
   private static readonly DOWNLOAD_REPORT = 'download_report';
@@ -230,6 +231,13 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetInstalledLibsByResource(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.INSTALLED_LIBS),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
   public buildGetGitCreds(): Observable<Response> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.GIT_CREDS),
@@ -301,6 +309,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_LIST, '/api/infrastructure_provision/exploratory_environment/search/lib_list');
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_INSTALL, '/api/infrastructure_provision/exploratory_environment/lib_install');
     this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS_FORMAT, '/api/infrastructure_provision/exploratory_environment/lib_list/formatted');
+    this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS, '/api/infrastructure_provision/exploratory_environment/lib_list');
 
     // UnGit credentials
     this.requestRegistry.Add(ApplicationServiceFacade.GIT_CREDS, '/api/user/git_creds');
