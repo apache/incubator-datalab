@@ -1222,10 +1222,12 @@ mongoimport -u admin -p <password> -d <database_name> -c settings mongo_settings
 
 ### Setting up environment options
 
-  * Set option DEV\_MODE to **true**, mongo database name and password in configuration file dlab/infrastructure-provisioning/src/ssn/templates/ssn.yml
+  * Set option CLOUD_TYPE to aws/azure, DEV\_MODE to **true**, mongo database name and password in configuration file dlab/infrastructure-provisioning/src/ssn/templates/ssn.yml
 
 ```
-#DEV_MODE="true"
+<#assign CLOUD_TYPE="aws">
+...
+<#assign DEV_MODE="true">
 ...
 mongo:
   database: <database_name>
