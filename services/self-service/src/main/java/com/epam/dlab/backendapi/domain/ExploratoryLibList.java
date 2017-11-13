@@ -33,19 +33,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.MoreObjects;
 
 import io.dropwizard.util.Duration;
+import lombok.extern.slf4j.Slf4j;
 
 /** Class to store the info about libraries.
  */
+@Slf4j
 public class ExploratoryLibList {
 	
 	/**	Timeout in milliseconds when the info is out of date. */
-	private static final long EXPIRED_TIMEOUT_MILLIS = Duration.hours(1).toMilliseconds();
+	private static final long EXPIRED_TIMEOUT_MILLIS = Duration.hours(2).toMilliseconds();
 
 	/**	Timeout in milliseconds until the is out of date. */
-	private static final long UPDATE_TIMEOUT_MILLIS = Duration.minutes(10).toMilliseconds();
+	private static final long UPDATE_TIMEOUT_MILLIS = Duration.minutes(30).toMilliseconds();
 	
 	/**	Timeout in milliseconds for request to update lib. */
-	protected static final long UPDATE_REQUEST_TIMEOUT_MILLIS = Duration.minutes(5).toMilliseconds();
+	protected static final long UPDATE_REQUEST_TIMEOUT_MILLIS = Duration.minutes(15).toMilliseconds();
 	
 	/** Image name. */
 	private String imageName;
@@ -113,6 +115,8 @@ public class ExploratoryLibList {
 				Map<String, Map<String, String>> map = mapper.readValue(content, Map.class);
 				for (String groupName : map.keySet()) {
 					Map<String, String> group = map.get(groupName);
+					log.debug("Update {} image with lib group {} with {} libraries", imageName, groupName,
+							(group != null) ? group.size() : null);
 					libs.put(groupName, new TreeMap<>(group));
 				}
 				expiredTimeMillis = System.currentTimeMillis() + EXPIRED_TIMEOUT_MILLIS;
