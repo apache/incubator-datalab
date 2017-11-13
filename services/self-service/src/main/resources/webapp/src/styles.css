@@ -75,6 +75,11 @@ limitations under the License.
     background-color: rgba(53, 175, 213, 0.11);
 }
 
+.install-libraries .mat-tab-header-pagination.mat-tab-header-pagination-after,
+.install-libraries .mat-tab-header-pagination.mat-tab-header-pagination-before {
+  display: none !important;
+}
+
 .install-libraries md-chip.mat-chip {
     outline: none;
     color: #758ea8;

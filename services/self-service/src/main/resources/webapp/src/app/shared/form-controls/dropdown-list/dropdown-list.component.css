@@ -72,14 +72,18 @@ limitations under the License.
   padding: 10px 15px;
   cursor: default;
 }
-.dropdown-list .dropdown-menu li i {
+.dropdown-list .dropdown-menu li i,
+.dropdown-list .dropdown-menu li strong {
   display: inline-block;
   width: 30px;
   text-align: center;
-  vertical-align: sub;
+  vertical-align: middle;
   color: #35afd5;
-  font-size: 18px;
   line-height: 26px;
+}
+.dropdown-list .dropdown-menu li i {
+  vertical-align: sub;
+  font-size: 18px;
 }
 
 .dropdown-list .dropdown-menu a {
