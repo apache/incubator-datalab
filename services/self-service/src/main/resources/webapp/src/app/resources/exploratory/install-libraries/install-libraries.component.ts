@@ -132,6 +132,7 @@ export class InstallLibrariesComponent implements OnInit {
       if (this.destination && this.destination.type === 'СOMPUTATIONAL') this.model.computational_name = this.destination.name;
 
       this.uploadLibGroups();
+      this.getInstalledLibsByResource();
     }
 
     if (this.destination && this.destination.type === 'EXPLORATORY') this.model.computational_name = null;
@@ -143,8 +144,8 @@ export class InstallLibrariesComponent implements OnInit {
 
     this.isInSelectedList = this.model.selectedLibs.filter(el => JSON.stringify(el) === JSON.stringify(select)).length > 0;
 
-    if (this.notebook.libs && this.notebook.libs.length)
-      this.isInstalled = this.notebook.libs.findIndex(libr =>
+    if (this.destination && this.destination.libs)
+      this.isInstalled = this.destination.libs.findIndex(libr =>
         select.name === libr.name && select.group === libr.group && select.version === libr.version
       ) >= 0;
 
@@ -223,6 +224,11 @@ export class InstallLibrariesComponent implements OnInit {
 
         if (init && !this.notebookLibs.length) this.tabGroup.selectedIndex = 1;
       });
+  }
+
+  private getInstalledLibsByResource() {
+    this.librariesInstallationService.getInstalledLibsByResource(this.notebook.name, this.model.computational_name)
+      .subscribe((data: any) => this.destination.libs = data);
   }
 
   private libsUploadingStatus(groupsList): void {
