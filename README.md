@@ -1261,7 +1261,7 @@ mklink ssn.yml ..\\..\\infrastructure-provisioning\\src\\ssn\\templates\\ssn.yml
   * Install latest packages
 
 ```
-npm install npm@latest –g
+npm install npm@latest -g
 ```
 
 ### Build Web UI components
@@ -1332,7 +1332,7 @@ Run application flow is following:
 
   * Run provisioning-service passing 2 arguments: server, self-service.yml
   * Run self-service passing 2 arguments: server, provisioning.yml
-  * Try to access self-service Web UI by http://localhost:8080
+  * Try to access self-service Web UI by https://localhost:8443
 
 ```
 User: test
