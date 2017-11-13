@@ -202,10 +202,8 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public isInstallingInProgress(data): void {
-    this.notebookFailedLibs = data
-      .filter(el => el.status === 'failed')
-      .map(el => { return {group: el.group, name: el.name, version: el.version}});
-    this.installingInProgress = data.findIndex(libr => libr.status === 'installing') >= 0;
+    this.notebookFailedLibs = data.filter(lib => lib.status.some(inner => inner.status === 'failed'));
+    this.installingInProgress = data.filter(lib => lib.status.some(inner => inner.status === 'installing')).length > 0;
 
     if (this.installingInProgress || this.notebookFailedLibs.length) {
       if (this.clearCheckInstalling === undefined)

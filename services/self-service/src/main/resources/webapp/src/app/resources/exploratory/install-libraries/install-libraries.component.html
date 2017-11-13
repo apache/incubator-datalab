@@ -73,11 +73,11 @@ limitations under the License.
             <div *ngIf="!notebookLibs?.length" class="scrollingList info">
               <p>You have no libraries installed</p>
             </div>
-            <div *ngIf="notebookFailedLibs.length > 1 && notebook?.status === 'running'" class="reinstall-all">
+            <!-- <div *ngIf="notebookFailedLibs.length > 1 && notebook?.status === 'running'" class="reinstall-all">
               <button md-raised-button type="button" class="butt" (click)="model.confirmAction(notebookFailedLibs)" [disabled]="installingInProgress">
                 <i class="material-icons">replay</i>Reinstall all
               </button>
-            </div>
+            </div> -->
           </md-list>
         </div>
       </md-tab>
