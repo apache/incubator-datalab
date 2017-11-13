@@ -214,6 +214,16 @@ export class InstallLibrariesComponent implements OnInit {
     }
   }
 
+  public reinstallLibrary(item, lib) {
+    const retry = [{group: lib.group, name: lib.name, version: lib.version}];
+
+    if (this.getResourcesList().find(el => el.name == item.resource).type === 'СOMPUTATIONAL') {
+      this.model.confirmAction(retry, item.resource);
+    } else {
+      this.model.confirmAction(retry);
+    }
+  }
+
   private getInstalledLibrariesList(init?: boolean) {
     this.model.getInstalledLibrariesList(this.notebook)
       .subscribe((data: any) => {

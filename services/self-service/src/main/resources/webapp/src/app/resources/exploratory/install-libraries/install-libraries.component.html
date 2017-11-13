@@ -52,7 +52,7 @@ limitations under the License.
                       <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || '' }}">{{item.status}}
                         <div class="warn-action" *ngIf="item.status === 'failed' && notebook?.status === 'running'">
                           <div>
-                            <span *ngIf="!installingInProgress" mdTooltip="Retry installation" mdTooltipPosition="above" (click)="model.confirmAction([{group: lib.group, name: lib.name, version: lib.version}])">
+                            <span *ngIf="!installingInProgress" mdTooltip="Retry installation" mdTooltipPosition="above" (click)="reinstallLibrary(item, lib)">
                               <i class="material-icons">replay</i>
                             </span>
                             <span class="not-allowed" *ngIf="installingInProgress" mdTooltip="You can't reinstall library until previous process will be completed"
