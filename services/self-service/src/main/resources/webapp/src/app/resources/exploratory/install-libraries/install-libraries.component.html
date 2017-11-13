@@ -121,7 +121,7 @@ limitations under the License.
               </div>
               <div class="control-group">
                 <label class="label">Search</label>
-                <input class="form-control control" [formControl]="libSearch" [value]="query" placeholder="Enter library name">
+                <input class="form-control control" [formControl]="libSearch" [value]="query" placeholder="Enter library name" [attr.disabled]="!destination ? true : null">
               </div>
             </div>
 

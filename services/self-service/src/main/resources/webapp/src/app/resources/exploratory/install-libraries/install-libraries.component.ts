@@ -99,8 +99,8 @@ export class InstallLibrariesComponent implements OnInit {
           this.libsUploadingStatus(response);
           this.changeDetector.detectChanges();
 
-          this.group_select && this.group_select.setDefaultOptions(this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
           this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), this.destination.name, 'destination', 'name', 'array');
+          this.group_select && this.group_select.setDefaultOptions(this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
         },
         error => {
           this.processError = true;
@@ -182,6 +182,7 @@ export class InstallLibrariesComponent implements OnInit {
         this.changeDetector.detectChanges();
 
         this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'name', 'array');
+        this.group_select && this.group_select.setDefaultOptions([], '', 'group_lib', null, 'array');
       },
       this.librariesInstallationService);
   }
