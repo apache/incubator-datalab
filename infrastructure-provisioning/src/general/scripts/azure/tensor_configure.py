@@ -209,7 +209,7 @@ if __name__ == "__main__":
                                                                    notebook_config['instance_name'])
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
                                os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
-            set_git_proxy(True, notebook_config['dlab_ssh_user'], instance_hostname,
+            set_git_proxy(notebook_config['dlab_ssh_user'], instance_hostname,
                           os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
             additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
             params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
