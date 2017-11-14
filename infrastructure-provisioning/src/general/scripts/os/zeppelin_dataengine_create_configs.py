@@ -49,7 +49,8 @@ spark_dir = '/opt/' + args.cluster_name + '/spark/'
 local_jars_dir = '/opt/jars/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
+spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
+             "-bin-hadoop" + hadoop_version + ".tgz"
 
 
 def configure_zeppelin_dataengine_interpreter(cluster_name, spark_dir, os_user, multiple_clusters, spark_master):
