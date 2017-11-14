@@ -22,7 +22,7 @@ FROM docker.dlab-base:latest
 ARG OS
 
 COPY edge/ /root/
-COPY general/scripts/aws/edge_* /root/scripts/
+COPY general/scripts/gcp/edge_* /root/scripts/
 COPY general/lib/os/${OS}/edge_lib.py /usr/lib/python2.7/dlab/edge_lib.py
 COPY general/templates/gcp/edge_s3_policy.json /root/templates/edge_s3_policy.json
 

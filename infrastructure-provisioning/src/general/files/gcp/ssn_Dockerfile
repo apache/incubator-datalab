@@ -21,7 +21,7 @@ FROM docker.dlab-base:latest
 ARG OS
 
 COPY ssn/ /root/
-COPY general/scripts/aws/ssn_* /root/scripts/
+COPY general/scripts/gcp/ssn_* /root/scripts/
 COPY general/lib/os/${OS}/ssn_lib.py /usr/lib/python2.7/dlab/ssn_lib.py
 COPY general/files/gcp/ssn_policy.json /root/files/
 COPY general/templates/gcp/jenkins_jobs /root/templates/jenkins_jobs

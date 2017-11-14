@@ -1,4 +1,4 @@
 {
-  "template_name": "DLab AWS Base",
-  "description": "Base image with aws tools"
+  "template_name": "DLab GCP Base",
+  "description": "Base image with gcp tools"
 }
