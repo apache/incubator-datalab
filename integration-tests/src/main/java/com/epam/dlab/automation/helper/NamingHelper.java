@@ -143,4 +143,18 @@ public class NamingHelper {
 		}
         throw new Exception("Could not detect cluster name for cluster instance " + clusterInstanceName);
     }
+
+    public static String getClusterName(String clusterInstanceName, String dataEngineType) throws Exception {
+        if ("dataengine".equals(dataEngineType)) {
+            return clusterInstanceName;
+        } else {
+            Instance instance = AmazonHelper.getInstance(clusterInstanceName);
+            for (Tag tag : instance.getTags()) {
+                if (tag.getKey().equals("Name")) {
+                    return tag.getValue();
+                }
+            }
+            throw new Exception("Could not detect cluster name for cluster instance " + clusterInstanceName);
+        }
+    }
 }
