@@ -92,10 +92,19 @@ public class NamingHelper {
     
     public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
     	if("dataengine".equals(dataEngineType)) {
-    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), dataEngineType, notebookName, clusterName, "master");
+    		return String.join("-", getClusterInstanceNameForTestEmr(notebookName,clusterName,dataEngineType), "m");
     	}
     	else {
-    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), dataEngineType, notebookName, clusterName);
+    		return getClusterInstanceNameForTestEmr(notebookName,clusterName,dataEngineType);
+    	}
+    }
+    
+    public static String getClusterInstanceNameForTestEmr(String notebookName, String clusterName, String dataEngineType) {
+    	if("dataengine".equals(dataEngineType)) {
+    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
+    	}
+    	else {
+    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "emr", notebookName, clusterName);
     	}
     }
 
@@ -114,8 +123,7 @@ public class NamingHelper {
     }
 
     public static String generateRandomValue(String notebokTemplateName) {
-        SimpleDateFormat df = new SimpleDateFormat("YYYYMMddhmmss");
-        return String.join("_",  "ITest", notebokTemplateName, df.format(new Date()), String.valueOf(idCounter.incrementAndGet()));
+        return String.join("_", notebokTemplateName, String.valueOf(idCounter.incrementAndGet()));
     }
     
     public static String getSelfServiceURL(String path) {
