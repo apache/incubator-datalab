@@ -48,6 +48,7 @@ parser.add_argument('--workspace_path', type=str, default='', help='Admin key na
 parser.add_argument('--conf_tag_resource_id', type=str, default='dlab', help='The name of user tag')
 parser.add_argument('--aws_ssn_instance_size', type=str, default='t2.medium', help='The SSN instance shape')
 parser.add_argument('--azure_ssn_instance_size', type=str, default='Standard_DS2_v2', help='The SSN instance shape')
+parser.add_argument('--gcp_ssn_instance_size', type=str, default='n1-standard-1', help='The SSN instance shape')
 parser.add_argument('--aws_account_id', type=str, default='', help='The ID of Amazon account')
 parser.add_argument('--aws_billing_bucket', type=str, default='', help='The name of S3 bucket where billing reports will be placed.')
 parser.add_argument('--aws_report_path', type=str, default='', help='The path to billing reports directory in S3 bucket')
