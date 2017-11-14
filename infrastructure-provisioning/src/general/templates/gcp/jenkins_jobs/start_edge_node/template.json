@@ -1,0 +1,9 @@
+{
+    "conf_resource": "edge",
+    "request_id":"RID",
+    "conf_service_base_name":"SBN",
+    "edge_user_name":"NUN",
+    "gcp_project_id":"GPI",
+    "gcp_region":"REG",
+    "gcp_zone":"ZONE"
+}
