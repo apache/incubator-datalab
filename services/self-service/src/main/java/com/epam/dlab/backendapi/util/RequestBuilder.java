@@ -318,8 +318,7 @@ public class RequestBuilder {
                 return (T) newResourceSysBaseDTO(userInfo, LibListComputationalDTO.class)
                         .withComputationalId(computationalResource.getComputationalId())
                         .withComputationalImage(computationalResource.getImageName())
-                        .withLibCacheKey(ExploratoryLibCache.libraryCacheKey(userInstance.getImageName(),
-                                computationalResource.getImageName()))
+                        .withLibCacheKey(ExploratoryLibCache.libraryCacheKey(userInstance))
                         .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()));
 
             default:

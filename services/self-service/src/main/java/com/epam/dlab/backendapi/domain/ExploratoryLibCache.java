@@ -142,7 +142,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 		return libs;
 	}
 
-	private String libraryCacheKey(UserInstanceDTO instanceDTO) {
+	public static String libraryCacheKey(UserInstanceDTO instanceDTO) {
 		if (instanceDTO.getResources() != null && !instanceDTO.getResources().isEmpty()) {
 			if (instanceDTO.getResources().size() > 1) {
 				throw new IllegalStateException("Several clusters in userInstance");
@@ -158,7 +158,7 @@ public class ExploratoryLibCache implements Managed, Runnable {
 		}
 	}
 
-	public static String libraryCacheKey(String exploratoryImage, String computationalImage) {
+	private static String libraryCacheKey(String exploratoryImage, String computationalImage) {
 		return exploratoryImage + "/" + computationalImage;
 	}
 
