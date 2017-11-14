@@ -21,12 +21,7 @@ package com.epam.dlab.automation.test;
 import static org.testng.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -145,7 +140,7 @@ public class TestServices {
 		LOGGER.info("Amazon instance state is running");
 
 		LOGGER.info("2. Waiting for SSN service ...");
-		Assert.assertEquals(WaitForStatus.selfService(ConfigPropertyValue.getTimeoutNotebookCreate()), true,
+		Assert.assertEquals(WaitForStatus.selfService(ConfigPropertyValue.getTimeoutSSNStartup()), true,
 				"SSN service was not started");
 		LOGGER.info("   SSN service is available");
 
@@ -246,11 +241,9 @@ public class TestServices {
 		ExecutorService executor = Executors.newFixedThreadPool(
 				ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads() : N_THREADS);
 		List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
-
-		boolean fullTest = true;
+		
 		for (NotebookConfig notebookConfig : notebookConfigs) {
-			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig, fullTest));
-			fullTest = false;
+			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig));
 			futureTasks.add(runScenarioTask);
 			executor.execute(runScenarioTask);
 		}
