@@ -984,14 +984,29 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
         except:
             sys.exit(1)
 
+
 def get_cluster_python_version(region, bucket, user_name, cluster_name):
     try:
         GCPActions().get_cluster_app_version(bucket, user_name, cluster_name, 'python')
     except:
         sys.exit(1)
 
+
 def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror=''):
     try:
         GCPActions().install_python(bucket, user_name, cluster_name, application)
     except:
         sys.exit(1)
+
+
+def prepare_disk(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
+        try:
+            disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
+            sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
+            sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
+            sudo('mount /dev/{}1 /opt/'.format(disk_name))
+            sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
+            sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
+        except:
+            sys.exit(1)
