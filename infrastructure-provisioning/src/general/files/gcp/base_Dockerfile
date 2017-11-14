@@ -47,7 +47,6 @@ RUN mkdir -p /response; chmod a+rwx /response && \
 # Copying all base scripts to docker
 ENV PROVISION_CONFIG_DIR /root/conf/
 ENV KEYFILE_DIR /root/keys/
-ENV AWS_DIR /root/.aws
 
 RUN mkdir -p /root/conf && \
     mkdir -p /root/scripts && \
@@ -59,8 +58,8 @@ RUN mkdir -p /root/conf && \
 COPY base/ /root
 COPY general/conf/* /root/conf/
 COPY general/api/*.py /bin/
-COPY general/scripts/aws/common_* /root/scripts/
-COPY general/lib/aws/* /usr/lib/python2.7/dlab/
+COPY general/scripts/gcp/common_* /root/scripts/
+COPY general/lib/gcp/* /usr/lib/python2.7/dlab/
 COPY general/lib/os/${OS}/common_lib.py /usr/lib/python2.7/dlab/common_lib.py
 COPY general/lib/os/fab.py /usr/lib/python2.7/dlab/fab.py
 COPY general/files/os/${OS}/sources.list /root/files/
