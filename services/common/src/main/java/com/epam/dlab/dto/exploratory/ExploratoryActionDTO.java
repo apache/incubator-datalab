@@ -19,6 +19,7 @@ limitations under the License.
 package com.epam.dlab.dto.exploratory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.MoreObjects;
 
 public class ExploratoryActionDTO<T extends ExploratoryActionDTO<?>> extends ExploratoryBaseDTO<T> {
     @JsonProperty("notebook_instance_name")
@@ -36,5 +37,16 @@ public class ExploratoryActionDTO<T extends ExploratoryActionDTO<?>> extends Exp
     public T withNotebookInstanceName(String notebookInstanceName) {
         setNotebookInstanceName(notebookInstanceName);
         return (T) this;
+    }
+
+    @Override
+    public MoreObjects.ToStringHelper toStringHelper(Object self) {
+        return super.toStringHelper(self)
+                .add("notebookInstanceName", notebookInstanceName);
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this).toString();
     }
 }

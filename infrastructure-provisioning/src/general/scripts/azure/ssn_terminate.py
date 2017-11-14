@@ -20,6 +20,7 @@
 
 from dlab.fab import *
 from dlab.actions_lib import *
+from dlab.meta_lib import *
 import sys, os
 from fabric.api import *
 from dlab.ssn_lib import *
@@ -115,7 +116,8 @@ if __name__ == "__main__":
     # generating variables dictionary
     print('Generating infrastructure names and tags')
     ssn_conf = dict()
-    ssn_conf['service_base_name'] = os.environ['conf_service_base_name'].replace('_', '-')[:12]
+    ssn_conf['service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
     ssn_conf['resource_group_name'] = os.environ['azure_resource_group_name']
     ssn_conf['region'] = os.environ['azure_region']
     ssn_conf['vpc_name'] = os.environ['azure_vpc_name']

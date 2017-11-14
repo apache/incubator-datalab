@@ -74,7 +74,7 @@ if __name__ == "__main__":
     except Exception as err:
         remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
         for i in range(notebook_config['instance_count'] - 1):
-            slave_name = notebook_config['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(notebook_config['tag_name'], slave_name)
         append_result("Failed to generate infrastructure names", str(err))
         sys.exit(1)
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     except Exception as err:
         remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
         for i in range(notebook_config['instance_count'] - 1):
-            slave_name = notebook_config['slave_node_name'] + '-{}'.format(i + 1)
+            slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(notebook_config['tag_name'], slave_name)
         append_result("Failed installing Dataengine kernels.", str(err))
         sys.exit(1)

@@ -18,16 +18,14 @@ package com.epam.dlab.backendapi.util;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
+import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.cloud.CloudProvider;
-import com.epam.dlab.dto.ResourceBaseDTO;
-import com.epam.dlab.dto.ResourceSysBaseDTO;
-import com.epam.dlab.dto.UserEnvironmentResources;
+import com.epam.dlab.dto.*;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
@@ -46,6 +44,7 @@ import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
+import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -255,12 +254,12 @@ public class RequestBuilder {
         }
     }
 
-    public static ExploratoryLibInstallDTO newLibExploratoryInstall(UserInfo userInfo, UserInstanceDTO userInstance) {
+    public static LibraryInstallDTO newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance) {
 
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
-                return newResourceSysBaseDTO(userInfo, ExploratoryLibInstallDTO.class)
+                return newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
                         .withNotebookImage(userInstance.getImageName())
                         .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
                         .withNotebookInstanceName(userInstance.getExploratoryId())
@@ -283,6 +282,44 @@ public class RequestBuilder {
                         .withNotebookImage(userInstance.getImageName())
                         .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
                         .withExploratoryName(userInstance.getExploratoryName());
+
+            default:
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends LibraryInstallDTO> T newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance,
+                                                                UserComputationalResource computationalResource) {
+
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+                return (T) newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
+                        .withComputationalId(computationalResource.getComputationalId())
+                        .withComputationalName(computationalResource.getComputationalName())
+                        .withExploratoryName(userInstance.getExploratoryName())
+                        .withComputationalImage(computationalResource.getImageName())
+                        .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+                        .withLibs(new ArrayList<>());
+
+            default:
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends LibListComputationalDTO> T newLibComputationalList(UserInfo userInfo, UserInstanceDTO userInstance,
+                                                                                UserComputationalResource computationalResource) {
+
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+                return (T) newResourceSysBaseDTO(userInfo, LibListComputationalDTO.class)
+                        .withComputationalId(computationalResource.getComputationalId())
+                        .withComputationalImage(computationalResource.getImageName())
+                        .withLibCacheKey(ExploratoryLibCache.libraryCacheKey(userInstance))
+                        .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()));
 
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());

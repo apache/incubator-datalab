@@ -53,8 +53,8 @@ if __name__ == "__main__":
         notebook_config['user_keyname'] = os.environ['edge_user_name']
         notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + notebook_config['user_name'] +\
             "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
-        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + \
-            notebook_config['user_name'] + '-' + os.environ['application'] + '-notebook-image'
+        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + os.environ['application'] \
+                                               + '-notebook-image'
         notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + \
             notebook_config['user_name'] + '-nb-sg'
         notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
@@ -210,6 +210,15 @@ if __name__ == "__main__":
                                                                    notebook_config['instance_name'])
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
                                os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
+            set_git_proxy(notebook_config['dlab_ssh_user'], instance_hostname,
+                          os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
+                          "http://" + edge_instance_hostname + ":3128")
+            additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+            params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
+                .format(instance_hostname, notebook_config['instance_name'], keyfile_name,
+                        json.dumps(additional_config),
+                        notebook_config['dlab_ssh_user'])
+            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
     except Exception as err:
         append_result("Failed creating image.", str(err))
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
