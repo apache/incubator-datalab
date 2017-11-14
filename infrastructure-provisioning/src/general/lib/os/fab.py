@@ -334,8 +334,6 @@ def install_ungit(os_user):
             put('/root/templates/ungit.service', '/tmp/ungit.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
             sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')
-            run('git config --global http.proxy $http_proxy')
-            run('git config --global https.proxy $https_proxy')
             run('git config --global user.name "Example User"')
             run('git config --global user.email "example@example.com"')
             run('mkdir -p ~/.git/templates/hooks')
@@ -353,6 +351,16 @@ def install_ungit(os_user):
             sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
         except:
             sys.exit(1)
+    run('git config --global http.proxy $http_proxy')
+    run('git config --global https.proxy $https_proxy')
+
+
+def set_git_proxy(os_user, hostname, keyfile, proxy_host):
+    env['connection_attempts'] = 100
+    env.key_filename = [keyfile]
+    env.host_string = os_user + '@' + hostname
+    run('git config --global http.proxy {}'.format(proxy_host))
+    run('git config --global https.proxy {}'.format(proxy_host))
 
 
 def set_mongo_parameters(client, mongo_parameters):
