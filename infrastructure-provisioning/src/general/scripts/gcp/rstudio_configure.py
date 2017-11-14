@@ -103,7 +103,7 @@ if __name__ == "__main__":
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'], json.dumps(additional_config),
                     notebook_config['dlab_ssh_user'])
         try:
-            local("~/scripts/{}.py {}".format('notebook_configure_proxy', params))
+            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
         except:
             traceback.print_exc()
             raise Exception
