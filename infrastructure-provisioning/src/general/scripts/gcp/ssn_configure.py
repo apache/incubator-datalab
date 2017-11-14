@@ -87,7 +87,18 @@ if __name__ == "__main__":
             os.environ['aws_account_id'] = 'None'
             os.environ['aws_billing_bucket'] = 'None'
             os.environ['aws_report_path'] = 'None'
-    except:
+    except Exception as err:
+        append_result("Failed deriving names.", str(err))
+        GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
+        # GCPActions().remove_service_account(ssn_conf['service_account_name'])
+        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
+        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
+        if pre_defined_firewall:
+            GCPActions().remove_firewall(ssn_conf['firewall_name'])
+        if pre_defined_subnet:
+            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
     try:
