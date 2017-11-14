@@ -1,0 +1,4 @@
+{
+  "template_name": "Crete exploratory environment.",
+  "description": "Create user subnet, bucket and edge node for access."
+}
