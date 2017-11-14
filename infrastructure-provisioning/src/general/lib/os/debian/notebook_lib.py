@@ -39,7 +39,8 @@ def enable_proxy(proxy_host, proxy_port):
         sudo('sed -i "/^export https_proxy/d" /etc/profile')
         sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
         sudo('echo export https_proxy=' + proxy_string + ' >> /etc/profile')
-        sudo("sed -i '/^Acquire::http::Proxy/d' /etc/apt/apt.conf")
+        if exists('/etc/apt/apt.conf'):
+            sudo("sed -i '/^Acquire::http::Proxy/d' /etc/apt/apt.conf")
         sudo("echo 'Acquire::http::Proxy \"" + proxy_string + "\";' >> /etc/apt/apt.conf")
 
         print("Renewing gpg key")
