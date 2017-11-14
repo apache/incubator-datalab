@@ -292,7 +292,7 @@ if __name__ == "__main__":
                    "vpc_id": ssn_conf['vpc_name'],
                    "subnet_id": ssn_conf['subnet_name'],
                    "security_id": ssn_conf['firewall_name'],
-                   "instance_shape": os.environ['ssn_instance_size'],
+                   "instance_shape": ssn_conf['instance_size'],
                    "bucket_name": ssn_conf['ssn_bucket_name'],
                    "region": ssn_conf['region'],
                    "action": "Create SSN instance"}
