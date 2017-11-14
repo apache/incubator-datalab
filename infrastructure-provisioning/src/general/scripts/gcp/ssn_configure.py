@@ -213,35 +213,35 @@ if __name__ == "__main__":
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
-    try:
-        logging.info('[CONFIGURE SSN INSTANCE UI]')
-        print('[CONFIGURE SSN INSTANCE UI]')
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
-            format(instance_hostname, ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
-                   os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'],
-                   ssn_conf['region'], ssn_conf['service_base_name'], ssn_conf['firewall_name'], ssn_conf['vpc_name'],
-                   ssn_conf['subnet_name'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
-                   os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],
-                   billing_enabled)
-
-        try:
-            local("~/scripts/{}.py {}".format('configure_ui', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Unable to configure UI.", str(err))
-        GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-        # GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-        if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'])
-        if pre_defined_subnet:
-            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            GCPActions().remove_vpc(ssn_conf['vpc_name'])
-        sys.exit(1)
+    # try:
+    #     logging.info('[CONFIGURE SSN INSTANCE UI]')
+    #     print('[CONFIGURE SSN INSTANCE UI]')
+    #     params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
+    #         format(instance_hostname, ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
+    #                os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'],
+    #                ssn_conf['region'], ssn_conf['service_base_name'], ssn_conf['firewall_name'], ssn_conf['vpc_name'],
+    #                ssn_conf['subnet_name'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
+    #                os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],
+    #                billing_enabled)
+    #
+    #     try:
+    #         local("~/scripts/{}.py {}".format('configure_ui', params))
+    #     except:
+    #         traceback.print_exc()
+    #         raise Exception
+    # except Exception as err:
+    #     append_result("Unable to configure UI.", str(err))
+    #     GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
+    #     # GCPActions().remove_service_account(ssn_conf['service_account_name'])
+    #     GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
+    #     GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
+    #     if pre_defined_firewall:
+    #         GCPActions().remove_firewall(ssn_conf['firewall_name'])
+    #     if pre_defined_subnet:
+    #         GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+    #     if pre_defined_vpc:
+    #         GCPActions().remove_vpc(ssn_conf['vpc_name'])
+    #     sys.exit(1)
 
     try:
         logging.info('[SUMMARY]')
