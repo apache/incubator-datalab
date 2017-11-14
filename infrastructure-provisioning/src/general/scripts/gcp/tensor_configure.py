@@ -157,22 +157,6 @@ if __name__ == "__main__":
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
-    # installing python2 and python3 libs
-    try:
-        logging.info('[CONFIGURE TENSOR ADDITIONS]')
-        print '[CONFIGURE TENSOR ADDITIONS]'
-        params = "--hostname {} --keyfile {} --os_user {}"\
-            .format(instance_hostname, notebook_config['ssh_key_path'], notebook_config['dlab_ssh_user'])
-        try:
-            local("~/scripts/{}.py {}".format('install_tensor_additions', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed to install python libs.", str(err))
-        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
-        sys.exit(1)
-
     try:
         print '[INSTALLING USERs KEY]'
         logging.info('[INSTALLING USERs KEY]')
