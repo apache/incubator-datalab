@@ -33,8 +33,8 @@ import os, time
 def enable_proxy(proxy_host, proxy_port):
     try:
         proxy_string = "http://%s:%s" % (proxy_host, proxy_port)
-        sudo('sed -i "^export http_proxy/d" /etc/profile')
-        sudo('sed -i "^export https_proxy/d" /etc/profile')
+        sudo('sed -i "/^export http_proxy/d" /etc/profile')
+        sudo('sed -i "/^export https_proxy/d" /etc/profile')
         sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
         sudo('echo export https_proxy=' + proxy_string + ' >> /etc/profile')
         sudo('sed -i "^proxy=/d" /etc/yum.conf')
