@@ -355,12 +355,12 @@ def install_ungit(os_user):
     run('git config --global https.proxy $https_proxy')
 
 
-def set_git_proxy(hostname, os_user, keyfile):
+def set_git_proxy(os_user, hostname, keyfile, proxy_host):
     env['connection_attempts'] = 100
     env.key_filename = [keyfile]
     env.host_string = os_user + '@' + hostname
-    run('git config --global http.proxy $http_proxy')
-    run('git config --global https.proxy $https_proxy')
+    run('git config --global http.proxy {}'.format(proxy_host))
+    run('git config --global https.proxy {}'.format(proxy_host))
 
 
 def set_mongo_parameters(client, mongo_parameters):
