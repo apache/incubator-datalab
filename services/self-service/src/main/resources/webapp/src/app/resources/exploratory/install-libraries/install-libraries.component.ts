@@ -20,6 +20,7 @@ import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, 
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
+import { MdDialog, MdDialogRef, MdDialogConfig } from '@angular/material';
 
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
@@ -45,6 +46,7 @@ export class InstallLibrariesComponent implements OnInit {
 
   public query: string = '';
   public group: string;
+  public destination: any;
   public uploading: boolean = false;
   public libs_uploaded: boolean = false;
 
@@ -70,6 +72,7 @@ export class InstallLibrariesComponent implements OnInit {
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
+    public dialog: MdDialog,
     private librariesInstallationService: LibrariesInstallationService,
     private changeDetector : ChangeDetectorRef) {
     this.model = InstallLibrariesModel.getDefault(librariesInstallationService);
@@ -78,7 +81,6 @@ export class InstallLibrariesComponent implements OnInit {
   ngOnInit() {
     this.libSearch.valueChanges
       .debounceTime(1000)
-      .distinctUntilChanged()
       .subscribe(newValue => {
         this.query = newValue;
         this.filterList();
@@ -88,16 +90,16 @@ export class InstallLibrariesComponent implements OnInit {
       this.buildGrid.emit();
     };
   }
-  
-  uploadLibraries(): void {
-     this.librariesInstallationService.getGroupsList(this.notebook.name)
+
+  uploadLibGroups(): void {
+     this.librariesInstallationService.getGroupsList(this.notebook.name, this.model.computational_name)
       .subscribe(
         response => {
           this.libsUploadingStatus(response);
           this.changeDetector.detectChanges();
 
+          this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), this.destination.name, 'destination', 'name', 'array');
           this.group_select && this.group_select.setDefaultOptions(this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
-          this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'name', 'array');
         },
         error => {
           this.processError = true;
@@ -106,10 +108,12 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   private getResourcesList() {
+    this.notebook.type = 'EXPLORATORY';
     return [this.notebook].concat(this.notebook.resources
       .filter(item => item.status === 'running')
       .map(item => {
         item['name'] = item.computational_name;
+        item['type'] = 'СOMPUTATIONAL';
         return item;
       }));
   }
@@ -121,10 +125,18 @@ export class InstallLibrariesComponent implements OnInit {
   public onUpdate($event) {
     if ($event.model.type === 'group_lib') {
       this.group = $event.model.value;
-      this.filterList();
     } else if ($event.model.type === 'destination') {
-      console.log($event.model.value);
+      this.resetDialog(true);
+
+      this.destination = $event.model.value;
+      if (this.destination && this.destination.type === 'СOMPUTATIONAL') this.model.computational_name = this.destination.name;
+
+      this.uploadLibGroups();
+      this.getInstalledLibsByResource();
     }
+
+    if (this.destination && this.destination.type === 'EXPLORATORY') this.model.computational_name = null;
+    this.filterList();
   }
 
   public isDuplicated(item) {
@@ -132,8 +144,8 @@ export class InstallLibrariesComponent implements OnInit {
 
     this.isInSelectedList = this.model.selectedLibs.filter(el => JSON.stringify(el) === JSON.stringify(select)).length > 0;
 
-    if (this.notebook.libs && this.notebook.libs.length)
-      this.isInstalled = this.notebook.libs.findIndex(libr =>
+    if (this.destination && this.destination.libs)
+      this.isInstalled = this.destination.libs.findIndex(libr =>
         select.name === libr.name && select.group === libr.group && select.version === libr.version
       ) >= 0;
 
@@ -154,7 +166,6 @@ export class InstallLibrariesComponent implements OnInit {
   public open(param, notebook): void {
     if (!this.bindDialog.isOpened)
       this.notebook = notebook;
-      this.notebookLibs = notebook.libs || [];
       this.model = new InstallLibrariesModel(notebook, (response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
           this.getInstalledLibrariesList();
@@ -167,12 +178,10 @@ export class InstallLibrariesComponent implements OnInit {
       },
       () => {
         this.bindDialog.open(param);
-        this.isInstallingInProgress(this.notebookLibs);
 
-        if (!this.notebook.libs || !this.notebook.libs.length)
-          this.tabGroup.selectedIndex = 1;
-
-        this.uploadLibraries();
+        this.getInstalledLibrariesList(true);
+        this.changeDetector.detectChanges();
+        this.selectorsReset();
       },
       this.librariesInstallationService);
   }
@@ -185,11 +194,13 @@ export class InstallLibrariesComponent implements OnInit {
     this.resetDialog();
   }
 
+  public showErrorMessage(item): void {
+    const dialogRef: MdDialogRef<ErrorMessageDialog> = this.dialog.open(ErrorMessageDialog, { data: item.error, width: '550px' });
+  }
+
   public isInstallingInProgress(data): void {
-    this.notebookFailedLibs = data
-      .filter(el => el.status === 'failed')
-      .map(el => { return {group: el.group, name: el.name, version: el.version}});
-    this.installingInProgress = data.findIndex(libr => libr.status === 'installing') >= 0;
+    this.notebookFailedLibs = data.filter(lib => lib.status.some(inner => inner.status === 'failed'));
+    this.installingInProgress = data.filter(lib => lib.status.some(inner => inner.status === 'installing')).length > 0;
 
     if (this.installingInProgress || this.notebookFailedLibs.length) {
       if (this.clearCheckInstalling === undefined)
@@ -199,12 +210,31 @@ export class InstallLibrariesComponent implements OnInit {
       this.clearCheckInstalling = undefined;
     }
   }
-  private getInstalledLibrariesList() {
-    this.model.getInstalledLibrariesList()
+
+  public reinstallLibrary(item, lib) {
+    const retry = [{group: lib.group, name: lib.name, version: lib.version}];
+
+    if (this.getResourcesList().find(el => el.name == item.resource).type === 'СOMPUTATIONAL') {
+      this.model.confirmAction(retry, item.resource);
+    } else {
+      this.model.confirmAction(retry);
+    }
+  }
+
+  private getInstalledLibrariesList(init?: boolean) {
+    this.model.getInstalledLibrariesList(this.notebook)
       .subscribe((data: any) => {
         this.notebookLibs = data ? data : [];
+        this.changeDetector.markForCheck();
         this.isInstallingInProgress(this.notebookLibs);
+
+        if (init && !this.notebookLibs.length) this.tabGroup.selectedIndex = 1;
       });
+  }
+
+  private getInstalledLibsByResource() {
+    this.librariesInstallationService.getInstalledLibsByResource(this.notebook.name, this.model.computational_name)
+      .subscribe((data: any) => this.destination.libs = data);
   }
 
   private libsUploadingStatus(groupsList): void {
@@ -215,7 +245,7 @@ export class InstallLibrariesComponent implements OnInit {
     } else {
       this.libs_uploaded = false;
       this.uploading = true;
-      this.clear = window.setTimeout(() => this.uploadLibraries(), this.CHECK_GROUPS_TIMEOUT);
+      this.clear = window.setTimeout(() => this.uploadLibGroups(), this.CHECK_GROUPS_TIMEOUT);
     }
   }
 
@@ -228,7 +258,12 @@ export class InstallLibrariesComponent implements OnInit {
       });
   }
 
-  private resetDialog(): void {
+  private selectorsReset():void {
+    this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'name', 'array');
+    this.group_select && this.group_select.setDefaultOptions([], '', 'group_lib', null, 'array');
+  }
+
+  private resetDialog(nActive?): void {
     this.group = '';
     this.query = '';
 
@@ -236,13 +271,27 @@ export class InstallLibrariesComponent implements OnInit {
     this.isFilteringProc = false;
     this.isInstalled = false;
     this.isInSelectedList = false;
+    this.uploading = false;
 
     this.errorMessage = '';
     this.model.selectedLibs = [];
     this.filteredList = null ;
-    this.tabGroup.selectedIndex = 0;
+    this.destination = null;
+    this.groupsList = [];
+
+    if (!nActive) this.tabGroup.selectedIndex = 0;
     clearTimeout(this.clear);
     clearInterval(this.clearCheckInstalling);
     this.clearCheckInstalling = undefined;
+    this.selectorsReset();
   }
+}
+
+@Component({
+  selector: 'error-message-dialog',
+  template: `<div class="content">{{ dialogRef.config.data }}</div>`,
+  styles: [`.content { color: #f1696e; padding: 20px 25px; font-size: 14px; font-weight: 400 }`]
+})
+export class ErrorMessageDialog {
+  constructor(public dialogRef: MdDialogRef<ErrorMessageDialog>) { }
 }
