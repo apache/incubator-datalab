@@ -22,10 +22,11 @@ public class ApiCallbacks {
     public static final String INFRASTRUCTURE_PROVISION = API + "/infrastructure_provision";
     public static final String COMPUTATIONAL = INFRASTRUCTURE_PROVISION + "/computational_resources";
     public static final String EXPLORATORY = INFRASTRUCTURE_PROVISION + "/exploratory_environment";
-    public static final String UPDATE_LIBS_URI = EXPLORATORY + "/update_lib_list";
+    public static final String LIBRARY= INFRASTRUCTURE_PROVISION + "/library";
+    public static final String UPDATE_LIBS_URI = LIBRARY + "/update_lib_list";
     public static final String INFRASTRUCTURE = API + "/infrastructure";
     public static final String EDGE = INFRASTRUCTURE + "/edge";
     public static final String STATUS_URI = "/status";
-    public static final String LIB_STATUS_URI = EXPLORATORY + "/lib_status";
+    public static final String LIB_STATUS_URI = LIBRARY + "/lib_status";
     public static final String GIT_CREDS = API + "/user/git_creds" + STATUS_URI;
 }

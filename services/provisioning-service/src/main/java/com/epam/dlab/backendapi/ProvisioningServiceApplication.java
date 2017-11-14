@@ -25,7 +25,7 @@ import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.DockerResource;
 import com.epam.dlab.backendapi.resources.GitExploratoryResource;
 import com.epam.dlab.backendapi.resources.InfrastructureResource;
-import com.epam.dlab.backendapi.resources.LibExploratoryResource;
+import com.epam.dlab.backendapi.resources.LibraryResource;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.process.DlabProcess;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
@@ -83,7 +83,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 
         jersey.register(injector.getInstance(DockerResource.class));
         jersey.register(injector.getInstance(GitExploratoryResource.class));
-        jersey.register(injector.getInstance(LibExploratoryResource.class));
+        jersey.register(injector.getInstance(LibraryResource.class));
         jersey.register(injector.getInstance(InfrastructureResource.class));
 
     }

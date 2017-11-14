@@ -58,7 +58,6 @@ public class TestLibListStep extends TestLibStep {
 
         while (expiredTime > currentTime) {
             Response response = new HttpRequest().webApiPost(url, ContentType.JSON, request, token);
-
             LOGGER.info("Request libraries {}", request);
 
             if (response.getStatusCode() != HttpStatusCode.OK) {

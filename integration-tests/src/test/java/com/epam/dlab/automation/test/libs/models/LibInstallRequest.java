@@ -11,7 +11,7 @@ import java.util.List;
 public class LibInstallRequest {
     @JsonProperty
     private List<Lib> libs;
-    @JsonProperty("notebook_name")
+    @JsonProperty("exploratory_name")
     private String notebookName;
 
     public LibInstallRequest(List<Lib> libs, String notebookName) {

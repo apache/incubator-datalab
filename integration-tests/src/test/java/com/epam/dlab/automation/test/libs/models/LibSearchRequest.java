@@ -25,7 +25,7 @@ import com.google.common.base.MoreObjects;
  * Created by yu on 7/3/17.
  */
 public class LibSearchRequest {
-    @JsonProperty("notebook_name")
+    @JsonProperty("exploratory_name")
     private String notebookName;
     @JsonProperty
     private String group;

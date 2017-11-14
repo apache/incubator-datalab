@@ -26,13 +26,16 @@ import com.epam.dlab.automation.http.HttpStatusCode;
 import com.epam.dlab.automation.test.libs.models.Lib;
 import com.epam.dlab.automation.test.libs.models.LibInstallRequest;
 import com.epam.dlab.automation.test.libs.models.LibStatusResponse;
+import com.epam.dlab.automation.test.libs.models.LibraryStatus;
 import com.jayway.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @TestDescription("Test \"Install libraries\" ")
@@ -67,7 +70,10 @@ public class TestLibInstallStep extends TestLibStep {
 
         while (expiredTime > currentTime) {
 
-            response = new HttpRequest().webApiPost(statusUrl, ContentType.JSON, notebookName, token);
+            HttpRequest httpRequest = new HttpRequest();
+            Map<String,Object> params = new HashMap<>();
+            params.put("exploratory_name", notebookName);
+            response = httpRequest.webApiGet(statusUrl, token,params);
             if (response.getStatusCode() == HttpStatusCode.OK) {
 
                 List<LibStatusResponse> actualStatuses = Arrays.asList(response.getBody().as(LibStatusResponse[].class));
@@ -81,12 +87,21 @@ public class TestLibInstallStep extends TestLibStep {
                         .findFirst().get();
 
                 LOGGER.info("Lib status is {}", s);
-                if (s.getStatus().equals("installing")) {
-                    LOGGER.info("Wait {} sec left for installation libs {}", expiredTime - currentTime, request);
+                
+                boolean allLibStatusesDone = true;
+                
+                for (LibraryStatus libStatus : s.getStatus()) {
+                	if (libStatus.getStatus().equals("installing")) {
+                		allLibStatusesDone = false;
+                    } 
+				}
+                if(!allLibStatusesDone) {
+                	LOGGER.info("Wait {} sec left for installation libs {}", expiredTime - currentTime, request);
                     TimeUnit.SECONDS.sleep(ConfigPropertyValue.isRunModeLocal() ? 3L : 20L);
                 } else {
                     return;
                 }
+                
             } else {
                 LOGGER.error("Response status{}, body {}", response.getStatusCode(), response.getBody().print());
                 Assert.fail("Install libs failed for " + notebookName);
@@ -100,12 +115,14 @@ public class TestLibInstallStep extends TestLibStep {
 
     @Override
     public void verify() {
-        Response response = new HttpRequest().webApiPost(statusUrl, ContentType.JSON, notebookName, token);
-
+        HttpRequest httpRequest = new HttpRequest();
+        Map<String,Object> params = new HashMap<>();
+        params.put("exploratory_name", notebookName);
+        Response response = httpRequest.webApiGet(statusUrl, token,params);
         if (response.getStatusCode() == HttpStatusCode.OK) {
 
             List<LibStatusResponse> actualStatuses = Arrays.asList(response.getBody().as(LibStatusResponse[].class));
-            LOGGER.error("Actual statuses {}", actualStatuses);
+            LOGGER.info("Actual statuses {}", actualStatuses);
 
             LibStatusResponse libStatusResponse = actualStatuses.stream()
                     .filter(e -> e.getGroup().equals(libToInstall.getGroup())
@@ -113,22 +130,24 @@ public class TestLibInstallStep extends TestLibStep {
                             && (e.getVersion().equals(libToInstall.getVersion()) || "N/A".equals(libToInstall.getVersion())))
                     .findFirst().get();
 
-            if ("installed".equals(libStatusResponse.getStatus())) {
-                LOGGER.info("Library status of {} is {}", libToInstall, libStatusResponse);
-            } else if ("failed".equals(libStatusResponse.getStatus())) {
+            for (LibraryStatus libStatus : libStatusResponse.getStatus()) {
+            	if ("installed".equals(libStatus.getStatus())) {
+                    LOGGER.info("Library status of {} is {}", libToInstall, libStatusResponse);
+                } else if ("failed".equals(libStatus.getStatus())) {
 
-                if (REALLY_FAILED_ERROR.equals(libStatusResponse.getErrorMessage())
-                        || libStatusResponse.getErrorMessage() == null
-                        || libStatusResponse.getErrorMessage().isEmpty()) {
+                    if (REALLY_FAILED_ERROR.equals(libStatus.getError())
+                            || libStatus.getError() == null
+                            || libStatus.getError().isEmpty()) {
 
-                    Assert.fail(String.format("Installing library failed %s", libStatusResponse));
+                        Assert.fail(String.format("Installing library failed %s", libStatusResponse));
+                    }
+
+                    LOGGER.warn("Failed status with proper error message happend for {}", libStatusResponse);
+                } else {
+                    Assert.assertTrue(libStatus.getStatus().equals("installed"),
+                            "Lib " + libToInstall + " is not installed. Status " + libStatusResponse);
                 }
-
-                LOGGER.warn("Failed status with proper error message happend for {}", libStatusResponse);
-            } else {
-                Assert.assertTrue(libStatusResponse.getStatus().equals("installed"),
-                        "Lib " + libToInstall + " is not installed. Status " + libStatusResponse);
-            }
+			}
         } else {
             LOGGER.error("Response status{}, body {}", response.getStatusCode(), response.getBody().print());
             Assert.fail("Install libs failed for " + notebookName);
