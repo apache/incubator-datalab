@@ -267,7 +267,7 @@ if __name__ == "__main__":
         print "VPC Name: " + ssn_conf['vpc_name']
         print "Subnet Name: " + ssn_conf['subnet_name']
         print "Firewall Names: " + ssn_conf['firewall_name']
-        print "SSN instance size: " + os.environ['ssn_instance_size']
+        print "SSN instance size: " + ssn_conf['instance_size']
         print "SSN AMI name: " + ssn_conf['ami_name']
         print "SSN bucket name: " + ssn_conf['ssn_bucket_name']
         print "Region: " + ssn_conf['region']
