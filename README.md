@@ -1274,7 +1274,13 @@ npm install npm@latest -g
 ```
 npm install
 ```
+  * Replace CLOUD_PROVIDER options with aws|azure in dictionary file<br> dlab/services/self-service/src/main/resources/webapp/src/dictionary/global.dictionary.ts
 
+```
+import { NAMING_CONVENTION } from './(aws|azure).dictionary';
+
+export * from './(aws|azure).dictionary';
+```
   * Build web application
 
 ```
