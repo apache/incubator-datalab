@@ -932,7 +932,6 @@ class AzureActions:
 
     def create_image_from_instance(self, resource_group_name, instance_name, region, image_name, tags):
         try:
-
             instance_id = meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).id
             self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
             self.compute_client.virtual_machines.generalize(resource_group_name, instance_name)
