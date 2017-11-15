@@ -20,13 +20,8 @@
 
 from fabric.api import *
 import argparse
-import json
 from dlab.fab import *
-from dlab.common_lib import ensure_pkg
-from dlab.common_lib import change_pkg_repos
-from fabric.contrib.files import exists
 import sys
-import os
 
 
 parser = argparse.ArgumentParser()
