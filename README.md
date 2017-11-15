@@ -1183,6 +1183,7 @@ Sources are located in dlab/services/self-service/src/main/resources/webapp
 | Health Status page            | HealthStatusComponent<br>*HealthStatusGridComponent* displays list of instances, their types, statutes, ID’s and uses *healthStatusService* for handling main actions. |
 | Help pages                    | Static pages that contains information and instructions on how to access Notebook Server and generate SSH key pair. Includes only *NavbarComponent*. |
 | Error page                    | Simple static page letting users know that opened page does not exist. Includes only *NavbarComponent*. | 
+| Reporting page                | ReportingComponent<br>ReportingGridComponent displays billing detailed info with built-in filtering and DateRangePicker component for custom range filtering;<br>uses *BillingReportService* for handling main actions and exports report data to .csv file. |
 
 ## How to setup local development environment <a name="setup_local_environment"></a>
 
