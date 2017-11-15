@@ -39,8 +39,8 @@ if __name__ == "__main__":
     env.host_string = '{}@{}'.format(args.os_user, args.hostname)
 
     print("Setting password for Rstudio user.")
-    if not sudo('echo "{0}:{1}" | chpasswd'.format(args.os_user, args.rstudio_pass)):
+    try:
+        sudo('echo "{0}:{1}" | chpasswd'.format(args.os_user, args.rstudio_pass))
+    except:
         sys.exit(1)
-
-    sys.exit(0)
 
