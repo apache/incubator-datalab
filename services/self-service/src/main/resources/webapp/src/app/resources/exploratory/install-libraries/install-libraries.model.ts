@@ -30,6 +30,7 @@ interface Library {
 export class InstallLibrariesModel {
     confirmAction: Function;
     notebook: any;
+    computational_name: string;
 
     public selectedLibs: Array<Library> = [];
     private continueWith: Function;
@@ -55,23 +56,24 @@ export class InstallLibrariesModel {
     }
 
     public getLibrariesList(group: string, query: string): Observable<Response> {
+        let lib_query: any = { exploratory_name: this.notebook.name, group: group, start_with: query };
+        if (this.computational_name) lib_query.computational_name = this.computational_name;
+
         return this.librariesInstallationService
-            .getAvailableLibrariesList({
-                notebook_name: this.notebook.name,
-                group: group,
-                start_with: query
-            });
+            .getAvailableLibrariesList(lib_query);
     }
 
-    public getInstalledLibrariesList(): Observable<Response> {
-        return this.librariesInstallationService.getInstalledLibrariesList(this.notebook.name)
+    public getInstalledLibrariesList(notebook): Observable<Response> {
+        return this.librariesInstallationService.getInstalledLibrariesList(notebook.name)
     }
 
-    private installLibraries(retry?: Library): Observable<Response> {
-        return this.librariesInstallationService.installLibraries({
-            notebook_name: this.notebook.name,
-            libs: (retry ? retry : this.selectedLibs)
-        });
+    private installLibraries(retry?: Library, item?): Observable<Response> {
+        let lib_list: any = { exploratory_name: this.notebook.name, libs: (retry ? retry : this.selectedLibs) };
+        if (this.computational_name) lib_list.computational_name = this.computational_name;
+        if (item) lib_list.computational_name = item;
+
+        return this.librariesInstallationService
+            .installLibraries(lib_list);
     }
 
     public isEmpty(obj) {
@@ -79,7 +81,7 @@ export class InstallLibrariesModel {
     }
 
     private prepareModel(fnProcessResults: any, fnProcessErrors: any): void {
-        this.confirmAction = (retry?: Library) => this.installLibraries(retry)
+        this.confirmAction = (retry?: Library, item?) => this.installLibraries(retry, item)
             .subscribe(
             (response: Response) => fnProcessResults(response),
             (response: Response) => fnProcessErrors(response));

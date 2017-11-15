@@ -33,18 +33,20 @@ import re
 
 
 def enable_proxy(proxy_host, proxy_port):
-    if not exists('/tmp/proxy_enabled'):
-        try:
-            proxy_string = "http://%s:%s" % (proxy_host, proxy_port)
-            sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
-            sudo('echo export https_proxy=' + proxy_string + ' >> /etc/profile')
-            sudo("echo 'Acquire::http::Proxy \"" + proxy_string + "\";' >> /etc/apt/apt.conf")
-            sudo('touch /tmp/proxy_enabled ')
+    try:
+        proxy_string = "http://%s:%s" % (proxy_host, proxy_port)
+        sudo('sed -i "/^export http_proxy/d" /etc/profile')
+        sudo('sed -i "/^export https_proxy/d" /etc/profile')
+        sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
+        sudo('echo export https_proxy=' + proxy_string + ' >> /etc/profile')
+        if exists('/etc/apt/apt.conf'):
+            sudo("sed -i '/^Acquire::http::Proxy/d' /etc/apt/apt.conf")
+        sudo("echo 'Acquire::http::Proxy \"" + proxy_string + "\";' >> /etc/apt/apt.conf")
 
-            print("Renewing gpg key")
-            renew_gpg_key()
-        except:
-            sys.exit(1)
+        print("Renewing gpg key")
+        renew_gpg_key()
+    except:
+        sys.exit(1)
 
 
 def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):

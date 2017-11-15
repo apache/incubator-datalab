@@ -19,12 +19,13 @@ limitations under the License.
 package com.epam.dlab.rest.contracts;
 
 public interface ExploratoryAPI {
+    String LIBRARY = "library/";
     String EXPLORATORY = "exploratory";
     String EXPLORATORY_CREATE = EXPLORATORY + "/create";
     String EXPLORATORY_START = EXPLORATORY + "/start";
     String EXPLORATORY_TERMINATE = EXPLORATORY + "/terminate";
     String EXPLORATORY_STOP = EXPLORATORY + "/stop";
-    String EXPLORATORY_LIB_INSTALL = EXPLORATORY + "/lib_install";
-    String EXPLORATORY_LIB_LIST = EXPLORATORY + "/lib_list";
+    String EXPLORATORY_LIB_INSTALL = LIBRARY + EXPLORATORY + "/lib_install";
+    String EXPLORATORY_LIB_LIST = LIBRARY + EXPLORATORY + "/lib_list";
     String EXPLORATORY_GIT_CREDS = EXPLORATORY + "/git_creds";
 }

@@ -175,7 +175,8 @@ public class EnvStatusListener implements Managed, Runnable {
 				RequestId.put(userInfo.getUsername(), uuid);
 			}
 		} catch (Exception e) {
-			LOGGER.warn("Ask docker for the status of resources for user {} fails: {}", e.getLocalizedMessage(), e);
+			LOGGER.warn("Ask docker for the status of resources for user {} fails: {}", userInfo.getUsername(),
+					e.getLocalizedMessage(), e);
 		}
 	}
 }

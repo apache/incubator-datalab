@@ -254,7 +254,7 @@ private String  createNotebook(String notebookName) throws Exception {
 
            Lib lib = testLibListStep.getLibs().get(new Random().nextInt(testLibListStep.getLibs().size()));
 
-           TestLibInstallStep testLibInstallStep = new TestLibInstallStep(ApiPath.LIB_INSTALL, ApiPath.LIB_LIST_EXPLORATORY,
+           TestLibInstallStep testLibInstallStep = new TestLibInstallStep(ApiPath.LIB_INSTALL, ApiPath.LIB_LIST_EXPLORATORY_FORMATTED,
                    token, notebookName, getDuration(notebookConfig.getTimeoutLibInstall()).getSeconds(), lib);
 
            testLibInstallStep.init();

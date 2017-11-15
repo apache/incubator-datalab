@@ -20,8 +20,8 @@ import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryLibListStatusDTO;
+import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
+import com.epam.dlab.dto.exploratory.LibListStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -33,11 +33,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/infrastructure_provision/exploratory_environment")
+@Path("/infrastructure_provision/library")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class LibExploratoryCallback {
+public class LibraryCallback {
 
     @Inject
     private ExploratoryLibDAO libraryDAO;
@@ -50,7 +50,7 @@ public class LibExploratoryCallback {
      */
     @POST
     @Path("/lib_status")
-    public Response libInstallStatus(ExploratoryLibInstallStatusDTO dto) {
+    public Response libInstallStatus(LibInstallStatusDTO dto) {
         log.debug("Updating status of libraries for exploratory environment {} for user {} to {}",
                 dto.getExploratoryName(), dto.getUser(), dto);
         RequestId.checkAndRemove(dto.getRequestId());
@@ -75,7 +75,7 @@ public class LibExploratoryCallback {
      */
     @POST
     @Path("/update_lib_list")
-    public Response updateLibList(ExploratoryLibListStatusDTO dto) {
+    public Response updateLibList(LibListStatusDTO dto) {
         log.debug("Updating the list of libraries for image {}", dto.getImageName());
         RequestId.checkAndRemove(dto.getRequestId());
         try {
