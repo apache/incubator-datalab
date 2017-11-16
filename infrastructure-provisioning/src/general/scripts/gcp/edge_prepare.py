@@ -71,7 +71,8 @@ if __name__ == "__main__":
     edge_conf['notebook_firewall_target'] = '{0}-{1}-nb'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['dataproc_firewall_target'] = '{0}-{1}-dp'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['fw_nb_ingress'] = '{}-ingress'.format(edge_conf['notebook_firewall_target'])
-    edge_conf['fw_nb_egress'] = '{}-egress'.format(edge_conf['notebook_firewall_target'])
+    edge_conf['fw_nb_egress_private'] = '{}-egress-private'.format(edge_conf['notebook_firewall_target'])
+    edge_conf['fw_nb_egress_public'] = '{}-egress-public'.format(edge_conf['notebook_firewall_target'])
 
     # FUSE in case of absence of user's key
     fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
@@ -190,7 +191,7 @@ if __name__ == "__main__":
         ]
         egress_rule['allowed'] = rules
         egress_rule['network'] = edge_conf['vpc_selflink']
-        ingress_rule['direction'] = 'EGRESS'
+        egress_rule['direction'] = 'EGRESS'
         firewall_rules['egress'].append(egress_rule)
 
         egress_rule = dict()
@@ -206,7 +207,7 @@ if __name__ == "__main__":
         ]
         egress_rule['allowed'] = rules
         egress_rule['network'] = edge_conf['vpc_selflink']
-        ingress_rule['direction'] = 'EGRESS'
+        egress_rule['direction'] = 'EGRESS'
         firewall_rules['egress'].append(egress_rule)
 
         params = "--firewall '{}'".format(json.dumps(firewall_rules))
@@ -228,30 +229,15 @@ if __name__ == "__main__":
         firewall_rules['egress'] = []
 
         ingress_rule = dict()
-        ingress_rule['name'] = edge_conf['fw_nb_ingress'] + '-1'
+        ingress_rule['name'] = edge_conf['fw_nb_ingress']
         ingress_rule['targetTags'] = [
             edge_conf['notebook_firewall_target'],
             edge_conf['dataproc_firewall_target']
         ]
-        ingress_rule['sourceRanges'] = [edge_conf['private_subnet_cidr']]
-        rules = [
-            {
-                'IPProtocol': 'all'
-            }
-        ]
-        ingress_rule['allowed'] = rules
-        ingress_rule['network'] = edge_conf['vpc_selflink']
-        ingress_rule['direction'] = 'INGRESS'
-        firewall_rules['ingress'].append(ingress_rule)
-
-        ingress_rule = dict()
-        ingress_rule['name'] = edge_conf['fw_nb_ingress'] + '-2'
-        ingress_rule['targetTags'] = [
-            edge_conf['notebook_firewall_target'],
-            edge_conf['dataproc_firewall_target']
-        ]
-        ingress_rule['sourceRanges'] = [GCPMeta().get_subnet(edge_conf['subnet_name'],
-                                                             edge_conf['region'])['ipCidrRange']]
+        ingress_rule['sourceRanges'] = [edge_conf['private_subnet_cidr'],
+                                        GCPMeta().get_subnet(edge_conf['subnet_name'],
+                                                             edge_conf['region'])['ipCidrRange']
+                                        ]
         rules = [
             {
                 'IPProtocol': 'all'
@@ -263,12 +249,15 @@ if __name__ == "__main__":
         firewall_rules['ingress'].append(ingress_rule)
 
         egress_rule = dict()
-        egress_rule['name'] = edge_conf['fw_nb_egress'] + '-1'
+        egress_rule['name'] = edge_conf['fw_nb_egress_private']
         egress_rule['targetTags'] = [
             edge_conf['notebook_firewall_target'],
             edge_conf['dataproc_firewall_target']
         ]
-        egress_rule['destinationRanges'] = [edge_conf['private_subnet_cidr']]
+        egress_rule['destinationRanges'] = [edge_conf['private_subnet_cidr'],
+                                            GCPMeta().get_subnet(edge_conf['subnet_name'],
+                                                                 edge_conf['region'])['ipCidrRange']
+                                            ]
         rules = [
             {
                 'IPProtocol': 'all'
@@ -280,25 +269,7 @@ if __name__ == "__main__":
         firewall_rules['egress'].append(egress_rule)
 
         egress_rule = dict()
-        egress_rule['name'] = edge_conf['fw_nb_egress'] + '-2'
-        egress_rule['targetTags'] = [
-            edge_conf['notebook_firewall_target'],
-            edge_conf['dataproc_firewall_target']
-        ]
-        egress_rule['destinationRanges'] = [GCPMeta().get_subnet(edge_conf['subnet_name'],
-                                                             edge_conf['region'])['ipCidrRange']]
-        rules = [
-            {
-                'IPProtocol': 'all'
-            }
-        ]
-        egress_rule['allowed'] = rules
-        egress_rule['network'] = edge_conf['vpc_selflink']
-        egress_rule['direction'] = 'EGRESS'
-        firewall_rules['egress'].append(egress_rule)
-
-        egress_rule = dict()
-        egress_rule['name'] = edge_conf['fw_nb_egress'] + '-3'
+        egress_rule['name'] = edge_conf['fw_nb_egress_public']
         egress_rule['targetTags'] = [
             edge_conf['notebook_firewall_target'],
             edge_conf['dataproc_firewall_target']
