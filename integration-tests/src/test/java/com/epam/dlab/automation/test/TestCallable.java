@@ -150,11 +150,11 @@ private DeployClusterDto createClusterDto() throws Exception {
     DeployClusterDto clusterDto = null;
     if ("dataengine".equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
-					Paths.get(PropertiesResolver.getClusterConfFileLocation(), "spark_cluster.json").toString(),
+					Paths.get(String.format("%s/%s", PropertiesResolver.getClusterConfFileLocation(), notebookTemplate), "spark_cluster.json").toString(),
 					DeploySparkDto.class);
     } else if ("dataengine-service".equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
-					Paths.get(PropertiesResolver.getClusterConfFileLocation(), "EMR.json").toString(),
+					Paths.get(String.format("%s/%s", PropertiesResolver.getClusterConfFileLocation(), notebookTemplate), "EMR.json").toString(),
 					DeployEMRDto.class);
     } else {
 		LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
@@ -198,7 +198,7 @@ private DeployClusterDto createClusterDto() throws Exception {
 
 private String  createNotebook(String notebookName) throws Exception {
        LOGGER.info("6. Notebook {} will be created ...", notebookName);
-       String notebookConfigurationFile = String.format(PropertiesResolver.NOTEBOOK_CONFIGURATION_FILE_TEMPLATE, notebookTemplate);
+       String notebookConfigurationFile = String.format(PropertiesResolver.NOTEBOOK_CONFIGURATION_FILE_TEMPLATE, notebookTemplate, notebookTemplate);
        LOGGER.info("{} notebook configuration file: {}", notebookName, notebookConfigurationFile);
 
        CreateNotebookDto createNoteBookRequest =
