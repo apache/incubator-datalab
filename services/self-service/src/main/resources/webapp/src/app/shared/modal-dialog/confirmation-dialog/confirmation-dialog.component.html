@@ -27,11 +27,9 @@ limitations under the License.
     </h4>
   </modal-header>
   <modal-content>
-      <div class="row">
-        <div class="col-xs-12">
-          <p>{{model.title}}</p>
-        </div>
-      </div>
+    <div class="content-box">
+      <p>{{model.title}}</p>
+
       <div *ngIf="model.notebook.resources" class="row">
         <div class="col-xs-6">
           <p>Computational resources:</p>
@@ -56,5 +54,6 @@ limitations under the License.
         <button md-raised-button type="button" class="butt" (click)="bindDialog.close()">No</button>
         <button md-raised-button type="button" class="butt butt-success" (click)="model.confirmAction()">Yes</button>
       </div>
+    </div>
   </modal-content>
 </modal-dialog>

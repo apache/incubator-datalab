@@ -33,7 +33,7 @@ args = parser.parse_args()
 
 
 def upload_response_file(instance_name, local_log_filepath, os_user):
-    print 'Connect to SSN instance with hostname: ' + args.instance_hostname + 'and name: ' + instance_name
+    print('Connect to SSN instance with hostname: {0} and name: {1}'.format(args.instance_hostname, instance_name))
     env['connection_attempts'] = 100
     env.key_filename = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     env.host_string = '{}@{}'.format(os_user, args.instance_hostname)
@@ -44,7 +44,7 @@ def upload_response_file(instance_name, local_log_filepath, os_user):
         sudo('mv /home/{}/ssn.log /var/opt/dlab/log/ssn/'.format(os_user))
         return True
     except:
-        print 'Failed to upload response file'
+        print('Failed to upload response file')
         return False
 
 

@@ -17,9 +17,9 @@ limitations under the License.
 ****************************************************************************/
 
 import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
-
 import { NgDateRangePickerOptions } from 'ng-daterangepicker';
-import * as moment from 'moment';
+
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-toolbar',
@@ -28,6 +28,8 @@ import * as moment from 'moment';
   encapsulation: ViewEncapsulation.None
 })
 export class ToolbarComponent implements OnInit, AfterViewInit {
+  readonly DICTIONARY = DICTIONARY;
+
   reportData: any;
   availablePeriodFrom: string;
   availablePeriodTo: string;
@@ -97,24 +99,5 @@ export class ToolbarComponent implements OnInit, AfterViewInit {
 
   export($event): void {
     this.exportReport.emit($event);
-  }
-
-  calculateRange(option: string): void {
-    let rangeValue;
-
-    switch(option) {
-      case 'YTD':
-          rangeValue = moment().startOf('year').format('YYYY-MM-DD');
-          break;
-      case 'QTD':
-          rangeValue = moment().quarter(moment().quarter()).startOf('quarter').format('YYYY-MM-DD');
-          break;
-      case 'MTD':
-          rangeValue = moment().startOf('months').format('YYYY-MM-DD');
-          break;
-      default:
-          rangeValue = '';
-    }
-    this.setRangeOption.emit(rangeValue);
   }
 }

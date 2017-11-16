@@ -31,16 +31,18 @@ import os, time
 
 
 def enable_proxy(proxy_host, proxy_port):
-    if not exists('/tmp/proxy_enabled'):
-        try:
-            proxy_string = "http://%s:%s" % (proxy_host, proxy_port)
-            sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
-            sudo('echo export https_proxy=' + proxy_string + ' >> /etc/profile')
-            sudo("echo 'proxy={}' >> /etc/yum.conf".format(proxy_string))
-            sudo('yum clean all')
-            sudo('touch /tmp/proxy_enabled ')
-        except:
-            sys.exit(1)
+    try:
+        proxy_string = "http://%s:%s" % (proxy_host, proxy_port)
+        sudo('sed -i "/^export http_proxy/d" /etc/profile')
+        sudo('sed -i "/^export https_proxy/d" /etc/profile')
+        sudo('echo export http_proxy=' + proxy_string + ' >> /etc/profile')
+        sudo('echo export https_proxy=' + proxy_string + ' >> /etc/profile')
+        if exists('/etc/yum.conf'):
+            sudo('sed -i "/^proxy=/d" /etc/yum.conf')
+        sudo("echo 'proxy={}' >> /etc/yum.conf".format(proxy_string))
+        sudo('yum clean all')
+    except:
+        sys.exit(1)
 
 
 def ensure_r_local_kernel(spark_version, os_user, templates_dir, kernels_dir):
@@ -114,9 +116,9 @@ def install_rstudio(os_user, local_spark_path, rstudio_pass, rstudio_version):
 def ensure_matplot(os_user):
     if not exists('/home/{}/.ensure_dir/matplot_ensured'.format(os_user)):
         try:
-            sudo('pip2 install matplotlib --no-cache-dir')
-            sudo('python3.5 -m pip install matplotlib --no-cache-dir')
-            if os.environ['application'] == 'tensor':
+            sudo('pip2 install matplotlib==2.0.2 --no-cache-dir')
+            sudo('python3.5 -m pip install matplotlib==2.0.2 --no-cache-dir')
+            if os.environ['application'] in ('tensor', 'deeplearning'):
                 sudo('rm -rf  /usr/lib64/python2.7/site-packages/numpy*')
                 sudo('python2.7 -m pip install -U numpy --no-cache-dir')
             sudo('touch /home/{}/.ensure_dir/matplot_ensured'.format(os_user))
@@ -159,14 +161,12 @@ def ensure_additional_python_libs(os_user):
         try:
             sudo('yum clean all')
             sudo('yum install -y zlib-devel libjpeg-turbo-devel --nogpgcheck')
-            if os.environ['application'] == 'jupyter' or os.environ['application'] == 'zeppelin':
+            if os.environ['application'] in ('jupyter', 'zeppelin'):
                 sudo('pip2 install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
                 sudo('python3.5 -m pip install NumPy SciPy pandas Sympy Pillow sklearn --no-cache-dir')
-            if os.environ['application'] == 'tensor':
-                sudo('python2.7 -m pip install keras opencv-python h5py --no-cache-dir')
-                sudo('python2.7 -m ipykernel install')
-                sudo('python3.5 -m pip install keras opencv-python h5py --no-cache-dir')
-                sudo('python3.5 -m ipykernel install')
+            if os.environ['application'] in ('tensor', 'deeplearning'):
+                sudo('python2.7 -m pip install opencv-python h5py --no-cache-dir')
+                sudo('python3.5 -m pip install opencv-python h5py --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/additional_python_libs_ensured')
         except:
             sys.exit(1)
@@ -223,15 +223,15 @@ def ensure_python3_libraries(os_user):
             sys.exit(1)
 
 
-def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia_version):
+def install_tensor(os_user, tensorflow_version, templates_dir, nvidia_version):
     if not exists('/home/' + os_user + '/.ensure_dir/tensor_ensured'):
         try:
             # install nvidia drivers
             sudo('echo "blacklist nouveau" >> /etc/modprobe.d/blacklist-nouveau.conf')
             sudo('echo "options nouveau modeset=0" >> /etc/modprobe.d/blacklist-nouveau.conf')
             sudo('dracut --force')
-            sudo('shutdown -r 1')
-            time.sleep(90)
+            with settings(warn_only=True):
+                reboot(wait=150)
             sudo('yum -y install gcc kernel-devel-$(uname -r) kernel-headers-$(uname -r)')
             sudo('wget http://us.download.nvidia.com/XFree86/Linux-x86_64/{0}/NVIDIA-Linux-x86_64-{0}.run -O /home/{1}/NVIDIA-Linux-x86_64-{0}.run'.format(nvidia_version, os_user))
             sudo('/bin/bash /home/{0}/NVIDIA-Linux-x86_64-{1}.run -s'.format(os_user, nvidia_version))
@@ -267,9 +267,6 @@ def install_tensor(os_user, tensorflow_version, files_dir, templates_dir, nvidia
             sudo("systemctl daemon-reload")
             sudo("systemctl enable tensorboard")
             sudo("systemctl start tensorboard")
-            # install Theano
-            sudo('python2.7 -m pip install Theano --no-cache-dir')
-            sudo('python3.5 -m pip install Theano --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/tensor_ensured')
         except:
             sys.exit(1)
@@ -315,7 +312,7 @@ def install_os_pkg(requisites):
     status = list()
     error_parser = "Could not|No matching|Error:|failed|Requires:|Errno"
     try:
-        print "Updating repositories and installing requested tools: ", requisites
+        print("Updating repositories and installing requested tools: {}".format(requisites))
         sudo('yum update-minimal --security -y --skip-broken')
         sudo('export LC_ALL=C')
         for os_pkg in requisites:
@@ -360,7 +357,7 @@ def install_opencv(os_user):
         sudo('touch /home/' + os_user + '/.ensure_dir/opencv_ensured')
 
 
-def install_caffe(os_user, region):
+def install_caffe(os_user, region, caffe_version):
     if not exists('/home/{}/.ensure_dir/caffe_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         install_opencv(os_user)
@@ -376,11 +373,12 @@ def install_caffe(os_user, region):
             sudo('echo "gpgcheck=1" >> centos.repo')
             sudo('echo "gpgkey=http://{}/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7" >> centos.repo'.format(mirror))
         sudo('yum update-minimal --security -y')
-        sudo('yum install -y protobuf-devel leveldb-devel snappy-devel boost-devel hdf5-devel gcc gcc-c++')
+        sudo('yum install -y --nogpgcheck protobuf-devel leveldb-devel snappy-devel boost-devel hdf5-devel gcc gcc-c++')
         sudo('yum install -y gflags-devel glog-devel lmdb-devel yum-utils && package-cleanup --cleandupes')
         sudo('yum install -y openblas-devel gflags-devel glog-devel lmdb-devel')
         sudo('git clone https://github.com/BVLC/caffe.git')
         with cd('/home/{}/caffe/'.format(os_user)):
+            sudo('git checkout {}'.format(caffe_version))
             sudo('pip2 install -r python/requirements.txt --no-cache-dir')
             sudo('pip3.5 install -r python/requirements.txt --no-cache-dir')
             sudo('echo "CUDA_DIR := /usr/local/cuda" > Makefile.config')
@@ -405,57 +403,55 @@ def install_caffe(os_user, region):
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe_ensured')
 
 
-def install_caffe2(os_user):
+def install_caffe2(os_user, caffe2_version):
     if not exists('/home/{}/.ensure_dir/caffe2_ensured'.format(os_user)):
         env.shell = "/bin/bash -l -c -i"
         sudo('yum update-minimal --security -y')
-        sudo('yum install -y automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
-        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
+        sudo('yum install -y --nogpgcheck automake cmake3 gcc gcc-c++ kernel-devel leveldb-devel lmdb-devel libtool protobuf-devel graphviz')
+        sudo('pip2 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future --no-cache-dir')
-        sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib numpy protobuf pydot python-nvd3 pyyaml '
+        sudo('pip3.5 install flask graphviz hypothesis jupyter matplotlib==2.0.2 numpy protobuf pydot python-nvd3 pyyaml '
              'requests scikit-image scipy setuptools tornado future --no-cache-dir')
         sudo('cp /opt/cudnn/include/* /opt/cuda-8.0/include/')
         sudo('cp /opt/cudnn/lib64/* /opt/cuda-8.0/lib64/')
         sudo('git clone --recursive https://github.com/caffe2/caffe2')
         cuda_arch = sudo("/opt/cuda-8.0/extras/demo_suite/deviceQuery | grep 'CUDA Capability' | tr -d ' ' | cut -f2 -d ':'")
         with cd('/home/{}/caffe2/'.format(os_user)):
+            with settings(warn_only=True):
+                sudo('git checkout v{}'.format(caffe2_version))
+                sudo('git submodule update --recursive')
             sudo('mkdir build && cd build && cmake .. -DCUDA_ARCH_BIN="{0}" -DCUDA_ARCH_PTX="{0}" && make "-j$(nproc)" install'.format(cuda_arch.replace('.', '')))
         sudo('touch /home/' + os_user + '/.ensure_dir/caffe2_ensured')
 
 
-def install_cntk(os_user):
+def install_cntk(os_user, cntk_version):
     if not exists('/home/{}/.ensure_dir/cntk_ensured'.format(os_user)):
         sudo('echo "exclude=*.i386 *.i686" >> /etc/yum.conf')
         sudo('yum clean all && yum update-minimal --security -y')
         sudo('yum install -y openmpi openmpi-devel --nogpgcheck')
-        sudo('sed -i "s/LD_LIBRARY_PATH:/LD_LIBRARY_PATH:\/usr\/lib64\/openmpi\/lib:/g" /etc/systemd/system/jupyter-notebook.service')
-        sudo('systemctl daemon-reload')
-        sudo('systemctl restart jupyter-notebook')
-        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp27-cp27mu-linux_x86_64.whl --no-cache-dir')
-        sudo('pip3.5 install https://cntk.ai/PythonWheel/GPU/cntk-2.0rc3-cp35-cp35m-linux_x86_64.whl --no-cache-dir')
+        sudo('pip2 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp27-cp27mu-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
+        sudo('pip3.5 install https://cntk.ai/PythonWheel/GPU/cntk-{}-cp35-cp35m-linux_x86_64.whl --no-cache-dir'.format(cntk_version))
         sudo('touch /home/{}/.ensure_dir/cntk_ensured'.format(os_user))
 
 
-def install_keras(os_user):
+def install_keras(os_user, keras_version):
     if not exists('/home/{}/.ensure_dir/keras_ensured'.format(os_user)):
-        sudo('pip2 install keras --no-cache-dir')
-        sudo('pip3.5 install keras --no-cache-dir')
-        sudo('pip2 uninstall -y ipython')
-        sudo('pip2 uninstall -y ipython')
-        sudo('pip2 install ipython --no-cache-dir')
-        sudo('pip2 uninstall -y matplotlib')
-        sudo('pip2 uninstall -y matplotlib')
-        sudo('pip2 install matplotlib --no-cache-dir')
-        sudo('pip2 uninstall -y numpy')
-        sudo('pip2 uninstall -y numpy ')
-        sudo('pip2 install numpy --no-cache-dir')
+        sudo('pip2 install keras=={} --no-cache-dir'.format(keras_version))
+        sudo('pip3.5 install keras=={} --no-cache-dir'.format(keras_version))
         sudo('touch /home/{}/.ensure_dir/keras_ensured'.format(os_user))
 
 
-def install_mxnet(os_user):
+def install_theano(os_user, theano_version):
+    if not exists('/home/{}/.ensure_dir/theano_ensured'.format(os_user)):
+        sudo('python2.7 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
+        sudo('python3.5 -m pip install Theano=={} --no-cache-dir'.format(theano_version))
+        sudo('touch /home/{}/.ensure_dir/theano_ensured'.format(os_user))
+
+
+def install_mxnet(os_user, mxnet_version):
     if not exists('/home/{}/.ensure_dir/mxnet_ensured'.format(os_user)):
-        sudo('pip2 install mxnet-cu80 opencv-python --no-cache-dir')
-        sudo('pip3.5 install mxnet-cu80 opencv-python --no-cache-dir')
+        sudo('pip2 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
+        sudo('pip3.5 install mxnet-cu80=={} opencv-python --no-cache-dir'.format(mxnet_version))
         sudo('touch /home/{}/.ensure_dir/mxnet_ensured'.format(os_user))
 
 
@@ -465,7 +461,7 @@ def install_torch(os_user):
         with cd('/home/{}/torch/'.format(os_user)):
             sudo('yum install -y --nogpgcheck cmake curl readline-devel ncurses-devel gcc-c++ gcc-gfortran git '
                  'gnuplot unzip libjpeg-turbo-devel libpng-devel ImageMagick GraphicsMagick-devel fftw-devel '
-                 'sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld ipython qt-devel')
+                 'sox-devel sox zeromq3-devel qt-devel qtwebkit-devel sox-plugins-freeworld qt-devel')
             run('./install.sh -b')
         run('source /home/{}/.bashrc'.format(os_user))
         sudo('touch /home/{}/.ensure_dir/torch_ensured'.format(os_user))
@@ -476,5 +472,4 @@ def install_gitlab_cert(os_user, certfile):
         sudo('mv -f /home/{0}/{1} /etc/pki/ca-trust/source/anchors/{1}'.format(os_user, certfile))
         sudo('update-ca-trust')
     except Exception as err:
-        print 'Failed to install gitlab certificate.', str(err)
-        pass
+        print('Failed to install gitlab certificate.{}'.format(str(err)))

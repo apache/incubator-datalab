@@ -1,0 +1,10 @@
+{
+    "conf_resource": "dataengine",
+    "request_id":"RID",
+    "conf_service_base_name":"SBN",
+    "azure_resource_group_name": "ARGN",
+    "edge_user_name":"NUN",
+    "computational_id": "CNAM",
+    "conf_key_name":"CKN",
+    "application":"APP"
+}

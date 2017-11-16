@@ -52,8 +52,8 @@ if __name__ == "__main__":
     notebook_config['user_keyname'] = os.environ['edge_user_name']
     notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
-    notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
+    notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + os.environ['application'] + \
+                                           '-notebook-image'
     notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
                                            os.environ['edge_user_name'] + "-nb-Profile"
     notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     # configuring proxy on Notebook instance
     try:
         logging.info('[CONFIGURE PROXY ON R_STUDIO INSTANCE]')
-        print '[CONFIGURE PROXY ON R_STUDIO INSTANCE]'
+        print('[CONFIGURE PROXY ON R_STUDIO INSTANCE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
             .format(instance_hostname, notebook_config['instance_name'], keyfile_name, json.dumps(additional_config),
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     # installing and configuring R_STUDIO and all dependencies
     try:
         logging.info('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
-        print '[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]'
+        print('[CONFIGURE R_STUDIO NOTEBOOK INSTANCE]')
         params = "--hostname {}  --keyfile {} --region {} --rstudio_pass {} --rstudio_version {} --os_user {} --r_mirror {}" \
             .format(instance_hostname, keyfile_name, os.environ['aws_region'], notebook_config['rstudio_pass'],
                     os.environ['notebook_rstudio_version'], notebook_config['dlab_ssh_user'], os.environ['notebook_r_mirror'])
@@ -144,7 +144,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[INSTALLING USERs KEY]'
+        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": notebook_config['user_keyname'],
                              "user_keydir": os.environ['conf_key_dir']}
@@ -161,7 +161,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[SETUP USER GIT CREDENTIALS]'
+        print('[SETUP USER GIT CREDENTIALS]')
         logging.info('[SETUP USER GIT CREDENTIALS]')
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
@@ -176,16 +176,16 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[CREATING AMI]'
+        print('[CREATING AMI]')
         logging.info('[CREATING AMI]')
         ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
         if ami_id == '':
-            print "Looks like it's first time we configure notebook server. Creating image."
+            print("Looks like it's first time we configure notebook server. Creating image.")
             image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
                                                   instance_name=notebook_config['instance_name'],
                                                   image_name=notebook_config['expected_ami_name'])
             if image_id != '':
-                print "Image was successfully created. It's ID is " + image_id
+                print("Image was successfully created. It's ID is {}".format(image_id))
     except Exception as err:
         append_result("Failed installing users key.", str(err))
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
@@ -197,27 +197,27 @@ if __name__ == "__main__":
     rstudio_ip_url = "http://" + ip_address + ":8787/"
     rstudio_dns_url = "http://" + dns_name + ":8787/"
     ungit_ip_url = "http://" + ip_address + ":8085/"
-    print '[SUMMARY]'
+    print('[SUMMARY]')
     logging.info('[SUMMARY]')
-    print "Instance name: " + notebook_config['instance_name']
-    print "Private DNS: " + dns_name
-    print "Private IP: " + ip_address
-    print "Instance ID: " + get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name'])
-    print "Instance type: " + notebook_config['instance_type']
-    print "Key name: " + notebook_config['key_name']
-    print "User key name: " + notebook_config['user_keyname']
-    print "AMI name: " + notebook_config['expected_ami_name']
-    print "Profile name: " + notebook_config['role_profile_name']
-    print "SG name: " + notebook_config['security_group_name']
-    print "Rstudio URL: " + rstudio_ip_url
-    print "Rstudio URL: " + rstudio_dns_url
-    print "Rstudio user: " + notebook_config['dlab_ssh_user']
-    print "Rstudio pass: " + notebook_config['rstudio_pass']
-    print "Ungit URL: " + ungit_ip_url
-    print 'SSH access (from Edge node, via IP address): ssh -i ' + notebook_config[
-        'key_name'] + '.pem ' + notebook_config['dlab_ssh_user'] + '@' + ip_address
-    print 'SSH access (from Edge node, via FQDN): ssh -i ' + notebook_config['key_name'] + '.pem ' + \
-          notebook_config['dlab_ssh_user'] + '@' + dns_name
+    print("Instance name: {}".format(notebook_config['instance_name']))
+    print("Private DNS: {}".format(dns_name))
+    print("Private IP: {}".format(ip_address))
+    print("Instance ID: {}".format(get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name'])))
+    print("Instance type: {}".format(notebook_config['instance_type']))
+    print("Key name: {}".format(notebook_config['key_name']))
+    print("User key name: {}".format(notebook_config['user_keyname']))
+    print("AMI name: {}".format(notebook_config['expected_ami_name']))
+    print("Profile name: {}".format(notebook_config['role_profile_name']))
+    print("SG name: {}".format(notebook_config['security_group_name']))
+    print("Rstudio URL: {}".format(rstudio_ip_url))
+    print("Rstudio URL: {}".format(rstudio_dns_url))
+    print("Rstudio user: {}".format(notebook_config['dlab_ssh_user']))
+    print("Rstudio pass: {}".format(notebook_config['rstudio_pass']))
+    print("Ungit URL: {}".format(ungit_ip_url))
+    print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.
+          format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address))
+    print('SSH access (from Edge node, via FQDN): ssh -i {0}.pem {1}@{2}'.
+          format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], dns_name))
 
     with open("/root/result.json", 'w') as result:
         res = {"hostname": dns_name,

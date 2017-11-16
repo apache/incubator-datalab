@@ -19,8 +19,7 @@ limitations under the License.
 <table class="dashboard_table">
   <tr>
     <th *ngFor="let column of filteringColumns"
-        ngClass="{{column.className || ''}}"
-        [hidden]="DICTIONARY.cloud_provider !== 'aws' && column.name === 'cost'">
+        ngClass="{{column.className || ''}}">
       {{column.title}}
       <button md-icon-button *ngIf="column.filtering" aria-label="More" class="pull-right" (click)="toggleFilterRow()">
         <i class="material-icons">
@@ -39,12 +38,12 @@ limitations under the License.
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'" [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
     </td>
     <td>
-      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'shapes'" [items]="filterConfiguration.shapes" [model]="filterForm.shapes"></multi-select-dropdown>
+      <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="DICTIONARY.cloud_provider === 'aws' ? 'shapes': 'sizes'" [items]="filterConfiguration.shapes" [model]="filterForm.shapes"></multi-select-dropdown>
     </td>
     <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'" [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
     </td>
-    <td [hidden]="DICTIONARY.cloud_provider !== 'aws'"></td>
+    <td></td>
     <td>
       <div class="actions">
         <button md-icon-button class="btn reset" (click)="resetFilterConfigurations()">
@@ -59,11 +58,11 @@ limitations under the License.
   </tr>
 
   <tr *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering" class="message_block">
-    <td [colSpan]="DICTIONARY.cloud_provider !== 'aws' ? filteringColumns.length -1 : filteringColumns.length">To start working, please, create new environment</td>
+    <td [colSpan]="filteringColumns.length">To start working, please, create new environment</td>
   </tr>
 
   <tr *ngIf="(filteredEnvironments.length == 0) && filtering" class="message_block">
-    <td [colSpan]="DICTIONARY.cloud_provider !== 'aws' ? filteringColumns.length -1 : filteringColumns.length">No matches found</td>
+    <td [colSpan]="filteringColumns.length">No matches found</td>
   </tr>
 
   <tr *ngFor="let env of filteredEnvironments;" class="dashboard_table_body" [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
@@ -75,10 +74,8 @@ limitations under the License.
     <td>
       <computational-resources-list [resources]="env.resources" [environment]="env" (buildGrid)="buildGrid($event)"></computational-resources-list>
     </td>
-    <td [hidden]="DICTIONARY.cloud_provider !== 'aws'">
-      <span class="total_cost">{{env.cost || 'N/A'}} {{env.currency_code || ''}}</span>
-      <!-- (click)="env.billing && printCostDetails(env)" -->
-      <!-- [ngClass]="{'not-allowed' : !env.billing}" -->
+    <td>
+      <span class="total_cost">{{ env.cost || 'N/A' }} {{env.currency_code || ''}}</span>
       <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}"></span>
     </td>
     <td>
@@ -105,8 +102,6 @@ limitations under the License.
                 *ngIf="env.status != 'stopping'
                 && env.status != 'stopped'
                 && env.status != 'starting'
-                && env.template_name.toLowerCase().indexOf('tensorflow') === -1
-                && env.template_name.toLowerCase().indexOf('deep learning') === -1
                 ">Add computational resources</li>
             <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
           </ul>

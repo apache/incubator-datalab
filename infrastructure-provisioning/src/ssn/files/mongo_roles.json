@@ -41,7 +41,7 @@
   },
   {
     "_id": "nbCreateRstudio",
-    "description": "Create Notebook R-Studio",
+    "description": "Create Notebook RStudio",
     "exploratories": [
       "docker.dlab-rstudio"
     ],

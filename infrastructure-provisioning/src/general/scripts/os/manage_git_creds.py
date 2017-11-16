@@ -54,7 +54,7 @@ if __name__ == "__main__":
             run('rm .gitcreds')
         git_creds = os.environ['git_creds']
     except KeyError:
-        print "Parameter git_creds does not exist. Skipping."
+        print("Parameter git_creds does not exist. Skipping.")
         sys.exit(0)
 
     try:

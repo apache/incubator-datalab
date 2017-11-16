@@ -32,7 +32,7 @@ parser.add_argument('--os_user', type=str, default='')
 args = parser.parse_args()
 
 resource_group_name = os.environ['azure_resource_group_name']
-ssn_storage_account_tag = os.environ['conf_service_base_name'] + 'ssn'
+ssn_storage_account_tag = os.environ['conf_service_base_name'] + '-ssn-storage'
 container_name = ('{}-ssn-container'.format(os.environ['conf_service_base_name'])).lower().replace('_', '-')
 gitlab_certfile = os.environ['conf_gitlab_certfile']
 
@@ -44,11 +44,11 @@ if __name__ == "__main__":
     env.host_string = env.user + "@" + env.hosts
 
     for storage_account in AzureMeta().list_storage_accounts(resource_group_name):
-        if ssn_storage_account_tag == storage_account.tags["account_name"]:
+        if ssn_storage_account_tag == storage_account.tags["Name"]:
             ssn_storage_account_name = storage_account.name
     if AzureActions().download_from_container(resource_group_name, ssn_storage_account_name, container_name, gitlab_certfile):
         put(gitlab_certfile, gitlab_certfile)
         sudo('chown root:root {}'.format(gitlab_certfile))
-        print '{} has been downloaded'.format(gitlab_certfile)
+        print('{} has been downloaded'.format(gitlab_certfile))
     else:
-        print 'There is no {} to download'.format(gitlab_certfile)
+        print('There is no {} to download'.format(gitlab_certfile))

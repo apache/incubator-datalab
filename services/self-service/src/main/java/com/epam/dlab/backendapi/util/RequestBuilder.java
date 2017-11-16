@@ -18,32 +18,33 @@ package com.epam.dlab.backendapi.util;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.core.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
+import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
-import com.epam.dlab.backendapi.resources.dto.azure.AzureComputationalCreateForm;
 import com.epam.dlab.cloud.CloudProvider;
-import com.epam.dlab.dto.ResourceBaseDTO;
-import com.epam.dlab.dto.ResourceSysBaseDTO;
-import com.epam.dlab.dto.UserEnvironmentResources;
+import com.epam.dlab.dto.*;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
+import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
 import com.epam.dlab.dto.aws.exploratory.ExploratoryCreateAws;
 import com.epam.dlab.dto.aws.keyload.UploadFileAws;
 import com.epam.dlab.dto.azure.AzureCloudSettings;
-import com.epam.dlab.dto.azure.computational.ComputationalCreateAzure;
+import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.dlab.dto.azure.edge.EdgeCreateAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
 import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
 import com.epam.dlab.dto.base.CloudSettings;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
+import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -51,11 +52,15 @@ import com.google.inject.Inject;
 import java.util.ArrayList;
 
 public class RequestBuilder {
-    @Inject
-    private static SelfServiceApplicationConfiguration configuration;
+    private static final String UNSUPPORTED_CLOUD_PROVIDER_MESSAGE = "Unsupported cloud provider ";
 
     @Inject
+    private static SelfServiceApplicationConfiguration configuration;
+    @Inject
     private static SettingsDAO settingsDAO;
+
+    private RequestBuilder() {
+    }
 
     private static CloudSettings cloudSettings(UserInfo userInfo) {
         switch (cloudProvider()) {
@@ -76,7 +81,7 @@ public class RequestBuilder {
                         .azureVpcName(settingsDAO.getAzureVpcName())
                         .azureIamUser(userInfo.getName()).build();
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -91,7 +96,7 @@ public class RequestBuilder {
                             .withEdgeUserName(userInfo.getSimpleName())
                             .withCloudSettings(cloudSettings(userInfo));
                 default:
-                    throw new DlabException("Unknown cloud provider " + cloudProvider());
+                    throw new DlabException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
             }
         } catch (Exception e) {
             throw new DlabException("Cannot create instance of resource class " + resourceClass.getName() + ". " +
@@ -133,7 +138,7 @@ public class RequestBuilder {
 
             case GCP:
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -146,7 +151,7 @@ public class RequestBuilder {
 
             case GCP:
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -157,7 +162,7 @@ public class RequestBuilder {
                 return newResourceSysBaseDTO(userInfo, UserEnvironmentResources.class);
             case GCP:
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -177,7 +182,7 @@ public class RequestBuilder {
                         .withNotebookInstanceSize(formDTO.getShape());
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
 
         return exploratoryCreate.withExploratoryName(formDTO.getName())
@@ -202,7 +207,7 @@ public class RequestBuilder {
                         .withExploratoryName(userInstance.getExploratoryName());
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
 
         return exploratoryStart;
@@ -221,7 +226,7 @@ public class RequestBuilder {
                 exploratoryStop = (T) newResourceSysBaseDTO(userInfo, ExploratoryActionStopAzure.class);
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
 
         return exploratoryStop
@@ -245,16 +250,16 @@ public class RequestBuilder {
                         .withGitCreds(exploratoryGitCredsDTO.getGitCreds());
 
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
-    public static ExploratoryLibInstallDTO newLibExploratoryInstall(UserInfo userInfo, UserInstanceDTO userInstance) {
+    public static LibraryInstallDTO newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance) {
 
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
-                return newResourceSysBaseDTO(userInfo, ExploratoryLibInstallDTO.class)
+                return newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
                         .withNotebookImage(userInstance.getImageName())
                         .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
                         .withNotebookInstanceName(userInstance.getExploratoryId())
@@ -262,7 +267,7 @@ public class RequestBuilder {
                         .withLibs(new ArrayList<>());
 
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -279,7 +284,45 @@ public class RequestBuilder {
                         .withExploratoryName(userInstance.getExploratoryName());
 
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends LibraryInstallDTO> T newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance,
+                                                                UserComputationalResource computationalResource) {
+
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+                return (T) newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
+                        .withComputationalId(computationalResource.getComputationalId())
+                        .withComputationalName(computationalResource.getComputationalName())
+                        .withExploratoryName(userInstance.getExploratoryName())
+                        .withComputationalImage(computationalResource.getImageName())
+                        .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+                        .withLibs(new ArrayList<>());
+
+            default:
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends LibListComputationalDTO> T newLibComputationalList(UserInfo userInfo, UserInstanceDTO userInstance,
+                                                                                UserComputationalResource computationalResource) {
+
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+                return (T) newResourceSysBaseDTO(userInfo, LibListComputationalDTO.class)
+                        .withComputationalId(computationalResource.getComputationalId())
+                        .withComputationalImage(computationalResource.getImageName())
+                        .withLibCacheKey(ExploratoryLibCache.libraryCacheKey(userInstance))
+                        .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()));
+
+            default:
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
     }
 
@@ -291,6 +334,7 @@ public class RequestBuilder {
 
         switch (cloudProvider()) {
             case AWS:
+            case AZURE:
                 AwsComputationalCreateForm awsForm = (AwsComputationalCreateForm) form;
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo, ComputationalCreateAws.class)
                         .withInstanceCount(awsForm.getInstanceCount())
@@ -300,15 +344,41 @@ public class RequestBuilder {
                         .withSlaveInstanceSpotPctPrice(awsForm.getSlaveInstanceSpotPctPrice())
                         .withVersion(awsForm.getVersion());
                 break;
-            case AZURE:
-                AzureComputationalCreateForm azureForm = (AzureComputationalCreateForm) form;
-                computationalCreate = (T) newResourceSysBaseDTO(userInfo, ComputationalCreateAzure.class)
-                        .withDataEngineInstanceCount(azureForm.getDataEngineInstanceCount())
-                        .withDataEngineMasterSize(azureForm.getDataEngineMasterSize())
-                        .withDataEngineSlaveSize(azureForm.getDataEngineSlaveSize());
-                break;
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
+        }
+
+        return computationalCreate
+                .withExploratoryName(form.getNotebookName())
+                .withComputationalName(form.getName())
+                .withNotebookTemplateName(userInstance.getTemplateName())
+                .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+                .withNotebookInstanceName(userInstance.getExploratoryId());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends ComputationalBase<T>> T newComputationalCreate(UserInfo userInfo,
+                                                                            UserInstanceDTO userInstance,
+                                                                            SparkStandaloneClusterCreateForm form) {
+
+        T computationalCreate;
+
+        switch (cloudProvider()) {
+            case AWS:
+                computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAws.class)
+                        .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
+                        .withDataEngineMasterShape(form.getDataEngineMaster())
+                        .withDataEngineSlaveShape(form.getDataEngineSlave());
+                break;
+            case AZURE:
+                computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateAzure.class)
+                        .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
+                        .withDataEngineMasterSize(form.getDataEngineMaster())
+                        .withDataEngineSlaveSize(form.getDataEngineSlave());
+                break;
+
+            default:
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
 
         return computationalCreate
@@ -324,19 +394,23 @@ public class RequestBuilder {
                                                                                String exploratoryName,
                                                                                String exploratoryId,
                                                                                String computationalName,
-                                                                               String computationalId) {
+                                                                               String computationalId,
+                                                                               DataEngineType dataEngineType) {
         T computationalTerminate;
 
         switch (cloudProvider()) {
             case AWS:
-                computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class)
-                        .withClusterName(computationalId);
+                ComputationalTerminateDTO terminateDTO = newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class);
+                if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
+                    terminateDTO.withClusterName(computationalId);
+                }
+                computationalTerminate = (T) terminateDTO;
                 break;
             case AZURE:
                 computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class);
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider());
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
 
         return computationalTerminate

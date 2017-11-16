@@ -29,16 +29,16 @@ import uuid
 
 
 def terminate_data_engine(resource_group_name, notebook_name, os_user, key_path, cluster_name):
-    print "Terminating data engine cluster"
+    print("Terminating data engine cluster")
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if cluster_name in vm.name:
+            if cluster_name == vm.tags["Name"]:
                 AzureActions().remove_instance(resource_group_name, vm.name)
-                print "Instance {} has been terminated".format(vm.name)
+                print("Instance {} has been terminated".format(vm.name))
     except:
         sys.exit(1)
 
-    print "Removing Data Engine kernels from notebook"
+    print("Removing Data Engine kernels from notebook")
     try:
         AzureActions().remove_dataengine_kernels(resource_group_name, notebook_name, os_user, key_path, cluster_name)
     except:
@@ -53,7 +53,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     data_engine = dict()
     try:
         data_engine['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     data_engine['resource_group_name'] = os.environ['azure_resource_group_name']
     data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
     data_engine['cluster_name'] = \
-        data_engine['service_base_name'] + '-' + data_engine['user_name'] + '-dataengine-' + \
+        data_engine['service_base_name'] + '-' + data_engine['user_name'] + '-de-' + \
         data_engine['exploratory_name'] + '-' + data_engine['computational_name']
     data_engine['notebook_name'] = os.environ['notebook_instance_name']
     data_engine['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE DATA ENGINE]')
-        print '[TERMINATE DATA ENGINE]'
+        print('[TERMINATE DATA ENGINE]')
         try:
             terminate_data_engine(data_engine['resource_group_name'], data_engine['notebook_name'],
                                   os.environ['conf_os_user'], data_engine['key_path'], data_engine['cluster_name'])
@@ -90,8 +90,8 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": data_engine['service_base_name'],
                    "Action": "Terminate Data Engine"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)

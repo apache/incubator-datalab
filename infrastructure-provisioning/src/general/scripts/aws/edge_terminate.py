@@ -25,8 +25,8 @@ import sys, time, os
 from dlab.actions_lib import *
 
 
-def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, allocation_id):
-    print 'Terminating EMR cluster'
+def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, de_sg, emr_sg, allocation_id):
+    print('Terminating EMR cluster')
     try:
         clusters_list = get_emr_list(tag_name)
         if clusters_list:
@@ -36,45 +36,41 @@ def terminate_edge_node(tag_name, user_name, tag_value, nb_sg, edge_sg, allocati
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')
                 terminate_emr(cluster_id)
-                print "The EMR cluster " + emr_name + " has been terminated successfully"
+                print("The EMR cluster {} has been terminated successfully".format(emr_name))
         else:
-            print "There are no EMR clusters to terminate."
+            print("There are no EMR clusters to terminate.")
     except:
         sys.exit(1)
 
-    print "Deregistering notebook's AMI"
-    try:
-        deregister_image(user_name)
-    except:
-        sys.exit(1)
-
-    print "Terminating EDGE and notebook instances"
+    print("Terminating EDGE and notebook instances")
     try:
         remove_ec2(tag_name, tag_value)
     except:
         sys.exit(1)
 
-    print "Removing s3 bucket"
+    print("Removing s3 bucket")
     try:
         remove_s3('edge', user_name)
     except:
         sys.exit(1)
 
-    print "Removing IAM roles and profiles"
+    print("Removing IAM roles and profiles")
     try:
         remove_all_iam_resources('notebook', user_name)
         remove_all_iam_resources('edge', user_name)
     except:
         sys.exit(1)
 
-    print "Removing security groups"
+    print("Removing security groups")
     try:
+        remove_sgroups(emr_sg)
+        remove_sgroups(de_sg)
         remove_sgroups(nb_sg)
         remove_sgroups(edge_sg)
     except:
         sys.exit(1)
 
-    print "Removing private subnet"
+    print("Removing private subnet")
     try:
         remove_subnets(tag_value)
     except:
@@ -90,7 +86,7 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     create_aws_config_files()
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['user_name'] = os.environ['edge_user_name']
@@ -102,13 +98,18 @@ if __name__ == "__main__":
     edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'],
                                                           edge_conf['edge_instance_name']).get('Public')
     edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
+    edge_conf['de_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
+                                             '-dataengine*'
+    edge_conf['emr_sg'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
+                          '-emr*'
 
     try:
         logging.info('[TERMINATE EDGE]')
-        print '[TERMINATE EDGE]'
+        print('[TERMINATE EDGE]')
         try:
             terminate_edge_node(edge_conf['tag_name'], edge_conf['user_name'], edge_conf['tag_value'],
-                                edge_conf['nb_sg'], edge_conf['edge_sg'], edge_conf['allocation_id'])
+                                edge_conf['nb_sg'], edge_conf['edge_sg'], edge_conf['de_sg'], edge_conf['emr_sg'],
+                                edge_conf['allocation_id'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate edge.", str(err))
@@ -120,8 +121,8 @@ if __name__ == "__main__":
             res = {"service_base_name": edge_conf['service_base_name'],
                    "user_name": edge_conf['user_name'],
                    "Action": "Terminate edge node"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)

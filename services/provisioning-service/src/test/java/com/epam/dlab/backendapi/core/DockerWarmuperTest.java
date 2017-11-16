@@ -48,7 +48,7 @@ public class DockerWarmuperTest {
     private ComputationalMetadataDTO computationalMetadata = new
             ComputationalMetadataDTO("executeResult");
     private static final String EXPLORATORY_TEST_JSON = "{\"exploratory_environment_shapes\" : { \"Category\" : [ {\"Size\":\"L\", \"Type\":\"cg1.4xlarge\",\"Ram\": \"22.5 GB\",\"Cpu\": \"16\"}]}}";
-    private static final String COMPUTATIONAL_TEST_JSON = "{\"template_name\":\"DLab AWS EMR\"}";
+    private static final String COMPUTATIONAL_TEST_JSON = "{\"template_name\":\"EMR cluster\"}";
 
     @Before
     public void setup() {
@@ -63,7 +63,7 @@ public class DockerWarmuperTest {
         HashMap<String, List<ComputationalResourceShapeDto>> map = new HashMap<>();
         map.put("Category", metadataArray);
         exploratoryMetadata.setExploratoryEnvironmentShapes(map);
-        computationalMetadata.setTemplateName("DLab AWS EMR");
+        computationalMetadata.setTemplateName("EMR cluster");
     }
 
     @Test

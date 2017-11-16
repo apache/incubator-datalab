@@ -32,7 +32,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     try:
-        print 'Generating infrastructure names and tags'
+        print('Generating infrastructure names and tags')
         edge_conf = dict()
 
         edge_conf['service_base_name'] = os.environ['conf_service_base_name']
@@ -47,12 +47,12 @@ if __name__ == "__main__":
         edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge'
         edge_conf['network_interface_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge-nif'
         edge_conf['static_public_ip_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-edge-ip'
-        edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-primary-disk'
+        edge_conf['primary_disk_name'] = edge_conf['instance_name'] + '-disk0'
         edge_conf['instance_dns_name'] = 'host-' + edge_conf['instance_name'] + '.' + edge_conf['region'] + '.cloudapp.azure.com'
-        edge_conf['storage_account_tag'] = edge_conf['service_base_name'] + edge_conf['user_name']
-        edge_conf['container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-container').\
-            lower()
-        edge_conf['shared_account_tag'] = edge_conf['service_base_name'] + 'shared'
+        edge_conf['user_storage_account_name'] = edge_conf['service_base_name'] + '-' + edge_conf[
+            'user_name'] + '-storage'
+        edge_conf['user_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-container').lower()
+        edge_conf['shared_storage_account_name'] = edge_conf['service_base_name'] + '-shared-storage'
         edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared-container').lower()
         edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
         edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
@@ -118,12 +118,12 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
     try:
-        print '[INSTALLING PREREQUISITES]'
+        print('[INSTALLING PREREQUISITES]')
         logging.info('[INSTALLING PREREQUISITES]')
         params = "--hostname {} --keyfile {} --user {} --region {}".\
             format(instance_hostname, keyfile_name, edge_conf['dlab_ssh_user'], os.environ['azure_region'])
@@ -144,12 +144,12 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
     try:
-        print '[INSTALLING HTTP PROXY]'
+        print('[INSTALLING HTTP PROXY]')
         logging.info('[INSTALLING HTTP PROXY]')
         additional_config = {"exploratory_subnet": edge_conf['private_subnet_cidr'],
                              "template_file": "/root/templates/squid.conf"}
@@ -172,13 +172,13 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
 
     try:
-        print '[INSTALLING USERs KEY]'
+        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": edge_conf['user_keyname'],
                              "user_keydir": os.environ['conf_key_dir']}
@@ -201,39 +201,40 @@ if __name__ == "__main__":
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
         sys.exit(1)
 
     try:
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['storage_account_tag'] == storage_account.tags["account_name"]:
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
                 user_storage_account_name = storage_account.name
-            if edge_conf['shared_account_tag'] == storage_account.tags["account_name"]:
+            if edge_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
                 shared_storage_account_name = storage_account.name
-        print '[SUMMARY]'
+        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print "Instance name: " + edge_conf['instance_name']
-        print "Hostname: " + edge_conf['instance_dns_name']
-        print "Public IP: " + edge_conf['edge_public_ip']
-        print "Private IP: " + edge_conf['edge_private_ip']
-        print "Key name: " + edge_conf['key_name']
-        print "User storage account name: " + user_storage_account_name
-        print "User container name: " + edge_conf['container_name']
-        print "Shared storage account name: " + shared_storage_account_name
-        print "Shared container name: " + edge_conf['shared_container_name']
-        print "Notebook SG: " + edge_conf['notebook_security_group_name']
-        print "Edge SG: " + edge_conf['edge_security_group_name']
-        print "Notebook subnet: " + edge_conf['private_subnet_cidr']
+        print("Instance name: {}".format(edge_conf['instance_name']))
+        print("Hostname: {}".format(edge_conf['instance_dns_name']))
+        print("Public IP: {}".format(edge_conf['edge_public_ip']))
+        print("Private IP: {}".format(edge_conf['edge_private_ip']))
+        print("Key name: {}".format(edge_conf['key_name']))
+        print("User storage account name: {}".format(user_storage_account_name))
+        print("User container name: {}".format(edge_conf['user_container_name']))
+        print("Shared storage account name: {}".format(shared_storage_account_name))
+        print("Shared container name: {}".format(edge_conf['shared_container_name']))
+        print("Notebook SG: {}".format(edge_conf['notebook_security_group_name']))
+        print("Edge SG: {}".format(edge_conf['edge_security_group_name']))
+        print("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": edge_conf['instance_dns_name'],
                    "public_ip": edge_conf['edge_public_ip'],
                    "ip": edge_conf['edge_private_ip'],
                    "key_name": edge_conf['key_name'],
                    "user_storage_account_name": user_storage_account_name,
-                   "user_container_name": edge_conf['container_name'],
+                   "user_container_name": edge_conf['user_container_name'],
                    "shared_storage_account_name": shared_storage_account_name,
                    "shared_container_name": edge_conf['shared_container_name'],
+                   "user_storage_account_tag_name": edge_conf['user_storage_account_name'],
                    "tunnel_port": "22",
                    "socks_port": "1080",
                    "notebook_sg": edge_conf['notebook_security_group_name'],
@@ -242,10 +243,10 @@ if __name__ == "__main__":
                    "instance_id": edge_conf['instance_name'],
                    "full_edge_conf": edge_conf,
                    "Action": "Create new EDGE server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
 
     sys.exit(0)

@@ -18,6 +18,8 @@ package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureKeyDao;
+import com.epam.dlab.backendapi.domain.azure.BillingSchedulerManagerAzure;
+import com.epam.dlab.backendapi.resources.azure.BillingResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.EdgeCallbackAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.KeyUploaderCallbackAzure;
@@ -43,5 +45,7 @@ public class AzureSelfServiceModule extends CloudModule {
         environment.jersey().register(injector.getInstance(EdgeCallbackAzure.class));
         environment.jersey().register(injector.getInstance(KeyUploaderCallbackAzure.class));
         environment.jersey().register(injector.getInstance(ComputationalResourceAzure.class));
+        environment.jersey().register(injector.getInstance(BillingResourceAzure.class));
+        environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAzure.class));
     }
 }

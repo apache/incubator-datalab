@@ -43,5 +43,19 @@ limitations under the License.
         </a>
       </li>
     </template>
+
+    <template [ngIf]="listStructure === 'list'">
+      <template let-item ngFor [ngForOf]="items" let-index="index">
+        <li role="presentation">
+          <a role="menuitem" (click)="selectOptions($event, item, index)">
+            {{ map[item] }}
+          </a>
+        </li>
+      </template>
+  
+        <li *ngIf="items.length == 0">
+          <a role="menuitem"><i class="material-icons">visibility_off</i>No items</a>
+        </li>
+    </template>
   </ul>
 </div>

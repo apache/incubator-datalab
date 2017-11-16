@@ -37,7 +37,7 @@ if __name__ == "__main__":
     pre_defined_sg = False
     try:
         logging.info('[CREATE AWS CONFIG FILE]')
-        print '[CREATE AWS CONFIG FILE]'
+        print('[CREATE AWS CONFIG FILE]')
         if not create_aws_config_files(generate_full_config=True):
             logging.info('Unable to create configuration')
             append_result("Unable to create configuration")
@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[DERIVING NAMES]')
-        print '[DERIVING NAMES]'
+        print('[DERIVING NAMES]')
         service_base_name = os.environ['conf_service_base_name']
         role_name = service_base_name.lower().replace('-', '_') + '-ssn-Role'
         role_profile_name = service_base_name.lower().replace('-', '_') + '-ssn-Profile'
@@ -62,6 +62,7 @@ if __name__ == "__main__":
         ssn_ami_id = get_ami_id(ssn_ami_name)
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = '172.31.0.0/16'
+        all_ip_cidr = '0.0.0.0/0'
         sg_name = instance_name + '-SG'
 
         try:
@@ -71,7 +72,7 @@ if __name__ == "__main__":
             try:
                 pre_defined_vpc = True
                 logging.info('[CREATE VPC AND ROUTE TABLE]')
-                print '[CREATE VPC AND ROUTE TABLE]'
+                print('[CREATE VPC AND ROUTE TABLE]')
                 params = "--vpc {} --region {} --infra_tag_name {} --infra_tag_value {}".format(vpc_cidr, region, tag_name, service_base_name)
                 try:
                     local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
@@ -90,7 +91,7 @@ if __name__ == "__main__":
             try:
                 pre_defined_subnet = True
                 logging.info('[CREATE SUBNET]')
-                print '[CREATE SUBNET]'
+                print('[CREATE SUBNET]')
                 params = "--vpc_id {} --username {} --infra_tag_name {} --infra_tag_value {} --prefix {} --ssn {}".format(os.environ['aws_vpc_id'], 'ssn', tag_name, service_base_name, '20', True)
                 try:
                     local("~/scripts/{}.py {}".format('common_create_subnet', params))
@@ -108,7 +109,7 @@ if __name__ == "__main__":
                     try:
                         remove_subnets(service_base_name + "-subnet")
                     except:
-                        print "Subnet hasn't been created."
+                        print("Subnet hasn't been created.")
                     remove_vpc(os.environ['aws_vpc_id'])
                 sys.exit(1)
 
@@ -119,24 +120,24 @@ if __name__ == "__main__":
             try:
                 pre_defined_sg = True
                 logging.info('[CREATE SG FOR SSN]')
-                print '[CREATE SG FOR SSN]'
+                print('[CREATE SG FOR SSN]')
                 ingress_sg_rules_template = [
                     {
                         "PrefixListIds": [],
                         "FromPort": 80,
-                        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                        "IpRanges": [{"CidrIp": all_ip_cidr}],
                         "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": 8080,
-                        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                        "IpRanges": [{"CidrIp": all_ip_cidr}],
                         "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": 22,
-                        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                        "IpRanges": [{"CidrIp": all_ip_cidr}],
                         "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
@@ -148,13 +149,13 @@ if __name__ == "__main__":
                     {
                         "PrefixListIds": [],
                         "FromPort": 443,
-                        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                        "IpRanges": [{"CidrIp": all_ip_cidr}],
                         "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": -1,
-                        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+                        "IpRanges": [{"CidrIp": all_ip_cidr}],
                         "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
                     },
                     {
@@ -171,7 +172,7 @@ if __name__ == "__main__":
                     }
                 ]
                 egress_sg_rules_template = [
-                    {"IpProtocol": "-1", "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "UserIdGroupPairs": [], "PrefixListIds": []}
+                    {"IpProtocol": "-1", "IpRanges": [{"CidrIp": all_ip_cidr}], "UserIdGroupPairs": [], "PrefixListIds": []}
                 ]
                 params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {} --ssn {}". \
                     format(sg_name, os.environ['aws_vpc_id'], json.dumps(ingress_sg_rules_template), json.dumps(egress_sg_rules_template), service_base_name, tag_name, False, True)
@@ -272,7 +273,7 @@ if __name__ == "__main__":
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
         params = "--node_name {} --ami_id {} --instance_type {} --key_name {} --security_group_ids {} --subnet_id {} --iam_profile {} --infra_tag_name {} --infra_tag_value {}".\
-            format(instance_name, ssn_ami_id, os.environ['ssn_instance_size'], os.environ['conf_key_name'],
+            format(instance_name, ssn_ami_id, os.environ['aws_ssn_instance_size'], os.environ['conf_key_name'],
                    os.environ['aws_security_groups_ids'], os.environ['aws_subnet_id'],
                    role_profile_name, tag_name, instance_name)
 
@@ -298,7 +299,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[ASSOCIATING ELASTIC IP]')
-        print '[ASSOCIATING ELASTIC IP]'
+        print('[ASSOCIATING ELASTIC IP]')
         ssn_id = get_instance_by_name(tag_name, instance_name)
         try:
             elastic_ip = os.environ['ssn_elastic_ip']

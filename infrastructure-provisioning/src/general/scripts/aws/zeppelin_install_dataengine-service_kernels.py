@@ -51,9 +51,10 @@ def configure_notebook(args):
         put(templates_dir + 'dataengine-service_interpreter_livy.json', '/tmp/dataengine-service_interpreter.json')
     else:
         put(templates_dir + 'dataengine-service_interpreter_spark.json', '/tmp/dataengine-service_interpreter.json')
-    put(scripts_dir + '{}_create_configs.py'.format(args.application), '/tmp/create_configs.py')
-    sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
-    sudo('chmod 755 /usr/local/bin/create_configs.py')
+    put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application),
+        '/tmp/zeppelin_dataengine-service_create_configs.py')
+    sudo('\cp /tmp/zeppelin_dataengine-service_create_configs.py /usr/local/bin/zeppelin_dataengine-service_create_configs.py')
+    sudo('chmod 755 /usr/local/bin/zeppelin_dataengine-service_create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')
     run('mkdir -p /tmp/dlab_libs/')
     local('scp -i {} /usr/lib/python2.7/dlab/* {}:/tmp/dlab_libs/'.format(args.keyfile, env.host_string))
@@ -72,9 +73,9 @@ if __name__ == "__main__":
     spark_version = get_spark_version(args.cluster_name)
     hadoop_version = get_hadoop_version(args.cluster_name)
     livy_version = os.environ['notebook_livy_version']
-    sudo("/usr/bin/python /usr/local/bin/create_configs.py --bucket " + args.bucket + " --cluster_name "
-         + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " + spark_version
-         + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
+    sudo("/usr/bin/python /usr/local/bin/zeppelin_dataengine-service_create_configs.py --bucket " + args.bucket +
+         " --cluster_name " + args.cluster_name + " --emr_version " + args.emr_version + " --spark_version " +
+         spark_version + " --hadoop_version " + hadoop_version + " --region " + args.region + " --excluded_lines '"
          + args.emr_excluded_spark_properties + "' --user_name " + args.edge_user_name + " --os_user " + args.os_user +
          " --edge_hostname " + args.edge_hostname + " --proxy_port " + args.proxy_port + " --scala_version " +
          args.scala_version + " --livy_version " + livy_version + " --multiple_clusters " +

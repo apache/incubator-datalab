@@ -63,10 +63,6 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
     @JsonProperty
     private Duration fileLengthCheckDelay = Duration.seconds(3);
 
-    @NotEmpty
-    @JsonProperty
-    private String dataEngineImage;
-
     @NotEmpty(groups = AwsValidation.class)
     @JsonProperty
     private String emrEC2RoleDefault;
@@ -74,9 +70,6 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
     @NotEmpty(groups = AwsValidation.class)
     @JsonProperty
     private String emrServiceRoleDefault;
-
-    @JsonProperty
-    private boolean mocked;
 
     @JsonProperty
     private int processMaxThreadsPerJvm = 50;
@@ -122,10 +115,6 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
         return fileLengthCheckDelay;
     }
 
-    public String getDataEngineImage() {
-        return dataEngineImage;
-    }
-
     public String getEmrEC2RoleDefault() {
         return emrEC2RoleDefault;
     }
@@ -148,10 +137,6 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
 
     public String getDockerLogDirectory() {
         return dockerLogDirectory;
-    }
-
-    public boolean isMocked() {
-        return mocked;
     }
 
     public int getProcessMaxThreadsPerJvm() {

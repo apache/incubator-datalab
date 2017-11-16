@@ -40,13 +40,6 @@ export class UserResourceService {
       .catch((error: any) => error);
   }
 
-  public getComputationalResourcesConfiguration(): Observable<any> {
-    return this.applicationServiceFacade
-      .buildGetComputationalResourcesConfiguration()
-      .map((res: Response) => res.json())
-      .catch((error: any) => error);
-  }
-
   public getUserProvisionedResources(): Observable<any> {
     return this.applicationServiceFacade
       .buildGetUserProvisionedResourcesRequest()
@@ -76,10 +69,17 @@ export class UserResourceService {
       .map((response: Response) => response);
   }
 
-  public createComputationalResource(data): Observable<Response> {
+  public createComputationalResource_DataengineService(data): Observable<Response> {
     const body = JSON.stringify(data);
     return this.applicationServiceFacade
-      .buildCreateComputationalResourcesRequest(body)
+      .buildCreateComputationalResources_DataengineServiceRequest(body)
+      .map((response: Response) => response);
+  }
+
+  public createComputationalResource_Dataengine(data): Observable<Response> {
+    const body = JSON.stringify(data);
+    return this.applicationServiceFacade
+      .buildCreateComputationalResources_DataengineRequest(body)
       .map((response: Response) => response);
   }
 

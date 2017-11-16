@@ -20,6 +20,7 @@
 
 from dlab.fab import *
 from dlab.actions_lib import *
+from dlab.meta_lib import *
 import sys, os, json
 from fabric.api import *
 from dlab.ssn_lib import *
@@ -39,16 +40,18 @@ if __name__ == "__main__":
         pre_defined_subnet = False
         pre_defined_sg = False
         ssn_conf = dict()
-        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'].replace('_', '-')
-        ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-ssn-vpc'
+        # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
+        ssn_conf['service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
+        ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-vpc'
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
         ssn_conf['region'] = os.environ['azure_region']
         ssn_conf['vpc_cidr'] = '10.10.0.0/16'
         ssn_conf['subnet_prefix'] = '20'
         ssn_conf['ssn_ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-        ssn_conf['ssn_storage_account_tag'] = ssn_conf['service_base_name'] + 'ssn'
+        ssn_conf['ssn_storage_account_name'] = ssn_conf['service_base_name'] + '-ssn-storage'
         ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn-container').lower()
-        ssn_conf['shared_storage_account_tag'] = ssn_conf['service_base_name'] + 'shared'
+        ssn_conf['shared_storage_account_name'] = ssn_conf['service_base_name'] + '-shared-storage'
         ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared-container').lower()
         ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
         ssn_conf['network_interface_name'] = ssn_conf['service_base_name'] + '-ssn-nif'
@@ -58,8 +61,14 @@ if __name__ == "__main__":
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssn_conf['instance_storage_account_type'] = 'Premium_LRS'
         ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        ssn_conf['instance_tags'] = {"Name": ssn_conf['instance_name'],
+                                     "SBN": ssn_conf['service_base_name']}
+        ssn_conf['ssn_storage_account_tags'] = {"Name": ssn_conf['ssn_storage_account_name'],
+                                                "SBN": ssn_conf['service_base_name']}
+        ssn_conf['shared_storage_account_tags'] = {"Name": ssn_conf['shared_storage_account_name'],
+                                                   "SBN": ssn_conf['service_base_name']}
     except:
-        print "Failed to generate variables dictionary."
+        print("Failed to generate variables dictionary.")
         sys.exit(1)
 
     try:
@@ -68,7 +77,7 @@ if __name__ == "__main__":
     except KeyError:
         pre_defined_resource_group = True
         logging.info('[CREATING RESOURCE GROUP]')
-        print "[CREATING RESOURCE GROUP]"
+        print("[CREATING RESOURCE GROUP]")
         try:
             params = "--resource_group_name {} --region {}".format(ssn_conf['service_base_name'], ssn_conf['region'])
             try:
@@ -81,7 +90,7 @@ if __name__ == "__main__":
             try:
                 AzureActions().remove_resource_group(ssn_conf['service_base_name'], ssn_conf['region'])
             except:
-                print "Resource group hasn't been created."
+                print("Resource group hasn't been created.")
             append_result("Failed to create Resource Group. Exception:" + str(err))
             sys.exit(1)
 
@@ -91,7 +100,7 @@ if __name__ == "__main__":
     except KeyError:
         pre_defined_vpc = True
         logging.info('[CREATING VIRTUAL NETWORK]')
-        print "[CREATING VIRTUAL NETWORK]"
+        print("[CREATING VIRTUAL NETWORK]")
         try:
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {}".format(
                 os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'])
@@ -107,7 +116,7 @@ if __name__ == "__main__":
             try:
                 AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             except:
-                print "Virtual Network hasn't been created."
+                print("Virtual Network hasn't been created.")
             append_result("Failed to create Virtual Network. Exception:" + str(err))
             sys.exit(1)
 
@@ -117,7 +126,7 @@ if __name__ == "__main__":
     except KeyError:
         pre_defined_vpc = True
         logging.info('[CREATING SUBNET]')
-        print "[CREATING SUBNET]"
+        print("[CREATING SUBNET]")
         try:
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {} --subnet_name {} --prefix {}".\
                 format(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'],
@@ -137,7 +146,7 @@ if __name__ == "__main__":
                 AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                              ssn_conf['subnet_name'])
             except:
-                print "Subnet hasn't been created."
+                print("Subnet hasn't been created.")
             append_result("Failed to create Subnet. Exception:" + str(err))
             sys.exit(1)
 
@@ -147,7 +156,7 @@ if __name__ == "__main__":
     except KeyError:
         pre_defined_sg = True
         logging.info('[CREATING SECURITY GROUPS]')
-        print "[CREATING SECURITY GROUPS]"
+        print("[CREATING SECURITY GROUPS]")
         try:
             list_rules = [
                 {
@@ -206,9 +215,9 @@ if __name__ == "__main__":
                     "direction": "Outbound"
                 }
             ]
-            params = "--resource_group_name {} --security_group_name {} --region {} --list_rules '{}'".\
+            params = "--resource_group_name {} --security_group_name {} --region {} --tags '{}'  --list_rules '{}'".\
                 format(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'], ssn_conf['region'],
-                       json.dumps(list_rules))
+                       json.dumps(ssn_conf['instance_tags']), json.dumps(list_rules))
             try:
                 local("~/scripts/{}.py {}".format('common_create_security_group', params))
             except:
@@ -228,11 +237,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN STORAGE ACCOUNT AND CONTAINER]')
         print('[CREATE SSN STORAGE ACCOUNT AND CONTAINER]')
-        params = "--container_name {} --account_tag {} --resource_group_name {} --region {}". \
-                 format(ssn_conf['ssn_container_name'], ssn_conf['ssn_storage_account_tag'],
+        params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
+                 format(ssn_conf['ssn_container_name'], json.dumps(ssn_conf['ssn_storage_account_tags']),
                         os.environ['azure_resource_group_name'], ssn_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_container', params))
+            local("~/scripts/{}.py {}".format('common_create_storage_account', params))
         except:
             traceback.print_exc()
             raise Exception
@@ -245,7 +254,7 @@ if __name__ == "__main__":
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
         append_result("Failed to create SSN storage account and container. Exception:" + str(err))
         sys.exit(1)
@@ -253,11 +262,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
         print('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
-        params = "--container_name {} --account_tag {} --resource_group_name {} --region {}". \
-                 format(ssn_conf['shared_container_name'], ssn_conf['shared_storage_account_tag'],
+        params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
+                 format(ssn_conf['shared_container_name'], json.dumps(ssn_conf['shared_storage_account_tags']),
                         os.environ['azure_resource_group_name'], ssn_conf['region'])
         try:
-            local("~/scripts/{}.py {}".format('common_create_container', params))
+            local("~/scripts/{}.py {}".format('common_create_storage_account', params))
         except:
             traceback.print_exc()
             raise Exception
@@ -270,9 +279,9 @@ if __name__ == "__main__":
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'], ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
         append_result("Failed to create SSN storage account and container. Exception:" + str(err))
         sys.exit(1)
@@ -287,12 +296,13 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --instance_storage_account_type {} --ami_name {}".\
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --instance_storage_account_type {} --ami_name {} --tags '{}'".\
             format(ssn_conf['instance_name'], os.environ['azure_ssn_instance_size'], ssn_conf['region'], os.environ['azure_vpc_name'],
                    ssn_conf['network_interface_name'], os.environ['azure_security_group_name'], os.environ['azure_subnet_name'],
                    ssn_conf['service_base_name'], os.environ['azure_resource_group_name'], initial_user,
                    ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '32', 'ssn',
-                   ssn_conf['instance_storage_account_type'], ssn_conf['ssn_ami_name'])
+                   ssn_conf['instance_storage_account_type'], ssn_conf['ssn_ami_name'],
+                   json.dumps(ssn_conf['instance_tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -309,13 +319,13 @@ if __name__ == "__main__":
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_tag'] == storage_account.tags["account_name"]:
+            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
         try:
             AzureActions().remove_instance(os.environ['azure_resource_group_name'], ssn_conf['instance_name'])
         except:
-            print "The instance {} hasn't been created".format(ssn_conf['instance_name'])
+            print("The instance {} hasn't been created".format(ssn_conf['instance_name']))
         append_result("Failed to create instance. Exception:" + str(err))
         sys.exit(1)

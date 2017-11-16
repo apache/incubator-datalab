@@ -39,10 +39,15 @@ parser.add_argument('--os_family', type=str, default='')
 parser.add_argument('--request_id', type=str, default='')
 parser.add_argument('--resource', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
-parser.add_argument('--tag_resource_id', type=str, default='')
-parser.add_argument('--account_id', type=str, default='')
-parser.add_argument('--billing_bucket', type=str, default='')
-parser.add_argument('--report_path', type=str, default='')
+parser.add_argument('--tag_resource_id', type=str, default=None)
+parser.add_argument('--account_id', type=str, default=None)
+parser.add_argument('--billing_bucket', type=str, default=None)
+parser.add_argument('--report_path', type=str, default=None)
+parser.add_argument('--authentication_file', type=str, default=None)
+parser.add_argument('--offer_number', type=str, default=None)
+parser.add_argument('--currency', type=str, default=None)
+parser.add_argument('--locale', type=str, default=None)
+parser.add_argument('--region_info', type=str, default=None)
 parser.add_argument('--billing_enabled', type=bool, default=False)
 parser.add_argument('--mongo_parameters', type=str, default='')
 args = parser.parse_args()
@@ -97,7 +102,7 @@ def configure_mongo(mongo_passwd):
             args.dlab_path, json.dumps(mongo_parameters)))
         return True
     except Exception as err:
-        print err
+        print(err)
         return False
 
 
@@ -105,7 +110,7 @@ def configure_mongo(mongo_passwd):
 # Run script #
 ##############
 if __name__ == "__main__":
-    print "Configure connections"
+    print("Configure connections")
     try:
         env['connection_attempts'] = 100
         env.key_filename = [args.keyfile]
@@ -114,22 +119,22 @@ if __name__ == "__main__":
     except:
         sys.exit(2)
 
-    print "Copying DLab libraries to SSN"
+    print("Copying DLab libraries to SSN")
     if not copy_ssn_libraries():
         logging.error('Failed to copy DLab libraries')
         sys.exit(1)
 
-    print "Installing Supervisor"
+    print("Installing Supervisor")
     if not ensure_supervisor():
         logging.error('Failed to install Supervisor')
         sys.exit(1)
 
-    print "Installing MongoDB"
+    print("Installing MongoDB")
     if not ensure_mongo():
         logging.error('Failed to install MongoDB')
         sys.exit(1)
 
-    print "Configuring MongoDB"
+    print("Configuring MongoDB")
     if not configure_mongo(mongo_passwd):
         logging.error('MongoDB configuration script has failed.')
         sys.exit(1)
@@ -137,10 +142,11 @@ if __name__ == "__main__":
     sudo('echo DLAB_CONF_DIR={} >> /etc/profile'.format(dlab_conf_dir))
     sudo('echo export DLAB_CONF_DIR >> /etc/profile')
 
-    print "Starting Self-Service(UI)"
+    print("Starting Self-Service(UI)")
     if not start_ss(args.keyfile, env.host_string, dlab_conf_dir, web_path, args.os_user, mongo_passwd, keystore_passwd,
                     args.cloud_provider, args.service_base_name, args.tag_resource_id, args.account_id,
-                    args.billing_bucket, args.dlab_path, args.billing_enabled, args.report_path):
+                    args.billing_bucket, args.dlab_path, args.billing_enabled, args.authentication_file,
+                    args.offer_number, args.currency, args.locale, args.region_info, args.report_path):
         logging.error('Failed to start UI')
         sys.exit(1)
 

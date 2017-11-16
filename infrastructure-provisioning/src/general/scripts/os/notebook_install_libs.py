@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]')
-        print '[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]'
+        print('[INSTALLING ADDITIONAL LIBRARIES ON NOTEBOOK INSTANCE]')
         notebook_config = dict()
         try:
             notebook_config['notebook_name'] = os.environ['notebook_instance_name']
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
-        params = '--os_user {} --notebook_ip {} --keyfile "{}" --libs "{}"' \
+        params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}"' \
             .format(notebook_config['os_user'], notebook_config['notebook_ip'],
                     notebook_config['keyfile'], notebook_config['libs'])
         try:

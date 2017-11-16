@@ -64,6 +64,7 @@ parser.add_argument('--edge_user_name', type=str, default='')
 parser.add_argument('--slave_instance_spot', type=str, default='False')
 parser.add_argument('--bid_price', type=str, default='')
 parser.add_argument('--service_base_name', type=str, default='')
+parser.add_argument('--additional_emr_sg', type=str, default='')
 args = parser.parse_args()
 
 if args.region == 'us-east-1':
@@ -73,15 +74,15 @@ elif args.region == 'cn-north-1':
 else:
     endpoint_url = 'https://s3-' + args.region + '.amazonaws.com'
 
-cp_config = "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hive/conf/hive-site.xml s3://{0}/{4}/{5}/config/hive-site.xml --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
-            "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hadoop/conf/ s3://{0}/{4}/{5}/config/ --recursive --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER, Jar=command-runner.jar; " \
+cp_config = "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hive/conf/hive-site.xml s3://{0}/{4}/{5}/config/hive-site.xml --sse AES256 --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
+            "Name=CUSTOM_JAR, Args=aws s3 cp /etc/hadoop/conf/ s3://{0}/{4}/{5}/config/ --sse AES256 --recursive --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER, Jar=command-runner.jar; " \
             "Name=CUSTOM_JAR, Args=sudo -u hadoop hdfs dfs -mkdir /user/{2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
-            "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/{4}/{4}.pub /tmp/{4}.pub --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
+            "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/{4}/{4}.pub /tmp/{4}.pub --sse AES256 --endpoint-url {6} --region {3}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
             "Name=CUSTOM_JAR, Args=sudo -u hadoop hdfs dfs -chown -R {2}:{2} /user/{2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".format(
     args.s3_bucket, args.name, args.nbs_user, args.region, args.edge_user_name, args.name, endpoint_url)
 
-cp_jars = "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/jars_parser.py /tmp/jars_parser.py --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
-          "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/key_importer.py /tmp/key_importer.py --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
+cp_jars = "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/jars_parser.py /tmp/jars_parser.py --sse AES256 --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
+          "Name=CUSTOM_JAR, Args=aws s3 cp s3://{0}/key_importer.py /tmp/key_importer.py --sse AES256 --endpoint-url {6} --region {2}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar;" \
           "Name=CUSTOM_JAR, Args=sudo /usr/bin/python /tmp/key_importer.py --user_name {4}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar; " \
           "Name=CUSTOM_JAR, Args=/usr/bin/python /tmp/jars_parser.py --bucket {0} --emr_version {3} --region {2} --user_name {4} --cluster_name {5}, ActionOnFailure=TERMINATE_CLUSTER,Jar=command-runner.jar".format(args.s3_bucket, args.release_label, args.region, args.release_label, args.edge_user_name, args.name, endpoint_url)
 
@@ -101,20 +102,23 @@ def get_object_count(bucket, prefix):
                 file_list.append(file.get('Key'))
         count = len(file_list)
     except:
-        print prefix + " still not exist. Waiting..."
+        print("{} still not exist. Waiting...".format(prefix))
         count = 0
     return count
 
 
 def upload_jars_parser(args):
     s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
-    s3.meta.client.upload_file('/root/scripts/dataengine-service_jars_parser.py', args.s3_bucket, 'jars_parser.py')
+    s3.meta.client.upload_file('/root/scripts/dataengine-service_jars_parser.py', args.s3_bucket, 'jars_parser.py',
+                               ExtraArgs={'ServerSideEncryption': 'AES256'})
 
 
 def upload_user_key(args):
     s3 = boto3.resource('s3', config=Config(signature_version='s3v4'))
-    s3.meta.client.upload_file(args.key_dir + '/' + args.edge_user_name + '.pub', args.s3_bucket, args.edge_user_name + '/' + args.edge_user_name + '.pub')
-    s3.meta.client.upload_file('/root/scripts/dataengine-service_key_importer.py', args.s3_bucket, 'key_importer.py')
+    s3.meta.client.upload_file(args.key_dir + '/' + args.edge_user_name + '.pub', args.s3_bucket, args.edge_user_name +
+                               '/' + args.edge_user_name + '.pub', ExtraArgs={'ServerSideEncryption': 'AES256'})
+    s3.meta.client.upload_file('/root/scripts/dataengine-service_key_importer.py', args.s3_bucket, 'key_importer.py',
+                               ExtraArgs={'ServerSideEncryption': 'AES256'})
 
 
 def remove_user_key(args):
@@ -182,12 +186,12 @@ def parse_steps(step_string):
 def action_validate(id):
     state = get_emr_info(id, 'Status')['State']
     if state in ("TERMINATING", "TERMINATED", "TERMINATED_WITH_ERRORS"):
-        print "Cluster is alredy stopped. Bye"
+        print("Cluster is alredy stopped. Bye")
         return ["False", state]
     elif state in ("RUNNING", "WAITING"):
         return ["True", state]
     else:
-        print "Cluster is still being built."
+        print("Cluster is still being built.")
         return ["True", state]
 
 
@@ -228,17 +232,17 @@ def build_emr_cluster(args):
         steps = parse_steps(cp_config)
 
     if args.dry_run:
-        print "Build parameters are:"
-        print args
-        print "\n"
-        print "Applications to be installed:"
-        print names
-        print "\n"
-        print "Cluster tags:"
-        print tags
-        print "\n"
-        print "Cluster Jobs:"
-        print steps
+        print("Build parameters are:")
+        print(args)
+        print("\n")
+        print("Applications to be installed:")
+        print(names)
+        print("\n")
+        print("Cluster tags:")
+        print(tags)
+        print("\n")
+        print("Cluster Jobs:")
+        print(steps)
 
     if not args.dry_run:
         socket = boto3.client('emr')
@@ -258,7 +262,14 @@ def build_emr_cluster(args):
                                {'Market': 'ON_DEMAND',
                                 'InstanceRole': 'MASTER',
                                 'InstanceType': args.master_instance_type,
-                                'InstanceCount': 1}]},
+                                'InstanceCount': 1}],
+                           'AdditionalMasterSecurityGroups': [
+                               get_security_group_by_name(args.additional_emr_sg)
+                           ],
+                           'AdditionalSlaveSecurityGroups': [
+                               get_security_group_by_name(args.additional_emr_sg)
+                           ]
+                           },
                 Applications=names,
                 Tags=tags,
                 Steps=steps,
@@ -276,7 +287,14 @@ def build_emr_cluster(args):
                            'Ec2KeyName': args.ssh_key,
                            # 'Placement': {'AvailabilityZone': args.availability_zone},
                            'KeepJobFlowAliveWhenNoSteps': not args.auto_terminate,
-                           'Ec2SubnetId': get_subnet_by_cidr(args.subnet)},
+                           'Ec2SubnetId': get_subnet_by_cidr(args.subnet),
+                           'AdditionalMasterSecurityGroups': [
+                               get_security_group_by_name(args.additional_emr_sg)
+                           ],
+                           'AdditionalSlaveSecurityGroups': [
+                               get_security_group_by_name(args.additional_emr_sg)
+                           ]
+                           },
                 Applications=names,
                 Tags=tags,
                 Steps=steps,
@@ -284,7 +302,7 @@ def build_emr_cluster(args):
                 JobFlowRole=args.ec2_role,
                 ServiceRole=args.service_role,
                 Configurations=read_json(args.configurations))
-        print "Cluster_id " + result.get('JobFlowId')
+        print("Cluster_id {}".format(result.get('JobFlowId')))
         return result.get('JobFlowId')
 
 
@@ -303,12 +321,12 @@ if __name__ == "__main__":
         build_emr_cluster(args)
     else:
         if not get_role_by_name(args.service_role):
-            print "There is no default EMR service role. Creating..."
+            print("There is no default EMR service role. Creating...")
             create_iam_role(args.service_role, args.service_role, args.region, service='elasticmapreduce')
             attach_policy(args.service_role,
                           policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole')
         if not get_role_by_name(args.ec2_role):
-            print "There is no default EMR EC2 role. Creating..."
+            print("There is no default EMR EC2 role. Creating...")
             create_iam_role(args.ec2_role, args.ec2_role, args.region)
             attach_policy(args.ec2_role,
                           policy_arn='arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role')
@@ -326,7 +344,7 @@ if __name__ == "__main__":
             time.sleep(420)
             spot_instances_status = get_spot_instances_status(cluster_id)
             if spot_instances_status[0]:
-                print "Spot instances status: " + spot_instances_status[1]
+                print("Spot instances status: {}".format(spot_instances_status[1]))
             else:
                 append_result("Error with Spot request: " + spot_instances_status[1])
                 sys.exit(1)
@@ -338,8 +356,8 @@ if __name__ == "__main__":
             sg_master, sg_slave = emr_sg(cluster_id)
             sg_list.extend([sg_master, sg_slave])
             out.write('Updating SGs for Notebook to: {}\n'.format(sg_list))
+            nbs_id.modify_attribute(Groups=sg_list)
             out.close()
-            nbs_id.modify_attribute( Groups = sg_list)
         else:
             out.write("Timeout of {} seconds reached. Please increase timeout period and try again. Now terminating the cluster...".format(args.emr_timeout))
             out.close()

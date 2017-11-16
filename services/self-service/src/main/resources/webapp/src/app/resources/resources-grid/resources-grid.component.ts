@@ -52,6 +52,7 @@ export class ResourcesGridComponent implements OnInit {
   @ViewChild('detailDialog') detailDialog;
   @ViewChild('costDetailsDialog') costDetailsDialog;
   @ViewChild('installLibs') installLibraries;
+  @ViewChild('manageLibraries') manageLibs;
 
 
   public filteringColumns: Array<any> = [
@@ -124,15 +125,17 @@ export class ResourcesGridComponent implements OnInit {
     });
 
     this.updateUserPreferences(config);
-    config.type = '';
-
     this.filteredEnvironments = filteredData;
   }
 
   showActiveInstances(): void {
-    const filteredData = (<any>Object).assign({}, this.filterConfiguration);
-    filteredData.type = 'active';
+    this.filterForm = this.loadUserPreferences(this.filterActiveInstances());
+    this.applyFilter_btnClick(this.filterForm);
+    this.buildGrid();
+  }
 
+  filterActiveInstances(): FilterConfigurationModel {
+    const filteredData = (<any>Object).assign({}, this.filterConfiguration);
     for (const index in filteredData) {
       if (filteredData[index] instanceof Array)
         filteredData[index] = filteredData[index].filter((item: string) => {
@@ -141,9 +144,9 @@ export class ResourcesGridComponent implements OnInit {
       if (index === 'shapes') { filteredData[index] = []; }
     }
 
-    this.filterForm = this.loadUserPreferences(filteredData);
-    this.applyFilter_btnClick(this.filterForm);
-    this.buildGrid();
+    filteredData.type = 'active';
+
+    return filteredData;
   }
 
   aliveStatuses(сonfig): void {
@@ -153,6 +156,14 @@ export class ResourcesGridComponent implements OnInit {
     }
 
     return сonfig;
+  }
+
+  isActiveFilter(filterConfig): void {
+    this.activeFiltering = false;
+
+    for (const index in filterConfig)
+      if (filterConfig[index].length)
+        this.activeFiltering = true;
   }
 
   onUpdate($event) {
@@ -202,8 +213,8 @@ export class ResourcesGridComponent implements OnInit {
           sharedDataList[DICTIONARY.bucket_name],
           sharedDataList[DICTIONARY.shared_bucket_name],
           value.error_message,
-          value.cost,
-          value.currency_code,
+          value[DICTIONARY.billing.cost],
+          value[DICTIONARY.billing.currencyCode],
           value.billing,
           value.libs,
           sharedDataList[DICTIONARY.user_storage_account_name],
@@ -216,15 +227,11 @@ export class ResourcesGridComponent implements OnInit {
   getUserPreferences(): void {
     this.userResourceService.getUserPreferences()
       .subscribe((result) => {
-
         this.isActiveFilter(result);
-        this.filterForm = this.loadUserPreferences(this.aliveStatuses(result));
-
+        this.filterForm = this.loadUserPreferences( result.type ? this.filterActiveInstances() : this.aliveStatuses(result) );
         this.applyFilter_btnClick(this.filterForm);
       }, (error) => {
-        // FIXME: to avoid SyntaxError: in case of empty database
-        this.applyFilter_btnClick(this.filterForm);
-        console.log('GET USER PREFERENCES ERROR', error);
+        this.applyFilter_btnClick(this.filterForm); // in case of empty database
       });
   }
 
@@ -238,14 +245,6 @@ export class ResourcesGridComponent implements OnInit {
       (error) => {
         console.log('UPDATE USER PREFERENCES ERROR ', error);
       });
-  }
-
-  isActiveFilter(filterConfig): void {
-    this.activeFiltering = false;
-
-    for (const index in filterConfig)
-      if (filterConfig[index].length)
-        this.activeFiltering = true;
   }
 
   printDetailEnvironmentModal(data): void {

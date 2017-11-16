@@ -49,39 +49,37 @@ def backup_prepare():
             local("mkdir {}logs".format(temp_folder))
             local("mkdir {}logs/docker".format(temp_folder))
     except Exception as err:
-        print "Failed to create temp folder.", str(err)
+        print("Failed to create temp folder. {}".format(str(err)))
         sys.exit(1)
 
 
 def backup_configs():
     try:
-        print "Backup configs: ", args.configs
+        print("Backup configs: {}".format(args.configs))
         if args.configs == "all":
             local("find {0}{2} -name '*yml' -exec cp {3} {1}{2} \;".format(args.dlab_path, temp_folder, conf_folder, "{}"))
         else:
             for conf_file in args.configs.split(","):
                 local("cp {0}{2}{3} {1}{2}".format(args.dlab_path, temp_folder, conf_folder, conf_file))
     except:
-        print "Backup configs failed."
-        pass
+        print("Backup configs failed.")
 
 
 def backup_keys():
     try:
-        print "Backup keys: ", args.keys
+        print("Backup keys: {}".format(args.keys))
         if args.keys == "all":
             local("cp {0}* {1}keys".format(keys_folder, temp_folder))
         else:
             for key_file in args.keys.split(","):
                 local("cp {0}{1} {2}keys".format(keys_folder, key_file, temp_folder))
     except:
-        print "Backup keys failed."
-        pass
+        print("Backup keys failed.")
 
 
 def backup_certs():
     try:
-        print "Backup certs: ", args.certs
+        print("Backup certs: {}".format(args.certs))
         if args.certs == "skip":
             pass
         elif args.certs == "all":
@@ -93,13 +91,12 @@ def backup_certs():
                 local("cp {0}{1} {2}certs".format(certs_folder, cert, temp_folder))
                 local("sudo chown {0}:{0} {1}certs/{2} ".format(os_user, temp_folder, cert))
     except:
-        print "Backup certs failed."
-        pass
+        print("Backup certs failed.")
 
 
 def backup_jars():
     try:
-        print "Backup jars: ", args.jars
+        print("Backup jars: {}".format(args.jars))
         if args.jars == "skip":
             pass
         elif args.jars == "all":
@@ -110,13 +107,12 @@ def backup_jars():
             for service in args.jars.split(","):
                 local("cp -RP {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
     except:
-        print "Backup jars failed."
-        pass
+        print("Backup jars failed.")
 
 
 def backup_database():
     try:
-        print "Backup db: ", args.db
+        print("Backup db: {}".format(args.db))
         if args.db:
             ssn_conf = open("{0}{1}ssn.yml".format(args.dlab_path, conf_folder)).read()
             data = yaml.load("mongo{}".format(ssn_conf.split("mongo")[-1]))
@@ -125,37 +121,35 @@ def backup_database():
                     .format(data['mongo']['host'], data['mongo']['port'], data['mongo']['username'],
                             data['mongo']['password'], data['mongo']['database'], temp_folder))
     except:
-        print "Backup db failed."
-        pass
+        print("Backup db failed.")
 
 
 def backup_logs():
     try:
-        print "Backup logs: ", args.logs
+        print("Backup logs: {}".format(args.logs))
         if args.logs:
-            print "Backup dlab logs"
+            print("Backup dlab logs")
             local("cp -R {0}* {1}logs".format(dlab_logs_folder, temp_folder))
-            print "Backup docker logs"
+            print("Backup docker logs")
             local("sudo find {0} -name '*log' -exec cp {2} {1}logs/docker \;".format(docker_logs_folder, temp_folder, "{}"))
             local("sudo chown -R {0}:{0} {1}logs/docker".format(os_user, temp_folder))
     except:
-        print "Backup logs failed."
-        pass
+        print("Backup logs failed.")
 
 
 def backup_finalize():
     try:
-        print "Compressing all files to archive..."
+        print("Compressing all files to archive...")
         local("cd {0} && tar -zcf {1} .".format(temp_folder, dest_file))
     except Exception as err:
-        print "Compressing backup failed.", str(err)
+        print("Compressing backup failed. {}".format(str(err)))
 
     try:
-        print "Clear temp folder..."
+        print("Clear temp folder...")
         if temp_folder != "/":
             local("rm -rf {}".format(temp_folder))
     except Exception as err:
-        print "Clear temp folder failed.", str(err)
+        print("Clear temp folder failed. {}".format(str(err)))
 
 
 if __name__ == "__main__":
@@ -185,4 +179,4 @@ if __name__ == "__main__":
     # Compressing & cleaning tmp folder
     backup_finalize()
 
-    print "Successfully created backup file: {}".format(dest_file)
+    print("Successfully created backup file: {}".format(dest_file))

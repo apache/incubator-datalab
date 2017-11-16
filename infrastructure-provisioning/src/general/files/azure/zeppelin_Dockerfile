@@ -25,7 +25,8 @@ COPY zeppelin/ /root/
 COPY general/scripts/os/* /root/scripts/
 COPY general/scripts/azure/zeppelin_* /root/scripts/
 COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
-COPY general/templates/azure/interpreter_* /root/templates/
+COPY general/templates/azure/interpreter_livy.json /root/templates/
+COPY general/templates/azure/interpreter_spark.json /root/templates/
 COPY general/templates/azure/dataengine_interpreter_livy.json /root/templates/
 COPY general/templates/azure/dataengine_interpreter_spark.json /root/templates/
 COPY general/templates/os/${OS}/ungit.service /root/templates/

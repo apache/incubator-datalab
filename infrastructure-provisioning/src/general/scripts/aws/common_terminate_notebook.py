@@ -29,7 +29,7 @@ import uuid
 
 
 def terminate_nb(nb_tag_value, bucket_name, tag_name):
-    print 'Terminating EMR cluster and cleaning EMR config from S3 bucket'
+    print('Terminating EMR cluster and cleaning EMR config from S3 bucket')
     try:
         clusters_list = get_emr_list(nb_tag_value, 'Value')
         if clusters_list:
@@ -38,18 +38,24 @@ def terminate_nb(nb_tag_value, bucket_name, tag_name):
                 cluster = client.describe_cluster(ClusterId=cluster_id)
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')
-                print 'Cleaning bucket from configs for cluster {}'.format(emr_name)
+                print('Cleaning bucket from configs for cluster {}'.format(emr_name))
                 s3_cleanup(bucket_name, emr_name, os.environ['edge_user_name'])
-                print "The bucket " + bucket_name + " has been cleaned successfully"
-                print 'Terminating cluster {}'.format(emr_name)
+                print("The bucket {} has been cleaned successfully".format(bucket_name))
+                print('Terminating cluster {}'.format(emr_name))
                 terminate_emr(cluster_id)
-                print "The EMR cluster " + emr_name + " has been terminated successfully"
+                print("The EMR cluster {} has been terminated successfully".format(emr_name))
         else:
-            print "There are no EMR clusters to terminate."
+            print("There are no EMR clusters to terminate.")
     except:
         sys.exit(1)
 
-    print "Terminating notebook"
+    print("Terminating data engine cluster")
+    try:
+        remove_ec2('dataengine_notebook_name', nb_tag_value)
+    except:
+        sys.exit(1)
+
+    print("Terminating notebook")
     try:
         remove_ec2(tag_name, nb_tag_value)
     except:
@@ -65,7 +71,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
     # generating variables dictionary
     create_aws_config_files()
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
@@ -74,7 +80,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE NOTEBOOK]')
-        print '[TERMINATE NOTEBOOK]'
+        print('[TERMINATE NOTEBOOK]')
         try:
             terminate_nb(notebook_config['notebook_name'], notebook_config['bucket_name'], notebook_config['tag_name'])
         except Exception as err:
@@ -90,8 +96,8 @@ if __name__ == "__main__":
                    "Tag_name": notebook_config['tag_name'],
                    "user_own_bucket_name": notebook_config['bucket_name'],
                    "Action": "Terminate notebook server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)

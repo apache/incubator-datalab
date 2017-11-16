@@ -41,12 +41,17 @@ parser.add_argument('--key_path', type=str, default='', help='Path to admin key 
 parser.add_argument('--conf_key_name', type=str, default='', help='Admin key name (WITHOUT ".pem")')
 parser.add_argument('--workspace_path', type=str, default='', help='Admin key name (WITHOUT ".pem")')
 parser.add_argument('--conf_tag_resource_id', type=str, default='dlab', help='The name of user tag')
-parser.add_argument('--ssn_instance_size', type=str, default='t2.medium', help='The SSN instance shape')
+parser.add_argument('--aws_ssn_instance_size', type=str, default='t2.medium', help='The SSN instance shape')
+parser.add_argument('--azure_ssn_instance_size', type=str, default='Standard_DS2_v2', help='The SSN instance shape')
 parser.add_argument('--aws_account_id', type=str, default='', help='The ID of Amazon account')
 parser.add_argument('--aws_billing_bucket', type=str, default='', help='The name of S3 bucket where billing reports will be placed.')
 parser.add_argument('--aws_report_path', type=str, default='', help='The path to billing reports directory in S3 bucket')
 parser.add_argument('--azure_resource_group_name', type=str, default='', help='Name of Resource group in Azure')
 parser.add_argument('--azure_auth_path', type=str, default='', help='Full path to Azure credentials JSON file')
+parser.add_argument('--azure_offer_number', type=str, default='', help='Azure offer number')
+parser.add_argument('--azure_currency', type=str, default='', help='Azure currency code')
+parser.add_argument('--azure_locale', type=str, default='', help='Azure locale')
+parser.add_argument('--azure_region_info', type=str, default='', help='Azure region info')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()
@@ -73,7 +78,6 @@ def build_front_end(args):
     # Building front-end
     with lcd(args.workspace_path + '/services/self-service/src/main/resources/webapp/'):
         local('sed -i "s|CLOUD_PROVIDER|{}|g" src/dictionary/global.dictionary.ts'.format(args.conf_cloud_provider))
-        local('sudo npm install gulp')
         local('sudo npm install')
         local('sudo npm run build.prod')
         local('sudo chown -R {} {}/*'.format(os.environ['USER'], args.workspace_path))
@@ -81,7 +85,7 @@ def build_front_end(args):
 
 def build_services():
     # Building provisioning-service, security-service, self-service, billing
-    local('mvn -DskipTests package')
+    local('mvn -P{} -DskipTests package'.format(args.conf_cloud_provider))
 
 
 def build_docker_images(args):
@@ -110,9 +114,14 @@ def deploy_dlab(args):
     local('cp {0}/services/security-service/security.yml {0}/web_app/security-service/'.format(args.workspace_path))
     local('cp {0}/services/security-service/target/security-service-*.jar {0}/web_app/security-service/'.
           format(args.workspace_path))
-    local('cp {0}/services/billing/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
-    local('cp {0}/services/billing/target/billing-*.jar {0}/web_app/billing/'.
-          format(args.workspace_path))
+
+    if args.conf_cloud_provider == 'azure':
+        local('cp {0}/services/billing-azure/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
+        local('cp {0}/services/billing-azure/target/billing-azure*.jar {0}/web_app/billing/'.format(args.workspace_path))
+    elif args.conf_cloud_provider == 'aws':
+        local('cp {0}/services/billing-aws/billing.yml {0}/web_app/billing/'.format(args.workspace_path))
+        local('cp {0}/services/billing-aws/target/billing-aws*.jar {0}/web_app/billing/'.format(args.workspace_path))
+
     # Creating SSN node
     docker_command = generate_docker_command()
     local(docker_command)
@@ -125,7 +134,7 @@ def terminate_dlab(args):
 
 if __name__ == "__main__":
     if not args.workspace_path:
-        print "Workspace path isn't set, using current directory: " + os.environ['PWD']
+        print("Workspace path isn't set, using current directory: {}".format(os.environ['PWD']))
         args.workspace_path = os.environ['PWD']
     if args.action == 'build':
         build_front_end(args)

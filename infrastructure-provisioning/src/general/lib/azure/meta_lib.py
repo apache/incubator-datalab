@@ -447,6 +447,31 @@ class AzureMeta:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def get_image(self, resource_group_name, image_name):
+        try:
+            return self.compute_client.images.get(resource_group_name, image_name)
+        except AzureExceptions.CloudError as err:
+            if err.status_code == 404:
+                return ''
+        except Exception as err:
+            logging.info(
+                "Unable to get image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get image",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def list_images(self):
+        try:
+            return self.compute_client.images.list()
+        except Exception as err:
+            logging.info(
+                "Unable to get list images: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get list images",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
 
 def get_instance_private_ip_address(tag_name, instance_name):
     try:
@@ -458,3 +483,40 @@ def get_instance_private_ip_address(tag_name, instance_name):
                        "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
+
+
+def node_count(cluster_name):
+    try:
+        node_list = []
+        resource_group_name = os.environ['azure_resource_group_name']
+        for node in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
+            if cluster_name == node.tags["Name"]:
+                node_list.append(node.name)
+        result = len(node_list)
+        return result
+    except Exception as err:
+        logging.info("Error with counting nodes in cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with counting nodes in cluster",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+
+
+def replace_multi_symbols(string, symbol, symbol_cut=False):
+    try:
+        symbol_amount = 0
+        for i in range(len(string)):
+            if string[i] == symbol:
+                symbol_amount = symbol_amount + 1
+        while symbol_amount > 1:
+            string = string.replace(symbol + symbol, symbol)
+            symbol_amount = symbol_amount - 1
+        if symbol_cut and string[-1] == symbol:
+            string = string[:-1]
+        return string
+    except Exception as err:
+        logging.info("Error with replacing multi symbols: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with replacing multi symbols",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)

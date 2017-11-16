@@ -21,10 +21,7 @@ import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.dto.aws.computational.ComputationalConfigAws;
-import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
-import com.epam.dlab.dto.azure.computational.ComputationalConfigAzure;
-import com.epam.dlab.dto.azure.computational.ComputationalCreateAzure;
+import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.exceptions.DlabException;
@@ -49,59 +46,23 @@ public class ComputationalConfigure implements DockerCommands {
     @Inject
     private RESTService selfService;
 
-    private String getComputationalType() {
-        switch (configuration.getCloudProvider()) {
-            case AWS:
-                return DataEngineType.CLOUD_SERVICE.getName();
-            case AZURE:
-                return DataEngineType.SPARK_STANDALONE.getName();
-            default:
-                throw new IllegalArgumentException("Unsupported cloud provider");
-
-        }
-    }
-
-
     public String configure(String uuid, ComputationalBase<?> dto) throws DlabException {
-        ComputationalBase<?> dtoConf;
-
-
         switch (configuration.getCloudProvider()) {
             case AWS:
-                dtoConf = new ComputationalConfigAws();
-                configure((ComputationalCreateAws) dto, (ComputationalConfigAws) dtoConf);
-                break;
+                if (dto instanceof SparkComputationalCreateAws) {
+                    return runConfigure(uuid, dto, DataEngineType.SPARK_STANDALONE);
+                } else {
+                    return runConfigure(uuid, dto, DataEngineType.CLOUD_SERVICE);
+                }
             case AZURE:
-                dtoConf = new ComputationalConfigAzure();
-                configure((ComputationalCreateAzure) dto, (ComputationalConfigAzure) dtoConf);
-
+                return runConfigure(uuid, dto, DataEngineType.SPARK_STANDALONE);
+            default:
+                throw new IllegalStateException(String.format("Wrong configuration of cloud provider %s %s",
+                        configuration.getCloudProvider(), dto));
         }
-
-        return runConfigure(uuid, dto);
     }
 
-    private void configure(ComputationalCreateAws dto, ComputationalConfigAws config) {
-        commonConfigure(dto, config);
-        config.withVersion(dto.getVersion());
-    }
-
-    private void configure(ComputationalCreateAzure dto, ComputationalConfigAzure config) {
-        commonConfigure(dto, config);
-        config.withDataEngineInstanceCount(dto.getDataEngineInstanceCount());
-    }
-
-    private void commonConfigure(ComputationalBase<?> dto, ComputationalBase<?> dtoConf) {
-        dtoConf.withServiceBaseName(dto.getServiceBaseName())
-                .withApplicationName(dto.getApplicationName())
-                .withExploratoryName(dto.getExploratoryName())
-                .withComputationalName(dto.getComputationalName())
-                .withNotebookInstanceName(dto.getNotebookInstanceName())
-                .withEdgeUserName(dto.getEdgeUserName())
-                .withCloudSettings(dto.getCloudSettings());
-
-    }
-
-    private String runConfigure(String uuid, ComputationalBase<?> dto) throws DlabException {
+    private String runConfigure(String uuid, ComputationalBase<?> dto, DataEngineType dataEngineType) throws DlabException {
         log.debug("Configure computational resources {} for user {}: {}", dto.getComputationalName(), dto.getEdgeUserName(), dto);
         folderListenerExecutor.start(
                 configuration.getImagesDirectory(),
@@ -117,15 +78,15 @@ public class ComputationalConfigure implements DockerCommands {
                                     .withName(nameContainer(dto.getEdgeUserName(), CONFIGURE, dto.getComputationalName()))
                                     .withVolumeForRootKeys(configuration.getKeyDirectory())
                                     .withVolumeForResponse(configuration.getImagesDirectory())
-                                    .withVolumeForLog(configuration.getDockerLogDirectory(), getComputationalType())
-                                    .withResource(getComputationalType())
+                                    .withVolumeForLog(configuration.getDockerLogDirectory(), dataEngineType.getName())
+                                    .withResource(dataEngineType.getName())
                                     .withRequestId(uuid)
                                     .withConfKeyName(configuration.getAdminKey())
-                                    .withActionConfigure(getImageConfigure(dto.getApplicationName())),
+                                    .withActionConfigure(getImageConfigure(dto.getApplicationName(), dataEngineType)),
                             dto
                     )
             );
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new DlabException("Could not configure computational resource cluster", t);
         }
         return uuid;
@@ -139,8 +100,8 @@ public class ComputationalConfigure implements DockerCommands {
         return nameContainer(user, action.toString(), "computational", name);
     }
 
-    private String getImageConfigure(String application) throws DlabException {
-        String imageName = configuration.getDataEngineImage();
+    private String getImageConfigure(String application, DataEngineType dataEngineType) throws DlabException {
+        String imageName = DataEngineType.getDockerImageName(dataEngineType);
         int pos = imageName.indexOf('-');
         if (pos > 0) {
             return imageName.substring(0, pos + 1) + application;

@@ -16,8 +16,8 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.backendapi.core.UserInstanceDTO;
-import com.epam.dlab.backendapi.resources.dto.UserComputationalResource;
+import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.computational.ComputationalStatusDTO;
@@ -132,7 +132,7 @@ public class ComputationalDAO extends BaseDAO {
                                     and(eq(COMPUTATIONAL_NAME, dto.getComputationalName()),
                                             not(eq(STATUS, TERMINATED.toString()))))),
                     new Document(SET, values));
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new DlabException("Could not update computational resource status", t);
         }
     }
@@ -191,7 +191,7 @@ public class ComputationalDAO extends BaseDAO {
                             and(eq(COMPUTATIONAL_NAME, dto.getComputationalName()),
                                     not(eq(STATUS, TERMINATED.toString()))))),
                     new Document(SET, values));
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new DlabException("Could not update computational resource status", t);
         }
     }

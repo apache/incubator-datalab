@@ -34,7 +34,8 @@ export class ApplicationServiceFacade {
   private static readonly EXPLORATORY_ENVIRONMENT_TEMPLATES = 'exploratory_templates';
   private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
-  private static readonly COMPUTATIONAL_RESOURCES_CONFIGURATION = 'computational_resources_configuration';
+  private static readonly COMPUTATIONAL_RESOURCES_DATAENGINE = 'computational_resources_dataengine';
+  private static readonly COMPUTATIONAL_RESOURCES_DATAENGINESERVICE = 'computational_resources_dataengineservice';
   private static readonly USER_PREFERENCES = 'user_preferences';
   private static readonly ENVIRONMENT_HEALTH_STATUS = 'environment_health_status';
   private static readonly EDGE_NODE_START = 'edge_node_start';
@@ -43,6 +44,7 @@ export class ApplicationServiceFacade {
   private static readonly LIB_GROUPS = 'lib_groups';
   private static readonly LIB_LIST = 'lib_list';
   private static readonly LIB_INSTALL = 'lib_install';
+  private static readonly INSTALLED_LIBS_FORMAT = 'installed_libs_format';
   private static readonly INSTALLED_LIBS = 'installed_libs';
   private static readonly GIT_CREDS = 'git_creds';
   private static readonly BILLING = 'billing';
@@ -110,13 +112,6 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
-  public buildGetComputationalResourcesConfiguration(): Observable<Response> {
-    return this.buildRequest(RequestMethod.Get,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_CONFIGURATION),
-      null,
-      this.getRequestOptions(true, true));
-  }
-
   public buildCreateExploratoryEnvironmentRequest(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Put,
       this.requestRegistry.Item(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT),
@@ -138,9 +133,16 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
-  public buildCreateComputationalResourcesRequest(data): Observable<Response> {
+  public buildCreateComputationalResources_DataengineServiceRequest(data): Observable<Response> {
     return this.buildRequest(RequestMethod.Put,
-      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES),
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildCreateComputationalResources_DataengineRequest(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Put,
+      this.requestRegistry.Item(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE),
       data,
       this.getRequestOptions(true, true));
   }
@@ -202,7 +204,7 @@ export class ApplicationServiceFacade {
   }
 
   public buildGetGroupsList(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+    return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.LIB_GROUPS),
       data,
       this.getRequestOptions(true, true));
@@ -223,7 +225,14 @@ export class ApplicationServiceFacade {
   }
 
   public buildGetInstalledLibrariesList(data): Observable<Response> {
-    return this.buildRequest(RequestMethod.Post,
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.INSTALLED_LIBS_FORMAT),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetInstalledLibsByResource(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.INSTALLED_LIBS),
       data,
       this.getRequestOptions(true, true));
@@ -278,10 +287,13 @@ export class ApplicationServiceFacade {
     // Computational Resources
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES,
       '/api/infrastructure_provision/computational_resources');
+    this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINESERVICE,
+      '/api/infrastructure_provision/computational_resources/dataengine-service'); // emr(aws)
+    this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_DATAENGINE,
+      '/api/infrastructure_provision/computational_resources/dataengine'); // spark (azure|aws)
+
     this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_TEMLATES,
       '/api/infrastructure_templates/computational_templates');
-    this.requestRegistry.Add(ApplicationServiceFacade.COMPUTATIONAL_RESOURCES_CONFIGURATION,
-      '/api/infrastructure_provision/computational_resources/configuration');
 
     // Filtering Configuration
     this.requestRegistry.Add(ApplicationServiceFacade.USER_PREFERENCES, '/api/user/settings');
@@ -296,6 +308,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/exploratory_environment/lib_groups');
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_LIST, '/api/infrastructure_provision/exploratory_environment/search/lib_list');
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_INSTALL, '/api/infrastructure_provision/exploratory_environment/lib_install');
+    this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS_FORMAT, '/api/infrastructure_provision/exploratory_environment/lib_list/formatted');
     this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS, '/api/infrastructure_provision/exploratory_environment/lib_list');
 
     // UnGit credentials

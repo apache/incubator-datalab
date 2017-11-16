@@ -62,9 +62,9 @@ if __name__ == "__main__":
         dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
     if args.subnet_name != '':
         if AzureMeta().get_subnet(args.resource_group_name, args.vpc_name, args.subnet_name):
-            print "REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name)
+            print("REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name))
         else:
-            print "Creating Subnet {}".format(args.subnet_name)
+            print("Creating Subnet {}".format(args.subnet_name))
             AzureActions().create_subnet(args.resource_group_name, args.vpc_name, args.subnet_name, dlab_subnet_cidr)
     else:
         sys.exit(1)

@@ -38,7 +38,7 @@ def read_yml_conf(path, section, param):
         result = config[section][param]
         return result
     except:
-        print "File does not exist"
+        print("File does not exist")
         return ''
 
 
@@ -51,9 +51,10 @@ def update_resource_status(resource, status):
     client = MongoClient("mongodb://admin:" + mongo_passwd + "@" + mongo_ip + ':' + str(mongo_port) + "/dlabdb")
     client.dlabdb.statuses.save({"_id": resource, "value": status})
 
+
 if __name__ == "__main__":
     try:
         update_resource_status(args.resource, args.status)
     except:
-        print "Unable to update status for the resource" + args.resource
+        print("Unable to update status for the resource {}".format(args.resource))
         sys.exit(1)

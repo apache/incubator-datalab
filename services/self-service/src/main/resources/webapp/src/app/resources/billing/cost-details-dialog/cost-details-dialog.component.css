@@ -16,15 +16,6 @@ limitations under the License.
 
 ****************************************************************************/
 
-.detail-header td:first-child {
-  font-size: 16px;
-  font-weight: 600;
-  color: #455c74;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  cursor: pointer;
-}
-
 .billing-detail table {
   width: 100%;
 }
@@ -70,6 +61,9 @@ limitations under the License.
   overflow: hidden;
   text-overflow: ellipsis;
   padding-right: 10px;
+}
+.billing-detail .wide-name-field {
+  width: 25%;
 }
 .billing-detail .resource-name {
   cursor: pointer;

@@ -28,23 +28,25 @@ import os
 import uuid
 
 
-def terminate_nb(resource_group_name, service_base_name, user_name, notebook_name):
-    print "Terminating data engine cluster"
+def terminate_nb(resource_group_name, notebook_name):
+    print("Terminating data engine cluster")
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if service_base_name + '-' + user_name + '-dataengine' in vm.name and notebook_name == \
-                    vm.tags['notebook_name']:
-                AzureActions().remove_instance(resource_group_name, vm.name)
-                print "Instance {} has been terminated".format(vm.name)
+            try:
+                if notebook_name == vm.tags['notebook_name']:
+                    AzureActions().remove_instance(resource_group_name, vm.name)
+                    print("Instance {} has been terminated".format(vm.name))
+            except:
+                pass
     except:
         sys.exit(1)
 
-    print "Terminating notebook"
+    print("Terminating notebook")
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
-            if notebook_name in vm.name:
+            if notebook_name == vm.tags["Name"]:
                 AzureActions().remove_instance(resource_group_name, vm.name)
-                print "Instance {} has been terminated".format(vm.name)
+                print("Instance {} has been terminated".format(vm.name))
     except:
         sys.exit(1)
 
@@ -57,7 +59,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
     # generating variables dictionary
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     notebook_config = dict()
     try:
         notebook_config['exploratory_name'] = os.environ['exploratory_name'].replace('_', '-')
@@ -67,17 +69,14 @@ if __name__ == "__main__":
         notebook_config['computational_name'] = os.environ['computational_name'].replace('_', '-')
     except:
         notebook_config['computational_name'] = ''
-    notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['resource_group_name'] = os.environ['azure_resource_group_name']
-    notebook_config['user_name'] = os.environ['edge_user_name'].replace('_', '-')
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
 
     try:
         logging.info('[TERMINATE NOTEBOOK]')
-        print '[TERMINATE NOTEBOOK]'
+        print('[TERMINATE NOTEBOOK]')
         try:
-            terminate_nb(notebook_config['resource_group_name'], notebook_config['service_base_name'],
-                         notebook_config['user_name'], notebook_config['notebook_name'])
+            terminate_nb(notebook_config['resource_group_name'], notebook_config['notebook_name'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate notebook.", str(err))
@@ -89,8 +88,8 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Action": "Terminate notebook server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)

@@ -1,0 +1,9 @@
+{
+    "conf_resource": "dataengine",
+    "request_id": "RID",
+    "conf_service_base_name": "SBN",
+    "edge_user_name": "EUN",
+    "conf_key_name": "CKN",
+    "computational_id": "CNAM",
+    "application": "APP"
+}

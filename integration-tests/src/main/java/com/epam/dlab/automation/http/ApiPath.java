@@ -26,14 +26,14 @@ public class ApiPath {
     public static final String AUTHORIZE_USER = "/api/user/authorize";
     public static final String EXP_ENVIRONMENT = "/api/infrastructure_provision/exploratory_environment";
     public static final String PROVISIONED_RES = "/api/infrastructure/info";
-    public static final String COMPUTATIONAL_RES = "/api/infrastructure_provision/computational_resources";
+    public static final String COMPUTATIONAL_RES = "/api/infrastructure_provision/computational_resources/dataengine-service";
     public static final String STOP_NOTEBOOK = EXP_ENVIRONMENT + "/%s/stop";
-    public static final String TERMINATE_EMR = COMPUTATIONAL_RES + "/%s/%s/terminate";
+    public static final String TERMINATE_EMR = "/api/infrastructure_provision/computational_resources/%s/%s/terminate";
     public static final String TERMINATE_NOTEBOOK = EXP_ENVIRONMENT + "/%s/terminate";
     public static final String LIB_GROUPS = "/api/infrastructure_provision/exploratory_environment/lib_groups";
     public static final String LIB_LIST = "/api/infrastructure_provision/exploratory_environment/search/lib_list";
     public static final String LIB_INSTALL = "/api/infrastructure_provision/exploratory_environment/lib_install";
-    public static final String LIB_LIST_EXPLORATORY = "/api/infrastructure_provision/exploratory_environment/lib_list";
+    public static final String LIB_LIST_EXPLORATORY_FORMATTED = "/api/infrastructure_provision/exploratory_environment/lib_list/formatted";
 
           
     public static String ConfigureURL(String url, Object... args) {        

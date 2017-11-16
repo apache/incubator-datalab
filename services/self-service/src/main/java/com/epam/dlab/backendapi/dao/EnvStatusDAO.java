@@ -37,6 +37,7 @@ import java.util.List;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.dto.base.DataEngineType;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.bson.Document;
@@ -68,10 +69,11 @@ public class EnvStatusDAO extends BaseDAO {
 	private static final String COMPUTATIONAL_STATUS = COMPUTATIONAL_RESOURCES + "." + STATUS;
 	private static final String COMPUTATIONAL_STATUS_FILTER = COMPUTATIONAL_RESOURCES + FIELD_SET_DELIMETER + STATUS;
 	private static final String COMPUTATIONAL_SPOT = "slave_node_spot";
+	private static final String IMAGE = "image";
 
     private static final Bson INCLUDE_EDGE_FIELDS = include(INSTANCE_ID, EDGE_STATUS, EDGE_PUBLIC_IP);
 	private static final Bson INCLUDE_EXP_FIELDS = include(INSTANCE_ID, STATUS,
-								COMPUTATIONAL_RESOURCES + "." + INSTANCE_ID, COMPUTATIONAL_STATUS);
+								COMPUTATIONAL_RESOURCES + "." + INSTANCE_ID, COMPUTATIONAL_RESOURCES + "." + IMAGE, COMPUTATIONAL_STATUS);
 	private static final Bson INCLUDE_EXP_UPDATE_FIELDS = include(EXPLORATORY_NAME, INSTANCE_ID, STATUS,
 								COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, COMPUTATIONAL_RESOURCES + "." + INSTANCE_ID, COMPUTATIONAL_STATUS);
 
@@ -165,7 +167,9 @@ public class EnvStatusDAO extends BaseDAO {
 				continue;
 			}
 			for (Document comp : compList) {
-				addResource(clusterList, comp, STATUS);
+				if (DataEngineType.SPARK_STANDALONE != DataEngineType.fromDockerImageName(comp.getString(IMAGE))) {
+					addResource(clusterList, comp, STATUS);
+				}
 			}
 		}
 
@@ -353,7 +357,7 @@ public class EnvStatusDAO extends BaseDAO {
     		return true;
     	}
 
-    	String accessToken = (userInfo == null ? null : userInfo.getAccessToken());
+    	String accessToken = userInfo.getAccessToken();
     	LOGGER.debug("Computational will be terminated for user {} with exploratory {} and computational {}",
     			user, exploratoryName, computationalName);
     	try {

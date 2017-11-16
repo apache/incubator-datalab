@@ -23,6 +23,7 @@ import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.response.Response;
 
 import java.io.File;
+import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.given;
 
@@ -42,6 +43,10 @@ public class HttpRequest {
 
 	public Response webApiGet(String url, String token) {
 		return given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON).when().get(url);
+	}
+	
+	public Response webApiGet(String url, String token, Map<String,?> params) {
+		return given().header("Authorization", "Bearer " + token).contentType(ContentType.JSON).params(params).when().get(url);
 	}
 
 	public Response webApiPost(String url, String contentType, Object body) {

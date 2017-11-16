@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
 
@@ -44,7 +44,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   spotInstance: boolean = false;
 
   computationalResourceExist: boolean = false;
-  checkValidity: boolean = false;
   clusterNamePattern: string = '[-_a-zA-Z0-9]+';
   nodeCountPattern: string = '^[1-9]\\d*$';
 
@@ -55,12 +54,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public maxInstanceNumber: number;
   public minSpotPrice: number = 0;
   public maxSpotPrice: number = 0;
-
-  public createComputationalResourceForm: FormGroup;
+  public resourceForm: FormGroup;
 
   @ViewChild('bindDialog') bindDialog;
   @ViewChild('name') name;
   @ViewChild('count') count;
+  @ViewChild('clusterType') cluster_type;
   @ViewChild('templatesList') templates_list;
   @ViewChild('masterShapesList') master_shapes_list;
   @ViewChild('shapesSlaveList') slave_shapes_list;
@@ -70,14 +69,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   constructor(
     private userResourceService: UserResourceService,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private ref: ChangeDetectorRef
   ) {
     this.model = ComputationalResourceCreateModel.getDefault(userResourceService);
   }
 
   ngOnInit() {
     this.initFormModel();
-    this.getComputationalResourceLimits();
     this.bindDialog.onClosing = () => this.resetDialog();
   }
 
@@ -93,13 +92,18 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public onUpdate($event): void {
     if ($event.model.type === 'template') {
       this.model.setSelectedTemplate($event.model.index);
-      this.master_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-        this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
-      this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-        this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
+      this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+        this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
+      this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+        this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
 
-      this.shapes.master_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
-      this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
+      this.shapes.master_shape = this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type');
+      this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type');
+    }
+    if ($event.model.type === 'cluster_type') {
+      this.model.setSelectedClusterType($event.model.index);
+      this.setDefaultParams();
+      this.getComputationalResourceLimits();
     }
 
     if (this.shapes[$event.model.type])
@@ -113,7 +117,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public createComputationalResource($event, data, shape_master: string, shape_slave: string) {
     this.computationalResourceExist = false;
-    this.checkValidity = true;
 
     if (this.containsComputationalResource(data.cluster_alias_name)) {
       this.computationalResourceExist = true;
@@ -140,28 +143,40 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public selectSpotInstances($event): void {
     if ($event.target.checked) {
-      const filtered = JSON.parse(JSON.stringify(this.slave_shapes_list.items));
-      for (const item in this.slave_shapes_list.items) {
-          filtered[item] = filtered[item].filter(el => el.spot);
-          if (filtered[item].length <= 0) {
-            delete filtered[item];
-          }
-      }
+      const filtered = this.filterAvailableSpots();
 
       this.slave_shapes_list.setDefaultOptions(filtered, this.shapePlaceholder(filtered, 'description'),
         'slave_shape', 'description', 'json');
       this.shapes.slave_shape = this.shapePlaceholder(filtered, 'type');
 
       this.spotInstance = this.shapePlaceholder(filtered, 'spot');
-      this.createComputationalResourceForm.controls['instance_price'].setValue(this.shapePlaceholder(filtered, 'price'));
+      this.resourceForm.controls['instance_price'].setValue(this.shapePlaceholder(filtered, 'price'));
     } else {
-      this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-        this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
-      this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
+      this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+        this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
+      this.shapes.slave_shape = this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type');
 
       this.spotInstance = false;
-      this.createComputationalResourceForm.controls['instance_price'].setValue(0);
+      this.resourceForm.controls['instance_price'].setValue(0);
     }
+  }
+
+  private filterAvailableSpots() {
+    const filtered = JSON.parse(JSON.stringify(this.slave_shapes_list.items));
+    for (const item in this.slave_shapes_list.items) {
+        filtered[item] = filtered[item].filter(el => el.spot);
+        if (filtered[item].length <= 0) {
+          delete filtered[item];
+        }
+    }
+    return filtered;
+  }
+
+  public isAvailableSpots(): boolean {
+    if (this.slave_shapes_list && this.slave_shapes_list.items)
+      return !!Object.keys(this.filterAvailableSpots()).length;
+
+    return false;
   }
 
   public open(params, notebook_instance): void {
@@ -183,10 +198,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         },
         () => {
           this.bindDialog.open(params);
+          this.ref.detectChanges();
+
           this.setDefaultParams();
+          this.getComputationalResourceLimits();
         },
         this.userResourceService);
-
     }
   }
 
@@ -196,8 +213,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private initFormModel(): void {
-    this.createComputationalResourceForm = this._fb.group({
-      cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern)]],
+    this.resourceForm = this._fb.group({
+      cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern), this.providerMaxLength]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]]
     });
@@ -208,18 +225,18 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private getComputationalResourceLimits(): void {
-    this.userResourceService.getComputationalResourcesConfiguration()
-      .subscribe((limits) => {
-        this.minInstanceNumber = limits[DICTIONARY.total_instance_number_min];
-        this.maxInstanceNumber = limits[DICTIONARY.total_instance_number_max];
+    let activeImage = DICTIONARY[this.model.selectedImage.image];
 
-        if (this.PROVIDER === 'aws') {
-          this.minSpotPrice = limits.min_emr_spot_instance_bid_pct;
-          this.maxSpotPrice = limits.max_emr_spot_instance_bid_pct;
-        }
+    if (this.model.selectedImage) {
+      this.minInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_min];
+      this.maxInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_max];
+      if (this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
+        this.minSpotPrice = this.model.selectedImage.limits.min_emr_spot_instance_bid_pct;
+        this.maxSpotPrice = this.model.selectedImage.limits.max_emr_spot_instance_bid_pct;
+      }
 
-        this.createComputationalResourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
-      });
+      this.resourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
+    }
   }
 
   private validInstanceNumberRange(control) {
@@ -233,24 +250,51 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         : control.value;
   }
 
+  private providerMaxLength(control) {
+    if (DICTIONARY.cloud_provider === 'azure')
+      return control.value.length <=10 ? null : { valid: false };
+  }
+
   private setDefaultParams(): void {
+    this.filterShapes();
     this.shapes = {
-      master_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type'),
-      slave_shape: this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type')
+      master_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type'),
+      slave_shape: this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'type')
     };
     if (DICTIONARY.cloud_provider === 'aws') {
-      this.templates_list.setDefaultOptions(this.model.computationalResourceApplicationTemplates,
-        this.model.selectedItem.version, 'template', 'version', 'array');
+      this.cluster_type.setDefaultOptions(this.model.resourceImages,
+        this.model.selectedImage.template_name, 'cluster_type', 'template_name', 'array');
+      if (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
+        this.templates_list.setDefaultOptions(this.model.templates,
+          this.model.selectedItem.version, 'template', 'version', 'array');
     }
-    this.master_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-      this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
-    this.slave_shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
-      this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
+    this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+      this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
+    this.slave_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
+      this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'slave_shape', 'description', 'json');
+  }
+
+  private filterShapes(): void {
+    if (this.notebook_instance.template_name.toLowerCase().indexOf('tensorflow') !== -1
+      || this.notebook_instance.template_name.toLowerCase().indexOf('deep learning') !== -1) {
+      const allowed = ['GPU optimized'];
+      const filtered = Object.keys(this.model.selectedImage.shapes.resourcesShapeTypes)
+        .filter(key => allowed.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = this.model.selectedImage.shapes.resourcesShapeTypes[key];
+          return obj;
+        }, {});
+
+      if (DICTIONARY.cloud_provider === 'aws') {
+        this.model.resourceImages = this.model.resourceImages.filter(image => image.image === 'docker.dlab-dataengine');
+        this.model.setSelectedClusterType(0);
+      }
+      this.model.selectedImage.shapes.resourcesShapeTypes = filtered;
+    }
   }
 
   private resetDialog(): void {
     this.computationalResourceExist = false;
-    this.checkValidity = false;
     this.processError = false;
     this.errorMessage = '';
 

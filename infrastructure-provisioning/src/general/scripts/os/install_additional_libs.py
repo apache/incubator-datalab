@@ -29,20 +29,20 @@ import ast
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
-parser.add_argument('--notebook_ip', type=str, default='')
+parser.add_argument('--instance_ip', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--libs', type=str, default='')
 args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    env.hosts = "{}".format(args.notebook_ip)
+    env.hosts = "{}".format(args.instance_ip)
     env['connection_attempts'] = 100
     env.user = args.os_user
     env.key_filename = "{}".format(args.keyfile)
     env.host_string = env.user + "@" + env.hosts
 
-    print 'Installing libraries:' + args.libs
+    print('Installing libraries: {}'.format(args.libs))
     general_status = list()
     data = ast.literal_eval(args.libs)
     pkgs = {"libraries": {}}
@@ -57,29 +57,30 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print 'Installing os packages:', pkgs['libraries']['os_pkg']
+        print('Installing os packages: {}'.format(pkgs['libraries']['os_pkg']))
         status = install_os_pkg(pkgs['libraries']['os_pkg'])
         general_status = general_status + status
     except KeyError:
         pass
 
-    if os.environ['application'] in ['jupyter', 'zeppelin', 'deeplearning', 'tensor']:
+    if os.environ['application'] in ['jupyter', 'zeppelin', 'deeplearning', 'tensor', 'dataengine',
+                                     'dataengine-service']:
         try:
-            print 'Installing pip2 packages:', pkgs['libraries']['pip2']
+            print('Installing pip2 packages: {}'.format(pkgs['libraries']['pip2']))
             status = install_pip_pkg(pkgs['libraries']['pip2'], 'pip2', 'pip2')
             general_status = general_status + status
         except KeyError:
             pass
 
         try:
-            print 'Installing pip3 packages:', pkgs['libraries']['pip3']
+            print('Installing pip3 packages: {}'.format(pkgs['libraries']['pip3']))
             status = install_pip_pkg(pkgs['libraries']['pip3'], 'pip3', 'pip3')
             general_status = general_status + status
         except KeyError:
             pass
 
         try:
-            print 'Installing other packages:', pkgs['libraries']['others']
+            print('Installing other packages: {}'.format(pkgs['libraries']['others']))
             for pkg in pkgs['libraries']['others']:
                 status_pip2 = install_pip_pkg([pkg], 'pip2', 'others')
                 status_pip3 = install_pip_pkg([pkg], 'pip3', 'others')
@@ -90,9 +91,10 @@ if __name__ == "__main__":
         except KeyError:
             pass
 
-    if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'deeplearning']:
+    if os.environ['application'] in ['jupyter', 'rstudio', 'zeppelin', 'dataengine',
+                                     'dataengine-service']:
         try:
-            print 'Installing R packages:', pkgs['libraries']['r_pkg']
+            print('Installing R packages: {}'.format(pkgs['libraries']['r_pkg']))
             status = install_r_pkg(pkgs['libraries']['r_pkg'])
             general_status = general_status + status
         except KeyError:

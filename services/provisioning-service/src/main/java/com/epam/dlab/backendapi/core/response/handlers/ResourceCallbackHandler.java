@@ -93,7 +93,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
         		getCallbackURI(), uuid, object);
         try {
         	selfService.post(getCallbackURI(), object, resultType);
-        } catch (Throwable e) {
+        } catch (Exception e) {
         	log.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
         	throw new DlabException("Send request or responce error for UUID " + uuid + ": " + e.getLocalizedMessage(), e);
         }
@@ -127,7 +127,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
         try {
         	selfServicePost((T) getBaseStatusDTO(UserInstanceStatus.FAILED)
         			.withErrorMessage(errorMessage));
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new DlabException("Could not send error message to Self Service for UUID " + uuid + ", user " + user + ": " + errorMessage, t);
         }
     }
@@ -144,7 +144,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
             		.withUser(user)
             		.withStatus(status)
             		.withUptime(getUptime(status));
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new DlabException("Something went wrong", t);
         }
     }

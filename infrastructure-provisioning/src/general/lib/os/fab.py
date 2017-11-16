@@ -51,9 +51,8 @@ def install_pip_pkg(requisites, pip_version, lib_group):
     status = list()
     error_parser = "Could not|No matching|ImportError:|failed|EnvironmentError:"
     try:
-        if pip_version == 'pip3':
-            if not exists('/bin/pip3'):
-                sudo('ln -s /bin/pip3.5 /bin/pip3')
+        if pip_version == 'pip3' and not exists('/bin/pip3'):
+            sudo('ln -s /bin/pip3.5 /bin/pip3')
         sudo('{} install -U pip setuptools'.format(pip_version))
         sudo('{} install -U pip --no-cache-dir'.format(pip_version))
         sudo('{} install --upgrade pip'.format(pip_version))
@@ -79,22 +78,6 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-def prepare_disk(os_user):
-    if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
-        try:
-            sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
-            sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
-            sudo('mount -a')
-            disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
-            sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
-            sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
-            sudo('mount /dev/{}1 /opt/'.format(disk_name))
-            sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
-            sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
-        except:
-            sys.exit(1)
-
-
 def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
     if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
         try:
@@ -114,11 +97,9 @@ def install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_di
     local('chown -R ' + os_user + ':' + os_user + ' ' + spark_dir)
 
 
-def configure_dataengine_spark(jars_dir, spark_dir, local_spark_dir):
-    local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
-          /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
-    local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
-    local('cp {0}conf/core-site.xml {1}conf/'.format(local_spark_dir, spark_dir))
+def ensure_dataengine_tensorflow_jars(jars_dir):
+    local('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
+         -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
 
 
 def prepare(dataengine_service_dir, yarn_dir):
@@ -151,7 +132,7 @@ def append_result(error, exception=''):
         data['error'] = data['error'] + " [Error-" + st + "]:" + error
     with open("/root/result.json", 'w') as f:
         json.dump(data, f)
-    print data
+    print(data)
 
 
 def put_resource_status(resource, status, dlab_path, os_user, hostname):
@@ -185,8 +166,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
                 sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:/usr/local/cuda/lib64; |g' /tmp/jupyter-notebook.service")
             elif os.environ['application'] == 'deeplearning':
                 sudo("sed -i '/ExecStart/s|-c \"|-c \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn/lib64:"
-                     "/usr/local/cuda/lib64 ; export PYTHONPATH=/home/" + os_user + "/caffe/python:/home/" + os_user +
-                     "/caffe2/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
+                     "/usr/local/cuda/lib64:/usr/lib64/openmpi/lib: ; export PYTHONPATH=/home/" + os_user +
+                     "/caffe/python:/home/" + os_user + "/caffe2/build:$PYTHONPATH ; |g' /tmp/jupyter-notebook.service")
             sudo("sed -i 's|CONF_PATH|{}|' /tmp/jupyter-notebook.service".format(jupyter_conf_file))
             sudo("sed -i 's|OS_USR|{}|' /tmp/jupyter-notebook.service".format(os_user))
             sudo('\cp /tmp/jupyter-notebook.service /etc/systemd/system/jupyter-notebook.service')
@@ -199,11 +180,6 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo("systemctl daemon-reload")
             sudo("systemctl enable jupyter-notebook")
             sudo("systemctl start jupyter-notebook")
-            #run('mkdir -p ~/.git')
-            #put('/root/scripts/ipynb_output_filter.py', '~/.git/ipynb_output_filter.py', mode=0755)
-            #run('echo "*.ipynb    filter=clear_output_ipynb" > ~/.gitattributes')
-            #run('git config --global core.attributesfile ~/.gitattributes')
-            #run('git config --global filter.clear_output_ipynb.clean ~/.git/ipynb_output_filter.py')
             sudo('touch /home/{}/.ensure_dir/jupyter_ensured'.format(os_user))
         except:
             sys.exit(1)
@@ -358,8 +334,6 @@ def install_ungit(os_user):
             put('/root/templates/ungit.service', '/tmp/ungit.service')
             sudo("sed -i 's|OS_USR|{}|' /tmp/ungit.service".format(os_user))
             sudo('mv -f /tmp/ungit.service /etc/systemd/system/ungit.service')
-            run('git config --global http.proxy $http_proxy')
-            run('git config --global https.proxy $https_proxy')
             run('git config --global user.name "Example User"')
             run('git config --global user.email "example@example.com"')
             run('mkdir -p ~/.git/templates/hooks')
@@ -377,8 +351,121 @@ def install_ungit(os_user):
             sudo('touch /home/{}/.ensure_dir/ungit_ensured'.format(os_user))
         except:
             sys.exit(1)
+    run('git config --global http.proxy $http_proxy')
+    run('git config --global https.proxy $https_proxy')
+
+
+def set_git_proxy(os_user, hostname, keyfile, proxy_host):
+    env['connection_attempts'] = 100
+    env.key_filename = [keyfile]
+    env.host_string = os_user + '@' + hostname
+    run('git config --global http.proxy {}'.format(proxy_host))
+    run('git config --global https.proxy {}'.format(proxy_host))
 
 
 def set_mongo_parameters(client, mongo_parameters):
     for i in mongo_parameters:
         client.dlabdb.settings.insert_one({"_id": i, "value": mongo_parameters[i]})
+
+
+def install_r_packages(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/r_packages_ensured'):
+        sudo('R -e "install.packages(\'devtools\', repos = \'http://cran.us.r-project.org\')"')
+        sudo('R -e "install.packages(\'knitr\', repos = \'http://cran.us.r-project.org\')"')
+        sudo('R -e "install.packages(\'ggplot2\', repos = \'http://cran.us.r-project.org\')"')
+        sudo('R -e "install.packages(c(\'devtools\',\'mplot\', \'googleVis\'), '
+             'repos = \'http://cran.us.r-project.org\'); require(devtools); install_github(\'ramnathv/rCharts\')"')
+        sudo('touch /home/' + os_user + '/.ensure_dir/r_packages_ensured')
+
+
+def add_breeze_library_local(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/breeze_local_ensured'):
+        try:
+            breeze_tmp_dir = '/tmp/breeze_tmp_local/'
+            jars_dir = '/opt/jars/'
+            sudo('mkdir -p ' + breeze_tmp_dir)
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze_2.11/0.12/breeze_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-natives_2.11/0.12/breeze-natives_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze-natives_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-viz_2.11/0.12/breeze-viz_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze-viz_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-macros_2.11/0.12/breeze-macros_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze-macros_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/scalanlp/breeze-parent_2.11/0.12/breeze-parent_2.11-0.12.jar -O ' +
+                 breeze_tmp_dir + 'breeze-parent_2.11-0.12.jar')
+            sudo('wget http://central.maven.org/maven2/org/jfree/jfreechart/1.0.19/jfreechart-1.0.19.jar -O ' +
+                 breeze_tmp_dir + 'jfreechart-1.0.19.jar')
+            sudo('wget http://central.maven.org/maven2/org/jfree/jcommon/1.0.24/jcommon-1.0.24.jar -O ' +
+                 breeze_tmp_dir + 'jcommon-1.0.24.jar')
+            sudo('wget https://brunelvis.org/jar/spark-kernel-brunel-all-2.3.jar -O ' +
+                 breeze_tmp_dir + 'spark-kernel-brunel-all-2.3.jar')
+            sudo('mv ' + breeze_tmp_dir + '* ' + jars_dir)
+        except:
+            sys.exit(1)
+
+
+def configure_data_engine_service_pip(hostname, os_user, keyfile):
+    env['connection_attempts'] = 100
+    env.key_filename = [keyfile]
+    env.host_string = os_user + '@' + hostname
+    if not exists('/usr/bin/pip2'):
+        sudo('ln -s /usr/bin/pip-2.7 /usr/bin/pip2')
+    if not exists('/usr/bin/pip3') and sudo("python3.4 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
+    elif not exists('/usr/bin/pip3') and sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
+        sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
+    sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
+    sudo('source /etc/profile')
+    run('source /etc/profile')
+
+
+def remove_rstudio_dataengines_kernel(cluster_name, os_user):
+    try:
+        get('/home/{}/.Rprofile'.format(os_user), 'Rprofile')
+        data = open('Rprofile').read()
+        conf = [i for i in data.split('\n') if i != '']
+        conf = [i for i in conf if cluster_name not in i]
+        comment_all = lambda x: x if x.startswith('#master') else '#{}'.format(x)
+        uncomment = lambda x: x[1:] if not x.startswith('#master') else x
+        conf =[comment_all(i) for i in conf]
+        conf =[uncomment(i) for i in conf]
+        last_spark = max([conf.index(i) for i in conf if 'master=' in i] or [0])
+        active_cluster = conf[last_spark].split('"')[-2] if last_spark != 0 else None
+        conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")] \
+                                 + [conf[l] for l in range(last_spark, len(conf)) if not conf[l].startswith('#')]
+        with open('.Rprofile', 'w') as f:
+            for line in conf:
+                f.write('{}\n'.format(line))
+        put('.Rprofile', '/home/{}/.Rprofile'.format(os_user))
+        get('/home/{}/.Renviron'.format(os_user), 'Renviron')
+        data = open('Renviron').read()
+        conf = [i for i in data.split('\n') if i != '']
+        comment_all = lambda x: x if x.startswith('#') else '#{}'.format(x)
+        conf = [comment_all(i) for i in conf]
+        conf = [i for i in conf if cluster_name not in i]
+        if active_cluster:
+            activate_cluster = lambda x: x[1:] if active_cluster in x else x
+            conf = [activate_cluster(i) for i in conf]
+        else:
+            last_spark = max([conf.index(i) for i in conf if 'SPARK_HOME' in i])
+            conf = conf[:last_spark] + [conf[l][1:] for l in range(last_spark, len(conf)) if conf[l].startswith("#")]
+        with open('.Renviron', 'w') as f:
+            for line in conf:
+                f.write('{}\n'.format(line))
+        put('.Renviron', '/home/{}/.Renviron'.format(os_user))
+        if len(conf) == 1:
+           sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
+           sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(os_user))
+        sudo('''R -e "source('/home/{}/.Rprofile')"'''.format(os_user))
+    except:
+        sys.exit(1)
+
+
+def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
+    if creds:
+        env['connection_attempts'] = 100
+        env.key_filename = [keyfile]
+        env.host_string = os_user + '@' + hostname
+    sudo("systemctl daemon-reload")
+    sudo("systemctl restart zeppelin-notebook")

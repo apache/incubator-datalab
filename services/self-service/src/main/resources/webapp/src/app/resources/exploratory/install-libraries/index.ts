@@ -21,9 +21,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '@angular/material';
 
-import { ModalModule } from '../../../shared';
+import { ModalModule, BubbleModule } from '../../../shared';
+import { FormControlsModule } from '../../../shared/form-controls';
 import { KeysPipeModule, UnderscorelessPipeModule, LibSortPipeModule } from '../../../core/pipes';
-import { InstallLibrariesComponent } from './install-libraries.component';
+import { InstallLibrariesComponent, ErrorMessageDialog } from './install-libraries.component';
 
 export * from './install-libraries.component';
 export * from './install-libraries.model';
@@ -36,9 +37,12 @@ export * from './install-libraries.model';
     ModalModule,
     KeysPipeModule,
     LibSortPipeModule,
-    MaterialModule.forRoot()
+    FormControlsModule,
+    MaterialModule.forRoot(),
+    BubbleModule
   ],
-  declarations: [InstallLibrariesComponent],
+  declarations: [InstallLibrariesComponent, ErrorMessageDialog],
+  entryComponents: [ErrorMessageDialog],
   exports: [InstallLibrariesComponent],
 })
 export class InstallLibrariesModule { }

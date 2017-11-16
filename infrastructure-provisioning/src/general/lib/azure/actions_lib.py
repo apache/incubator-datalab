@@ -37,7 +37,7 @@ import logging
 import traceback
 import sys, time
 import os, json
-
+import dlab.fab
 
 class AzureActions:
     def __init__(self):
@@ -54,7 +54,10 @@ class AzureActions:
             result = self.resource_client.resource_groups.create_or_update(
                 resource_group_name,
                 {
-                    'location': region
+                    'location': region,
+                    'tags': {
+                        'Name': resource_group_name
+                    }
                 }
             )
             return result
@@ -90,6 +93,9 @@ class AzureActions:
                 vpc_name,
                 {
                     'location': region,
+                    'tags': {
+                        'Name': vpc_name
+                    },
                     'address_space': {
                         'address_prefixes': [vpc_cidr]
                     }
@@ -154,13 +160,14 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_security_group(self, resource_group_name, network_security_group_name, region, list_rules):
+    def create_security_group(self, resource_group_name, network_security_group_name, region, tags, list_rules):
         try:
             result = self.network_client.network_security_groups.create_or_update(
                 resource_group_name,
                 network_security_group_name,
                 {
-                    'location': region
+                    'location': region,
+                    'tags': tags,
                 }
             ).wait()
             for rule in list_rules:
@@ -259,7 +266,7 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_storage_account(self, resource_group_name, account_name, region, tag_value):
+    def create_storage_account(self, resource_group_name, account_name, region, tags):
         try:
             result = self.storage_client.storage_accounts.create(
                 resource_group_name,
@@ -268,7 +275,7 @@ class AzureActions:
                     "sku": {"name": "Standard_LRS"},
                     "kind": "BlobStorage",
                     "location":  region,
-                    "tags": {"account_name": tag_value},
+                    "tags": tags,
                     "access_tier": "Hot",
                     "encryption": {
                         "services": {"blob": {"enabled": True}}
@@ -359,22 +366,21 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_static_public_ip(self, resource_group_name, ip_name, region, instance_name):
+    def create_static_public_ip(self, resource_group_name, ip_name, region, instance_name, tags):
         try:
             self.network_client.public_ip_addresses.create_or_update(
                 resource_group_name,
                 ip_name,
                 {
                     "location": region,
+                    'tags': tags,
                     "public_ip_allocation_method": "static",
                     "public_ip_address_version": "IPv4",
                     "dns_settings": {
                         "domain_name_label": "host-" + instance_name.lower()
                     }
                 }
-            )
-            while meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).provisioning_state != 'Succeeded':
-                time.sleep(5)
+            ).wait()
             return meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name).ip_address
         except Exception as err:
             logging.info(
@@ -389,9 +395,7 @@ class AzureActions:
             result = self.network_client.public_ip_addresses.delete(
                 resource_group_name,
                 ip_name
-            )
-            while meta_lib.AzureMeta().get_static_ip(resource_group_name, ip_name):
-                time.sleep(5)
+            ).wait()
             return result
         except Exception as err:
             logging.info(
@@ -403,16 +407,20 @@ class AzureActions:
 
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
-                        ami_full_name, user_name='', create_option='fromImage', disk_id='',
-                        instance_storage_account_type='Premium_LRS'):
-        ami_name = ami_full_name.split('_')
-        publisher = ami_name[0]
-        offer = ami_name[1]
-        sku = ami_name[2]
+                        ami_full_name, tags, user_name='', create_option='fromImage', disk_id='',
+                        instance_storage_account_type='Premium_LRS', ami_type='default'):
+        if ami_type == 'default':
+            ami_name = ami_full_name.split('_')
+            publisher = ami_name[0]
+            offer = ami_name[1]
+            sku = ami_name[2]
+        elif ami_type == 'pre-configured':
+            ami_id = meta_lib.AzureMeta().get_image(resource_group_name, ami_full_name).id
         try:
             if instance_type == 'ssn':
                 parameters = {
                     'location': region,
+                    'tags': tags,
                     'hardware_profile': {
                         'vm_size': instance_size
                     },
@@ -425,11 +433,12 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-ssn-primary-disk'.format(service_base_name),
+                            'name': '{}-ssn-disk0'.format(service_base_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
+                            'tags': tags,
                             'managed_disk': {
-                                'storage_account_type': instance_storage_account_type
+                                'storage_account_type': instance_storage_account_type,
                             }
                         }
                     },
@@ -458,6 +467,7 @@ class AzureActions:
                 if create_option == 'fromImage':
                     parameters = {
                         'location': region,
+                        'tags': tags,
                         'hardware_profile': {
                             'vm_size': instance_size
                         },
@@ -470,9 +480,10 @@ class AzureActions:
                             },
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-primary-disk'.format(service_base_name, user_name),
+                                'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
+                                'tags': tags,
                                 'managed_disk': {
                                     'storage_account_type': instance_storage_account_type
                                 }
@@ -502,15 +513,17 @@ class AzureActions:
                 elif create_option == 'attach':
                     parameters = {
                         'location': region,
+                        'tags': tags,
                         'hardware_profile': {
                             'vm_size': instance_size
                         },
                         'storage_profile': {
                             'os_disk': {
                                 'os_type': 'Linux',
-                                'name': '{}-{}-edge-primary-disk'.format(service_base_name, user_name),
+                                'name': '{}-{}-edge-disk0'.format(service_base_name, user_name),
                                 'create_option': create_option,
                                 'disk_size_gb': int(primary_disk_size),
+                                'tags': tags,
                                 'managed_disk': {
                                     'id': disk_id,
                                     'storage_account_type': instance_storage_account_type
@@ -526,12 +539,8 @@ class AzureActions:
                         }
                     }
             elif instance_type == 'notebook':
-                parameters = {
-                    'location': region,
-                    'hardware_profile': {
-                        'vm_size': instance_size
-                    },
-                    'storage_profile': {
+                if ami_type == 'default':
+                    storage_profile = {
                         'image_reference': {
                             'publisher': publisher,
                             'offer': offer,
@@ -540,9 +549,10 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-primary-disk'.format(instance_name),
+                            'name': '{}-disk0'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
+                            'tags': tags,
                             'managed_disk': {
                                 'storage_account_type': instance_storage_account_type
                             }
@@ -550,15 +560,41 @@ class AzureActions:
                         'data_disks': [
                             {
                                 'lun': 1,
-                                'name': '{}-secondary-disk'.format(instance_name),
+                                'name': '{}-disk1'.format(instance_name),
                                 'create_option': 'empty',
                                 'disk_size_gb': 32,
+                                'tags': {
+                                    'Name': '{}-disk1'.format(instance_name)
+                                },
                                 'managed_disk': {
                                     'storage_account_type': instance_storage_account_type
                                 }
                             }
                         ]
+                    }
+                elif ami_type == 'pre-configured':
+                    storage_profile = {
+                        'image_reference': {
+                            'id': ami_id
+                        },
+                        'os_disk': {
+                            'os_type': 'Linux',
+                            'name': '{}-disk0'.format(instance_name),
+                            'create_option': 'fromImage',
+                            'disk_size_gb': int(primary_disk_size),
+                            'tags': tags,
+                            'managed_disk': {
+                                'storage_account_type': instance_storage_account_type
+                            }
+                        }
+                    }
+                parameters = {
+                    'location': region,
+                    'tags': tags,
+                    'hardware_profile': {
+                        'vm_size': instance_size
                     },
+                    'storage_profile': storage_profile,
                     'os_profile': {
                         'computer_name': instance_name,
                         'admin_username': dlab_ssh_user_name,
@@ -583,6 +619,7 @@ class AzureActions:
             elif instance_type == 'dataengine':
                 parameters = {
                     'location': region,
+                    'tags': tags,
                     'hardware_profile': {
                         'vm_size': instance_size
                     },
@@ -595,9 +632,10 @@ class AzureActions:
                         },
                         'os_disk': {
                             'os_type': 'Linux',
-                            'name': '{}-primary-disk'.format(instance_name),
+                            'name': '{}-disk0'.format(instance_name),
                             'create_option': 'fromImage',
                             'disk_size_gb': int(primary_disk_size),
+                            'tags': tags,
                             'managed_disk': {
                                 'storage_account_type': instance_storage_account_type
                             }
@@ -640,10 +678,7 @@ class AzureActions:
 
     def stop_instance(self, resource_group_name, instance_name):
         try:
-            result = self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name)
-            while meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).provisioning_state != "Succeeded":
-                time.sleep(5)
-                print "Instance {} is being deallocated...".format(instance_name)
+            result = self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
             return result
         except Exception as err:
             logging.info(
@@ -682,10 +717,8 @@ class AzureActions:
 
     def remove_instance(self, resource_group_name, instance_name):
         try:
-            result = self.compute_client.virtual_machines.delete(resource_group_name, instance_name)
-            while meta_lib.AzureMeta().get_instance(resource_group_name, instance_name):
-                time.sleep(5)
-            print "Instance {} has been removed".format(instance_name)
+            result = self.compute_client.virtual_machines.delete(resource_group_name, instance_name).wait()
+            print("Instance {} has been removed".format(instance_name))
             # Removing instance disks
             disk_names = []
             resource_group_disks = self.compute_client.disks.list_by_resource_group(resource_group_name)
@@ -694,17 +727,17 @@ class AzureActions:
                     disk_names.append(disk.name)
             for i in disk_names:
                 self.remove_disk(resource_group_name, i)
-                print "Disk {} has been removed".format(i)
+                print("Disk {} has been removed".format(i))
             # Removing public static IP address and network interfaces
             network_interface_name = instance_name + '-nif'
             for j in meta_lib.AzureMeta().get_network_interface(resource_group_name,
                                                                 network_interface_name).ip_configurations:
                 self.delete_network_if(resource_group_name, network_interface_name)
-                print "Network interface {} has been removed".format(network_interface_name)
+                print("Network interface {} has been removed".format(network_interface_name))
                 if j.public_ip_address:
                     static_ip_name = j.public_ip_address.id.split('/')[-1]
                     self.delete_static_public_ip(resource_group_name, static_ip_name)
-                    print "Static IP address {} has been removed".format(static_ip_name)
+                    print("Static IP address {} has been removed".format(static_ip_name))
             return result
         except Exception as err:
             logging.info(
@@ -727,7 +760,7 @@ class AzureActions:
             traceback.print_exc(file=sys.stdout)
 
     def create_network_if(self, resource_group_name, vpc_name, subnet_name, interface_name, region, security_group_name,
-                          public_ip_name="None"):
+                          tags, public_ip_name="None"):
         try:
             subnet_cidr = meta_lib.AzureMeta().get_subnet(resource_group_name, vpc_name, subnet_name).address_prefix.split('/')[0]
             private_ip = meta_lib.AzureMeta().check_free_ip(resource_group_name, vpc_name, subnet_cidr).available_ip_addresses[0]
@@ -762,6 +795,7 @@ class AzureActions:
                 interface_name,
                 {
                     "location": region,
+                    "tags": tags,
                     "network_security_group": {
                         "id": security_group_id
                     },
@@ -807,7 +841,7 @@ class AzureActions:
                         sudo('kill -9 ' + process_number)
                         sudo('systemctl disable livy-server-' + livy_port)
                     except:
-                        print "Wasn't able to find Livy server for this EMR!"
+                        print("Wasn't able to find Livy server for this dataengine!")
                 sudo(
                     'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
                 sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
@@ -819,12 +853,12 @@ class AzureActions:
                 interpreter_prefix = cluster_name
                 for interpreter in interpreter_json['body']:
                     if interpreter_prefix in interpreter['name']:
-                        print "Interpreter with ID:", interpreter['id'], "and name:", interpreter['name'], \
-                            "will be removed from zeppelin!"
+                        print("Interpreter with ID: {0} and name: {1} will be removed from zeppelin!".
+                              format(interpreter['id'], interpreter['name']))
                         request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
                         request.get_method = lambda: 'DELETE'
                         url = opener.open(request)
-                        print url.read()
+                        print(url.read())
                 sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
                 sudo('systemctl daemon-reload')
                 sudo("service zeppelin-notebook stop")
@@ -839,20 +873,9 @@ class AzureActions:
                 sudo('sleep 5')
                 sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
             if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
-                sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Renviron".format(os_user))
-                sudo("sed -i '/" + cluster_name + "/d' /home/{}/.Rprofile".format(os_user))
-                if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(os_user)):
-                    sudo(
-                        "sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".
-                            format(os_user))
-                if not sudo("sed -n '/^master/p' /home/{}/.Rprofile".format(os_user)):
-                    sudo(
-                        "sed -i '1!G;h;$!d;' /home/{0}/.Rprofile; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Rprofile".
-                            format(os_user))
-                sudo("sed -i 's|/opt/" + cluster_name + "/spark//R/lib:||g' /home/{}/.bashrc".format(os_user))
-                sudo('rm -f /home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user))
+                dlab.fab.remove_rstudio_dataengines_kernel(cluster_name, os_user)
             sudo('rm -rf  /opt/' + cluster_name + '/')
-            print "Notebook's " + env.hosts + " kernels were removed"
+            print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
             logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
                 file=sys.stdout))
@@ -907,29 +930,65 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def create_image_from_instance(self, resource_group_name, instance_name, region, image_name, tags):
+        try:
+            instance_id = meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).id
+            self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
+            self.compute_client.virtual_machines.generalize(resource_group_name, instance_name)
+            if not meta_lib.AzureMeta().get_image(resource_group_name, image_name):
+                self.compute_client.images.create_or_update(resource_group_name, image_name, parameters={
+                    "location": region,
+                    "tags": json.loads(tags),
+                    "source_virtual_machine": {
+                        "id": instance_id
+                    }
+                }).wait()
+            AzureActions().remove_instance(resource_group_name, instance_name)
+        except Exception as err:
+            logging.info(
+                "Unable to create image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to create image",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def remove_image(self, resource_group_name, image_name):
+        try:
+            return self.compute_client.images.delete(resource_group_name, image_name)
+        except Exception as err:
+            logging.info(
+                "Unable to remove image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to remove image",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
 
 def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
         try:
             hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
-            user_storage_account_tag = os.environ['conf_service_base_name'] + (os.environ['edge_user_name']).\
-                replace('_', '-')
-            shared_storage_account_tag = os.environ['conf_service_base_name'] + 'shared'
+            user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
+                replace('_', '-') + '-storage'
+            shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
             for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-                if user_storage_account_tag == storage_account.tags["account_name"]:
+                if user_storage_account_tag == storage_account.tags["Name"]:
                     user_storage_account_name = storage_account.name
                     user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
                                                                                       user_storage_account_name)[0]
-                if shared_storage_account_tag == storage_account.tags["account_name"]:
+                if shared_storage_account_tag == storage_account.tags["Name"]:
                     shared_storage_account_name = storage_account.name
                     shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
                                                                                         shared_storage_account_name)[0]
-            print "Downloading local jars for Azure"
+            print("Downloading local jars for Azure")
             sudo('mkdir -p ' + jars_dir)
             sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                  {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
             sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/2.2.0/azure-storage-2.2.0.jar \
                  -O {}azure-storage-2.2.0.jar'.format(jars_dir))
+            if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
+                sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
+                     -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
             put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
             sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
             sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
@@ -948,3 +1007,42 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
+
+
+def configure_dataengine_spark(jars_dir, spark_dir, region):
+    local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
+          /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
+    local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
+    local('cp /opt/spark/conf/core-site.xml {}conf/'.format(spark_dir))
+
+
+def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
+    if creds:
+        env['connection_attempts'] = 100
+        env.key_filename = [keyfile]
+        env.host_string = os_user + '@' + hostname
+    sudo('sed -i "/azure_resource-part1/ s|/mnt|/media|g" /etc/fstab')
+    sudo('grep "azure_resource-part1" /etc/fstab > /dev/null &&  umount -f /mnt/ || true')
+    sudo('mount -a')
+
+
+def prepare_vm_for_image(creds=False, os_user='', hostname='', keyfile=''):
+    if creds:
+        env['connection_attempts'] = 100
+        env.key_filename = [keyfile]
+        env.host_string = os_user + '@' + hostname
+    sudo('waagent -deprovision -force')
+
+
+def prepare_disk(os_user):
+    if not exists('/home/' + os_user + '/.ensure_dir/disk_ensured'):
+        try:
+            remount_azure_disk()
+            disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
+            sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
+            sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
+            sudo('mount /dev/{}1 /opt/'.format(disk_name))
+            sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
+            sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
+        except:
+            sys.exit(1)

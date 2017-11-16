@@ -33,14 +33,14 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     create_aws_config_files()
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
 
     logging.info('[START EDGE]')
-    print '[START EDGE]'
+    print('[START EDGE]')
     try:
         start_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
     except Exception as err:
@@ -55,21 +55,21 @@ if __name__ == "__main__":
         addresses = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name'])
         ip_address = addresses.get('Private')
         public_ip_address = addresses.get('Public')
-        print '[SUMMARY]'
+        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print "Instance name: " + edge_conf['instance_name']
-        print "Hostname: " + instance_hostname
-        print "Public IP: " + public_ip_address
-        print "Private IP: " + ip_address
+        print("Instance name: {}".format(edge_conf['instance_name']))
+        print("Hostname: {}".format(instance_hostname))
+        print("Public IP: {}".format(public_ip_address))
+        print("Private IP: {}".format(ip_address))
         with open("/root/result.json", 'w') as result:
             res = {"instance_name": edge_conf['instance_name'],
                    "hostname": instance_hostname,
                    "public_ip": public_ip_address,
                    "ip": ip_address,
                    "Action": "Start up notebook server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
 

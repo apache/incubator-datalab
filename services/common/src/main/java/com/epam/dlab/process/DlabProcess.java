@@ -110,7 +110,7 @@ public class DlabProcess {
         return processConveyor.add(id,msg,ProcessStep.STD_ERR);
     }
 
-    public CompletableFuture<Boolean> toStdErr(ProcessId id, String msg, Throwable err){
+    public CompletableFuture<Boolean> toStdErr(ProcessId id, String msg, Exception err){
         StringWriter sw = new StringWriter();
         sw.append(msg);
         sw.append("\n");

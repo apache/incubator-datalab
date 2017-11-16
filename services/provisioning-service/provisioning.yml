@@ -18,8 +18,6 @@
 
 <#include "ssn.yml">
 
-mocked: false
-
 keyDirectory: ${KEYS_DIR}
 responseDirectory: /opt/dlab/tmp
 dockerLogDirectory: ${LOG_ROOT_DIR}
@@ -27,21 +25,13 @@ warmupPollTimeout: 25s
 resourceStatusPollTimeout: 300m
 keyLoaderPollTimeout: 20m
 requestEnvStatusTimeout: 30s
-adminKey: BDCC-DSS-POC
+adminKey: KEYNAME
 edgeImage: docker.dlab-edge
 fileLengthCheckDelay: 500ms
 
 <#if CLOUD_TYPE == "aws">
-
 emrEC2RoleDefault: EMR_EC2_DefaultRole
 emrServiceRoleDefault: EMR_DefaultRole
-
-dataEngineImage: docker.dlab-dataengine-service
-
-<#elseif CLOUD_TYPE == "azure">
-
-dataEngineImage: docker.dlab-dataengine
-
 </#if>
 
 processMaxThreadsPerJvm: 50

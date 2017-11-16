@@ -33,14 +33,14 @@ if __name__ == "__main__":
 
     # generating variables dictionary
     create_aws_config_files()
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
     edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
 
     logging.info('[STOP EDGE]')
-    print '[STOP EDGE]'
+    print('[STOP EDGE]')
     try:
         stop_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
     except Exception as err:
@@ -51,9 +51,9 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"instance_name": edge_conf['instance_name'],
                    "Action": "Stop edge server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
 

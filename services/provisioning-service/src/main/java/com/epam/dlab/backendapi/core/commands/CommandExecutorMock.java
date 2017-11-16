@@ -20,13 +20,13 @@ package com.epam.dlab.backendapi.core.commands;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import com.epam.dlab.cloud.CloudProvider;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,15 +63,18 @@ public class CommandExecutorMock implements ICommandExecutor {
     public List<String> executeSync(String user, String uuid, String command) throws IOException, InterruptedException {
         LOGGER.debug("Run OS command for user {} with UUID {}: {}", user, uuid, command);
         if (command.startsWith("docker images |")) {
-        	return Arrays.asList(
+        	List<String> list =  Lists.newArrayList(
         			"docker.dlab-deeplearning:latest",
-        			getComputationalDockerImage(),
             		"docker.dlab-jupyter:latest",
             		"docker.dlab-rstudio:latest",
             		"docker.dlab-tensor:latest",
             		"docker.dlab-zeppelin:latest");
+
+        	list.addAll(getComputationalDockerImage());
+
+        	return list;
         }
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
@@ -80,16 +83,16 @@ public class CommandExecutorMock implements ICommandExecutor {
     	future = CompletableFuture.supplyAsync(execAsync);
     }
 
-    private String getComputationalDockerImage() {
+    private List<String> getComputationalDockerImage() {
         switch (cloudProvider) {
             case AWS:
-                return "docker.dlab-dataengine-service:latest";
+                return Lists.newArrayList("docker.dlab-dataengine-service:latest", "docker.dlab-dataengine:latest");
             case AZURE:
-                return "docker.dlab-dataengine:latest";
+                return Lists.newArrayList("docker.dlab-dataengine:latest");
+            case GCP:
+                default:
+                    throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider);
         }
-
-        return "";
-
     }
 
 }

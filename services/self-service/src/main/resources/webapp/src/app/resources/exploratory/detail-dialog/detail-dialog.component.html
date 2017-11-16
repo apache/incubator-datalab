@@ -23,21 +23,18 @@ limitations under the License.
       <div class="detail-header-wrap">
         <table class="detail-header">
           <tr>
-            <td class="tooltip-wrap" (mouseover)="isEllipsisActive($event)">
-              <div class="hint-title">{{notebook.template_name}}</div>
-              <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{notebook.template_name}}</div>
+            <td>{{notebook.template_name}}</td>
+            <td>
+              <span class="status" ngClass="{{notebook.status || ''}}">
+                {{notebook.status}}
+              </span>
             </td>
-              <td>
-                <span class="status" ngClass="{{notebook.status || ''}}">
-                  {{notebook.status}}
-                </span>
-              </td>
             <td>{{notebook.shape}}</td>
           </tr>
         </table>
       </div>
-      <div class="row">
-        <div class="col-xs-12 detail-info" *ngIf="!notebook.error_message">
+      <div  class="content-box">
+        <div class="detail-info" *ngIf="!notebook.error_message">
           <p>Edge Node IP Address {{notebook.ip}}</p>
           <p *ngIf="notebook.status === 'running'">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
           <p>Open following URL(s) in your browser to access this box after creating a tunnel:</p>
@@ -47,13 +44,19 @@ limitations under the License.
               <a href="{{item.url}}" target="_blank">{{item.url}}</a>
             </p>
           </div>
-
           <p *ngIf="notebook.username">Node User: <strong>{{ notebook.username }}</strong></p>
           <p *ngIf="notebook.password">Password: <strong>{{ notebook.password }}</strong></p>
-          <p *ngIf="notebook.bucket_name">{{ DICTIONARY.personal_storage }}: <strong>{{ notebook.bucket_name }}</strong></p>
-          <p *ngIf="notebook.shared_bucket_name">{{ DICTIONARY.collaboration_storage}}: <strong>{{ notebook.shared_bucket_name }}</strong></p>
-          <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">Storage account name: <strong>{{ notebook.account_name }}</strong></p>
-          <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name">Shared storage account name: <strong>{{ notebook.shared_account_name }}</strong></p>
+
+          <p class="m-top-30">{{ DICTIONARY.personal_storage }}: </p>
+          <div class="links_block">
+            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.account_name">&#9642; {{ DICTIONARY.account }} <strong>{{ notebook.account_name}}</strong></p>
+            <p *ngIf="notebook.bucket_name">&#9642; {{ DICTIONARY.container }} <strong>{{ notebook.bucket_name }}</strong></p>
+          </div>
+          <p>{{ DICTIONARY.collaboration_storage }}: </p>
+          <div class="links_block">
+            <p *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared_account_name">&#9642; {{ DICTIONARY.account }} <strong>{{ notebook.shared_account_name}}</strong></p>
+            <p *ngIf="notebook.shared_bucket_name">&#9642; {{ DICTIONARY.container }} <strong>{{ notebook.shared_bucket_name }}</strong></p>
+          </div>
           <br/>
           <p>
             <a href="#/help/accessnotebookguide" target="_blank">
@@ -61,8 +64,8 @@ limitations under the License.
             </a>
           </p>
         </div>
-        <div class="col-xs-12 detail-info" *ngIf="notebook.error_message">
-          <p class="failed">{{notebook.error_message}}</p>
+        <div class="detail-info" *ngIf="notebook.error_message">
+          <p class="failed">{{ notebook.error_message }}</p>
         </div>
       </div>
     </div>

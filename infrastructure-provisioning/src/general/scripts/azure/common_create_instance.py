@@ -39,9 +39,11 @@ parser.add_argument('--public_key', type=str, default='')
 parser.add_argument('--primary_disk_size', type=str, default='')
 parser.add_argument('--security_group_name', type=str, default='')
 parser.add_argument('--instance_type', type=str, default='')
+parser.add_argument('--tags', type=str, default='{"empty":"string"}')
 parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--resource_group_name', type=str, default='')
 parser.add_argument('--ami_name', type=str, default='')
+parser.add_argument('--ami_type', type=str, default='default')
 parser.add_argument('--instance_storage_account_type', type=str, default='')
 args = parser.parse_args()
 
@@ -52,40 +54,43 @@ if __name__ == "__main__":
     if args.instance_name != '':
         try:
             if AzureMeta().get_instance(args.service_base_name, args.instance_name):
-                print "REQUESTED INSTANCE {} ALREADY EXISTS".format(args.instance_name)
+                print("REQUESTED INSTANCE {} ALREADY EXISTS".format(args.instance_name))
             else:
                 if args.public_ip_name != 'None':
                     if AzureMeta().get_static_ip(args.service_base_name, args.public_ip_name):
-                        print "REQUESTED PUBLIC IP ADDRESS {} ALREADY EXISTS.".format(args.public_ip_name)
+                        print("REQUESTED PUBLIC IP ADDRESS {} ALREADY EXISTS.".format(args.public_ip_name))
                         static_public_ip_address = AzureMeta().get_static_ip(
                             args.service_base_name, args.public_ip_name).ip_address
                     else:
-                        print "Creating Static IP address {}".format(args.public_ip_name)
+                        print("Creating Static IP address {}".format(args.public_ip_name))
                         static_public_ip_address = \
                             AzureActions().create_static_public_ip(args.service_base_name, args.public_ip_name,
-                                                                   args.region, args.instance_name)
+                                                                   args.region, args.instance_name,
+                                                                   json.loads(args.tags))
                 if AzureMeta().get_network_interface(args.service_base_name, args.network_interface_name):
-                    print "REQUESTED NETWORK INTERFACE {} ALREADY EXISTS.".format(args.network_interface_name)
+                    print("REQUESTED NETWORK INTERFACE {} ALREADY EXISTS.".format(args.network_interface_name))
                     network_interface_id = AzureMeta().get_network_interface(args.service_base_name,
                                                                              args.network_interface_name).id
                 else:
-                    print "Creating Network Interface {}".format(args.network_interface_name)
+                    print("Creating Network Interface {}".format(args.network_interface_name))
                     network_interface_id = AzureActions().create_network_if(args.service_base_name, args.vpc_name,
                                                                             args.subnet_name,
                                                                             args.network_interface_name, args.region,
                                                                             args.security_group_name,
+                                                                            json.loads(args.tags),
                                                                             args.public_ip_name)
-                disk = AzureMeta().get_disk(args.service_base_name, '{}-primary-disk'.format(
+                disk = AzureMeta().get_disk(args.service_base_name, '{}disk0'.format(
                     args.instance_name))
                 if disk:
                     create_option = 'attach'
                     disk_id = disk.id
-                print "Creating instance {}".format(args.instance_name)
+                print("Creating instance {}".format(args.instance_name))
                 AzureActions().create_instance(args.region, args.instance_size, args.service_base_name,
                                                args.instance_name, args.dlab_ssh_user_name, args.public_key,
                                                network_interface_id, args.resource_group_name, args.primary_disk_size,
-                                               args.instance_type, args.ami_name, args.user_name, create_option,
-                                               disk_id, args.instance_storage_account_type)
+                                               args.instance_type, args.ami_name, json.loads(args.tags), args.user_name,
+                                               create_option, disk_id, args.instance_storage_account_type,
+                                               args.ami_type)
         except:
             sys.exit(1)
     else:

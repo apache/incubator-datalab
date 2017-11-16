@@ -18,7 +18,7 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.backendapi.core.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryURL;
 import com.epam.dlab.exceptions.DlabException;
@@ -292,8 +292,8 @@ public class ExploratoryDAOTest extends DAOTestBase {
         status.setExploratoryName("exp_name_1");
         status.setExploratoryId("exp2");
         List<ExploratoryURL> urls = new ArrayList<ExploratoryURL>();
-        urls.add(new ExploratoryURL().withUrl("www.exp1.com").withDescription("desc1"));
-        urls.add(new ExploratoryURL().withUrl("www.exp2.com").withDescription("desc2"));
+        urls.add(new ExploratoryURL("www.exp1.com", "desc1"));
+        urls.add(new ExploratoryURL("www.exp2.com","desc2"));
         status.setExploratoryUrl(urls);
         status.setStatus("running");
         status.setUptime(new Date(100));
@@ -319,8 +319,8 @@ public class ExploratoryDAOTest extends DAOTestBase {
     public void updateExploratoryUrlByIpSuccess() {
 
         List<ExploratoryURL> urls = new ArrayList<>();
-        urls.add(new ExploratoryURL().withUrl("www.192.168.100.1.com").withDescription("desc1"));
-        urls.add(new ExploratoryURL().withUrl("www.192.168.100.1.com").withDescription("desc2"));
+        urls.add(new ExploratoryURL("www.192.168.100.1.com","desc1"));
+        urls.add(new ExploratoryURL("www.192.168.100.1.com", "desc2"));
 
         UserInstanceDTO instance1 = new UserInstanceDTO()
                 .withUser("user1")
@@ -351,9 +351,8 @@ public class ExploratoryDAOTest extends DAOTestBase {
 
         // these urls will be final, cause they depends from PrivateIp
         List<ExploratoryURL> urlsNew = new ArrayList<>();
-        urlsNew.add(new ExploratoryURL().withUrl("www.8.8.8.8.com").withDescription("desc1"));
-        urlsNew.add(new ExploratoryURL().withUrl("www.8.8.8.8.com").withDescription("desc2"));
-
+        urlsNew.add(new ExploratoryURL("www.192.168.100.1.com", "desc1"));
+        urlsNew.add(new ExploratoryURL("www.192.168.100.1.com", "desc2"));
 
         assertEquals(instance.getExploratoryId(), status.getExploratoryId());
         assertEquals(instance.getExploratoryUrl().size(), urlsNew.size());
@@ -366,8 +365,8 @@ public class ExploratoryDAOTest extends DAOTestBase {
     public void updateExploratoryUrlByUrlSuccess() {
 
         List<ExploratoryURL> urls = new ArrayList<>();
-        urls.add(new ExploratoryURL().withUrl("www.192.168.100.1.com").withDescription("desc1"));
-        urls.add(new ExploratoryURL().withUrl("www.192.168.100.1.com").withDescription("desc2"));
+        urls.add(new ExploratoryURL("www.192.168.100.1.com", "desc1"));
+        urls.add(new ExploratoryURL("www.192.168.100.1.com", "desc2"));
 
         UserInstanceDTO instance1 = new UserInstanceDTO()
                 .withUser("user1")

@@ -18,7 +18,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.core.UserInstanceDTO;
+import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.domain.RequestId;
@@ -94,7 +94,7 @@ public class GitCredsResource implements ExploratoryAPI {
             } else {
                 throw new DlabException("Requests for notebooks failed: " + failedOnExploratories);
             }
-        } catch (Throwable t) {
+        } catch (Exception t) {
             log.error("Cannot update the GIT creds for user {}", userInfo.getName(), t);
             throw new DlabException("Cannot update the GIT credentials: " + t.getLocalizedMessage(), t);
         }
@@ -110,7 +110,7 @@ public class GitCredsResource implements ExploratoryAPI {
         log.debug("Loading GIT creds for user {}", userInfo.getName());
         try {
             return gitCredsDAO.findGitCreds(userInfo.getName(), true);
-        } catch (Throwable t) {
+        } catch (Exception t) {
             log.error("Cannot load list of GIT creds for user: {}", userInfo.getName(), t);
             throw new DlabException("Cannot load GIT credentials for user " + userInfo.getName() + ": " + t.getLocalizedMessage(), t);
         }

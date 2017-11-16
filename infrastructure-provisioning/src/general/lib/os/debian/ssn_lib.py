@@ -28,15 +28,13 @@ import os
 def ensure_docker_daemon(dlab_path, os_user, region):
     try:
         if not exists(dlab_path + 'tmp/docker_daemon_ensured'):
-            #if region == 'cn-north-1':
-            #    sudo('apt-get update')
-            #    sudo('curl -sSL https://get.daocloud.io/docker | sh')
-            #else:
-            sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D')
-            sudo('echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | sudo tee /etc/apt/sources.list.d/docker.list')
+            docker_version = os.environ['ssn_docker_version']
+            sudo('curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -')
+            sudo('add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) \
+                  stable"')
             sudo('apt-get update')
-            sudo('apt-cache policy docker-engine')
-            sudo('apt-get install -y docker-engine')
+            sudo('apt-cache policy docker-ce')
+            sudo('apt-get install -y docker-ce={}~ce-0~ubuntu'.format(docker_version))
             sudo('usermod -a -G docker ' + os_user)
             sudo('update-rc.d docker defaults')
             sudo('update-rc.d docker enable')
@@ -147,7 +145,7 @@ def ensure_mongo():
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured'):
             sudo('apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927')
             sudo('ver=`lsb_release -cs`; echo "deb http://repo.mongodb.org/apt/ubuntu $ver/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list; apt-get update')
-            sudo('apt-get -y install mongodb-org')
+            sudo('apt-get -y --allow-unauthenticated install mongodb-org')
             sudo('systemctl enable mongod.service')
             sudo('touch ' + os.environ['ssn_dlab_path'] + 'tmp/mongo_ensured')
         return True
@@ -156,7 +154,8 @@ def ensure_mongo():
 
 
 def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, keystore_passwd, cloud_provider,
-             service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled, report_path=''):
+             service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled,
+             authentication_file, offer_number, currency, locale, region_info, report_path=''):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
@@ -165,6 +164,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
             local('sed -i "s|KEYSTORE_PASSWORD|{}|g" /root/templates/ssn.yml'.format(keystore_passwd))
             local('sed -i "s|CLOUD_PROVIDER|{}|g" /root/templates/ssn.yml'.format(cloud_provider))
             local('sed -i "s|\${JRE_HOME}|' + java_path + '|g" /root/templates/ssn.yml')
+            local('sed -i "s|KEYNAME|{}|g" /root/web_app/provisioning-service/provisioning.yml'.
+                  format(os.environ['conf_key_name']))
             put('/root/templates/ssn.yml', '/tmp/ssn.yml')
             sudo('mv /tmp/ssn.yml ' + os.environ['ssn_dlab_path'] + 'conf/')
             put('/root/templates/proxy_location_webapp_template.conf', '/tmp/proxy_location_webapp_template.conf')
@@ -195,11 +196,13 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                 append_result("Unable to upload webapp jars")
                 sys.exit(1)
             if billing_enabled:
-                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile,
-                                                                                                         host_string))
-                sudo('python /tmp/configure_billing.py --cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {}'.
-                     format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
-                            mongo_passwd, dlab_path))
+                local('scp -i {} /root/scripts/configure_billing.py {}:/tmp/configure_billing.py'.format(keyfile, host_string))
+                params = '--cloud_provider {} --infrastructure_tag {} --tag_resource_id {} --account_id {} \
+                    --billing_bucket {} --report_path "{}" --mongo_password {} --dlab_dir {} \
+                         --authentication_file "{}" --offer_number {} --currency {} --locale {} --region_info {}'.\
+                            format(cloud_provider, service_base_name, tag_resource_id, account_id, billing_bucket, report_path,
+                                    mongo_passwd, dlab_path, authentication_file, offer_number, currency, locale, region_info)
+                sudo('python /tmp/configure_billing.py {}'.format(params))
             try:
                 sudo('keytool -genkeypair -alias dlab -keyalg RSA -storepass {1} -keypass {1} \
                      -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd))

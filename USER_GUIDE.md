@@ -151,37 +151,32 @@ On every analytical tool instance you can install additional libraries by clicki
     <img src="doc/notebook_menu.png" alt="Notebook manage_libraries" width="150">
 </p>
 
-You need to wait for a while after clicking till list of all available libraries for chosen notebook will be received.
-
-<p align="center"> 
-    <img src="doc/notebook_list_libs.png" alt="Notebook list_libraries" width="600">
-</p>
-
-After downloading the list, you will see the window with 2 fields:
+After clicking you will see the window with 3 fields:
+-   Field for selecting an active resource to install libraries on
 -   Field for selecting group of packages (apt/yum, Python 2, Python 3, R, Others)
 -   Field for search available packages with autocomplete function
+
+![Install libraries dialog](doc/install_libs_form.png)
+
+You need to wait for a while after resource choosing till list of all available libraries will be received.
+
+![Libraries list loading](doc/notebook_list_libs.png)
 
 **Note:** apt or yum packages depends on your DLab OS family.
 
 **Note:** In group Others you can find other Python (2/3) packages, which haven't classifiers of version.
 
-<p align="center"> 
-    <img src="doc/notebook_select_lib.png" alt="Notebook select_lib" width="600">
-</p>
+![Resource select_lib](doc/notebook_select_lib.png)
 
 After selecting library, you can see it on the right and could delete in from this list before installing.
 
-<p align="center"> 
-    <img src="doc/notebook_selected_libs.png" alt="Notebook selected_libs" width="600">
-</p>
+![Resource selected_lib](doc/notebook_selected_libs.png)
 
 After clicking on "Install" button you will see process of installation with appropriate status.
 
-<p align="center"> 
-    <img src="doc/notebook_libs_status.png" alt="Notebook libs_status" width="600">
-</p>
+![Resources libs_status](doc/notebook_libs_status.png)
 
-**Note:** If package can't be installed you will see "Failed" in status column and button to retry installation. If several packages have been failed to install, you will see button "Retry all".
+**Note:** If package can't be installed you will see "Failed" in status column and button to retry installation.
 
 --------------------------
 ## Stop Notebook server <a name="notebook_stop"></a>
@@ -280,7 +275,7 @@ Insert following “magics” before blocks of your code to start executing your
 -   interpreter\_name.%pyspark3 – for Python3;
 -   interpreter\_name.%sparkr – for R;
 
-**R-studio –** open R.environ and comment out /opt/spark/ to switch to Computational resource and vise versa to switch to local kernel:
+**RStudio –** open R.environ and comment out /opt/spark/ to switch to Computational resource and vise versa to switch to local kernel:
 
 ![RStudio](doc/rstudio.png)
 

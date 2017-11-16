@@ -36,9 +36,6 @@ import javax.validation.constraints.Min;
 @GroupSequenceProvider(SelfServiceCloudConfigurationSequenceProvider.class)
 public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
-    @JsonProperty
-    private boolean mocked;
-
     @Min(value = 2, groups = AwsValidation.class)
     @JsonProperty
     private int minEmrInstanceCount;
@@ -55,11 +52,11 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @JsonProperty
     private int maxEmrSpotInstanceBidPct;
 
-    @Min(value = 2, groups = AzureValidation.class)
+    @Min(value = 2, groups = {AzureValidation.class, AwsValidation.class})
     @JsonProperty
     private int minSparkInstanceCount;
 
-    @Max(value = 1000, groups = AzureValidation.class)
+    @Max(value = 1000, groups = {AzureValidation.class, AwsValidation.class})
     @JsonProperty
     private int maxSparkInstanceCount;
 
@@ -78,14 +75,6 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @NotEmpty(groups = AwsValidation.class)
     @JsonProperty
     private String billingConfFile;
-
-
-    /**
-     * Returns <b>true</b> if service is a mock.
-     */
-    public boolean isMocked() {
-        return mocked;
-    }
 
     /**
      * Returns the minimum number of slave EMR instances than could be created.

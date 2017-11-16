@@ -29,7 +29,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--tag_name', type=str)
 parser.add_argument('--nb_sg', type=str)
 parser.add_argument('--edge_sg', type=str)
+parser.add_argument('--de_sg', type=str)
 parser.add_argument('--service_base_name', type=str)
+parser.add_argument('--de_se_sg', type=str)
 args = parser.parse_args()
 
 
@@ -38,7 +40,7 @@ args = parser.parse_args()
 ##############
 
 if __name__ == "__main__":
-    print 'Terminating EMR cluster'
+    print('Terminating EMR cluster')
     try:
         clusters_list = get_emr_list(args.tag_name)
         if clusters_list:
@@ -48,80 +50,82 @@ if __name__ == "__main__":
                 cluster = cluster.get("Cluster")
                 emr_name = cluster.get('Name')
                 terminate_emr(cluster_id)
-                print "The EMR cluster " + emr_name + " has been terminated successfully"
+                print("The EMR cluster {} has been terminated successfully".format(emr_name))
         else:
-            print "There are no EMR clusters to terminate."
+            print("There are no EMR clusters to terminate.")
     except:
         sys.exit(1)
 
-    print "Deregistering notebook's AMI"
+    print("Deregistering notebook's AMI")
     try:
         deregister_image('*')
     except:
         sys.exit(1)
 
-    print "Terminating EC2 instances"
+    print("Terminating EC2 instances")
     try:
         remove_ec2(args.tag_name, '*')
     except:
         sys.exit(1)
 
-    print "Removing security groups"
+    print("Removing security groups")
     try:
+        remove_sgroups(args.de_se_sg)
+        remove_sgroups(args.de_sg)
         remove_sgroups(args.nb_sg)
         remove_sgroups(args.edge_sg)
         try:
             remove_sgroups(args.tag_name)
         except:
-            print "There is no pre-defined SSN SG"
+            print("There is no pre-defined SSN SG")
     except:
         sys.exit(1)
 
-    print "Removing private subnet"
+    print("Removing private subnet")
     try:
         remove_subnets('*')
     except:
         sys.exit(1)
 
-    print "Removing s3 buckets"
+    print("Removing s3 buckets")
     try:
         remove_s3()
     except:
         sys.exit(1)
 
-    print "Removing IAM roles, profiles and policies"
+    print("Removing IAM roles, profiles and policies")
     try:
         remove_all_iam_resources('all')
     except:
         sys.exit(1)
 
-    print "Removing route tables"
+    print("Removing route tables")
     try:
         remove_route_tables(args.tag_name)
     except:
         sys.exit(1)
 
-    print "Removing SSN subnet"
+    print("Removing SSN subnet")
     try:
         remove_subnets(args.service_base_name + '-subnet')
     except:
-        print "There is no pre-defined SSN Subnet"
+        print("There is no pre-defined SSN Subnet")
 
-    print "Removing SSN VPC"
+    print("Removing SSN VPC")
     try:
         vpc_id = get_vpc_by_tag(args.tag_name, args.service_base_name)
         if vpc_id != '':
             try:
                 remove_vpc_endpoints(vpc_id)
             except:
-                print "There is no such VPC Endpoint"
+                print("There is no such VPC Endpoint")
             try:
                 remove_internet_gateways(vpc_id, args.tag_name, args.service_base_name)
             except:
-                print "There is no such Internet gateway"
+                print("There is no such Internet gateway")
             remove_route_tables(args.tag_name, True)
             remove_vpc(vpc_id)
         else:
-            print "There is no pre-defined SSN VPC"
+            print("There is no pre-defined SSN VPC")
     except:
         sys.exit(1)
