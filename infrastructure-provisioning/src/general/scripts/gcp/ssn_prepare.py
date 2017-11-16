@@ -151,7 +151,7 @@ if __name__ == "__main__":
                     'IPProtocol': 'all',
                 }
             ]
-            egress_rule['denied'] = rules
+            egress_rule['allowed'] = rules
             egress_rule['network'] = ssn_conf['vpc_selflink']
             egress_rule['direction'] = 'EGRESS'
             firewall_rules['egress'].append(egress_rule)
