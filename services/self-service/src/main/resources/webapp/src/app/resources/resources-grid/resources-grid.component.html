@@ -18,7 +18,6 @@ limitations under the License.
 
 <table class="dashboard_table">
   <tr>
-    <!-- [hidden]="DICTIONARY.cloud_provider !== 'aws' && column.name === 'cost'" -->
     <th *ngFor="let column of filteringColumns"
         ngClass="{{column.className || ''}}">
       {{column.title}}
@@ -44,7 +43,6 @@ limitations under the License.
     <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'" [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
     </td>
-    <!-- [hidden]="DICTIONARY.cloud_provider !== 'aws'" -->
     <td></td>
     <td>
       <div class="actions">
@@ -60,11 +58,11 @@ limitations under the License.
   </tr>
 
   <tr *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering" class="message_block">
-    <td [colSpan]="DICTIONARY.cloud_provider !== 'aws' ? filteringColumns.length -1 : filteringColumns.length">To start working, please, create new environment</td>
+    <td [colSpan]="filteringColumns.length">To start working, please, create new environment</td>
   </tr>
 
   <tr *ngIf="(filteredEnvironments.length == 0) && filtering" class="message_block">
-    <td [colSpan]="DICTIONARY.cloud_provider !== 'aws' ? filteringColumns.length -1 : filteringColumns.length">No matches found</td>
+    <td [colSpan]="filteringColumns.length">No matches found</td>
   </tr>
 
   <tr *ngFor="let env of filteredEnvironments;" class="dashboard_table_body" [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
@@ -78,8 +76,6 @@ limitations under the License.
     </td>
     <td>
       <span class="total_cost">{{ env.cost || 'N/A' }} {{env.currency_code || ''}}</span>
-      <!-- (click)="env.billing && printCostDetails(env)" -->
-      <!-- [ngClass]="{'not-allowed' : !env.billing}" -->
       <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}"></span>
     </td>
     <td>

@@ -125,6 +125,7 @@ a.nav-item:hover {
   width: 56px;
   height: 46px;
   cursor: pointer;
+  border-radius: 0;
   transition: all .45s ease-in-out;
 }
 .hamburger .line{

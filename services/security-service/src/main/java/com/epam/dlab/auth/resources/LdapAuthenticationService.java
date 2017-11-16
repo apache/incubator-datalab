@@ -59,7 +59,7 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 	private final ExecutorService threadpool = Executors.newFixedThreadPool(32);
 	private UserInfoDAO userInfoDao;
 
-	private final LoginConveyor loginConveyor = new LoginConveyor();
+	private final LoginConveyor loginConveyor;
 
 	public LdapAuthenticationService(SecurityServiceConfiguration config, Environment env) {
 		super(config);
@@ -68,6 +68,7 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 		} else {
 			this.userInfoDao = new UserInfoDAODumbImpl();
 		}
+		loginConveyor = new LoginConveyor(config.getLoginAuthenticationTimeout());
 		loginConveyor.setUserInfoDao(userInfoDao);
 		LoginCache.getInstance().setDefaultBuilderTimeout(config.getInactiveUserTimeoutMillSec(),TimeUnit.MILLISECONDS);
 		LoginCache.getInstance().setExpirationPostponeTime(config.getInactiveUserTimeoutMillSec(),TimeUnit.MILLISECONDS);

@@ -17,23 +17,23 @@
 # Authentication info
 
 # Explicit azure authentication parameters
-
 clientId: <CLIENT_ID>
 clientSecret: <CLIENT_SECRET>
 tenantId: <TENANT_ID>
 subscriptionId: <SUBSCRIPTION_ID>
 
 # Contains authentication info (clientId, clientSecret, tenantId, subscriptionId) received after Azure CLI authentication
+# Overrides explicit azure authentication parameters above
 authenticationFile: <AUTHENTICATION_FILE>
 
-# Billing configuration for RateCard API
-
+# Billing configuration for RateCard API. For more details please see https://msdn.microsoft.com/en-us/library/mt219004.aspx
 offerNumber: <OFFER_NUMBER>
 currency: <CURRENCY>
 locale: <LOCALE>
 regionInfo: <REGION_INFO>
 
-# Azure provides with aggregated data by dat. Scheduler tries to retrieve data every <period> with <initialDelay> from ap startup in minutes
+# Azure provides with aggregated data by date. Scheduler tries to retrieve data every <period> with <initialDelay> from
+# application startup in minutes.
 # Scheduler retrieves data only for the past period of time from midnight of start day to midnight of end date.
 # Scheduler does not retrieve data for the current date
 initialDelay: 10

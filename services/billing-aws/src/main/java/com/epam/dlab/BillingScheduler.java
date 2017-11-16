@@ -20,6 +20,7 @@ package com.epam.dlab;
 
 import java.util.Arrays;
 
+import com.epam.dlab.exceptions.DlabException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -233,7 +234,7 @@ public class BillingScheduler implements Runnable {
 		try {
 			start(confName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new DlabException("Billing scheduler failed", e);
 		}
 	}
 }

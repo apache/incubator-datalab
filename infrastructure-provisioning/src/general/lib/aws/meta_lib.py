@@ -757,7 +757,7 @@ def node_count(cluster_name):
         ec2 = boto3.client('ec2')
         node_list = ec2.describe_instances(Filters=[
             {'Name': 'instance-state-name', 'Values': ['running']},
-            {'Name': 'tag:Name', 'Values': [cluster_name + '*']}])
+            {'Name': 'tag:Name', 'Values': [cluster_name + '*']}]).get('Reservations')
         result = len(node_list)
         return result
     except Exception as err:

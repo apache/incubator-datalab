@@ -10,6 +10,7 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.exceptions.DlabException;
 
 public class ServiceUtils {
 
@@ -71,7 +72,7 @@ public class ServiceUtils {
 			}
 		} catch (IOException e) {
 			System.err.println("Cannot found or open manifest for class " + className);
-			e.printStackTrace();
+			throw new DlabException("Cannot read manifest file", e);
 		}
 		
 		return map;

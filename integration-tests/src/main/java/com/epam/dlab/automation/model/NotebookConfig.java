@@ -18,35 +18,110 @@ limitations under the License.
 
 package com.epam.dlab.automation.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 public class NotebookConfig {
 
-	private String notebook_template;
-	private String data_engine_type;
+    @JsonProperty("notebook_template")
+    private String notebookTemplate;
 
-	public String getNotebook_template() {
-		return notebook_template;
-	}
+    @JsonProperty("data_engine_type")
+    private String dataEngineType;
 
-	public void setNotebook_template(String notebook_template) {
-		this.notebook_template = notebook_template;
-	}
+    @JsonProperty("full_test")
+    private boolean fullTest;
 
-	public String getData_engine_type() {
-		return data_engine_type;
-	}
 
-	public void setData_engine_type(String data_engine_type) {
-		this.data_engine_type = data_engine_type;
-	}
+    @JsonProperty("timeout_notebook_create")
+    private String timeoutNotebookCreate = "60m";
 
-	@Override
-	public String toString() {
-		return MoreObjects.toStringHelper(this)
-				.add("notebook_template", notebook_template)
-				.add("data_engine_type", data_engine_type)
-				.toString();
-	}
+    @JsonProperty("timeout_notebook_startup")
+    private String timeoutNotebookStartup = "20m";
+
+    @JsonProperty("timeout_notebook_shutdown")
+    private String timeoutNotebookShutdown = "10m";
+
+
+    @JsonProperty("timeout_cluster_create")
+    private String timeoutClusterCreate = "60m";
+
+    @JsonProperty("timeout_cluster_terminate")
+    private String timeoutClusterTerminate = "20m";
+
+
+    @JsonProperty("timeout_lib_groups")
+    private String timeoutLibGroups = "5m";
+
+    @JsonProperty("timeout_lib_list")
+    private String timeoutLibList = "5m";
+
+    @JsonProperty("timeout_lib_install")
+    private String timeoutLibInstall = "15m";
+
+
+    public String getTimeoutNotebookCreate() {
+    	return timeoutNotebookCreate;
+    }
+
+    public String getTimeoutNotebookStartup() {
+    	return timeoutNotebookStartup;
+    }
+
+    public String getTimeoutNotebookShutdown() {
+    	return timeoutNotebookShutdown;
+    }
+
+    public String getTimeoutClusterCreate() {
+    	return timeoutClusterCreate;
+    }
+
+    public String getTimeoutClusterTerminate() {
+    	return timeoutClusterTerminate;
+    }
+
+    public String getTimeoutLibGroups() {
+    	return timeoutLibGroups;
+    }
+
+    public String getTimeoutLibList() {
+    	return timeoutLibList;
+    }
+
+    public String getTimeoutLibInstall() {
+    	return timeoutLibInstall;
+    }
+
+    public String getNotebookTemplate() {
+    	return notebookTemplate;
+    }
+
+
+    public String getDataEngineType() {
+    	return dataEngineType;
+    }
+
+
+    public boolean isFullTest() {
+    	return fullTest;
+    }
+
+
+    @Override
+    public String toString() {
+    	return MoreObjects.toStringHelper(this)
+    			.add("timeoutClusterCreate", timeoutClusterCreate)
+    			.add("timeoutClusterTerminate", timeoutClusterTerminate)
+    			.add("timeoutLibGroups", timeoutLibGroups)
+    			.add("timeoutLibInstall", timeoutLibInstall)
+    			.add("timeoutLibList", timeoutLibList)
+    			.add("timeoutNotebookCreate", timeoutNotebookCreate)
+    			.add("timeoutNotebookShutdown", timeoutNotebookShutdown)
+    			.add("timeoutNotebookStartup", timeoutNotebookStartup)
+    			.add("notebookTemplate", notebookTemplate)
+    			.add("dataEngineType", dataEngineType)
+    			.add("fullTest", fullTest)
+    			.toString();
+    }
 
 }
