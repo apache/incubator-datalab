@@ -128,7 +128,7 @@ if __name__ == "__main__":
             firewall_rules['egress'] = []
 
             ingress_rule = dict()
-            ingress_rule['name'] = ssn_conf['firewall_name'] + '-1'
+            ingress_rule['name'] = ssn_conf['firewall_name'] + '-ingress'
             ingress_rule['targetTags'] = [ssn_conf['instance_name']]
             ingress_rule['sourceRanges'] = ['0.0.0.0/0']
             rules = [
@@ -143,7 +143,7 @@ if __name__ == "__main__":
             firewall_rules['ingress'].append(ingress_rule)
 
             egress_rule = dict()
-            egress_rule['name'] = ssn_conf['firewall_name'] + '-2'
+            egress_rule['name'] = ssn_conf['firewall_name'] + '-egress'
             egress_rule['targetTags'] = [ssn_conf['instance_name']]
             egress_rule['destinationRanges'] = ['0.0.0.0/0']
             rules = [

@@ -66,6 +66,8 @@ if __name__ == "__main__":
     edge_conf['static_address_name'] = '{0}-{1}-ip'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['fw_edge_ingress_public'] = '{}-ingress-public'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_ingress_internal'] = '{}-ingress-internal'.format(edge_conf['instance_name'])
+    edge_conf['fw_edge_egress_public'] = '{}-egress-public'.format(edge_conf['instance_name'])
+    edge_conf['fw_edge_egress_internal'] = '{}-egress-internal'.format(edge_conf['instance_name'])
     edge_conf['notebook_firewall_target'] = '{0}-{1}-nb'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['dataproc_firewall_target'] = '{0}-{1}-dp'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['fw_nb_ingress'] = '{}-ingress'.format(edge_conf['notebook_firewall_target'])
@@ -139,49 +141,75 @@ if __name__ == "__main__":
         pre_defined_firewall = True
         logging.info('[CREATE INGRESS FIREWALL FOR EDGE NODE]')
         print '[CREATE INGRESS FIREWALL]'
-        firewall = {}
-        firewall['name'] = edge_conf['fw_edge_ingress_public']
-        firewall['targetTags'] = [edge_conf['instance_name']]
-        firewall['sourceRanges'] = ['0.0.0.0/0']
+        firewall_rules = dict()
+        firewall_rules['ingress'] = []
+        firewall_rules['egress'] = []
+
+        ingress_rule = dict()
+        ingress_rule['name'] = edge_conf['fw_edge_ingress_public']
+        ingress_rule['targetTags'] = [edge_conf['instance_name']]
+        ingress_rule['sourceRanges'] = ['0.0.0.0/0']
         rules = [
             {
                 'IPProtocol': 'tcp',
                 'ports': ['22']
-            },
-            {
-                'IPProtocol': 'icmp'
             }
         ]
-        firewall['allowed'] = rules
-        firewall['network'] = edge_conf['vpc_selflink']
+        ingress_rule['allowed'] = rules
+        ingress_rule['network'] = edge_conf['vpc_selflink']
+        ingress_rule['direction'] = 'INGRESS'
+        firewall_rules['ingress'].append(ingress_rule)
 
-        params = "--firewall '{}'".format(json.dumps(firewall))
-        try:
-            local("~/scripts/{}.py {}".format('common_create_firewall', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed to create Firewall.", str(err))
-        GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
-        sys.exit(1)
-
-    try:
-        logging.info('[CREATE INGRESS FIREWALL FOR EDGE NODE]')
-        print '[CREATE INGRESS FIREWALL]'
-        firewall = {}
-        firewall['name'] = edge_conf['fw_edge_ingress_internal']
-        firewall['targetTags'] = [edge_conf['instance_name']]
-        firewall['sourceRanges'] = [edge_conf['private_subnet_cidr']]
+        ingress_rule = dict()
+        ingress_rule['name'] = edge_conf['fw_edge_ingress_internal']
+        ingress_rule['targetTags'] = [edge_conf['instance_name']]
+        ingress_rule['sourceRanges'] = [edge_conf['private_subnet_cidr']]
         rules = [
             {
                 'IPProtocol': 'all'
             }
         ]
-        firewall['allowed'] = rules
-        firewall['network'] = edge_conf['vpc_selflink']
+        ingress_rule['allowed'] = rules
+        ingress_rule['network'] = edge_conf['vpc_selflink']
+        ingress_rule['direction'] = 'INGRESS'
+        firewall_rules['ingress'].append(ingress_rule)
 
-        params = "--firewall '{}'".format(json.dumps(firewall))
+        egress_rule = dict()
+        egress_rule['name'] = edge_conf['fw_edge_egress_public']
+        egress_rule['targetTags'] = [edge_conf['instance_name']]
+        egress_rule['destinationRanges'] = ['0.0.0.0/0']
+        rules = [
+            {
+                'IPProtocol': 'udp',
+                'ports': ['53']
+            },
+            {
+                'IPProtocol': 'tcp',
+                'ports': ['80', '443']
+            }
+        ]
+        egress_rule['allowed'] = rules
+        egress_rule['network'] = edge_conf['vpc_selflink']
+        ingress_rule['direction'] = 'EGRESS'
+        firewall_rules['egress'].append(egress_rule)
+
+        egress_rule = dict()
+        egress_rule['name'] = edge_conf['fw_edge_egress_internal']
+        egress_rule['targetTags'] = [edge_conf['instance_name']]
+        egress_rule['destinationRanges'] = [edge_conf['private_subnet_cidr']]
+        rules = [
+            {
+                'IPProtocol': 'tcp',
+                'ports': ['22', '8888', '8080', '8787', '6006', '20888', '8088', '18080', '50070', '8085', '8081',
+                          '4040']
+            }
+        ]
+        egress_rule['allowed'] = rules
+        egress_rule['network'] = edge_conf['vpc_selflink']
+        ingress_rule['direction'] = 'EGRESS'
+        firewall_rules['egress'].append(egress_rule)
+
+        params = "--firewall '{}'".format(json.dumps(firewall_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_firewall', params))
         except:
@@ -189,35 +217,105 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to create Firewall.", str(err))
-        GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         sys.exit(1)
 
     try:
         logging.info('[CREATE INGRESS FIREWALL FOR PRIVATE SUBNET]')
         print '[CREATE INGRESS FIREWALL FOR PRIVATE SUBNET]'
-        firewall = {}
-        firewall['name'] = edge_conf['fw_nb_ingress']
-        firewall['targetTags'] = [
+        firewall_rules = dict()
+        firewall_rules['ingress'] = []
+        firewall_rules['egress'] = []
+
+        ingress_rule = dict()
+        ingress_rule['name'] = edge_conf['fw_nb_ingress'] + '-1'
+        ingress_rule['targetTags'] = [
             edge_conf['notebook_firewall_target'],
             edge_conf['dataproc_firewall_target']
         ]
-        firewall['sourceRanges'] = [
-            edge_conf['private_subnet_cidr']
-        ]
-        firewall['sourceTags'] = [
-            edge_conf['instance_name'],
-            edge_conf['ssn_instance_name']
-        ]
+        ingress_rule['sourceRanges'] = [edge_conf['private_subnet_cidr']]
         rules = [
             {
                 'IPProtocol': 'all'
             }
         ]
-        firewall['allowed'] = rules
-        firewall['network'] = edge_conf['vpc_selflink']
+        ingress_rule['allowed'] = rules
+        ingress_rule['network'] = edge_conf['vpc_selflink']
+        ingress_rule['direction'] = 'INGRESS'
+        firewall_rules['ingress'].append(ingress_rule)
 
-        params = "--firewall '{}'".format(json.dumps(firewall))
+        ingress_rule = dict()
+        ingress_rule['name'] = edge_conf['fw_nb_ingress'] + '-2'
+        ingress_rule['targetTags'] = [
+            edge_conf['notebook_firewall_target'],
+            edge_conf['dataproc_firewall_target']
+        ]
+        ingress_rule['sourceRanges'] = [GCPMeta().get_subnet(edge_conf['subnet_name'],
+                                                             edge_conf['region'])['ipCidrRange']]
+        rules = [
+            {
+                'IPProtocol': 'all'
+            }
+        ]
+        ingress_rule['allowed'] = rules
+        ingress_rule['network'] = edge_conf['vpc_selflink']
+        ingress_rule['direction'] = 'INGRESS'
+        firewall_rules['ingress'].append(ingress_rule)
+
+        egress_rule = dict()
+        egress_rule['name'] = edge_conf['fw_nb_egress'] + '-1'
+        egress_rule['targetTags'] = [
+            edge_conf['notebook_firewall_target'],
+            edge_conf['dataproc_firewall_target']
+        ]
+        egress_rule['destinationRanges'] = [edge_conf['private_subnet_cidr']]
+        rules = [
+            {
+                'IPProtocol': 'all'
+            }
+        ]
+        egress_rule['allowed'] = rules
+        egress_rule['network'] = edge_conf['vpc_selflink']
+        egress_rule['direction'] = 'EGRESS'
+        firewall_rules['egress'].append(egress_rule)
+
+        egress_rule = dict()
+        egress_rule['name'] = edge_conf['fw_nb_egress'] + '-2'
+        egress_rule['targetTags'] = [
+            edge_conf['notebook_firewall_target'],
+            edge_conf['dataproc_firewall_target']
+        ]
+        egress_rule['destinationRanges'] = [GCPMeta().get_subnet(edge_conf['subnet_name'],
+                                                             edge_conf['region'])['ipCidrRange']]
+        rules = [
+            {
+                'IPProtocol': 'all'
+            }
+        ]
+        egress_rule['allowed'] = rules
+        egress_rule['network'] = edge_conf['vpc_selflink']
+        egress_rule['direction'] = 'EGRESS'
+        firewall_rules['egress'].append(egress_rule)
+
+        egress_rule = dict()
+        egress_rule['name'] = edge_conf['fw_nb_egress'] + '-3'
+        egress_rule['targetTags'] = [
+            edge_conf['notebook_firewall_target'],
+            edge_conf['dataproc_firewall_target']
+        ]
+        egress_rule['destinationRanges'] = ['0.0.0.0/0']
+        rules = [
+            {
+                'IPProtocol': 'tcp',
+                'ports': ['443']
+            }
+        ]
+        egress_rule['allowed'] = rules
+        egress_rule['network'] = edge_conf['vpc_selflink']
+        egress_rule['direction'] = 'EGRESS'
+        firewall_rules['egress'].append(egress_rule)
+
+        params = "--firewall '{}'".format(json.dumps(firewall_rules))
         try:
             local("~/scripts/{}.py {}".format('common_create_firewall', params))
         except:
