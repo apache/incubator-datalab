@@ -2,8 +2,8 @@
   "image" : "docker.dlab-dataengine",
   "name" : "set the name",
   "dataengine_instance_count" : "2",
-  "dataengine_slave" : "p2.xlarge",
-  "dataengine_master" : "p2.xlarge",
+  "dataengine_slave" : "c4.xlarge",
+  "dataengine_master" : "c4.xlarge",
   "notebook_name" : "set noteboork name",
   "template_name" : "Spark cluster"
 }
