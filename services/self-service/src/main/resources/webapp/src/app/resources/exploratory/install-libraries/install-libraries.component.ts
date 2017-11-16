@@ -98,7 +98,7 @@ export class InstallLibrariesComponent implements OnInit {
           this.libsUploadingStatus(response);
           this.changeDetector.detectChanges();
 
-          this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), this.destination.name, 'destination', 'name', 'array');
+          this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), this.destination.title, 'destination', 'title', 'array');
           this.group_select && this.group_select.setDefaultOptions(this.groupsList, 'Select group', 'group_lib', null, 'list', this.groupsListMap);
         },
         error => {
@@ -109,10 +109,12 @@ export class InstallLibrariesComponent implements OnInit {
 
   private getResourcesList() {
     this.notebook.type = 'EXPLORATORY';
+    this.notebook.title = `${ this.notebook.name } <em>[notebook]</em>`;
     return [this.notebook].concat(this.notebook.resources
       .filter(item => item.status === 'running')
       .map(item => {
         item['name'] = item.computational_name;
+        item['title'] = `${ item.computational_name } <em>[computational]</em>`;
         item['type'] = 'СOMPUTATIONAL';
         return item;
       }));
@@ -259,7 +261,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   private selectorsReset():void {
-    this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'name', 'array');
+    this.resource_select && this.resource_select.setDefaultOptions(this.getResourcesList(), 'Select resource', 'destination', 'title', 'array');
     this.group_select && this.group_select.setDefaultOptions([], '', 'group_lib', null, 'array');
   }
 
