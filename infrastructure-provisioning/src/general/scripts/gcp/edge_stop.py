@@ -31,7 +31,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     edge_conf['zone'] = os.environ['gcp_zone']
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
 
     logging.info('[STOP EDGE]')
-    print '[STOP EDGE]'
+    print('[STOP EDGE]')
     try:
         GCPActions().stop_instance(edge_conf['instance_name'], edge_conf['zone'])
     except Exception as err:
@@ -50,9 +50,9 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"instance_name": edge_conf['instance_name'],
                    "Action": "Stop edge server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
 

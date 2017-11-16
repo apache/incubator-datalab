@@ -87,9 +87,9 @@ if __name__ == "__main__":
 
     if args.subnet_name != '':
         if GCPMeta().get_subnet(args.subnet_name, args.region):
-            print "REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name)
+            print("REQUESTED SUBNET {} ALREADY EXISTS".format(args.subnet_name))
         else:
-            print "Creating Subnet {}".format(args.subnet_name)
+            print("Creating Subnet {}".format(args.subnet_name))
             GCPActions().create_subnet(args.subnet_name, dlab_subnet_cidr, args.vpc_selflink, args.region)
     else:
         sys.exit(1)

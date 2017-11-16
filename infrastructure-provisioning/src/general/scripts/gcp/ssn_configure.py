@@ -36,7 +36,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[DERIVING NAMES]')
-        print '[DERIVING NAMES]'
+        print('[DERIVING NAMES]')
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_firewall = False
@@ -94,7 +94,8 @@ if __name__ == "__main__":
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'])
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
         if pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -127,7 +128,8 @@ if __name__ == "__main__":
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'])
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
         if pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -152,7 +154,8 @@ if __name__ == "__main__":
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'])
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
         if pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -182,7 +185,8 @@ if __name__ == "__main__":
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'])
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
         if pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -195,10 +199,10 @@ if __name__ == "__main__":
         additional_config = [{"name": "base", "tag": "latest"},
                              {"name": "edge", "tag": "latest"},
                              {"name": "jupyter", "tag": "latest"},
-                             # {"name": "rstudio", "tag": "latest"},
-                             # {"name": "zeppelin", "tag": "latest"},
-                             # {"name": "tensor", "tag": "latest"},
-                             # {"name": "deeplearning", "tag": "latest"},
+                              {"name": "rstudio", "tag": "latest"},
+                              {"name": "zeppelin", "tag": "latest"},
+                              {"name": "tensor", "tag": "latest"},
+                              {"name": "deeplearning", "tag": "latest"},
                              {"name": "dataengine-service", "tag": "latest"}]
         params = "--hostname {} --keyfile {} --additional_config '{}' --os_family {} --os_user {} --dlab_path {} --cloud_provider {} --region {}". \
             format(instance_hostname, ssn_conf['ssh_key_path'], json.dumps(additional_config),
@@ -217,7 +221,8 @@ if __name__ == "__main__":
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'])
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
         if pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -247,7 +252,8 @@ if __name__ == "__main__":
     #     GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
     #     GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
     #     if pre_defined_firewall:
-    #         GCPActions().remove_firewall(ssn_conf['firewall_name'])
+    #         GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
+    #         GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
     #     if pre_defined_subnet:
     #         GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
     #     if pre_defined_vpc:
@@ -257,29 +263,29 @@ if __name__ == "__main__":
     try:
         logging.info('[SUMMARY]')
         print('[SUMMARY]')
-        print "Service base name: " + ssn_conf['service_base_name']
-        print "SSN Name: " + ssn_conf['instance_name']
-        print "SSN Hostname: " + instance_hostname
-        print "Role name: " + ssn_conf['role_name']
-        #print "Role profile name: " + role_profile_name
-        #print "Policy name: " + policy_name
-        print "Key name: " + os.environ['conf_key_name']
-        print "VPC Name: " + ssn_conf['vpc_name']
-        print "Subnet Name: " + ssn_conf['subnet_name']
-        print "Firewall Names: " + ssn_conf['firewall_name']
-        print "SSN instance size: " + ssn_conf['instance_size']
-        print "SSN AMI name: " + ssn_conf['ami_name']
-        print "SSN bucket name: " + ssn_conf['ssn_bucket_name']
-        print "Region: " + ssn_conf['region']
+        print("Service base name: {}".format(ssn_conf['service_base_name']))
+        print("SSN Name: {}".format(ssn_conf['instance_name']))
+        print("SSN Hostname: {}".format(instance_hostname))
+        print("Role name: {}".format(ssn_conf['role_name']))
+        # print("Role profile name: {}".format(role_profile_name))
+        # print("Policy name: {}".format(policy_name))
+        print("Key name: {}".format(os.environ['conf_key_name']))
+        print("VPC Name: {}".format(ssn_conf['vpc_name']))
+        print("Subnet Name: {}".format(ssn_conf['subnet_name']))
+        print("Firewall Names: {}".format(ssn_conf['firewall_name']))
+        print("SSN instance size: {}".format(ssn_conf['instance_size']))
+        print("SSN AMI name: {}".format(ssn_conf['ami_name']))
+        print("SSN bucket name: {}".format(ssn_conf['ssn_bucket_name']))
+        print("Region: {}".format(ssn_conf['region']))
         jenkins_url = "http://{}/jenkins".format(instance_hostname)
         jenkins_url_https = "https://{}/jenkins".format(instance_hostname)
-        print "Jenkins URL: " + jenkins_url
-        print "Jenkins URL HTTPS: " + jenkins_url_https
+        print("Jenkins URL: {}".format(jenkins_url))
+        print("Jenkins URL HTTPS: {}".format(jenkins_url_https))
         try:
             with open('jenkins_crids.txt') as f:
-                print f.read()
+                print(f.read())
         except:
-            print "Jenkins is either configured already or have issues in configuration routine."
+            print("Jenkins is either configured already or have issues in configuration routine.")
 
         with open("/root/result.json", 'w') as f:
             res = {"service_base_name": ssn_conf['service_base_name'],
@@ -298,7 +304,7 @@ if __name__ == "__main__":
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))
 
-        print 'Upload response file'
+        print('Upload response file')
         params = "--instance_name {} --local_log_filepath {} --os_user {} --instance_hostname {}".\
             format(ssn_conf['instance_name'], local_log_filepath, ssn_conf['dlab_ssh_user'], instance_hostname)
         local("~/scripts/{}.py {}".format('upload_response_file', params))
@@ -308,7 +314,8 @@ if __name__ == "__main__":
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'])
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
         if pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:

@@ -55,7 +55,7 @@ def send_parser_job(args, cluster_name, cluster_version):
 
 
 def build_dataproc_cluster(args, cluster_name):
-    print "Will be created cluster:" + json.dumps(params, sort_keys=True, indent=4, separators=(',', ': '))
+    print("Will be created cluster: {}".format(json.dumps(params, sort_keys=True, indent=4, separators=(',', ': '))))
     return actions_lib.GCPActions().create_dataproc_cluster(cluster_name, args.region, params)
 
 

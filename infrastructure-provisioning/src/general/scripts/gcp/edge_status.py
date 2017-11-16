@@ -33,12 +33,12 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    print 'Getting statuses of DLAB resources'
+    print('Getting statuses of DLAB resources')
     # Base config
 
     try:
         logging.info('[COLLECT DATA]')
-        print '[COLLECTING DATA]'
+        print('[COLLECTING DATA]')
         params = '--list_resources "{}"'.format(os.environ['edge_list_resources'])
         try:
             local("~/scripts/{}.py {}".format('common_collect_data', params))

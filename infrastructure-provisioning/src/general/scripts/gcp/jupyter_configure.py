@@ -85,7 +85,7 @@ if __name__ == "__main__":
     # configuring proxy on Notebook instance
     try:
         logging.info('[CONFIGURE PROXY ON JUPYTER INSTANCE]')
-        print '[CONFIGURE PROXY ON JUPYTER INSTANCE]'
+        print('[CONFIGURE PROXY ON JUPYTER INSTANCE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'], json.dumps(additional_config),
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     # installing and configuring jupiter and all dependencies
     try:
         logging.info('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
-        print '[CONFIGURE JUPYTER NOTEBOOK INSTANCE]'
+        print('[CONFIGURE JUPYTER NOTEBOOK INSTANCE]')
         params = "--hostname {} --keyfile {} --region {} --spark_version {} --hadoop_version {} --os_user {} --scala_version {} --r_mirror {}".\
             format(instance_hostname, notebook_config['ssh_key_path'], os.environ['gcp_region'], os.environ['notebook_spark_version'],
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[INSTALLING USERs KEY]'
+        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": os.environ['edge_user_name'],
                              "user_keydir": os.environ['conf_key_dir']}
@@ -152,7 +152,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[SETUP USER GIT CREDENTIALS]'
+        print('[SETUP USER GIT CREDENTIALS]')
         logging.info('[SETUP USER GIT CREDENTIALS]')
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['dlab_ssh_user'], instance_hostname, notebook_config['ssh_key_path'])
@@ -168,16 +168,16 @@ if __name__ == "__main__":
         sys.exit(1)
 
     #try:
-    #    print '[CREATING IMAGE]'
+    #    print('[CREATING IMAGE]')
     #    logging.info('[CREATING IMAGE]')
     #    ami_name = GCPMeta().get_ami_by_name(notebook_config['expected_ami_name'])
     #    if ami_name == '':
-    #        print "Looks like it's first time we configure notebook server. Creating image."
+    #        print("Looks like it's first time we configure notebook server. Creating image.")
     #        ami_name = GCPActions().create_image_from_instance_disk(notebook_config['expected_ami_name'],
     #                                                                notebook_config['instance_name'],
     #                                                                os.environ['gcp_zone'])["name"]
     #        if ami_name != '':
-    #            print "Image {} was successfully created".format(ami_name)
+    #            print("Image {} was successfully created".format(ami_name))
     #except Exception as err:
     #    append_result("Failed to create image from disk.", str(err))
     #    GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
@@ -187,20 +187,21 @@ if __name__ == "__main__":
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     jupyter_ip_url = "http://" + ip_address + ":8888/"
     ungit_ip_url = "http://" + ip_address + ":8085/"
-    print '[SUMMARY]'
+    print('[SUMMARY]')
     logging.info('[SUMMARY]')
-    print "Instance name: " + notebook_config['instance_name']
-    print "Private IP: " + ip_address
-    print "Instance type: " + notebook_config['instance_type']
-    print "Key name: " + notebook_config['key_name']
-    print "User key name: " + os.environ['edge_user_name']
-    # print "AMI name: " + notebook_config['expected_ami_name']
-    # print "Profile name: " + notebook_config['role_profile_name']
-    # print "SG name: " + notebook_config['security_group_name']
-    print "Jupyter URL: " + jupyter_ip_url
-    print "Ungit URL: " + ungit_ip_url
-    print 'SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'\
-        .format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address)
+    print("Instance name: {}".format(notebook_config['instance_name']))
+    print("Private IP: {}".format(ip_address))
+    print("Instance type: {}".format(notebook_config['instance_type']))
+    print("Key name: {}".format(notebook_config['key_name']))
+    print("User key name: {}".format(os.environ['edge_user_name']))
+    # print("AMI name: {}".format(notebook_config['expected_ami_name']))
+    # print("Profile name: {}".format(notebook_config['role_profile_name']))
+    # print("SG name: {}".format(notebook_config['security_group_name']))
+    print("Jupyter URL: {}".format(jupyter_ip_url))
+    print("Ungit URL: {}".format(ungit_ip_url))
+    print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(notebook_config['key_name'],
+                                                                                       notebook_config['dlab_ssh_user'],
+                                                                                       ip_address))
 
     with open("/root/result.json", 'w') as result:
         res = {"hostname": ip_address,

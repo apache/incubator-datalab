@@ -45,7 +45,7 @@ if __name__ == "__main__":
     if os.path.exists('/response/.dataproc_creating_{}'.format(os.environ['exploratory_name'])):
         time.sleep(30)
 
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     dataproc_conf = dict()
     dataproc_conf['uuid'] = str(uuid.uuid4())[:5]
     try:
@@ -76,14 +76,13 @@ if __name__ == "__main__":
     edge_status = GCPMeta().get_instance_status('{0}-{1}-edge'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name']))
     if edge_status != 'RUNNING':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
-        print 'ERROR: Edge node is unavailable! Aborting...'
+        print('ERROR: Edge node is unavailable! Aborting...')
         ssn_hostname = GCPMeta().get_private_ip_address(dataproc_conf['service_base_name'] + '-ssn')
         put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'], ssn_hostname)
         append_result("Edge node is unavailable")
         sys.exit(1)
 
-    print "Will create exploratory environment with edge node as access point as following: " + \
-          json.dumps(dataproc_conf, sort_keys=True, indent=4, separators=(',', ': '))
+    print("Will create exploratory environment with edge node as access point as following: ".format(json.dumps(dataproc_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(dataproc_conf))
 
     local('touch /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
@@ -114,7 +113,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[Creating Dataproc Cluster]')
-        print '[Creating Dataproc Cluster]'
+        print('[Creating Dataproc Cluster]')
         params = "--region {0} --bucket {1} --params '{2}'".format(dataproc_conf['region'], dataproc_conf['bucket_name'], json.dumps(dataproc_cluster))
 
         try:
@@ -132,30 +131,30 @@ if __name__ == "__main__":
 
     try:
         logging.info('[SUMMARY]')
-        print '[SUMMARY]'
-        print "Service base name: {}".format(dataproc_conf['service_base_name'])
-        print "Cluster name: {}".format(dataproc_conf['cluster_name'])
-        print "Key name: {}".format(dataproc_conf['key_name'])
-        print "Region: {}".format(dataproc_conf['region'])
-        print "Zone: {}".format(dataproc_conf['zone'])
-        print "Subnet: {}".format(dataproc_conf['subnet'])
-        print "Dataproc version: {}".format(dataproc_conf['release_label'])
-        print "Dataproc master node shape: {}".format(os.environ['dataproc_master_instance_type'])
-        print "Dataproc slave node shape: {}".format(os.environ['dataproc_slave_instance_type'])
-        print "Master count: {}".format(os.environ['dataproc_master_count'])
-        print "Slave count: {}".format(os.environ['dataproc_slave_count'])
-        print "Preemptible count: {}".format(os.environ['dataproc_preemptible_count'])
-        print "Notebook hostname: {}".format(os.environ['notebook_instance_name'])
-        print "Bucket name: " + dataproc_conf['bucket_name']
+        print('[SUMMARY]')
+        print("Service base name: {}".format(dataproc_conf['service_base_name']))
+        print("Cluster name: {}".format(dataproc_conf['cluster_name']))
+        print("Key name: {}".format(dataproc_conf['key_name']))
+        print("Region: {}".format(dataproc_conf['region']))
+        print("Zone: {}".format(dataproc_conf['zone']))
+        print("Subnet: {}".format(dataproc_conf['subnet']))
+        print("Dataproc version: {}".format(dataproc_conf['release_label']))
+        print("Dataproc master node shape: {}".format(os.environ['dataproc_master_instance_type']))
+        print("Dataproc slave node shape: {}".format(os.environ['dataproc_slave_instance_type']))
+        print("Master count: {}".format(os.environ['dataproc_master_count']))
+        print("Slave count: {}".format(os.environ['dataproc_slave_count']))
+        print("Preemptible count: {}".format(os.environ['dataproc_preemptible_count']))
+        print("Notebook hostname: {}".format(os.environ['notebook_instance_name']))
+        print("Bucket name: {}".format(dataproc_conf['bucket_name']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": dataproc_conf['cluster_name'],
                    "key_name": dataproc_conf['key_name'],
                    "user_own_bucket_name": dataproc_conf['bucket_name'],
                    "Action": "Create new Dataproc cluster"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(1)
 
     sys.exit(0)

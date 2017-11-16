@@ -104,7 +104,7 @@ if __name__ == "__main__":
     # configuring proxy on Notebook instance
     try:
         logging.info('[CONFIGURE PROXY ON ZEPPELIN INSTANCE]')
-        print '[CONFIGURE PROXY ON ZEPPELIN INSTANCE]'
+        print('[CONFIGURE PROXY ON ZEPPELIN INSTANCE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     # installing and configuring zeppelin and all dependencies
     try:
         logging.info('[CONFIGURE ZEPPELIN NOTEBOOK INSTANCE]')
-        print '[CONFIGURE ZEPPELIN NOTEBOOK INSTANCE]'
+        print('[CONFIGURE ZEPPELIN NOTEBOOK INSTANCE]')
         additional_config = {"frontend_hostname": edge_instance_hostname,
                              "backend_hostname": instance_hostname,
                              "backend_port": "8080",
@@ -162,7 +162,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[INSTALLING USERs KEY]'
+        print('[INSTALLING USERs KEY]')
         logging.info('[INSTALLING USERs KEY]')
         additional_config = {"user_keyname": os.environ['edge_user_name'],
                              "user_keydir": os.environ['conf_key_dir']}
@@ -180,7 +180,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        print '[SETUP USER GIT CREDENTIALS]'
+        print('[SETUP USER GIT CREDENTIALS]')
         logging.info('[SETUP USER GIT CREDENTIALS]')
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(notebook_config['dlab_ssh_user'], instance_hostname, notebook_config['ssh_key_path'])
@@ -196,16 +196,16 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # try:
-    #     print '[CREATING AMI]'
+    #     print('[CREATING AMI]')
     #     logging.info('[CREATING AMI]')
     #     ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
     #     if ami_id == '':
-    #         print "Looks like it's first time we configure notebook server. Creating image."
+    #         print("Looks like it's first time we configure notebook server. Creating image.")
     #         image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
     #                                               instance_name=notebook_config['instance_name'],
     #                                               image_name=notebook_config['expected_ami_name'])
     #         if image_id != '':
-    #             print "Image was successfully created. It's ID is " + image_id
+    #             print("Image was successfully created. It's ID is {}".format(image_id))
     # except Exception as err:
     #     append_result("Failed installing users key.", str(err))
     #     remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
@@ -215,17 +215,18 @@ if __name__ == "__main__":
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     zeppelin_ip_url = "http://" + ip_address + ":8080/"
     ungit_ip_url = "http://" + ip_address + ":8085/"
-    print '[SUMMARY]'
+    print('[SUMMARY]')
     logging.info('[SUMMARY]')
-    print "Instance name: " + notebook_config['instance_name']
-    print "Private IP: " + ip_address
-    print "Instance type: " + notebook_config['instance_type']
-    print "Key name: " + notebook_config['key_name']
-    print "User key name: " + os.environ['edge_user_name']
-    print "Zeppelin URL: " + zeppelin_ip_url
-    print "Ungit URL: " + ungit_ip_url
-    print 'SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'\
-        .format(notebook_config['key_name'], notebook_config['dlab_ssh_user'], ip_address)
+    print("Instance name: {}".format(notebook_config['instance_name']))
+    print("Private IP: {}".format(ip_address))
+    print("Instance type: {}".format(notebook_config['instance_type']))
+    print("Key name: {}".format(notebook_config['key_name']))
+    print("User key name: {}".format(os.environ['edge_user_name']))
+    print("Zeppelin URL: {}".format(zeppelin_ip_url))
+    print("Ungit URL: {}".format(ungit_ip_url))
+    print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(notebook_config['key_name'],
+                                                                                       notebook_config['dlab_ssh_user'],
+                                                                                       ip_address))
 
     with open("/root/result.json", 'w') as result:
         res = {"hostname": ip_address,

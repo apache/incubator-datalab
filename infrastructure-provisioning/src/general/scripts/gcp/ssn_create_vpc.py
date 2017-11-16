@@ -31,9 +31,9 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if args.vpc_name != '':
         if GCPMeta().get_vpc(args.vpc_name):
-            print "REQUESTED VPC {} ALREADY EXISTS".format(args.vpc_name)
+            print("REQUESTED VPC {} ALREADY EXISTS".format(args.vpc_name))
         else:
-            print "Creating VPC {}".format(args.vpc_name)
+            print("Creating VPC {}".format(args.vpc_name))
             GCPActions().create_vpc(args.vpc_name)
     else:
         sys.exit(1)

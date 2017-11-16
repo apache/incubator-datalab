@@ -32,7 +32,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     edge_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     edge_conf['static_address_name'] = '{0}-{1}-ip'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
 
     logging.info('[START EDGE]')
-    print '[START EDGE]'
+    print('[START EDGE]')
     try:
         GCPActions().start_instance(edge_conf['instance_name'], edge_conf['zone'])
     except Exception as err:
@@ -57,21 +57,21 @@ if __name__ == "__main__":
         public_ip_address = \
             GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
         ip_address = GCPMeta().get_private_ip_address(edge_conf['instance_name'])
-        print '[SUMMARY]'
+        print('[SUMMARY]')
         logging.info('[SUMMARY]')
-        print "Instance name: " + edge_conf['instance_name']
-        print "Hostname: " + instance_hostname
-        print "Public IP: " + public_ip_address
-        print "Private IP: " + ip_address
+        print("Instance name: {}".format(edge_conf['instance_name']))
+        print("Hostname: {}".format(instance_hostname))
+        print("Public IP: {}".format(public_ip_address))
+        print("Private IP: {}".format(ip_address))
         with open("/root/result.json", 'w') as result:
             res = {"instance_name": edge_conf['instance_name'],
                    "hostname": instance_hostname,
                    "public_ip": public_ip_address,
                    "ip": ip_address,
                    "Action": "Start up notebook server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(1)
 
