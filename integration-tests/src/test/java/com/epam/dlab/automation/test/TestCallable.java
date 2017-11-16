@@ -103,40 +103,48 @@ public class TestCallable implements Callable<Boolean> {
 
 	@Override
     public Boolean call() throws Exception {
-       
-    	final String notebookIp = createNotebook(notebookName);
-        testLibs();
         
-        final DeployClusterDto deployClusterDto = createClusterDto();
-        
-        final String actualClusterName = NamingHelper.getClusterName(NamingHelper.getClusterInstanceNameForTestEmr(notebookName,
-                clusterName, dataEngineType), dataEngineType);
+		try {
+			final String notebookIp = createNotebook(notebookName);
+			testLibs();
 
-        if (!ConfigPropertyValue.isRunModeLocal()) {
-        	TestEmr test = new TestEmr();
-        	test.run(notebookName, actualClusterName);
+			final DeployClusterDto deployClusterDto = createClusterDto();
 
-            String notebookFilesLocation = PropertiesResolver.getPropertyByName(String.format(PropertiesResolver.NOTEBOOK_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
-            test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File(notebookFilesLocation), notebookName);
-        }
-        
-        stopEnvironment();
+			final String actualClusterName = NamingHelper.getClusterName(
+					NamingHelper.getClusterInstanceNameForTestEmr(notebookName, clusterName, dataEngineType),
+					dataEngineType);
 
-        if (fullTest) {
-        	restartNotebookAndRedeployToTerminate(deployClusterDto);
-        }
-        if (deployClusterDto != null) {
-        	terminateNotebook(deployClusterDto);
-        }
+			if (!ConfigPropertyValue.isRunModeLocal()) {
+				TestEmr test = new TestEmr();
+				test.run(notebookName, actualClusterName);
 
-       	// Create notebook from AMI
-       	String notebookNewName = "AMI" + notebookName;
-       	createNotebook(notebookNewName);
+				String notebookFilesLocation = PropertiesResolver.getPropertyByName(
+						String.format(PropertiesResolver.NOTEBOOK_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
+				test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File(notebookFilesLocation),
+						notebookName);
+			}
 
-       	terminateNotebook(notebookNewName);
+			stopEnvironment();
 
-       	LOGGER.info("{} All tests finished successfully", notebookName);
-        return true;
+			if (fullTest) {
+				restartNotebookAndRedeployToTerminate(deployClusterDto);
+			}
+			if (deployClusterDto != null) {
+				terminateNotebook(deployClusterDto);
+			}
+
+			// Create notebook from AMI
+			String notebookNewName = "AMI" + notebookName;
+			createNotebook(notebookNewName);
+
+			terminateNotebook(notebookNewName);
+
+			LOGGER.info("{} All tests finished successfully", notebookName);
+			return true;
+		} catch (Exception e) {
+			LOGGER.error("error occured while testing notebook {} with configuration {}", notebookName, notebookConfig, e);
+			throw e;
+		}
    }
     
 
