@@ -20,6 +20,7 @@ package com.epam.dlab.automation.test;
 
 import static org.testng.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -49,7 +50,9 @@ import com.epam.dlab.automation.http.HttpStatusCode;
 import com.epam.dlab.automation.jenkins.JenkinsService;
 import com.epam.dlab.automation.model.LoginDto;
 import com.epam.dlab.automation.model.NotebookConfig;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
@@ -68,12 +71,18 @@ public class TestServices {
 	public static final int N_THREADS = 10;
 
 	private long testTimeMillis;
+	private ArrayList<NotebookConfig> notebookConfigs;
 
 	@BeforeClass
-	public void Setup() throws InterruptedException {
+	public void Setup() throws InterruptedException, JsonParseException, JsonMappingException, IOException {
 		testTimeMillis = System.currentTimeMillis();
 		// Load properties
 		ConfigPropertyValue.getJenkinsJobURL();
+		
+		ObjectMapper mapper = new ObjectMapper();
+		notebookConfigs = mapper.readValue(ConfigPropertyValue.getNotebookTemplates(),
+				new TypeReference<ArrayList<NotebookConfig>>() {
+				});
 	}
 
 	@AfterClass
@@ -232,11 +241,7 @@ public class TestServices {
 	}
 
 	private void runTestsInNotebooks() throws Exception {
-		ArrayList<NotebookConfig> notebookConfigs;
-		ObjectMapper mapper = new ObjectMapper();
-		notebookConfigs = mapper.readValue(ConfigPropertyValue.getNotebookTemplates(),
-				new TypeReference<ArrayList<NotebookConfig>>() {
-				});
+		
 		LOGGER.info("Testing the following notebook templates: {}", ConfigPropertyValue.getNotebookTemplates());
 		ExecutorService executor = Executors.newFixedThreadPool(
 				ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads() : N_THREADS);
