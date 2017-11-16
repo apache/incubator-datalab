@@ -13,7 +13,7 @@
 
 - Changed layout of Manage Libraries modal dialog component
 - Improved error handling for libraries installation
-- Added support of p2 instances for GPU templates
+- Added support of p2 shapes for GPU templates on AWS
 - Stability improvements for UnGit
 
 ## Bug fixes in v.1.7
@@ -31,4 +31,4 @@
 - DLab does not support DeepLearning and TensorFlow templates on Microsoft Azure for Red Hat Enterprise Linux
 - Total number of characters in MS Azure instance name should not exceed 80 chars
 - Low priority Virtual Machines are not supported yet on Microsoft Azure
-- Sometimes login DLab isn't  successful from the first attempt on Microsoft Azure infrastructure
+- Sometimes login DLab is not successful from the first attempt on Microsoft Azure infrastructure
