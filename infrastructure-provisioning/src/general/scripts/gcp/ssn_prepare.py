@@ -123,23 +123,40 @@ if __name__ == "__main__":
             pre_defined_firewall = True
             logging.info('[CREATE FIREWALL]')
             print '[CREATE FIREWALL]'
-            firewall = {}
-            firewall['name'] = ssn_conf['firewall_name']
-            firewall['targetTags'] = [ssn_conf['instance_name']]
-            firewall['sourceRanges'] = ['0.0.0.0/0']
+            firewall_rules = dict()
+            firewall_rules['ingress'] = []
+            firewall_rules['egress'] = []
+
+            ingress_rule = dict()
+            ingress_rule['name'] = ssn_conf['firewall_name'] + '-1'
+            ingress_rule['targetTags'] = [ssn_conf['instance_name']]
+            ingress_rule['sourceRanges'] = ['0.0.0.0/0']
             rules = [
                 {
                     'IPProtocol': 'tcp',
                     'ports': ['22', '80', '443']
-                },
-                {
-                    'IPProtocol': 'icmp'
                 }
             ]
-            firewall['allowed'] = rules
-            firewall['network'] = ssn_conf['vpc_selflink']
+            ingress_rule['allowed'] = rules
+            ingress_rule['network'] = ssn_conf['vpc_selflink']
+            ingress_rule['direction'] = 'INGRESS'
+            firewall_rules['ingress'].append(ingress_rule)
 
-            params = "--firewall '{}'".format(json.dumps(firewall))
+            egress_rule = dict()
+            egress_rule['name'] = ssn_conf['firewall_name'] + '-2'
+            egress_rule['targetTags'] = [ssn_conf['instance_name']]
+            egress_rule['destinationRanges'] = ['0.0.0.0/0']
+            rules = [
+                {
+                    'IPProtocol': 'all',
+                }
+            ]
+            egress_rule['denied'] = rules
+            egress_rule['network'] = ssn_conf['vpc_selflink']
+            egress_rule['direction'] = 'EGRESS'
+            firewall_rules['egress'].append(egress_rule)
+
+            params = "--firewall '{}'".format(json.dumps(firewall_rules))
             try:
                 local("~/scripts/{}.py {}".format('common_create_firewall', params))
             except:
