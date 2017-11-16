@@ -71,10 +71,10 @@ public class TestServices {
 	public static final int N_THREADS = 10;
 
 	private long testTimeMillis;
-	private ArrayList<NotebookConfig> notebookConfigs;
+	private List<NotebookConfig> notebookConfigs;
 
 	@BeforeClass
-	public void Setup() throws InterruptedException, JsonParseException, JsonMappingException, IOException {
+	public void Setup() throws IOException {
 		testTimeMillis = System.currentTimeMillis();
 		// Load properties
 		ConfigPropertyValue.getJenkinsJobURL();
@@ -86,7 +86,7 @@ public class TestServices {
 	}
 
 	@AfterClass
-	public void Cleanup() throws InterruptedException {
+	public void Cleanup() {
 		testTimeMillis = System.currentTimeMillis() - testTimeMillis;
 		LOGGER.info("Test time {} ms", testTimeMillis);
 	}
