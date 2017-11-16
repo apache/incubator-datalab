@@ -188,7 +188,8 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Unable to create bucket.", str(err))
         if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'])
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
         if pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -215,7 +216,8 @@ if __name__ == "__main__":
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'])
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
         if pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -244,7 +246,8 @@ if __name__ == "__main__":
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'])
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
         if pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:
@@ -279,7 +282,8 @@ if __name__ == "__main__":
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
-            GCPActions().remove_firewall(ssn_conf['firewall_name'])
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
         if pre_defined_subnet:
             GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
         if pre_defined_vpc:

@@ -140,8 +140,8 @@ if __name__ == "__main__":
 
     try:
         pre_defined_firewall = True
-        logging.info('[CREATE INGRESS FIREWALL FOR EDGE NODE]')
-        print '[CREATE INGRESS FIREWALL]'
+        logging.info('[CREATE FIREWALL FOR EDGE NODE]')
+        print '[CREATE FIREWALL FOR EDGE NODE]'
         firewall_rules = dict()
         firewall_rules['ingress'] = []
         firewall_rules['egress'] = []
@@ -217,13 +217,13 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to create Firewall.", str(err))
+        append_result("Failed to create firewall for Edge node.", str(err))
         GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         sys.exit(1)
 
     try:
-        logging.info('[CREATE INGRESS FIREWALL FOR PRIVATE SUBNET]')
-        print '[CREATE INGRESS FIREWALL FOR PRIVATE SUBNET]'
+        logging.info('[CREATE FIREWALL FOR PRIVATE SUBNET]')
+        print '[CREATE FIREWALL FOR PRIVATE SUBNET]'
         firewall_rules = dict()
         firewall_rules['ingress'] = []
         firewall_rules['egress'] = []
@@ -293,42 +293,13 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
+        append_result("Failed to create firewall for private subnet.", str(err))
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
         GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         sys.exit(1)
-
-    # try:
-    #     logging.info('[CREATE EGRESS FIREWALL FOR PRIVATE SUBNET]')
-    #     print '[CREATE EGRESS FIREWALL FOR PRIVATE SUBNET]'
-    #     firewall = {}
-    #     firewall['name'] = edge_conf['fw_nb_egress']
-    #     firewall['direction'] = 'EGRESS'
-    #     firewall['targetTags'] = [edge_conf['notebook_firewall_target']]
-    #     firewall['destinationRanges'] = [
-    #         edge_conf['private_subnet_cidr'],
-    #         edge_conf['subnet_name']
-    #     ]
-    #     rules = [
-    #         {
-    #             'IPProtocol': 'all'
-    #         }
-    #     ]
-    #     firewall['allowed'] = rules
-    #     firewall['network'] = edge_conf['vpc_selflink']
-    #
-    #     params = "--firewall '{}'".format(json.dumps(firewall))
-    #     try:
-    #         local("~/scripts/{}.py {}".format('common_create_firewall', params))
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    # except Exception as err:
-    #     GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
-    #     GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
-    #     GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
-    #     GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
-    #     sys.exit(1)
 
     try:
         logging.info('[CREATE BUCKETS]')
@@ -344,8 +315,11 @@ if __name__ == "__main__":
         append_result("Unable to create bucket.", str(err))
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
         GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
-        # GCPActions().remove_firewall(edge_conf['fw_nb_egress'])
+        GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
+        GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
         GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         sys.exit(1)
 
@@ -387,8 +361,11 @@ if __name__ == "__main__":
         GCPActions().remove_bucket(edge_conf['bucket_name'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
         GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
-        # GCPActions().remove_firewall(edge_conf['fw_nb_egress'])
+        GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
+        GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
         GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         sys.exit(1)
 
@@ -418,7 +395,10 @@ if __name__ == "__main__":
         GCPActions().remove_bucket(edge_conf['bucket_name'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
         GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
-        # GCPActions().remove_firewall(edge_conf['fw_nb_egress'])
+        GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
+        GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
