@@ -7,6 +7,8 @@ CONTENTS
 
 [What is DLAB?](#What_is_DLAB)
 
+&nbsp; &nbsp; [How to Contribute](CONTRIBUTING.md)
+
 [Logical architecture](#Logical_architecture)
 
 [Physical architecture](#Physical_architecture)
