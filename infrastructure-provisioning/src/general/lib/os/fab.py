@@ -415,6 +415,9 @@ def configure_data_engine_service_pip(hostname, os_user, keyfile):
         sudo('ln -s /usr/bin/pip-3.4 /usr/bin/pip3')
     elif not exists('/usr/bin/pip3') and sudo("python3.5 -V 2>/dev/null | awk '{print $2}'"):
         sudo('ln -s /usr/bin/pip-3.5 /usr/bin/pip3')
+    sudo('echo "export PATH=$PATH:/usr/local/bin" >> /etc/profile')
+    sudo('source /etc/profile')
+    run('source /etc/profile')
 
 
 def remove_rstudio_dataengines_kernel(cluster_name, os_user):

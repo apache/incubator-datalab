@@ -22,7 +22,7 @@ limitations under the License.
 .install-libraries .mat-list .mat-list-item .mat-list-item-content {
     height: auto !important;
     min-height: 54px !important;
-    border-bottom: 1px solid #3333330a;
+    border-bottom: 1px solid #edf1f5;
 }
 
 /* Tab Installation */

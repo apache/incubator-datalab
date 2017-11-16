@@ -903,23 +903,33 @@ def remove_vpc_endpoints(vpc_id):
 
 
 def create_image_from_instance(tag_name='', instance_name='', image_name=''):
-    ec2 = boto3.resource('ec2')
-    instances = ec2.instances.filter(
-        Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [instance_name]},
-                 {'Name': 'instance-state-name', 'Values': ['running']}])
-    for instance in instances:
-        image = instance.create_image(Name=image_name,
-                                      Description='Automatically created image for notebook server',
-                                      NoReboot=False)
-        image.load()
-        while image.state != 'available':
-            local("echo Waiting for image creation; sleep 20")
+    try:
+        ec2 = boto3.resource('ec2')
+        instances = ec2.instances.filter(
+            Filters=[{'Name': 'tag:{}'.format(tag_name), 'Values': [instance_name]},
+                     {'Name': 'instance-state-name', 'Values': ['running']}])
+        for instance in instances:
+            image = instance.create_image(Name=image_name,
+                                          Description='Automatically created image for notebook server',
+                                          NoReboot=False)
             image.load()
-        #image.create_tags(Tags=[{'Key': 'Name', 'Value': os.environ['conf_service_base_name']}])
-        tag = {'Key': 'Name', 'Value': os.environ['conf_service_base_name']}
-        create_tag(image.id, tag)
-        return image.id
-    return ''
+            while image.state != 'available':
+                local("echo Waiting for image creation; sleep 20")
+                image.load()
+            #image.create_tags(Tags=[{'Key': 'Name', 'Value': os.environ['conf_service_base_name']}])
+            tag = {'Key': 'Name', 'Value': os.environ['conf_service_base_name']}
+            create_tag(image.id, tag)
+            return image.id
+        return ''
+    except botocore.exceptions.ClientError as err:
+        if err.response['Error']['Code'] == 'InvalidAMIName.Duplicate':
+            print("Image is already created.")
+        else:
+            logging.info("Unable to create image: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+            append_result(str({"error": "Unable to create image",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
 
 def install_emr_spark(args):

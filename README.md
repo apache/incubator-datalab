@@ -1211,6 +1211,7 @@ Sources are located in dlab/services/self-service/src/main/resources/webapp
 | Health Status page            | HealthStatusComponent<br>*HealthStatusGridComponent* displays list of instances, their types, statutes, ID’s and uses *healthStatusService* for handling main actions. |
 | Help pages                    | Static pages that contains information and instructions on how to access Notebook Server and generate SSH key pair. Includes only *NavbarComponent*. |
 | Error page                    | Simple static page letting users know that opened page does not exist. Includes only *NavbarComponent*. | 
+| Reporting page                | ReportingComponent<br>ReportingGridComponent displays billing detailed info with built-in filtering and DateRangePicker component for custom range filtering;<br>uses *BillingReportService* for handling main actions and exports report data to .csv file. |
 
 ## How to setup local development environment <a name="setup_local_environment"></a>
 
@@ -1248,6 +1249,12 @@ db.createUser(
 mongoimport -u admin -p <password> -d <database_name> -c settings mongo_settings.json
 ```
 
+  * Load collections form file dlab/infrastructure-provisioning/src/ssn/files/mongo_roles.json
+
+```
+mongoimport -u admin -p <password> -d <database_name> --jsonArray -c roles mongo_roles.json
+```
+
 ### Setting up environment options
 
   * Set option CLOUD_TYPE to aws/azure, DEV\_MODE to **true**, mongo database name and password in configuration file dlab/infrastructure-provisioning/src/ssn/templates/ssn.yml
@@ -1267,7 +1274,7 @@ mongo:
 *Unix*
 
 ```
-ln -s ssn.yml ../../infrastructure-provisioning/src/ssn/templates/ssn.yml
+ln -s ../../infrastructure-provisioning/src/ssn/templates/ssn.yml ssn.yml 
 ```
 
 *Windows*
@@ -1301,7 +1308,13 @@ npm install npm@latest -g
 ```
 npm install
 ```
+  * Replace CLOUD_PROVIDER options with aws|azure in dictionary file<br> dlab/services/self-service/src/main/resources/webapp/src/dictionary/global.dictionary.ts
 
+```
+import { NAMING_CONVENTION } from './(aws|azure).dictionary';
+
+export * from './(aws|azure).dictionary';
+```
   * Build web application
 
 ```
@@ -1329,7 +1342,7 @@ Pay attention that the last command has to be executed with administrative permi
 ```
 keytool -genkeypair -alias dlab -keyalg RSA -storepass KEYSTORE_PASSWORD -keypass KEYSTORE_PASSWORD -keystore ~/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"
 keytool -exportcert -alias dlab -storepass KEYSTORE_PASSWORD -file ~/keys/dlab.crt -keystore ~/keys/dlab.keystore.jks
-sudo keytool -importcert -trustcacerts -alias dlab -file ~/keys/dlab.crt -noprompt -storepass changeit -keystore %JRE_HOME%/lib/security/cacerts
+sudo keytool -importcert -trustcacerts -alias dlab -file ~/keys/dlab.crt -noprompt -storepass changeit -keystore ${JRE_HOME}/lib/security/cacerts
 ```
 #### Create Windows server certificate
 
@@ -1360,8 +1373,8 @@ The services start up order does matter. Since Self-Service depends on Provision
 
 Run application flow is following:
 
-  * Run provisioning-service passing 2 arguments: server, self-service.yml
-  * Run self-service passing 2 arguments: server, provisioning.yml
+  * Run provisioning-service passing 2 arguments: server, provisioning.yml
+  * Run self-service passing 2 arguments: server, self-service.yml
   * Try to access self-service Web UI by https://localhost:8443
 
 ```
