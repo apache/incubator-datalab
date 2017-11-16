@@ -60,16 +60,16 @@ class GCPActions:
         network_params = {'name': vpc_name, 'autoCreateSubnetworks': False}
         request = self.service.networks().insert(project=self.project, body=network_params)
         try:
-            print "Create VPC {}".format(vpc_name)
+            print("Create VPC {}".format(vpc_name))
             result = request.execute()
             time.sleep(5)
             vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
             while not vpc_created:
-                print "VPC {} is still being created".format(vpc_name)
+                print("VPC {} is still being created".format(vpc_name))
                 time.sleep(5)
                 vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
             time.sleep(30)
-            print "VPC {} has been created".format(vpc_name)
+            print("VPC {} has been created".format(vpc_name))
             return result
         except Exception as err:
             logging.info(
@@ -88,7 +88,7 @@ class GCPActions:
                 time.sleep(5)
                 vpc_removed = meta_lib.GCPMeta().get_vpc(vpc_name)
             time.sleep(30)
-            print "VPC {} has been removed".format(vpc_name)
+            print("VPC {} has been removed".format(vpc_name))
             return result
         except Exception as err:
             logging.info(
@@ -108,16 +108,16 @@ class GCPActions:
         request = self.service.subnetworks().insert(
             project=self.project, region=region, body=subnetwork_params)
         try:
-            print "Create subnet {}".format(subnet_name)
+            print("Create subnet {}".format(subnet_name))
             result = request.execute()
             time.sleep(5)
             subnet_created = meta_lib.GCPMeta().get_subnet(subnet_name, region)
             while not subnet_created:
-                print "Subnet {} is still being created".format(subnet_name)
+                print("Subnet {} is still being created".format(subnet_name))
                 time.sleep(5)
                 subnet_created = meta_lib.GCPMeta().get_subnet(subnet_name, region)
             time.sleep(30)
-            print "Subnet {} has been created".format(subnet_name)
+            print("Subnet {} has been created".format(subnet_name))
             return result
         except Exception as err:
             logging.info(
@@ -135,7 +135,7 @@ class GCPActions:
             while subnet_removed:
                 time.sleep(5)
                 subnet_removed = meta_lib.GCPMeta().get_subnet(subnet_name, region)
-            print "Subnet {} has been removed".format(subnet_name)
+            print("Subnet {} has been removed".format(subnet_name))
             time.sleep(30)
             return result
         except Exception as err:
@@ -214,7 +214,7 @@ class GCPActions:
             bucket = self.storage_client.get_bucket(bucket_name)
             list_files = bucket.list_blobs(prefix='{0}/{1}'.format(user_name, cluster_name))
             for item in list_files:
-                print "Deleting:", item.name
+                print("Deleting:{}".format(item.name))
                 blob = bucket.blob(item.name)
                 blob.delete()
         except Exception as err:
@@ -566,7 +566,7 @@ class GCPActions:
             result = request.execute()
             while result["status"] == 'DONE':
                 time.sleep(20)
-                print 'The image is being created... Please wait'
+                print('The image is being created... Please wait')
             return result
         except Exception as err:
             logging.info(
@@ -619,7 +619,7 @@ class GCPActions:
             cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             while cluster_status[0]['status'] != 'running':
                 time.sleep(5)
-                print 'The cluster is being created... Please wait'
+                print('The cluster is being created... Please wait')
                 cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
                 if cluster_status[0]['status'] == 'terminated':
                     raise Exception
@@ -641,7 +641,7 @@ class GCPActions:
             cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             while cluster_status[0]['status'] != 'terminated':
                 time.sleep(5)
-                print 'The cluster is being terminated... Please wait'
+                print('The cluster is being terminated... Please wait')
                 cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
             return result
         except Exception as err:
@@ -681,7 +681,7 @@ class GCPActions:
                                                                    body=job_body)
         try:
             res = request.execute()
-            print "Job ID:", res['reference']['jobId']
+            print("Job ID: {}".format(res['reference']['jobId']))
             job_status = meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
             while job_status != 'done':
                 time.sleep(5)
@@ -719,19 +719,19 @@ class GCPActions:
             return ''
 
     def jars(self, args, dataproc_dir):
-        print "Downloading jars..."
+        print("Downloading jars...")
         GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars.tar.gz'.format(args.dataproc_version), '/tmp/jars.tar.gz')
         GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars-checksum.chk'.format(args.dataproc_version), '/tmp/jars-checksum.chk')
         if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
             local('rm -f /tmp/jars.tar.gz')
             GCPActions().get_from_bucket(args.bucket, 'jars/{0}/jars.tar.gz'.format(args.cluster_name), '/tmp/jars.tar.gz')
             if 'WARNING' in local('md5sum -c /tmp/jars-checksum.chk', capture=True):
-                print "The checksum of jars.tar.gz is mismatched. It could be caused by gcp network issue."
+                print("The checksum of jars.tar.gz is mismatched. It could be caused by gcp network issue.")
                 sys.exit(1)
         local('tar -zhxvf /tmp/jars.tar.gz -C {}'.format(dataproc_dir))
 
     def yarn(self, args, yarn_dir):
-        print "Downloading yarn configuration..."
+        print("Downloading yarn configuration...")
         bucket = self.storage_client.get_bucket(args.bucket)
         list_files = bucket.list_blobs(prefix='{0}/{1}/config/'.format(args.user_name, args.cluster_name))
         local('mkdir -p /tmp/{0}/{1}/config/'.format(args.user_name, args.cluster_name))
@@ -742,14 +742,14 @@ class GCPActions:
         local('sudo rm -rf /tmp/{}'.format(args.user_name))
 
     def install_dataproc_spark(self, args):
-        print "Installing spark..."
+        print("Installing spark...")
         GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark.tar.gz'.format(args.user_name, args.cluster_name), '/tmp/spark.tar.gz')
         GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark-checksum.chk'.format(args.user_name, args.cluster_name), '/tmp/spark-checksum.chk')
         if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
             local('rm -f /tmp/spark.tar.gz')
             GCPActions().get_from_bucket(args.bucket, '{0}/{1}/spark.tar.gz'.format(args.user_name, args.cluster_name), '/tmp/spark.tar.gz')
             if 'WARNING' in local('md5sum -c /tmp/spark-checksum.chk', capture=True):
-                print "The checksum of spark.tar.gz is mismatched. It could be caused by gcp network issue."
+                print("The checksum of spark.tar.gz is mismatched. It could be caused by gcp network issue.")
                 sys.exit(1)
         local('sudo tar -zhxvf /tmp/spark.tar.gz -C /opt/{0}/{1}/'.format(args.dataproc_version, args.cluster_name))
 
@@ -784,7 +784,7 @@ class GCPActions:
                         sudo('kill -9 ' + process_number)
                         sudo('systemctl disable livy-server-' + livy_port)
                     except:
-                        print "Wasn't able to find Livy server for this EMR!"
+                        print("Wasn't able to find Livy server for this EMR!")
                 sudo('sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
                 sudo("rm -rf /home/{}/.ensure_dir/dataengine-service_interpreter_ensure".format(ssh_user))
                 zeppelin_url = 'http://' + notebook_ip + ':8080/api/interpreter/setting/'
@@ -795,12 +795,12 @@ class GCPActions:
                 interpreter_prefix = dataproc_name
                 for interpreter in interpreter_json['body']:
                     if interpreter_prefix in interpreter['name']:
-                        print "Interpreter with ID:", interpreter['id'], "and name:", interpreter['name'], \
-                            "will be removed from zeppelin!"
+                        print("Interpreter with ID: {} and name: {} will be removed from zeppelin!".format(
+                            interpreter['id'], interpreter['name']))
                         request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
                         request.get_method = lambda: 'DELETE'
                         url = opener.open(request)
-                        print url.read()
+                        print(url.read())
                 sudo('chown {0}:{0} -R /opt/zeppelin/'.format(ssh_user))
                 sudo('systemctl restart zeppelin-notebook.service')
                 zeppelin_restarted = False
@@ -818,7 +818,7 @@ class GCPActions:
                     sudo("sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".format(ssh_user))
                 sudo("sed -i 's|/opt/{0}/{1}/spark//R/lib:||g' /home/{2}/.bashrc".format(dataproc_version, dataproc_name, ssh_user))
             sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
-            print "Notebook's " + env.hosts + " kernels were removed"
+            print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:
             logging.info(
                 "Unable to delete dataproc kernels from notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(

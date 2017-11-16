@@ -197,7 +197,7 @@ class GCPMeta:
                 traceback.print_exc(file=sys.stdout)
 
     def get_role(self, role_name):
-        print "Role name -> {}".format(role_name)
+        prin("Role name -> {}".format(role_name))
         return role_name
 
     def get_static_address(self, region, static_address_name):
@@ -386,7 +386,7 @@ class GCPMeta:
                                                                 jobId=job_id)
         try:
             res = request.execute()
-            print "Job status:", res['status']['state'].lower()
+            print("Job status: {}".format(res['status']['state'].lower()))
             return res['status']['state'].lower()
         except Exception as err:
             logging.info(
@@ -429,7 +429,7 @@ class GCPMeta:
             if res != dict():
                 return res['clusters'][0]['clusterName']
             else:
-                print "No not-configured clusters"
+                print("No not-configured clusters")
                 return ''
         except Exception as err:
             logging.info(

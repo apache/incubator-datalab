@@ -26,7 +26,7 @@ from dlab.actions_lib import *
 
 
 def terminate_edge_node(user_name, service_base_name, region, zone):
-    print "Terminating EDGE and notebook instances"
+    print("Terminating EDGE and notebook instances")
     try:
         instances = GCPMeta().get_list_instances(zone, service_base_name + '-' + user_name)
         if 'items' in instances:
@@ -35,7 +35,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
     except:
         sys.exit(1)
 
-    print "Removing static addresses"
+    print("Removing static addresses")
     try:
         static_addresses = GCPMeta().get_list_static_addresses(region, service_base_name + '-' + user_name)
         if 'items' in static_addresses:
@@ -44,7 +44,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
     except:
         sys.exit(1)
 
-    print "Removing s3 bucket"
+    print("Removing s3 bucket")
     try:
         buckets = GCPMeta().get_list_buckets(service_base_name + '-' + user_name)
         if 'items' in buckets:
@@ -53,7 +53,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
     except:
         sys.exit(1)
 
-    print "Removing firewalls"
+    print("Removing firewalls")
     try:
         firewalls = GCPMeta().get_list_firewalls(service_base_name + '-' + user_name)
         if 'items' in firewalls:
@@ -62,7 +62,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
     except:
         sys.exit(1)
 
-    print "Removing subnets"
+    print("Removing subnets")
     try:
         list_subnets = GCPMeta().get_list_subnetworks(region, '', service_base_name + '-' + user_name)
         if 'items' in list_subnets:
@@ -83,7 +83,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     edge_conf['user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE EDGE]')
-        print '[TERMINATE EDGE]'
+        print('[TERMINATE EDGE]')
         try:
             terminate_edge_node(edge_conf['user_name'], edge_conf['service_base_name'], edge_conf['region'],
                                 edge_conf['zone'])
@@ -107,8 +107,8 @@ if __name__ == "__main__":
             res = {"service_base_name": edge_conf['service_base_name'],
                    "user_name": edge_conf['user_name'],
                    "Action": "Terminate edge node"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)

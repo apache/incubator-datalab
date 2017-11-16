@@ -38,7 +38,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
 
-    print "Terminating instances"
+    print("Terminating instances")
     try:
         instances = GCPMeta().get_list_instances(args.zone, args.service_base_name)
         if 'items' in instances:
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
-    print "Removing static addresses"
+    print("Removing static addresses")
     try:
         static_addresses = GCPMeta().get_list_static_addresses(args.region, args.service_base_name)
         if 'items' in static_addresses:
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
-    print "Removing firewalls"
+    print("Removing firewalls")
     try:
         firewalls = GCPMeta().get_list_firewalls(args.service_base_name)
         if 'items' in firewalls:
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
-    print "Removing subnets"
+    print("Removing subnets")
     try:
         list_subnets = GCPMeta().get_list_subnetworks(args.region, '', args.service_base_name)
         if 'items' in list_subnets:
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
-    print "Removing s3 buckets"
+    print("Removing s3 buckets")
     try:
         buckets = GCPMeta().get_list_buckets(args.service_base_name)
         if 'items' in buckets:
@@ -86,8 +86,8 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
-    print "Removing SSN VPC"
+    print("Removing SSN VPC")
     try:
         GCPActions().remove_vpc(args.service_base_name + '-ssn-vpc')
     except:
-        print "No such VPC"
+        print("No such VPC")

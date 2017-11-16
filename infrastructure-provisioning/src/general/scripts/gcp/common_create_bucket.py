@@ -33,9 +33,9 @@ args = parser.parse_args()
 if __name__ == "__main__":
     if args.bucket_name:
         if GCPMeta().get_bucket(args.bucket_name):
-            print "REQUESTED BUCKET {} ALREADY EXISTS".format(args.bucket_name)
+            print("REQUESTED BUCKET {} ALREADY EXISTS".format(args.bucket_name))
         else:
-            print "Creating Bucket {}".format(args.bucket_name)
+            print("Creating Bucket {}".format(args.bucket_name))
             GCPActions().create_bucket(args.bucket_name)
     else:
         sys.exit(1)

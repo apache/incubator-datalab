@@ -38,7 +38,7 @@ if __name__ == "__main__":
     pre_defined_subnet = False
     pre_defined_firewall = False
     logging.info('[DERIVING NAMES]')
-    print '[DERIVING NAMES]'
+    prin('[DERIVING NAMES]')
     ssn_conf = dict()
     ssn_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     ssn_conf['region'] = os.environ['gcp_region']
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         try:
             pre_defined_vpc = True
             logging.info('[CREATE VPC]')
-            print '[CREATE VPC]'
+            print('[CREATE VPC]')
             params = "--vpc_name {}".format(ssn_conf['vpc_name'])
             try:
                 local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
@@ -80,7 +80,7 @@ if __name__ == "__main__":
                 try:
                     GCPActions().remove_vpc(ssn_conf['vpc_name'])
                 except:
-                    print "VPC hasn't been created."
+                    print("VPC hasn't been created.")
             sys.exit(1)
 
     try:
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         try:
             pre_defined_subnet = True
             logging.info('[CREATE SUBNET]')
-            print '[CREATE SUBNET]'
+            print('[CREATE SUBNET]')
             params = "--subnet_name {} --region {} --vpc_selflink {} --prefix {} --vpc_cidr {}".\
                 format(ssn_conf['subnet_name'], ssn_conf['region'], ssn_conf['vpc_selflink'], ssn_conf['subnet_prefix'],
                        ssn_conf['vpc_cidr'])
@@ -108,7 +108,7 @@ if __name__ == "__main__":
                 try:
                     GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
                 except:
-                    print "Subnet hasn't been created."
+                    print("Subnet hasn't been created.")
                 GCPActions().remove_vpc(ssn_conf['vpc_name'])
             sys.exit(1)
 
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         try:
             pre_defined_firewall = True
             logging.info('[CREATE FIREWALL]')
-            print '[CREATE FIREWALL]'
+            print('[CREATE FIREWALL]')
             firewall_rules = dict()
             firewall_rules['ingress'] = []
             firewall_rules['egress'] = []
@@ -212,7 +212,7 @@ if __name__ == "__main__":
         try:
             GCPActions().remove_service_account(ssn_conf['service_account_name'])
         except:
-            print "Service account hasn't been created"
+            print("Service account hasn't been created")
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
@@ -226,7 +226,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[CREATING STATIC IP ADDRESS]')
-        print '[CREATING STATIC IP ADDRESS]'
+        print('[CREATING STATIC IP ADDRESS]')
         params = "--address_name {} --region {}".format(ssn_conf['static_address_name'], ssn_conf['region'])
         try:
             local("~/scripts/{}.py {}".format('ssn_create_static_ip', params))
@@ -238,11 +238,11 @@ if __name__ == "__main__":
         try:
             GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         except:
-            print "Static IP address hasn't been created."
+            print("Static IP address hasn't been created.")
         # try:
         #     GCPActions().remove_service_account(ssn_conf['service_account_name'])
         # except:
-        #     print "Service account hasn't been created"
+        #     print("Service account hasn't been created")
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:

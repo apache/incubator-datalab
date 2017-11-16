@@ -40,7 +40,7 @@ if __name__ == "__main__":
                         level=logging.DEBUG,
                         filename=local_log_filepath)
 
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     edge_status = GCPMeta().get_instance_status('{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name']))
     if edge_status != 'RUNNING':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
-        print 'ERROR: Edge node is unavailable! Aborting...'
+        print('ERROR: Edge node is unavailable! Aborting...')
         ssn_hostname = GCPMeta().get_private_ip_address(notebook_config['service_base_name'] + '-ssn')
         put_resource_status('edge', 'Unavailable', os.environ['ssn_dlab_path'], os.environ['conf_os_user'], ssn_hostname)
         append_result("Edge node is unavailable")
@@ -96,20 +96,20 @@ if __name__ == "__main__":
     #     'edge_user_name'] + "-nb-SG"
     # notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
     #
-    #print 'Searching preconfigured images'
+    #print('Searching preconfigured images')
     #preconfigured_ami = GCPMeta().get_ami_by_name(notebook_config['expected_ami_name'])
     #if preconfigured_ami != '':
-    #    print 'Preconfigured image found. Using: ' + preconfigured_ami
+    #    print('Preconfigured image found. Using: {}'.format(preconfigured_ami))
     #    notebook_config['ami_name'] = preconfigured_ami
     #else:
     #    notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
-    #    print 'No preconfigured image found. Using default one: ' + notebook_config['ami_name']
+    #    print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_name']))
     notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
 
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
-        print '[CREATE NOTEBOOK INSTANCE]'
+        print('[CREATE NOTEBOOK INSTANCE]')
         params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --primary_disk_size {}".\
             format(notebook_config['instance_name'], notebook_config['region'], notebook_config['zone'], notebook_config['vpc_name'],
                    notebook_config['subnet_name'], notebook_config['instance_size'], notebook_config['ssh_key_path'], initial_user,

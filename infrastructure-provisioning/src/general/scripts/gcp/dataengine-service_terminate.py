@@ -28,17 +28,17 @@ import os
 
 
 def terminate_dataproc_cluster(notebook_name, dataproc_name, bucket_name, ssh_user, key_path):
-    print 'Terminating Dataproc cluster and cleaning Dataproc config from bucket'
+    print('Terminating Dataproc cluster and cleaning Dataproc config from bucket')
     try:
         cluster = meta_lib.GCPMeta().get_list_cluster_statuses([dataproc_name])
         if cluster[0]['status'] == 'running':
             actions_lib.GCPActions().bucket_cleanup(bucket_name, os.environ['edge_user_name'], dataproc_name)
-            print 'The bucket {} has been cleaned successfully'.format(bucket_name)
+            print('The bucket {} has been cleaned successfully'.format(bucket_name))
             actions_lib.GCPActions().delete_dataproc_cluster(dataproc_name, os.environ['gcp_region'])
-            print 'The Dataproc cluster {} has been terminated successfully'.format(dataproc_name)
+            print('The Dataproc cluster {} has been terminated successfully'.format(dataproc_name))
             actions_lib.GCPActions().remove_kernels(notebook_name, dataproc_name, cluster[0]['version'], ssh_user, key_path)
         else:
-            print "There are no Dataproc clusters to terminate."
+            print("There are no Dataproc clusters to terminate.")
     except:
         sys.exit(1)
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     dataproc_conf = dict()
     dataproc_conf['service_base_name'] = os.environ['conf_service_base_name']
     dataproc_conf['dataproc_name'] = os.environ['dataproc_cluster_name']
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     try:
         logging.info('[TERMINATE DATAPROC CLUSTER]')
-        print '[TERMINATE DATAPROC CLUSTER]'
+        print('[TERMINATE DATAPROC CLUSTER]')
         try:
             terminate_dataproc_cluster(dataproc_conf['notebook_name'], dataproc_conf['dataproc_name'],
                                        dataproc_conf['bucket_name'], os.environ['conf_os_user'], dataproc_conf['key_path'])
@@ -79,8 +79,8 @@ if __name__ == "__main__":
                    "notebook_name": dataproc_conf['notebook_name'],
                    "user_own_bucket_name": dataproc_conf['bucket_name'],
                    "Action": "Terminate Dataproc cluster"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)

@@ -31,23 +31,23 @@ import sys
 
 
 def stop_notebook(instance_name, bucket_name, zone, ssh_user, key_path, user_name):
-    print 'Terminating Dataproc cluster and cleaning Dataproc config from bucket'
+    print('Terminating Dataproc cluster and cleaning Dataproc config from bucket')
     try:
         clusters_list = meta_lib.GCPMeta().get_dataproc_list(instance_name)
         if clusters_list:
             for cluster_name in clusters_list:
                 cluster = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
                 actions_lib.GCPActions().bucket_cleanup(bucket_name, user_name, cluster_name)
-                print 'The bucket {} has been cleaned successfully'.format(bucket_name)
+                print('The bucket {} has been cleaned successfully'.format(bucket_name))
                 actions_lib.GCPActions().delete_dataproc_cluster(cluster_name, os.environ['gcp_region'])
-                print 'The Dataproc cluster {} has been terminated successfully'.format(cluster_name)
+                print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
                 actions_lib.GCPActions().remove_kernels(instance_name, cluster_name, cluster[0]['version'], ssh_user, key_path)
         else:
-            print "There are no Dataproc clusters to terminate."
+            print("There are no Dataproc clusters to terminate.")
     except:
        sys.exit(1)
 
-    print "Stopping notebook"
+    print("Stopping notebook")
     try:
         GCPActions().stop_instance(instance_name, zone)
     except Exception as err:
@@ -64,7 +64,7 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     # generating variables dictionary
-    print 'Generating infrastructure names and tags'
+    print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     notebook_config['zone'] = os.environ['gcp_zone']
 
     logging.info('[STOP NOTEBOOK]')
-    print '[STOP NOTEBOOK]'
+    print('[STOP NOTEBOOK]')
     try:
         stop_notebook(notebook_config['notebook_name'], notebook_config['bucket_name'], notebook_config['zone'],
                       os.environ['conf_os_user'], notebook_config['key_path'], notebook_config['user_name'])
@@ -86,9 +86,9 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Action": "Stop notebook server"}
-            print json.dumps(res)
+            print(json.dumps(res))
             result.write(json.dumps(res))
     except:
-        print "Failed writing results."
+        print("Failed writing results.")
         sys.exit(0)
 
