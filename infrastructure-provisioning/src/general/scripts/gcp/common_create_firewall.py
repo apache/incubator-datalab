@@ -35,13 +35,13 @@ if __name__ == "__main__":
     firewall = json.loads(args.firewall)
     if firewall:
         for firewall_rule in firewall['ingress']:
-            if GCPMeta().get_firewall(firewall['name']):
+            if GCPMeta().get_firewall(firewall_rule['name']):
                 print "REQUESTED INGRESS FIREWALL {} ALREADY EXISTS".format(firewall_rule['name'])
             else:
                 print "Creating Ingress Firewall {}".format(firewall_rule['name'])
                 GCPActions().create_firewall(firewall_rule)
         for firewall_rule in firewall['egress']:
-            if GCPMeta().get_firewall(firewall['name']):
+            if GCPMeta().get_firewall(firewall_rule['name']):
                 print "REQUESTED EGRESS FIREWALL {} ALREADY EXISTS".format(firewall_rule['name'])
             else:
                 print "Creating Egress Firewall {}".format(firewall_rule['name'])
