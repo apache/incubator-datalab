@@ -26,7 +26,7 @@ public enum DataEngineType {
 
     private static final String DOCKER_IMAGE_PREFIX = "docker.dlab-";
 
-    private final static Map<String, DataEngineType> INTERNAL_MAP = new HashMap<>();
+    private static final Map<String, DataEngineType> INTERNAL_MAP = new HashMap<>();
 
     static {
         for (DataEngineType dataEngineType : DataEngineType.values()) {

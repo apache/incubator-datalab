@@ -52,7 +52,7 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
 
         EnvResourceList resourceList;
         try {
-            resourceList = MAPPER.readValue(resultNode.toString(), EnvResourceList.class);
+            resourceList = mapper.readValue(resultNode.toString(), EnvResourceList.class);
         } catch (IOException e) {
             throw new DlabException("Docker response for UUID " + getUUID() + " not valid: " + e.getLocalizedMessage(), e);
         }
