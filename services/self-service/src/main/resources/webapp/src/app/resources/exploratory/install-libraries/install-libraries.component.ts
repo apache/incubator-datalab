@@ -129,13 +129,13 @@ export class InstallLibrariesComponent implements OnInit {
       this.resetDialog(true);
 
       this.destination = $event.model.value;
-      if (this.destination && this.destination.type === 'СOMPUTATIONAL') this.model.computational_name = this.destination.name;
+      this.destination && this.destination.type === 'СOMPUTATIONAL'
+        ? this.model.computational_name = this.destination.name
+        : this.model.computational_name = null;
 
       this.uploadLibGroups();
       this.getInstalledLibsByResource();
     }
-
-    if (this.destination && this.destination.type === 'EXPLORATORY') this.model.computational_name = null;
     this.filterList();
   }
 
