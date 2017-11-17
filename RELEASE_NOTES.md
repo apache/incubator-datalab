@@ -1,36 +1,34 @@
 # DLab is Self-service, Fail-safe Exploratory Environment for Collaborative Data Science Workflow
 
-## New features in v1.6
+## New features in v1.7
 
-- DLab can now be deployed on Microsoft Azure platform
-- Added support of Zeppelin 0.7.2
-- Added support of TensorFlow 1.3.0
-- Added a possibility to export billing report into .csv
-- Added support of Spark 2.1.0 for local kernels of all analytical tools
+- Added support of distributed computation for GPU-enabled analytical tools (TensorFlow and DeepLearning)
+- Implemented common AMI functionality. Now all analytical tools for all users are created out of single AMI
+- Added support of Spark Data Engine for AWS
+- Added ability to manage libraries for Spark Cluster (AWS and Microsoft Azure) and EMR (AWS)
+- Added detailed billing report and in-grid billing report functionality for Microsoft Azure
+- Updated http://dlab.opensource.epam.com
 
-## Improvements in v.1.6
+## Improvements in v.1.7
 
-- Improved error handling for installation of additional libraries
-- Released DLab promotion website: http://dlab.opensource.epam.com
+- Changed layout of Manage Libraries modal dialog component
+- Improved error handling for libraries installation
+- Added support of p2 shapes for GPU templates on AWS
+- Stability improvements for UnGit
 
-## Bug fixes in v.1.6
+## Bug fixes in v.1.7
 
-- Fixed a problem when additional disk was not mounted during DeepLearning provisioning
-- Fixed Caffe compiling in DeepLearning template on RedHat platform
-- Fixed a problem when Caffe2 not working on DeepLearning template
-- Fixed a bug when Jupyter wasn’t created on RedHat in rare cases
-- Fixed an issue when one could start notebook server instance when its status was Stopping
-- Fixed a bug when LDAP roles cache prevented users from being logged in
-- Fixed a problem with remote kernels not being cleared out in Jupyter, if linked EMR was terminated
-- Fixed a problem with remote kernels not being cleared out in RStudio if notebook server was stopped
-- Fixed an issue with local Zeppelin kernel connectivity with AWS S3 bucket
-- Fixed problems with backup and restore scripts
-- Fixed broken calendar grid on "Reporting" page in MS Edge browser
+- Data Engine slaves are not terminated when notebook is stopped or Data Engine creation fails
+- Issue with matplotlib plot backend WebAgg on Zeppelin
+- Termination of Spark cluster triggers termination of other Spark clusters on the same notebook
+- Notebook proxy host is not correct if notebook is created out of existing AMI image
+- Remote kernels (Data Engine/Data Engine Service) are not cleared out in RStudio if notebook server is stopped or Data Engine/Data Engine Service is terminated
+- libjpeg library is not found when CNTK is running on DeepLearning notebook on AWS for Red Hat Enterprise Linux
+- Minor corrections of tool-tip for lib \'Retry\' icon in Microsoft Edge browser
 
-## Known issues in v1.6
+## Known issues in v1.7
 
-- AMI files are not created for analytical templates on Microsoft Azure
 - DLab does not support DeepLearning and TensorFlow templates on Microsoft Azure for Red Hat Enterprise Linux
-- DLab billing report functionality is not available on Microsoft Azure yet
-- Microsoft Azure instance name length should not exceed 80 chars
+- Total number of characters in MS Azure instance name should not exceed 80 chars
 - Low priority Virtual Machines are not supported yet on Microsoft Azure
+- Sometimes login DLab is not successful from the first attempt on Microsoft Azure infrastructure

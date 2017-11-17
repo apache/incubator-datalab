@@ -24,10 +24,9 @@ import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecu
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.rest.client.RESTService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.IOException;
 
 @Slf4j
 public class ExploratoryService implements DockerCommands {
@@ -43,7 +42,7 @@ public class ExploratoryService implements DockerCommands {
     @Inject
     private RESTService selfService;
 
-    public String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws IOException, InterruptedException {
+    public String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws JsonProcessingException {
         log.debug("{} exploratory environment", action);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),

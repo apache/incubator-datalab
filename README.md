@@ -7,6 +7,8 @@ CONTENTS
 
 [What is DLAB?](#What_is_DLAB)
 
+&nbsp; &nbsp; [How to Contribute](CONTRIBUTING.md)
+
 [Logical architecture](#Logical_architecture)
 
 [Physical architecture](#Physical_architecture)
@@ -324,12 +326,26 @@ List of parameters for SSN node deployment:
 | key\_path                    | Path to admin key (without key name)                                                    |
 | conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
 | azure\_auth\_path            | Full path to auth json file                                                             |
+| azure\_offer\_number         | Azure offer id number                                                                   |
+| azure\_currency              | Currency that is used for billing information(e.g. USD)                                 |
+| azure\_locale                | Locale that is used for billing information(e.g. en-US)                                 |
+| azure\_region_info           | Region info that is used for billing information(e.g. US)                               |
 | action                       | In case of SSN node creation, this parameter should be set to “create”                  |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
 -   azure\_vpc\_nam
 -   azure\_subnet\_name
 -   azure\_security\_groups\_name
+
+**Note:** Billing configuration:
+
+To know azure\_offer\_number open [Azure Portal](https://portal.azure.com), go to Subscriptions and open yours, then click Overview and you should see it under Offer ID property:
+
+![Azure offer number](doc/azure_offer_number.png)
+
+Please see [RateCard API](https://msdn.microsoft.com/en-us/library/mt219004.aspx) to get more details about azure\_offer\_number,
+azure\_currency, azure\_locale, azure\_region_info. These DLab deploy properties correspond to RateCard API request parameters.
+
 
 After SSN node deployment following Azure resources will be created:
 
@@ -952,9 +968,11 @@ To use your own certificate please do the following:
 
 ## Billing report <a name="Billing_Report"></a>
 
+### AWS
+
 Billing module is implemented as a separate jar file and can be running in the follow modes:
 
--   part of the Self-Service;
+-   part of Self-Service;
 -   separate system process;
 -   manual loading or use external scheduler;
 
@@ -972,13 +990,25 @@ sudo supervisorctl start ui
 ```
 If you want to load report manually, or use external scheduler use following command:
 ```
-java -jar /opt/dlab/webapp/lib/billing/billing-x.y.jar --conf /opt/dlab/conf/billing.yml
+java -jar /opt/dlab/webapp/lib/billing/billing-aws.x.y.jar --conf /opt/dlab/conf/billing.yml
 or
-java -cp /opt/dlab/webapp/lib/billing/billing-x.y.jar com.epam.dlab.BillingTool --conf /opt/dlab/conf/billing.yml
+java -cp /opt/dlab/webapp/lib/billing/billing-aws.x.y.jar com.epam.dlab.BillingTool --conf /opt/dlab/conf/billing.yml
 ```
 If you want billing to work as a separate process from the Self-Service use following command:
 ```
-java -cp /opt/dlab/webapp/lib/billing/billing-x.y.jar com.epam.dlab.BillingScheduler --conf /opt/dlab/conf/billing.yml
+java -cp /opt/dlab/webapp/lib/billing/billing-aws.x.y.jar com.epam.dlab.BillingScheduler --conf /opt/dlab/conf/billing.yml
+```
+
+### Azure
+
+Billing module is implemented as a separate jar file and can be running in the follow modes:
+
+-   part of Self-Service;
+-   separate system process;
+
+If you want to start billing module as a separate process use the following command:
+```
+java -jar /opt/dlab/webapp/lib/billing/billing-azure.x.y.jar /opt/dlab/conf/billing.yml
 ```
 
 ## Backup and Restore <a name="Backup_and_Restore"></a>

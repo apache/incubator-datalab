@@ -27,5 +27,5 @@ import lombok.Data;
 @JsonDeserialize(using = CloudSettingsDeserializer.class)
 public abstract class CloudSettings {
     @JsonIgnore
-    abstract public String getIamUser();
+    public abstract String getIamUser();
 }

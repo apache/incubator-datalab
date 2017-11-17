@@ -86,7 +86,7 @@ public class AzureBillableResourcesService {
         try {
             log.debug("Billable resources is \n {}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(list));
         } catch (JsonProcessingException e) {
-            log.debug("Error during pretty printing. Show simple list");
+            log.debug("Error during pretty printing. Show simple list", e);
             log.debug("Billable resources is {}", list);
         }
 

@@ -33,6 +33,7 @@ public class UploadFileResult<T extends EdgeInfo> extends StatusBaseDTO<UploadFi
         return this;
     }
 
+    @Override
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
                 .add("edgeInfo", edgeInfo);

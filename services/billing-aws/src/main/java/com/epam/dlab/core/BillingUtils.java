@@ -36,6 +36,9 @@ import com.google.common.io.Resources;
  */
 public class BillingUtils {
 
+	private BillingUtils() {
+	}
+
 	/** Name of resource with the names of module classes. */
 	private static final String RESOURCE_MODULE_NAMES = "/" + BillingToolConfigurationFactory.class.getName(); 
 	
@@ -97,13 +100,7 @@ public class BillingUtils {
 	 * @param parent the parent class from hierarchy.
 	 */
 	public static boolean classChildOf(Class<?> child, Class<?> parent) {
-		while (child != null) {
-			if (parent.getName().equals(child.getName())) {
-				return true;
-			}
-			child = child.getSuperclass();
-		}
-		return false;
+		return child != null && parent != null && parent.isAssignableFrom(child);
 	}
 
 	/** Return the type of module if class is module otherwise <b>null</b>.

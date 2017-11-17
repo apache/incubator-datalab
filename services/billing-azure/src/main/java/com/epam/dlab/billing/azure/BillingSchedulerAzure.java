@@ -230,7 +230,7 @@ public class BillingSchedulerAzure {
                 log.debug("History of billing periods is updated with {}",
                         objectMapper.writeValueAsString(billingPeriod));
             } catch (JsonProcessingException e) {
-                log.error("Cannot update history of billing periods");
+                log.error("Cannot update history of billing periods", e);
 
             }
 
