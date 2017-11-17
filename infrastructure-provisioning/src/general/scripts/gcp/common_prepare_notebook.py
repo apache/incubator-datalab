@@ -107,7 +107,7 @@ if __name__ == "__main__":
     notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
     notebook_config['gpu_accelerator_type'] = 'None'
     if os.environ['application'] in ('tensor', 'deeplearning'):
-        notebook_config['gpu_accelerator_type'] = os.environ['conf_gpu_accelerator_type']
+        notebook_config['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
 
     # launching instance for notebook server
     try:
