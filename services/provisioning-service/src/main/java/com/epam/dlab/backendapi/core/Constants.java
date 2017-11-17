@@ -19,6 +19,10 @@ limitations under the License.
 package com.epam.dlab.backendapi.core;
 
 public class Constants {
+
+    private Constants() {
+    }
+
     public static final String JSON_EXTENSION = ".json";
     public static final String LOG_EXTENSION = ".log";
 }

@@ -35,6 +35,9 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 public class Help {
 
+	private Help() {
+	}
+
 	/** Print help to console.
 	 * @param resourceName the name of resource.
 	 * @param substitute - map for substitution in help content.
