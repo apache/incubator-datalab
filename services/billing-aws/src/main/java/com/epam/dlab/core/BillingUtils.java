@@ -36,11 +36,11 @@ import com.google.common.io.Resources;
  */
 public class BillingUtils {
 
+	/** Name of resource with the names of module classes. */
+	private static final String RESOURCE_MODULE_NAMES = "/" + BillingToolConfigurationFactory.class.getName();
+
 	private BillingUtils() {
 	}
-
-	/** Name of resource with the names of module classes. */
-	private static final String RESOURCE_MODULE_NAMES = "/" + BillingToolConfigurationFactory.class.getName(); 
 	
 	/** Create and return map from given key/values.
 	 * @param keyValues the key/value pairs.
