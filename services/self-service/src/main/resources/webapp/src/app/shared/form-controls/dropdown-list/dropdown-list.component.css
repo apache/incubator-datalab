@@ -67,6 +67,19 @@ limitations under the License.
   padding: 0;
   margin: 0;
 }
+
+.dropdown-list .title em,
+.dropdown-list .dropdown-menu li em {
+  font-size: 13px;
+  color: #35afd5;
+  float: right;
+  margin-right: 0px;
+  margin-top: 1%;
+  font-style: normal;
+}
+.dropdown-list .title em {
+  margin-right: 35px;
+}
 .dropdown-list .dropdown-menu li span.caption {
   display: block;
   padding: 10px 15px;
