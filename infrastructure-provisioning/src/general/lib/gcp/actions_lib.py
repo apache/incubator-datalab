@@ -339,9 +339,13 @@ class GCPActions:
             instance_params['guestAccelerators'] = [
                 {
                     "acceleratorCount": 1,
-                    "acceleratorType": "projects/{0}/zones/{1}/acceleratorTypes/{2}".format(self.project, zone, gpu)
+                    "acceleratorType": "projects/{0}/zones/{1}/acceleratorTypes/{2}".format(self.project, zone, gpu_accelerator_type)
                 }
             ]
+            instance_params['scheduling'] = {
+                "onHostMaintenance": "terminate",
+                "automaticRestart": "true"
+            }
         request = self.service.instances().insert(project=self.project, zone=zone, body=instance_params)
         try:
             result = request.execute()

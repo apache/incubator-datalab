@@ -104,6 +104,7 @@ if __name__ == "__main__":
     #else:
     #    notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
     #    print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_name']))
+    notebook_config['secondary_disk_size'] = os.environ['notebook_disk_size']
     notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
     notebook_config['gpu_accelerator_type'] = 'None'
     if os.environ['application'] in ('tensor', 'deeplearning'):
@@ -113,11 +114,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
         print('[CREATE NOTEBOOK INSTANCE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --primary_disk_size {} --gpu_accelerator_type {}".\
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --primary_disk_size {} --secondary_disk_size {} --gpu_accelerator_type {}".\
             format(notebook_config['instance_name'], notebook_config['region'], notebook_config['zone'], notebook_config['vpc_name'],
                    notebook_config['subnet_name'], notebook_config['instance_size'], notebook_config['ssh_key_path'], initial_user,
                    notebook_config['notebook_service_account_name'], notebook_config['ami_name'], 'notebook',
-                   notebook_config['primary_disk_size'], notebook_config['gpu_accelerator_type'])
+                   notebook_config['primary_disk_size'], notebook_config['secondary_disk_size'], notebook_config['gpu_accelerator_type'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
