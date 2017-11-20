@@ -141,8 +141,8 @@ public class TestCallable implements Callable<Boolean> {
 
 			LOGGER.info("{} All tests finished successfully", notebookName);
 			return true;
-		} catch (Exception e) {
-			LOGGER.error("error occured while testing notebook {} with configuration {}", notebookName, notebookConfig, e);
+		} catch (AssertionError | Exception e) {
+			LOGGER.error("Error occurred while testing notebook {} with configuration {}", notebookName, notebookConfig, e);
 			throw e;
 		}
    }
