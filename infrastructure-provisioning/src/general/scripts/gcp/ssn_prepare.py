@@ -38,7 +38,7 @@ if __name__ == "__main__":
     pre_defined_subnet = False
     pre_defined_firewall = False
     logging.info('[DERIVING NAMES]')
-    prin('[DERIVING NAMES]')
+    print('[DERIVING NAMES]')
     ssn_conf = dict()
     ssn_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
     ssn_conf['region'] = os.environ['gcp_region']

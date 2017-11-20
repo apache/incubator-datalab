@@ -197,7 +197,7 @@ class GCPMeta:
                 traceback.print_exc(file=sys.stdout)
 
     def get_role(self, role_name):
-        prin("Role name -> {}".format(role_name))
+        print("Role name -> {}".format(role_name))
         return role_name
 
     def get_static_address(self, region, static_address_name):
