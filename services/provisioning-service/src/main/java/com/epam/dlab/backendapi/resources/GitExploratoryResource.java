@@ -19,16 +19,14 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
-import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryGitCredsCallbackHandler;
+import com.epam.dlab.backendapi.service.DockerService;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
-import com.epam.dlab.rest.client.RESTService;
-import com.google.inject.Inject;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,32 +35,20 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
 
 @Path("/exploratory")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class GitExploratoryResource implements DockerCommands {
-
-    @Inject
-    private ProvisioningServiceApplicationConfiguration configuration;
-    @Inject
-    private FolderListenerExecutor folderListenerExecutor;
-    @Inject
-    private ICommandExecutor commandExecutor;
-    @Inject
-    private CommandBuilder commandBuilder;
-    @Inject
-    private RESTService selfService;
+public class GitExploratoryResource extends DockerService implements DockerCommands {
 
     @Path("/git_creds")
     @POST
-    public String gitCredsUpdate(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws IOException, InterruptedException {
+    public String gitCredsUpdate(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws JsonProcessingException {
         return action(ui.getName(), dto, DockerAction.GIT_CREDS);
     }
 
-    private String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws IOException, InterruptedException {
+    private String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws JsonProcessingException {
         log.debug("{} exploratory environment", action);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),
