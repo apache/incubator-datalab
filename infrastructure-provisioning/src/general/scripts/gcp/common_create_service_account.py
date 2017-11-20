@@ -26,6 +26,7 @@ import sys
 parser = argparse.ArgumentParser()
 parser.add_argument('--service_account_name', type=str, default='')
 parser.add_argument('--role_name', type=str, default='')
+parser.add_argument('--policy_path', type=str, default='')
 args = parser.parse_args()
 
 
@@ -39,9 +40,16 @@ if __name__ == "__main__":
             if GCPMeta().get_role(args.role_name):
                 print("REQUESTED ROLE {} ALREADY EXISTS".format(args.role_name))
             else:
+                if args.policy_path == '':
+                    permissions = []
+                else:
+                    with open(args.policy_path, 'r') as f:
+                        json_file = f.read()
+                    permissions = json.loads(json_file)
                 print("Creating Role {}".format(args.role_name))
-            print("Assigning policy to Service account.")
-            GCPActions().set_policy_to_service_account(args.service_account_name, args.role_name)
+                GCPActions().create_role(args.role_name, permissions)
+            print("Assigning role to Service account.")
+            GCPActions().set_role_to_service_account(args.service_account_name, args.role_name)
     else:
         sys.exit(1)
 

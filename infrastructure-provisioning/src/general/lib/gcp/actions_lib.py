@@ -49,12 +49,14 @@ class GCPActions:
             self.service_iam = build('iam', 'v1', credentials=credentials)
             self.service_storage = build('storage', 'v1', credentials=credentials)
             self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
+            self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
         else:
             self.service = build('compute', 'v1')
             self.service_iam = build('iam', 'v1')
             self.dataproc = build('dataproc', 'v1')
             self.service_storage = build('storage', 'v1')
             self.storage_client = storage.Client()
+            self.service_resource = build('cloudresourcemanager', 'v1')
 
     def create_vpc(self, vpc_name):
         network_params = {'name': vpc_name, 'autoCreateSubnetworks': False}
@@ -468,26 +470,23 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def set_policy_to_service_account(self, service_account_name, role_name):
+    def set_role_to_service_account(self, service_account_name, role_name):
+        request = GCPActions().service_resource.projects().getIamPolicy(resource=self.project, body={})
+        project_policy = request.execute()
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         params = {
-            "policy":
-                {
-                    "bindings": [
-                        {
-                            "role": "projects/{}/roles/{}".format(self.project, role_name),
-                            "members": [
-                                "serviceAccount:{}".format(service_account_email)
-                            ]
-                        }
-                    ]
-                }
+            "role": "projects/{}/roles/{}".format(self.project, role_name.replace('-', '_')),
+            "members": [
+                "serviceAccount:{}".format(service_account_email)
+            ]
         }
-        request = self.service_iam.projects().serviceAccounts().setIamPolicy(resource=
-                                                                             'projects/{}/serviceAccounts/{}'.
-                                                                             format(self.project,
-                                                                                    service_account_email),
-                                                                             body=params)
+        project_policy['bindings'].append(params)
+        params = {
+            "policy": {
+                "bindings": project_policy['bindings']
+            }
+        }
+        request = self.service_resource.projects().setIamPolicy(resource=self.project, body=params)
         try:
             return request.execute()
         except Exception as err:
@@ -495,6 +494,54 @@ class GCPActions:
                 "Unable to set Service account policy: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
             append_result(str({"error": "Unable to set Service account policy",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def create_role(self, role_name, permissions):
+        request = self.service_iam.projects().roles().create(parent=self.project,
+                                                             body=
+                                                             {
+                                                                 "roleId": role_name.replace('-', '_'),
+                                                                 "role": {
+                                                                     "title": role_name,
+                                                                     "includedPermissions": permissions
+                                                                 }})
+        try:
+            result = request.execute()
+            role_created = meta_lib.GCPMeta().get_role(role_name)
+            while not role_created:
+                time.sleep(5)
+                role_created = meta_lib.GCPMeta().get_role(role_name)
+            time.sleep(30)
+            print('IAM role {} created.'.format(role_name))
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to create IAM role: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to create IAM role",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def remove_role(self, role_name):
+        request = self.service_iam.projects().roles().delete(
+            name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')))
+        try:
+            result = request.execute()
+            role_removed = meta_lib.GCPMeta().get_role(role_name)
+            while role_removed:
+                time.sleep(5)
+                role_removed = meta_lib.GCPMeta().get_role(role_name)
+            time.sleep(30)
+            print('IAM role {} removed.'.format(role_name))
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to remove IAM role: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to remove IAM role",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
