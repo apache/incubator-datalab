@@ -34,16 +34,19 @@ args = parser.parse_args()
 
 
 def get_files(s3client, s3resource, dist, bucket, local):
-    s3list = s3client.get_paginator('list_objects')
-    for result in s3list.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
-        if result.get('CommonPrefixes') is not None:
-            for subdir in result.get('CommonPrefixes'):
-                get_files(s3client, s3resource, subdir.get('Prefix'), bucket, local)
-        if result.get('Contents') is not None:
-            for file in result.get('Contents'):
-                if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
-                    os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
-                s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
+    try:
+        s3list = s3client.get_paginator('list_objects')
+        for result in s3list.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
+            if result.get('CommonPrefixes') is not None:
+                for subdir in result.get('CommonPrefixes'):
+                    get_files(s3client, s3resource, subdir.get('Prefix'), bucket, local)
+            if result.get('Contents') is not None:
+                for file in result.get('Contents'):
+                    if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
+                        os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
+                    s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
+    except Exception as err:
+        print(str(err))
 
 
 def prepare_ipynb(kernel_name, template_path, ipynb_name):
