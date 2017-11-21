@@ -154,7 +154,11 @@ limitations under the License.
   cursor: not-allowed;
 }
 
-.dropdown .actions {
+.settings {
+  position: relative;
+}
+
+.settings .actions {
   background-image: url(../../../assets/svg/settings_icon.svg);
   width: 16px;
   height: 16px;
