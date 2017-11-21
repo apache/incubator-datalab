@@ -499,7 +499,7 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
     def create_role(self, role_name, permissions):
-        request = self.service_iam.projects().roles().create(parent=self.project,
+        request = self.service_iam.projects().roles().create(parent="projects/{}".format(self.project),
                                                              body=
                                                              {
                                                                  "roleId": role_name.replace('-', '_'),
