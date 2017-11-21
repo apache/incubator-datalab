@@ -27,20 +27,20 @@ limitations under the License.
     <td>{{env.type}}</td>
     <td>{{env.resource_id}}</td>
     <td class="status" ngClass="{{env.status || ''}}">{{env.status}}</td>
-    <td>
-      <div class="dropdown">
-        <span data-toggle="dropdown" class="actions" 
-              [ngClass]="{'disabled': env.status.toLowerCase() !== 'running' &&
-                                      env.status.toLowerCase() !== 'stopped' &&
-                                      env.status.toLowerCase() !== 'terminated'}"></span>
-        <div class="dropdown-menu">
-          <ul class="list-unstyled">
-            <li (click)="healthStatusAction(env, 'stop')" *ngIf="env.status.toLowerCase() == 'running'">Stop</li>
-            <li (click)="healthStatusAction(env, 'run')" *ngIf="env.status.toLowerCase() == 'stopped'">Start</li>
-            <li (click)="healthStatusAction(env, 'recreate')" *ngIf="env.status.toLowerCase() == 'terminated'">Recreate</li>
-          </ul>
-        </div>
-      </div>
+    <td class="settings">
+      <span #settings (click)="actions.toggle($event, settings)" class="actions"
+            [ngClass]="{'disabled': env.status.toLowerCase() !== 'running' &&
+            env.status.toLowerCase() !== 'stopped' &&
+            env.status.toLowerCase() !== 'terminated'}">
+      </span>
+
+      <bubble-up #actions class="dropdown-menu" position="bottom-left">
+        <ul class="list-unstyled">
+          <li (click)="healthStatusAction(env, 'stop')" *ngIf="env.status.toLowerCase() === 'running'">Stop</li>
+          <li (click)="healthStatusAction(env, 'run')" *ngIf="env.status.toLowerCase() === 'stopped'">Start</li>
+          <li (click)="healthStatusAction(env, 'recreate')" *ngIf="env.status.toLowerCase() === 'terminated'">Recreate</li>
+        </ul>
+      </bubble-up>
     </td>
   </tr>
 </table>
