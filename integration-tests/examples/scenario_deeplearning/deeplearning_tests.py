@@ -72,7 +72,7 @@ def prepare_templates():
 
 
 def run_tensor():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     with lcd('/home/{0}/test_templates'.format(args.os_user)):
         local('tar -zxf train.tar.gz -C /home/{0} && tar -zxf test.tar.gz -C /home/{0}'.format(args.os_user))
     local('mkdir -p /home/{}/logs'.format(args.os_user))
@@ -84,42 +84,42 @@ def run_tensor():
 
 
 def run_caffe():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_caffe.ipynb'.format(args.os_user), 'test_caffe')
         run_ipynb('test_caffe')
 
 
 def run_caffe2():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_caffe2.ipynb'.format(args.os_user), 'test_caffe2')
         run_ipynb('test_caffe2')
 
 
 def run_cntk():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_cntk.ipynb'.format(args.os_user), 'test_cntk')
         run_ipynb('test_cntk')
 
 
 def run_keras():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_keras.ipynb'.format(args.os_user), 'test_keras')
         run_ipynb('test_keras')
 
 
 def run_mxnet():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_mxnet.ipynb'.format(args.os_user), 'test_mxnet')
         run_ipynb('test_mxnet')
 
 
 def run_theano():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_theano.ipynb'.format(args.os_user), 'test_theano')
         run_ipynb('test_theano')
