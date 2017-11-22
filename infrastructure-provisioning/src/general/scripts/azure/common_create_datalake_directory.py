@@ -43,7 +43,7 @@ if __name__ == "__main__":
                     AzureActions().create_datalake_directory(datalake.name, args.directory_name)
                     print("Data Lake Store Directory '{}' has been created".format(args.directory_name))
                     if args.ad_user == '':
-                       AzureActions().chmod_datalake_directory(datalake.name, '0777')
+                       AzureActions().chmod_datalake_directory(datalake.name, '/', '0777')
                     else:
                        AzureActions().set_user_permissions_to_datalake_directory(datalake.name, args.directory_name,
                                                                                  args.ad_user)

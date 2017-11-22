@@ -313,7 +313,7 @@ class AzureActions:
             logging.info(
                 "Unable to unset user permission to Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
-            append_result(str({"error": "Unable to chmod Data Lake directory",
+            append_result(str({"error": "Unable to unset user permission to Data Lake directory",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
