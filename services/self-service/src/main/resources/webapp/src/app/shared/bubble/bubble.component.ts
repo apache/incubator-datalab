@@ -30,6 +30,8 @@ import { BubblesCollector, BubbleService } from './bubble.service';
   encapsulation: ViewEncapsulation.None
 })
 export class BubbleComponent implements OnDestroy {
+  public changeDirection: boolean = false;
+
   @Input('position') public position: string;
   @Output() onShow: EventEmitter<any> = new EventEmitter();
   @Output() onHide: EventEmitter<any> = new EventEmitter();
@@ -51,6 +53,7 @@ export class BubbleComponent implements OnDestroy {
     if (this.isVisible) {
       this.onHide.emit(null);
       this.isVisible = false;
+      this.changeDirection = false;
       this.ref.markForCheck();
     }
   }
@@ -72,14 +75,28 @@ export class BubbleComponent implements OnDestroy {
   private updateDirection(event: Event, element: any = null) {
     const bubbleElem = this.elementRef.nativeElement;
     bubbleElem.style.visibility = 'hidden';
+
     setTimeout(() => {
       if (element && this.position) {
         this.bubbleService.updatePosition(element, bubbleElem, this.position);
         bubbleElem.style.visibility = 'visible';
+
+        this.changeDirection = !this.isInViewport(bubbleElem);
+        this.changeDirection && this.bubbleService.updatePosition(element, bubbleElem, 'top-left');
+
         this.ref.markForCheck();
         return;
       }
     });
+  }
+
+  private isInViewport(element) {
+    var rect = element.getBoundingClientRect();
+    var html = document.documentElement;
+    return (rect.top >= 0 && rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || html.clientHeight) &&
+            rect.right <= (window.innerWidth || html.clientWidth)
+    );
   }
 
   public ngOnDestroy() {
