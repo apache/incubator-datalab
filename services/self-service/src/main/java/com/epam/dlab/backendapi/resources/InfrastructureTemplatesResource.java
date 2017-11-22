@@ -118,7 +118,7 @@ public class InfrastructureTemplatesResource implements DockerAPI {
      * Temporary filter for creation of exploratory env due to Azure issues
      */
     private boolean exploratoryGpuIssuesAzureFilter(ExploratoryMetadataDTO e) {
-        return (settingsDAO.getConfOsFamily().equals("redhat") && configuration.getCloudProvider() == CloudProvider.AZURE) ?
+        return ("redhat".equals(settingsDAO.getConfOsFamily()) && configuration.getCloudProvider() == CloudProvider.AZURE) ?
                 !(e.getImage().endsWith("deeplearning") || e.getImage().endsWith("tensor"))
                 : true;
     }

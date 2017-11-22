@@ -16,31 +16,17 @@
 
 package com.epam.dlab.backendapi.resources.base;
 
-import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
-import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
+import com.epam.dlab.backendapi.service.DockerService;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
-import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ExploratoryService implements DockerCommands {
-
-    @Inject
-    private ProvisioningServiceApplicationConfiguration configuration;
-    @Inject
-    private FolderListenerExecutor folderListenerExecutor;
-    @Inject
-    private ICommandExecutor commandExecutor;
-    @Inject
-    private CommandBuilder commandBuilder;
-    @Inject
-    private RESTService selfService;
+public class ExploratoryService extends DockerService implements DockerCommands {
 
     public String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws JsonProcessingException {
         log.debug("{} exploratory environment", action);
