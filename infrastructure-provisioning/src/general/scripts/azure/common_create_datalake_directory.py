@@ -42,10 +42,11 @@ if __name__ == "__main__":
                 else:
                     AzureActions().create_datalake_directory(datalake.name, args.directory_name)
                     print("Data Lake Store Directory '{}' has been created".format(args.directory_name))
-                    #if args.ad_user == '':
-                    #    AzureActions().chmod_datalake_directory(datalake.name, '0777')
-                    #else:
-                    #    AzureActions().chown_datalake_directory(datalake.name, args.directory_name, args.ad_user)
+                    if args.ad_user == '':
+                       AzureActions().chmod_datalake_directory(datalake.name, '0777')
+                    else:
+                       AzureActions().set_user_permissions_to_datalake_directory(datalake.name, args.directory_name,
+                                                                                 args.ad_user)
                 datalake_exists = True
         if not datalake_exists:
             print("Requested Data Lake Store '{}' is missing".format(datalake.name))

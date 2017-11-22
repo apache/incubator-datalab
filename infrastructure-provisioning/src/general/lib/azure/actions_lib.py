@@ -288,6 +288,36 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
+    def set_user_permissions_to_datalake_directory(self, datalake_name, dir_name, ad_user, mod='rwx'):
+        try:
+            acl_specification = 'user:{}:{}'.format(ad_user, mod)
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.modify_acl_entries(path=dir_name, acl_spec=acl_specification)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to set user permission to Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to set user permission to Data Lake directory",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def unset_user_permissions_to_datalake_directory(self, datalake_name, dir_name, ad_user):
+        try:
+            acl_specification = 'user:{}'.format(ad_user)
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.remove_acl_entries(path=dir_name, acl_spec=acl_specification)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to unset user permission to Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to chmod Data Lake directory",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def remove_datalake_directory(self, datalake_name, dir_name):
         try:
             datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
