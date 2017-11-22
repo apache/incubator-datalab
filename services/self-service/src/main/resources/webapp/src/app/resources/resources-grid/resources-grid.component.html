@@ -83,7 +83,7 @@ limitations under the License.
             [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' || healthStatus === 'error'}">
       </span>
 
-      <bubble-up #actions class="dropdown-menu" position="bottom-left">
+      <bubble-up #actions class="list-menu" position="bottom-left">
         <ul class="list-unstyled">
           <div class="active-items" *ngIf="env.status.toLowerCase() !== 'failed'
                 && env.status.toLowerCase() !== 'terminating'
