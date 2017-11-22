@@ -80,29 +80,29 @@ limitations under the License.
     </td>
     <td class="settings">
       <span #settings (click)="actions.toggle($event, settings)" class="actions"
-            [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' ||
-            env.status.toLowerCase() == 'failed' ||
-            env.status.toLowerCase() == 'terminating' ||
-            env.status.toLowerCase() == 'terminated' ||
-            healthStatus === 'error'}">
+            [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' || healthStatus === 'error'}">
       </span>
 
       <bubble-up #actions class="dropdown-menu" position="bottom-left">
         <ul class="list-unstyled">
-          <li (click)="exploratoryAction(env, 'stop')"
-              *ngIf="env.status.toLowerCase() !== 'stopped'
-              && env.status.toLowerCase() !== 'stopping'
-              && env.status.toLowerCase() !== 'starting'">Stop</li>
-          <li (click)="exploratoryAction(env, 'run')"
-              *ngIf="env.status.toLowerCase() === 'stopped'">Run</li>
-          <li (click)="exploratoryAction(env, 'terminate')"
-              *ngIf="env.status.toLowerCase() === 'running'
-              || env.status.toLowerCase() === 'stopped'">Terminate</li>
-          <li (click)="exploratoryAction(env, 'deploy')"
-              *ngIf="env.status != 'stopping'
-              && env.status != 'stopped'
-              && env.status != 'starting'
-              ">Add computational resources</li>
+          <div class="active-items" *ngIf="env.status.toLowerCase() !== 'failed'
+                && env.status.toLowerCase() !== 'terminating'
+                && env.status.toLowerCase() !== 'terminated'">
+            <li (click)="exploratoryAction(env, 'stop')"
+                *ngIf="env.status.toLowerCase() !== 'stopped'
+                && env.status.toLowerCase() !== 'stopping'
+                && env.status.toLowerCase() !== 'starting'">Stop</li>
+            <li (click)="exploratoryAction(env, 'run')"
+                *ngIf="env.status.toLowerCase() === 'stopped'">Run</li>
+            <li (click)="exploratoryAction(env, 'terminate')"
+                *ngIf="env.status.toLowerCase() === 'running'
+                || env.status.toLowerCase() === 'stopped'">Terminate</li>
+            <li (click)="exploratoryAction(env, 'deploy')"
+                *ngIf="env.status != 'stopping'
+                && env.status != 'stopped'
+                && env.status != 'starting'">Add computational resources
+            </li>
+          </div>
           <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
         </ul>
       </bubble-up>
