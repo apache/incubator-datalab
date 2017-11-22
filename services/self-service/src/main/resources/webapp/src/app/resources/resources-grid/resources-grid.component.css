@@ -170,8 +170,14 @@ limitations under the License.
   padding: 12px 15px;
   cursor: pointer;
   margin: 5px -5px;
+  color: #577289;
+  transition: all .45s ease-in-out;
 }
 
+.dashboard_table .list-menu li:hover {
+  background: none !important;
+  color: #36afd5;
+}
 
 .dashboard_table .list-menu li:last-child {
   border-bottom: 0;
