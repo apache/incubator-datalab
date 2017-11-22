@@ -587,34 +587,34 @@ if __name__ == "__main__":
         append_result("Failed to create Security groups. Exception:" + str(err))
         sys.exit(1)
 
-    if os.environ['azure_datalake_enable'] == 'false':
-        try:
-            logging.info('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
-            print('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
+    try:
+        logging.info('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
+        print('[CREATE STORAGE ACCOUNT AND CONTAINERS]')
 
-            params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
-                format(edge_conf['edge_container_name'], json.dumps(edge_conf['storage_account_tags']),
-                       edge_conf['resource_group_name'], edge_conf['region'])
-            try:
-                local("~/scripts/{}.py {}".format('common_create_storage_account', params))
-            except:
-                traceback.print_exc()
-                raise Exception
-        except Exception as err:
-            append_result("Failed to create storage account.", str(err))
-            AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
-                                         edge_conf['private_subnet_name'])
-            AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
-            AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
-            AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                                 edge_conf['master_security_group_name'])
-            AzureActions().remove_security_group(edge_conf['resource_group_name'],
-                                                     edge_conf['slave_security_group_name'])
-            for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-                if edge_conf['edge_storage_account_name'] == storage_account.tags["Name"]:
-                    AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-            sys.exit(1)
-    else:
+        params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
+            format(edge_conf['edge_container_name'], json.dumps(edge_conf['storage_account_tags']),
+                   edge_conf['resource_group_name'], edge_conf['region'])
+        try:
+            local("~/scripts/{}.py {}".format('common_create_storage_account', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed to create storage account.", str(err))
+        AzureActions().remove_subnet(edge_conf['resource_group_name'], edge_conf['vpc_name'],
+                                     edge_conf['private_subnet_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['edge_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'], edge_conf['notebook_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                             edge_conf['master_security_group_name'])
+        AzureActions().remove_security_group(edge_conf['resource_group_name'],
+                                                 edge_conf['slave_security_group_name'])
+        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['edge_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+        sys.exit(1)
+
+    if os.environ['azure_datalake_enable'] == 'true':
         try:
             logging.info('[CREATE DATA LAKE STORE DIRECTORY]')
             print('[CREATE DATA LAKE STORE DIRECTORY]')
