@@ -34,7 +34,7 @@ limitations under the License.
             env.status.toLowerCase() !== 'terminated'}">
       </span>
 
-      <bubble-up #actions class="list-menu" position="bottom-left">
+      <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
         <ul class="list-unstyled">
           <li (click)="healthStatusAction(env, 'stop')" *ngIf="env.status.toLowerCase() === 'running'">Stop</li>
           <li (click)="healthStatusAction(env, 'run')" *ngIf="env.status.toLowerCase() === 'stopped'">Start</li>
