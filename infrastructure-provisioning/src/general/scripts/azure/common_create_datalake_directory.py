@@ -27,6 +27,7 @@ import sys
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--resource_group_name', type=str, default='')
+parser.add_argument('--service_base_name', type=str, default='')
 parser.add_argument('--datalake_name', type=str, default='')
 parser.add_argument('--directory_name', type=str, default='')
 parser.add_argument('--ad_user', type=str, default='')
@@ -42,11 +43,11 @@ if __name__ == "__main__":
                 else:
                     AzureActions().create_datalake_directory(datalake.name, args.directory_name)
                     print("Data Lake Store Directory '{}' has been created".format(args.directory_name))
-                    if args.ad_user == '':
-                       AzureActions().chmod_datalake_directory(datalake.name, '/{}'.format(args.directory_name), '777')
-                    else:
-                       AzureActions().set_user_permissions_to_datalake_directory(datalake.name, args.directory_name,
-                                                                                 args.ad_user)
+                    if args.ad_user != '':
+                       AzureActions().set_user_permissions_to_datalake_directory(
+                           datalake.name, '/{}'.format(args.directory_name), args.ad_user)
+                       AzureActions().set_user_permissions_to_datalake_directory(
+                           datalake.name, '/{}'.format(args.service_base_name + '-shared-directory'), args.ad_user)
                 datalake_exists = True
         if not datalake_exists:
             print("Requested Data Lake Store '{}' is missing".format(datalake.name))
