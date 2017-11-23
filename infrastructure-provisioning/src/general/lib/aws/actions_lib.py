@@ -741,19 +741,18 @@ def add_outbound_sg_rule(sg_id, rule):
             traceback.print_exc(file=sys.stdout)
 
 
-def deregister_image(scientist):
+def deregister_image():
     try:
+        resource = boto3.resource('ec2')
         client = boto3.client('ec2')
-        response = client.describe_images(
-            Filters=[{'Name': 'name', 'Values': ['{}-{}-*'.format(os.environ['conf_service_base_name'], scientist)]},
-                     {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]}])
-        images_list = response.get('Images')
-        if images_list:
-            for i in images_list:
-                client.deregister_image(ImageId=i.get('ImageId'))
-                print("Notebook AMI {} has been deregistered successfully".format(i.get('ImageId')))
-        else:
-            print("There is no notebook ami to deregister")
+        for image in resource.images.filter(
+                Filters=[{'Name': 'name', 'Values': ['{}-*'.format(os.environ['conf_service_base_name'])]},
+                         {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]}]):
+            client.deregister_image(ImageId=image.id)
+            for device in image.block_device_mappings:
+                if device.get('Ebs'):
+                    client.delete_snapshot(SnapshotId=device.get('Ebs').get('SnapshotId'))
+            print("Notebook AMI {} has been deregistered successfully".format(image.id))
     except Exception as err:
         logging.info("Unable to de-register image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to de-register image", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
