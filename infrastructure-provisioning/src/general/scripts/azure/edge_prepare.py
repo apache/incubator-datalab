@@ -40,7 +40,7 @@ if __name__ == "__main__":
         edge_conf['service_base_name'] = os.environ['conf_service_base_name']
         edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        edge_conf['azure_ad_user_id'] = os.environ['azure_user_id']
+        edge_conf['azure_ad_user_name'] = os.environ['azure_user_name']
         edge_conf['key_name'] = os.environ['conf_key_name']
         edge_conf['user_keyname'] = os.environ['edge_user_name']
         edge_conf['vpc_name'] = os.environ['azure_vpc_name']
@@ -620,7 +620,7 @@ if __name__ == "__main__":
             print('[CREATE DATA LAKE STORE DIRECTORY]')
             params = "--resource_group_name {} --datalake_name {} --directory_name {} --ad_user {} --service_base_name {}". \
                 format(edge_conf['resource_group_name'], edge_conf['datalake_store_name'],
-                       edge_conf['datalake_user_directory_name'], edge_conf['azure_ad_user_id'],
+                       edge_conf['datalake_user_directory_name'], edge_conf['azure_ad_user_name'],
                        edge_conf['service_base_name'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_datalake_directory', params))

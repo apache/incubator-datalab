@@ -1039,7 +1039,7 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
             sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
             sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
             if os.environ['azure_datalake_enable'] == 'true':
-                client_id = os.environ['azure_user_id']
+                client_id = os.environ['azure_client_id']
                 refresh_token = os.environ['azure_user_refresh_token']
                 sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
                 sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
