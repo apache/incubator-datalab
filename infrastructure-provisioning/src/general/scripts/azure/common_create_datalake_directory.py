@@ -48,6 +48,8 @@ if __name__ == "__main__":
                            datalake.name, '/{}'.format(args.directory_name), args.ad_user)
                        AzureActions().set_user_permissions_to_datalake_directory(
                            datalake.name, '/{}'.format(args.service_base_name + '-shared-directory'), args.ad_user)
+                       AzureActions().set_user_permissions_to_datalake_directory(datalake.name, '/', args.ad_user,
+                                                                                 '--x')
                 datalake_exists = True
         if not datalake_exists:
             print("Requested Data Lake Store '{}' is missing".format(datalake.name))

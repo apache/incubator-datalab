@@ -38,7 +38,6 @@ limitations under the License.
     <name>fs.adl.oauth2.refresh.token</name>
     <value>REFRESH_TOKEN</value>
   </property>
-    </property>
   <property>
       <name>fs.adl.impl</name>
       <value>org.apache.hadoop.fs.adl.AdlFileSystem</value>

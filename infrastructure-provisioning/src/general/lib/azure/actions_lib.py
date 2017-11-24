@@ -1043,7 +1043,10 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
                 refresh_token = os.environ['azure_user_refresh_token']
                 sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
                 sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
-            sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+            if os.environ['azure_datalake_enable'] == 'false':
+                sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+            else:
+                sudo('mv /tmp/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml')
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
                   /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
