@@ -19,6 +19,14 @@ limitations under the License.
 -->
 <configuration>
   <property>
+    <name>fs.azure.account.key.USER_STORAGE_ACCOUNT.blob.core.windows.net</name>
+    <value>USER_ACCOUNT_KEY</value>
+  </property>
+  <property>
+    <name>fs.azure.account.key.SHARED_STORAGE_ACCOUNT.blob.core.windows.net</name>
+    <value>SHARED_ACCOUNT_KEY</value>
+  </property>
+  <property>
     <name>fs.adl.oauth2.access.token.provider.type</name>
     <value>RefreshToken</value>
   </property>

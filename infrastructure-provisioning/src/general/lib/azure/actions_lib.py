@@ -40,6 +40,7 @@ import traceback
 import sys, time
 import os, json
 import dlab.fab
+import dlab.common_lib
 
 
 class AzureActions:
@@ -987,12 +988,16 @@ def ensure_local_jars(os_user, jars_dir):
             hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
             print("Downloading local jars for Azure")
             sudo('mkdir -p ' + jars_dir)
-            sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
-                 {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
             if os.environ['azure_datalake_enable'] == 'false':
+                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
+                                 {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
                 sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/2.2.0/azure-storage-2.2.0.jar \
                     -O {}azure-storage-2.2.0.jar'.format(jars_dir))
             else:
+                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/3.0.0-beta1/hadoop-azure-3.0.0-beta1.jar -O \
+                                 {}hadoop-azure-3.0.0-beta1.jar'.format(jars_dir))
+                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/6.1.0/azure-storage-6.1.0.jar \
+                                    -O {}azure-storage-2.2.0.jar'.format(jars_dir))
                 sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-data-lake-store-sdk/2.2.3/azure-data-lake-store-sdk-2.2.3.jar \
                     -O {}azure-data-lake-store-sdk-2.2.3.jar'.format(jars_dir))
                 sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/3.0.0-beta1/hadoop-azure-datalake-3.0.0-beta1.jar \
@@ -1013,28 +1018,29 @@ def ensure_local_jars(os_user, jars_dir):
 def configure_local_spark(os_user, jars_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
         try:
+            user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
+                replace('_', '-') + '-storage'
+            shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
+            for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
+                if user_storage_account_tag == storage_account.tags["Name"]:
+                    user_storage_account_name = storage_account.name
+                    user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
+                                                                                      user_storage_account_name)[0]
+                if shared_storage_account_tag == storage_account.tags["Name"]:
+                    shared_storage_account_name = storage_account.name
+                    shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
+                                                                                        shared_storage_account_name)[0]
             if os.environ['azure_datalake_enable'] == 'false':
-                user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
-                    replace('_', '-') + '-storage'
-                shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
-                for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-                    if user_storage_account_tag == storage_account.tags["Name"]:
-                        user_storage_account_name = storage_account.name
-                        user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
-                                                                                          user_storage_account_name)[0]
-                    if shared_storage_account_tag == storage_account.tags["Name"]:
-                        shared_storage_account_name = storage_account.name
-                        shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
-                                                                                            shared_storage_account_name)[0]
                 put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
-                sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
-                sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
-                sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
-                sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
             else:
+                put(templates_dir + 'core-site-datalake.xml', '/tmp/core-site.xml')
+            sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
+            sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
+            sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
+            sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
+            if os.environ['azure_datalake_enable'] == 'true':
                 client_id = os.environ['azure_user_id']
                 refresh_token = os.environ['azure_user_refresh_token']
-                put(templates_dir + 'core-site-datalake.xml', '/tmp/core-site.xml')
                 sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
                 sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
             sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
@@ -1087,5 +1093,39 @@ def prepare_disk(os_user):
             sudo('mount /dev/{}1 /opt/'.format(disk_name))
             sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
             sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
+        except:
+            sys.exit(1)
+
+
+def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
+    if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+        try:
+            if os.environ['azure_datalake_enable'] == 'false':
+                sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+                sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+                sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+                sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+                sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
+            else:
+                # Downloading Spark without Hadoop
+                sudo('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'.format(spark_version))
+                sudo('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
+                sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
+                sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
+                # Downloading Hadoop
+                sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0-beta1/hadoop-3.0.0-beta1.tar.gz -O /tmp/hadoop-3.0.0-beta1.tar.gz')
+                sudo('tar -zxvf /tmp/hadoop-3.0.0-beta1.tar.gz -C /opt/')
+                sudo('mv /opt/hadoop-3.0.0-beta1 /opt/hadoop/')
+                sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
+                # Configuring Hadoop and Spark
+                java_path = dlab.common_lib.find_java_path()
+                sudo('echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
+                sudo("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
+                sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
+                sudo('echo "export SPARK_HOME=/opt/spark/" >> /opt/spark/conf/spark-env.sh')
+                spark_dist_classpath = sudo('/opt/hadoop/bin/hadoop classpath')
+                sudo('echo "export SPARK_DIST_CLASSPATH={}" >> /opt/spark/conf/spark-env.sh'.format(
+                    spark_dist_classpath))
+                sudo('touch /home/{}/.ensure_dir/local_spark_ensured'.format(os_user))
         except:
             sys.exit(1)

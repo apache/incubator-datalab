@@ -51,3 +51,8 @@ def change_pkg_repos():
         sudo('mv /tmp/sources.list /etc/apt/sources.list')
         sudo('apt-get update')
         sudo('touch /tmp/pkg_china_ensured')
+
+
+def find_java_path():
+    java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
+    return java_path

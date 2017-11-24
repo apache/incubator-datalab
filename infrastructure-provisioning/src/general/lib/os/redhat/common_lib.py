@@ -51,3 +51,8 @@ def change_pkg_repos():
         put('/root/files/sources.list', '/tmp/sources.list')
         sudo('mv /tmp/sources.list  /etc/yum.repos.d/CentOS-Base-aliyun.repo')
         sudo('touch /tmp/pkg_china_ensured')
+
+
+def find_java_path():
+    java_path = sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'")
+    return java_path
