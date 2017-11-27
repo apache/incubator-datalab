@@ -21,6 +21,9 @@ limitations under the License.
 @import 'https://fonts.googleapis.com/icon?family=Material+Icons';
 @import '~@angular/material/core/theming/prebuilt/deeppurple-amber.css';
 
+@import './assets/styles/_reset.css';
+@import './assets/styles/_general.css';
+
 
 /* material buttons */
 .mat-raised-button.butt {
@@ -397,12 +400,13 @@ input[type=number] {
   display: flex;
   padding-bottom: 20px;
 }
+
 .control-group .label {
   width: 30%;
   color: #718ba6;
   font-size: 15px;
   font-weight: 600;
-  align-self: flex-end;
+  align-self: center;
   text-align: left;
 }
 .control-group .control {
