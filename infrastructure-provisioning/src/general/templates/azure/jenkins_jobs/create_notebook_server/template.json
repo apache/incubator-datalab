@@ -6,7 +6,6 @@
     "azure_resource_group_name": "ARGN",
     "azure_vpc_name": "VPC",
     "azure_region":"CREG",
-    "azure_user_name":"AUI",
     "azure_client_id":"ACI",
     "azure_user_refresh_token":"AURT",
     "azure_datalake_enable":"DLE",

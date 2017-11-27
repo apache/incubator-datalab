@@ -45,7 +45,7 @@ parser.add_argument('--multiple_clusters', type=str, default='')
 parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
-spark_dir = '/opt/' + args.cluster_name + '/spark/'
+cluster_dir = '/opt/' + args.cluster_name + '/'
 local_jars_dir = '/opt/jars/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
@@ -53,7 +53,7 @@ spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/
              "-bin-hadoop" + hadoop_version + ".tgz"
 
 
-def configure_zeppelin_dataengine_interpreter(cluster_name, spark_dir, os_user, multiple_clusters, spark_master):
+def configure_zeppelin_dataengine_interpreter(cluster_name, cluster_dir, os_user, multiple_clusters, spark_master):
     try:
         port_number_found = False
         zeppelin_restarted = False
@@ -89,14 +89,14 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, spark_dir, os_user, 
             local('sudo echo "livy.spark.master = ' + spark_master + '" >> ' + livy_path + 'conf/livy.conf')
             if os.path.exists(livy_path + 'conf/spark-blacklist.conf'):
                 local('sudo sed -i "s/^/#/g" ' + livy_path + 'conf/spark-blacklist.conf')
-            local(''' sudo echo "export SPARK_HOME=''' + spark_dir + '''" >> ''' + livy_path + '''conf/livy-env.sh''')
+            local(''' sudo echo "export SPARK_HOME=''' + cluster_dir + '''spark/" >> ''' + livy_path + '''conf/livy-env.sh''')
             local(''' sudo echo "export PYSPARK3_PYTHON=python3.5" >> ''' +
                   livy_path + '''conf/livy-env.sh''')
             template_file = "/tmp/dataengine_interpreter.json"
             fr = open(template_file, 'r+')
             text = fr.read()
             text = text.replace('CLUSTER_NAME', cluster_name)
-            text = text.replace('SPARK_HOME', spark_dir)
+            text = text.replace('SPARK_HOME', cluster_dir + 'spark/')
             text = text.replace('LIVY_PORT', str(livy_port))
             text = text.replace('MASTER', str(spark_master))
             fw = open(template_file, 'w')
@@ -127,7 +127,7 @@ def configure_zeppelin_dataengine_interpreter(cluster_name, spark_dir, os_user, 
                 text = fr.read()
                 text = text.replace('CLUSTERNAME', cluster_name)
                 text = text.replace('PYTHONVERSION', p_version)
-                text = text.replace('SPARK_HOME', spark_dir)
+                text = text.replace('SPARK_HOME', cluster_dir + 'spark/')
                 text = text.replace('PYTHONVER_SHORT', p_version[:1])
                 text = text.replace('MASTER', str(spark_master))
                 tmp_file = "/tmp/dataengine_spark_py" + p_version + "_interpreter.json"
@@ -165,9 +165,9 @@ def install_remote_livy(args):
 
 if __name__ == "__main__":
     dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
-    install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
-    configure_dataengine_spark(local_jars_dir, spark_dir, args.region)
+    install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, args.os_user)
+    configure_dataengine_spark(local_jars_dir, cluster_dir, args.region)
     if args.multiple_clusters == 'true':
         install_remote_livy(args)
-    configure_zeppelin_dataengine_interpreter(args.cluster_name, spark_dir, args.os_user,
+    configure_zeppelin_dataengine_interpreter(args.cluster_name, cluster_dir, args.os_user,
                                               args.multiple_clusters, args.spark_master)

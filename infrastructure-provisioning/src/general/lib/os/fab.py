@@ -78,13 +78,6 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-def install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, os_user):
-    local('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-    local('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-    local('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + spark_dir)
-    local('chown -R ' + os_user + ':' + os_user + ' ' + spark_dir)
-
-
 def ensure_dataengine_tensorflow_jars(jars_dir):
     local('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
          -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))

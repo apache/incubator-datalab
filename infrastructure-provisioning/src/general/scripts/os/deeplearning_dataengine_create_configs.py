@@ -42,7 +42,7 @@ parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
-spark_dir = '/opt/' + args.cluster_name + '/spark/'
+cluster_dir = '/opt/' + args.cluster_name + '/'
 local_jars_dir = '/opt/jars/'
 
 spark_version = args.spark_version
@@ -100,7 +100,7 @@ if __name__ == "__main__":
         parser.print_help()
     else:
         dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
-        install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
+        install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, args.os_user)
         ensure_dataengine_tensorflow_jars(local_jars_dir)
-        configure_dataengine_spark(local_jars_dir, spark_dir, args.region)
+        configure_dataengine_spark(local_jars_dir, cluster_dir, args.region)
         pyspark_kernel(args)

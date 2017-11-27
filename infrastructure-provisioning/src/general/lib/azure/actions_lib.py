@@ -1061,11 +1061,14 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
             traceback.print_exc(file=sys.stdout)
 
 
-def configure_dataengine_spark(jars_dir, spark_dir, region):
+def configure_dataengine_spark(jars_dir, cluster_dir, region):
     local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
-    local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
-    local('cp /opt/spark/conf/core-site.xml {}conf/'.format(spark_dir))
+    local('mv /tmp/notebook_spark-defaults_local.conf  {}spark/conf/spark-defaults.conf'.format(cluster_dir))
+    if os.environ['azure_datalake_enable'] == 'false':
+        local('cp /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
+    else:
+        local('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml')
 
 
 def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
@@ -1121,7 +1124,7 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
                 sudo('mv /opt/hadoop-3.0.0-beta1 /opt/hadoop/')
                 sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
                 # Configuring Hadoop and Spark
-                java_path = dlab.common_lib.find_java_path()
+                java_path = dlab.common_lib.find_java_path_remote()
                 sudo('echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
                 sudo("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
                 sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
@@ -1132,3 +1135,35 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
                 sudo('touch /home/{}/.ensure_dir/local_spark_ensured'.format(os_user))
         except:
             sys.exit(1)
+
+
+def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, os_user):
+    try:
+        if os.environ['azure_datalake_enable'] == 'false':
+            local('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+            local('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+            local('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')
+            local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')
+        else:
+            # Downloading Spark without Hadoop
+            local('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'.format(
+                spark_version))
+            local('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
+            local('mv /opt/spark-{}-bin-without-hadoop {}spark/'.format(spark_version, cluster_dir))
+            local('chown -R {0}:{0} {1}/spark/'.format(os_user, cluster_dir))
+            # Downloading Hadoop
+            local('wget https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0-beta1/hadoop-3.0.0-beta1.tar.gz -O /tmp/hadoop-3.0.0-beta1.tar.gz')
+            local('tar -zxvf /tmp/hadoop-3.0.0-beta1.tar.gz -C /opt/')
+            local('mv /opt/hadoop-3.0.0-beta1 {}hadoop/'.format(cluster_dir))
+            local('chown -R {0}:{0} {1}hadoop/'.format(os_user, cluster_dir))
+            # Configuring Hadoop and Spark
+            java_path = dlab.common_lib.find_java_path_local()
+            local('echo "export JAVA_HOME={}" >> {}hadoop/etc/hadoop/hadoop-env.sh'.format(java_path, cluster_dir))
+            local("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> {}hadoop/etc/hadoop/hadoop-env.sh""".format(cluster_dir))
+            local('echo "export HADOOP_HOME={0}hadoop/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir))
+            local('echo "export SPARK_HOME={0}spark/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir))
+            spark_dist_classpath = local('{}hadoop/bin/hadoop classpath'.format(cluster_dir))
+            local('echo "export SPARK_DIST_CLASSPATH={}" >> {}spark/conf/spark-env.sh'.format(
+                spark_dist_classpath, cluster_dir))
+    except:
+        sys.exit(1)
