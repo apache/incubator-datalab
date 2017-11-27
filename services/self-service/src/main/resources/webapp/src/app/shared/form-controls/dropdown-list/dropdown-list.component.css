@@ -68,7 +68,8 @@ limitations under the License.
   margin: 0;
 }
 
-.dropdown-list .dropdown-menu span {
+.dropdown-list .dropdown-menu span,
+.dropdown-list .title span {
   display: flex;
   justify-content: space-between;
 }
