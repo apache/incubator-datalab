@@ -53,10 +53,11 @@ if __name__ == "__main__":
     ssn_conf['subnet_prefix'] = '20'
     ssn_conf['firewall_name'] = '{}-ssn-firewall'.format(ssn_conf['service_base_name'])
     ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    ssn_conf['service_account_name'] = 'dlabowner' # ssn_conf['service_base_name'] + '-ssn-sa'
+    ssn_conf['service_account_name'] = ssn_conf['service_base_name'] + '-ssn-sa'
     ssn_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
-    ssn_conf['role_name'] = 'dlab_ssn_role'
+    ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-ssn-role'
     ssn_conf['static_address_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])
+    ssn_conf['ssn_policy_path'] = '/root/files/ssn_policy.json'
 
     try:
         if os.environ['gcp_vpc_name'] == '':
@@ -199,8 +200,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SERVICE ACCOUNT]')
         print('[CREATE SERVICE ACCOUNT]')
-        params = "--service_account_name {} --role_name {}".format(ssn_conf['service_account_name'],
-                                                                   ssn_conf['role_name'])
+        params = "--service_account_name {} --role_name {} --policy_path {}".format(ssn_conf['service_account_name'],
+                                                                                    ssn_conf['role_name'],
+                                                                                    ssn_conf['ssn_policy_path'])
 
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))

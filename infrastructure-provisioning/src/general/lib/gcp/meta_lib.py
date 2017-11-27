@@ -45,12 +45,14 @@ class GCPMeta:
             self.service_iam = build('iam', 'v1', credentials=credentials)
             self.service_storage = build('storage', 'v1', credentials=credentials)
             self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
+            self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
         else:
             self.service = build('compute', 'v1')
             self.service_iam = build('iam', 'v1')
             self.service_storage = build('storage', 'v1')
             self.dataproc = build('dataproc', 'v1')
             self.storage_client = storage.Client()
+            self.service_resource = build('cloudresourcemanager', 'v1')
 
     def get_vpc(self, network_name):
         request = self.service.networks().get(
@@ -197,8 +199,23 @@ class GCPMeta:
                 traceback.print_exc(file=sys.stdout)
 
     def get_role(self, role_name):
-        prin("Role name -> {}".format(role_name))
-        return role_name
+        request = self.service_iam.projects().roles().get(name='projects/{}/roles/{}'.format(self.project,
+                                                                                             role_name.replace('-',
+                                                                                                               '_')))
+        try:
+            return request.execute()
+        except errors.HttpError as err:
+            if err.resp.status == 404:
+                return ''
+            else:
+                raise err
+        except Exception as err:
+                logging.info(
+                    "Unable to get IAM role: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+                append_result(str({"error": "Unable to get IAM role",
+                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                       file=sys.stdout)}))
+                traceback.print_exc(file=sys.stdout)
 
     def get_static_address(self, region, static_address_name):
         request = self.service.addresses().get(project=self.project, region=region, address=static_address_name)
