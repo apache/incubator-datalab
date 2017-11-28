@@ -1264,7 +1264,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             sys.exit(1)
 
 
-def configure_dataengine_spark(jars_dir, cluster_dir, region):
+def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled):
     local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
     if region == 'us-east-1':
@@ -1364,7 +1364,7 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sys.exit(1)
 
 
-def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, os_user):
+def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
     local('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
     local('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
     local('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')

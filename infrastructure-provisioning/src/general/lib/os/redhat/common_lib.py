@@ -59,5 +59,5 @@ def find_java_path_remote():
 
 
 def find_java_path_local():
-    java_path = local("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'")
+    java_path = local("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'", capture=True)
     return java_path

@@ -1061,14 +1061,14 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
             traceback.print_exc(file=sys.stdout)
 
 
-def configure_dataengine_spark(jars_dir, cluster_dir, region):
+def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled):
     local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
     local('mv /tmp/notebook_spark-defaults_local.conf  {}spark/conf/spark-defaults.conf'.format(cluster_dir))
-    if os.environ['azure_datalake_enable'] == 'false':
+    if datalake_enabled == 'false':
         local('cp /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
     else:
-        local('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml')
+        local('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml'.format(cluster_dir))
 
 
 def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
@@ -1137,9 +1137,9 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sys.exit(1)
 
 
-def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, os_user):
+def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
     try:
-        if os.environ['azure_datalake_enable'] == 'false':
+        if datalake_enabled == 'false':
             local('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
             local('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
             local('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')

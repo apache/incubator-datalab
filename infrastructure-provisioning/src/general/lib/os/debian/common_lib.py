@@ -59,5 +59,5 @@ def find_java_path_remote():
 
 
 def find_java_path_local():
-    java_path = local("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
+    java_path = local("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'", capture=True)
     return java_path

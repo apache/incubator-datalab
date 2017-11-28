@@ -39,6 +39,7 @@ parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--region', type=str, default='')
+parser.add_argument('--datalake_enabled', type=str, default='')
 args = parser.parse_args()
 
 kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
@@ -153,8 +154,9 @@ if __name__ == "__main__":
         parser.print_help()
     else:
         dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
-        install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, args.os_user)
-        configure_dataengine_spark(local_jars_dir, cluster_dir, args.region)
+        install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
+                                 args.datalake_enabled)
+        configure_dataengine_spark(local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
         pyspark_kernel(args)
         toree_kernel(args)
         r_kernel(args)
