@@ -244,10 +244,9 @@ if __name__ == "__main__":
         print("Public IP: {}".format(edge_conf['edge_public_ip']))
         print("Private IP: {}".format(edge_conf['edge_private_ip']))
         print("Key name: {}".format(edge_conf['key_name']))
-        if os.environ['azure_datalake_enable'] == 'false':
-            print("User storage account name: {}".format(user_storage_account_name))
-            print("User container name: {}".format(edge_conf['user_container_name']))
-        else:
+        print("User storage account name: {}".format(user_storage_account_name))
+        print("User container name: {}".format(edge_conf['user_container_name']))
+        if os.environ['azure_datalake_enable'] == 'true':
             print("Data Lake Store name: {}".format(edge_conf['datalake_store_name']))
             print("Data Lake Store directory name: {}".format(edge_conf['datalake_user_directory_name']))
         print("Notebook SG: {}".format(edge_conf['notebook_security_group_name']))
