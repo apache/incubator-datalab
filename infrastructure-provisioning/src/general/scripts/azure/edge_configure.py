@@ -86,11 +86,10 @@ if __name__ == "__main__":
                                              edge_conf['master_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
-        if os.environ['azure_datalake_enable'] == 'false':
-            for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-                if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                    AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-        else:
+        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+        if os.environ['azure_datalake_enable'] == 'true':
             for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
                 if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
                     AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
@@ -126,11 +125,10 @@ if __name__ == "__main__":
                                              edge_conf['master_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
-        if os.environ['azure_datalake_enable'] == 'false':
-            for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-                if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                    AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-        else:
+        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+        if os.environ['azure_datalake_enable'] == 'true':
             for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
                 if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
                     AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
@@ -157,11 +155,10 @@ if __name__ == "__main__":
                                              edge_conf['master_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
-        if os.environ['azure_datalake_enable'] == 'false':
-            for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-                if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                    AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-        else:
+        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+        if os.environ['azure_datalake_enable'] == 'true':
             for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
                 if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
                     AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
@@ -190,11 +187,10 @@ if __name__ == "__main__":
                                              edge_conf['master_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
-        if os.environ['azure_datalake_enable'] == 'false':
-            for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-                if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                    AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-        else:
+        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+        if os.environ['azure_datalake_enable'] == 'true':
             for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
                 if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
                     AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
@@ -224,11 +220,10 @@ if __name__ == "__main__":
                                              edge_conf['master_security_group_name'])
         AzureActions().remove_security_group(edge_conf['resource_group_name'],
                                                  edge_conf['slave_security_group_name'])
-        if os.environ['azure_datalake_enable'] == 'false':
-            for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-                if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                    AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-        else:
+        for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+        if os.environ['azure_datalake_enable'] == 'true':
             for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
                 if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
                     AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
@@ -282,6 +277,11 @@ if __name__ == "__main__":
                        "public_ip": edge_conf['edge_public_ip'],
                        "ip": edge_conf['edge_private_ip'],
                        "key_name": edge_conf['key_name'],
+                       "user_storage_account_name": user_storage_account_name,
+                       "user_container_name": edge_conf['user_container_name'],
+                       "shared_storage_account_name": shared_storage_account_name,
+                       "shared_container_name": edge_conf['shared_container_name'],
+                       "user_storage_account_tag_name": edge_conf['user_storage_account_name'],
                        "datalake_name": edge_conf['datalake_store_name'],
                        "datalake_shared_directory_name": edge_conf['datalake_user_directory_name'],
                        "datalake_user_directory_name": edge_conf['datalake_user_directory_name'],

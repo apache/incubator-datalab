@@ -686,7 +686,7 @@ if __name__ == "__main__":
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
             if edge_conf['edge_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
-        if os.environ['azure_datalake_enable'] == 'false':
+        if os.environ['azure_datalake_enable'] == 'true':
             for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
                 if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
                     AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
