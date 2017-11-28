@@ -71,14 +71,14 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
      */
     @POST
     @Path("/login")
-    public Response login(@Valid @NotNull UserCredentialDTO credential) {
+    public Response userLogin(@Valid @NotNull UserCredentialDTO credential) {
         LOGGER.debug("Try login for user {}", credential.getUsername());
         try {
             dao.writeLoginAttempt(credential);
 			return securityService.post(LOGIN, credential, Response.class);
-        } catch (Exception t) {
-        	LOGGER.error("Try login for user {} fail", credential.getUsername(), t);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(t.getLocalizedMessage()).build();
+        } catch (Exception e) {
+        	LOGGER.error("Try login for user {} fail", credential.getUsername(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build();
         }
     }
 
@@ -86,11 +86,11 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
     /** Authorize method for the dlab user.
      * @param userInfo user info.
      * @param username user name.
-     * @return 500 Internal Server Error if post response fails.
+     * @return 500 Internal Server Error if post request fails.
      */
     @POST
     @Path("/authorize")
-    public Response authorize(@Auth UserInfo userInfo, @Valid @NotBlank String username) throws DlabException {
+    public Response authorize(@Auth UserInfo userInfo, @Valid @NotBlank String username) {
         LOGGER.debug("Try authorize accessToken {} for user info {}", userInfo.getAccessToken(), userInfo);
         try {
         	Status status = userInfo.getName().equalsIgnoreCase(username) ?
@@ -114,14 +114,14 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
      */
     @POST
     @Path("/logout")
-    public Response logout(@Auth UserInfo userInfo) {
+    public Response userLogout(@Auth UserInfo userInfo) {
         LOGGER.debug("Try logout for accessToken {}", userInfo.getAccessToken());
         try {
         	EnvStatusListener.listenStop(userInfo.getName());
             return securityService.post(LOGOUT, userInfo.getAccessToken(), Response.class);
-        } catch(Exception t) {
-        	LOGGER.error("Try logout for accessToken {}", userInfo.getAccessToken(), t.getLocalizedMessage());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(t.getLocalizedMessage()).build();
+        } catch(Exception e) {
+        	LOGGER.error("Try logout for accessToken {}", userInfo.getAccessToken(), e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getLocalizedMessage()).build();
         }
     }
 }

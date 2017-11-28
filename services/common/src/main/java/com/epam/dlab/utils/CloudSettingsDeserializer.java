@@ -21,7 +21,6 @@ import com.epam.dlab.dto.azure.AzureCloudSettings;
 import com.epam.dlab.dto.base.CloudSettings;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,7 +35,7 @@ import java.util.Map;
 @Slf4j
 public class CloudSettingsDeserializer extends JsonDeserializer<CloudSettings> {
     @Override
-    public CloudSettings deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public CloudSettings deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         JsonNode jsonNode = p.readValueAsTree();
 
         Map<String, String> mapJson = new HashMap<>();

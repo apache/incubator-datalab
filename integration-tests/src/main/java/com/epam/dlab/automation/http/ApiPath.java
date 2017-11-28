@@ -33,7 +33,7 @@ public class ApiPath {
     public static final String LIB_GROUPS = "/api/infrastructure_provision/exploratory_environment/lib_groups";
     public static final String LIB_LIST = "/api/infrastructure_provision/exploratory_environment/search/lib_list";
     public static final String LIB_INSTALL = "/api/infrastructure_provision/exploratory_environment/lib_install";
-    public static final String LIB_LIST_EXPLORATORY = "/api/infrastructure_provision/exploratory_environment/lib_list";
+    public static final String LIB_LIST_EXPLORATORY_FORMATTED = "/api/infrastructure_provision/exploratory_environment/lib_list/formatted";
 
           
     public static String ConfigureURL(String url, Object... args) {        

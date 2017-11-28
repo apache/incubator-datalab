@@ -233,6 +233,8 @@ if __name__ == "__main__":
     install_ungit(args.os_user)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
+    # COPY PRE-COMMIT SCRIPT TO ZEPPELIN
+    sudo('cp /home/{}/.git/templates/hooks/pre-commit /opt/zeppelin/notebook/.git/hooks/'.format(args.os_user))
 
     # INSTALL OPTIONAL PACKAGES
     print("Install additional R packages")

@@ -184,7 +184,8 @@ public class BillingSchedulerAzure {
                     currentTime.toDateMidnight(),
                     dateTimeToFromBillingPeriod, dateTimeToFromBillingPeriod.toDateMidnight());
 
-            if (currentTime.toDateMidnight().isAfter(dateTimeToFromBillingPeriod.toDateMidnight())) {
+            if (currentTime.toDateMidnight().isAfter(dateTimeToFromBillingPeriod.toDateMidnight())
+                    || currentTime.toDateMidnight().isEqual(dateTimeToFromBillingPeriod.toDateMidnight())) {
                 log.info("Should trigger the job by time");
                 return true;
             }
@@ -229,7 +230,7 @@ public class BillingSchedulerAzure {
                 log.debug("History of billing periods is updated with {}",
                         objectMapper.writeValueAsString(billingPeriod));
             } catch (JsonProcessingException e) {
-                log.error("Cannot update history of billing periods");
+                log.error("Cannot update history of billing periods", e);
 
             }
 

@@ -25,7 +25,7 @@ import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.DockerResource;
 import com.epam.dlab.backendapi.resources.GitExploratoryResource;
 import com.epam.dlab.backendapi.resources.InfrastructureResource;
-import com.epam.dlab.backendapi.resources.LibExploratoryResource;
+import com.epam.dlab.backendapi.resources.LibraryResource;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.process.DlabProcess;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
@@ -41,11 +41,6 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
 public class ProvisioningServiceApplication extends Application<ProvisioningServiceApplicationConfiguration> {
-    private static Injector injector;
-
-    public static Injector getInjector() {
-        return injector;
-    }
 
     public static void main(String[] args) throws Exception {
         if (ServiceUtils.printAppVersion(ProvisioningServiceApplication.class, args)) {
@@ -68,7 +63,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
         DlabProcess.getInstance().setMaxProcessesPerUser(configuration.getProcessMaxThreadsPerUser());
 
         CloudModule cloudModule = CloudModuleConfigurator.getCloudModule(configuration);
-        injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment), cloudModule);
+        Injector injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment), cloudModule);
         cloudModule.init(environment, injector);
 
         injector.getInstance(SecurityFactory.class).configure(injector, environment);
@@ -83,7 +78,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
 
         jersey.register(injector.getInstance(DockerResource.class));
         jersey.register(injector.getInstance(GitExploratoryResource.class));
-        jersey.register(injector.getInstance(LibExploratoryResource.class));
+        jersey.register(injector.getInstance(LibraryResource.class));
         jersey.register(injector.getInstance(InfrastructureResource.class));
 
     }

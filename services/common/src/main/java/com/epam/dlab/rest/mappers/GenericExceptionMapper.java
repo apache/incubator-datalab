@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
-abstract public class GenericExceptionMapper<E extends Exception> implements ExceptionMapper<E> {
-    final static Logger LOGGER = LoggerFactory.getLogger(GenericExceptionMapper.class);
+public abstract class GenericExceptionMapper<E extends Exception> implements ExceptionMapper<E> {
+    static final Logger LOGGER = LoggerFactory.getLogger(GenericExceptionMapper.class);
 
     @Override
     public Response toResponse(E exception) {

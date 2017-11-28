@@ -42,10 +42,14 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
  * Self Service based on Dropwizard application.
  */
 public class SelfServiceApplication extends Application<SelfServiceApplicationConfiguration> {
-    private static Injector injector;
+    private static Injector appInjector;
 
     public static Injector getInjector() {
-        return injector;
+        return appInjector;
+    }
+
+    public static void setInjector(Injector injector) {
+        SelfServiceApplication.appInjector = injector;
     }
 
     public static void main(String... args) throws Exception {
@@ -70,7 +74,9 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
     public void run(SelfServiceApplicationConfiguration configuration, Environment environment) throws Exception {
 
         CloudModule cloudModule = ModuleFactory.getCloudProviderModule(configuration);
-        injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment), cloudModule);
+        Injector injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment), cloudModule);
+        setInjector(injector);
+
         cloudModule.init(environment, injector);
         environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
         environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
@@ -99,7 +105,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         jersey.register(injector.getInstance(ExploratoryCallback.class));
 
         jersey.register(injector.getInstance(LibExploratoryResource.class));
-        jersey.register(injector.getInstance(LibExploratoryCallback.class));
+        jersey.register(injector.getInstance(LibraryCallback.class));
 
         jersey.register(injector.getInstance(GitCredsResource.class));
         jersey.register(injector.getInstance(GitCredsCallback.class));

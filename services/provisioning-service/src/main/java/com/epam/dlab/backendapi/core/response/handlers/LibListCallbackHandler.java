@@ -18,7 +18,7 @@ package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.dto.exploratory.ExploratoryLibListStatusDTO;
+import com.epam.dlab.dto.exploratory.LibListStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
@@ -32,7 +32,7 @@ import java.nio.file.Paths;
 /**
  * Handler of docker response for the request the list of libraries.
  */
-public class LibListCallbackHandler extends ResourceCallbackHandler<ExploratoryLibListStatusDTO> {
+public class LibListCallbackHandler extends ResourceCallbackHandler<LibListStatusDTO> {
 
     /**
      * Name of node in response "file".
@@ -64,7 +64,7 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<ExploratoryL
     }
 
     @Override
-    protected ExploratoryLibListStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryLibListStatusDTO status) throws DlabException {
+    protected LibListStatusDTO parseOutResponse(JsonNode resultNode, LibListStatusDTO status) throws DlabException {
         if (UserInstanceStatus.FAILED == UserInstanceStatus.of(status.getStatus())) {
             return status;
         }
@@ -92,7 +92,7 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<ExploratoryL
     }
 
     @Override
-    protected ExploratoryLibListStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
+    protected LibListStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
         return super.getBaseStatusDTO(status)
                 .withImageName(imageName);
     }

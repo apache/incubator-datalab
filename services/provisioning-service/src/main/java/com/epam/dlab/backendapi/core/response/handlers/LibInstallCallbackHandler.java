@@ -18,8 +18,8 @@ package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
-import com.epam.dlab.dto.exploratory.ExploratoryLibInstallDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryLibInstallStatusDTO;
+import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
+import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
@@ -37,7 +37,7 @@ import java.util.List;
  * Handler of docker response for the request for libraries installation.
  */
 @Slf4j
-public class LibInstallCallbackHandler extends ResourceCallbackHandler<ExploratoryLibInstallStatusDTO> {
+public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstallStatusDTO> {
 
     /**
      * Name of node in response "Libs".
@@ -52,7 +52,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
     /**
      * Exploratory DTO.
      */
-    private final ExploratoryLibInstallDTO dto;
+    private final LibraryInstallDTO dto;
 
     /**
      * Instantiate handler for process of docker response for libraries installation.
@@ -62,7 +62,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
      * @param uuid        request UID.
      * @param dto         contains libraries to instal
      */
-    public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, ExploratoryLibInstallDTO dto) {
+    public LibInstallCallbackHandler(RESTService selfService, DockerAction action, String uuid, String user, LibraryInstallDTO dto) {
         super(selfService, user, uuid, action);
         this.dto = dto;
     }
@@ -73,7 +73,8 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
     }
 
     @Override
-    protected ExploratoryLibInstallStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryLibInstallStatusDTO status) throws DlabException {
+    protected LibInstallStatusDTO parseOutResponse(JsonNode resultNode, LibInstallStatusDTO status) throws DlabException {
+
         if (UserInstanceStatus.FAILED == UserInstanceStatus.of(status.getStatus())) {
             for (LibInstallDTO lib : dto.getLibs()) {
                 lib.withStatus(status.getStatus()).withErrorMessage(status.getErrorMessage());
@@ -89,7 +90,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
             throw new DlabException("Can't handle response without property " + LIBS_ABSOLUTE_PATH);
         }
         try {
-            status.withLibs(MAPPER.readValue(nodeLibs.toString(), new TypeReference<List<LibInstallDTO>>() {
+            status.withLibs(mapper.readValue(nodeLibs.toString(), new TypeReference<List<LibInstallDTO>>() {
             }));
         } catch (IOException e) {
             log.warn("Can't parse field {} for UUID {} in JSON", LIBS_ABSOLUTE_PATH, getUUID(), e);
@@ -99,9 +100,10 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<Explorato
     }
 
     @Override
-    protected ExploratoryLibInstallStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
+    protected LibInstallStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
         return super.getBaseStatusDTO(status)
                 .withExploratoryName(dto.getExploratoryName())
-                .withUptime(Date.from(Instant.now()));
+                .withUptime(Date.from(Instant.now()))
+                .withComputationalName(dto.getComputationalName());
     }
 }

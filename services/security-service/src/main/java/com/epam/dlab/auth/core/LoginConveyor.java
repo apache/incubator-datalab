@@ -33,11 +33,11 @@ public class LoginConveyor extends KBalancedParallelConveyor<String,LoginStep,Us
 
     private UserInfoDAO userInfoDao;
 
-    public LoginConveyor() {
+    public LoginConveyor(long builderTimeout) {
         super(4);
         this.setName("LoginConveyor");
         this.setIdleHeartBeat(1, TimeUnit.SECONDS);
-        this.setDefaultBuilderTimeout(10,TimeUnit.SECONDS);
+        this.setDefaultBuilderTimeout(builderTimeout, TimeUnit.SECONDS);
         this.setResultConsumer(res->{
             LOG.debug("UserInfo Build Success: {}",res);
             LoginCache.getInstance().save(res.product);

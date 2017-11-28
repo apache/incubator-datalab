@@ -18,10 +18,12 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneConfiguration;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsEmrConfiguration;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
@@ -55,6 +57,10 @@ public class InfrastructureTemplatesResource implements DockerAPI {
 
     @Inject
     private SelfServiceApplicationConfiguration configuration;
+
+    @Inject
+    private SettingsDAO settingsDAO;
+
 
     @Inject
     @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
@@ -99,7 +105,8 @@ public class InfrastructureTemplatesResource implements DockerAPI {
             return Arrays.stream(array).map(e -> {
                 e.setImage(getSimpleImageName(e.getImage()));
                 return e;
-            }).filter(e -> UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, e.getImage())).collect(Collectors.toList());
+            }).filter(e -> exploratoryGpuIssuesAzureFilter(e) && UserRoles.checkAccess(userInfo, RoleType.EXPLORATORY, e.getImage())).collect(Collectors.toList());
+
 
         } catch (DlabException e) {
             log.error("Could not load list of exploratory templates for user: {}", userInfo.getName(), e);
@@ -108,12 +115,21 @@ public class InfrastructureTemplatesResource implements DockerAPI {
     }
 
     /**
+     * Temporary filter for creation of exploratory env due to Azure issues
+     */
+    private boolean exploratoryGpuIssuesAzureFilter(ExploratoryMetadataDTO e) {
+        return ("redhat".equals(settingsDAO.getConfOsFamily()) && configuration.getCloudProvider() == CloudProvider.AZURE) ?
+                !(e.getImage().endsWith("deeplearning") || e.getImage().endsWith("tensor"))
+                : true;
+    }
+
+    /**
      * Return the image name without suffix version.
      *
      * @param imageName the name of image.
      */
     private String getSimpleImageName(String imageName) {
-        int separatorIndex = imageName.indexOf(":");
+        int separatorIndex = imageName.indexOf(':');
         return (separatorIndex > 0 ? imageName.substring(0, separatorIndex) : imageName);
     }
 

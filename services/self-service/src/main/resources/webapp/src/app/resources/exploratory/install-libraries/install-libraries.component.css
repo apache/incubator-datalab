@@ -16,8 +16,13 @@ limitations under the License.
 
 ****************************************************************************/
 
-.modal-dialog .install-libs .modal-body {
-    padding: 0 20px;
+.modal-dialog .install-libraries .modal-body {
+    /* padding: 0 20px; */
+}
+.install-libraries .mat-list .mat-list-item .mat-list-item-content {
+    height: auto !important;
+    min-height: 54px !important;
+    border-bottom: 1px solid #edf1f5;
 }
 
 /* Tab Installation */
@@ -51,9 +56,11 @@ limitations under the License.
 }
 
 .list-container {
-    max-height: 55%;
+    max-height: 45%;
     overflow-y: auto;
     overflow-x: hidden;
+    position: absolute;
+    width: calc(50% - 50px);
 }
 .suggestions {
     text-decoration: none;
@@ -131,19 +138,27 @@ limitations under the License.
 }
 
  /* Tab info */
-.lib-name {
-    width: 85%;
+.lib-name { width: 35%; }
+.lib-name strong { font-weight: 400; }
+.lib-group, .lib-destination { width: 25%; }
+.lib-status { width: 20%; text-align: center; }
+
+.st-group {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
 }
-.lib-name strong {
-    font-weight: 400;
-}
-.lib-group {
-    width: 25%;
-}
-.lib-status {
-    width: 30%;
+.wrap-col {  display: flex; padding: 5px 0px; }
+
+.lib-status-col {
     text-align: center;
     position: relative;
+    width: 45%;
+    text-align: center;
+}
+
+.lib-destination-col {
+    width: 55%;
 }
 
 .warn-action {
@@ -173,8 +188,9 @@ limitations under the License.
 
 .scrollingList {
     max-height: 85%;
-    height: 75%;
+    height: 85%;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 .scrollingList.info p {
     text-align: center;
@@ -250,6 +266,6 @@ limitations under the License.
 
 @media screen and (min-width: 1281px) {
     .list-container {
-        max-height: 75%;
+        max-height: 60%;
     }
 }

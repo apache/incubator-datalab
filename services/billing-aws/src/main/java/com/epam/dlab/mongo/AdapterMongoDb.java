@@ -62,18 +62,6 @@ public class AdapterMongoDb extends DBAdapterBase {
 	@JsonProperty
     private boolean upsert = false;
 
-    
-    /** Default constructor for deserialization. */
-	public AdapterMongoDb() { }
-	
-	/** Instantiate adapter for reading or writing.
-	 * @param mode the mode of adapter.
-	 */
-	public AdapterMongoDb(Mode mode) {
-		super(mode);
-	}
-
-
 	/** Return the size of buffer for bulk insert. */
 	public int getBufferSize() {
 		return bufferSize;

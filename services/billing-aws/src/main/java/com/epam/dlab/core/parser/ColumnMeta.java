@@ -43,7 +43,7 @@ public class ColumnMeta {
 	public static final char MAPPING_COLUMN_SEPARATOR = ';';
 
 	/** The column names for common format. */
-	public static final String [] COLUMN_NAMES = {
+	static final String [] COLUMN_NAMES = {
         ReportLine.FIELD_DLAB_ID,
         ReportLine.FIELD_USER_ID,
         ReportLine.FIELD_USAGE_DATE,
