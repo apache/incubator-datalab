@@ -264,6 +264,35 @@ if __name__ == "__main__":
         append_result("Failed to create SSN storage account and container. Exception:" + str(err))
         sys.exit(1)
 
+    try:
+        logging.info('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
+        print('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
+        params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
+            format(ssn_conf['shared_container_name'], json.dumps(ssn_conf['shared_storage_account_tags']),
+                   os.environ['azure_resource_group_name'], ssn_conf['region'])
+        try:
+            local("~/scripts/{}.py {}".format('common_create_storage_account', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        if pre_defined_resource_group:
+            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
+            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
+                                         ssn_conf['subnet_name'])
+        if pre_defined_sg:
+            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
+                                                 ssn_conf['security_group_name'])
+        for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
+            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
+            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
+                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
+        append_result("Failed to create SSN storage account and container. Exception:" + str(err))
+        sys.exit(1)
+
     if os.environ['azure_datalake_enable'] == 'true':
         try:
             logging.info('[CREATE DATA LAKE STORE]')
@@ -303,34 +332,6 @@ if __name__ == "__main__":
                     AzureActions().delete_datalake_store(os.environ['azure_resource_group_name'], datalake.name)
             append_result("Failed to create Data Lake Store. Exception:" + str(err))
             sys.exit(1)
-    try:
-        logging.info('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
-        print('[CREATE SHARED STORAGE ACCOUNT AND CONTAINER]')
-        params = "--container_name {} --account_tags '{}' --resource_group_name {} --region {}". \
-            format(ssn_conf['shared_container_name'], json.dumps(ssn_conf['shared_storage_account_tags']),
-                   os.environ['azure_resource_group_name'], ssn_conf['region'])
-        try:
-            local("~/scripts/{}.py {}".format('common_create_storage_account', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        if pre_defined_resource_group:
-            AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
-        if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
-            AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
-                                         ssn_conf['subnet_name'])
-        if pre_defined_sg:
-            AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
-                                                 ssn_conf['security_group_name'])
-        for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-            if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                AzureActions().remove_storage_account(os.environ['azure_resource_group_name'], storage_account.name)
-        append_result("Failed to create SSN storage account and container. Exception:" + str(err))
-        sys.exit(1)
 
     if os.environ['conf_os_family'] == 'debian':
         initial_user = 'ubuntu'
