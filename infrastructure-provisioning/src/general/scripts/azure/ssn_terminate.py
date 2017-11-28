@@ -72,6 +72,15 @@ def terminate_ssn_node(resource_group_name, service_base_name, vpc_name, region)
     except:
         sys.exit(1)
 
+    print("Removing Data Lake Store")
+    try:
+        for datalake in AzureMeta().list_datalakes(resource_group_name):
+            if service_base_name == datalake.tags["SBN"]:
+                AzureActions().delete_datalake_store(resource_group_name, datalake.name)
+                print("Data Lake Store {} has been terminated".format(datalake.name))
+    except:
+        sys.exit(1)
+
     print("Removing images")
     try:
         for image in AzureMeta().list_images():

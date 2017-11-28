@@ -18,16 +18,18 @@
 
 from azure.common.client_factory import get_client_from_auth_file
 import azure.common
+from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
-from azure.mgmt.authorization import AuthorizationManagementClient
-from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
-from azure.datalake.store import core, lib, multithread
 from azure.storage import CloudStorageAccount
 from azure.storage import SharedAccessSignature
 from azure.storage.blob import BlockBlobService
+from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
+from azure.datalake.store import core, lib
+from azure.graphrbac import GraphRbacManagementClient
+from azure.common.credentials import ServicePrincipalCredentials
 import azure.common.exceptions as AzureExceptions
 from fabric.api import *
 from fabric.contrib.files import exists
@@ -38,6 +40,8 @@ import traceback
 import sys, time
 import os, json
 import dlab.fab
+import dlab.common_lib
+
 
 class AzureActions:
     def __init__(self):
@@ -48,6 +52,11 @@ class AzureActions:
         self.storage_client = get_client_from_auth_file(StorageManagementClient)
         self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
         self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
+        sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
+        self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(sp_creds['tenantId']).replace('"', ''),
+                                            client_secret=json.dumps(sp_creds['clientSecret']).replace('"', ''),
+                                            client_id=json.dumps(sp_creds['clientId']).replace('"', ''),
+                                            resource='https://datalake.azure.net/')
 
     def create_resource_group(self, resource_group_name, region):
         try:
@@ -201,13 +210,14 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_datalake_store(self, resource_group_name, datalake_name, region):
+    def create_datalake_store(self, resource_group_name, datalake_name, region, tags):
         try:
             result = self.datalake_client.account.create(
                 resource_group_name,
                 datalake_name,
                 {
                     "location": region,
+                    "tags": tags,
                     "encryption_state": "Enabled",
                     "encryption_config": {
                         "type": "ServiceManaged"
@@ -240,9 +250,8 @@ class AzureActions:
 
     def create_datalake_directory(self, datalake_name, dir_name):
         try:
-            token = lib.auth(tenant_id='', client_secret='', client_id='')
-            adlsFileSystemClient = core.AzureDLFileSystem(token, store_name=datalake_name)
-            result = adlsFileSystemClient.mkdir(dir_name)
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.mkdir(dir_name)
             return result
         except Exception as err:
             logging.info(
@@ -252,16 +261,73 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def remove_datalake_directory(self, datalake_name, dir_name):
+    def chown_datalake_directory(self, datalake_name, dir_name, ad_user):
         try:
-            token = lib.auth(tenant_id='', client_secret='', client_id='')
-            adlsFileSystemClient = core.AzureDLFileSystem(token, store_name=datalake_name)
-            result = adlsFileSystemClient.rm(dir_name, recursive=True)
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.chown(dir_name, owner=ad_user)
             return result
         except Exception as err:
             logging.info(
-                "Unable to create Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to create Data Lake directory",
+                "Unable to chown Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to chown Data Lake directory",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def chmod_datalake_directory(self, datalake_name, dir_name, mod):
+        try:
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.chmod(dir_name, mod)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to chmod Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to chmod Data Lake directory",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def set_user_permissions_to_datalake_directory(self, datalake_name, dir_name, ad_user, mod='rwx'):
+        try:
+            acl_specification = 'user:{}:{}'.format(ad_user, mod)
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.modify_acl_entries(path=dir_name, acl_spec=acl_specification)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to set user permission to Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to set user permission to Data Lake directory",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def unset_user_permissions_to_datalake_directory(self, datalake_name, dir_name, ad_user):
+        try:
+            acl_specification = 'user:{}'.format(ad_user)
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.remove_acl_entries(path=dir_name, acl_spec=acl_specification)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to unset user permission to Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to unset user permission to Data Lake directory",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def remove_datalake_directory(self, datalake_name, dir_name):
+        try:
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.rm(dir_name, recursive=True)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to delete Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to delete Data Lake directory",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
@@ -883,56 +949,8 @@ class AzureActions:
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def create_application(self, app_name):
-        try:
-            result = graphrbac_client.applications.create(
-                {
-                    "available_to_other_tenants": False,
-                    "display_name": app_name,
-                    "identifier_uris": ["http://{}".format(app_name)]
-                }
-            )
-            return result
-        except Exception as err:
-            logging.info(
-                "Unable to create application: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to create application",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
-
-    def delete_application(self, application_object_id):
-        try:
-            graphrbac_client.applications.delete(application_object_id)
-            return ''
-        except Exception as err:
-            logging.info(
-                "Unable to delete application: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to delete application",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
-
-    def create_service_principal(self, application_id):
-        try:
-            result = graphrbac_client.service_principals.create(
-                {
-                    "app_id": application_id,
-                    "account_enabled": "True"
-                }
-            )
-            return result
-        except Exception as err:
-            logging.info(
-                "Unable to create service principal: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to create service principal",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
-
     def create_image_from_instance(self, resource_group_name, instance_name, region, image_name, tags):
         try:
-
             instance_id = meta_lib.AzureMeta().get_instance(resource_group_name, instance_name).id
             self.compute_client.virtual_machines.deallocate(resource_group_name, instance_name).wait()
             self.compute_client.virtual_machines.generalize(resource_group_name, instance_name)
@@ -965,10 +983,42 @@ class AzureActions:
             traceback.print_exc(file=sys.stdout)
 
 
-def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
-    if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
+def ensure_local_jars(os_user, jars_dir):
+    if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
             hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
+            print("Downloading local jars for Azure")
+            sudo('mkdir -p ' + jars_dir)
+            if os.environ['azure_datalake_enable'] == 'false':
+                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
+                                 {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
+                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/2.2.0/azure-storage-2.2.0.jar \
+                    -O {}azure-storage-2.2.0.jar'.format(jars_dir))
+            else:
+                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/3.0.0-beta1/hadoop-azure-3.0.0-beta1.jar -O \
+                                 {}hadoop-azure-3.0.0-beta1.jar'.format(jars_dir))
+                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/6.1.0/azure-storage-6.1.0.jar \
+                                    -O {}azure-storage-6.1.0.jar'.format(jars_dir))
+                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-data-lake-store-sdk/2.2.3/azure-data-lake-store-sdk-2.2.3.jar \
+                    -O {}azure-data-lake-store-sdk-2.2.3.jar'.format(jars_dir))
+                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/3.0.0-beta1/hadoop-azure-datalake-3.0.0-beta1.jar \
+                    -O {}hadoop-azure-datalake-3.0.0-beta1.jar'.format(jars_dir))
+            if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
+                sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
+                     -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
+            sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
+        except Exception as err:
+            logging.info(
+                "Unable to download local jars: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to download local jars",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+
+def configure_local_spark(os_user, jars_dir, region, templates_dir):
+    if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
+        try:
             user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
                 replace('_', '-') + '-storage'
             shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
@@ -981,40 +1031,45 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                     shared_storage_account_name = storage_account.name
                     shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
                                                                                         shared_storage_account_name)[0]
-            print("Downloading local jars for Azure")
-            sudo('mkdir -p ' + jars_dir)
-            sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
-                 {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
-            sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/2.2.0/azure-storage-2.2.0.jar \
-                 -O {}azure-storage-2.2.0.jar'.format(jars_dir))
-            if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
-                sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
-                     -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
-            put(templates_dir + 'core-site.xml', '/tmp/core-site.xml')
+            if os.environ['azure_datalake_enable'] == 'false':
+                put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
+            else:
+                put(templates_dir + 'core-site-datalake.xml', '/tmp/core-site.xml')
             sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
             sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
             sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
             sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
-            sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+            if os.environ['azure_datalake_enable'] == 'true':
+                client_id = os.environ['azure_client_id']
+                refresh_token = os.environ['azure_user_refresh_token']
+                sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
+                sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
+            if os.environ['azure_datalake_enable'] == 'false':
+                sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+            else:
+                sudo('mv /tmp/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml')
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
                   /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-            sudo('touch /home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
         except Exception as err:
             logging.info(
-                "Unable to download local jars: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to download local jars",
+                "Unable to configure Spark: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to configure Spark",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
 
-def configure_dataengine_spark(jars_dir, spark_dir, region):
+def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled):
     local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
-    local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
-    local('cp /opt/spark/conf/core-site.xml {}conf/'.format(spark_dir))
+    local('mv /tmp/notebook_spark-defaults_local.conf  {}spark/conf/spark-defaults.conf'.format(cluster_dir))
+    if datalake_enabled == 'false':
+        local('cp /opt/spark/conf/core-site.xml {}spark/conf/'.format(cluster_dir))
+    else:
+        local('cp -f /opt/hadoop/etc/hadoop/core-site.xml {}hadoop/etc/hadoop/core-site.xml'.format(cluster_dir))
 
 
 def remount_azure_disk(creds=False, os_user='', hostname='', keyfile=''):
@@ -1047,3 +1102,69 @@ def prepare_disk(os_user):
             sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except:
             sys.exit(1)
+
+
+def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
+    if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+        try:
+            if os.environ['azure_datalake_enable'] == 'false':
+                sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+                sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+                sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+                sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+                sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
+            else:
+                # Downloading Spark without Hadoop
+                sudo('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'.format(spark_version))
+                sudo('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
+                sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
+                sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
+                # Downloading Hadoop
+                sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0-beta1/hadoop-3.0.0-beta1.tar.gz -O /tmp/hadoop-3.0.0-beta1.tar.gz')
+                sudo('tar -zxvf /tmp/hadoop-3.0.0-beta1.tar.gz -C /opt/')
+                sudo('mv /opt/hadoop-3.0.0-beta1 /opt/hadoop/')
+                sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
+                # Configuring Hadoop and Spark
+                java_path = dlab.common_lib.find_java_path_remote()
+                sudo('echo "export JAVA_HOME={}" >> /opt/hadoop/etc/hadoop/hadoop-env.sh'.format(java_path))
+                sudo("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> /opt/hadoop/etc/hadoop/hadoop-env.sh""")
+                sudo('echo "export HADOOP_HOME=/opt/hadoop/" >> /opt/spark/conf/spark-env.sh')
+                sudo('echo "export SPARK_HOME=/opt/spark/" >> /opt/spark/conf/spark-env.sh')
+                spark_dist_classpath = sudo('/opt/hadoop/bin/hadoop classpath')
+                sudo('echo "export SPARK_DIST_CLASSPATH={}" >> /opt/spark/conf/spark-env.sh'.format(
+                    spark_dist_classpath))
+                sudo('touch /home/{}/.ensure_dir/local_spark_ensured'.format(os_user))
+        except:
+            sys.exit(1)
+
+
+def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
+    try:
+        if datalake_enabled == 'false':
+            local('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+            local('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+            local('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')
+            local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')
+        else:
+            # Downloading Spark without Hadoop
+            local('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'.format(
+                spark_version))
+            local('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
+            local('mv /opt/spark-{}-bin-without-hadoop {}spark/'.format(spark_version, cluster_dir))
+            local('chown -R {0}:{0} {1}/spark/'.format(os_user, cluster_dir))
+            # Downloading Hadoop
+            local('wget https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0-beta1/hadoop-3.0.0-beta1.tar.gz -O /tmp/hadoop-3.0.0-beta1.tar.gz')
+            local('tar -zxvf /tmp/hadoop-3.0.0-beta1.tar.gz -C /opt/')
+            local('mv /opt/hadoop-3.0.0-beta1 {}hadoop/'.format(cluster_dir))
+            local('chown -R {0}:{0} {1}hadoop/'.format(os_user, cluster_dir))
+            # Configuring Hadoop and Spark
+            java_path = dlab.common_lib.find_java_path_local()
+            local('echo "export JAVA_HOME={}" >> {}hadoop/etc/hadoop/hadoop-env.sh'.format(java_path, cluster_dir))
+            local("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> {}hadoop/etc/hadoop/hadoop-env.sh""".format(cluster_dir))
+            local('echo "export HADOOP_HOME={0}hadoop/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir))
+            local('echo "export SPARK_HOME={0}spark/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir))
+            spark_dist_classpath = local('{}hadoop/bin/hadoop classpath'.format(cluster_dir), capture=True)
+            local('echo "export SPARK_DIST_CLASSPATH={}" >> {}spark/conf/spark-env.sh'.format(
+                spark_dist_classpath, cluster_dir))
+    except:
+        sys.exit(1)

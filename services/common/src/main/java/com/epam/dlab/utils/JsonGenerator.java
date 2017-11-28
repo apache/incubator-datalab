@@ -43,7 +43,7 @@ public final class JsonGenerator {
         }
     }
 
-    static private abstract class CloudSettingsUnwrapping {
+    private abstract static class CloudSettingsUnwrapping {
         @JsonUnwrapped
         private CloudSettings cloudSettings;
     }

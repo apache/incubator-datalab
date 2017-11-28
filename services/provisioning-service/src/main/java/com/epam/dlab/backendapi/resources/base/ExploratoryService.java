@@ -16,34 +16,19 @@
 
 package com.epam.dlab.backendapi.resources.base;
 
-import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
-import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
+import com.epam.dlab.backendapi.service.DockerService;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
-import com.epam.dlab.rest.client.RESTService;
-import com.google.inject.Inject;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-
 @Slf4j
-public class ExploratoryService implements DockerCommands {
+public class ExploratoryService extends DockerService implements DockerCommands {
 
-    @Inject
-    private ProvisioningServiceApplicationConfiguration configuration;
-    @Inject
-    private FolderListenerExecutor folderListenerExecutor;
-    @Inject
-    private ICommandExecutor commandExecutor;
-    @Inject
-    private CommandBuilder commandBuilder;
-    @Inject
-    private RESTService selfService;
-
-    public String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws IOException, InterruptedException {
+    public String action(String username, ExploratoryBaseDTO<?> dto, DockerAction action) throws JsonProcessingException {
         log.debug("{} exploratory environment", action);
         String uuid = DockerCommands.generateUUID();
         folderListenerExecutor.start(configuration.getImagesDirectory(),

@@ -19,6 +19,7 @@ package com.epam.dlab.dto.aws.computational;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -29,6 +30,7 @@ import java.util.Date;
  */
 @ToString(callSuper = true)
 @Getter
+@EqualsAndHashCode(callSuper = true)
 public class AwsComputationalResource extends UserComputationalResource {
 
     @JsonProperty("instance_id")

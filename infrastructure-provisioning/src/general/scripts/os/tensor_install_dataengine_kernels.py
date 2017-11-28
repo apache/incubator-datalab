@@ -32,6 +32,7 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--notebook_ip', type=str, default='')
+parser.add_argument('--datalake_enabled', type=str, default='')
 args = parser.parse_args()
 
 
@@ -63,5 +64,6 @@ if __name__ == "__main__":
         region = ''
     configure_notebook(args.keyfile, env.host_string)
     sudo("/usr/bin/python /usr/local/bin/tensor_dataengine_create_configs.py "
-         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {}".
-         format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master, region))
+         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --region {} --datalake_enabled {}".
+         format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master, region,
+                args.datalake_enabled))

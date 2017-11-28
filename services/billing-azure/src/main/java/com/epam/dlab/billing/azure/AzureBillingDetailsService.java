@@ -104,7 +104,7 @@ public class AzureBillingDetailsService {
 
             updateBillingDetails(user, mapToDetails(aggregateIterable));
         } catch (RuntimeException e) {
-            log.error("Updating billing details for user {} is failed", user);
+            log.error("Updating billing details for user {} is failed", user, e);
         }
     }
 

@@ -219,6 +219,10 @@ if __name__ == "__main__":
                         json.dumps(additional_config),
                         notebook_config['dlab_ssh_user'])
             local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+            params = "--hostname {} --keyfile {} --os_user {} --rstudio_pass {}" \
+                .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'],
+                        notebook_config['rstudio_pass'])
+            local("~/scripts/{}.py {}".format('rstudio_change_pass', params))
     except Exception as err:
         append_result("Failed creating image.", str(err))
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])

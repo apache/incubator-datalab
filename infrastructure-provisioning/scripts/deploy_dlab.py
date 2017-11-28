@@ -54,6 +54,7 @@ parser.add_argument('--aws_billing_bucket', type=str, default='', help='The name
 parser.add_argument('--aws_report_path', type=str, default='', help='The path to billing reports directory in S3 bucket')
 parser.add_argument('--azure_resource_group_name', type=str, default='', help='Name of Resource group in Azure')
 parser.add_argument('--azure_auth_path', type=str, default='', help='Full path to Azure credentials JSON file')
+parser.add_argument('--azure_datalake_enable', type=str, default='', help='Provision DataLake storage account')
 parser.add_argument('--azure_offer_number', type=str, default='', help='Azure offer number')
 parser.add_argument('--azure_currency', type=str, default='', help='Azure currency code')
 parser.add_argument('--azure_locale', type=str, default='', help='Azure locale')
@@ -141,6 +142,7 @@ def terminate_dlab(args):
     # Dropping Dlab environment with selected infrastructure tag
     docker_command = generate_docker_command()
     local(docker_command)
+
 
 if __name__ == "__main__":
     if not args.workspace_path:
