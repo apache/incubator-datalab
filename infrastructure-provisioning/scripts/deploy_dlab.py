@@ -49,6 +49,7 @@ parser.add_argument('--aws_report_path', type=str, default='', help='The path to
 parser.add_argument('--azure_resource_group_name', type=str, default='', help='Name of Resource group in Azure')
 parser.add_argument('--azure_auth_path', type=str, default='', help='Full path to Azure credentials JSON file')
 parser.add_argument('--azure_datalake_enable', type=str, default='', help='Provision DataLake storage account')
+parser.add_argument('--azure_ad_group_id', type=str, default='', help='ID of Azure AD group')
 parser.add_argument('--azure_offer_number', type=str, default='', help='Azure offer number')
 parser.add_argument('--azure_currency', type=str, default='', help='Azure currency code')
 parser.add_argument('--azure_locale', type=str, default='', help='Azure locale')
