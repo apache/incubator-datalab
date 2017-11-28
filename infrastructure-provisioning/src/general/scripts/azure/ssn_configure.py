@@ -298,6 +298,7 @@ if __name__ == "__main__":
                 "ssn_instance_size": os.environ['azure_ssn_instance_size'],
                 "edge_instance_size": os.environ['azure_edge_instance_size'],
                 "ssn_storage_account_tag_name": ssn_conf['ssn_storage_account_name'],
+                "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name'],
                 "datalake_tag_name": ssn_conf['datalake_store_name']
             }
         logging.info('[CONFIGURE SSN INSTANCE UI]')
@@ -357,12 +358,11 @@ if __name__ == "__main__":
         print("SSN instance size: {}".format(os.environ['azure_ssn_instance_size']))
         print("SSN storage account name: {}".format(ssn_storage_account_name))
         print("SSN container name: {}".format(ssn_conf['ssn_container_name']))
-        if os.environ['azure_datalake_enable'] == 'false':
-            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-                shared_storage_account_name = storage_account.name
-            print("Shared storage account name: {}".format(shared_storage_account_name))
-            print("Shared container name: {}".format(ssn_conf['shared_container_name']))
-        else:
+        if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
+            shared_storage_account_name = storage_account.name
+        print("Shared storage account name: {}".format(shared_storage_account_name))
+        print("Shared container name: {}".format(ssn_conf['shared_container_name']))
+        if os.environ['azure_datalake_enable'] == 'true':
             for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                     datalake_store_name = datalake.name
@@ -407,6 +407,8 @@ if __name__ == "__main__":
                        "instance_shape": os.environ['azure_ssn_instance_size'],
                        "ssn_storage_account_name": ssn_storage_account_name,
                        "ssn_container_name": ssn_conf['ssn_container_name'],
+                       "shared_storage_account_name": shared_storage_account_name,
+                       "shared_container_name": ssn_conf['shared_container_name'],
                        "datalake_name": datalake_store_name,
                        "datalake_shared_directory_name": ssn_conf['datalake_shared_directory_name'],
                        "region": ssn_conf['region'],
