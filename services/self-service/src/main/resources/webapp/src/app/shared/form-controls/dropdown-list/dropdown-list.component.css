@@ -18,19 +18,26 @@ limitations under the License.
 
 .dropdown-list {
   width: 100%;
+  position: relative;
 }
 
 .dropdown-list button {
   min-width: 100%;
   background: #fff;
-  border: 1px solid #cad2da;
   padding: 7px 12px;
   font-size: 16px;
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 0;
+  border: none;
   outline: none;
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+.dropdown-list button:active,
+.dropdown-list button:focus {
+  box-shadow: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12);
 }
 
 .dropdown-list button span {
@@ -47,13 +54,12 @@ limitations under the License.
   padding: 7px;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background: #f6fafe;
-  border: 1px solid #ccc;
-  border-radius: 0 4px 4px 0;
-  color: #64a5dc;
+  /* background: #f6fafe; */
+  border-left: 1px solid #ececec;
+  color: #36afd5;
 }
 
-.dropdown-list .dropdown-menu {
+.dropdown-list .list-menu {
   width: 100%;
   max-height: 250px;
   left: 0;
@@ -63,35 +69,43 @@ limitations under the License.
   overflow-x: hidden;
 }
 
-.dropdown-list .dropdown-menu li {
+.dropdown-list .list-menu li {
   padding: 0;
   margin: 0;
 }
+.dropdown-list .list-menu li a {
+  display: block;
+  color: #4a5c89;
+}
+.dropdown-list .list-menu a:hover {
+  background: #f7f7f7;
+  color: #35afd5;
+}
 
-.dropdown-list .dropdown-menu span,
+.dropdown-list .list-menu span,
 .dropdown-list .title span {
   display: flex;
   justify-content: space-between;
+  font-weight: 300;
 }
 
 .dropdown-list .title em,
-.dropdown-list .dropdown-menu li em {
+.dropdown-list .list-menu li em {
   font-size: 13px;
   color: #35afd5;
   margin-right: 0px;
-  margin-top: 1%;
   font-style: normal;
 }
 .dropdown-list .title em {
   margin-right: 35px;
 }
-.dropdown-list .dropdown-menu li span.caption {
+.dropdown-list .list-menu li span.caption {
   display: block;
   padding: 10px 15px;
   cursor: default;
 }
-.dropdown-list .dropdown-menu li i,
-.dropdown-list .dropdown-menu li strong {
+.dropdown-list .list-menu li i,
+.dropdown-list .list-menu li strong {
   display: inline-block;
   width: 30px;
   text-align: center;
@@ -99,13 +113,13 @@ limitations under the License.
   color: #35afd5;
   line-height: 26px;
 }
-.dropdown-list .dropdown-menu li i {
+.dropdown-list .list-menu li i {
   vertical-align: sub;
   font-size: 18px;
 }
 
-.dropdown-list .dropdown-menu a {
-  padding: 10px;
+.dropdown-list .list-menu a {
+  padding: 12px;
   padding-left: 15px;
   position: relative;
   font-weight: 300;
