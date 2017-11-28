@@ -40,9 +40,11 @@ export class BubbleService {
       'bottom-left': { top: element.offsetTop + element.offsetHeight * 2, left: element.offsetLeft + element.offsetWidth - bubbleElement.offsetWidth },
       'bottom-right': { top: element.offsetTop + element.offsetHeight, left: element.offsetLeft },
       'top-left': { top: element.offsetTop - bubbleElement.offsetHeight, left: element.offsetLeft + element.offsetWidth - bubbleElement.offsetWidth },
-      'top-right': { top: element.offsetTop - bubbleElement.offsetHeight, left: element.offsetLeft }
+      'top-right': { top: element.offsetTop - bubbleElement.offsetHeight, left: element.offsetLeft },
+      'bottom': {}
     };
-
+    debugger;
+    
     return positionMap[position];
   }
 }
