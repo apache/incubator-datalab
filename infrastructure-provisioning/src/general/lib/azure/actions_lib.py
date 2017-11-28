@@ -997,7 +997,7 @@ def ensure_local_jars(os_user, jars_dir):
                 sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/3.0.0-beta1/hadoop-azure-3.0.0-beta1.jar -O \
                                  {}hadoop-azure-3.0.0-beta1.jar'.format(jars_dir))
                 sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/6.1.0/azure-storage-6.1.0.jar \
-                                    -O {}azure-storage-2.2.0.jar'.format(jars_dir))
+                                    -O {}azure-storage-6.1.0.jar'.format(jars_dir))
                 sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-data-lake-store-sdk/2.2.3/azure-data-lake-store-sdk-2.2.3.jar \
                     -O {}azure-data-lake-store-sdk-2.2.3.jar'.format(jars_dir))
                 sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/3.0.0-beta1/hadoop-azure-datalake-3.0.0-beta1.jar \
