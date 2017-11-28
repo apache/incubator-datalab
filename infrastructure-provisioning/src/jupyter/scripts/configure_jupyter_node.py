@@ -45,7 +45,8 @@ if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
 else:
-    spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
+    spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
+                 "-bin-hadoop" + hadoop_version + ".tgz"
 
 pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/pyspark_local/'
 py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/py3spark_local/'
@@ -100,7 +101,9 @@ if __name__ == "__main__":
     print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
     print("Install storage jars")
-    ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
+    ensure_local_jars(args.os_user, jars_dir)
+    print("Configure local Spark")
+    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir)
 
     # INSTALL JUPYTER KERNELS
     print("Install pyspark local kernel for Jupyter")

@@ -56,7 +56,8 @@ if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
 else:
-    spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
+    spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
+                 "-bin-hadoop" + hadoop_version + ".tgz"
 
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
@@ -67,17 +68,18 @@ r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', '
 
 def start_spark(os_user, master_ip, node):
     if not exists('/home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node)):
-        run('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
-        run('''echo "SPARK_MASTER_HOST='{}'" >> /opt/spark/conf/spark-env.sh'''.format(master_ip))
+        if not exists('/opt/spark/conf/spark-env.sh'):
+            sudo('mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh')
+        sudo('''echo "SPARK_MASTER_HOST='{}'" >> /opt/spark/conf/spark-env.sh'''.format(master_ip))
         if os.environ['application'] == 'tensor':
-            run('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
+            sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64" >> /opt/spark/conf/spark-env.sh''')
         if os.environ['application'] == 'deeplearning':
-            run('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib" >> /opt/spark/conf/spark-env.sh''')
+            sudo('''echo "LD_LIBRARY_PATH=/opt/cudnn/lib64:/usr/local/cuda/lib64:/usr/lib64/openmpi/lib" >> /opt/spark/conf/spark-env.sh''')
         if node == 'master':
-            run('/opt/spark/sbin/start-master.sh')
-            run('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
+            sudo('/opt/spark/sbin/start-master.sh')
+            sudo('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
         if node == 'slave':
-            run('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
+            sudo('/opt/spark/sbin/start-slave.sh  spark://{}:7077'.format(master_ip))
         sudo('touch /home/{0}/.ensure_dir/start_spark-{1}_ensured'.format(os_user, node))
 
 
@@ -116,8 +118,10 @@ if __name__ == "__main__":
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
-    print("Install storage and tensorflow connection jars")
-    ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
+    print("Install storage jars")
+    ensure_local_jars(args.os_user, jars_dir)
+    print("Configure local Spark")
+    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir)
 
     # INSTALL TENSORFLOW AND OTHER DEEP LEARNING LIBRARIES
     if os.environ['application'] in ('tensor', 'deeplearning'):

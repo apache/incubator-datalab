@@ -17,19 +17,23 @@
 # ******************************************************************************
 
 from azure.common.client_factory import get_client_from_auth_file
+from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
-from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
-from azure.mgmt.authorization import AuthorizationManagementClient
 from azure.storage.blob import BlockBlobService
+from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
+from azure.datalake.store import core, lib
+from azure.graphrbac import GraphRbacManagementClient
+from azure.common.credentials import ServicePrincipalCredentials
 import azure.common.exceptions as AzureExceptions
 import meta_lib
 import logging
 import traceback
-import sys, time
+import sys
 import os
+import json
 
 
 class AzureMeta:
@@ -41,6 +45,11 @@ class AzureMeta:
         self.storage_client = get_client_from_auth_file(StorageManagementClient)
         self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
         self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
+        sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
+        self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(sp_creds['tenantId']).replace('"', ''),
+                                            client_secret=json.dumps(sp_creds['clientSecret']).replace('"', ''),
+                                            client_id=json.dumps(sp_creds['clientId']).replace('"', ''),
+                                            resource='https://datalake.azure.net/')
 
     def get_resource_group(self, resource_group_name):
         try:
@@ -153,7 +162,7 @@ class AzureMeta:
 
     def get_datalake(self, resource_group_name, datalake_name):
         try:
-            result = self.resource_client.resource_groups.get(
+            result = self.datalake_client.account.get(
                 resource_group_name,
                 datalake_name
             )
@@ -171,7 +180,7 @@ class AzureMeta:
 
     def list_datalakes(self, resource_group_name):
         try:
-            result = self.resource_client.resource_groups.list_by_resource_group(resource_group_name)
+            result = self.datalake_client.account.list_by_resource_group(resource_group_name)
             return result
         except AzureExceptions.CloudError as err:
             if err.status_code == 404:
@@ -180,6 +189,19 @@ class AzureMeta:
             logging.info(
                 "Unable to list Data Lake accounts: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
             append_result(str({"error": "Unable to list Data Lake accounts",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def verify_datalake_directory(self, datalake_name, dir_name):
+        try:
+            datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
+            result = datalake_client.exists(dir_name)
+            return result
+        except Exception as err:
+            logging.info(
+                "Unable to verify Data Lake directory: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to verify Data Lake directory",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
