@@ -261,10 +261,15 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def chown_datalake_directory(self, datalake_name, dir_name, ad_user):
+    def chown_datalake_directory(self, datalake_name, dir_name, ad_user='', ad_group=''):
         try:
             datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
-            result = datalake_client.chown(dir_name, owner=ad_user)
+            if ad_user and ad_group:
+                result = datalake_client.chown(dir_name, owner=ad_user, group=ad_group)
+            elif ad_user and not ad_group:
+                result = datalake_client.chown(dir_name, owner=ad_user)
+            elif not ad_user and ad_group:
+                result = datalake_client.chown(dir_name, group=ad_group)
             return result
         except Exception as err:
             logging.info(
