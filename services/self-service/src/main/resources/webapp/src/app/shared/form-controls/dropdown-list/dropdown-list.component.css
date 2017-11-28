@@ -86,6 +86,7 @@ limitations under the License.
 .dropdown-list .title span {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-weight: 300;
 }
 
