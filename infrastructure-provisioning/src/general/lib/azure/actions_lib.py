@@ -1162,7 +1162,7 @@ def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_
             local("""echo 'export HADOOP_CLASSPATH="$HADOOP_HOME/share/hadoop/tools/lib/*"' >> {}hadoop/etc/hadoop/hadoop-env.sh""".format(cluster_dir))
             local('echo "export HADOOP_HOME={0}hadoop/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir))
             local('echo "export SPARK_HOME={0}spark/" >> {0}spark/conf/spark-env.sh'.format(cluster_dir))
-            spark_dist_classpath = local('{}hadoop/bin/hadoop classpath'.format(cluster_dir))
+            spark_dist_classpath = local('{}hadoop/bin/hadoop classpath'.format(cluster_dir), capture=True)
             local('echo "export SPARK_DIST_CLASSPATH={}" >> {}spark/conf/spark-env.sh'.format(
                 spark_dist_classpath, cluster_dir))
     except:
