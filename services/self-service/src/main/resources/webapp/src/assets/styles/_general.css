@@ -64,11 +64,12 @@ input[type='number']::placeholder {
 
 .control-group {
   display: flex;
+  flex-flow: row wrap;
   padding-bottom: 20px;
 }
 
 .control-group .label {
-  width: 30%;
+  width: 35%;
   color: #718ba6;
   font-size: 15px;
   font-weight: 600;
@@ -76,7 +77,7 @@ input[type='number']::placeholder {
   text-align: left;
 }
 .control-group .control {
-  width: 70%;
+  width: 65%;
 }
 
 button {
