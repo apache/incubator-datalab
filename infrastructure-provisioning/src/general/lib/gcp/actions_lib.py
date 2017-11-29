@@ -261,7 +261,7 @@ class GCPActions:
 
     def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path,
                         initial_user, ami_name, service_account_name, instance_class, static_ip='',
-                        primary_disk_size='12', secondary_disk_size='30'):
+                        primary_disk_size='12', secondary_disk_size='30', gpu_accelerator_type='None'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
@@ -337,6 +337,17 @@ class GCPActions:
         }
         if instance_class == 'notebook':
             del instance_params['networkInterfaces'][0]['accessConfigs']
+        if gpu_accelerator_type != 'None':
+            instance_params['guestAccelerators'] = [
+                {
+                    "acceleratorCount": 1,
+                    "acceleratorType": "projects/{0}/zones/{1}/acceleratorTypes/{2}".format(self.project, zone, gpu_accelerator_type)
+                }
+            ]
+            instance_params['scheduling'] = {
+                "onHostMaintenance": "terminate",
+                "automaticRestart": "true"
+            }
         request = self.service.instances().insert(project=self.project, zone=zone, body=instance_params)
         try:
             result = request.execute()
