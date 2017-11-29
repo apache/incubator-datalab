@@ -200,7 +200,7 @@ def ensure_python2_libraries(os_user):
             sudo('python2 -m pip install backports.shutil_get_terminal_size --no-cache-dir')
             sudo('pip2 install -U pip setuptools --no-cache-dir')
             sudo('pip2 install boto3 --no-cache-dir')
-            sudo('pip2 install fabvenv fabric-virtualenv --no-cache-dir')
+            sudo('pip2 install fabvenv fabric-virtualenv future --no-cache-dir')
             sudo('touch /home/' + os_user + '/.ensure_dir/python2_libraries_ensured')
         except:
             sys.exit(1)
@@ -213,7 +213,7 @@ def ensure_python3_libraries(os_user):
             sudo('yum install -y python35u python35u-pip python35u-devel')
             sudo('python3.5 -m pip install -U pip setuptools --no-cache-dir')
             sudo('python3.5 -m pip install boto3 --no-cache-dir')
-            sudo('python3.5 -m pip install fabvenv fabric-virtualenv --no-cache-dir')
+            sudo('python3.5 -m pip install fabvenv fabric-virtualenv future --no-cache-dir')
             try:
                 sudo('python3.5 -m pip install ipython ipykernel --no-cache-dir')
             except:
