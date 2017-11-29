@@ -35,7 +35,7 @@ limitations under the License.
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'user'" [items]="filterConfiguration.user" [model]="filteredReportData.user"></multi-select-dropdown>
     </td>
     <td>
-      <input placeholder="Filter by environment name" class="form-control filter-field" [value]="filteredReportData.dlab_id" (input)="filteredReportData.dlab_id = $event.target.value" />
+      <input type="text" placeholder="Filter by environment name" class="form-control filter-field" [value]="filteredReportData.dlab_id" (input)="filteredReportData.dlab_id = $event.target.value" />
     </td>
     <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resource_type'" [items]="filterConfiguration.resource_type" [model]="filteredReportData.resource_type"></multi-select-dropdown>
