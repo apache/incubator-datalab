@@ -94,8 +94,8 @@ if __name__ == "__main__":
 
     # configuring proxy on Notebook instance
     try:
-        logging.info('[CONFIGURE PROXY ON TENSOR INSTANCE]')
-        print('[CONFIGURE PROXY ON TENSOR INSTANCE]')
+        logging.info('[CONFIGURE PROXY ON DEEPLEARNING INSTANCE]')
+        print('[CONFIGURE PROXY ON DEEPLEARNING INSTANCE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
