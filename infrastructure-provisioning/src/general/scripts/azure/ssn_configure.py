@@ -345,6 +345,8 @@ if __name__ == "__main__":
         for storage_account in AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
             if ssn_conf['ssn_storage_account_name'] == storage_account.tags["Name"]:
                 ssn_storage_account_name = storage_account.name
+            if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
+                shared_storage_account_name = storage_account.name
 
         print('[SUMMARY]')
         print("Service base name: {}".format(ssn_conf['service_base_name']))
@@ -358,8 +360,6 @@ if __name__ == "__main__":
         print("SSN instance size: {}".format(os.environ['azure_ssn_instance_size']))
         print("SSN storage account name: {}".format(ssn_storage_account_name))
         print("SSN container name: {}".format(ssn_conf['ssn_container_name']))
-        if ssn_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
-            shared_storage_account_name = storage_account.name
         print("Shared storage account name: {}".format(shared_storage_account_name))
         print("Shared container name: {}".format(ssn_conf['shared_container_name']))
         if os.environ['azure_datalake_enable'] == 'true':
