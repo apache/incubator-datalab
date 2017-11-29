@@ -22,6 +22,16 @@ limitations under the License.
 	padding: 0;
 }
 
+body {
+  margin: 0;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
 ol, ul {
 	list-style: none;
 }
@@ -31,11 +41,14 @@ table {
 	border-spacing: 0;
 }
 
+[hidden], .hidden {
+  display: none !important;
+}
 
 ::-moz-selection,
 ::selection {
-    color: #fff;
-    background: #3399ff
+  color: #fff;
+  background: #3399ff
 }
 
 :focus {
@@ -44,4 +57,25 @@ table {
 
 ::-moz-focus-inner {
   border: 0
+}
+
+::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  font: inherit;
+}
+
+[type="search"]::-webkit-search-cancel-button,
+[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+[type="search"] {
+  -webkit-appearance: textfield;
+  outline-offset: -2px;
+}
+
+[type="checkbox"],
+[type="radio"] {
+  box-sizing: border-box;
+  padding: 0;
 }

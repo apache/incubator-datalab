@@ -16,6 +16,75 @@ limitations under the License.
 
 ****************************************************************************/
 
-.pull-right {
-  float: right;
+@import 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800';
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  overflow-x: hidden;
+  font-weight: 300;
 }
+
+.alignleft, .al {float: left}
+.alignright, .ar {float: right}
+.aligncenter, .ac {margin-left: auto;margin-right: auto}
+
+.mt-5 {margin-top: 5px}
+
+input[type='text'],
+input[type='number'] {
+  width: 100%;
+  padding: 0 12px;
+  font-weight: 300;
+  outline: none;
+  color: #6e7ca0;
+  border: 1px solid transparent;
+  background: rgba(247, 247, 247, 0.87);
+  transition: border 0.1s ease-out;
+}
+
+input[type='text']:focus,
+input[type='number']:focus {
+  border: none;
+  background: #fff;
+  transition: border 0.2s ease-in;
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+input[type='text']:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  color: rgba(0,0,0,.38);
+  background-color: rgba(0,0,0,.12);
+}
+
+input[type='text']::placeholder,
+input[type='number']::placeholder {
+  color: #718ba6;
+}
+
+.control-group {
+  display: flex;
+  padding-bottom: 20px;
+}
+
+.control-group .label {
+  width: 30%;
+  color: #718ba6;
+  font-size: 15px;
+  font-weight: 600;
+  align-self: center;
+  text-align: left;
+}
+.control-group .control {
+  width: 70%;
+}
+
+button {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.info_color {color: #5bc0de}
+.primary_color {color: #337ab7}
+.success_color {color: #5cb85c}
+.warning_color {color: #f0ad4e}
+.danger_color {color: #d9534f}
