@@ -21,7 +21,7 @@ limitations under the License.
     <th *ngFor="let column of filteringColumns"
         ngClass="{{column.className || ''}}"
         [hidden]="column.role && !full_report">{{ column.title }}
-      <button md-icon-button *ngIf="column.filtering" aria-label="More" class="pull-right" (click)="toggleFilterRow()">
+      <button md-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
         <i class="material-icons">
           <span *ngIf="isFiltered && filteredReportData[column.name].length > 0 && !collapseFilterRow">filter_list</span>
           <span [hidden]="isFiltered && filteredReportData[column.name].length > 0 && !collapseFilterRow">more_vert</span>
