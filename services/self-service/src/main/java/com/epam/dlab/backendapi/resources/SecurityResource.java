@@ -22,7 +22,6 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.MongoCollections;
 import com.epam.dlab.backendapi.dao.SecurityDAO;
-import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.backendapi.roles.UserRoles;
@@ -59,9 +58,9 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
     private SecurityDAO dao;
     @Inject
     @Named(ServiceConsts.SECURITY_SERVICE_NAME)
-    RESTService securityService;
+    private RESTService securityService;
     @Inject
-    private SettingsDAO settingsDAO;
+    private EnvStatusListener envStatusListener;
     @Inject
     private SelfServiceApplicationConfiguration configuration;
 
@@ -97,7 +96,7 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
         			Status.OK :
         			Status.FORBIDDEN;
         	if (status == Status.OK) {
-        		EnvStatusListener.listen(userInfo);
+        		envStatusListener.registerSession(userInfo);
         		if (configuration.isRolePolicyEnabled()) {
         			UserRoles.initialize(dao, configuration.getRoleDefaultAccess());
         		}
@@ -117,7 +116,7 @@ public class SecurityResource implements MongoCollections, SecurityAPI {
     public Response userLogout(@Auth UserInfo userInfo) {
         LOGGER.debug("Try logout for accessToken {}", userInfo.getAccessToken());
         try {
-        	EnvStatusListener.listenStop(userInfo.getName());
+        	envStatusListener.unregisterSession(userInfo);
             return securityService.post(LOGOUT, userInfo.getAccessToken(), Response.class);
         } catch(Exception e) {
         	LOGGER.error("Try logout for accessToken {}", userInfo.getAccessToken(), e);
