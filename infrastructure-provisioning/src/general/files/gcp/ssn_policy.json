@@ -10,6 +10,7 @@
     "compute.instances.start",
     "compute.instances.stop",
     "compute.instances.setMetadata",
+    "compute.instances.setTags",
     "compute.networks.create",
     "compute.networks.delete",
     "compute.networks.get",
@@ -39,10 +40,16 @@
     "compute.addresses.use",
     "compute.subnetworks.useExternalIp",
     "compute.disks.create",
+    "compute.disks.get",
     "iam.roles.create",
     "iam.roles.delete",
     "iam.roles.get",
     "iam.roles.list",
     "resourcemanager.projects.getIamPolicy",
-    "resourcemanager.projects.setIamPolicy"
+    "resourcemanager.projects.setIamPolicy",
+    "compute.instances.addAccessConfig",
+    "compute.instances.deleteAccessConfig",
+    "compute.instances.attachDisk",
+    "compute.instances.detachDisk",
+    "compute.instances.use"
 ]
