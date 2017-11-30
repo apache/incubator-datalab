@@ -198,8 +198,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        logging.info('[CREATE SERVICE ACCOUNT]')
-        print('[CREATE SERVICE ACCOUNT]')
+        logging.info('[CREATE SERVICE ACCOUNT AND ROLE]')
+        print('[CREATE SERVICE ACCOUNT AND ROLE]')
         params = "--service_account_name {} --role_name {} --policy_path {}".format(ssn_conf['service_account_name'],
                                                                                     ssn_conf['role_name'],
                                                                                     ssn_conf['ssn_policy_path'])
@@ -210,7 +210,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Unable to create Service account.", str(err))
+        append_result("Unable to create Service account and role.", str(err))
         try:
             GCPActions().remove_service_account(ssn_conf['service_account_name'])
         except:

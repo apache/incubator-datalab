@@ -53,8 +53,10 @@ if __name__ == "__main__":
     edge_conf['zone'] = os.environ['gcp_zone']
     edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
     edge_conf['private_subnet_prefix'] = os.environ['gcp_private_subnet_prefix']
-    edge_conf['edge_service_account_name'] = 'dlabowner' # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
-        # 'edge_user_name'] + '-edge-Role'
+    edge_conf['edge_service_account_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                             '-edge-sa'
+    edge_conf['edge_role_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
+                                  '-edge-role'
     edge_conf['notebook_service_account_name'] = 'dlabowner' # edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ[
         # 'edge_user_name'] + '-nb-Role'
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
@@ -106,21 +108,22 @@ if __name__ == "__main__":
 
     print('NEW SUBNET CIDR CREATED: {}'.format(edge_conf['private_subnet_cidr']))
 
-    # try:
-    #     logging.info('[CREATE EDGE ROLES]')
-    #     print('[CREATE EDGE ROLES]')
-    #     params = "--role_name {} --role_profile_name {} --policy_name {} --region {}" \
-    #              .format(edge_conf['role_name'], edge_conf['role_profile_name'],
-    #                      edge_conf['policy_name'], os.environ['gcp_region'])
-    #     try:
-    #         local("~/scripts/{}.py {}".format('common_create_role_policy', params))
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    # except Exception as err:
-    #     append_result("Failed to creating roles.", str(err))
-    #     sys.exit(1)
-    #
+    try:
+        logging.info('[CREATE SERVICE ACCOUNT AND ROLE]')
+        print('[CREATE SERVICE ACCOUNT AND ROLE]')
+        params = "--service_account_name {} --role_name {}".format(edge_conf['edge_service_account_name'],
+                                                                   edge_conf['edge_role_name'])
+
+        try:
+            local("~/scripts/{}.py {}".format('common_create_service_account', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
+        append_result("Failed to creating service account and role.", str(err))
+        sys.exit(1)
+
     # try:
     #     logging.info('[CREATE BACKEND (NOTEBOOK) ROLES]')
     #     print('[CREATE BACKEND (NOTEBOOK) ROLES]')
@@ -399,5 +402,5 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
         GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
         GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
-        GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
+        GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         sys.exit(1)
