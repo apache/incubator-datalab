@@ -38,8 +38,6 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
     @Min(5)
     private int loginAuthenticationTimeout = 10;
     @JsonProperty
-    private long inactiveUserTimeoutMillSec;
-    @JsonProperty
     private List<Request> ldapSearch;
     @JsonProperty
     private String ldapBindTemplate;
@@ -53,10 +51,6 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
     public SecurityServiceConfiguration() {
         super();
-    }
-
-    public long getInactiveUserTimeoutMillSec() {
-        return inactiveUserTimeoutMillSec;
     }
 
     public boolean isUserInfoPersistenceEnabled() {

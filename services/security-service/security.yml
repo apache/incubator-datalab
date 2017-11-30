@@ -18,7 +18,6 @@
 
 <#include "ssn.yml">
 
-inactiveUserTimeoutMillSec: 7200000
 ldapConnectionConfig:
 #  ldapHost: localhost
   ldapHost: LDAP_HOST

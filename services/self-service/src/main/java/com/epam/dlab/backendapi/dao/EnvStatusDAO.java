@@ -79,9 +79,6 @@ public class EnvStatusDAO extends BaseDAO {
 	@Inject
 	private SelfServiceApplicationConfiguration configuration;
 
-	@Inject
-	private EnvStatusListener envStatusListener;
-
 	/** Add the resource to list if it have instance_id.
 	 * @param list the list to add.
 	 * @param document document with resource.
@@ -353,7 +350,8 @@ public class EnvStatusDAO extends BaseDAO {
 			return false;
 		}
 
-    	UserInfo userInfo = envStatusListener.getSession(user);
+		EnvStatusListener envStatusListener = SelfServiceApplication.getInjector().getInstance(EnvStatusListener.class);
+    	UserInfo userInfo = (envStatusListener != null) ? envStatusListener.getSession(user) : null;
     	if (userInfo == null) {
     		// User logged off. Computational will be terminated when user logged in.
     		return true;

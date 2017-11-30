@@ -33,6 +33,7 @@ import com.epam.dlab.auth.dao.UserInfoDAODumbImpl;
 import com.epam.dlab.auth.dao.UserInfoDAOMongoImpl;
 import com.epam.dlab.auth.dao.filter.AwsUserDAO;
 import com.epam.dlab.auth.rest.AbstractAuthenticationService;
+import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserCredentialDTO;
 import io.dropwizard.setup.Environment;
 
@@ -42,6 +43,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -199,6 +201,7 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 	@POST
 	@Path("/getuserinfo")
 	public UserInfo getUserInfo(String accessToken, @Context HttpServletRequest request) {
+		String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
 		String remoteIp = request.getRemoteAddr();
 		UserInfo ui     = getUserInfo(accessToken, remoteIp);
 		if(ui == null) {
@@ -206,12 +209,11 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 			if( ui != null ) {
 				ui = ui.withToken(accessToken);
 				LoginCache.getInstance().save(ui);
-				userInfoDao.updateUserInfoTTL(accessToken, ui);
+				updateTTL(accessToken, ui, userAgent);
 				log.debug("restored UserInfo from DB {}",ui);
 			}
 		} else {
-			log.debug("updating TTL {}",ui);
-			userInfoDao.updateUserInfoTTL(accessToken, ui);
+			updateTTL(accessToken, ui, userAgent);
 		}
 		log.debug("Authorized {} {} {}", accessToken, ui, remoteIp);
 		return ui;
@@ -244,5 +246,14 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 			LoginCache.getInstance().removeUserInfo(accessToken);
 			userInfoDao.deleteUserInfo(accessToken);
 		}
+	}
+
+	private void updateTTL(String accessToken, UserInfo ui, String userAgent) {
+		log.debug("updating TTL agent {} {}", userAgent, ui);
+		if (ServiceConsts.PROVISIONING_USER_AGENT.equals(userAgent)) {
+			return;
+		}
+
+		userInfoDao.updateUserInfoTTL(accessToken, ui);
 	}
 }

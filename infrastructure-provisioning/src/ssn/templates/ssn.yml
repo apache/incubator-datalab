@@ -61,3 +61,6 @@ provisioningService:
   jerseyClient:
     timeout: 3s
     connectionTimeout: 3s
+
+# Log out user on inactivity
+inactiveUserTimeoutMillSec: 7200000

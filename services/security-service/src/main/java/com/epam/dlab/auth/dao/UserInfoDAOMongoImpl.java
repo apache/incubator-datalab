@@ -33,18 +33,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class UserInfoDAOMongoImpl implements UserInfoDAO {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(UserInfoDAOMongoImpl.class);
 
 	private final MongoService ms;
-	private final long inactiveUserTimeoutMsec;
 	private final ExecutorService executor = Executors.newCachedThreadPool();
-	
+
 	public UserInfoDAOMongoImpl(MongoService ms, long inactiveUserTimeoutMsec) {
 		this.ms = ms;
-		this.inactiveUserTimeoutMsec = inactiveUserTimeoutMsec;
 	}
-	
+
 	@Override
 	public UserInfo getUserInfoByAccessToken(String accessToken) {
 		BasicDBObject uiSearchDoc = new BasicDBObject();
@@ -88,7 +86,7 @@ public class UserInfoDAOMongoImpl implements UserInfoDAO {
 		executor.submit(()->{
 			BasicDBObject uiDoc = new BasicDBObject();
 			uiDoc.put("_id", accessToken);
-			uiDoc.put("expireAt", new Date( System.currentTimeMillis() + inactiveUserTimeoutMsec));
+			uiDoc.put("expireAt", new Date( System.currentTimeMillis()));
 			MongoCollection<BasicDBObject> security = ms.getCollection("security",BasicDBObject.class);
 			security.updateOne(new BasicDBObject("_id",accessToken),new BasicDBObject("$set",uiDoc));
 			LOG.debug("Updated persistent {}",accessToken);
@@ -118,7 +116,7 @@ public class UserInfoDAOMongoImpl implements UserInfoDAO {
 			uiDoc.put("roles", ui.getRoles());
 			uiDoc.put("remoteIp", ui.getRemoteIp());
 			uiDoc.put("awsUser", ui.isAwsUser());
-			uiDoc.put("expireAt", new Date(System.currentTimeMillis() + inactiveUserTimeoutMsec));
+			uiDoc.put("expireAt", new Date(System.currentTimeMillis()));
 			uiDoc.put("awsKeys",ui.getKeys());
 			MongoCollection<BasicDBObject> security = ms.getCollection("security", BasicDBObject.class);
 			security.insertOne(uiDoc);
