@@ -86,6 +86,7 @@ limitations under the License.
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>n1-standard-1</string>
+              <string>n1-standard-2</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -95,6 +96,7 @@ limitations under the License.
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>us-west1</string>
+              <string>us-east1</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -104,6 +106,7 @@ limitations under the License.
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>us-west1-a</string>
+              <string>us-east1-c</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
