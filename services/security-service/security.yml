@@ -18,6 +18,7 @@
 
 <#include "ssn.yml">
 
+ldapUseConnectionPool: false
 ldapConnectionConfig:
 #  ldapHost: localhost
   ldapHost: LDAP_HOST

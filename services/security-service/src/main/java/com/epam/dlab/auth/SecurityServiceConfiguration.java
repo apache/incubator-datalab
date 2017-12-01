@@ -35,6 +35,8 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
     @JsonProperty
     private boolean awsUserIdentificationEnabled = false;
     @JsonProperty
+    private boolean ldapUseConnectionPool = false;
+    @JsonProperty
     @Min(5)
     private int loginAuthenticationTimeout = 10;
     @JsonProperty
@@ -93,5 +95,9 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
     public int getLoginAuthenticationTimeout() {
         return loginAuthenticationTimeout;
+    }
+
+    public boolean isLdapUseConnectionPool() {
+        return ldapUseConnectionPool;
     }
 }
