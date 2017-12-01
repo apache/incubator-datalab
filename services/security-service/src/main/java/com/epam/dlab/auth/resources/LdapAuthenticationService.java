@@ -50,6 +50,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
+/**
+ * Provides authentication against LDAP server
+ * @deprecated  as it causes undefined behaviours during login. Use @{@link SynchronousSequentialLdapAuthenticationService}
+ */
 @Path("/")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -90,7 +94,7 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 		} else {
 			awsUserDAO = null;
 		}
-		this.ldapUserDAO = new LdapUserDAO(config);
+		this.ldapUserDAO = new LdapUserDAO(config, true);
 	}
 
 	@Override

@@ -18,10 +18,10 @@ limitations under the License.
 
 package com.epam.dlab.auth;
 
+import com.epam.dlab.auth.resources.SynchronousSequentialLdapAuthenticationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.epam.dlab.auth.resources.LdapAuthenticationService;
 import com.epam.dlab.utils.ServiceUtils;
 
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
@@ -52,7 +52,7 @@ public class SecurityServiceApplication extends Application<SecurityServiceConfi
 
 	@Override
 	public void run(SecurityServiceConfiguration conf, Environment env) throws Exception {
-		env.jersey().register( new LdapAuthenticationService(conf,env) );
+		env.jersey().register( new SynchronousSequentialLdapAuthenticationService(conf,env) );
 	}
 
 }
