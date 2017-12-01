@@ -58,7 +58,7 @@ if __name__ == "__main__":
     edge_conf['edge_role_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
                                   '-edge-role'
     edge_conf['notebook_service_account_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + \
-                                                 os.environ['edge_user_name'] + '-nb-Role'
+                                                 os.environ['edge_user_name'] + '-nb-sa'
     edge_conf['notebook_role_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
                                       '-nb-role'
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
