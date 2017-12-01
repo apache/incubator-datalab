@@ -29,6 +29,8 @@
     "iam.serviceAccounts.get",
     "iam.serviceAccounts.list",
     "iam.serviceAccounts.setIamPolicy",
+    "iam.serviceAccounts.getIamPolicy",
+    "iam.serviceAccounts.actAs",
     "storage.buckets.create",
     "storage.buckets.delete",
     "storage.buckets.get",
