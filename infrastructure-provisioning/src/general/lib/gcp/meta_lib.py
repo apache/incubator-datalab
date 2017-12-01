@@ -57,13 +57,14 @@ class GCPMeta:
     def wait_for_operation(self, zone, operation):
         print('Waiting for operation to finish...')
         while True:
+            time.sleep(5)
             result = self.service.zoneOperations().get(
                 project=self.project,
                 zone=zone,
                 operation=operation).execute()
             if result['status'] == 'DONE':
                 print("done.")
-                if 'Error' in result:
+                if 'error' in result:
                     raise Exception(result['error'])
                 return result
             time.sleep(1)
