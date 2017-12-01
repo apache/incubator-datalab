@@ -57,17 +57,21 @@ class GCPMeta:
     def wait_for_operation(self, zone, operation):
         print('Waiting for operation to finish...')
         while True:
-            time.sleep(10)
-            result = self.service.zoneOperations().get(
-                project=self.project,
-                zone=zone,
-                operation=operation).execute()
-            if result['status'] == 'DONE':
-                print("done.")
-                if 'error' in result:
-                    raise Exception(result['error'])
-                return result
-            time.sleep(1)
+            try:
+                result = self.service.zoneOperations().get(
+                    project=self.project,
+                    zone=zone,
+                    operation=operation).execute()
+                if result['status'] == 'DONE':
+                    print("done.")
+                    if 'error' in result:
+                        raise Exception(result['error'])
+                    return result
+                time.sleep(1)
+            except:
+                print('No operation')
+                time.sleep(5)
+                pass
 
     def get_vpc(self, network_name):
         request = self.service.networks().get(
