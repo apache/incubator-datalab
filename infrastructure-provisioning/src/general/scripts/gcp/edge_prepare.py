@@ -53,14 +53,14 @@ if __name__ == "__main__":
     edge_conf['zone'] = os.environ['gcp_zone']
     edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
     edge_conf['private_subnet_prefix'] = os.environ['gcp_private_subnet_prefix']
-    edge_conf['edge_service_account_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
-                                             '-edge-sa'
-    edge_conf['edge_role_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
-                                  '-edge-role'
-    edge_conf['notebook_service_account_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + \
+    edge_conf['edge_service_account_name'] = edge_conf['service_base_name'].lower().replace('_', '-') + "-" + \
+                                             os.environ['edge_user_name'] + '-edge-sa'
+    edge_conf['edge_role_name'] = edge_conf['service_base_name'].lower().replace('_', '-') + "-" + \
+                                  os.environ['edge_user_name'] + '-edge-role'
+    edge_conf['notebook_service_account_name'] = edge_conf['service_base_name'].lower().replace('_', '-') + "-" + \
                                                  os.environ['edge_user_name'] + '-nb-sa'
-    edge_conf['notebook_role_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
-                                      '-nb-role'
+    edge_conf['notebook_role_name'] = edge_conf['service_base_name'].lower().replace('_', '-') + "-" + \
+                                      os.environ['edge_user_name'] + '-nb-role'
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['ssn_instance_name'] = '{}-ssn'.format(edge_conf['service_base_name'])
     edge_conf['bucket_name'] = '{0}-{1}-bucket'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
