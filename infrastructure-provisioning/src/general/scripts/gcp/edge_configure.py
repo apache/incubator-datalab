@@ -102,6 +102,10 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
         GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
         GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
+        GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
+        GCPActions().remove_role(edge_conf['notebook_role_name'])
+        GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
+        GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
 
@@ -127,6 +131,10 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
         GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
         GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
+        GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
+        GCPActions().remove_role(edge_conf['notebook_role_name'])
+        GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
+        GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
 
@@ -154,6 +162,10 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
         GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
         GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
+        GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
+        GCPActions().remove_role(edge_conf['notebook_role_name'])
+        GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
+        GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
 
@@ -182,6 +194,10 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
         GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
         GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
+        GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
+        GCPActions().remove_role(edge_conf['notebook_role_name'])
+        GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
+        GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['subnet_name'], edge_conf['region'])
         sys.exit(1)
 
@@ -194,9 +210,6 @@ if __name__ == "__main__":
         print("Private IP: {}".format(edge_conf['private_ip']))
         print("Key name: {}".format(edge_conf['key_name']))
         print("Bucket name: {}".format(edge_conf['bucket_name']))
-        # print("Notebook SG: {}".format(edge_conf['notebook_security_group_name']))
-        # print("Notebook profiles: {}".format(edge_conf['notebook_role_profile_name']))
-        # print("Edge SG: {}".format(edge_conf['edge_security_group_name']))
         print("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
         with open("/root/result.json", 'w') as result:
             res = {"hostname": instance_hostname,

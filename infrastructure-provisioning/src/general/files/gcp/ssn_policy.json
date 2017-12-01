@@ -42,6 +42,7 @@
     "compute.addresses.use",
     "compute.subnetworks.useExternalIp",
     "compute.disks.create",
+    "compute.disks.use",
     "compute.disks.get",
     "iam.roles.create",
     "iam.roles.delete",

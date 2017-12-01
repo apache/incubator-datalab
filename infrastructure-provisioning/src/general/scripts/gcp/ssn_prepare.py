@@ -213,6 +213,7 @@ if __name__ == "__main__":
         append_result("Unable to create Service account and role.", str(err))
         try:
             GCPActions().remove_service_account(ssn_conf['service_account_name'])
+            GCPActions().remove_role(ssn_conf['role_name'])
         except:
             print("Service account hasn't been created")
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
@@ -241,10 +242,8 @@ if __name__ == "__main__":
             GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         except:
             print("Static IP address hasn't been created.")
-        # try:
-        #     GCPActions().remove_service_account(ssn_conf['service_account_name'])
-        # except:
-        #     print("Service account hasn't been created")
+        GCPActions().remove_service_account(ssn_conf['service_account_name'])
+        GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
         if pre_defined_firewall:
@@ -279,7 +278,8 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Unable to create ssn instance.", str(err))
-        # GCPActions().remove_service_account(ssn_conf['service_account_name'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'])
+        GCPActions().remove_role(ssn_conf['role_name'])
         GCPActions().remove_static_address(ssn_conf['static_address_name'], ssn_conf['region'])
         GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
         GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])

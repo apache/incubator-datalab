@@ -65,6 +65,19 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
+    print("Removing Service accounts and roles")
+    try:
+        list_service_accounts = GCPMeta().get_list_service_accounts()
+        for service_account in list_service_accounts:
+            if args.service_base_name in service_account:
+                GCPActions().remove_service_account(service_account)
+        list_roles_names = GCPMeta().get_list_roles()
+        for role in list_roles_names:
+            if args.service_base_name in role:
+                GCPActions().remove_role(role)
+    except:
+        sys.exit(1)
+
     print("Removing subnets")
     try:
         list_subnets = GCPMeta().get_list_subnetworks(args.region, '', args.service_base_name)

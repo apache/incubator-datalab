@@ -1069,3 +1069,15 @@ def prepare_disk(os_user):
             sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except:
             sys.exit(1)
+
+
+def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
+    if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+        try:
+            sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+            sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+            sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+            sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+            sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
+        except:
+            sys.exit(1)
