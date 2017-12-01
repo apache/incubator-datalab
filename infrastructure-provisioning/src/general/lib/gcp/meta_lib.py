@@ -57,7 +57,6 @@ class GCPMeta:
     def wait_for_operation(self, zone, operation):
         print('Waiting for operation to finish...')
         while True:
-            time.sleep(5)
             result = self.service.zoneOperations().get(
                 project=self.project,
                 zone=zone,
