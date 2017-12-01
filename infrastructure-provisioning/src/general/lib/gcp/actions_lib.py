@@ -64,13 +64,7 @@ class GCPActions:
         try:
             print("Create VPC {}".format(vpc_name))
             result = request.execute()
-            time.sleep(5)
-            vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
-            while not vpc_created:
-                print("VPC {} is still being created".format(vpc_name))
-                time.sleep(5)
-                vpc_created = meta_lib.GCPMeta().get_vpc(vpc_name)
-            time.sleep(30)
+            wait_for_operation(os.environ['gcp_zone'], result['name'])
             print("VPC {} has been created".format(vpc_name))
             return result
         except Exception as err:

@@ -54,6 +54,20 @@ class GCPMeta:
             self.storage_client = storage.Client()
             self.service_resource = build('cloudresourcemanager', 'v1')
 
+    def wait_for_operation(self, zone, operation):
+        print('Waiting for operation to finish...')
+        while True:
+            result = self.service.zoneOperations().get(
+                project=self.project,
+                zone=zone,
+                operation=operation).execute()
+            if result['status'] == 'DONE':
+                print("done.")
+                if 'error' in result:
+                    raise Exception(result['error'])
+                return result
+            time.sleep(1)
+
     def get_vpc(self, network_name):
         request = self.service.networks().get(
             project=self.project,
