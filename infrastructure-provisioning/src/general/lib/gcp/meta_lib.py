@@ -63,7 +63,7 @@ class GCPMeta:
                 operation=operation).execute()
             if result['status'] == 'DONE':
                 print("done.")
-                if 'error' in result:
+                if 'Error' in result:
                     raise Exception(result['error'])
                 return result
             time.sleep(1)
