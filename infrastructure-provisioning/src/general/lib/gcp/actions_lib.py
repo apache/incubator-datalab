@@ -542,10 +542,16 @@ class GCPActions:
             name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')))
         try:
             result = request.execute()
-            role_removed = meta_lib.GCPMeta().get_role(role_name)
-            while role_removed:
+            role = meta_lib.GCPMeta().get_role(role_name)
+            if 'deleted' in role:
+                role_removed = True
+            else:
+                role_removed = False
+            while not role_removed:
                 time.sleep(5)
-                role_removed = meta_lib.GCPMeta().get_role(role_name)
+                role = meta_lib.GCPMeta().get_role(role_name)
+                if 'deleted' in role:
+                    role_removed = True
             time.sleep(30)
             print('IAM role {} removed.'.format(role_name))
             return result
