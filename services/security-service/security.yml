@@ -118,6 +118,19 @@ ldapSearch:
           return ui;
         }
 
+
+azureLoginConfiguration:
+    useLdap: <LOGIN_USE_LDAP>
+    tenant: <LOGIN_TENANT_ID>
+    authority: https://login.microsoftonline.com/
+    clientId: <LOGIN_APPLICATION_ID>
+    redirectUrl: <LOGIN_APPLICATION_REDIRECT_URL>
+    responseMode: query
+    responseType: code
+    prompt: consent
+    silent: true
+    loginPage: <LOGIN_PAGE>
+
 server:
   requestLog:
     appenders:
