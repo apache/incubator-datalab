@@ -298,6 +298,63 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
             return ''
 
+    def get_list_service_accounts(self):
+        try:
+            service_account_names = []
+            result = self.service_iam.projects().serviceAccounts().list(
+                name='projects/{}'.format(self.project)).execute()
+            for account in result['accounts']:
+                service_account_names.append(account['displayName'])
+            if 'nextPageToken' in result:
+                next_page = True
+                page_token = result['nextPageToken']
+            else:
+                next_page = False
+            while next_page:
+                result2 = self.service_iam.projects().serviceAccounts().list(name='projects/{}'.format(self.project),
+                                                                             pageToken=page_token).execute()
+                for account in result2['accounts']:
+                    service_account_names.append(account['displayName'])
+                if 'nextPageToken' in result2:
+                    page_token = result2['nextPageToken']
+                else:
+                    next_page = False
+            return service_account_names
+        except Exception as err:
+            logging.info("Error with getting list service accounts: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Error with getting list service accounts",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def get_list_roles(self):
+        try:
+            role_names = []
+            result = self.service_iam.projects().roles().list(parent='projects/{}'.format(self.project)).execute()
+            for role in result['roles']:
+                role_names.append(role['title'])
+            if 'nextPageToken' in result:
+                next_page = True
+                page_token = result['nextPageToken']
+            else:
+                next_page = False
+            while next_page:
+                result2 = self.service_iam.projects().roles().list(parent='projects/{}'.format(self.project),
+                                                                   pageToken=page_token).execute()
+                for role in result2['roles']:
+                    role_names.append(role['title'])
+                if 'nextPageToken' in result2:
+                    page_token = result2['nextPageToken']
+                else:
+                    next_page = False
+            return role_names
+        except Exception as err:
+            logging.info("Error with getting list service accounts: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Error with getting list service accounts",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
     def get_list_instances(self, zone, filter_string=''):
         try:
             if not filter_string:

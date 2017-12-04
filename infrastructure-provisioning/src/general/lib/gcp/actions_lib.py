@@ -494,10 +494,16 @@ class GCPActions:
             name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')))
         try:
             result = request.execute()
-            role_removed = meta_lib.GCPMeta().get_role(role_name)
-            while role_removed:
+            role = meta_lib.GCPMeta().get_role(role_name)
+            if 'deleted' in role:
+                role_removed = True
+            else:
+                role_removed = False
+            while not role_removed:
                 time.sleep(5)
-                role_removed = meta_lib.GCPMeta().get_role(role_name)
+                role = meta_lib.GCPMeta().get_role(role_name)
+                if 'deleted' in role:
+                    role_removed = True
             time.sleep(30)
             print('IAM role {} removed.'.format(role_name))
             return result
@@ -1010,5 +1016,17 @@ def prepare_disk(os_user):
             sudo('mount /dev/{}1 /opt/'.format(disk_name))
             sudo(''' bash -c "echo '/dev/{}1 /opt/ ext4 errors=remount-ro 0 1' >> /etc/fstab" '''.format(disk_name))
             sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
+        except:
+            sys.exit(1)
+
+
+def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
+    if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+        try:
+            sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+            sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+            sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+            sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+            sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
         except:
             sys.exit(1)

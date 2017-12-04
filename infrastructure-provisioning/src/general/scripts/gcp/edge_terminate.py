@@ -62,6 +62,19 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
     except:
         sys.exit(1)
 
+    print("Removing Service accounts and roles")
+    try:
+        list_service_accounts = GCPMeta().get_list_service_accounts()
+        for service_account in list_service_accounts:
+            if "{}-{}".format(service_base_name, user_name) in service_account:
+                GCPActions().remove_service_account(service_account)
+        list_roles_names = GCPMeta().get_list_roles()
+        for role in list_roles_names:
+            if "{}-{}".format(service_base_name, user_name) in role:
+                GCPActions().remove_role(role)
+    except:
+        sys.exit(1)
+
     print("Removing subnets")
     try:
         list_subnets = GCPMeta().get_list_subnetworks(region, '', service_base_name + '-' + user_name)
