@@ -562,13 +562,13 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
     def create_image_from_instance_disk(self, image_name, source_name, zone):
-        params = {"name": image_name, "sourceDisk": source_disk}
+        params = {"name": image_name, "sourceDisk": source_name}
         request = self.service.images().insert(project=self.project, body=params)
         try:
             GCPActions().stop_instance(self, source_name, zone)
             result = request.execute()
             meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
-            print('Image {} has been created.'.format(address_name))
+            print('Image {} has been created.'.format(image_name))
             return result
         except Exception as err:
             logging.info(
