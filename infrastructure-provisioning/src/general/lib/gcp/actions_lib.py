@@ -64,7 +64,7 @@ class GCPActions:
         try:
             print("Create VPC {}".format(vpc_name))
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'global')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'])
             print("VPC {} has been created".format(vpc_name))
             return result
         except Exception as err:
@@ -79,7 +79,7 @@ class GCPActions:
         request = self.service.networks().delete(project=self.project, network=vpc_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'global')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'])
             print("VPC {} has been removed".format(vpc_name))
             return result
         except Exception as err:
@@ -102,7 +102,7 @@ class GCPActions:
         try:
             print("Create subnet {}".format(subnet_name))
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'region')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], region=region)
             print("Subnet {} has been created".format(subnet_name))
             return result
         except Exception as err:
@@ -117,7 +117,7 @@ class GCPActions:
         request = self.service.subnetworks().delete(project=self.project, region=region, subnetwork=subnet_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'region')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], region=region)
             print("Subnet {} has been removed".format(subnet_name))
             return result
         except Exception as err:
@@ -132,7 +132,7 @@ class GCPActions:
         request = self.service.firewalls().insert(project=self.project, body=firewall_params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'global')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'])
             print('Firewall {} created.'.format(firewall_params['name']))
             return result
         except Exception as err:
@@ -147,7 +147,7 @@ class GCPActions:
         request = self.service.firewalls().delete(project=self.project, firewall=firewall_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'global')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'])
             print('Firewall {} removed.'.format(firewall_name))
             return result
         except Exception as err:
@@ -205,7 +205,7 @@ class GCPActions:
                       "type": "projects/{0}/zones/{1}/diskTypes/pd-ssd".format(self.project, zone)}
             request = self.service.disks().insert(project=self.project, zone=zone, body=params)
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'zone')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], zone=zone)
             print('Disk {}-secondary created.'.format(instance_name))
             return request
         except Exception as err:
@@ -220,7 +220,7 @@ class GCPActions:
         try:
             request = self.service.disks().delete(project=self.project, zone=zone, disk=instance_name + '-secondary')
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'zone')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], zone=zone)
             print('Disk {}-secondary removed.'.format(instance_name))
             return request
         except Exception as err:
@@ -324,7 +324,7 @@ class GCPActions:
         request = self.service.instances().insert(project=self.project, zone=zone, body=instance_params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'zone')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], zone=zone)
             print('Instance {} created.'.format(instance_name))
             request = self.service.instances().get(instance=instance_name, project=self.project, zone=zone)
             res = request.execute()
@@ -351,7 +351,7 @@ class GCPActions:
                                                   instance=instance_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'zone')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], zone=zone)
             print('Instance {} removed.'.format(instance_name))
             return result
         except Exception as err:
@@ -366,7 +366,7 @@ class GCPActions:
         request = self.service.instances().stop(project=self.project, zone=zone, instance=instance_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'zone')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], zone=zone)
             return True
         except Exception as err:
             logging.info(
@@ -380,7 +380,7 @@ class GCPActions:
         request = self.service.instances().start(project=self.project, zone=zone, instance=instance_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'zone')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], zone=zone)
             return True
         except Exception as err:
             logging.info(
@@ -396,7 +396,7 @@ class GCPActions:
             name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_email))
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service_iam, result['name'], 'global')
+            meta_lib.GCPMeta().wait_for_operation(self.service_iam, result['name'])
             print('Service account {} removed.'.format(service_account_name))
             return result
         except Exception as err:
@@ -414,7 +414,7 @@ class GCPActions:
                                                                        body=params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service_iam, result['name'], 'global')
+            meta_lib.GCPMeta().wait_for_operation(self.service_iam, result['name'])
             print('Service account {} created.'.format(service_account_name))
             return result
         except Exception as err:
@@ -465,7 +465,7 @@ class GCPActions:
                                                                  }})
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service_iam, result['name'], 'global')
+            meta_lib.GCPMeta().wait_for_operation(self.service_iam, result['name'])
             print('IAM role {} created.'.format(role_name))
             return result
         except Exception as err:
@@ -482,7 +482,7 @@ class GCPActions:
             name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')))
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service_iam, result['name'], 'global')
+            meta_lib.GCPMeta().wait_for_operation(self.service_iam, result['name'])
             print('IAM role {} removed.'.format(role_name))
             return result
         except Exception as err:
@@ -517,7 +517,7 @@ class GCPActions:
         request = self.service.addresses().insert(project=self.project, region=region, body=params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'region')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], region=region)
             print('Static address {} created.'.format(address_name))
             return result
         except Exception as err:
@@ -533,7 +533,7 @@ class GCPActions:
         request = self.service.addresses().delete(project=self.project, region=region, address=address_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'region')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], region=region)
             print('Static address {} removed.'.format(address_name))
             return result
         except Exception as err:
@@ -551,7 +551,7 @@ class GCPActions:
         try:
             GCPActions().stop_instance(self, source_name, zone)
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], 'zone')
+            meta_lib.GCPMeta().wait_for_operation(self.service, result['name'], zone=zone)
             print('Image {} has been created.'.format(address_name))
             return result
         except Exception as err:
