@@ -396,6 +396,7 @@ class GCPActions:
             name='projects/{}/serviceAccounts/{}'.format(self.project, service_account_email))
         try:
             result = request.execute()
+            service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name)
             while service_account_removed:
                 time.sleep(5)
                 service_account_removed = meta_lib.GCPMeta().get_service_account(service_account_name)
@@ -417,6 +418,7 @@ class GCPActions:
                                                                        body=params)
         try:
             result = request.execute()
+            service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name)
             while not service_account_created:
                 time.sleep(5)
                 service_account_created = meta_lib.GCPMeta().get_service_account(service_account_name)
@@ -471,6 +473,7 @@ class GCPActions:
                                                                  }})
         try:
             result = request.execute()
+            role_created = meta_lib.GCPMeta().get_role(role_name)
             while not role_created:
                 time.sleep(5)
                 role_created = meta_lib.GCPMeta().get_role(role_name)
@@ -491,6 +494,7 @@ class GCPActions:
             name='projects/{}/roles/{}'.format(self.project, role_name.replace('-', '_')))
         try:
             result = request.execute()
+            role_removed = meta_lib.GCPMeta().get_role(role_name)
             while role_removed:
                 time.sleep(5)
                 role_removed = meta_lib.GCPMeta().get_role(role_name)
