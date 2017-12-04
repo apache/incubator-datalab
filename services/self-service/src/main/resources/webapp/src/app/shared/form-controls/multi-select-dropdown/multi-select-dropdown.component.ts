@@ -22,7 +22,7 @@ import { Input, Output, Component, EventEmitter, ViewEncapsulation } from '@angu
   moduleId: module.id,
   selector: 'multi-select-dropdown',
   templateUrl: 'multi-select-dropdown.component.html',
-  styleUrls: ['./multi-select-dropdown.component.css'],
+  styleUrls: ['../dropdowns.component.css'],
   encapsulation: ViewEncapsulation.None
 })
 
