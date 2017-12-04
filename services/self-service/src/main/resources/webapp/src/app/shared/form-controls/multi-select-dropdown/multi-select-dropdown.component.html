@@ -17,16 +17,42 @@ limitations under the License.
 -->
 
 <div class="dropdown-multiselect btn-group" ngClass="{{type || ''}}" click-outside (clickOutside)="onClickOutside($event)">
-
-  <button data-toggle="dropdown" type="button" class="dropdown-toggle btn" (click)="toggleDropdown()" *ngIf="model">
-    <span *ngIf="model.length == 0">Select {{type}}</span>
-    <span class="selected-items" *ngIf="model.length != 0">
+  <button type="button" #list (click)="multiactions.toggle($event, list)">
+    <span *ngIf="model.length === 0">Select {{type}}</span>
+    <span class="selected-items" *ngIf="model.length !== 0">
       Selected {{model.length}} item<strong *ngIf="model.length > 1">s</strong>
     </span>
-    <span class="caret-btn">&#9663;</span>
+    <span class="caret-btn"><i class="material-icons">keyboard_arrow_down</i></span>
   </button>
 
-  <ul class="dropdown-menu" id="scrolling" [style.display]="isOpen ? 'block' : 'none'">
+  <bubble-up #multiactions position="bottom" class="mt-5">
+    <ul class="list-menu" id="scrolling">
+      <li class="filter-actions">
+        <a class="select_all" (click)="selectAllOptions($event)">
+          <i class="material-icons">playlist_add_check</i>&nbsp;All
+        </a>
+        <a class="deselect_all" (click)="deselectAllOptions($event)">
+          <i class="material-icons">clear</i>&nbsp;None
+        </a>
+      </li>
+        <template let-item ngFor [ngForOf]="items">
+          <li role="presentation" *ngIf="model">
+            <a href="#" class="list-item" role="menuitem" (click)="toggleSelectedOptions($event, model, item)">
+              <span class="material-icons" *ngIf="model.indexOf(item) >= 0">done</span>
+              {{item}}
+            </a>
+          </li>
+        </template>
+      <li *ngIf="items?.length == 0">
+        <a role="menuitem">
+          <span class="material-icons">visibility_off</span>
+          No {{type}}
+        </a>
+      </li>
+    </ul>
+  </bubble-up>
+  
+  <!-- <ul class="dropdown-menu" id="scrolling" [style.display]="isOpen ? 'block' : 'none'">
     <li class="filter-actions">
       <a class="select_all" (click)="selectAllOptions($event)">
         <i class="material-icons">playlist_add_check</i>&nbsp;All
@@ -51,5 +77,5 @@ limitations under the License.
         No {{type}}
       </a>
     </li>
-  </ul>
+  </ul> -->
 </div>
