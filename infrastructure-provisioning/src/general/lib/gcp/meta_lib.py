@@ -41,7 +41,7 @@ class GCPMeta:
             credentials = ServiceAccountCredentials.from_json_keyfile_name(
                 self.key_file, scopes=('https://www.googleapis.com/auth/compute', 'https://www.googleapis.com/auth/iam',
                                        'https://www.googleapis.com/auth/cloud-platform'))
-            self.service = build('compute', 'v1', credentials = credentials)
+            self.service = build('compute', 'v1', credentials=credentials)
             self.service_iam = build('iam', 'v1', credentials=credentials)
             self.service_storage = build('storage', 'v1', credentials=credentials)
             self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
@@ -53,6 +53,35 @@ class GCPMeta:
             self.dataproc = build('dataproc', 'v1')
             self.storage_client = storage.Client()
             self.service_resource = build('cloudresourcemanager', 'v1')
+
+    def wait_for_operation(self, operation, region='', zone=''):
+        print('Waiting for operation to finish...')
+        execution = False
+        while not execution:
+            try:
+                if region != '':
+                    result = self.service.regionOperations().get(
+                        project=self.project,
+                        operation=operation,
+                        region=region).execute()
+                elif zone != '':
+                    result = self.service.zoneOperations().get(
+                        project=self.project,
+                        operation=operation,
+                        zone=zone).execute()
+                else:
+                    result = self.service.globalOperations().get(
+                        project=self.project,
+                        operation=operation).execute()
+                if result['status'] == 'DONE':
+                    print("Done.")
+                    execution = True
+                time.sleep(1)
+            except errors.HttpError as err:
+                if err.resp.status == 404:
+                    print(err)
+                else:
+                    raise err
 
     def get_vpc(self, network_name):
         request = self.service.networks().get(
@@ -67,12 +96,12 @@ class GCPMeta:
             else:
                 raise err
         except Exception as err:
-                logging.info(
-                    "Unable to get VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to get VPC",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to get VPC: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get VPC",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def get_subnet(self, subnet_name, region):
         request = self.service.subnetworks().get(
@@ -87,12 +116,12 @@ class GCPMeta:
             else:
                 raise err
         except Exception as err:
-                logging.info(
-                    "Unable to get Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to get Subnet",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to get Subnet: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Subnet",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def get_firewall(self, firewall_name):
         request = self.service.firewalls().get(
@@ -106,29 +135,30 @@ class GCPMeta:
             else:
                 raise err
         except Exception as err:
-                logging.info(
-                    "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to get Firewall",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Firewall",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def get_bucket(self, bucket_name):
         try:
             bucket = self.storage_client.get_bucket(bucket_name)
             return bucket
         except exceptions.NotFound:
-                return ''
+            return ''
         except Exception as err:
-                logging.info(
-                    "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to get Firewall",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Firewall",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def get_instance(self, instance_name):
-        request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'], instance=instance_name)
+        request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
+                                               instance=instance_name)
         try:
             return request.execute()
         except errors.HttpError as err:
@@ -137,15 +167,16 @@ class GCPMeta:
             else:
                 raise err
         except Exception as err:
-                logging.info(
-                    "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to get Firewall",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Firewall",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def get_instance_status(self, instance_name):
-        request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'], instance=instance_name)
+        request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
+                                               instance=instance_name)
         try:
             result = request.execute()
             return result.get('status')
@@ -155,12 +186,12 @@ class GCPMeta:
             else:
                 raise err
         except Exception as err:
-                logging.info(
-                    "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to get Firewall",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to get Firewall: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Firewall",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def get_instance_public_ip_by_name(self, instance_name):
         try:
@@ -191,12 +222,12 @@ class GCPMeta:
             else:
                 raise err
         except Exception as err:
-                logging.info(
-                    "Unable to get Service account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to get Service account",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to get Service account: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get Service account",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def get_role(self, role_name):
         request = self.service_iam.projects().roles().get(name='projects/{}/roles/{}'.format(self.project,
@@ -210,12 +241,12 @@ class GCPMeta:
             else:
                 raise err
         except Exception as err:
-                logging.info(
-                    "Unable to get IAM role: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to get IAM role",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to get IAM role: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            append_result(str({"error": "Unable to get IAM role",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def get_static_address(self, region, static_address_name):
         request = self.service.addresses().get(project=self.project, region=region, address=static_address_name)
@@ -233,12 +264,13 @@ class GCPMeta:
             for i in result['networkInterfaces']:
                 return i['networkIP']
         except Exception as err:
-                logging.info(
-                    "Unable to get Private IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-                append_result(str({"error": "Unable to get Private IP address",
-                                   "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                       file=sys.stdout)}))
-                traceback.print_exc(file=sys.stdout)
+            logging.info(
+                "Unable to get Private IP address: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to get Private IP address",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
 
     def get_ami_by_name(self, ami_name):
         try:
@@ -246,9 +278,10 @@ class GCPMeta:
             result = request.execute()
             return result
         except Exception as err:
-            logging.info("Error with getting image by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            logging.info("Error with getting image by name: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
             append_result(str({"error": "Error with getting image by name",
-                       "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
 
@@ -258,9 +291,10 @@ class GCPMeta:
             result = request.execute()
             return result
         except Exception as err:
-            logging.info("Error with getting disk by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            logging.info("Error with getting disk by name: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
             append_result(str({"error": "Error with getting disk by name",
-                       "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
 
@@ -331,9 +365,10 @@ class GCPMeta:
             result = request.execute()
             return result
         except Exception as err:
-            logging.info("Error with getting list instances: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+            logging.info("Error with getting list instances: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
             append_result(str({"error": "Error with getting list instances",
-                       "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
 
@@ -410,8 +445,9 @@ class GCPMeta:
             result = request.execute()
             return result
         except Exception as err:
-            logging.info("Error with getting list static addresses: " + str(err) + "\n Traceback: " + traceback.print_exc(
-                file=sys.stdout))
+            logging.info(
+                "Error with getting list static addresses: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
             append_result(str({"error": "Error with getting list static addresses",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
@@ -519,9 +555,10 @@ def get_instance_private_ip_address(tag_name, instance_name):
     try:
         return GCPMeta().get_private_ip_address(instance_name)
     except Exception as err:
-        logging.info("Error with getting private ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        logging.info(
+            "Error with getting private ip address by name: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
         append_result(str({"error": "Error with getting private ip address by name",
-                       "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
         return ''
-
