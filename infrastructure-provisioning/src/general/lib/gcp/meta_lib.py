@@ -54,23 +54,27 @@ class GCPMeta:
             self.storage_client = storage.Client()
             self.service_resource = build('cloudresourcemanager', 'v1')
 
-    def wait_for_operation(self, service,  operation, region='', zone=''):
+    def wait_for_operation(self, operation, resource, region='', zone=''):
         print('Waiting for operation to finish...')
         execution = False
         while not execution:
             try:
-                if region != '':
-                    result = service.regionOperations().get(
+                if resource == 'compute' and region != '':
+                    result = self.service.regionOperations().get(
                         project=self.project,
                         operation=operation,
                         region=region).execute()
-                elif zone != '':
-                    result = service.zoneOperations().get(
+                elif resource == 'compute' and zone != '':
+                    result = self.service.zoneOperations().get(
                         project=self.project,
                         operation=operation,
                         zone=zone).execute()
-                else:
-                    result = service.globalOperations().get(
+                elif resource == 'compute':
+                    result = self.service.globalOperations().get(
+                        project=self.project,
+                        operation=operation).execute()
+                elif resource == 'iam':
+                    result = self.service_iam.globalOperations().get(
                         project=self.project,
                         operation=operation).execute()
                 if result['status'] == 'DONE':
