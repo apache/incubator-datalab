@@ -533,7 +533,7 @@ class GCPActions:
         request = self.service.addresses().insert(project=self.project, region=region, body=params)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], 'compute', region=region)
+            meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
             print('Static address {} created.'.format(address_name))
             return result
         except Exception as err:
@@ -549,7 +549,7 @@ class GCPActions:
         request = self.service.addresses().delete(project=self.project, region=region, address=address_name)
         try:
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], 'compute', region=region)
+            meta_lib.GCPMeta().wait_for_operation(result['name'], region=region)
             print('Static address {} removed.'.format(address_name))
             return result
         except Exception as err:
@@ -567,7 +567,7 @@ class GCPActions:
         try:
             GCPActions().stop_instance(self, source_name, zone)
             result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], 'compute', zone=zone)
+            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
             print('Image {} has been created.'.format(address_name))
             return result
         except Exception as err:
