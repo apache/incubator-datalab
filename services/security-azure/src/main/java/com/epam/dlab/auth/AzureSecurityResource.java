@@ -62,8 +62,7 @@ public class AzureSecurityResource {
 
     @POST
     @Path("/oauth")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response login(@BeanParam AuthorizationCodeFlowResponse authorizationCodeFlowResponse) {
+    public Response login(AuthorizationCodeFlowResponse authorizationCodeFlowResponse) {
         log.info("Authenticate client {}", authorizationCodeFlowResponse);
         if (authorizationCodeFlowResponse.isSuccessful()) {
             log.debug("Successfully received auth code {}", authorizationCodeFlowResponse);
