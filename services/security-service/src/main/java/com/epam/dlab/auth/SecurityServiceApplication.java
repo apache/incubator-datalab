@@ -18,7 +18,9 @@ limitations under the License.
 
 package com.epam.dlab.auth;
 
-import com.epam.dlab.auth.resources.SynchronousSequentialLdapAuthenticationService;
+import com.epam.dlab.auth.resources.SynchronousLdapAuthenticationService;
+import com.epam.dlab.auth.dao.UserInfoDAOMongoImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +32,11 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
+@Slf4j
 public class SecurityServiceApplication extends Application<SecurityServiceConfiguration> {
 
-	private final static Logger LOG = LoggerFactory.getLogger(SecurityServiceApplication.class);
-	
+	private static final Logger LOG = LoggerFactory.getLogger(SecurityServiceApplication.class);
+
 	public static void main(String[] args) throws Exception {
 		if (ServiceUtils.printAppVersion(SecurityServiceApplication.class, args)) {
 			return;
@@ -44,7 +47,6 @@ public class SecurityServiceApplication extends Application<SecurityServiceConfi
 
 	@Override
 	public void initialize(Bootstrap<SecurityServiceConfiguration> bootstrap) {
-		//bootstrap.addBundle(new TemplateConfigBundle());
         bootstrap.addBundle(new TemplateConfigBundle(
         		new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
         ));
@@ -52,7 +54,23 @@ public class SecurityServiceApplication extends Application<SecurityServiceConfi
 
 	@Override
 	public void run(SecurityServiceConfiguration conf, Environment env) throws Exception {
-		env.jersey().register( new SynchronousSequentialLdapAuthenticationService(conf,env) );
-	}
 
+	    switch (conf.getCloudProvider()) {
+            case AWS:
+            case GCP:
+                env.jersey().register(new SynchronousLdapAuthenticationService(conf,env));
+                break;
+            case AZURE:
+                if (conf.getAzureLoginConfiguration().isUseLdap()) {
+                    env.jersey().register(new SynchronousLdapAuthenticationService(conf,env));
+                } else {
+                    UserInfoDAO userInfoDao = new UserInfoDAOMongoImpl(conf.getMongoFactory().build(env), conf.getInactiveUserTimeoutMillSec());
+                    env.jersey().register(new AzureAuthenticationService<>(conf, userInfoDao, conf.getAzureLoginConfiguration()));
+                }
+                break;
+                default:
+                    throw new IllegalArgumentException("Unknown cloud provider " + conf.getCloudProvider());
+
+        }
+	}
 }

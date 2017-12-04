@@ -52,7 +52,7 @@ import java.util.concurrent.*;
 
 /**
  * Provides authentication against LDAP server
- * @deprecated  as it causes undefined behaviours during login. Use @{@link SynchronousSequentialLdapAuthenticationService}
+ * @deprecated  as it causes undefined behaviours during login. Use @{@link SynchronousLdapAuthenticationService}
  */
 @Path("/")
 @Consumes(MediaType.APPLICATION_JSON)

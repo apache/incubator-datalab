@@ -16,35 +16,27 @@
 
 package com.epam.dlab.auth.resources;
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
-import com.amazonaws.services.identitymanagement.model.User;
 import com.epam.dlab.auth.SecurityServiceConfiguration;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.UserInfoDAO;
-import com.epam.dlab.auth.dao.AwsUserDAOImpl;
 import com.epam.dlab.auth.dao.LdapUserDAO;
 import com.epam.dlab.auth.dao.UserInfoDAODumbImpl;
 import com.epam.dlab.auth.dao.UserInfoDAOMongoImpl;
-import com.epam.dlab.auth.dao.filter.AwsUserDAO;
 import com.epam.dlab.auth.rest.AbstractAuthenticationService;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.exceptions.DlabException;
-import com.google.common.collect.Lists;
 import io.dropwizard.setup.Environment;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Used for authentication against LDAP server
@@ -52,36 +44,16 @@ import java.util.concurrent.TimeUnit;
 @Path("/")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Slf4j
-public class SynchronousSequentialLdapAuthenticationService extends AbstractAuthenticationService<SecurityServiceConfiguration> {
-
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+public class SynchronousLdapAuthenticationService extends AbstractAuthenticationService<SecurityServiceConfiguration> {
     private final LdapUserDAO ldapUserDAO;
     private final UserInfoDAO userInfoDao;
-    private AwsUserDAO awsUserDAO;
 
-    public SynchronousSequentialLdapAuthenticationService(SecurityServiceConfiguration config, Environment env) {
+    public SynchronousLdapAuthenticationService(SecurityServiceConfiguration config, Environment env) {
         super(config);
-
         if (config.isUserInfoPersistenceEnabled()) {
             this.userInfoDao = new UserInfoDAOMongoImpl(config.getMongoFactory().build(env), config.getInactiveUserTimeoutMillSec());
         } else {
             this.userInfoDao = new UserInfoDAODumbImpl();
-        }
-
-        if (config.isAwsUserIdentificationEnabled()) {
-            DefaultAWSCredentialsProviderChain providerChain = new DefaultAWSCredentialsProviderChain();
-            awsUserDAO = new AwsUserDAOImpl(providerChain.getCredentials());
-            scheduler.scheduleAtFixedRate(() -> {
-                try {
-                    providerChain.refresh();
-                    awsUserDAO.updateCredentials(providerChain.getCredentials());
-                    log.debug("provider credentials refreshed");
-                } catch (Exception e) {
-                    log.error("AWS provider error", e);
-                    throw e;
-                }
-            }, 5, 5, TimeUnit.MINUTES);
         }
 
         this.ldapUserDAO = new LdapUserDAO(config, false);
@@ -104,7 +76,8 @@ public class SynchronousSequentialLdapAuthenticationService extends AbstractAuth
             UserInfo ui = getUserInfo(accessToken, userAgent, remoteIp);
             if (ui != null) {
                 return Response.ok(accessToken).build();
-            } else{
+            } else {
+                log.debug("User info not found on login by access_token for user", username);
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
         }
@@ -113,8 +86,7 @@ public class SynchronousSequentialLdapAuthenticationService extends AbstractAuth
 
             login(username, password);
             UserInfo enriched = enrichUser(username);
-            verifyAwsUser(username, enriched);
-            verifyAwsKeys(username, enriched);
+            verifyUser(username, enriched);
 
             enriched.setRemoteIp(remoteIp);
             log.info("User authenticated is {}", enriched);
@@ -124,6 +96,7 @@ public class SynchronousSequentialLdapAuthenticationService extends AbstractAuth
             return Response.ok(token).build();
 
         } catch (Exception e) {
+            log.error("User {} is not authenticated", username, e);
             return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
         }
     }
@@ -163,7 +136,6 @@ public class SynchronousSequentialLdapAuthenticationService extends AbstractAuth
 
     }
 
-
     @Override
     @POST
     @Path("/logout")
@@ -171,6 +143,10 @@ public class SynchronousSequentialLdapAuthenticationService extends AbstractAuth
         userInfoDao.deleteUserInfo(accessToken);
         log.info("Logged out user {}", accessToken);
         return Response.ok().build();
+    }
+
+    protected void verifyUser(String username, UserInfo userInfo, Object... params) {
+        // Do nothing
     }
 
     private UserInfo login(String username, String password) {
@@ -194,48 +170,6 @@ public class SynchronousSequentialLdapAuthenticationService extends AbstractAuth
             log.error("Authentication error", e);
             throw new DlabException("User not authorized. Please contact DLAB administrator.");
         }
-    }
-
-
-    private User verifyAwsUser(String username, UserInfo userInfo) {
-
-        if (config.isAwsUserIdentificationEnabled()) {
-            try {
-                User awsUser = awsUserDAO.getAwsUser(username);
-                if (awsUser != null) {
-                    userInfo.setAwsUser(true);
-                    return awsUser;
-                } else {
-                    throw new DlabException("Please contact AWS administrator to create corresponding IAM User");
-                }
-            } catch (RuntimeException e) {
-                throw new DlabException("Please contact AWS administrator to create corresponding IAM User", e);
-            }
-        }
-
-        return new User();
-    }
-
-    private List<AccessKeyMetadata> verifyAwsKeys(String username, UserInfo userInfo) {
-
-        userInfo.getKeys().clear();
-
-        if (config.isAwsUserIdentificationEnabled()) {
-            try {
-                List<AccessKeyMetadata> keys = awsUserDAO.getAwsAccessKeys(username);
-                if (keys == null || keys.isEmpty()
-                        || keys.stream().filter(k -> "Active".equalsIgnoreCase(k.getStatus())).count() == 0) {
-
-                    throw new DlabException("Cannot get aws access key for user " + username);
-                }
-                keys.forEach(e -> userInfo.addKey(e.getAccessKeyId(), e.getStatus()));
-
-                return keys;
-            } catch (RuntimeException e) {
-                throw new DlabException("Please contact AWS administrator to activate your Access Key", e);
-            }
-        }
-        return Lists.newArrayList();
     }
 
 

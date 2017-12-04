@@ -47,7 +47,7 @@ public class ModuleFactory {
             case AWS:
                 return new AwsSelfServiceModule();
             case AZURE:
-                return new AzureSelfServiceModule();
+                return new AzureSelfServiceModule(configuration.getAzureLoginConfiguration());
             case GCP:
             default:
                 throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());

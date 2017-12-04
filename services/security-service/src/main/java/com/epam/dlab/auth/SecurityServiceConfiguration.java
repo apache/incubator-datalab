@@ -19,6 +19,7 @@ package com.epam.dlab.auth;
 
 import com.epam.dlab.ServiceConfiguration;
 import com.epam.dlab.auth.dao.Request;
+import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
@@ -49,6 +50,9 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
     private String ldapSearchAttribute;
     @JsonProperty
     private Map<String, String> ldapConnectionConfig = new HashMap<>();
+    @JsonProperty
+    private AzureLoginConfiguration azureLoginConfiguration;
+
     private LdapConnectionConfig _ldapConnectionConfig;
 
     public SecurityServiceConfiguration() {
@@ -99,5 +103,9 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
     public boolean isLdapUseConnectionPool() {
         return ldapUseConnectionPool;
+    }
+
+    public AzureLoginConfiguration getAzureLoginConfiguration() {
+        return azureLoginConfiguration;
     }
 }
