@@ -41,4 +41,8 @@ public class AzureLoginConfiguration {
     private String prompt;
     @JsonProperty
     private String loginPage;
+    @JsonProperty
+    private boolean validatePermissionScope;
+    @JsonProperty
+    private String permissionScope;
 }

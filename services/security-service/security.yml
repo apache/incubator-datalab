@@ -130,6 +130,8 @@ azureLoginConfiguration:
     prompt: consent
     silent: true
     loginPage: <LOGIN_PAGE>
+    validatePermissionScope: false
+    permissionScope: /<DLAB_RESOURCE_GROUP>/<DATA_LAKE_STORAGE_ACCOUNT>/
 
 server:
   requestLog:
