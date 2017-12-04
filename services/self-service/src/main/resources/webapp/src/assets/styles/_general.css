@@ -62,10 +62,17 @@ input[type='number']::placeholder {
   color: #718ba6;
 }
 
-.control-group {
+.control-group, .row-wrap {
   display: flex;
   flex-flow: row wrap;
   padding-bottom: 20px;
+}
+.row-wrap {
+  padding-bottom: 0;
+}
+
+.row-wrap .col {
+  width: 50%;
 }
 
 .control-group .label {
