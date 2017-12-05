@@ -173,7 +173,8 @@ def ensure_mongo():
 
 def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, keystore_passwd, cloud_provider,
              service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled,
-             authentication_file, offer_number, currency, locale, region_info, report_path=''):
+             authentication_file, offer_number, currency, locale, region_info, ldap_login, tenant_id, application_id,
+             hostname, storage_account,  report_path=''):
     try:
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_dlab_path'])):
             java_path = sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'")
@@ -208,6 +209,17 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                     jar = sudo('cd {0}{1}; find {1}*.jar -type f'.format(web_path, service))
                     sudo('ln -s {0}{2}/{1} {0}{2}/{2}.jar '.format(web_path, jar, service))
                     local('scp -r -i {0} /root/web_app/{2}/*.yml {1}:/tmp/yml_tmp/'.format(keyfile, host_string, service))
+                if os.environ['conf_cloud_provider'] == 'azure':
+                    for config in ['self-service', 'security']:
+                        sudo('sed -i "s|<LOGIN_USE_LDAP>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, ldap_login))
+                        sudo('sed -i "s|<LOGIN_TENANT_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, tenant_id))
+                        sudo('sed -i "s|<LOGIN_APPLICATION_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
+                                                                                                   application_id))
+                        sudo('sed -i "s|<LOGIN_APPLICATION_REDIRECT_URL>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
+                                                                                                             hostname))
+                        sudo('sed -i "s|<LOGIN_PAGE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, hostname))
+                    sudo('sed -i "s|<DLAB_RESOURCE_GROUP>|{}|g" /tmp/yml_tmp/security.yml'.format(service_base_name))
+                    sudo('sed -i "s|<DATA_LAKE_STORAGE_ACCOUNT>|{}|g" /tmp/yml_tmp/security.yml'.format(storage_account))
                 sudo('mv /tmp/yml_tmp/* ' + os.environ['ssn_dlab_path'] + 'conf/')
                 sudo('rmdir /tmp/yml_tmp/')
             except Exception as err:
