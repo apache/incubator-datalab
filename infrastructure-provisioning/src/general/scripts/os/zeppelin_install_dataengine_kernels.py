@@ -33,7 +33,7 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--notebook_ip', type=str, default='')
-parser.add_argument('--datalake_enabled', type=str, default='')
+parser.add_argument('--datalake_enabled', type=str, default='false')
 args = parser.parse_args()
 
 
