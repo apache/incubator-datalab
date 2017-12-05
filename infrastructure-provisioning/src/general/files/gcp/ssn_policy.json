@@ -40,6 +40,7 @@
     "compute.addresses.delete",
     "compute.addresses.get",
     "compute.addresses.use",
+    "compute.addresses.list",
     "compute.subnetworks.useExternalIp",
     "compute.disks.create",
     "compute.disks.use",
