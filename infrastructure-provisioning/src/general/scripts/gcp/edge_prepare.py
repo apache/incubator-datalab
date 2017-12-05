@@ -64,6 +64,7 @@ if __name__ == "__main__":
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['ssn_instance_name'] = '{}-ssn'.format(edge_conf['service_base_name'])
     edge_conf['bucket_name'] = '{0}-{1}-bucket'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['shared_bucket_name'] = '{}-shared-bucket'.format(edge_conf['service_base_name'])
     edge_conf['instance_size'] = os.environ['gcp_edge_instance_size']
     edge_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     edge_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
@@ -351,29 +352,27 @@ if __name__ == "__main__":
         GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
         sys.exit(1)
 
-    # try:
-    #     logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-    #     print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-    #     params = '--bucket_name {} --ssn_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {}'.format(
-    #         edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], os.environ['edge_user_name'],
-    #         edge_conf['role_name'], edge_conf['notebook_role_name'],  edge_conf['service_base_name'],
-    #         edge_conf['region'])
-    #     try:
-    #         local("~/scripts/{}.py {}".format('common_create_policy', params))
-    #     except:
-    #         traceback.print_exc()
-    # except Exception as err:
-    #     append_result("Failed to create bucket policy.", str(err))
-    #     remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-    #     remove_all_iam_resources('edge', os.environ['edge_user_name'])
-    #     remove_sgroups(edge_conf['notebook_instance_name'])
-    #     remove_sgroups(edge_conf['instance_name'])
-    #     GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
-    #     GCPActions().remove_role(edge_conf['notebook_role_name'])
-    #     GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
-    #     GCPActions().remove_role(edge_conf['edge_role_name'])
-    #     remove_s3('edge', os.environ['edge_user_name'])
-    #     sys.exit(1)
+    try:
+        logging.info('[SET PERMISSIONS FOR USER AND SHARED BUCKETS]')
+        print('[SET PERMISSIONS FOR USER AND SHARED BUCKETS]')
+        GCPActions().set_bucket_owner(edge_conf['bucket_name'], edge_conf['notebook_service_account_name'])
+        GCPActions().set_bucket_owner(edge_conf['shared_bucket_name'], edge_conf['notebook_service_account_name'])
+    except Exception as err:
+        append_result("Failed to set bucket permissions.", str(err))
+        GCPActions().remove_bucket(edge_conf['bucket_name'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_ingress_public'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
+        GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
+        GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
+        GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
+        GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
+        GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
+        GCPActions().remove_role(edge_conf['notebook_role_name'])
+        GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
+        GCPActions().remove_role(edge_conf['edge_role_name'])
+        GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
+        sys.exit(1)
 
     try:
         logging.info('[CREATING STATIC IP ADDRESS]')

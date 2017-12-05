@@ -607,6 +607,22 @@ class GCPActions:
         except exceptions.NotFound:
             return False
 
+    def set_bucket_owner(self, bucket_name, service_account):
+        try:
+            service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account, self.project)
+            bucket = self.storage_client.get_bucket(bucket_name)
+            acl = bucket.acl
+            acl.user(service_account_email).grant_owner()
+            acl.save()
+        except Exception as err:
+            logging.info(
+                "Unable to modify bucket ACL: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to modify bucket ACL",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
     def get_gitlab_cert(self, bucket_name, certfile):
         try:
             bucket = self.storage_client.get_bucket(bucket_name)
