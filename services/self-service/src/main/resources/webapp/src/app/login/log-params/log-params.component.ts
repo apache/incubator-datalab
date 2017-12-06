@@ -16,24 +16,17 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
+import { Component, OnInit } from '@angular/core';
 
-import { LoginComponent } from './login.component';
-import { LogParamsComponent } from './log-params/log-params.component';
-
-export * from './login.component';
-export * from './log-params/log-params.component';
-
-@NgModule({
-  imports: [
-    FormsModule,
-    CommonModule,
-    MaterialModule.forRoot()
-  ],
-  declarations: [LoginComponent, LogParamsComponent],
-  exports: [LoginComponent]
+@Component({
+  selector: 'dlab-log-params',
+  templateUrl: './log-params.component.html'
 })
-export class LoginModule { }
+export class LogParamsComponent implements OnInit {
+
+  constructor() { }
+
+  ngOnInit() {
+  }
+
+}
