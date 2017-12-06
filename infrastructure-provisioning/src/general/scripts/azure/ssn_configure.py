@@ -312,7 +312,7 @@ if __name__ == "__main__":
             sp_creds = json.loads(open(azure_auth_path).read())
             tenant_id = json.dumps(sp_creds['tenantId']).replace('"', ''),
             # need to change None to application_id from os_environment when will be implemented in deploy script
-            application_id = None
+            datalake_application_id = None
             for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                     datalake_store_name = datalake.name
@@ -325,7 +325,7 @@ if __name__ == "__main__":
                    os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
                    billing_enabled, azure_auth_path, os.environ['azure_offer_number'],
                    os.environ['azure_currency'], os.environ['azure_locale'], os.environ['azure_region_info'],
-                   ldap_login, tenant_id, application_id, datalake_store_name, json.dumps(mongo_parameters))
+                   ldap_login, tenant_id, datalake_application_id, datalake_store_name, json.dumps(mongo_parameters))
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:
