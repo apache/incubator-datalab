@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
 import java.util.Set;
 
 @Path("/docker")
@@ -55,8 +54,7 @@ public class DockerResource implements DockerCommands {
 
     @GET
     @Path("{type}")
-    public Set<ImageMetadataDTO> getDockerImages(@Auth UserInfo ui, @PathParam("type") String type) throws
-            IOException, InterruptedException {
+    public Set<ImageMetadataDTO> getDockerImages(@Auth UserInfo ui, @PathParam("type") String type) {
         LOGGER.debug("docker statuses asked for {}", type);
         return metadataHolder
                 .getMetadata(ImageType.valueOf(type.toUpperCase()));
@@ -64,7 +62,7 @@ public class DockerResource implements DockerCommands {
 
     @Path("/run")
     @POST
-    public String run(@Auth UserInfo ui, String image) throws IOException, InterruptedException {
+    public String run(@Auth UserInfo ui, String image) {
         LOGGER.debug("run docker image {}", image);
         String uuid = DockerCommands.generateUUID();
         commandExecutor.executeAsync(

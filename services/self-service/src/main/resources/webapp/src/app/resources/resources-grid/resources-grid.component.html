@@ -78,17 +78,16 @@ limitations under the License.
       <span class="total_cost">{{ env.cost || 'N/A' }} {{env.currency_code || ''}}</span>
       <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}"></span>
     </td>
-    <td>
-      <div class="dropdown">
-        <span data-toggle="dropdown" class="actions" (click)="dropdownPosition($event)" 
-              [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' ||
-                                      env.status.toLowerCase() == 'failed' ||
-                                      env.status.toLowerCase() == 'terminating' ||
-                                      env.status.toLowerCase() == 'terminated' ||
-                                      healthStatus === 'error'}">
-        </span>
-        <div class="dropdown-menu">
-          <ul class="list-unstyled">
+    <td class="settings">
+      <span #settings (click)="actions.toggle($event, settings)" class="actions"
+            [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' || healthStatus === 'error'}">
+      </span>
+
+      <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+        <ul class="list-unstyled">
+          <div class="active-items" *ngIf="env.status.toLowerCase() !== 'failed'
+                && env.status.toLowerCase() !== 'terminating'
+                && env.status.toLowerCase() !== 'terminated'">
             <li (click)="exploratoryAction(env, 'stop')"
                 *ngIf="env.status.toLowerCase() !== 'stopped'
                 && env.status.toLowerCase() !== 'stopping'
@@ -101,12 +100,12 @@ limitations under the License.
             <li (click)="exploratoryAction(env, 'deploy')"
                 *ngIf="env.status != 'stopping'
                 && env.status != 'stopped'
-                && env.status != 'starting'
-                ">Add computational resources</li>
-            <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
-          </ul>
-        </div>
-      </div>
+                && env.status != 'starting'">Add computational resources
+            </li>
+          </div>
+          <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
+        </ul>
+      </bubble-up>
     </td>
   </tr>
 </table>

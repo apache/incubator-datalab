@@ -20,6 +20,10 @@ import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.cloud.CloudModule;
 
 public class CloudModuleConfigurator {
+
+    private CloudModuleConfigurator() {
+    }
+
     public static CloudModule getCloudModule(ProvisioningServiceApplicationConfiguration configuration) {
         switch (configuration.getCloudProvider()) {
             case AWS:

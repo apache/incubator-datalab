@@ -7,6 +7,8 @@ CONTENTS
 
 [What is DLAB?](#What_is_DLAB)
 
+&nbsp; &nbsp; [How to Contribute](CONTRIBUTING.md)
+
 [Logical architecture](#Logical_architecture)
 
 [Physical architecture](#Physical_architecture)
@@ -324,12 +326,32 @@ List of parameters for SSN node deployment:
 | key\_path                    | Path to admin key (without key name)                                                    |
 | conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
 | azure\_auth\_path            | Full path to auth json file                                                             |
+| azure\_offer\_number         | Azure offer id number                                                                   |
+| azure\_currency              | Currency that is used for billing information(e.g. USD)                                 |
+| azure\_locale                | Locale that is used for billing information(e.g. en-US)                                 |
+| azure\_region\_info          | Region info that is used for billing information(e.g. US)                               |
+| azure\_datalake\_enable      | Support of Azure Data Lake (true/false)                                                 |
+| azure\_ad\_group\_id         | ID of AD group                                                                          |
 | action                       | In case of SSN node creation, this parameter should be set to “create”                  |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
 -   azure\_vpc\_nam
 -   azure\_subnet\_name
 -   azure\_security\_groups\_name
+
+**Note:** Billing configuration:
+
+To know azure\_offer\_number open [Azure Portal](https://portal.azure.com), go to Subscriptions and open yours, then click Overview and you should see it under Offer ID property:
+
+![Azure offer number](doc/azure_offer_number.png)
+
+Please see [RateCard API](https://msdn.microsoft.com/en-us/library/mt219004.aspx) to get more details about azure\_offer\_number,
+azure\_currency, azure\_locale, azure\_region_info. These DLab deploy properties correspond to RateCard API request parameters.
+
+**Note:** Azure Data Lake configuration:
+
+Before deploying SSN node, group should be created in Active Directory and all users should be added to this group.
+Or if the group exists, ID of this group should be passed in azure_ad_group_id parameter. 
 
 After SSN node deployment following Azure resources will be created:
 
@@ -341,6 +363,7 @@ After SSN node deployment following Azure resources will be created:
 -   Virtual network and Subnet (if they have not been specified) for SSN and EDGE nodes
 -   Storage account and blob container for necessary further dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
 -   Storage account and blob container for collaboration between Dlab users
+-   If support of Data Lake is enabled: Data Lake and shared directory will be created 
 
 ### Terminate
 
@@ -952,9 +975,11 @@ To use your own certificate please do the following:
 
 ## Billing report <a name="Billing_Report"></a>
 
+### AWS
+
 Billing module is implemented as a separate jar file and can be running in the follow modes:
 
--   part of the Self-Service;
+-   part of Self-Service;
 -   separate system process;
 -   manual loading or use external scheduler;
 
@@ -972,13 +997,25 @@ sudo supervisorctl start ui
 ```
 If you want to load report manually, or use external scheduler use following command:
 ```
-java -jar /opt/dlab/webapp/lib/billing/billing-x.y.jar --conf /opt/dlab/conf/billing.yml
+java -jar /opt/dlab/webapp/lib/billing/billing-aws.x.y.jar --conf /opt/dlab/conf/billing.yml
 or
-java -cp /opt/dlab/webapp/lib/billing/billing-x.y.jar com.epam.dlab.BillingTool --conf /opt/dlab/conf/billing.yml
+java -cp /opt/dlab/webapp/lib/billing/billing-aws.x.y.jar com.epam.dlab.BillingTool --conf /opt/dlab/conf/billing.yml
 ```
 If you want billing to work as a separate process from the Self-Service use following command:
 ```
-java -cp /opt/dlab/webapp/lib/billing/billing-x.y.jar com.epam.dlab.BillingScheduler --conf /opt/dlab/conf/billing.yml
+java -cp /opt/dlab/webapp/lib/billing/billing-aws.x.y.jar com.epam.dlab.BillingScheduler --conf /opt/dlab/conf/billing.yml
+```
+
+### Azure
+
+Billing module is implemented as a separate jar file and can be running in the follow modes:
+
+-   part of Self-Service;
+-   separate system process;
+
+If you want to start billing module as a separate process use the following command:
+```
+java -jar /opt/dlab/webapp/lib/billing/billing-azure.x.y.jar /opt/dlab/conf/billing.yml
 ```
 
 ## Backup and Restore <a name="Backup_and_Restore"></a>
@@ -1183,6 +1220,7 @@ Sources are located in dlab/services/self-service/src/main/resources/webapp
 | Health Status page            | HealthStatusComponent<br>*HealthStatusGridComponent* displays list of instances, their types, statutes, ID’s and uses *healthStatusService* for handling main actions. |
 | Help pages                    | Static pages that contains information and instructions on how to access Notebook Server and generate SSH key pair. Includes only *NavbarComponent*. |
 | Error page                    | Simple static page letting users know that opened page does not exist. Includes only *NavbarComponent*. | 
+| Reporting page                | ReportingComponent<br>ReportingGridComponent displays billing detailed info with built-in filtering and DateRangePicker component for custom range filtering;<br>uses *BillingReportService* for handling main actions and exports report data to .csv file. |
 
 ## How to setup local development environment <a name="setup_local_environment"></a>
 
@@ -1279,7 +1317,13 @@ npm install npm@latest -g
 ```
 npm install
 ```
+  * Replace CLOUD_PROVIDER options with aws|azure in dictionary file<br> dlab/services/self-service/src/main/resources/webapp/src/dictionary/global.dictionary.ts
 
+```
+import { NAMING_CONVENTION } from './(aws|azure).dictionary';
+
+export * from './(aws|azure).dictionary';
+```
   * Build web application
 
 ```

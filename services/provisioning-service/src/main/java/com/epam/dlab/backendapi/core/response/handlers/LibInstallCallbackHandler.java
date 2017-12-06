@@ -90,7 +90,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstal
             throw new DlabException("Can't handle response without property " + LIBS_ABSOLUTE_PATH);
         }
         try {
-            status.withLibs(MAPPER.readValue(nodeLibs.toString(), new TypeReference<List<LibInstallDTO>>() {
+            status.withLibs(mapper.readValue(nodeLibs.toString(), new TypeReference<List<LibInstallDTO>>() {
             }));
         } catch (IOException e) {
             log.warn("Can't parse field {} for UUID {} in JSON", LIBS_ABSOLUTE_PATH, getUUID(), e);

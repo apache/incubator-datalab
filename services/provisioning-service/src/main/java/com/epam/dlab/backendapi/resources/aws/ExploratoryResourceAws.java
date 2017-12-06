@@ -22,6 +22,7 @@ import com.epam.dlab.backendapi.resources.base.ExploratoryService;
 import com.epam.dlab.dto.aws.exploratory.ExploratoryCreateAws;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 
@@ -30,7 +31,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
 
 @Path("/exploratory")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -43,25 +43,25 @@ public class ExploratoryResourceAws {
 
     @Path("/create")
     @POST
-    public String create(@Auth UserInfo ui, ExploratoryCreateAws dto) throws IOException, InterruptedException {
+    public String create(@Auth UserInfo ui, ExploratoryCreateAws dto) throws JsonProcessingException {
         return exploratoryService.action(ui.getName(), dto, DockerAction.CREATE);
     }
 
     @Path("/start")
     @POST
-    public String start(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws IOException, InterruptedException {
+    public String start(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws JsonProcessingException {
         return exploratoryService.action(ui.getName(), dto, DockerAction.START);
     }
 
     @Path("/terminate")
     @POST
-    public String terminate(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws IOException, InterruptedException {
+    public String terminate(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws JsonProcessingException {
         return exploratoryService.action(ui.getName(), dto, DockerAction.TERMINATE);
     }
 
     @Path("/stop")
     @POST
-    public String stop(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws IOException, InterruptedException {
+    public String stop(@Auth UserInfo ui, ExploratoryActionDTO<?> dto) throws JsonProcessingException {
         return exploratoryService.action(ui.getName(), dto, DockerAction.STOP);
     }
 }

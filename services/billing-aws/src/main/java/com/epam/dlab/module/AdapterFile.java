@@ -53,17 +53,6 @@ public class AdapterFile extends AdapterBase {
 	@NotNull
 	@JsonProperty
 	private String file;
-	
-	
-	/** Default constructor for deserialization. */
-	public AdapterFile() { }
-	
-	/** Instantiate adapter for reading or writing.
-	 * @param mode the mode of adapter.
-	 */
-	public AdapterFile(Mode mode) {
-		super(mode);
-	}
 
     
 	/** Return the name of file. */

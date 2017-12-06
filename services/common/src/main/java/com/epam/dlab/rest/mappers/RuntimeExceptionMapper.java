@@ -27,7 +27,7 @@ import javax.ws.rs.ext.Provider;
 
 @Provider
 public class RuntimeExceptionMapper extends GenericExceptionMapper<RuntimeException> {
-    final static Logger LOGGER = LoggerFactory.getLogger(RuntimeExceptionMapper.class);
+    static final Logger LOGGER = LoggerFactory.getLogger(RuntimeExceptionMapper.class);
 
     @Override
     public Response toResponse(RuntimeException exception) {

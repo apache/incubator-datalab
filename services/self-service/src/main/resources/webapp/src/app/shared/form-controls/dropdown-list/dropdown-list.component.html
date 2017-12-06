@@ -18,16 +18,16 @@ limitations under the License.
 
 <div class="dropdown dropdown-list">
   <button class="dropdown-toggle" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false">
-    <span>{{label || 'None'}}</span>
+    <span class="title">
+      <span [innerHTML]="label || 'None'"></span>
+    </span>
     <span class="caret-btn">&#9663;</span>
   </button>
   <ul class="dropdown-menu" id="scrolling" aria-labelledby="dropdownMenu2">
     <template [ngIf]="listStructure === 'array'">
       <template let-item ngFor [ngForOf]="items" let-index="index">
-        <li role="presentation">
-          <a role="menuitem" (click)="selectOptions($event, item, index)">
-            {{item[byField]}}
-          </a>
+        <li role="presentation" (click)="selectOptions($event, item, index)">
+          <a role="menuitem"><span [innerHTML]="item[byField]"></span></a>
         </li>
       </template>
 

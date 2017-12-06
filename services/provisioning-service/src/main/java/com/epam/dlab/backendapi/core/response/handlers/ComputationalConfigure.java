@@ -46,7 +46,7 @@ public class ComputationalConfigure implements DockerCommands {
     @Inject
     private RESTService selfService;
 
-    public String configure(String uuid, ComputationalBase<?> dto) throws DlabException {
+    public String configure(String uuid, ComputationalBase<?> dto) {
         switch (configuration.getCloudProvider()) {
             case AWS:
                 if (dto instanceof SparkComputationalCreateAws) {
@@ -62,7 +62,7 @@ public class ComputationalConfigure implements DockerCommands {
         }
     }
 
-    private String runConfigure(String uuid, ComputationalBase<?> dto, DataEngineType dataEngineType) throws DlabException {
+    private String runConfigure(String uuid, ComputationalBase<?> dto, DataEngineType dataEngineType) {
         log.debug("Configure computational resources {} for user {}: {}", dto.getComputationalName(), dto.getEdgeUserName(), dto);
         folderListenerExecutor.start(
                 configuration.getImagesDirectory(),
@@ -100,7 +100,7 @@ public class ComputationalConfigure implements DockerCommands {
         return nameContainer(user, action.toString(), "computational", name);
     }
 
-    private String getImageConfigure(String application, DataEngineType dataEngineType) throws DlabException {
+    private String getImageConfigure(String application, DataEngineType dataEngineType) {
         String imageName = DataEngineType.getDockerImageName(dataEngineType);
         int pos = imageName.indexOf('-');
         if (pos > 0) {

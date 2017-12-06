@@ -22,7 +22,7 @@ import { MaterialModule } from '@angular/material';
 
 import { ResourcesGridComponent } from './resources-grid.component';
 import { ComputationalResourcesModule } from './../computational/computational-resources-list';
-import { ModalModule, ConfirmationDialogModule } from './../../shared';
+import { ModalModule, ConfirmationDialogModule, BubbleModule } from './../../shared';
 import { ComputationalResourceCreateDialogModule } from './../computational/computational-resource-create-dialog';
 import { DetailDialogModule } from './../exploratory/detail-dialog';
 import { FormControlsModule } from '../../shared/form-controls';
@@ -40,6 +40,7 @@ export * from './filter-configuration.model';
     ComputationalResourcesModule,
     ModalModule,
     ConfirmationDialogModule,
+    BubbleModule,
     DetailDialogModule,
     ComputationalResourceCreateDialogModule,
     FormControlsModule,

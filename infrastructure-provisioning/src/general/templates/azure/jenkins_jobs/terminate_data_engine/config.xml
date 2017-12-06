@@ -60,6 +60,7 @@ limitations under the License.
             <a class="string-array">
               <string>westus</string>
               <string>westus2</string>
+              <string>eastus2</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>

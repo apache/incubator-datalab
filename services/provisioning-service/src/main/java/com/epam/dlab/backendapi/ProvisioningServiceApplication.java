@@ -41,11 +41,6 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
 public class ProvisioningServiceApplication extends Application<ProvisioningServiceApplicationConfiguration> {
-    private static Injector injector;
-
-    public static Injector getInjector() {
-        return injector;
-    }
 
     public static void main(String[] args) throws Exception {
         if (ServiceUtils.printAppVersion(ProvisioningServiceApplication.class, args)) {
@@ -68,7 +63,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
         DlabProcess.getInstance().setMaxProcessesPerUser(configuration.getProcessMaxThreadsPerUser());
 
         CloudModule cloudModule = CloudModuleConfigurator.getCloudModule(configuration);
-        injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment), cloudModule);
+        Injector injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment), cloudModule);
         cloudModule.init(environment, injector);
 
         injector.getInstance(SecurityFactory.class).configure(injector, environment);
