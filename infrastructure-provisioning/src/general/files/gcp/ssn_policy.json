@@ -16,6 +16,8 @@
     "compute.networks.get",
     "compute.networks.list",
     "compute.networks.updatePolicy",
+    "compute.regionOperations.get",
+    "compute.globalOperations.get",
     "compute.subnetworks.create",
     "compute.subnetworks.delete",
     "compute.subnetworks.get",
