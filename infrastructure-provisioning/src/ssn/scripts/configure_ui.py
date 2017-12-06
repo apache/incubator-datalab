@@ -49,11 +49,10 @@ parser.add_argument('--currency', type=str, default=None)
 parser.add_argument('--locale', type=str, default=None)
 parser.add_argument('--region_info', type=str, default=None)
 parser.add_argument('--billing_enabled', type=str, default=False)
-parser.add_argument('--ldap_login', type=str, default=False)
-parser.add_argument('--tenant_id', type=str, default=False)
-parser.add_argument('--application_id', type=str, default=False)
-parser.add_argument('--hostname', type=str, default=False)
-parser.add_argument('--storage_account', type=str, default=False)
+parser.add_argument('--ldap_login', type=str, default=None)
+parser.add_argument('--tenant_id', type=str, default=None)
+parser.add_argument('--application_id', type=str, default=None)
+parser.add_argument('--datalake_store_name', type=str, default=None)
 parser.add_argument('--mongo_parameters', type=str, default='')
 args = parser.parse_args()
 
@@ -152,7 +151,7 @@ if __name__ == "__main__":
                     args.cloud_provider, args.service_base_name, args.tag_resource_id, args.account_id,
                     args.billing_bucket, args.dlab_path, args.billing_enabled, args.authentication_file,
                     args.offer_number, args.currency, args.locale, args.region_info, args.ldap_login, args.tenant_id,
-                    args.application_id, args.hostname, args.storage_account, args.report_path):
+                    args.application_id, args.hostname, args.datalake_store_name, args.report_path):
         logging.error('Failed to start UI')
         sys.exit(1)
 
