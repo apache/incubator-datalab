@@ -26,6 +26,8 @@ export { HealthStatusService } from './healthStatus.service';
 
 export { AuthorizationGuard } from './authorization.guard';
 export { CloudProviderGuard } from './cloudProvider.guard';
+export { CheckParamsGuard } from './checkParams.guard';
+
 export { LibrariesInstallationService } from './librariesInstallation.service';
 export { ManageUngitService } from './manageUngit.service';
 export { BillingReportService } from './billingReport.service';

@@ -94,6 +94,26 @@ export class ApplicationSecurityService {
     return Observable.of(false);
   }
 
+  public redirectParams(params): Observable<boolean> {
+    debugger;
+
+    return this.serviceFacade
+      .buildGetAuthToken(params)
+      .map((response: Response) => {
+        if (response.status === HTTP_STATUS_CODES.OK) {
+          this.appRoutingService.redirectToHomePage();
+          // window.location.href = window.location.href.split("?")[0];
+            debugger;
+            return true;
+          }
+          this.appRoutingService.redirectToLoginPage();
+          return false;
+        }).catch(()=> {
+          debugger;
+          return Observable.of(false);
+        });
+  }
+
   private setUserName(userName): void {
     localStorage.setItem(this.userNameKey, userName);
   }
