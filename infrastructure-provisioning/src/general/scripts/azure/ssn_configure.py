@@ -319,7 +319,7 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} \
                  --resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} --authentication_file {} \
                  --offer_number {} --currency {} --locale {} --region_info {}  --ldap_login {} --tenant_id {} \
-                 --application_id {} --data_lake_name {} --mongo_parameters '{}'". \
+                 --application_id {} --datalake_store_name {} --mongo_parameters '{}'". \
             format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
                    ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
                    os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
