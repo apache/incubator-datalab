@@ -291,7 +291,7 @@ if __name__ == "__main__":
             ldap_login = 'true'
             # tenant_id = None
             sp_creds = json.loads(open(azure_auth_path).read())
-            tenant_id = json.dumps(sp_creds['tenantId']).replace('"', ''),
+            tenant_id = json.dumps(sp_creds['tenantId']).replace('"', '')
             datalake_application_id = None
             datalake_store_name = None
         else:
@@ -312,7 +312,7 @@ if __name__ == "__main__":
             }
             ldap_login = 'false'
             sp_creds = json.loads(open(azure_auth_path).read())
-            tenant_id = json.dumps(sp_creds['tenantId']).replace('"', ''),
+            tenant_id = json.dumps(sp_creds['tenantId']).replace('"', '')
             # need to change None to application_id from os_environment when will be implemented in deploy script
             datalake_application_id = None
             for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
