@@ -612,7 +612,9 @@ class GCPActions:
             service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account, self.project)
             bucket = self.storage_client.get_bucket(bucket_name)
             acl = bucket.acl
+            print('SERVICE ACCOUNT EMAIL ------> {}'.format(service_account_email))
             acl.user(service_account_email).grant_owner()
+            print('NEW ACL LIST ----> {}'.format(list(acl)))
             acl.save()
         except Exception as err:
             logging.info(
