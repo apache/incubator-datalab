@@ -16,8 +16,8 @@
 
 package com.epam.dlab.backendapi.modules;
 
-import com.epam.dlab.auth.AzureLoginUrlBuilder;
-import com.epam.dlab.auth.AzureSecurityResource;
+import com.epam.dlab.auth.azure.AzureLoginUrlBuilder;
+import com.epam.dlab.auth.azure.AzureSecurityResource;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureKeyDao;
 import com.epam.dlab.backendapi.domain.azure.BillingSchedulerManagerAzure;

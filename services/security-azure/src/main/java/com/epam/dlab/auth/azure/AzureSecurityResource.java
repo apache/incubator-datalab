@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.auth;
+package com.epam.dlab.auth.azure;
 
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.rest.client.RESTService;

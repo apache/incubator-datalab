@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.auth;
+package com.epam.dlab.auth.azure;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class JwtPayload {
+public class RoleAssignmentResponse {
     @JsonProperty
-    private String upn;
-    @JsonProperty("given_name")
-    private String firstName;
-    @JsonProperty("family_name")
-    private String lastName;
+    private List<RoleAssignment> value;
+    @JsonProperty
+    private String nextLink;
 }
