@@ -232,7 +232,7 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
     def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path,
-                        initial_user, ami_name, service_account_name, instance_class, static_ip='',
+                        initial_user, ami_name, service_account_name, instance_class, network_tag, static_ip='',
                         primary_disk_size='12', secondary_disk_size='30', gpu_accelerator_type='None'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
@@ -328,14 +328,9 @@ class GCPActions:
             print('Instance {} created.'.format(instance_name))
             request = self.service.instances().get(instance=instance_name, project=self.project, zone=zone)
             res = request.execute()
-            tag = ''
-            if 'ssn' in instance_name or 'edge' in instance_name:
-                tag = instance_name
-            elif 'nb' in instance_name:
-                tag = instance_name[:instance_name.index("nb") + 2].replace('_', '-')
-            instance_tag = {"items": [tag], "fingerprint": res['tags']['fingerprint']}
+            instance_tag = {"items": [network_tag], "fingerprint": res['tags']['fingerprint']}
             request = self.service.instances().setTags(instance=instance_name, project=self.project, zone=zone,
-                                                        body=instance_tag)
+                                                       body=instance_tag)
             request.execute()
             return result
         except Exception as err:
@@ -1065,3 +1060,64 @@ def configure_local_spark(os_user, jars_dir, region, templates_dir):
             sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
         except:
             sys.exit(1)
+
+
+def remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name, zone):
+    try:
+        private = meta_lib.get_private_ip_address(notebook_name, zone)
+        env.hosts = "{}".format(private)
+        env.user = "{}".format(os_user)
+        env.key_filename = "{}".format(key_path)
+        env.host_string = env.user + "@" + env.hosts
+        sudo('rm -rf /home/{}/.local/share/jupyter/kernels/*_{}'.format(os_user, cluster_name))
+        if exists('/home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name)):
+            if os.environ['notebook_multiple_clusters'] == 'true':
+                try:
+                    livy_port = sudo("cat /opt/" + cluster_name +
+                                     "/livy/conf/livy.conf | grep livy.server.port | tail -n 1 | awk '{printf $3}'")
+                    process_number = sudo("netstat -natp 2>/dev/null | grep ':" + livy_port +
+                                          "' | awk '{print $7}' | sed 's|/.*||g'")
+                    sudo('kill -9 ' + process_number)
+                    sudo('systemctl disable livy-server-' + livy_port)
+                except:
+                    print("Wasn't able to find Livy server for this EMR!")
+            sudo(
+                'sed -i \"s/^export SPARK_HOME.*/export SPARK_HOME=\/opt\/spark/\" /opt/zeppelin/conf/zeppelin-env.sh')
+            sudo("rm -rf /home/{}/.ensure_dir/dataengine_interpreter_ensure".format(os_user))
+            zeppelin_url = 'http://' + private + ':8080/api/interpreter/setting/'
+            opener = urllib2.build_opener(urllib2.ProxyHandler({}))
+            req = opener.open(urllib2.Request(zeppelin_url))
+            r_text = req.read()
+            interpreter_json = json.loads(r_text)
+            interpreter_prefix = cluster_name
+            for interpreter in interpreter_json['body']:
+                if interpreter_prefix in interpreter['name']:
+                    print("Interpreter with ID: {} and name: {} will be removed from zeppelin!".format(
+                        interpreter['id'], interpreter['name']))
+                    request = urllib2.Request(zeppelin_url + interpreter['id'], data='')
+                    request.get_method = lambda: 'DELETE'
+                    url = opener.open(request)
+                    print(url.read())
+            sudo('chown ' + os_user + ':' + os_user + ' -R /opt/zeppelin/')
+            sudo('systemctl daemon-reload')
+            sudo("service zeppelin-notebook stop")
+            sudo("service zeppelin-notebook start")
+            zeppelin_restarted = False
+            while not zeppelin_restarted:
+                sudo('sleep 5')
+                result = sudo('nmap -p 8080 localhost | grep "closed" > /dev/null; echo $?')
+                result = result[:1]
+                if result == '1':
+                    zeppelin_restarted = True
+            sudo('sleep 5')
+            sudo('rm -rf /home/{}/.ensure_dir/dataengine_{}_interpreter_ensured'.format(os_user, cluster_name))
+        if exists('/home/{}/.ensure_dir/rstudio_dataengine_ensured'.format(os_user)):
+            dlab.fab.remove_rstudio_dataengines_kernel(cluster_name, os_user)
+        sudo('rm -rf  /opt/' + cluster_name + '/')
+        print("Notebook's {} kernels were removed".format(env.hosts))
+    except Exception as err:
+        logging.info("Unable to remove kernels on Notebook: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Unable to remove kernels on Notebook",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
