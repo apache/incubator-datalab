@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { NgModule } from '@angular/core';
+import { NgModule, ModuleWithProviders } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { LoginComponent, LogParamsComponent } from './login/login.module';
@@ -63,9 +63,4 @@ const routes: Routes = [{
     component: NotFoundComponent
   }];
 
-@NgModule({
-  imports: [
-    RouterModule.forRoot(routes, { useHash: true })
-  ]
-})
-export class AppRoutingModule { }
+export const AppRoutingModule: ModuleWithProviders = RouterModule.forRoot(routes, { useHash: true });
