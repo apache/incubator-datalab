@@ -18,7 +18,7 @@
 
 <#include "ssn.yml">
 
-inactiveUserTimeoutMillSec: 7200000
+ldapUseConnectionPool: false
 ldapConnectionConfig:
 #  ldapHost: localhost
   ldapHost: LDAP_HOST
@@ -116,6 +116,75 @@ ldapSearch:
               }
           }
           return ui;
+        }
+
+
+azureLoginConfiguration:
+    useLdap: <LOGIN_USE_LDAP>
+    tenant: <LOGIN_TENANT_ID>
+    authority: https://login.microsoftonline.com/
+    clientId: <LOGIN_APPLICATION_ID>
+    redirectUrl: <LOGIN_APPLICATION_REDIRECT_URL>
+    responseMode: query
+    responseType: code
+    prompt: consent
+    silent: true
+    loginPage: <LOGIN_PAGE>
+    validatePermissionScope: false
+    permissionScope: /<DLAB_RESOURCE_GROUP>/<DATA_LAKE_STORAGE_ACCOUNT>/
+
+server:
+  requestLog:
+    appenders:
+      - type: file
+        currentLogFilename: ${LOG_ROOT_DIR}/ssn/request-security.log
+        archive: true
+        archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/request-security-%d{yyyy-MM-dd}.log.gz
+        archivedFileCount: 10
+  applicationConnectors:
+    - type: https
+      port: 8090
+      certAlias: dlab
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
+  adminConnectors:
+    - type: https
+      port: 8091
+      certAlias: dlab
+      keyStorePath: ${KEY_STORE_PATH}
+      keyStorePassword: ${KEY_STORE_PASSWORD}
+      trustStorePath: ${TRUST_STORE_PATH}
+      trustStorePassword: ${TRUST_STORE_PASSWORD}
+
+userInfoPersistenceEnabled: true
+
+<#if CLOUD_TYPE == "aws">
+awsUserIdentificationEnabled: true
+loginAuthenticationTimeout: 10
+<#elseif CLOUD_TYPE == "azure">
+loginAuthenticationTimeout: 20
+</#if>
+
+
+
+logging:
+  level: INFO
+  loggers:
+    io.dropwizard: INFO
+    com.epam: DEBUG
+    com.aegisql: INFO
+  appenders:
+<#if DEV_MODE == "true">
+    - type: console
+</#if>
+    - type: file
+      currentLogFilename: ${LOG_ROOT_DIR}/ssn/security.log
+      archive: true
+      archivedLogFilenamePattern: ${LOG_ROOT_DIR}/ssn/security-%d{yyyy-MM-dd}.log.gz
+      archivedFileCount: 10
+
         }
 
 server:

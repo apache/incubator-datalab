@@ -21,7 +21,7 @@
 from dlab.fab import *
 from dlab.actions_lib import *
 from dlab.meta_lib import *
-import sys, os
+import sys, os, json
 from fabric.api import *
 from dlab.ssn_lib import *
 import traceback
@@ -270,6 +270,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        logging.info('[CONFIGURE SSN INSTANCE UI]')
+        print('[CONFIGURE SSN INSTANCE UI]')
+        azure_auth_path = '/home/{}/keys/azure_auth.json'.format(ssn_conf['dlab_ssh_user'])
         if os.environ['azure_datalake_enable'] == 'false':
             mongo_parameters = {
                 "azure_resource_group_name": os.environ['azure_resource_group_name'],
@@ -285,6 +288,10 @@ if __name__ == "__main__":
                 "ssn_storage_account_tag_name": ssn_conf['ssn_storage_account_name'],
                 "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name']
             }
+            ldap_login = 'true'
+            tenant_id = None
+            datalake_application_id = None
+            datalake_store_name = None
         else:
             mongo_parameters = {
                 "azure_resource_group_name": os.environ['azure_resource_group_name'],
@@ -301,16 +308,23 @@ if __name__ == "__main__":
                 "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name'],
                 "datalake_tag_name": ssn_conf['datalake_store_name']
             }
-        logging.info('[CONFIGURE SSN INSTANCE UI]')
-        print('[CONFIGURE SSN INSTANCE UI]')
-        azure_auth_path = '/home/{}/keys/azure_auth.json'.format(ssn_conf['dlab_ssh_user'])
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} --authentication_file {} --offer_number {} --currency {} --locale {} --region_info {} --mongo_parameters '{}'". \
+            ldap_login = 'false'
+            tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
+            # need to change None to application_id from os_environment when will be implemented in deploy script
+            datalake_application_id = None
+            for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
+                if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
+                    datalake_store_name = datalake.name
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} \
+                 --resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} --authentication_file {} \
+                 --offer_number {} --currency {} --locale {} --region_info {}  --ldap_login {} --tenant_id {} \
+                 --application_id {} --datalake_store_name {} --mongo_parameters '{}'". \
             format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
                    ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
                    os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
                    billing_enabled, azure_auth_path, os.environ['azure_offer_number'],
                    os.environ['azure_currency'], os.environ['azure_locale'], os.environ['azure_region_info'],
-                   json.dumps(mongo_parameters))
+                   ldap_login, tenant_id, datalake_application_id, datalake_store_name, json.dumps(mongo_parameters))
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:
