@@ -289,7 +289,9 @@ if __name__ == "__main__":
                 "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name']
             }
             ldap_login = 'true'
-            tenant_id = None
+            # tenant_id = None
+            sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
+            tenant_id = json.dumps(sp_creds['tenantId']).replace('"', '')
             datalake_application_id = None
             datalake_store_name = None
         else:
@@ -309,7 +311,7 @@ if __name__ == "__main__":
                 "datalake_tag_name": ssn_conf['datalake_store_name']
             }
             ldap_login = 'false'
-            sp_creds = json.loads(open(azure_auth_path).read())
+            sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
             tenant_id = json.dumps(sp_creds['tenantId']).replace('"', '')
             # need to change None to application_id from os_environment when will be implemented in deploy script
             datalake_application_id = None
