@@ -52,10 +52,10 @@ class AzureActions:
         self.storage_client = get_client_from_auth_file(StorageManagementClient)
         self.datalake_client = get_client_from_auth_file(DataLakeStoreAccountManagementClient)
         self.authorization_client = get_client_from_auth_file(AuthorizationManagementClient)
-        sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
-        self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(sp_creds['tenantId']).replace('"', ''),
-                                            client_secret=json.dumps(sp_creds['clientSecret']).replace('"', ''),
-                                            client_id=json.dumps(sp_creds['clientId']).replace('"', ''),
+        self.sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
+        self.dl_filesystem_creds = lib.auth(tenant_id=json.dumps(self.sp_creds['tenantId']).replace('"', ''),
+                                            client_secret=json.dumps(self.sp_creds['clientSecret']).replace('"', ''),
+                                            client_id=json.dumps(self.sp_creds['clientId']).replace('"', ''),
                                             resource='https://datalake.azure.net/')
 
     def create_resource_group(self, resource_group_name, region):
@@ -261,10 +261,15 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def chown_datalake_directory(self, datalake_name, dir_name, ad_user):
+    def chown_datalake_directory(self, datalake_name, dir_name, ad_user='', ad_group=''):
         try:
             datalake_client = core.AzureDLFileSystem(self.dl_filesystem_creds, store_name=datalake_name)
-            result = datalake_client.chown(dir_name, owner=ad_user)
+            if ad_user and ad_group:
+                result = datalake_client.chown(dir_name, owner=ad_user, group=ad_group)
+            elif ad_user and not ad_group:
+                result = datalake_client.chown(dir_name, owner=ad_user)
+            elif not ad_user and ad_group:
+                result = datalake_client.chown(dir_name, group=ad_group)
             return result
         except Exception as err:
             logging.info(

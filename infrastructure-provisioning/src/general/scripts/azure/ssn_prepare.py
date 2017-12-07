@@ -308,9 +308,10 @@ if __name__ == "__main__":
 
             logging.info('[CREATE DATA LAKE SHARED DIRECTORY]')
             print('[CREATE DATA LAKE SHARED DIRECTORY]')
-            params = "--resource_group_name {} --datalake_name {} --directory_name {} --service_base_name {}". \
+            params = "--resource_group_name {} --datalake_name {} --directory_name {} --service_base_name {} --ad_group {}". \
                 format(os.environ['azure_resource_group_name'], ssn_conf['datalake_store_name'],
-                       ssn_conf['datalake_shared_directory_name'], ssn_conf['service_base_name'])
+                       ssn_conf['datalake_shared_directory_name'], ssn_conf['service_base_name'],
+                       os.environ['azure_ad_group_id'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_datalake_directory', params))
             except:

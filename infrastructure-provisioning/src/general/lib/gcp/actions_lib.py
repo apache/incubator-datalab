@@ -611,9 +611,15 @@ class GCPActions:
         try:
             service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account, self.project)
             bucket = self.storage_client.get_bucket(bucket_name)
+            # setting bucket owner
             acl = bucket.acl
             acl.user(service_account_email).grant_owner()
             acl.save()
+            # setting default ACL for bucket
+            self.service_storage.defaultObjectAccessControls().insert(bucket=bucket_name, body={
+                "entity": "user-{}".format(service_account_email),
+                "role": "OWNER"
+            }).execute()
         except Exception as err:
             logging.info(
                 "Unable to modify bucket ACL: " + str(err) + "\n Traceback: " + traceback.print_exc(
