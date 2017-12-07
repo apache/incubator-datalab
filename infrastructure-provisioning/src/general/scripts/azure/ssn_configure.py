@@ -289,8 +289,7 @@ if __name__ == "__main__":
                 "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name']
             }
             ldap_login = 'true'
-            # tenant_id = None
-            tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
+            tenant_id = None
             datalake_application_id = None
             datalake_store_name = None
         else:
