@@ -31,6 +31,7 @@ parser.add_argument('--service_base_name', type=str, default='')
 parser.add_argument('--datalake_name', type=str, default='')
 parser.add_argument('--directory_name', type=str, default='')
 parser.add_argument('--ad_user', type=str, default='')
+parser.add_argument('--ad_group', type=str, default='')
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -46,10 +47,12 @@ if __name__ == "__main__":
                     if args.ad_user != '':
                        AzureActions().set_user_permissions_to_datalake_directory(
                            datalake.name, '/{}'.format(args.directory_name), args.ad_user)
-                       AzureActions().set_user_permissions_to_datalake_directory(
-                           datalake.name, '/{}'.format(args.service_base_name + '-shared-directory'), args.ad_user)
                        AzureActions().set_user_permissions_to_datalake_directory(datalake.name, '/', args.ad_user,
                                                                                  '--x')
+                    else:
+                        AzureActions().chown_datalake_directory(datalake_name=datalake.name,
+                                                                dir_name='/{}'.format(args.directory_name),
+                                                                ad_group=args.ad_group)
                 datalake_exists = True
         if not datalake_exists:
             print("Requested Data Lake Store '{}' is missing".format(datalake.name))
