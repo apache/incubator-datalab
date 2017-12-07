@@ -37,36 +37,36 @@ args = parser.parse_args()
 
 
 def configure_dataengine_service(instance, dataproc_conf):
-#     emr_conf['instance_ip'] = instance.get('PrivateIpAddress')
+    dataproc_conf['instance_ip'] = meta_lib.GCPMeta().get_private_ip_address(instance)
     # configuring proxy on Data Engine service
     try:
         logging.info('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
-#         print('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
-#         additional_config = {"proxy_host": emr_conf['edge_instance_hostname'], "proxy_port": "3128"}
-#         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
-#             .format(emr_conf['instance_ip'], emr_conf['cluster_name'], emr_conf['key_path'],
-#                     json.dumps(additional_config), emr_conf['os_user'])
-#         try:
-#             local("~/scripts/{}.py {}".format('common_configure_proxy', params))
-#         except:
-#             traceback.print_exc()
-#             raise Exception
-#     except Exception as err:
-#         append_result("Failed to configure proxy.", str(err))
-#         terminate_emr(emr_conf['cluster_id'])
-#         sys.exit(1)
-#
-#     try:
-#         logging.info('[CONFIGURE DATAENGINE SERVICE]')
-#         print('[CONFIGURE DATAENGINE SERVICE]')
-#         try:
-#             configure_data_engine_service_pip(emr_conf['instance_ip'], emr_conf['os_user'], emr_conf['key_path'])
-#         except:
-#             traceback.print_exc()
-#             raise Exception
+        print('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
+        additional_config = {"proxy_host": dataproc_conf['edge_instance_hostname'], "proxy_port": "3128"}
+        params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
+            .format(dataproc_conf['instance_ip'], dataproc_conf['cluster_name'], dataproc_conf['key_path'],
+                    json.dumps(additional_config), dataproc_conf['dlab_ssh_user'])
+        try:
+            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Failed to configure proxy.", str(err))
+        actions_lib.GCPActions().delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
+        sys.exit(1)
+
+    try:
+        logging.info('[CONFIGURE DATAENGINE SERVICE]')
+        print('[CONFIGURE DATAENGINE SERVICE]')
+        try:
+            configure_data_engine_service_pip(dataproc_conf['instance_ip'], dataproc_conf['dlab_ssh_user'], dataproc_conf['key_path'])
+        except:
+            traceback.print_exc()
+            raise Exception
     except Exception as err:
         append_result("Failed to configure dataengine service.", str(err))
-        terminate_emr(dataproc_conf['cluster_id'])
+        actions_lib.GCPActions().delete_dataproc_cluster(dataproc_conf['cluster_name'], os.environ['gcp_region'])
         sys.exit(1)
 
 
@@ -97,17 +97,25 @@ if __name__ == "__main__":
     dataproc_conf['subnet'] = '{0}-{1}-subnet'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['cluster_name'] = '{0}-{1}-dp-{2}-{3}-{4}'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'],
                                                                     dataproc_conf['exploratory_name'], dataproc_conf['computational_name'], dataproc_conf['uuid'])
-    dataproc_conf['cluster_tag'] = '{0}-{1}-dp'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
+    dataproc_conf['cluster_tag'] = '{0}-{1}-nb-de-des'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['bucket_name'] = '{}-ssn-bucket'.format(dataproc_conf['service_base_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
     dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
     dataproc_conf['dataproc_service_account_name'] = dataproc_conf['service_base_name'].lower().replace('_', '-') + \
-                                                       "-" + os.environ['edge_user_name'] + '-nb-sa'
+                                                       "-" + os.environ['edge_user_name'] + '-nb-de-des-sa'
     service_account_email = "{}@{}.iam.gserviceaccount.com".format(dataproc_conf['dataproc_service_account_name'],
                                                                    os.environ['gcp_project_id'])
 
-    dataproc_conf['cluster_instances'] = meta_lib.GCPMeta().get_list_instances(os.environ['gcp_zone'], dataproc_conf['cluster_name'])
+    dataproc_conf['edge_instance_hostname'] = '{0}-{1}-edge'.format(dataproc_conf['service_base_name'],
+                                                                    dataproc_conf['edge_user_name'])
+    dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
 
+    try:
+        res = meta_lib.GCPMeta().get_list_instances(os.environ['gcp_zone'], dataproc_conf['cluster_name'])
+        dataproc_conf['cluster_instances'] = [i.get('name') for i in res['items']]
+    except Exception as err:
+        traceback.print_exc()
+        raise Exception
 
     try:
         jobs = []

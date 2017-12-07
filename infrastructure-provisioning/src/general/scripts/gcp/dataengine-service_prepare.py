@@ -65,16 +65,18 @@ if __name__ == "__main__":
     dataproc_conf['subnet'] = '{0}-{1}-subnet'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['cluster_name'] = '{0}-{1}-dp-{2}-{3}-{4}'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'],
                                                                     dataproc_conf['exploratory_name'], dataproc_conf['computational_name'], dataproc_conf['uuid'])
-    dataproc_conf['cluster_tag'] = '{0}-{1}-dp'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
+    dataproc_conf['cluster_tag'] = '{0}-{1}-nb-de-des'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['bucket_name'] = '{}-ssn-bucket'.format(dataproc_conf['service_base_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
     dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
     dataproc_conf['dataproc_service_account_name'] = dataproc_conf['service_base_name'].lower().replace('_', '-') + \
-                                                       "-" + os.environ['edge_user_name'] + '-nb-sa'
+                                                       "-" + os.environ['edge_user_name'] + '-nb-de-des-sa'
     service_account_email = "{}@{}.iam.gserviceaccount.com".format(dataproc_conf['dataproc_service_account_name'],
                                                                    os.environ['gcp_project_id'])
+    dataproc_conf['edge_instance_hostname'] = '{0}-{1}-edge'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
+    dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
 
-    edge_status = GCPMeta().get_instance_status('{0}-{1}-edge'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name']))
+    edge_status = GCPMeta().get_instance_status(dataproc_conf['edge_instance_hostname'])
     if edge_status != 'RUNNING':
         logging.info('ERROR: Edge node is unavailable! Aborting...')
         print('ERROR: Edge node is unavailable! Aborting...')
@@ -105,11 +107,10 @@ if __name__ == "__main__":
     else:
         del dataproc_cluster['config']['secondaryWorkerConfig']
     dataproc_cluster['config']['softwareConfig']['imageVersion'] = dataproc_conf['release_label']
-    ssh_user = os.environ['conf_os_user']
     ssh_user_pubkey = open(os.environ['conf_key_dir'] + os.environ['edge_user_name'] + '.pub').read()
     key = RSA.importKey(open(dataproc_conf['key_path'], 'rb').read())
     ssh_admin_pubkey = key.publickey().exportKey("OpenSSH")
-    dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}\n{0}:{2}'.format(ssh_user, ssh_user_pubkey, ssh_admin_pubkey)
+    dataproc_cluster['config']['gceClusterConfig']['metadata']['ssh-keys'] = '{0}:{1}\n{0}:{2}'.format(dataproc_conf['dlab_ssh_user'], ssh_user_pubkey, ssh_admin_pubkey)
     dataproc_cluster['config']['gceClusterConfig']['tags'][0] = dataproc_conf['cluster_tag']
 
     try:

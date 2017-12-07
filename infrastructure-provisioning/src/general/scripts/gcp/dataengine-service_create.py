@@ -42,6 +42,11 @@ def upload_jars_parser(args):
     actions_lib.GCPActions().put_to_bucket(args.bucket, '/root/scripts/dataengine-service_jars_parser.py', 'jars_parser.py')
 
 
+def build_dataproc_cluster(args, cluster_name):
+    print("Will be created cluster: {}".format(json.dumps(params, sort_keys=True, indent=4, separators=(',', ': '))))
+    return actions_lib.GCPActions().create_dataproc_cluster(cluster_name, args.region, params)
+
+
 def send_parser_job(args, cluster_name, cluster_version):
     job_body = json.loads(open('/root/templates/dataengine-service_job.json').read())
     job_body['job']['placement']['clusterName'] = cluster_name
@@ -52,11 +57,6 @@ def send_parser_job(args, cluster_name, cluster_version):
     job_body['job']['pysparkJob']['args'][7] = cluster_version
     job_body['job']['pysparkJob']['args'][9] = os.environ['conf_os_user']
     actions_lib.GCPActions().submit_dataproc_job(job_body)
-
-
-def build_dataproc_cluster(args, cluster_name):
-    print("Will be created cluster: {}".format(json.dumps(params, sort_keys=True, indent=4, separators=(',', ': '))))
-    return actions_lib.GCPActions().create_dataproc_cluster(cluster_name, args.region, params)
 
 
 ##############

@@ -18,7 +18,7 @@ limitations under the License.
 -->
 <project>
   <actions/>
-  <description>Create hadoop Server</description>
+  <description>Create Dataproc cluster</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>

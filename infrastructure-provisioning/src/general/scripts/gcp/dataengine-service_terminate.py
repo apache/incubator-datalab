@@ -58,7 +58,7 @@ if __name__ == "__main__":
     dataproc_conf['dataproc_name'] = os.environ['dataproc_cluster_name']
     dataproc_conf['notebook_name'] = os.environ['notebook_instance_name']
     dataproc_conf['bucket_name'] = (dataproc_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
-    dataproc_conf['key_path'] = os.environ['conf_key_dir'] + '/' + os.environ['conf_key_name'] + '.pem'
+    dataproc_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
     try:
         logging.info('[TERMINATE DATAPROC CLUSTER]')
