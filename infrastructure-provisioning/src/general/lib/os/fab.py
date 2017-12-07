@@ -156,8 +156,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             if os.environ['application'] == 'jupyter':
-                sudo('jupyter-kernelspec remove -f python2')
-                sudo('jupyter-kernelspec remove -f python3')
+                sudo('jupyter-kernelspec remove -f python2 || echo "Such kernel doesnt exists"')
+                sudo('jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists"')
             sudo("systemctl daemon-reload")
             sudo("systemctl enable jupyter-notebook")
             sudo("systemctl start jupyter-notebook")
