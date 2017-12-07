@@ -25,7 +25,7 @@ from dlab.meta_lib import *
 from dlab.actions_lib import *
 
 
-def terminate_edge_node(resource_group_name, user_name, subnet_name, vpc_name):
+def terminate_edge_node(resource_group_name, service_base_name, user_name, subnet_name, vpc_name):
     print("Terminating EDGE, notebook and dataengine virtual machines")
     try:
         for vm in AzureMeta().compute_client.virtual_machines.list(resource_group_name):
@@ -86,6 +86,18 @@ def terminate_edge_node(resource_group_name, user_name, subnet_name, vpc_name):
     except:
         sys.exit(1)
 
+    print("Deleting Data Lake Store directory")
+    try:
+        for datalake in AzureMeta().list_datalakes(resource_group_name):
+            try:
+                if service_base_name == datalake.tags["SBN"]:
+                    AzureActions().remove_datalake_directory(datalake.name, user_name + '-directory')
+                    print("Data Lake Store directory {} has been deleted".format(user_name + '-directory'))
+            except:
+                pass
+    except:
+        sys.exit(1)
+
     print("Removing security groups")
     try:
         for sg in AzureMeta().network_client.network_security_groups.list(resource_group_name):
@@ -115,9 +127,10 @@ if __name__ == "__main__":
 
     print('Generating infrastructure names and tags')
     edge_conf = dict()
+    edge_conf['service_base_name'] = os.environ['conf_service_base_name']
     edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
     edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-    edge_conf['private_subnet_name'] = os.environ['conf_service_base_name'] + "-" + edge_conf['user_name'] + '-subnet'
+    edge_conf['private_subnet_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + '-subnet'
     edge_conf['vpc_name'] = os.environ['azure_vpc_name']
 
 
@@ -125,8 +138,8 @@ if __name__ == "__main__":
         logging.info('[TERMINATE EDGE]')
         print('[TERMINATE EDGE]')
         try:
-            terminate_edge_node(edge_conf['resource_group_name'], edge_conf['user_name'],
-                                edge_conf['private_subnet_name'], edge_conf['vpc_name'])
+            terminate_edge_node(edge_conf['resource_group_name'], edge_conf['service_base_name'],
+                                edge_conf['user_name'], edge_conf['private_subnet_name'], edge_conf['vpc_name'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate edge.", str(err))
