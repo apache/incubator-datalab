@@ -62,14 +62,15 @@ if __name__ == "__main__":
     dataproc_conf['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     dataproc_conf['region'] = os.environ['gcp_region']
     dataproc_conf['zone'] = os.environ['gcp_zone']
-    dataproc_conf['subnet'] = os.environ['gcp_subnet_name']
+    dataproc_conf['subnet'] = '{0}-{1}-subnet'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['cluster_name'] = '{0}-{1}-dp-{2}-{3}-{4}'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'],
                                                                     dataproc_conf['exploratory_name'], dataproc_conf['computational_name'], dataproc_conf['uuid'])
     dataproc_conf['cluster_tag'] = '{0}-{1}-dp'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['bucket_name'] = '{}-ssn-bucket'.format(dataproc_conf['service_base_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
     dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
-    dataproc_conf['dataproc_service_account_name'] = 'dlabowner'
+    dataproc_conf['dataproc_service_account_name'] = dataproc_conf['service_base_name'].lower().replace('_', '-') + \
+                                                       "-" + os.environ['edge_user_name'] + '-nb-sa'
     service_account_email = "{}@{}.iam.gserviceaccount.com".format(dataproc_conf['dataproc_service_account_name'],
                                                                    os.environ['gcp_project_id'])
 
@@ -129,32 +130,6 @@ if __name__ == "__main__":
         local('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
         sys.exit(1)
 
-    try:
-        logging.info('[SUMMARY]')
-        print('[SUMMARY]')
-        print("Service base name: {}".format(dataproc_conf['service_base_name']))
-        print("Cluster name: {}".format(dataproc_conf['cluster_name']))
-        print("Key name: {}".format(dataproc_conf['key_name']))
-        print("Region: {}".format(dataproc_conf['region']))
-        print("Zone: {}".format(dataproc_conf['zone']))
-        print("Subnet: {}".format(dataproc_conf['subnet']))
-        print("Dataproc version: {}".format(dataproc_conf['release_label']))
-        print("Dataproc master node shape: {}".format(os.environ['dataproc_master_instance_type']))
-        print("Dataproc slave node shape: {}".format(os.environ['dataproc_slave_instance_type']))
-        print("Master count: {}".format(os.environ['dataproc_master_count']))
-        print("Slave count: {}".format(os.environ['dataproc_slave_count']))
-        print("Preemptible count: {}".format(os.environ['dataproc_preemptible_count']))
-        print("Notebook hostname: {}".format(os.environ['notebook_instance_name']))
-        print("Bucket name: {}".format(dataproc_conf['bucket_name']))
-        with open("/root/result.json", 'w') as result:
-            res = {"hostname": dataproc_conf['cluster_name'],
-                   "key_name": dataproc_conf['key_name'],
-                   "user_own_bucket_name": dataproc_conf['bucket_name'],
-                   "Action": "Create new Dataproc cluster"}
-            print(json.dumps(res))
-            result.write(json.dumps(res))
-    except:
-        print("Failed writing results.")
-        sys.exit(1)
+
 
     sys.exit(0)
