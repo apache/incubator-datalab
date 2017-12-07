@@ -290,8 +290,7 @@ if __name__ == "__main__":
             }
             ldap_login = 'true'
             # tenant_id = None
-            sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
-            tenant_id = json.dumps(sp_creds['tenantId']).replace('"', '')
+            tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
             datalake_application_id = None
             datalake_store_name = None
         else:
