@@ -39,23 +39,25 @@ parser.add_argument('--hadoop_version', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--region', type=str, default='')
+parser.add_argument('--datalake_enabled', type=str, default='')
 args = parser.parse_args()
 
-spark_dir = '/opt/' + args.cluster_name + '/spark/'
+cluster_dir = '/opt/' + args.cluster_name + '/'
 local_jars_dir = '/opt/jars/'
 spark_version = args.spark_version
 hadoop_version = args.hadoop_version
-spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
+spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
+             "-bin-hadoop" + hadoop_version + ".tgz"
 
 
 def configure_rstudio():
     if not os.path.exists('/home/' + args.os_user + '/.ensure_dir/rstudio_dataengine_ensured'):
         try:
-            local('echo "export R_LIBS_USER=' + spark_dir + '/R/lib:" >> /home/' + args.os_user + '/.bashrc')
+            local('echo "export R_LIBS_USER=' + cluster_dir + 'spark/R/lib:" >> /home/' + args.os_user + '/.bashrc')
             local("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron")
             local("sed -i 's/^YARN_CONF_DIR/#YARN_CONF_DIR/' /home/" + args.os_user + "/.Renviron")
             local("sed -i 's/^HADOOP_CONF_DIR/#HADOOP_CONF_DIR/' /home/" + args.os_user + "/.Renviron")
-            local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
+            local('echo \'SPARK_HOME="' + cluster_dir + 'spark/"\' >> /home/' + args.os_user + '/.Renviron')
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
                   args.os_user + '/.Rprofile')
@@ -65,11 +67,11 @@ def configure_rstudio():
             sys.exit(1)
     else:
         try:
-            local("sed -i '/R_LIBS_USER/ { s|=\(.*\)|=\\1" + spark_dir + "/R/lib:| }' /home/" + args.os_user + "/.bashrc")
+            local("sed -i '/R_LIBS_USER/ { s|=\(.*\)|=\\1" + cluster_dir + "spark/R/lib:| }' /home/" + args.os_user + "/.bashrc")
             local("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron")
             local("sed -i 's/^YARN_CONF_DIR/#YARN_CONF_DIR/' /home/" + args.os_user + "/.Renviron")
             local("sed -i 's/^HADOOP_CONF_DIR/#HADOOP_CONF_DIR/' /home/" + args.os_user + "/.Renviron")
-            local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
+            local('echo \'SPARK_HOME="' + cluster_dir + 'spark/"\' >> /home/' + args.os_user + '/.Renviron')
             local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('echo \'master="' + args.spark_master + '" # Cluster - "' + args.cluster_name + '" \' >> /home/' +
                   args.os_user + '/.Rprofile')
@@ -80,7 +82,8 @@ def configure_rstudio():
 
 if __name__ == "__main__":
     dataengine_dir_prepare('/opt/{}/'.format(args.cluster_name))
-    install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, args.os_user)
-    configure_dataengine_spark(local_jars_dir, spark_dir, args.region)
+    install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, args.os_user,
+                             args.datalake_enabled)
+    configure_dataengine_spark(local_jars_dir, cluster_dir, args.region, args.datalake_enabled)
     configure_rstudio()
 

@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
     print("Deregistering notebook's AMI")
     try:
-        deregister_image('*')
+        deregister_image()
     except:
         sys.exit(1)
 

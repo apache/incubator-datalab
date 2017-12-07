@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.auth;
 
+import com.epam.dlab.auth.azure.AzureAuthenticationService;
 import com.epam.dlab.auth.resources.SynchronousLdapAuthenticationService;
 import com.epam.dlab.auth.dao.UserInfoDAOMongoImpl;
 import lombok.extern.slf4j.Slf4j;

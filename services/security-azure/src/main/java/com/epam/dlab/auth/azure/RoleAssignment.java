@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.auth;
+package com.epam.dlab.auth.azure;
 
-import com.epam.dlab.dto.UserCredentialDTO;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
-import javax.ws.rs.core.Response;
-
-public interface AzureAuthorizationCodeService {
-    Response authenticateAndLogin(AuthorizationCodeFlowResponse response);
-
-    Response authenticateAndLogin(UserCredentialDTO credentialDTO);
-
-    boolean validatePermissions(AuthorizationCodeFlowResponse response);
-
-    boolean validatePermissions(UserCredentialDTO credentialDTO);
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class RoleAssignment {
+    @JsonProperty
+    private RoleAssignmentProperties properties;
+    @JsonProperty
+    private String id;
+    @JsonProperty
+    private String type;
+    @JsonProperty
+    private String name;
 }

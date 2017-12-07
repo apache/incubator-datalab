@@ -14,24 +14,13 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.auth;
+package com.epam.dlab.auth.azure;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import javax.ws.rs.core.Response;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class AzureLocalAuthResponse {
-    @JsonProperty("access_token")
-    private String authenticationToken;
-    @JsonProperty("username")
-    private String userName;
-    @JsonProperty("error_message")
-    private String errorMessage;
+public interface AzureAuthorizationCodeService {
 
+    Response authenticateAndLogin(AuthorizationSupplier authorizationSupplier);
+
+    boolean validatePermissions(AuthorizationSupplier authorizationSupplier);
 }
