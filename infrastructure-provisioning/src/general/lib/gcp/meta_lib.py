@@ -562,3 +562,21 @@ def get_instance_private_ip_address(tag_name, instance_name):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
         return ''
+
+
+def node_count(cluster_name):
+    try:
+        list_instances = GCPMeta().get_list_instances(os.environ['gcp_zone'], cluster_name)
+        if list_instances.get('items') is None:
+            raise Exception
+        else:
+            return len(list_instances.get('items'))
+    except Exception as err:
+        logging.info(
+            "Error with getting node count: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                file=sys.stdout))
+        append_result(str({"error": "Error with getting noide count",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
+        return ''
+
