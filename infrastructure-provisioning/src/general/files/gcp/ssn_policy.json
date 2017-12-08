@@ -61,5 +61,13 @@
     "compute.instances.deleteAccessConfig",
     "compute.instances.attachDisk",
     "compute.instances.detachDisk",
-    "compute.instances.use"
+    "compute.instances.use",
+    "dataproc.regions.list",
+    "dataproc.clusters.get",
+    "dataproc.clusters.list",
+    "dataproc.clusters.update",
+    "dataproc.clusters.delete",
+    "dataproc.jobs.create",
+    "dataproc.jobs.list",
+    "dataproc.jobs.get"
 ]
