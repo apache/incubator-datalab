@@ -34,20 +34,7 @@ import { HealthStatusModule } from './health-status/health-status.module';
 import { LogInterceptorFactory } from './core/interceptors/logInterceptor.factory';
 import { ReportingModule } from './reporting/reporting.module';
 
-import {
-  UserAccessKeyService,
-  UserResourceService,
-  HealthStatusService,
-  AppRoutingService,
-  AuthorizationGuard,
-  CloudProviderGuard,
-  CheckParamsGuard,
-  ApplicationServiceFacade,
-  ApplicationSecurityService,
-  LibrariesInstallationService,
-  ManageUngitService,
-  BillingReportService
-} from './core/services';
+import { CoreModule } from './core/core.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -62,7 +49,8 @@ import {
     HealthStatusModule,
     ReportingModule,
     RouterModule,
-    AppRoutingModule
+    AppRoutingModule,
+    CoreModule.forRoot()
   ],
   providers: [{
       provide: LocationStrategy,
@@ -72,19 +60,7 @@ import {
       provide: Http,
       useFactory: LogInterceptorFactory,
       deps: [XHRBackend, RequestOptions, Router]
-    },
-    AuthorizationGuard,
-    CloudProviderGuard,
-    CheckParamsGuard,
-    ApplicationSecurityService,
-    UserAccessKeyService,
-    AppRoutingService,
-    UserResourceService,
-    HealthStatusService,
-    LibrariesInstallationService,
-    ManageUngitService,
-    BillingReportService,
-    ApplicationServiceFacade
+    }
   ],
   bootstrap: [AppComponent]
 })
