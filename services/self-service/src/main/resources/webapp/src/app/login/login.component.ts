@@ -16,7 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 
 import { LoginModel } from './login.model';
 import { AppRoutingService, HealthStatusService, ApplicationSecurityService } from '../core/services';
@@ -25,25 +26,29 @@ import { AppRoutingService, HealthStatusService, ApplicationSecurityService } fr
   moduleId: module.id,
   selector: 'dlab-login',
   templateUrl: 'login.component.html',
-  styleUrls: ['./login.component.css'],
-  providers: [ApplicationSecurityService]
+  styleUrls: ['./login.component.css']
 })
 
 export class LoginComponent implements OnInit {
   model = new LoginModel('', '');
-  error = '';
+  error: string;
   loading = false;
   userPattern = '\\w+.*\\w+';
+
+  subscription: Subscription;
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
-    private healthStatusService: HealthStatusService
-  ) { }
+    private healthStatusService: HealthStatusService,
+    private ref: ChangeDetectorRef
+  ) {
+    this.subscription = this.applicationSecurityService.emitter$
+      .subscribe(message => this.error = message);
+  }
 
   ngOnInit() {
-    this.applicationSecurityService.isLoggedIn()
-      .subscribe(result => {
+    this.applicationSecurityService.isLoggedIn().subscribe(result => {
         this.checkHealthStatusAndRedirect(result);
     });
   }
