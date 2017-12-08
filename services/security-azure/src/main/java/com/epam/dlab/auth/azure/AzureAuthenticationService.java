@@ -155,12 +155,12 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
                     .get(RoleAssignmentResponse.class);
 
         } catch (ClientErrorException e) {
-            log.error("Cannot get rate card due to {}", (e.getResponse() != null && e.getResponse().hasEntity())
+            log.error("Cannot validate permissions due to {}", (e.getResponse() != null && e.getResponse().hasEntity())
                     ? e.getResponse().readEntity(String.class) : "");
-            log.error("Error during using RateCard API", e);
+            log.error("Error during permission validation", e);
             throw e;
         } catch (RuntimeException e) {
-            log.error("Cannot retrieve rate card due to ", e);
+            log.error("Cannot validate permissions due to", e);
             throw e;
         } finally {
             if (client != null) {
