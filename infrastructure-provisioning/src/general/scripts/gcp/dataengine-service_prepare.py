@@ -131,6 +131,4 @@ if __name__ == "__main__":
         local('rm /response/.dataproc_creating_{}'.format(os.environ['exploratory_name']))
         sys.exit(1)
 
-
-
     sys.exit(0)
