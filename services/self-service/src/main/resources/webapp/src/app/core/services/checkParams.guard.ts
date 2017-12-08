@@ -37,7 +37,7 @@ export class CheckParamsGuard implements CanActivate {
         const search = document.URL.split('?')[1];
 
         console.log('auth: '+ auth);
-          if (search) {
+          if (search && this.checkParamsCoincidence(search)) {
             this.result = search.split("&").reduce(function(prev, curr, i, arr) {
                 let p = curr.split("=");
                 prev[decodeURIComponent(p[0])] = decodeURIComponent(p[1]);
@@ -49,5 +49,9 @@ export class CheckParamsGuard implements CanActivate {
 
           return Promise.resolve(!!auth);
     });
+  }
+
+  private checkParamsCoincidence(search):boolean {
+    return ['code', 'state', 'error', 'error_description'].some(el => search.indexOf(el));
   }
 }

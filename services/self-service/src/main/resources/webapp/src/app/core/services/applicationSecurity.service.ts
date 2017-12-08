@@ -129,7 +129,7 @@ export class ApplicationSecurityService {
         }).catch((error: any) => {
 
           debugger;
-          this.emitter.next(error.message);
+          this.emitter.next(error.error_message);
           this.appRoutingService.redirectToLoginPage();
 
           return Observable.of(false);
