@@ -24,6 +24,8 @@ import { MaterialModule } from '@angular/material';
 import { LoginComponent } from './login.component';
 import { LogParamsComponent } from './log-params/log-params.component';
 
+import { CoreModule } from '../core/core.module';
+
 export * from './login.component';
 export * from './log-params/log-params.component';
 
@@ -31,6 +33,7 @@ export * from './log-params/log-params.component';
   imports: [
     FormsModule,
     CommonModule,
+    CoreModule,
     MaterialModule.forRoot()
   ],
   declarations: [LoginComponent, LogParamsComponent],

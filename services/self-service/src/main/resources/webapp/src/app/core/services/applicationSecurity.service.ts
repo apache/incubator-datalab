@@ -16,9 +16,12 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+
+import 'rxjs/add/operator/map';
 import 'rxjs/add/observable/of';
 
 import { LoginModel } from '../../login/login.model';
@@ -30,10 +33,13 @@ export class ApplicationSecurityService {
   private accessTokenKey: string = 'access_token';
   private userNameKey: string = 'user_name';
 
+  emitter: BehaviorSubject<any> = new BehaviorSubject<any>('');
+  emitter$ = this.emitter.asObservable();
+
   constructor(
     private serviceFacade: ApplicationServiceFacade,
     private appRoutingService: AppRoutingService
-  ) { }
+  ) { this.emitter.subscribe(el => console.log(el)) }
 
   public login(loginModel: LoginModel): Observable<boolean> {
     return this.serviceFacade
@@ -95,21 +101,37 @@ export class ApplicationSecurityService {
   }
 
   public redirectParams(params): Observable<boolean> {
-    debugger;
 
     return this.serviceFacade
       .buildGetAuthToken(params)
       .map((response: Response) => {
-        if (response.status === HTTP_STATUS_CODES.OK) {
-          this.appRoutingService.redirectToHomePage();
-          // window.location.href = window.location.href.split("?")[0];
-            debugger;
+          const data = response.json();
+          if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
+            this.setAuthToken(data.access_token);
+            this.setUserName(data.username);
+
+            this.appRoutingService.redirectToHomePage();
             return true;
           }
-          this.appRoutingService.redirectToLoginPage();
+          if (response.status === HTTP_STATUS_CODES.MOVED_TEMPORARILY) {
+            console.log('FOUND 302');
+            return true;
+            // FIXME: add redirect
+          }
+          if (data.error_message) {
+            console.log('ERROR FS');
+
+            this.appRoutingService.redirectToLoginPage();
+            this.emitter.next(data.error_message);
+          }
+
           return false;
-        }).catch(()=> {
+        }).catch((error: any) => {
+
           debugger;
+          this.emitter.next(error.message);
+          this.appRoutingService.redirectToLoginPage();
+
           return Observable.of(false);
         });
   }
