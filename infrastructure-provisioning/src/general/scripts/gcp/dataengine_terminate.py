@@ -40,7 +40,7 @@ def terminate_data_engine(zone, notebook_name, os_user, key_path, cluster_name):
 
     print("Removing Data Engine kernels from notebook")
     try:
-        GCPActions().remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name, zone)
+        remove_dataengine_kernels(notebook_name, os_user, key_path, cluster_name)
     except:
         sys.exit(1)
 
