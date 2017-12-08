@@ -174,7 +174,7 @@ def ensure_mongo():
 def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, keystore_passwd, cloud_provider,
              service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled,
              authentication_file, offer_number, currency, locale, region_info, ldap_login, tenant_id, application_id,
-             hostname, data_lake_name,  report_path=''):
+             hostname, data_lake_name, subscription_id,  report_path=''):
     try:
         if not exists('{}tmp/ss_started'.format(os.environ['ssn_dlab_path'])):
             java_path = sudo("alternatives --display java | grep 'slave jre: ' | awk '{print $3}'")
@@ -215,6 +215,8 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                         sudo('sed -i "s|<LOGIN_TENANT_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, tenant_id))
                         sudo('sed -i "s|<LOGIN_APPLICATION_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
                                                                                                    application_id))
+                        sudo('sed -i "s|<DLAB_SUBSCRIPTION_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
+                                                                                                   subscription_id))
                         sudo('sed -i "s|<LOGIN_APPLICATION_REDIRECT_URL>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
                                                                                                              hostname))
                         sudo('sed -i "s|<LOGIN_PAGE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, hostname))
