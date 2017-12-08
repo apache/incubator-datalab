@@ -26,6 +26,21 @@ from dlab.fab import *
 from dlab.meta_lib import *
 from dlab.actions_lib import *
 from fabric.api import *
+import multiprocessing
+
+
+def install_libs(instance, data_engine):
+    data_engine['instance_ip'] = meta_lib.GCPMeta().get_private_ip_address(instance)
+    params = '--os_user {} --instance_ip {} --keyfile "{}" --libs "{}"'\
+        .format(data_engine['os_user'], data_engine['instance_ip'],
+                data_engine['keyfile'], data_engine['libs'])
+    try:
+        # Run script to install additional libs
+        local("~/scripts/{}.py {}".format('install_additional_libs', params))
+    except:
+        traceback.print_exc()
+        raise Exception
+
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -37,8 +52,8 @@ if __name__ == "__main__":
                         filename=local_log_filepath)
 
     try:
-        logging.info('[GETTING ALL AVAILABLE PACKAGES]')
-        print('[GETTING ALL AVAILABLE PACKAGES]')
+        logging.info('[INSTALLING ADDITIONAL LIBRARIES ON DATAENGINE-SERVICE]')
+        print('[INSTALLING ADDITIONAL LIBRARIES ON DATAENGINE-SERVICE]')
         data_engine = dict()
         try:
             data_engine['os_user'] = os.environ['conf_os_user']
@@ -46,20 +61,27 @@ if __name__ == "__main__":
             data_engine['gcp_project_id'] = os.environ['gcp_project_id']
             data_engine['gcp_region'] = os.environ['gcp_region']
             data_engine['gcp_zone'] = os.environ['gcp_zone']
-            data_engine['master_host'] = '{}-m'.format(data_engine['cluster_name'])
-            data_engine['master_ip'] = get_instance_private_ip_address(data_engine['gcp_zone'], data_engine['master_host'])
+            res = meta_lib.GCPMeta().get_list_instances(data_engine['gcp_zone'], data_engine['cluster_name'])
+            data_engine['cluster_instances'] = [i.get('name') for i in res['items']]
             data_engine['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+            data_engine['libs'] = os.environ['libs']
         except Exception as err:
             append_result("Failed to get parameter.", str(err))
             sys.exit(1)
-        params = "--os_user {} --instance_ip {} --keyfile '{}'" \
-            .format(data_engine['os_user'], data_engine['master_ip'], data_engine['keyfile'])
         try:
-            # Run script to get available libs
-            local("~/scripts/{}.py {}".format('get_list_available_pkgs', params))
+            jobs = []
+            for instance in data_engine['cluster_instances']:
+                p = multiprocessing.Process(target=install_libs, args=(instance, data_engine))
+                jobs.append(p)
+                p.start()
+            for job in jobs:
+                job.join()
+            for job in jobs:
+                if job.exitcode != 0:
+                    raise Exception
         except:
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed to get available libraries.", str(err))
+        append_result("Failed to install additional libraries.", str(err))
         sys.exit(1)

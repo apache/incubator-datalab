@@ -62,18 +62,6 @@ limitations under the License.
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>Region</name>
-          <description>aws region where infrastructure was deployed</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>us-west-2</string>
-              <string>us-west-1</string>
-              <string>us-east-2</string>
-              <string>us-east-1</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
           <name>Action</name>
           <description></description>
           <choices class="java.util.Arrays$ArrayList">

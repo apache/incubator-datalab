@@ -18,26 +18,45 @@ limitations under the License.
 -->
 <project>
   <actions/>
-  <description>Installs libs on notebook server.</description>
+  <description>Installs libs on Dataproc cluster.</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
-        <hudson.model.StringParameterDefinition>
-          <name>Service_base_name</name>
-          <description>unique infrastructure value that previously was used when ssn being provisioned</description>
-          <defaultValue>SBN</defaultValue>
-        </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>Project_ID</name>
           <description>GCP project ID</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>Notebook_Name</name>
-          <description>name of the notebook to start</description>
+          <name>Cluster_name</name>
+          <description>name of the Dataproc cluster</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+                <hudson.model.ChoiceParameterDefinition>
+          <name>Region</name>
+          <description>GCP region where infrastructure was deployed</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>us-west-2</string>
+              <string>us-west-1</string>
+              <string>us-east-2</string>
+              <string>us-east-1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Zone</name>
+          <description>GCP region where infrastructure was deployed</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>us-west-2-a</string>
+              <string>us-west-1-a</string>
+              <string>us-east-2-c</string>
+              <string>us-east-1-c</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>Username</name>
           <description>name of the data scientist user</description>
@@ -99,7 +118,7 @@ limitations under the License.
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rand=`openssl rand -hex 10`; echo $rand; sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -e "conf_resource=notebook" -e "request_id=$rand" -e "conf_service_base_name=$Service_base_name" -e "gcp_project_id=$Project_ID" -e "edge_user_name=$Username" -e "notebook_instance_name=$Notebook_Name" -e "conf_key_name=$SSH_Key_Name" -e "libs=$Libs" -e "application=$notebook_app" docker.dlab-$notebook_app --action $Action
+      <command>rand=`openssl rand -hex 10`; echo $rand; sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/dataengine-service_install_additional_libs/template.json | sed &apos;s/GPI/&apos;${Project_ID}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/ZONE/&apos;${Zone}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/EKN/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -e "libs=$Libs" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service  docker.dlab-dataengine-service --action $Action;
       </command>
     </hudson.tasks.Shell>
   </builders>
