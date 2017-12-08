@@ -18,7 +18,9 @@ limitations under the License.
 
 import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { ApplicationSecurityService } from './';
+import { ApplicationSecurityService, AuthorizationGuard } from './';
+
+import 'rxjs/add/operator/toPromise';
 
 @Injectable()
 export class CheckParamsGuard implements CanActivate {
@@ -26,23 +28,26 @@ export class CheckParamsGuard implements CanActivate {
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
+    private _authGuard: AuthorizationGuard,
     private router: Router
   ) { }
 
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    debugger;
+    return this._authGuard.canActivate(next, state).toPromise().then((auth: boolean) => {
+        const search = document.URL.split('?')[1];
 
-    const search = document.URL.split('?')[1];
-    
-    if(search) {
-      this.result = search.split("&").reduce(function(prev, curr, i, arr) {
-          let p = curr.split("=");
-          prev[decodeURIComponent(p[0])] = decodeURIComponent(p[1]);
-          return prev;
-      }, {});
-      console.log(this.result);
-    }
+        console.log('auth: '+ auth);
+          if (search) {
+            this.result = search.split("&").reduce(function(prev, curr, i, arr) {
+                let p = curr.split("=");
+                prev[decodeURIComponent(p[0])] = decodeURIComponent(p[1]);
+                return prev;
+            }, {});
+            console.log(this.result);
+            return this.applicationSecurityService.redirectParams(this.result).toPromise();
+          }
 
-    return this.applicationSecurityService.redirectParams(this.result);
+          return Promise.resolve(!!auth);
+    });
   }
 }

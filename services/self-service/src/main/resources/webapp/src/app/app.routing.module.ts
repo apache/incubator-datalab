@@ -33,7 +33,7 @@ const routes: Routes = [{
   }, {
     path: 'resources_list',
     component: ResourcesComponent,
-    canActivate: [AuthorizationGuard]
+    canActivate: [CheckParamsGuard]
   }, {
     path: 'environment_health_status',
     component: HealthStatusComponent,
