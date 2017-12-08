@@ -109,8 +109,12 @@ if __name__ == "__main__":
     notebook_config['secondary_disk_size'] = os.environ['notebook_disk_size']
     notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
     notebook_config['gpu_accelerator_type'] = 'None'
+
     if os.environ['application'] in ('tensor', 'deeplearning'):
         notebook_config['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
+
+    notebook_config['network_tag'] = '{0}-{1}-nb-de-des'.format(notebook_config['service_base_name'],
+                                                                notebook_config['edge_user_name'])
 
     # launching instance for notebook server
     try:
@@ -128,5 +132,5 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         append_result("Failed to create instance.", str(err))
-        GCPActions().remove_disk(notebook_config['instance_name'], notebook_config['zone'])
+        GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)

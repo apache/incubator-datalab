@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<project>
+    <actions/>
+    <description>Create new Data Engine</description>
+    <keepDependencies>false</keepDependencies>
+    <properties>
+        <hudson.model.ParametersDefinitionProperty>
+            <parameterDefinitions>
+                <hudson.model.StringParameterDefinition>
+                    <name>Service_base_name</name>
+                    <description>unique infrastructure value that previously was used when ssn being provisioned</description>
+                    <defaultValue>SBN</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                  <name>vpc_name</name>
+                  <description>Name of VPC where infrastructure is being deployed </description>
+                  <defaultValue>VPC</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                  <name>subnet_name</name>
+                  <description>Name of the public subnet where EDGE will be deployed</description>
+                  <defaultValue>SNI</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                  <name>Cluster_name</name>
+                  <description>Name of dataengine cluster</description>
+                  <defaultValue>CNAM</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>Nodes_Count</name>
+                    <description>Number of nodes the new cluster will consist of</description>
+                    <defaultValue></defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>Master_Node_Size</name>
+                    <description>Size of the master node</description>
+                    <defaultValue>n1-standard-1</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>Slave_Node_Size</name>
+                    <description>Size of the slave nodes</description>
+                    <defaultValue>n1-standard-1</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>Notebook_name</name>
+                    <description>Name of the Notebook server</description>
+                    <defaultValue></defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>User_name</name>
+                    <description></description>
+                    <defaultValue></defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>SSH_Key_Name</name>
+                    <description></description>
+                    <defaultValue>AKEY</defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.ChoiceParameterDefinition>
+                  <name>os_family</name>
+                  <description>name of the linux distributive</description>
+                  <choices class="java.util.Arrays$ArrayList">
+                    <a class="string-array">
+                      <string>debian</string>
+                      <string>redhat</string>
+                    </a>
+                  </choices>
+                </hudson.model.ChoiceParameterDefinition>
+                <hudson.model.ChoiceParameterDefinition>
+                    <name>notebook_app</name>
+                    <description>notebook application to be deployed</description>
+                    <choices class="java.util.Arrays$ArrayList">
+                        <a class="string-array">
+                            <string>jupyter</string>
+                            <string>rstudio</string>
+                            <string>zeppelin</string>
+                            <string>tensor</string>
+                        </a>
+                    </choices>
+                </hudson.model.ChoiceParameterDefinition>
+                <hudson.model.ChoiceParameterDefinition>
+                    <name>Region</name>
+                    <description>GCP region where infrastructure was deployed</description>
+                    <choices class="java.util.Arrays$ArrayList">
+                        <a class="string-array">
+                            <string>us-west1</string>
+                        </a>
+                    </choices>
+                </hudson.model.ChoiceParameterDefinition>
+                <hudson.model.ChoiceParameterDefinition>
+                  <name>Zone</name>
+                  <description>GCP zone where infrastructure was deployed</description>
+                  <choices class="java.util.Arrays$ArrayList">
+                    <a class="string-array">
+                      <string>us-west1-a</string>
+                      <string>us-east1-c</string>
+                    </a>
+                  </choices>
+                </hudson.model.ChoiceParameterDefinition>
+            </parameterDefinitions>
+        </hudson.model.ParametersDefinitionProperty>
+    </properties>
+    <scm class="hudson.scm.NullSCM"/>
+    <canRoam>true</canRoam>
+    <disabled>false</disabled>
+    <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+    <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+    <triggers/>
+    <concurrentBuild>false</concurrentBuild>
+    <builders>
+        <hudson.tasks.Shell>
+            <command>rand=`openssl rand -hex 10`;
+                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_data_engine/template_prepare.json | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; |  sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/GDMS/&apos;${Master_Node_Size}&apos;/g&apos; | sed &apos;s/GDSS/&apos;${Slave_Node_Size}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_name}&apos;/g&apos; | sed &apos;s/CSI/&apos;${subnet_name}&apos;/g&apos; |   sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/GZON/&apos;${Zone}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine  docker.dlab-dataengine --action create;
+                rand=`openssl rand -hex 10`;
+                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_data_engine/template_configure.json | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_name}&apos;/g&apos; | sed &apos;s/CSI/&apos;${subnet_name}&apos;/g&apos; |   sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/GZON/&apos;${Zone}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine  docker.dlab-${notebook_app} --action configure;
+            </command>
+        </hudson.tasks.Shell>
+    </builders>
+    <publishers/>
+    <buildWrappers/>
+</project>

@@ -27,7 +27,8 @@ import traceback
 
 
 if __name__ == "__main__":
-    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'], os.environ['request_id'])
+    local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
+                                               os.environ['request_id'])
     local_log_filepath = "/logs/edge/" + local_log_filename
     logging.basicConfig(format='%(levelname)-8s [%(asctime)s]  %(message)s',
                         level=logging.DEBUG,
@@ -47,7 +48,8 @@ if __name__ == "__main__":
     except KeyError:
         edge_conf['vpc_name'] = edge_conf['service_base_name'] + '-ssn-vpc'
     edge_conf['vpc_cidr'] = '10.10.0.0/16'
-    edge_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(edge_conf['service_base_name'],
+                                                               edge_conf['edge_user_name'])
     edge_conf['subnet_name'] = os.environ['gcp_subnet_name']
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
@@ -57,10 +59,10 @@ if __name__ == "__main__":
                                              os.environ['edge_user_name'] + '-edge-sa'
     edge_conf['edge_role_name'] = edge_conf['service_base_name'].lower().replace('_', '-') + "-" + \
                                   os.environ['edge_user_name'] + '-edge-role'
-    edge_conf['notebook_service_account_name'] = edge_conf['service_base_name'].lower().replace('_', '-') + "-" + \
-                                                 os.environ['edge_user_name'] + '-nb-sa'
-    edge_conf['notebook_role_name'] = edge_conf['service_base_name'].lower().replace('_', '-') + "-" + \
-                                      os.environ['edge_user_name'] + '-nb-role'
+    edge_conf['ps_service_account_name'] = edge_conf['service_base_name'].lower().replace('_', '-') + "-" + \
+                                                 os.environ['edge_user_name'] + '-nb-de-des-sa'
+    edge_conf['ps_role_name'] = edge_conf['service_base_name'].lower().replace('_', '-') + "-" + \
+                                      os.environ['edge_user_name'] + '-nb-de-des-role'
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['ssn_instance_name'] = '{}-ssn'.format(edge_conf['service_base_name'])
     edge_conf['bucket_name'] = '{0}-{1}-bucket'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
@@ -73,11 +75,13 @@ if __name__ == "__main__":
     edge_conf['fw_edge_ingress_internal'] = '{}-ingress-internal'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_public'] = '{}-egress-public'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_internal'] = '{}-egress-internal'.format(edge_conf['instance_name'])
-    edge_conf['notebook_firewall_target'] = '{0}-{1}-nb'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
-    edge_conf['dataproc_firewall_target'] = '{0}-{1}-dp'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
-    edge_conf['fw_nb_ingress'] = '{}-ingress'.format(edge_conf['notebook_firewall_target'])
-    edge_conf['fw_nb_egress_private'] = '{}-egress-private'.format(edge_conf['notebook_firewall_target'])
-    edge_conf['fw_nb_egress_public'] = '{}-egress-public'.format(edge_conf['notebook_firewall_target'])
+    edge_conf['ps_firewall_target'] = '{0}-{1}-nb-de-des'.format(edge_conf['service_base_name'],
+                                                                 edge_conf['edge_user_name'])
+    edge_conf['fw_common_name'] = '{}-{}-nb-de-des'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['fw_ps_ingress'] = '{}-ingress'.format(edge_conf['fw_common_name'])
+    edge_conf['fw_ps_egress_private'] = '{}-egress-private'.format(edge_conf['fw_common_name'])
+    edge_conf['fw_ps_egress_public'] = '{}-egress-public'.format(edge_conf['fw_common_name'])
+    edge_conf['network_tag'] = edge_conf['instance_name']
 
     # FUSE in case of absence of user's key
     fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
@@ -85,7 +89,8 @@ if __name__ == "__main__":
         print("USERs PUBLIC KEY DOES NOT EXIST in {}".format(fname))
         sys.exit(1)
 
-    print("Will create exploratory environment with edge node as access point as following: ".format(json.dumps(edge_conf, sort_keys=True, indent=4, separators=(',', ': '))))
+    print("Will create exploratory environment with edge node as access point as following: ".format(json.dumps(
+        edge_conf, sort_keys=True, indent=4, separators=(',', ': '))))
     logging.info(json.dumps(edge_conf))
 
     try:
@@ -133,10 +138,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        logging.info('[CREATE SERVICE ACCOUNT AND ROLE FOR NOTEBOOK NODE]')
+        logging.info('[CREATE SERVICE ACCOUNT AND ROLE FOR PRIVATE SUBNET]')
         print('[CREATE SERVICE ACCOUNT AND ROLE FOR NOTEBOOK NODE]')
-        params = "--service_account_name {} --role_name {}".format(edge_conf['notebook_service_account_name'],
-                                                                   edge_conf['notebook_role_name'])
+        params = "--service_account_name {} --role_name {}".format(edge_conf['ps_service_account_name'],
+                                                                   edge_conf['ps_role_name'])
 
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))
@@ -145,8 +150,8 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         try:
-            GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
-            GCPActions().remove_role(edge_conf['notebook_role_name'])
+            GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
+            GCPActions().remove_role(edge_conf['ps_role_name'])
         except:
             print("Service account or role hasn't been created")
         GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
@@ -165,7 +170,7 @@ if __name__ == "__main__":
 
         ingress_rule = dict()
         ingress_rule['name'] = edge_conf['fw_edge_ingress_public']
-        ingress_rule['targetTags'] = [edge_conf['instance_name']]
+        ingress_rule['targetTags'] = [edge_conf['network_tag']]
         ingress_rule['sourceRanges'] = ['0.0.0.0/0']
         rules = [
             {
@@ -180,7 +185,7 @@ if __name__ == "__main__":
 
         ingress_rule = dict()
         ingress_rule['name'] = edge_conf['fw_edge_ingress_internal']
-        ingress_rule['targetTags'] = [edge_conf['instance_name']]
+        ingress_rule['targetTags'] = [edge_conf['network_tag']]
         ingress_rule['sourceRanges'] = [edge_conf['private_subnet_cidr']]
         rules = [
             {
@@ -194,7 +199,7 @@ if __name__ == "__main__":
 
         egress_rule = dict()
         egress_rule['name'] = edge_conf['fw_edge_egress_public']
-        egress_rule['targetTags'] = [edge_conf['instance_name']]
+        egress_rule['targetTags'] = [edge_conf['network_tag']]
         egress_rule['destinationRanges'] = ['0.0.0.0/0']
         rules = [
             {
@@ -213,7 +218,7 @@ if __name__ == "__main__":
 
         egress_rule = dict()
         egress_rule['name'] = edge_conf['fw_edge_egress_internal']
-        egress_rule['targetTags'] = [edge_conf['instance_name']]
+        egress_rule['targetTags'] = [edge_conf['network_tag']]
         egress_rule['destinationRanges'] = [edge_conf['private_subnet_cidr']]
         rules = [
             {
@@ -234,8 +239,8 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
-        GCPActions().remove_role(edge_conf['notebook_role_name'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
+        GCPActions().remove_role(edge_conf['ps_role_name'])
         GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
         GCPActions().remove_role(edge_conf['edge_role_name'])
         append_result("Failed to create firewall for Edge node.", str(err))
@@ -250,10 +255,9 @@ if __name__ == "__main__":
         firewall_rules['egress'] = []
 
         ingress_rule = dict()
-        ingress_rule['name'] = edge_conf['fw_nb_ingress']
+        ingress_rule['name'] = edge_conf['fw_ps_ingress']
         ingress_rule['targetTags'] = [
-            edge_conf['notebook_firewall_target'],
-            edge_conf['dataproc_firewall_target']
+            edge_conf['ps_firewall_target']
         ]
         ingress_rule['sourceRanges'] = [edge_conf['private_subnet_cidr'],
                                         GCPMeta().get_subnet(edge_conf['subnet_name'],
@@ -270,10 +274,9 @@ if __name__ == "__main__":
         firewall_rules['ingress'].append(ingress_rule)
 
         egress_rule = dict()
-        egress_rule['name'] = edge_conf['fw_nb_egress_private']
+        egress_rule['name'] = edge_conf['fw_ps_egress_private']
         egress_rule['targetTags'] = [
-            edge_conf['notebook_firewall_target'],
-            edge_conf['dataproc_firewall_target']
+            edge_conf['ps_firewall_target']
         ]
         egress_rule['destinationRanges'] = [edge_conf['private_subnet_cidr'],
                                             GCPMeta().get_subnet(edge_conf['subnet_name'],
@@ -290,10 +293,9 @@ if __name__ == "__main__":
         firewall_rules['egress'].append(egress_rule)
 
         egress_rule = dict()
-        egress_rule['name'] = edge_conf['fw_nb_egress_public']
+        egress_rule['name'] = edge_conf['fw_ps_egress_public']
         egress_rule['targetTags'] = [
-            edge_conf['notebook_firewall_target'],
-            edge_conf['dataproc_firewall_target']
+            edge_conf['ps_firewall_target']
         ]
         egress_rule['destinationRanges'] = ['0.0.0.0/0']
         rules = [
@@ -319,8 +321,8 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
-        GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
-        GCPActions().remove_role(edge_conf['notebook_role_name'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
+        GCPActions().remove_role(edge_conf['ps_role_name'])
         GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
         GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
@@ -342,11 +344,11 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
-        GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
-        GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
-        GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
-        GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
-        GCPActions().remove_role(edge_conf['notebook_role_name'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_ingress'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_egress_private'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_egress_public'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
+        GCPActions().remove_role(edge_conf['ps_role_name'])
         GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
         GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
@@ -355,8 +357,8 @@ if __name__ == "__main__":
     try:
         logging.info('[SET PERMISSIONS FOR USER AND SHARED BUCKETS]')
         print('[SET PERMISSIONS FOR USER AND SHARED BUCKETS]')
-        GCPActions().set_bucket_owner(edge_conf['bucket_name'], edge_conf['notebook_service_account_name'])
-        GCPActions().set_bucket_owner(edge_conf['shared_bucket_name'], edge_conf['notebook_service_account_name'])
+        GCPActions().set_bucket_owner(edge_conf['bucket_name'], edge_conf['ps_service_account_name'])
+        GCPActions().set_bucket_owner(edge_conf['shared_bucket_name'], edge_conf['ps_service_account_name'])
     except Exception as err:
         append_result("Failed to set bucket permissions.", str(err))
         GCPActions().remove_bucket(edge_conf['bucket_name'])
@@ -364,11 +366,11 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
-        GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
-        GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
-        GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
-        GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
-        GCPActions().remove_role(edge_conf['notebook_role_name'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_ingress'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_egress_private'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_egress_public'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
+        GCPActions().remove_role(edge_conf['ps_role_name'])
         GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
         GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
@@ -394,11 +396,11 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
-        GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
-        GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
-        GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
-        GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
-        GCPActions().remove_role(edge_conf['notebook_role_name'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_ingress'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_egress_private'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_egress_public'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
+        GCPActions().remove_role(edge_conf['ps_role_name'])
         GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
         GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
@@ -416,10 +418,11 @@ if __name__ == "__main__":
             GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
         logging.info('[CREATE EDGE INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --static_ip {}".\
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --static_ip {} --network_tag {}".\
             format(edge_conf['instance_name'], edge_conf['region'], edge_conf['zone'], edge_conf['vpc_name'],
                    edge_conf['subnet_name'], edge_conf['instance_size'], edge_conf['ssh_key_path'], initial_user,
-                   edge_conf['edge_service_account_name'], edge_conf['ami_name'], 'edge', edge_conf['static_ip'])
+                   edge_conf['edge_service_account_name'], edge_conf['ami_name'], 'edge', edge_conf['static_ip'],
+                   edge_conf['network_tag'])
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -433,11 +436,11 @@ if __name__ == "__main__":
         GCPActions().remove_firewall(edge_conf['fw_edge_ingress_internal'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_public'])
         GCPActions().remove_firewall(edge_conf['fw_edge_egress_internal'])
-        GCPActions().remove_firewall(edge_conf['fw_nb_ingress'])
-        GCPActions().remove_firewall(edge_conf['fw_nb_egress_private'])
-        GCPActions().remove_firewall(edge_conf['fw_nb_egress_public'])
-        GCPActions().remove_service_account(edge_conf['notebook_service_account_name'])
-        GCPActions().remove_role(edge_conf['notebook_role_name'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_ingress'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_egress_private'])
+        GCPActions().remove_firewall(edge_conf['fw_ps_egress_public'])
+        GCPActions().remove_service_account(edge_conf['ps_service_account_name'])
+        GCPActions().remove_role(edge_conf['ps_role_name'])
         GCPActions().remove_service_account(edge_conf['edge_service_account_name'])
         GCPActions().remove_role(edge_conf['edge_role_name'])
         GCPActions().remove_subnet(edge_conf['private_subnet_name'], edge_conf['region'])
