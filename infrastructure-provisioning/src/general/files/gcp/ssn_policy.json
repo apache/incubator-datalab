@@ -65,6 +65,7 @@
     "dataproc.regions.list",
     "dataproc.clusters.get",
     "dataproc.clusters.list",
+    "dataproc.clusters.create",
     "dataproc.clusters.update",
     "dataproc.clusters.delete",
     "dataproc.jobs.create",
