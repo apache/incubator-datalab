@@ -1,0 +1,18 @@
+[
+    "dataproc.agents.create",
+    "dataproc.agents.delete",
+    "dataproc.agents.get",
+    "dataproc.agents.list",
+    "dataproc.agents.update",
+    "dataproc.tasks.lease",
+    "dataproc.tasks.listInvalidatedLeases",
+    "dataproc.tasks.reportStatus",
+    "logging.logEntries.create",
+    "storage.buckets.get",
+    "storage.buckets.list",
+    "storage.objects.create",
+    "storage.objects.delete",
+    "storage.objects.get",
+    "storage.objects.list",
+    "storage.objects.update"
+]

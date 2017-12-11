@@ -28,7 +28,13 @@ import sys
 import os
 import uuid
 import logging
+import argparse
 from Crypto.PublicKey import RSA
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--uuid', type=str, default='')
+args = parser.parse_args()
 
 
 if __name__ == "__main__":
@@ -47,7 +53,6 @@ if __name__ == "__main__":
 
     print('Generating infrastructure names and tags')
     dataproc_conf = dict()
-    dataproc_conf['uuid'] = str(uuid.uuid4())[:5]
     try:
         dataproc_conf['exploratory_name'] = (os.environ['exploratory_name']).lower().replace('_', '-')
     except:
@@ -64,7 +69,7 @@ if __name__ == "__main__":
     dataproc_conf['zone'] = os.environ['gcp_zone']
     dataproc_conf['subnet'] = '{0}-{1}-subnet'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['cluster_name'] = '{0}-{1}-dp-{2}-{3}-{4}'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'],
-                                                                    dataproc_conf['exploratory_name'], dataproc_conf['computational_name'], dataproc_conf['uuid'])
+                                                                    dataproc_conf['exploratory_name'], dataproc_conf['computational_name'], args.uuid)
     dataproc_conf['cluster_tag'] = '{0}-{1}-nb-de-des'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['bucket_name'] = '{}-ssn-bucket'.format(dataproc_conf['service_base_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
