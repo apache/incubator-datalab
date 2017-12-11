@@ -24,6 +24,7 @@ import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.SecurityAPI;
 import com.microsoft.aad.adal4j.AuthenticationContext;
+import com.microsoft.aad.adal4j.AuthenticationException;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 import com.microsoft.azure.AzureEnvironment;
 import io.dropwizard.Configuration;
@@ -35,7 +36,9 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.MalformedURLException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -65,7 +68,14 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
 
         log.info("Basic authentication {}", credential);
 
-        return authenticateAndLogin(new UsernamePasswordSupplier(azureLoginConfiguration, credential));
+        try {
+            return authenticateAndLogin(new UsernamePasswordSupplier(azureLoginConfiguration, credential));
+        } catch (AuthenticationException e) {
+            log.error("Basic authentication failed", e);
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(new AzureLocalAuthResponse(null, null,
+                            "User authentication failed")).build();
+        }
     }
 
     @Override
@@ -101,7 +111,14 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
 
         log.info("Try to login using authorization code {}", response);
 
-        return authenticateAndLogin(new AuthorizationCodeSupplier(azureLoginConfiguration, response));
+        try {
+            return authenticateAndLogin(new AuthorizationCodeSupplier(azureLoginConfiguration, response));
+        } catch (AuthenticationException e) {
+            log.error("OAuth authentication failed", e);
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity(new AzureLocalAuthResponse(null, null,
+                            "User authentication failed")).build();
+        }
     }
 
     @Override
@@ -201,9 +218,17 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
 
             result = future.get();
 
-        } catch (Exception e) {
+        } catch (MalformedURLException | InterruptedException e) {
             log.error("Authentication to {} is failed", resource, e);
             throw new DlabException(String.format("Cannot get token to %s", resource), e);
+
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            }
+
+            throw new DlabException(String.format("Cannot get token to %s", resource), e);
+
         } finally {
             executorService.shutdown();
         }
