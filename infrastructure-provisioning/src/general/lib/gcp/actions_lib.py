@@ -837,11 +837,8 @@ class GCPActions:
                         zeppelin_restarted = True
                 sudo('sleep 5')
                 sudo('rm -rf /home/{}/.ensure_dir/dataengine-service_{}_interpreter_ensured'.format(ssh_user, dataproc_name))
-            if exists('/home/{}/.ensure_dir/rstudio_dataproc_ensured'.format(ssh_user)):
-                sudo("sed -i '/{0}/d' /home/{1}/.Renviron".format(dataproc_name, ssh_user))
-                if not sudo("sed -n '/^SPARK_HOME/p' /home/{}/.Renviron".format(ssh_user)):
-                    sudo("sed -i '1!G;h;$!d;' /home/{0}/.Renviron; sed -i '1,3s/#//;1!G;h;$!d' /home/{0}/.Renviron".format(ssh_user))
-                sudo("sed -i 's|/opt/{0}/{1}/spark//R/lib:||g' /home/{2}/.bashrc".format(dataproc_version, dataproc_name, ssh_user))
+            if exists('/home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(ssh_user)):
+                dlab.fab.remove_rstudio_dataengines_kernel(dataproc_name, ssh_user)
             sudo('rm -rf  /opt/{0}/{1}/'.format(dataproc_version, dataproc_name))
             print("Notebook's {} kernels were removed".format(env.hosts))
         except Exception as err:

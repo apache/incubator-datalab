@@ -1,10 +1,11 @@
 {
     "conf_resource": "notebook",
-    "request_id":"RID",
-    "conf_service_base_name":"SBN",
-    "edge_user_name":"NUN",
-    "gcp_project_id":"GPI",
-    "notebook_instance_name":"NIN",
-    "conf_key_name":"CKN",
-    "application":"APP"
+    "request_id": "RID",
+    "conf_service_base_name": "SBN",
+    "edge_user_name": "NUN",
+    "gcp_project_id": "GPI",
+    "gcp_zone": "ZONE",
+    "notebook_instance_name": "NIN",
+    "conf_key_name": "CKN",
+    "application": "APP"
 }

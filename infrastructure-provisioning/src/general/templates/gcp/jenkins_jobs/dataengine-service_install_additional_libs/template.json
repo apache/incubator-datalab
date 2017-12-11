@@ -1,5 +1,5 @@
 {
-    "conf_resource": "dataengine-sevice",
+    "conf_resource": "dataengine-service",
     "request_id": "RID",
     "computational_id":"ECN",
     "edge_user_name": "EUN",

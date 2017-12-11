@@ -44,7 +44,7 @@ args = parser.parse_args()
 
 def configure_notebook(args):
     scripts_dir = '/root/scripts/'
-    put(scripts_dir + '{}_create_configs.py'.format(args.application), '/tmp/create_configs.py')
+    put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application), '/tmp/create_configs.py')
     sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
     sudo('chmod 755 /usr/local/bin/create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')

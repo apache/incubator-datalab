@@ -50,7 +50,7 @@ def configure_notebook(args):
     put(templates_dir + 'pyspark_dataengine-service_template.json', '/tmp/pyspark_dataengine-service_template.json')
     put(templates_dir + 'r_dataengine-service_template.json', '/tmp/r_dataengine-service_template.json')
     put(templates_dir + 'toree_dataengine-service_template.json','/tmp/toree_dataengine-service_template.json')
-    put(scripts_dir + '{}_create_configs.py'.format(args.application), '/tmp/create_configs.py')
+    put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application), '/tmp/create_configs.py')
     put(files_dir + 'toree_kernel.tar.gz', '/tmp/toree_kernel.tar.gz')
     put(templates_dir + 'toree_dataengine-service_templatev2.json', '/tmp/toree_dataengine-service_templatev2.json')
     put(templates_dir + 'run_template.sh', '/tmp/run_template.sh')

@@ -49,7 +49,7 @@ def configure_notebook(args):
         put(templates_dir + 'dataengine-service_interpreter_livy.json', '/tmp/dataengine-service_interpreter.json')
     else:
         put(templates_dir + 'dataengine-service_interpreter_spark.json', '/tmp/dataengine-service_interpreter.json')
-    put(scripts_dir + '{}_create_configs.py'.format(args.application), '/tmp/create_configs.py')
+    put(scripts_dir + '{}_dataengine-service_create_configs.py'.format(args.application), '/tmp/create_configs.py')
     sudo('\cp /tmp/create_configs.py /usr/local/bin/create_configs.py')
     sudo('chmod 755 /usr/local/bin/create_configs.py')
     sudo('mkdir -p /usr/lib/python2.7/dlab/')
