@@ -22,6 +22,7 @@ import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
 
 import { LoginModel } from '../../login/login.model';
@@ -104,36 +105,30 @@ export class ApplicationSecurityService {
 
     return this.serviceFacade
       .buildGetAuthToken(params)
-      .map((response: Response) => {
-          const data = response.json();
-          if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
-            this.setAuthToken(data.access_token);
-            this.setUserName(data.username);
+      .map((response: any) => {
+        const data = response.json();
+        if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
+          this.setAuthToken(data.access_token);
+          this.setUserName(data.username);
 
-            this.appRoutingService.redirectToHomePage();
-            return true;
-          }
-          if (response.status === HTTP_STATUS_CODES.MOVED_TEMPORARILY) {
-            console.log('FOUND 302');
-            return true;
-            // FIXME: add redirect
-          }
-          if (data.error_message) {
-            console.log('ERROR FS');
+          this.appRoutingService.redirectToHomePage();
+          return true;
+        }
 
-            this.appRoutingService.redirectToLoginPage();
-            this.emitter.next(data.error_message);
-          }
+        response.status !== 200 && this.emmitMessage(response.statusText);
+        return false;
 
-          return false;
-        }).catch((error: any) => {
+      }).catch((error: any) => {
+        if (error && error.json().error_message) this.emmitMessage(error.json().error_message);
+        if (error && error.message) this.emmitMessage(error.message);
 
-          debugger;
-          this.emitter.next(error.error_message);
-          this.appRoutingService.redirectToLoginPage();
+        return Observable.of(false);
+      });
+  }
 
-          return Observable.of(false);
-        });
+  private emmitMessage(message): void {
+    this.appRoutingService.redirectToLoginPage();
+    this.emitter.next(message);
   }
 
   private setUserName(userName): void {
