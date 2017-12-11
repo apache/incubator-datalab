@@ -69,7 +69,8 @@ export class LoginComponent implements OnInit {
 
         return false;
       }, (err) => {
-          this.error = err.text();
+          if (err && err.json().message) this.error = err.json().message;
+
           this.loading = false;
         });
 
