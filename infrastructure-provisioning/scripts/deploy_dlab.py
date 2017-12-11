@@ -53,6 +53,8 @@ parser.add_argument('--azure_ad_group_id', type=str, default='', help='ID of Azu
 parser.add_argument('--azure_offer_number', type=str, default='', help='Azure offer number')
 parser.add_argument('--azure_currency', type=str, default='', help='Azure currency code')
 parser.add_argument('--azure_locale', type=str, default='', help='Azure locale')
+parser.add_argument('--azure_application_id', type=str, default='', help='Azure login application ID')
+parser.add_argument('--azure_validate_permission_scope', type=str, default='true', help='Azure permission scope validation(true|false).')
 parser.add_argument('--azure_region_info', type=str, default='', help='Azure region info')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
