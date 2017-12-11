@@ -75,7 +75,7 @@ public class AzureSecurityResource {
 
                     AzureLocalAuthResponse localAuthResponse = response.readEntity(AzureLocalAuthResponse.class);
                     log.debug("Token retrieve response {}", localAuthResponse);
-                    return Response.ok(localAuthResponse).build();
+                    return response;
                 }
                 return response;
             } else {
