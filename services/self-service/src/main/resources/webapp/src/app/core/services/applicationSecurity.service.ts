@@ -28,11 +28,13 @@ import 'rxjs/add/observable/of';
 import { LoginModel } from '../../login/login.model';
 import { ApplicationServiceFacade, AppRoutingService } from './';
 import { HTTP_STATUS_CODES } from '../util';
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Injectable()
 export class ApplicationSecurityService {
   private accessTokenKey: string = 'access_token';
   private userNameKey: string = 'user_name';
+  readonly DICTIONARY = DICTIONARY;
 
   emitter: BehaviorSubject<any> = new BehaviorSubject<any>('');
   emitter$ = this.emitter.asObservable();
@@ -47,9 +49,13 @@ export class ApplicationSecurityService {
       .buildLoginRequest(loginModel.toJsonString())
       .map((response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
-          this.setAuthToken(response.text());
-          this.setUserName(loginModel.username);
-
+          if (DICTIONARY.cloud_provider === 'azure') {
+            this.setAuthToken(response.json().access_token);
+            this.setUserName(response.json().username);
+          } else {
+            this.setAuthToken(response.text());
+            this.setUserName(loginModel.username);
+          }
           return true;
         }
         return false;
