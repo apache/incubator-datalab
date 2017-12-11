@@ -24,6 +24,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/throw';
 
 import { LoginModel } from '../../login/login.model';
 import { ApplicationServiceFacade, AppRoutingService } from './';
@@ -125,8 +126,23 @@ export class ApplicationSecurityService {
         return false;
 
       }).catch((error: any) => {
-        if (error && error.json().error_message) this.emmitMessage(error.json().error_message);
-        if (error && error.message) this.emmitMessage(error.message);
+
+        if (error && error.error_message) this.emmitMessage(error.error_message);
+          //   const body = error.json() || '';
+          //   const err = body.error || JSON.stringify(body);
+          //   let errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
+          //   this.emmitMessage(errMsg);
+          // }
+          // const err = error.json() || {};
+          // Observable.throw(new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`))
+
+          if (error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
+            window.location.href = error.headers.get('Location');
+          } else {
+            this.emmitMessage(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`);
+          }
+
+        // if (error && error.message) this.emmitMessage(error.message);
 
         return Observable.of(false);
       });
