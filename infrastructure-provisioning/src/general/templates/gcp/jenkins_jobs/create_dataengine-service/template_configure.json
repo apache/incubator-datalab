@@ -8,6 +8,8 @@
     "gcp_region":"CREG",
     "gcp_zone": "CZON",
     "notebook_instance_name":"NIN",
+    "exploratory_name": "EXN",
+    "computational_name": "CON",
     "dataproc_version": "DVER",
     "application":"APP"
 }

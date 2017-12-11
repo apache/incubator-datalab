@@ -60,6 +60,7 @@ limitations under the License.
             <a class="string-array">
               <string>us-west1</string>
               <string>us-west2</string>
+              <string>us-east1</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -74,6 +75,7 @@ limitations under the License.
               <string>us-west2-a</string>
               <string>us-west2-b</string>
               <string>us-west2-c</string>
+              <string>us-east1-c</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -99,7 +101,7 @@ limitations under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_dataengine-service/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/GPI/&apos;${gcp_project_id}&apos;/g&apos; | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/CZON/&apos;${Zone}&apos;/g&apos; | sed &apos;s/DCN/&apos;${dataproc_cluster_name}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sudo docker run -i -e &quot;conf_tag_resource_id=${Service_base_name}&quot; -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service docker.dlab-dataengine-service --action $Action</command>
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/terminate_dataengine-service/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/GPI/&apos;${gcp_project_id}&apos;/g&apos; | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/CZON/&apos;${Zone}&apos;/g&apos; | sed &apos;s/DCN/&apos;${dataproc_cluster_name}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sudo docker run -i -e &quot;conf_tag_resource_id=${Service_base_name}&quot; -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service docker.dlab-dataengine-service --action $Action</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
