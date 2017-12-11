@@ -282,8 +282,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/user/logout');
     this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/user/authorize');
 
-    this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/user/redirect');
-    // this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/user/azure/oauth');
+    this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/user/azure/oauth');
     this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY, '/api/user/access_key');
 
     // Exploratory Environment
