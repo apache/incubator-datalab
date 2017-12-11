@@ -21,6 +21,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { LoginModel } from './login.model';
 import { AppRoutingService, HealthStatusService, ApplicationSecurityService } from '../core/services';
+import { DICTIONARY } from '../../dictionary/global.dictionary';
 
 @Component({
   moduleId: module.id,
@@ -30,6 +31,7 @@ import { AppRoutingService, HealthStatusService, ApplicationSecurityService } fr
 })
 
 export class LoginComponent implements OnInit {
+  readonly DICTIONARY = DICTIONARY;
   model = new LoginModel('', '');
   error: string;
   loading = false;
@@ -72,6 +74,9 @@ export class LoginComponent implements OnInit {
         });
 
     return false;
+  }
+  loginWithAzure_btnClick() {
+    this.appRoutingService.redirectToAzure();
   }
 
   checkHealthStatusAndRedirect(isLoggedIn) {
