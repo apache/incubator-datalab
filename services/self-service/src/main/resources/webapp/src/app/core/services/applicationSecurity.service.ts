@@ -138,20 +138,29 @@ export class ApplicationSecurityService {
       });
   }
 
-  private handleError(error: Response | any) {
+  private handleError(error: any) {
     let errMsg: string;
-    if (typeof error === 'object') {
+    if (typeof error === 'object' && error._body && this.isJson(error._body)) {
       if (error.json().error_message)
         errMsg = error.json().error_message;
-    } else if (error instanceof Response) {
+    } else if (this.isJson(error._body)) {
       const body = error.json() || '';
       const err = body.error || JSON.stringify(body);
       errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
     } else {
-      errMsg = error.message ? error.message : error.toString();
+      errMsg = error._body ? error._body : error.toString();
     }
 
     this.emmitMessage(errMsg);
+  }
+
+  private isJson(str) {
+    try {
+      JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+    return true;
   }
 
   private emmitMessage(message): void {
