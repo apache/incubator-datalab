@@ -59,6 +59,7 @@ limitations under the License.
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>us-west1</string>
+              <string>us-east1</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
