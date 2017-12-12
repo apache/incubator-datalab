@@ -53,7 +53,7 @@ if __name__ == "__main__":
     ssn_conf['subnet_prefix'] = '20'
     ssn_conf['firewall_name'] = '{}-ssn-firewall'.format(ssn_conf['service_base_name'])
     ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    ssn_conf['service_account_name'] = ssn_conf['service_base_name'] + '-ssn-sa'
+    ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name']).replace('_', '-')
     ssn_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
     ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-ssn-role'
     ssn_conf['static_address_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])

@@ -75,9 +75,9 @@ if __name__ == "__main__":
     data_engine['master_size'] = os.environ['gcp_dataengine_master_size']
     data_engine['slave_size'] = os.environ['gcp_dataengine_slave_size']
     data_engine['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    data_engine['dataengine_service_account_name'] = data_engine['service_base_name'].lower().replace('_',
-                                                                                                            '-') + \
-                                                       "-" + data_engine['edge_user_name'] + '-nb-de-des-sa'
+    data_engine['dataengine_service_account_name'] = '{}-{}-nb-de-des-sa'.format(data_engine['service_base_name'],
+                                                                                 data_engine['edge_user_name']
+                                                                                 ).replace('_', '-')
 
     if os.environ['conf_os_family'] == 'debian':
         initial_user = 'ubuntu'
