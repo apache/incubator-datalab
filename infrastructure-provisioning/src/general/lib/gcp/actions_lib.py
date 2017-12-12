@@ -711,7 +711,7 @@ class GCPActions:
             while job_status != 'done':
                 time.sleep(5)
                 job_status = meta_lib.GCPMeta().get_dataproc_job_status(res['reference']['jobId'])
-                if job_status == 'failed':
+                if job_status in ('failed', 'error'):
                     raise Exception
             return job_status
         except Exception as err:

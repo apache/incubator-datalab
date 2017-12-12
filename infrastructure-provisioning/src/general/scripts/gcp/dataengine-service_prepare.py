@@ -71,7 +71,7 @@ if __name__ == "__main__":
     dataproc_conf['cluster_name'] = '{0}-{1}-dp-{2}-{3}-{4}'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'],
                                                                     dataproc_conf['exploratory_name'], dataproc_conf['computational_name'], args.uuid)
     dataproc_conf['cluster_tag'] = '{0}-{1}-nb-de-des'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
-    dataproc_conf['bucket_name'] = '{}-ssn-bucket'.format(dataproc_conf['service_base_name'])
+    dataproc_conf['bucket_name'] = '{}-{}-bucket'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
     dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
     dataproc_conf['dataproc_service_account_name'] = dataproc_conf['service_base_name'].lower().replace('_', '-') + \
@@ -100,6 +100,7 @@ if __name__ == "__main__":
     dataproc_cluster['projectId'] = os.environ['gcp_project_id']
     dataproc_cluster['clusterName'] = dataproc_conf['cluster_name']
     dataproc_cluster['labels'] = dataproc_conf['cluster_label']
+    dataproc_cluster['config']['configBucket'] = dataproc_conf['bucket_name']
     dataproc_cluster['config']['gceClusterConfig']['serviceAccount'] = service_account_email
     dataproc_cluster['config']['gceClusterConfig']['zoneUri'] = dataproc_conf['zone']
     dataproc_cluster['config']['gceClusterConfig']['subnetworkUri'] = dataproc_conf['subnet']

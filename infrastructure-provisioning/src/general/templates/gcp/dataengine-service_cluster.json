@@ -3,7 +3,7 @@
     "clusterName": "CLUSTER_NAME",
     "labels": "CLUSTER_LABEL",
     "config": {
-        "configBucket": "",
+        "configBucket": "CLUSTER_BUCKET",
         "gceClusterConfig": {
             "zoneUri": "CLUSTER_ZONE",
             "subnetworkUri": "CLUSTER_SUBNET",
