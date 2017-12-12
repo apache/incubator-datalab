@@ -18,6 +18,7 @@ limitations under the License.
 
 export const NAMING_CONVENTION = {
     'cloud_provider': 'azure',
+    'use_ldap': true,
     'notebook_instance_size': 'Virtual machine size',
     'personal_storage': 'Personal storage',
     'collaboration_storage': 'Collaboration storage',
