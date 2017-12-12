@@ -54,26 +54,6 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = '{0}-{1}-nb-{2}-{3}'.format(notebook_config['service_base_name'],
                                                                    notebook_config['edge_user_name'],
                                                                    notebook_config['exploratory_name'], args.uuid)
-    # notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-    #     'edge_user_name'] + '-' + os.environ['application'] + '-notebook-image'
-    # notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + os.environ[
-    #     'edge_user_name'] + "-nb-Profile"
-    # notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-    #     'edge_user_name'] + "-nb-SG"
-    # notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-    # notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
-    #
-    # print('Searching preconfigured images')
-    # ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'], 'available')
-    # if ami_id != '':
-    #     print('Preconfigured image found. Using: {}'.format(ami_id))
-    #     notebook_config['ami_id'] = ami_id
-    # else:
-    #     notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
-    #     print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_id']))
-    #
-    # tag = {"Key": notebook_config['tag_name'], "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
-    # notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
