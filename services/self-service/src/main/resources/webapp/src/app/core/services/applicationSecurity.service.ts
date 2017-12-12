@@ -122,30 +122,36 @@ export class ApplicationSecurityService {
           return true;
         }
 
-        response.status !== 200 && this.emmitMessage(response.statusText);
+        if (response.status !== 200) {
+          this.handleError(response);
+        }
         return false;
 
       }).catch((error: any) => {
 
-        if (error && error.error_message) this.emmitMessage(error.error_message);
-          //   const body = error.json() || '';
-          //   const err = body.error || JSON.stringify(body);
-          //   let errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-          //   this.emmitMessage(errMsg);
-          // }
-          // const err = error.json() || {};
-          // Observable.throw(new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`))
+        if (error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
+          window.location.href = error.headers.get('Location');
+        }
 
-          if (error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
-            window.location.href = error.headers.get('Location');
-          } else {
-            this.emmitMessage(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`);
-          }
-
-        // if (error && error.message) this.emmitMessage(error.message);
-
+        this.handleError(error);
         return Observable.of(false);
       });
+  }
+
+  private handleError(error: Response | any) {
+    let errMsg: string;
+    if (typeof error === 'object') {
+      if (error.json().error_message)
+        errMsg = error.json().error_message;
+    } else if (error instanceof Response) {
+      const body = error.json() || '';
+      const err = body.error || JSON.stringify(body);
+      errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
+    } else {
+      errMsg = error.message ? error.message : error.toString();
+    }
+
+    this.emmitMessage(errMsg);
   }
 
   private emmitMessage(message): void {
