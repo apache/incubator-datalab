@@ -30,7 +30,7 @@ import argparse
 import sys
 
 
-def stop_notebook(instance_name, bucket_name, zone, ssh_user, key_path, user_name):
+def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, user_name):
     print('Terminating Dataproc cluster and cleaning Dataproc config from bucket')
     try:
         clusters_list = meta_lib.GCPMeta().get_dataproc_list(instance_name)
@@ -39,7 +39,7 @@ def stop_notebook(instance_name, bucket_name, zone, ssh_user, key_path, user_nam
                 cluster = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
                 actions_lib.GCPActions().bucket_cleanup(bucket_name, user_name, cluster_name)
                 print('The bucket {} has been cleaned successfully'.format(bucket_name))
-                actions_lib.GCPActions().delete_dataproc_cluster(cluster_name, os.environ['gcp_region'])
+                actions_lib.GCPActions().delete_dataproc_cluster(cluster_name, region)
                 print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
                 actions_lib.GCPActions().remove_kernels(instance_name, cluster_name, cluster[0]['version'], ssh_user, key_path)
         else:
@@ -71,13 +71,14 @@ if __name__ == "__main__":
     notebook_config['bucket_name'] = '{}-ssn-bucket'.format(notebook_config['service_base_name'])
     notebook_config['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
-    notebook_config['zone'] = os.environ['gcp_zone']
+    notebook_config['gcp_region'] = os.environ['gcp_region']
+    notebook_config['gcp_zone'] = os.environ['gcp_zone']
 
     logging.info('[STOP NOTEBOOK]')
     print('[STOP NOTEBOOK]')
     try:
-        stop_notebook(notebook_config['notebook_name'], notebook_config['bucket_name'], notebook_config['zone'],
-                      os.environ['conf_os_user'], notebook_config['key_path'], notebook_config['user_name'])
+        stop_notebook(notebook_config['notebook_name'], notebook_config['bucket_name'], notebook_config['gcp_region'],
+                      notebook_config['gcp_zone'], os.environ['conf_os_user'], notebook_config['key_path'], notebook_config['user_name'])
     except Exception as err:
         append_result("Failed to stop notebook.", str(err))
         sys.exit(1)

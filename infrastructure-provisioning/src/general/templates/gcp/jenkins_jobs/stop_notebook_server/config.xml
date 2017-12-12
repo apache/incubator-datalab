@@ -18,7 +18,7 @@ limitations under the License.
 -->
 <project>
   <actions/>
-  <description>This job stops notebook server, terminates all linked emr clusters, cleans up s3 buckets</description>
+  <description>This job stops notebook server, terminates all linked dataproc clusters, cleans up storage buckets</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
@@ -47,6 +47,7 @@ limitations under the License.
               <string>rstudio</string>
               <string>zeppelin</string>
               <string>tensor</string>
+              <string>deeplearning</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -56,12 +57,24 @@ limitations under the License.
           <defaultValue>GPI</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
+          <name>Region</name>
+          <description>GCP region where infrastructure was deployed</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>us-west1</string>
+              <string>us-west2</string>
+              <string>us-east1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
           <name>Zone</name>
           <description>GCP zone where infrastructure was deployed</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>us-west1-a</string>
-              <string>us-west1-b</string>
+              <string>us-west2-b</string>
+              <string>us-east1-c</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -92,7 +105,7 @@ limitations under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/stop_notebook_server/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/GPI/&apos;${GCP_project_id}&apos;/g&apos; | sed &apos;s/ZONE/&apos;${Zone}&apos;/g&apos; | sed &apos;s/CKN/&apos;${Key_Name}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; |  sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/notebook:/logs/notebook docker.dlab-${notebook_app} --action $Action</command>
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/stop_notebook_server/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/GPI/&apos;${GCP_project_id}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/ZONE/&apos;${Zone}&apos;/g&apos; | sed &apos;s/CKN/&apos;${Key_Name}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; |  sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/notebook:/logs/notebook docker.dlab-${notebook_app} --action $Action</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

@@ -4,6 +4,7 @@
     "conf_service_base_name":"SBN",
     "edge_user_name":"NUN",
     "notebook_instance_name":"NIN",
+    "gcp_region":"CREG",
     "gcp_zone":"ZONE",
     "gcp_project_id":"GPI",
     "conf_key_name":"CKN"

@@ -63,6 +63,7 @@ if __name__ == "__main__":
                                                                        os.environ['edge_user_name']).replace('_', '-')
     edge_conf['ps_role_name'] = '{}-{}-nb-de-des-role'.format(edge_conf['service_base_name'],
                                                               os.environ['edge_user_name']).replace('_', '-')
+    edge_conf['ps_policy_path'] = '/root/files/ps_policy.json'
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['ssn_instance_name'] = '{}-ssn'.format(edge_conf['service_base_name'])
     edge_conf['bucket_name'] = '{0}-{1}-bucket'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
@@ -140,8 +141,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SERVICE ACCOUNT AND ROLE FOR PRIVATE SUBNET]')
         print('[CREATE SERVICE ACCOUNT AND ROLE FOR NOTEBOOK NODE]')
-        params = "--service_account_name {} --role_name {}".format(edge_conf['ps_service_account_name'],
-                                                                   edge_conf['ps_role_name'])
+        params = "--service_account_name {} --role_name {} --policy_path {}".format(edge_conf['ps_service_account_name'],
+                                                                                    edge_conf['ps_role_name'],
+                                                                                    edge_conf['ps_policy_path'])
 
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))

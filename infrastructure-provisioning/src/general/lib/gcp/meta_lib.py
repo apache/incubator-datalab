@@ -462,7 +462,7 @@ class GCPMeta:
                                                        instance=instance_name)
                 result = request.execute()
                 host['id'] = instance_name
-                host['status'] = result.get('status').lower().replace("terminated", "stoped")
+                host['status'] = result.get('status').lower().replace("terminated", "stopped")
                 data.append(host)
             except:
                 host['resource_type'] = 'host'

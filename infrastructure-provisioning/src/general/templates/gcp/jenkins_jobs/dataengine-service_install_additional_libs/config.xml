@@ -18,26 +18,45 @@ limitations under the License.
 -->
 <project>
   <actions/>
-  <description>List available libs on notebook server.</description>
+  <description>Installs libs on Dataproc cluster.</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
-        <hudson.model.StringParameterDefinition>
-          <name>Service_base_name</name>
-          <description>unique infrastructure value that previously was used when ssn being provisioned</description>
-          <defaultValue>SBN</defaultValue>
-        </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>Project_ID</name>
           <description>GCP project ID</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>Notebook_Name</name>
-          <description>name of the notebook to start</description>
+          <name>Cluster_name</name>
+          <description>name of the Dataproc cluster</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+                <hudson.model.ChoiceParameterDefinition>
+          <name>Region</name>
+          <description>GCP region where infrastructure was deployed</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>us-west2</string>
+              <string>us-west1</string>
+              <string>us-east2</string>
+              <string>us-east1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>Zone</name>
+          <description>GCP region where infrastructure was deployed</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>us-west2-a</string>
+              <string>us-west1-a</string>
+              <string>us-east2-c</string>
+              <string>us-east1-c</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>Username</name>
           <description>name of the data scientist user</description>
@@ -62,24 +81,31 @@ limitations under the License.
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>Zone</name>
-          <description></description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>us-west1-a</string>
-              <string>us-east1-c</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
           <name>Action</name>
           <description></description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>lib_list</string>
+              <string>lib_install</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Libs</name>
+          <description>
+            List of additional libs in json format. For example:
+            [
+              {"group": "os_pkg", "name": "nmap"},
+              {"group": "os_pkg", "name": "htop"},
+              {"group": "pip2", "name": "requests"},
+              {"group": "pip3", "name": "configparser"},
+              {"group": "r_pkg", "name": "rmarkdown"},
+            ]
+            Types: for OS - os_pkg, for Python - pip2/pip3, for R - r_pkg
+            NOTE: You need to escape each double quote.
+            For Example: {\"group\": \"os_pkg\", \"name\": \"htop\"}
+          </description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -92,7 +118,7 @@ limitations under the License.
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>rand=`openssl rand -hex 10`; sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/notebook_list_available_libs/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/GPI/&apos;${Project_ID}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/ZONE/&apos;${Zone}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/notebook:/logs/notebook docker.dlab-${notebook_app} --action $Action
+      <command>rand=`openssl rand -hex 10`; echo $rand; sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/dataengine-service_install_additional_libs/template.json | sed &apos;s/GPI/&apos;${Project_ID}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/ZONE/&apos;${Zone}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/ECN/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/EUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -e "libs=$Libs" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine-service:/logs/dataengine-service  docker.dlab-dataengine-service --action $Action;
       </command>
     </hudson.tasks.Shell>
   </builders>

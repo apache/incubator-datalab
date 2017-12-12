@@ -47,10 +47,10 @@ parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--application', type=str, default='')
 args = parser.parse_args()
 
-dataproc_dir = '/opt/' + args.dataproc_version + '/jars/'
-kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
-spark_dir = '/opt/' + args.dataproc_version + '/' + args.cluster_name + '/spark/'
-yarn_dir = '/opt/' + args.dataproc_version + '/' + args.cluster_name + '/conf/'
+dataproc_dir = '/opt/{}/jars/'.format(args.dataproc_version)
+kernels_dir = '/home/{}/.local/share/jupyter/kernels/'.format(args.os_user)
+spark_dir = '/opt/{}/{}/spark/'.format(args.dataproc_version, args.cluster_name)
+yarn_dir = '/opt/{}/{}/conf/'.format(args.dataproc_version, args.cluster_name)
 
 
 def r_kernel(args):

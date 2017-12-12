@@ -43,11 +43,10 @@ if __name__ == "__main__":
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-    notebook_config['bucket_name'] = '{}-ssn-bucket'.format(notebook_config['service_base_name'])
+    notebook_config['bucket_name'] = '{}-{}-bucket'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
     notebook_config['cluster_name'] = meta_lib.GCPMeta().get_not_configured_dataproc(notebook_config['notebook_name'])
     notebook_config['notebook_ip'] = meta_lib.GCPMeta().get_private_ip_address(notebook_config['notebook_name'])
     notebook_config['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    # notebook_config['cluster_id'] = get_emr_id_by_name(notebook_config['cluster_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
     edge_instance_hostname = meta_lib.GCPMeta().get_private_ip_address(edge_instance_name)
     if os.environ['application'] == 'deeplearning':
