@@ -74,8 +74,8 @@ public class AzureSecurityResource {
                         || response.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
 
                     AzureLocalAuthResponse localAuthResponse = response.readEntity(AzureLocalAuthResponse.class);
-                    log.debug("Token retrieve response {}", localAuthResponse);
-                    return response;
+                    log.debug("Token retrieve local response {}", localAuthResponse);
+                    return Response.status(response.getStatus()).entity(localAuthResponse).build();
                 }
                 return response;
             } else {
@@ -87,12 +87,15 @@ public class AzureSecurityResource {
                     && "login_required".equals(authorizationCodeFlowResponse.getError())) {
 
                 log.debug("Silent authentication detected {}", authorizationCodeFlowResponse);
-                return Response.seeOther(URI.create(
+                return Response.status(Response.Status.FORBIDDEN).header("Location", URI.create(
                         azureLoginUrlBuilder.buildLoginUrl(authorizationCodeFlowResponse.getState()))).build();
             }
         }
+
         log.info("Try to log in one more time");
-        return Response.seeOther(URI.create(azureLoginUrlBuilder.buildLoginUrl())).build();
+        cache.invalidate(authorizationCodeFlowResponse.getState());
+        return Response.status(Response.Status.FORBIDDEN).header("Location", URI.create(
+                azureLoginUrlBuilder.buildLoginUrl())).build();
     }
 }
 
