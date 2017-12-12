@@ -69,13 +69,11 @@ export class LoginComponent implements OnInit {
 
         return false;
       }, (err) => {
-          if (err && err.json().message) this.error = err.json().message;
-            this.error = err.json().message;
-            
-          if (DICTIONARY.cloud_provider === 'azure' && err.json().error_message) 
-            this.error = err.json().error_message;
+        if (err && err.text()) this.error = err.text();
+        if (DICTIONARY.cloud_provider === 'azure' && err.json().error_message)
+          this.error = err.json().error_message;
 
-          this.loading = false;
+        this.loading = false;
         });
 
     return false;

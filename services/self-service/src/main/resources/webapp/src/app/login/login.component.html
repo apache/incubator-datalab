@@ -49,7 +49,7 @@ limitations under the License.
               </span>
             </span>
         </button>
-        <button *ngIf="DICTIONARY.cloud_provider === 'azure'"
+        <button *ngIf="DICTIONARY.cloud_provider === 'azure' && DICTIONARY.use_ldap"
                 class="butt butt-login"
                 md-raised-button (click)="loginWithAzure_btnClick();">
           Login with Azure
