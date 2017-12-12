@@ -73,8 +73,9 @@ if __name__ == "__main__":
                                                              notebook_config['edge_user_name'])
     notebook_config['instance_size'] = os.environ['gcp_notebook_instance_size']
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    notebook_config['notebook_service_account_name'] = notebook_config['service_base_name'].lower().replace('_', '-') \
-                                                       + "-" + os.environ['edge_user_name'] + '-nb-de-des-sa'
+    notebook_config['notebook_service_account_name'] = '{}-{}-nb-de-des-sa'.format(notebook_config['service_base_name'],
+                                                                                   os.environ['edge_user_name']
+                                                                                   ).replace('_', '-')
 
     if os.environ['conf_os_family'] == 'debian':
         initial_user = 'ubuntu'
@@ -99,20 +100,6 @@ if __name__ == "__main__":
     else:
         notebook_config['expected_ami_name'] = '{0}-{1}-{2}-notebook-image'.format(
             notebook_config['service_base_name'], notebook_config['edge_user_name'], os.environ['application'])
-    # notebook_config['role_profile_name'] = '{0}-{1}-nb-Profile'.format(notebook_config['service_base_name'],
-    # notebook_config['edge_user_name'])
-    # notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-    #     'edge_user_name'] + "-nb-SG"
-    # notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-    #
-    #print('Searching preconfigured images')
-    #preconfigured_ami = GCPMeta().get_ami_by_name(notebook_config['expected_ami_name'])
-    #if preconfigured_ami != '':
-    #    print('Preconfigured image found. Using: {}'.format(preconfigured_ami))
-    #    notebook_config['ami_name'] = preconfigured_ami
-    #else:
-    #    notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
-    #    print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_name']))
     notebook_config['secondary_disk_size'] = os.environ['notebook_disk_size']
     notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
     notebook_config['gpu_accelerator_type'] = 'None'
