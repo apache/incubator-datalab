@@ -2,17 +2,19 @@
   "exploratory_environment_shapes" :
   {
     "GPU optimized": [
-      {"Size": "M", "Description": "g2.2xlarge", "Type": "g2.2xlarge","Ram": "15.0 GB","Cpu": "8"}
+      {"Size": "S", "Description": "n1-standard-2", "Type": "n1-standard-2","Ram": "7.50 GB","Cpu": "2"},
+      {"Size": "M", "Description": "n1-highcpu-8", "Type": "n1-highcpu-8","Ram": "7.20 GB","Cpu": "8"},
+      {"Size": "L", "Description": "n1-highmem-32", "Type": "n1-highmem-32","Ram": "208 GB","Cpu": "32"}
     ]
   },
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "TensorFlow 1.1.0",
+      "template_name": "TensorFlow 1.3.0",
       "description": "Base image with TensorFlow  and Jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "tensorflow_gpu-1.1.0",
-      "vendor": "AWS"
+      "version": "tensorflow_gpu-1.3.0",
+      "vendor": "GCP"
     }
   ]
 }
