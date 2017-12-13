@@ -68,11 +68,13 @@
     "compute.instances.use",
     "dataproc.regions.list",
     "dataproc.clusters.get",
+    "dataproc.clusters.use",
     "dataproc.clusters.list",
     "dataproc.clusters.create",
     "dataproc.clusters.update",
     "dataproc.clusters.delete",
     "dataproc.jobs.create",
     "dataproc.jobs.list",
+    "dataproc.jobs.update",
     "dataproc.jobs.get"
 ]
