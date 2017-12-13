@@ -34,7 +34,7 @@ limitations under the License.
       </div>
 
       <div *ngIf="error" class="warning-alert"><span class="material-icons">priority_high</span>{{ error }}</div>
-      <div class="form-group">
+      <div class="form-group" [ngClass]="{'flex': DICTIONARY.cloud_provider === 'azure'}">
         <button md-raised-button [disabled]="loading || !username.valid || !password.valid"
                 (click)="login_btnClick();"
                 class="butt butt-login"
@@ -48,6 +48,11 @@ limitations under the License.
                 <span id="fountainG_3" class="fountainG"></span>
               </span>
             </span>
+        </button>
+        <button *ngIf="DICTIONARY.cloud_provider === 'azure' && DICTIONARY.use_ldap"
+                class="butt butt-login"
+                md-raised-button (click)="loginWithAzure_btnClick();">
+          Login with Azure
         </button>
       </div>
   </form>

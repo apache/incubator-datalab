@@ -40,4 +40,10 @@ public class EdgeInfoAzure extends EdgeInfo {
     private String sharedContainerName;
     @JsonProperty("user_storage_account_tag_name")
     private String userStorageAccountTagName;
+    @JsonProperty("datalake_name")
+    private String dataLakeName;
+    @JsonProperty("datalake_user_directory_name")
+    private String dataLakeDirectoryName;
+    @JsonProperty("datalake_shared_directory_name")
+    private String dataLakeSharedDirectoryName;
 }

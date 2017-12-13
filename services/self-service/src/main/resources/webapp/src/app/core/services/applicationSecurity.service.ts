@@ -22,16 +22,20 @@ import { Observable } from 'rxjs/Observable';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/throw';
 
 import { LoginModel } from '../../login/login.model';
 import { ApplicationServiceFacade, AppRoutingService } from './';
 import { HTTP_STATUS_CODES } from '../util';
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Injectable()
 export class ApplicationSecurityService {
   private accessTokenKey: string = 'access_token';
   private userNameKey: string = 'user_name';
+  readonly DICTIONARY = DICTIONARY;
 
   emitter: BehaviorSubject<any> = new BehaviorSubject<any>('');
   emitter$ = this.emitter.asObservable();
@@ -46,9 +50,13 @@ export class ApplicationSecurityService {
       .buildLoginRequest(loginModel.toJsonString())
       .map((response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
-          this.setAuthToken(response.text());
-          this.setUserName(loginModel.username);
-
+          if (DICTIONARY.cloud_provider === 'azure') {
+            this.setAuthToken(response.json().access_token);
+            this.setUserName(response.json().username);
+          } else {
+            this.setAuthToken(response.text());
+            this.setUserName(loginModel.username);
+          }
           return true;
         }
         return false;
@@ -104,36 +112,60 @@ export class ApplicationSecurityService {
 
     return this.serviceFacade
       .buildGetAuthToken(params)
-      .map((response: Response) => {
-          const data = response.json();
-          if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
-            this.setAuthToken(data.access_token);
-            this.setUserName(data.username);
+      .map((response: any) => {
+        const data = response.json();
+        if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
+          this.setAuthToken(data.access_token);
+          this.setUserName(data.username);
 
-            this.appRoutingService.redirectToHomePage();
-            return true;
-          }
-          if (response.status === HTTP_STATUS_CODES.MOVED_TEMPORARILY) {
-            console.log('FOUND 302');
-            return true;
-            // FIXME: add redirect
-          }
-          if (data.error_message) {
-            console.log('ERROR FS');
+          this.appRoutingService.redirectToHomePage();
+          return true;
+        }
 
-            this.appRoutingService.redirectToLoginPage();
-            this.emitter.next(data.error_message);
-          }
+        if (response.status !== 200) {
+          this.handleError(response);
+        }
+        return false;
 
-          return false;
-        }).catch((error: any) => {
+      }).catch((error: any) => {
 
-          debugger;
-          this.emitter.next(error.message);
-          this.appRoutingService.redirectToLoginPage();
+        if (error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
+          window.location.href = error.headers.get('Location');
+        }
 
-          return Observable.of(false);
-        });
+        this.handleError(error);
+        return Observable.of(false);
+      });
+  }
+
+  private handleError(error: any) {
+    let errMsg: string;
+    if (typeof error === 'object' && error._body && this.isJson(error._body)) {
+      if (error.json().error_message)
+        errMsg = error.json().error_message;
+    } else if (this.isJson(error._body)) {
+      const body = error.json() || '';
+      const err = body.error || JSON.stringify(body);
+      errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
+    } else {
+      errMsg = error._body ? error._body : error.toString();
+    }
+
+    this.emmitMessage(errMsg);
+  }
+
+  private isJson(str) {
+    try {
+      JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
+
+  private emmitMessage(message): void {
+    this.appRoutingService.redirectToLoginPage();
+    this.emitter.next(message);
   }
 
   private setUserName(userName): void {
