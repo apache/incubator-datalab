@@ -45,4 +45,6 @@ public class AzureLoginConfiguration {
     private boolean validatePermissionScope;
     @JsonProperty
     private String permissionScope;
+    @JsonProperty
+    private String managementApiAuthFile;
 }

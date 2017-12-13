@@ -23,10 +23,13 @@ import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.SecurityAPI;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.aad.adal4j.AuthenticationContext;
 import com.microsoft.aad.adal4j.AuthenticationException;
 import com.microsoft.aad.adal4j.AuthenticationResult;
 import com.microsoft.azure.AzureEnvironment;
+import com.microsoft.azure.credentials.ApplicationTokenCredentials;
 import io.dropwizard.Configuration;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,8 +39,12 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,13 +60,31 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
     private final UserInfoDAO userInfoDao;
     private final String authority;
     private final AzureLoginConfiguration azureLoginConfiguration;
+    private String clientId;
+    private String tenantId;
+    private String clientSecret;
 
     public AzureAuthenticationService(C config, UserInfoDAO userInfoDao,
-                                      AzureLoginConfiguration azureLoginConfiguration) {
+                                      AzureLoginConfiguration azureLoginConfiguration) throws IOException {
         super(config);
         this.userInfoDao = userInfoDao;
         this.authority = azureLoginConfiguration.getAuthority() + azureLoginConfiguration.getTenant() + "/";
         this.azureLoginConfiguration = azureLoginConfiguration;
+
+        if (azureLoginConfiguration.isValidatePermissionScope()) {
+            Map<String, String> authenticationParameters = new ObjectMapper()
+                    .readValue(new File(azureLoginConfiguration.getManagementApiAuthFile()),
+                            new TypeReference<HashMap<String, String>>() {
+                            });
+
+            this.clientId = authenticationParameters.get("clientId");
+            this.tenantId = authenticationParameters.get("tenantId");
+            this.clientSecret = authenticationParameters.get("clientSecret");
+
+            if (clientId == null || tenantId == null || clientSecret == null) {
+                throw new DlabException("Authentication information not configured to use Management API");
+            }
+        }
     }
 
     @Path(SecurityAPI.LOGIN)
@@ -124,9 +149,10 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
     @Override
     public Response authenticateAndLogin(AuthorizationSupplier authorizationSupplier) {
 
-        if (validatePermissions(authorizationSupplier)) {
-            AuthenticationResult authenticationResult = authenticate(authorizationSupplier,
-                    AzureEnvironment.AZURE.dataLakeEndpointResourceId());
+        AuthenticationResult authenticationResult = authenticate(authorizationSupplier,
+                AzureEnvironment.AZURE.dataLakeEndpointResourceId());
+
+        if (validatePermissions(authenticationResult)) {
 
             UserInfo userInfo = prepareUserInfo(authenticationResult);
             userInfoDao.saveUserInfo(userInfo);
@@ -144,7 +170,7 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
     }
 
     @Override
-    public boolean validatePermissions(AuthorizationSupplier authorizationSupplier) {
+    public boolean validatePermissions(AuthenticationResult authenticationResult) {
 
         if (!azureLoginConfiguration.isValidatePermissionScope()) {
             log.info("Verification of user permissions is disabled");
@@ -154,12 +180,8 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
 
         Client client = null;
         RoleAssignmentResponse roleAssignmentResponse;
-        AuthenticationResult authenticationResult;
         try {
             client = ClientBuilder.newClient();
-
-            authenticationResult = authenticate(authorizationSupplier,
-                    AzureEnvironment.AZURE.resourceManagerEndpoint());
 
             roleAssignmentResponse = client
                     .target(AzureEnvironment.AZURE.resourceManagerEndpoint()
@@ -168,7 +190,7 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
                     .queryParam("$filter", String.format("assignedTo('%s')",
                             authenticationResult.getUserInfo().getUniqueId()))
                     .request(MediaType.APPLICATION_JSON_TYPE)
-                    .header("Authorization", String.format("Bearer %s", authenticationResult.getUserInfo()))
+                    .header("Authorization", String.format("Bearer %s", getManagementApiToken()))
                     .get(RoleAssignmentResponse.class);
 
         } catch (ClientErrorException e) {
@@ -254,5 +276,21 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
         }
 
         throw new DlabException("Cannot verify user identity");
+    }
+
+    private String getManagementApiToken() {
+        try {
+
+            log.info("Requesting authentication token ... ");
+
+            ApplicationTokenCredentials applicationTokenCredentials = new ApplicationTokenCredentials(
+                    clientId, tenantId, clientSecret,
+                    AzureEnvironment.AZURE);
+
+            return applicationTokenCredentials.getToken(AzureEnvironment.AZURE.resourceManagerEndpoint());
+        } catch (IOException e) {
+            log.error("Cannot retrieve authentication token due to", e);
+            throw new DlabException("Cannot retrieve authentication token", e);
+        }
     }
 }

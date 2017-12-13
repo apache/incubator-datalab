@@ -16,11 +16,13 @@
 
 package com.epam.dlab.auth.azure;
 
+import com.microsoft.aad.adal4j.AuthenticationResult;
+
 import javax.ws.rs.core.Response;
 
 public interface AzureAuthorizationCodeService {
 
     Response authenticateAndLogin(AuthorizationSupplier authorizationSupplier);
 
-    boolean validatePermissions(AuthorizationSupplier authorizationSupplier);
+    boolean validatePermissions(AuthenticationResult authenticationResult);
 }
