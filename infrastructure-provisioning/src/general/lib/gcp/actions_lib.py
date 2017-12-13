@@ -219,9 +219,15 @@ class GCPActions:
     def remove_disk(self, instance_name, zone):
         try:
             request = self.service.disks().delete(project=self.project, zone=zone, disk=instance_name + '-secondary')
-            result = request.execute()
-            meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
-            print('Disk {}-secondary removed.'.format(instance_name))
+            try:
+                result = request.execute()
+                meta_lib.GCPMeta().wait_for_operation(result['name'], zone=zone)
+                print('Disk {}-secondary removed.'.format(instance_name))
+            except errors.HttpError as err:
+                if err.resp.status == 404:
+                    print('Disk {}-secondary was not found. Skipped'.format(instance_name))
+                else:
+                    raise Exception
             return request
         except Exception as err:
             logging.info(
