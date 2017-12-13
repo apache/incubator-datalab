@@ -247,8 +247,12 @@ if __name__ == "__main__":
         print("User storage account name: {}".format(user_storage_account_name))
         print("User container name: {}".format(edge_conf['user_container_name']))
         if os.environ['azure_datalake_enable'] == 'true':
-            print("Data Lake Store name: {}".format(edge_conf['datalake_store_name']))
-            print("Data Lake Store directory name: {}".format(edge_conf['datalake_user_directory_name']))
+            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
+                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
+                    datalake_id = datalake.name
+            print("Data Lake name: {}".format(datalake_id))
+            print("Data Lake tag name: {}".format(edge_conf['datalake_store_name']))
+            print("Data Lake Store user directory name: {}".format(edge_conf['datalake_user_directory_name']))
         print("Notebook SG: {}".format(edge_conf['notebook_security_group_name']))
         print("Edge SG: {}".format(edge_conf['edge_security_group_name']))
         print("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
@@ -281,7 +285,8 @@ if __name__ == "__main__":
                        "shared_storage_account_name": shared_storage_account_name,
                        "shared_container_name": edge_conf['shared_container_name'],
                        "user_storage_account_tag_name": edge_conf['user_storage_account_name'],
-                       "datalake_name": edge_conf['datalake_store_name'],
+                       "datalake_name": datalake_id,
+                       "datalake_tag_name": edge_conf['datalake_store_name'],
                        "datalake_shared_directory_name": edge_conf['datalake_user_directory_name'],
                        "datalake_user_directory_name": edge_conf['datalake_user_directory_name'],
                        "tunnel_port": "22",
