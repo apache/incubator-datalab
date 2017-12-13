@@ -45,6 +45,7 @@ limitations under the License.
             <a class="string-array">
               <string>us-west1</string>
               <string>us-west2</string>
+              <string>us-east1</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -55,6 +56,7 @@ limitations under the License.
             <a class="string-array">
               <string>us-west1-a</string>
               <string>us-west1-b</string>
+              <string>us-east1-c</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -80,7 +82,7 @@ limitations under the License.
   <builders>
     <hudson.tasks.Shell>
       <command>rand=`openssl rand -hex 10`;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/start_edge_node/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/GPI/&apos;${GCP_project_id}&apos;/g&apos; | sed &apos;s/REG/&apos;${Region}&apos;/g&apos; | sed &apos;s/ZONE/&apos;${Zone}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response  docker.dlab-edge --action $Action</command>
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/start_edge_node/template.json | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/GPI/&apos;${GCP_project_id}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/ZONE/&apos;${Zone}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response  docker.dlab-edge --action $Action</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
