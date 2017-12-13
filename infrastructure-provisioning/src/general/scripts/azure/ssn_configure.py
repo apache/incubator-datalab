@@ -307,7 +307,8 @@ if __name__ == "__main__":
                 "edge_instance_size": os.environ['azure_edge_instance_size'],
                 "ssn_storage_account_tag_name": ssn_conf['ssn_storage_account_name'],
                 "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name'],
-                "datalake_tag_name": ssn_conf['datalake_store_name']
+                "datalake_tag_name": ssn_conf['datalake_store_name'],
+                "azure_client_id": os.environ['azure_application_id']
             }
             ldap_login = 'false'
             tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
