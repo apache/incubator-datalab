@@ -30,7 +30,6 @@ import com.epam.dlab.exceptions.DlabException;
 public class SettingsDAO extends BaseDAO {
     private static final String VALUE = "value";
 
-
     /** Returns the base name of service. */
     public String getServiceBaseName() {
         return getSetting(SERIVICE_BASE_NAME);
@@ -50,7 +49,6 @@ public class SettingsDAO extends BaseDAO {
     public String getConfTagResourceId() {
         return getSetting(CONF_TAG_RESOURCE_ID);
     }
-
 
     /** Returns the name of AWS region. */
     public String getAwsRegion() {
@@ -100,6 +98,18 @@ public class SettingsDAO extends BaseDAO {
         return getSetting(AZURE_SSN_INSTANCE_SIZE);
     }
 
+    public String getAzureDataLakeNameTag() {
+        return getSetting(AZURE_DATA_LAKE_NAME_TAG);
+    }
+
+    public boolean isAzureDataLakeEnabled() {
+        String dataLakeTagName = getAzureDataLakeNameTag();
+        return dataLakeTagName != null && !dataLakeTagName.isEmpty();
+    }
+
+    public String getAzureDataLakeClientId() {
+        return getSetting(AZURE_DATA_LAKE_CLIENT_ID);
+    }
 
     /** Returns the value of property from Mongo database.
      * @param setting the name of property.
