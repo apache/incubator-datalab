@@ -39,12 +39,6 @@ export class MultiSelectDropdownComponent {
     this.isOpen = !this.isOpen;
   }
 
-  onClickOutside($event: Object) {
-    if ($event && $event['value'] === true) {
-      this.isOpen = false;
-    }
-  }
-
   toggleSelectedOptions($event, model, value) {
     const index = model.indexOf(value);
     (index >= 0) ? model.splice(index, 1) : model.push(value);

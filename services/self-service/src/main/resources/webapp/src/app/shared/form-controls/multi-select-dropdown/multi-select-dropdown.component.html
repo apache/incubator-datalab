@@ -16,7 +16,7 @@ limitations under the License.
 
 -->
 
-<div class="dropdown-multiselect btn-group" ngClass="{{type || ''}}" click-outside (clickOutside)="onClickOutside($event)">
+<div class="dropdown-multiselect btn-group" ngClass="{{type || ''}}">
   <button type="button" #list (click)="multiactions.toggle($event, list)">
     <span *ngIf="model.length === 0">Select {{type}}</span>
     <span class="selected-items" *ngIf="model.length !== 0">
