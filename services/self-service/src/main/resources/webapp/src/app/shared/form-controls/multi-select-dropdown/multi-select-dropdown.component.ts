@@ -34,11 +34,6 @@ export class MultiSelectDropdownComponent {
   @Input() type: string;
   @Output() selectionChange: EventEmitter<{}> = new EventEmitter();
 
-
-  toggleDropdown(): void {
-    this.isOpen = !this.isOpen;
-  }
-
   toggleSelectedOptions($event, model, value) {
     const index = model.indexOf(value);
     (index >= 0) ? model.splice(index, 1) : model.push(value);

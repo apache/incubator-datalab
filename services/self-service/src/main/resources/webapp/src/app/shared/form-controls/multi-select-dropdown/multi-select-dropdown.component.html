@@ -25,7 +25,7 @@ limitations under the License.
     <span class="caret-btn"><i class="material-icons">keyboard_arrow_down</i></span>
   </button>
 
-  <bubble-up #multiactions position="bottom" class="mt-5">
+  <bubble-up #multiactions position="bottom" [keep-open]="true" class="mt-5">
     <ul class="list-menu" id="scrolling">
       <li class="filter-actions">
         <a class="select_all" (click)="selectAllOptions($event)">
