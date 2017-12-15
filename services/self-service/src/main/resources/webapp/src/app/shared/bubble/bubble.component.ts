@@ -34,7 +34,7 @@ export class BubbleComponent implements OnDestroy {
   @Input('keep-open') public keepOpen: boolean = false;
 
   @Input('position') public position: string;
-  @Input('alternative') public alternative: string = 'top-left';
+  @Input('alternative') public alternative: string;
 
 
   @Output() onShow: EventEmitter<any> = new EventEmitter();
@@ -89,8 +89,10 @@ export class BubbleComponent implements OnDestroy {
         this.bubbleService.updatePosition(element, bubbleElem, this.position);
         bubbleElem.style.visibility = 'visible';
 
-        this.changeDirection = !this.isInViewport(bubbleElem);
-        this.changeDirection && this.bubbleService.updatePosition(element, bubbleElem, this.alternative);
+        if (this.alternative) {
+          this.changeDirection = !this.isInViewport(bubbleElem);
+          this.changeDirection && this.bubbleService.updatePosition(element, bubbleElem, this.alternative);
+        }
 
         this.ref.markForCheck();
         return;
