@@ -183,10 +183,13 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def bucket_cleanup(self, bucket_name, user_name, cluster_name):
+    def bucket_cleanup(self, bucket_name, user_name='', cluster_name=''):
         try:
+            prefix = ''
             bucket = self.storage_client.get_bucket(bucket_name)
-            list_files = bucket.list_blobs(prefix='{0}/{1}'.format(user_name, cluster_name))
+            if user_name != '':
+                prefix = '{0}/{1}'.format(user_name, cluster_name)
+            list_files = bucket.list_blobs(prefix=prefix)
             for item in list_files:
                 print("Deleting:{}".format(item.name))
                 blob = bucket.blob(item.name)
