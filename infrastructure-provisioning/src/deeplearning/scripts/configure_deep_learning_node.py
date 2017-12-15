@@ -57,7 +57,8 @@ if args.region == 'cn-north-1':
     spark_link = "http://mirrors.hust.edu.cn/apache/spark/spark-" + spark_version + "/spark-" + spark_version + \
                  "-bin-hadoop" + hadoop_version + ".tgz"
 else:
-    spark_link = "http://d3kbcqa49mib13.cloudfront.net/spark-" + spark_version + "-bin-hadoop" + hadoop_version + ".tgz"
+    spark_link = "https://archive.apache.org/dist/spark/spark-" + spark_version + "/spark-" + spark_version + \
+                 "-bin-hadoop" + hadoop_version + ".tgz"
 local_spark_path = '/opt/spark/'
 jars_dir = '/opt/jars/'
 files_dir = '/root/files/'
@@ -126,8 +127,10 @@ if __name__ == "__main__":
     # INSTALL SPARK AND CLOUD STORAGE JARS FOR SPARK
     print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
-    print("Install storage and tensorflow connection jars")
-    ensure_local_jars(args.os_user, jars_dir, files_dir, args.region, templates_dir)
+    print("Install storage jars")
+    ensure_local_jars(args.os_user, jars_dir)
+    print("Configure local Spark")
+    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir)
 
     # INSTALL JUPYTER KERNELS
     print("Install pyspark local kernel for Jupyter")

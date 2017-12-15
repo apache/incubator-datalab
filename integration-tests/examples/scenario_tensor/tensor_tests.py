@@ -44,6 +44,7 @@ def get_files(s3client, s3resource, dist, bucket, local):
                 for file in result.get('Contents'):
                     if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
                         os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
+                        continue
                     s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
     except Exception as err:
         print(str(err))
@@ -71,7 +72,7 @@ def prepare_templates():
 
 
 def run_tensor():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     with lcd('/home/{0}/test_templates'.format(args.os_user)):
         local('tar -zxf train.tar.gz -C /home/{0} && tar -zxf test.tar.gz -C /home/{0}'.format(args.os_user))
     local('mkdir -p /home/{}/logs'.format(args.os_user))

@@ -73,6 +73,26 @@ limitations under the License.
                     <description></description>
                     <defaultValue></defaultValue>
                 </hudson.model.StringParameterDefinition>
+                <hudson.model.ChoiceParameterDefinition>
+                    <name>DataLake_enable</name>
+                    <description>Provision DataLake storage instead of Blob storage</description>
+                    <choices class="java.util.Arrays$ArrayList">
+                        <a class="string-array">
+                            <string>false</string>
+                            <string>true</string>
+                        </a>
+                    </choices>
+                </hudson.model.ChoiceParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                  <name>Client_ID</name>
+                  <description>Client ID of app which generated refresh token</description>
+                  <defaultValue></defaultValue>
+                </hudson.model.StringParameterDefinition>
+                <hudson.model.StringParameterDefinition>
+                    <name>User_Refresh_Token</name>
+                    <description>Refresh_Token of the AD user</description>
+                    <defaultValue></defaultValue>
+                </hudson.model.StringParameterDefinition>
                 <hudson.model.StringParameterDefinition>
                     <name>SSH_Key_Name</name>
                     <description></description>
@@ -89,16 +109,16 @@ limitations under the License.
                   </choices>
                 </hudson.model.ChoiceParameterDefinition>
                 <hudson.model.ChoiceParameterDefinition>
-                  <name>notebook_app</name>
-                  <description>notebook application to be deployed</description>
-                  <choices class="java.util.Arrays$ArrayList">
-                    <a class="string-array">
-                      <string>jupyter</string>
-                      <string>rstudio</string>
-                      <string>zeppelin</string>
-                      <string>tensor</string>
-                    </a>
-                  </choices>
+                    <name>notebook_app</name>
+                    <description>notebook application to be deployed</description>
+                    <choices class="java.util.Arrays$ArrayList">
+                        <a class="string-array">
+                            <string>jupyter</string>
+                            <string>rstudio</string>
+                            <string>zeppelin</string>
+                            <string>tensor</string>
+                        </a>
+                    </choices>
                 </hudson.model.ChoiceParameterDefinition>
                 <hudson.model.ChoiceParameterDefinition>
                     <name>Region</name>
@@ -107,6 +127,7 @@ limitations under the License.
                         <a class="string-array">
                             <string>westus</string>
                             <string>westus2</string>
+                            <string>eastus2</string>
                         </a>
                     </choices>
                 </hudson.model.ChoiceParameterDefinition>
@@ -123,9 +144,9 @@ limitations under the License.
     <builders>
         <hudson.tasks.Shell>
             <command>rand=`openssl rand -hex 10`;
-                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_data_engine/template_prepare.json | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/ADMS/&apos;${Master_Node_Shape}&apos;/g&apos; | sed &apos;s/ADSS/&apos;${Slave_Node_Shape}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_name}&apos;/g&apos; | sed &apos;s/CSI/&apos;${subnet_name}&apos;/g&apos; |   sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine  docker.dlab-dataengine --action create;
+                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_data_engine/template_prepare.json | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/DLE/&apos;${DataLake_enable}&apos;/g&apos; | sed &apos;s/ACI/&apos;${Client_ID}&apos;/g&apos; | sed &apos;s/AURT/&apos;${User_Refresh_Token}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/ADMS/&apos;${Master_Node_Shape}&apos;/g&apos; | sed &apos;s/ADSS/&apos;${Slave_Node_Shape}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_name}&apos;/g&apos; | sed &apos;s/CSI/&apos;${subnet_name}&apos;/g&apos; |   sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sudo docker run -i -e "conf_tag_resource_id=CTUN" -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine  docker.dlab-dataengine --action create;
                 rand=`openssl rand -hex 10`;
-                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_data_engine/template_configure.json | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_name}&apos;/g&apos; | sed &apos;s/CSI/&apos;${subnet_name}&apos;/g&apos; |   sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine  docker.dlab-${notebook_app} --action configure;
+                sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/create_data_engine/template_configure.json | sed &apos;s/COF/&apos;${os_family}&apos;/g&apos; | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/DLE/&apos;${DataLake_enable}&apos;/g&apos; | sed &apos;s/ACI/&apos;${Client_ID}&apos;/g&apos; | sed &apos;s/AURT/&apos;${User_Refresh_Token}&apos;/g&apos; | sed &apos;s/CNAM/&apos;${Cluster_name}&apos;/g&apos; | sed &apos;s/EVI/&apos;${vpc_name}&apos;/g&apos; | sed &apos;s/CSI/&apos;${subnet_name}&apos;/g&apos; |   sed &apos;s/EUN/&apos;${User_name}&apos;/g&apos; | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/EIC/&apos;${Nodes_Count}&apos;/g&apos; | sed &apos;s/KN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/APP/&apos;${notebook_app}&apos;/g&apos; | sed &apos;s/NNM/&apos;${Notebook_name}&apos;/g&apos; | sudo docker run -i -v /home/dlab-user/keys:/root/keys  -v /opt/dlab/tmp/result:/response -v /var/opt/dlab/log/dataengine:/logs/dataengine  docker.dlab-${notebook_app} --action configure;
             </command>
         </hudson.tasks.Shell>
     </builders>

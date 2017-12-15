@@ -33,6 +33,7 @@ parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--spark_master', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--notebook_ip', type=str, default='')
+parser.add_argument('--datalake_enabled', type=str, default='false')
 args = parser.parse_args()
 
 
@@ -68,6 +69,7 @@ if __name__ == "__main__":
     configure_notebook(args.keyfile, env.host_string)
     livy_version = os.environ['notebook_livy_version']
     sudo("/usr/bin/python /usr/local/bin/zeppelin_dataengine_create_configs.py "
-         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {} --livy_version {} --multiple_clusters {} --region {}".
+         "--cluster_name {} --spark_version {} --hadoop_version {} --os_user {} --spark_master {} --keyfile {} --notebook_ip {} --livy_version {} --multiple_clusters {} --region {} --datalake_enabled {}".
          format(args.cluster_name, args.spark_version, args.hadoop_version, args.os_user, args.spark_master,
-                args.keyfile, args.notebook_ip, livy_version, os.environ['notebook_multiple_clusters'], region))
+                args.keyfile, args.notebook_ip, livy_version, os.environ['notebook_multiple_clusters'], region,
+                args.datalake_enabled))

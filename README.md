@@ -329,7 +329,9 @@ List of parameters for SSN node deployment:
 | azure\_offer\_number         | Azure offer id number                                                                   |
 | azure\_currency              | Currency that is used for billing information(e.g. USD)                                 |
 | azure\_locale                | Locale that is used for billing information(e.g. en-US)                                 |
-| azure\_region_info           | Region info that is used for billing information(e.g. US)                               |
+| azure\_region\_info          | Region info that is used for billing information(e.g. US)                               |
+| azure\_datalake\_enable      | Support of Azure Data Lake (true/false)                                                 |
+| azure\_ad\_group\_id         | ID of AD group                                                                          |
 | action                       | In case of SSN node creation, this parameter should be set to “create”                  |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
@@ -346,6 +348,10 @@ To know azure\_offer\_number open [Azure Portal](https://portal.azure.com), go t
 Please see [RateCard API](https://msdn.microsoft.com/en-us/library/mt219004.aspx) to get more details about azure\_offer\_number,
 azure\_currency, azure\_locale, azure\_region_info. These DLab deploy properties correspond to RateCard API request parameters.
 
+**Note:** Azure Data Lake configuration:
+
+Before deploying SSN node, group should be created in Active Directory and all users should be added to this group.
+Or if the group exists, ID of this group should be passed in azure_ad_group_id parameter. 
 
 After SSN node deployment following Azure resources will be created:
 
@@ -357,6 +363,7 @@ After SSN node deployment following Azure resources will be created:
 -   Virtual network and Subnet (if they have not been specified) for SSN and EDGE nodes
 -   Storage account and blob container for necessary further dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
 -   Storage account and blob container for collaboration between Dlab users
+-   If support of Data Lake is enabled: Data Lake and shared directory will be created 
 
 ### Terminate
 
