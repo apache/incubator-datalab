@@ -83,6 +83,9 @@ if __name__ == "__main__":
     edge_conf['fw_ps_egress_private'] = '{}-egress-private'.format(edge_conf['fw_common_name'])
     edge_conf['fw_ps_egress_public'] = '{}-egress-public'.format(edge_conf['fw_common_name'])
     edge_conf['network_tag'] = edge_conf['instance_name']
+    edge_conf['instance_labels'] = {"Name": edge_conf['instance_name'],
+                                    "SBN": edge_conf['service_base_name'],
+                                    "User": edge_conf['user_name']}
 
     # FUSE in case of absence of user's key
     fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
@@ -420,11 +423,11 @@ if __name__ == "__main__":
             GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
         logging.info('[CREATE EDGE INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --static_ip {} --network_tag {}".\
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --static_ip {} --network_tag {} --labels {}".\
             format(edge_conf['instance_name'], edge_conf['region'], edge_conf['zone'], edge_conf['vpc_name'],
                    edge_conf['subnet_name'], edge_conf['instance_size'], edge_conf['ssh_key_path'], initial_user,
                    edge_conf['edge_service_account_name'], edge_conf['ami_name'], 'edge', edge_conf['static_ip'],
-                   edge_conf['network_tag'])
+                   edge_conf['network_tag'], json.dumps(edge_conf['instance_labels']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
