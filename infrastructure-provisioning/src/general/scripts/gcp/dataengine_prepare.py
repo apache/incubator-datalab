@@ -100,12 +100,12 @@ if __name__ == "__main__":
                                                             data_engine['edge_user_name'])
     data_engine['slave_labels'] = {"name": data_engine['cluster_name'],
                                    "sbn": data_engine['service_base_name'],
-                                   "user": data_engine['user_name'],
+                                   "user": data_engine['edge_user_name'],
                                    "type": "slave",
                                    "notebook_name": data_engine['notebook_name']}
     data_engine['master_labels'] = {"name": data_engine['cluster_name'],
                                     "sbn": data_engine['service_base_name'],
-                                    "user": data_engine['user_name'],
+                                    "user": data_engine['edge_user_name'],
                                     "type": "master",
                                     "notebook_name": data_engine['notebook_name']}
 
@@ -116,7 +116,8 @@ if __name__ == "__main__":
             format(data_engine['master_node_name'], data_engine['region'], data_engine['zone'], data_engine['vpc_name'],
                    data_engine['subnet_name'], data_engine['master_size'], data_engine['ssh_key_path'], initial_user,
                    data_engine['dataengine_service_account_name'], data_engine['ami_name'], 'dataengine', '30',
-                   data_engine['gpu_accelerator_type'], data_engine['network_tag'], data_engine['master_labels'])
+                   data_engine['gpu_accelerator_type'], data_engine['network_tag'],
+                   json.dumps(data_engine['master_labels']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -137,7 +138,7 @@ if __name__ == "__main__":
                        data_engine['vpc_name'], data_engine['subnet_name'], data_engine['slave_size'],
                        data_engine['ssh_key_path'], initial_user, data_engine['dataengine_service_account_name'],
                        data_engine['ami_name'], 'dataengine', '30', data_engine['gpu_accelerator_type'],
-                       data_engine['network_tag'], data_engine['slave_labels'])
+                       data_engine['network_tag'], json.dumps(data_engine['slave_labels']))
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
             except:
