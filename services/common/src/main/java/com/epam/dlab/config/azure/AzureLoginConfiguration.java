@@ -47,4 +47,6 @@ public class AzureLoginConfiguration {
     private String permissionScope;
     @JsonProperty
     private String managementApiAuthFile;
+    @JsonProperty
+    private long maxSessionDurabilityMilliseconds = 8L * 60L * 60L * 1000L;// 8 hours
 }

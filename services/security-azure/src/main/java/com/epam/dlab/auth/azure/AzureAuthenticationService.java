@@ -272,6 +272,7 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
             userInfo.setFirstName(ui.getGivenName());
             userInfo.setLastName(ui.getFamilyName());
             userInfo.getKeys().put("refresh_token", authenticationResult.getRefreshToken());
+            userInfo.getKeys().put("created_date_of_refresh_token", Long.toString(System.currentTimeMillis()));
             return userInfo;
         }
 

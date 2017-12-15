@@ -16,11 +16,15 @@
 
 package com.epam.dlab.backendapi.modules;
 
+import com.epam.dlab.auth.SecurityFactory;
 import com.epam.dlab.auth.azure.AzureLoginUrlBuilder;
 import com.epam.dlab.auth.azure.AzureSecurityResource;
+import com.epam.dlab.auth.rest.UserSessionDurationAuthorizer;
+import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthenticator;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureKeyDao;
 import com.epam.dlab.backendapi.domain.azure.BillingSchedulerManagerAzure;
+import com.epam.dlab.backendapi.resources.SecurityResource;
 import com.epam.dlab.backendapi.resources.azure.BillingResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.EdgeCallbackAzure;
@@ -33,7 +37,9 @@ import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.google.inject.Injector;
 import io.dropwizard.setup.Environment;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AzureSelfServiceModule extends CloudModule {
 
     private AzureLoginConfiguration azureLoginConfiguration;
@@ -62,8 +68,16 @@ public class AzureSelfServiceModule extends CloudModule {
 
         if (!azureLoginConfiguration.isUseLdap()) {
             environment.jersey().register(injector.getInstance(AzureSecurityResource.class));
+            injector.getInstance(SecurityFactory.class).configure(injector, environment,
+                    SelfServiceSecurityAuthenticator.class,
+                    new UserSessionDurationAuthorizer(ui ->
+                            injector.getInstance(SecurityResource.class).userLogout(ui),
+                            azureLoginConfiguration.getMaxSessionDurabilityMilliseconds()));
         }
 
         environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAzure.class));
+
+        injector.getInstance(SecurityFactory.class).configure(injector, environment,
+                SelfServiceSecurityAuthenticator.class, (p, r) -> true);
     }
 }

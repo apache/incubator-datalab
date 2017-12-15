@@ -21,6 +21,7 @@ package com.epam.dlab.auth;
 import com.google.inject.Injector;
 import io.dropwizard.auth.AuthDynamicFeature;
 import io.dropwizard.auth.AuthValueFactoryProvider;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
 import io.dropwizard.setup.Environment;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
@@ -29,16 +30,19 @@ public class SecurityFactory {
     private static final String PREFIX = "Bearer";
 
     public void configure(Injector injector, Environment environment) {
-        configure(injector, environment, SecurityRestAuthenticator.class);
+
+        configure(injector, environment, SecurityRestAuthenticator.class,
+                injector.getInstance(SecurityAuthorizer.class));
     }
 
     public <T extends SecurityRestAuthenticator> void configure(Injector injector, Environment environment,
-                                                                Class<T> authenticator) {
+                                                                Class<T> authenticator,
+                                                                Authorizer<UserInfo> authorizer) {
 
         environment.jersey().register(new AuthDynamicFeature(
                 new OAuthCredentialAuthFilter.Builder<UserInfo>()
                         .setAuthenticator(injector.getInstance(authenticator))
-                        .setAuthorizer(injector.getInstance(SecurityAuthorizer.class))
+                        .setAuthorizer(authorizer)
                         .setPrefix(PREFIX)
                         .setUnauthorizedHandler(injector.getInstance(SecurityUnauthorizedHandler.class))
                         .buildAuthFilter()));
