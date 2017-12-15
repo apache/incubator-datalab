@@ -90,8 +90,10 @@ limitations under the License.
   font-weight: 400;
 }
 
-.dashboard_table tr.filter-row .dropdown-multiselect button {
-  font-size: 14px;
+tr.filter-row .dropdown-multiselect button,
+tr.filter-row input[type=text] {
+  font-size: 14px !important;
+  height: 34px;
 }
 
 .dashboard_table tr.filter-row td:last-child {
