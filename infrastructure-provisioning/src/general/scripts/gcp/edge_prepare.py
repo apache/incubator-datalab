@@ -423,7 +423,7 @@ if __name__ == "__main__":
             GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
         logging.info('[CREATE EDGE INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --static_ip {} --network_tag {} --labels {}".\
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --static_ip {} --network_tag {} --labels '{}'".\
             format(edge_conf['instance_name'], edge_conf['region'], edge_conf['zone'], edge_conf['vpc_name'],
                    edge_conf['subnet_name'], edge_conf['instance_size'], edge_conf['ssh_key_path'], initial_user,
                    edge_conf['edge_service_account_name'], edge_conf['ami_name'], 'edge', edge_conf['static_ip'],
