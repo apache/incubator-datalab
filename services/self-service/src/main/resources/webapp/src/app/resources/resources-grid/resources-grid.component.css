@@ -61,6 +61,7 @@ limitations under the License.
 .dashboard_table tr th {
   border-right: 1px solid #d5dfea;
   border-bottom: 1px solid #d5dfea;
+  text-align: left;
 }
 
 .dashboard_table tr td:last-child {
@@ -87,6 +88,10 @@ limitations under the License.
 
 .dashboard_table tr.filter-row td:first-child {
   font-weight: 400;
+}
+
+.dashboard_table tr.filter-row .dropdown-multiselect button {
+  font-size: 14px;
 }
 
 .dashboard_table tr.filter-row td:last-child {
