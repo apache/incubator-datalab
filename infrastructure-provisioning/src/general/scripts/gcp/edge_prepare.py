@@ -83,9 +83,9 @@ if __name__ == "__main__":
     edge_conf['fw_ps_egress_private'] = '{}-egress-private'.format(edge_conf['fw_common_name'])
     edge_conf['fw_ps_egress_public'] = '{}-egress-public'.format(edge_conf['fw_common_name'])
     edge_conf['network_tag'] = edge_conf['instance_name']
-    edge_conf['instance_labels'] = {"Name": edge_conf['instance_name'],
-                                    "SBN": edge_conf['service_base_name'],
-                                    "User": edge_conf['user_name']}
+    edge_conf['instance_labels'] = {"name": edge_conf['instance_name'],
+                                    "sbn": edge_conf['service_base_name'],
+                                    "user": edge_conf['user_name']}
 
     # FUSE in case of absence of user's key
     fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])

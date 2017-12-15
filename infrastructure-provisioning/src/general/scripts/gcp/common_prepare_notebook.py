@@ -109,9 +109,9 @@ if __name__ == "__main__":
 
     notebook_config['network_tag'] = '{0}-{1}-nb-de-des'.format(notebook_config['service_base_name'],
                                                                 notebook_config['edge_user_name'])
-    notebook_config['labels'] = {"Name": notebook_config['instance_name'],
-                                 "SBN": notebook_config['service_base_name'],
-                                 "User": notebook_config['user_name']}
+    notebook_config['labels'] = {"name": notebook_config['instance_name'],
+                                 "sbn": notebook_config['service_base_name'],
+                                 "user": notebook_config['user_name']}
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')

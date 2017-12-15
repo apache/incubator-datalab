@@ -53,8 +53,8 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
         for vm in GCPMeta().get_list_instances(zone)['items']:
             try:
                 if instance_name == vm['labels']['notebook_name']:
-                    if 'master' == vm['labels']["Type"]:
-                        cluster_list.append(vm['labels']["Name"])
+                    if 'master' == vm['labels']["type"]:
+                        cluster_list.append(vm['labels']["name"])
                     GCPActions().remove_instance(vm['name'], zone)
                     print("Instance {} has been terminated".format(vm['name']))
             except:

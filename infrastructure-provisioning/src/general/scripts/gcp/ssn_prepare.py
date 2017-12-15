@@ -59,8 +59,8 @@ if __name__ == "__main__":
     ssn_conf['static_address_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])
     ssn_conf['ssn_policy_path'] = '/root/files/ssn_policy.json'
     ssn_conf['network_tag'] = ssn_conf['instance_name']
-    ssn_conf['instance_labels'] = {"Name": ssn_conf['instance_name'],
-                                   "SBN": ssn_conf['service_base_name']}
+    ssn_conf['instance_labels'] = {"name": ssn_conf['instance_name'],
+                                   "sbn": ssn_conf['service_base_name']}
 
     try:
         if os.environ['gcp_vpc_name'] == '':

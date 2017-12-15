@@ -98,15 +98,15 @@ if __name__ == "__main__":
         data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
     data_engine['network_tag'] = '{0}-{1}-nb-de-des'.format(data_engine['service_base_name'],
                                                             data_engine['edge_user_name'])
-    data_engine['slave_labels'] = {"Name": data_engine['cluster_name'],
-                                   "SBN": data_engine['service_base_name'],
-                                   "User": data_engine['user_name'],
-                                   "Type": "slave",
+    data_engine['slave_labels'] = {"name": data_engine['cluster_name'],
+                                   "sbn": data_engine['service_base_name'],
+                                   "user": data_engine['user_name'],
+                                   "type": "slave",
                                    "notebook_name": data_engine['notebook_name']}
-    data_engine['master_labels'] = {"Name": data_engine['cluster_name'],
-                                    "SBN": data_engine['service_base_name'],
-                                    "User": data_engine['user_name'],
-                                    "Type": "master",
+    data_engine['master_labels'] = {"name": data_engine['cluster_name'],
+                                    "sbn": data_engine['service_base_name'],
+                                    "user": data_engine['user_name'],
+                                    "type": "master",
                                     "notebook_name": data_engine['notebook_name']}
 
     try:
