@@ -76,7 +76,9 @@ limitations under the License.
     </td>
     <td>
       <span class="total_cost">{{ env.cost || 'N/A' }} {{env.currency_code || ''}}</span>
-      <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}"></span>
+      <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}">
+        <i class="material-icons">help_outline</i>
+      </span>
     </td>
     <td class="settings">
       <span #settings (click)="actions.toggle($event, settings)" class="actions"

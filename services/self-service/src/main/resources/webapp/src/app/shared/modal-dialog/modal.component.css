@@ -425,19 +425,20 @@ limitations under the License.
   text-overflow: ellipsis;
 }
 
-.helper_instruction::before {
-  content: "?";
-  display: inline-block;
-  position: relative;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #35afd5;
-  border-radius: 50%;
-  font-size: 12px;
-  margin-right: 7px;
-  text-align: center;
-  line-height: 16px;
-  padding-left: 1px;
+.helper_instruction {
+  color: #35afd5;
+  cursor: pointer;
+  transition: all .45s ease-in-out;
+}
+
+.helper_instruction:hover {
+  color: #3392b0;
+}
+
+.helper_instruction .material-icons {
+  font-size: 20px;
+  vertical-align: top;
+  padding-right: 5px
 }
 
 .detail-info span {
