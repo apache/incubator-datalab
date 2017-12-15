@@ -99,7 +99,7 @@ public class SettingsDAO extends BaseDAO {
     }
 
     public String getAzureDataLakeNameTag() {
-        return getSetting(AZURE_DATA_LAKE_NAME_TAG);
+        return getSetting(AZURE_DATA_LAKE_NAME_TAG, "");
     }
 
     public boolean isAzureDataLakeEnabled() {
@@ -123,5 +123,14 @@ public class SettingsDAO extends BaseDAO {
 	        throw new DlabException("Setting property " + setting + " not found");
         }
         return d.getOrDefault(VALUE, EMPTY).toString();
+    }
+
+
+    private String getSetting(MongoSetting setting, String defaultValue) {
+        Document d = mongoService.getCollection(SETTINGS).find(eq(ID, setting.getId())).first();
+        if (d == null) {
+            return defaultValue;
+        }
+        return d.getOrDefault(VALUE, defaultValue).toString();
     }
 }
