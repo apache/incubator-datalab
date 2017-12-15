@@ -51,7 +51,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
     this.applicationSecurityService.isLoggedIn().subscribe(result => {
-        this.checkHealthStatusAndRedirect(result);
+      this.checkHealthStatusAndRedirect(result);
     });
   }
 
@@ -74,7 +74,7 @@ export class LoginComponent implements OnInit {
           this.error = err.json().error_message;
 
         this.loading = false;
-        });
+      });
 
     return false;
   }
@@ -83,15 +83,15 @@ export class LoginComponent implements OnInit {
   }
 
   checkHealthStatusAndRedirect(isLoggedIn) {
-   if (isLoggedIn)
-     this.healthStatusService.isHealthStatusOk()
-      .subscribe(isHealthStatusOk => {
-        if (isLoggedIn && !isHealthStatusOk) {
-          this.appRoutingService.redirectToHealthStatusPage();
-        } else {
-          this.appRoutingService.redirectToHomePage();
-        }
-      });
+    if (isLoggedIn)
+      this.healthStatusService.isHealthStatusOk()
+        .subscribe(isHealthStatusOk => {
+          if (isLoggedIn && !isHealthStatusOk) {
+            this.appRoutingService.redirectToHealthStatusPage();
+          } else {
+            this.appRoutingService.redirectToHomePage();
+          }
+        });
   }
 }
 
