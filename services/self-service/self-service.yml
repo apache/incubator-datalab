@@ -63,6 +63,7 @@ azureLoginConfiguration:
     loginPage: https://<LOGIN_PAGE>/
     validatePermissionScope: <VALIDATE_PERMISSION_SCOPE>
     permissionScope: subscriptions/<DLAB_SUBSCRIPTION_ID>/resourceGroups/<DLAB_RESOURCE_GROUP>/providers/Microsoft.DataLakeStore/accounts/<DATA_LAKE_STORAGE_ACCOUNT>/providers/Microsoft.Authorization/
+    maxSessionDurabilityMilliseconds: 288000000
 
 </#if>
 

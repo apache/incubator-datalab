@@ -164,6 +164,8 @@ azureLoginConfiguration:
     loginPage: https://<LOGIN_PAGE>/
     validatePermissionScope: <VALIDATE_PERMISSION_SCOPE>
     permissionScope: subscriptions/<DLAB_SUBSCRIPTION_ID>/resourceGroups/<DLAB_RESOURCE_GROUP>/providers/Microsoft.DataLakeStore/accounts/<DATA_LAKE_STORAGE_ACCOUNT>/providers/Microsoft.Authorization/
+    managementApiAuthFile: <MANAGEMENT_API_AUTH_FILE>
+
 
 </#if>
 
@@ -176,9 +178,9 @@ logging:
     com.epam: DEBUG
     com.aegisql: INFO
   appenders:
-<#if DEV_MODE == "true">
+#<#if DEV_MODE == "true">
     - type: console
-</#if>
+#</#if>
     - type: file
       currentLogFilename: ${LOG_ROOT_DIR}/ssn/security.log
       archive: true
