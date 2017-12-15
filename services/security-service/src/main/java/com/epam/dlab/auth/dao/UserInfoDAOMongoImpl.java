@@ -60,8 +60,8 @@ public class UserInfoDAOMongoImpl implements UserInfoDAO {
 			return null;
 		}
 		String name = uiDoc.get("name").toString();
-		String firstName = uiDoc.get("firstName").toString();
-		String lastName  = uiDoc.get("lastName").toString();
+		String firstName = uiDoc.getString("firstName", "");
+		String lastName  = uiDoc.getString("lastName", "");
 		String remoteIp  = uiDoc.getString("remoteIp", "");
 		BasicDBList roles = (BasicDBList) uiDoc.get("roles");
 		Boolean awsUser   = uiDoc.getBoolean("awsUser", false);
