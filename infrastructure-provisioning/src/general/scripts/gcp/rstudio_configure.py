@@ -25,11 +25,6 @@ from dlab.fab import *
 from dlab.meta_lib import *
 from dlab.actions_lib import *
 import os
-import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--uuid', type=str, default='')
-args = parser.parse_args()
 
 
 if __name__ == "__main__":
@@ -50,9 +45,9 @@ if __name__ == "__main__":
     notebook_config['instance_type'] = os.environ['gcp_notebook_instance_size']
     notebook_config['key_name'] = os.environ['conf_key_name']
     notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
-    notebook_config['instance_name'] = '{0}-{1}-nb-{2}-{3}'.format(notebook_config['service_base_name'],
-                                                                   notebook_config['edge_user_name'],
-                                                                   notebook_config['exploratory_name'], args.uuid)
+    notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
+                                                               notebook_config['edge_user_name'],
+                                                               notebook_config['exploratory_name'])
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])

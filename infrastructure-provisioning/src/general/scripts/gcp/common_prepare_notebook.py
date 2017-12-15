@@ -25,11 +25,6 @@ from dlab.fab import *
 from dlab.meta_lib import *
 from dlab.actions_lib import *
 import os
-import argparse
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--uuid', type=str, default='')
-args = parser.parse_args()
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -74,7 +69,7 @@ if __name__ == "__main__":
     notebook_config['instance_size'] = os.environ['gcp_notebook_instance_size']
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['notebook_service_account_name'] = '{}-{}-nb-de-des-sa'.format(notebook_config['service_base_name'],
-                                                                                   os.environ['edge_user_name']
+                                                                                   notebook_config['edge_user_name']
                                                                                    ).replace('_', '-')
 
     if os.environ['conf_os_family'] == 'debian':
@@ -83,9 +78,9 @@ if __name__ == "__main__":
     if os.environ['conf_os_family'] == 'redhat':
         initial_user = 'ec2-user'
         sudo_group = 'wheel'
-    notebook_config['instance_name'] = '{0}-{1}-nb-{2}-{3}'.format(notebook_config['service_base_name'],
-                                                                   notebook_config['edge_user_name'],
-                                                                   notebook_config['exploratory_name'], args.uuid)
+    notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
+                                                               notebook_config['edge_user_name'],
+                                                               notebook_config['exploratory_name'])
     if os.environ['application'] == 'deeplearning':
         notebook_config['primary_disk_size'] = '30'
     else:
