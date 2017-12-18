@@ -233,9 +233,8 @@ if __name__ == "__main__":
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
             if edge_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
                 shared_storage_account_name = storage_account.name
-            if os.environ['azure_datalake_enable'] == 'false':
-                if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                    user_storage_account_name = storage_account.name
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
+                user_storage_account_name = storage_account.name
 
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
