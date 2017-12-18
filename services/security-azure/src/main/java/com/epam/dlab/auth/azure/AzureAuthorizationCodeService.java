@@ -22,7 +22,20 @@ import javax.ws.rs.core.Response;
 
 public interface AzureAuthorizationCodeService {
 
+    /**
+     * Authenticates user that provided by <code>authorizationSupplier</code>
+     *
+     * @param authorizationSupplier contains user info that is used for authentication
+     * @return response {@link Response} with proper status {@link Response.Status} that means result of
+     * the user authentication.
+     */
     Response authenticateAndLogin(AuthorizationSupplier authorizationSupplier);
 
+    /**
+     * Verifies if user has permissions to configured scope in configuration file
+     *
+     * @param authenticationResult result retrieved after authentication against Azure platform
+     * @return <code>true</code> if user is allowed, <code>false</code> otherwise
+     */
     boolean validatePermissions(AuthenticationResult authenticationResult);
 }

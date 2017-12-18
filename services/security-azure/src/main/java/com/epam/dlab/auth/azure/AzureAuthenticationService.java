@@ -87,6 +87,13 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
         }
     }
 
+    /**
+     * Authenticates user by given <code>credential</code>
+     *
+     * @param credential contains username and password
+     * @param request    http request
+     * @return authentication result in {@link Response}
+     */
     @Path(SecurityAPI.LOGIN)
     @POST
     public Response login(UserCredentialDTO credential, @Context HttpServletRequest request) {
@@ -103,6 +110,13 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
         }
     }
 
+    /**
+     * Returns user info that is mapped with <code>accessToken</code>
+     *
+     * @param accessToken input access token
+     * @param request     http request
+     * @return user info
+     */
     @Override
     @Path(SecurityAPI.GET_USER_INFO)
     @POST
@@ -121,6 +135,12 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
         return ui;
     }
 
+    /**
+     * Logs out user by input <code>accessToken</code>
+     *
+     * @param accessToken input access yoken
+     * @return result of the operation
+     */
     @Override
     @Path(SecurityAPI.LOGOUT)
     @POST
@@ -130,6 +150,12 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
         return Response.ok().build();
     }
 
+    /**
+     * Using OAuth2 authorization code grant approach authenticates user by given authorization code in <code>response</code>
+     *
+     * @param response contains username and passwrd
+     * @return authentication result in {@link Response}
+     */
     @Path(SecurityAPI.LOGIN_OAUTH)
     @POST
     public Response authenticateOAuth(AuthorizationCodeFlowResponse response) {
