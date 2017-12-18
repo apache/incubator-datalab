@@ -35,6 +35,9 @@ body.modal-open {
 
 .mt-5 {margin-top: 5px}
 
+.txt-r {text-align: right }
+.txt-l {text-align: left }
+
 input[type='text']:not(.mat-input-element),
 input[type='number']:not(.mat-input-element) {
   width: 100%;
