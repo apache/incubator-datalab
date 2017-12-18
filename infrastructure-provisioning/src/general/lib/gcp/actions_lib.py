@@ -33,7 +33,8 @@ import sys, time
 from Crypto.PublicKey import RSA
 from fabric.api import *
 import urllib2
-
+import dlab.fab
+import dlab.common_lib
 
 class GCPActions:
     def __init__(self, auth_type='service_account'):
