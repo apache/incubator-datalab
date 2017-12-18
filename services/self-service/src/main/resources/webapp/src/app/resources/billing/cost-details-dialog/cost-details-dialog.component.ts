@@ -38,8 +38,6 @@ export class CostDetailsDialogComponent {
   public open(params, notebook): void {
     this.tooltip = false;
     this.notebook = notebook;
-
-    console.log(this.notebook);
     this.bindDialog.open(params);
   }
 

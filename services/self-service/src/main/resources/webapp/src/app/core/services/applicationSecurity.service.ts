@@ -43,7 +43,7 @@ export class ApplicationSecurityService {
   constructor(
     private serviceFacade: ApplicationServiceFacade,
     private appRoutingService: AppRoutingService
-  ) { this.emitter.subscribe(el => console.log(el)) }
+  ) { }
 
   public login(loginModel: LoginModel): Observable<boolean> {
     return this.serviceFacade
