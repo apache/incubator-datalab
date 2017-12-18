@@ -11,6 +11,7 @@
     "compute.instances.stop",
     "compute.instances.setMetadata",
     "compute.instances.setTags",
+    "compute.instances.setLabels",
     "compute.networks.create",
     "compute.networks.delete",
     "compute.networks.get",
