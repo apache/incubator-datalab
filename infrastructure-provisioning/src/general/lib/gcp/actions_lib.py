@@ -226,8 +226,9 @@ class GCPActions:
             except errors.HttpError as err:
                 if err.resp.status == 404:
                     print('Disk {}-secondary was not found. Skipped'.format(instance_name))
+                    return request
                 else:
-                    raise Exception
+                    raise err
             return request
         except Exception as err:
             logging.info(
