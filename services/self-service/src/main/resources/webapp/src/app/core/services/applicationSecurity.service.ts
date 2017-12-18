@@ -28,7 +28,7 @@ import 'rxjs/add/observable/throw';
 
 import { LoginModel } from '../../login/login.model';
 import { ApplicationServiceFacade, AppRoutingService } from './';
-import { HTTP_STATUS_CODES } from '../util';
+import { ErrorMapUtils, HTTP_STATUS_CODES } from '../util';
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Injectable()
@@ -145,28 +145,8 @@ export class ApplicationSecurityService {
   }
 
   private handleError(error: any) {
-    let errMsg: string;
-    if (typeof error === 'object' && error._body && this.isJson(error._body)) {
-      if (error.json().error_message)
-        errMsg = error.json().error_message;
-    } else if (this.isJson(error._body)) {
-      const body = error.json() || '';
-      const err = body.error || JSON.stringify(body);
-      errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-    } else {
-      errMsg = error._body ? error._body : error.toString();
-    }
 
-    this.emmitMessage(errMsg);
-  }
-
-  private isJson(str) {
-    try {
-      JSON.parse(str);
-    } catch (e) {
-      return false;
-    }
-    return true;
+    this.emmitMessage(ErrorMapUtils.handleError(error));
   }
 
   private emmitMessage(message): void {
