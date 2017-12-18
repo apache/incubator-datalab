@@ -28,13 +28,7 @@ from dlab.notebook_lib import *
 import sys
 import os
 import logging
-import argparse
 import multiprocessing
-
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--uuid', type=str, default='')
-args = parser.parse_args()
 
 
 def configure_dataengine_service(instance, dataproc_conf):
@@ -100,14 +94,14 @@ if __name__ == "__main__":
     dataproc_conf['region'] = os.environ['gcp_region']
     dataproc_conf['zone'] = os.environ['gcp_zone']
     dataproc_conf['subnet'] = '{0}-{1}-subnet'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
-    dataproc_conf['cluster_name'] = '{0}-{1}-dp-{2}-{3}-{4}'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'],
-                                                                    dataproc_conf['exploratory_name'], dataproc_conf['computational_name'], args.uuid)
-    dataproc_conf['cluster_tag'] = '{0}-{1}-nb-de-des'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
+    dataproc_conf['cluster_name'] = '{0}-{1}-des-{2}-{3}'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'],
+                                                                 dataproc_conf['exploratory_name'], dataproc_conf['computational_name'])
+    dataproc_conf['cluster_tag'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['bucket_name'] = '{}-{}-bucket'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
     dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
-    dataproc_conf['dataproc_service_account_name'] = dataproc_conf['service_base_name'].lower().replace('_', '-') + \
-                                                       "-" + os.environ['edge_user_name'] + '-nb-de-des-sa'
+    dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
+                                                                         dataproc_conf['edge_user_name'])
     service_account_email = "{}@{}.iam.gserviceaccount.com".format(dataproc_conf['dataproc_service_account_name'],
                                                                    os.environ['gcp_project_id'])
 

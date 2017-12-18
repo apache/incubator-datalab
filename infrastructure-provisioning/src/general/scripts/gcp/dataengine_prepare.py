@@ -75,9 +75,8 @@ if __name__ == "__main__":
     data_engine['master_size'] = os.environ['gcp_dataengine_master_size']
     data_engine['slave_size'] = os.environ['gcp_dataengine_slave_size']
     data_engine['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    data_engine['dataengine_service_account_name'] = '{}-{}-nb-de-des-sa'.format(data_engine['service_base_name'],
-                                                                                 data_engine['edge_user_name']
-                                                                                 ).replace('_', '-')
+    data_engine['dataengine_service_account_name'] = '{}-{}-ps'.format(data_engine['service_base_name'],
+                                                                       data_engine['edge_user_name'])
 
     if os.environ['conf_os_family'] == 'debian':
         initial_user = 'ubuntu'
@@ -96,8 +95,8 @@ if __name__ == "__main__":
     data_engine['gpu_accelerator_type'] = 'None'
     if os.environ['application'] in ('tensor', 'deeplearning'):
         data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
-    data_engine['network_tag'] = '{0}-{1}-nb-de-des'.format(data_engine['service_base_name'],
-                                                            data_engine['edge_user_name'])
+    data_engine['network_tag'] = '{0}-{1}-ps'.format(data_engine['service_base_name'],
+                                                     data_engine['edge_user_name'])
     data_engine['slave_labels'] = {"name": data_engine['cluster_name'],
                                    "sbn": data_engine['service_base_name'],
                                    "user": data_engine['edge_user_name'],

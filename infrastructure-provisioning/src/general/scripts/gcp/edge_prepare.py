@@ -76,9 +76,9 @@ if __name__ == "__main__":
     edge_conf['fw_edge_ingress_internal'] = '{}-ingress-internal'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_public'] = '{}-egress-public'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_internal'] = '{}-egress-internal'.format(edge_conf['instance_name'])
-    edge_conf['ps_firewall_target'] = '{0}-{1}-nb-de-des'.format(edge_conf['service_base_name'],
-                                                                 edge_conf['edge_user_name'])
-    edge_conf['fw_common_name'] = '{}-{}-nb-de-des'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['ps_firewall_target'] = '{0}-{1}-ps'.format(edge_conf['service_base_name'],
+                                                          edge_conf['edge_user_name'])
+    edge_conf['fw_common_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['fw_ps_ingress'] = '{}-ingress'.format(edge_conf['fw_common_name'])
     edge_conf['fw_ps_egress_private'] = '{}-egress-private'.format(edge_conf['fw_common_name'])
     edge_conf['fw_ps_egress_public'] = '{}-egress-public'.format(edge_conf['fw_common_name'])
