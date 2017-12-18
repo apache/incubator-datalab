@@ -41,7 +41,7 @@ limitations under the License.
                 [ngClass]="{'not-allowed':loading || !username.valid || !password.valid}">
             <span *ngIf="!loading">Login</span>
 
-            <span *ngIf="loading">Logging in 
+            <span *ngIf="loading">Logging in
               <span id="fountainG">
                 <span id="fountainG_1" class="fountainG"></span>
                 <span id="fountainG_2" class="fountainG"></span>
@@ -49,7 +49,7 @@ limitations under the License.
               </span>
             </span>
         </button>
-        <button *ngIf="DICTIONARY.cloud_provider === 'azure' && DICTIONARY.use_ldap"
+        <button *ngIf="DICTIONARY.cloud_provider === 'azure' && !DICTIONARY.use_ldap"
                 class="butt butt-login"
                 md-raised-button (click)="loginWithAzure_btnClick();">
           Login with Azure

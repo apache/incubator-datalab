@@ -156,7 +156,7 @@ azureLoginConfiguration:
     tenant: <LOGIN_TENANT_ID>
     authority: https://login.microsoftonline.com/
     clientId: <LOGIN_APPLICATION_ID>
-    redirectUrl: https://<LOGIN_APPLICATION_REDIRECT_URL>/api/user/azure/oauth
+    redirectUrl: https://<LOGIN_APPLICATION_REDIRECT_URL>/
     responseMode: query
     responseType: code
     prompt: consent
