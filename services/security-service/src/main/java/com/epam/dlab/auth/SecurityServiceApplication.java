@@ -19,6 +19,7 @@ limitations under the License.
 package com.epam.dlab.auth;
 
 import com.epam.dlab.auth.azure.AzureAuthenticationService;
+import com.epam.dlab.auth.azure.DlabExceptionMapper;
 import com.epam.dlab.auth.resources.SynchronousLdapAuthenticationService;
 import com.epam.dlab.auth.dao.UserInfoDAOMongoImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +56,8 @@ public class SecurityServiceApplication extends Application<SecurityServiceConfi
 
 	@Override
 	public void run(SecurityServiceConfiguration conf, Environment env) throws Exception {
+
+	    env.jersey().register(new DlabExceptionMapper());
 
 	    switch (conf.getCloudProvider()) {
             case AWS:

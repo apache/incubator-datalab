@@ -101,7 +101,13 @@ export class ApplicationSecurityService {
           this.clearAuthToken();
           this.appRoutingService.redirectToLoginPage();
           return false;
-        }, this);
+        })
+        .catch((error: any) => {
+          this.handleError(error);
+          this.clearAuthToken();
+
+          return Observable.of(false);
+        });
     }
 
     this.appRoutingService.redirectToLoginPage();

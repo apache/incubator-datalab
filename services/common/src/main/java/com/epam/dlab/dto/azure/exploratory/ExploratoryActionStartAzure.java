@@ -16,27 +16,17 @@
 
 package com.epam.dlab.dto.azure.exploratory;
 
-import com.epam.dlab.dto.exploratory.ExploratoryCreateDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
-public class ExploratoryCreateAzure extends ExploratoryCreateDTO<ExploratoryCreateAzure> {
-    @JsonProperty("azure_notebook_instance_size")
-    private String notebookInstanceType;
+public class ExploratoryActionStartAzure extends ExploratoryGitCredsUpdateDTO {
     @JsonProperty("azure_client_id")
     private String azureClientId;
     @JsonProperty("azure_datalake_enable")
     private String azureDataLakeEnabled;
     @JsonProperty("azure_user_refresh_token")
     private String azureUserRefreshToken;
-
-    public String getNotebookInstanceType() {
-        return notebookInstanceType;
-    }
-
-    public void setNotebookInstanceType(String notebookInstanceType) {
-        this.notebookInstanceType = notebookInstanceType;
-    }
 
     public String getAzureClientId() {
         return azureClientId;
@@ -62,22 +52,17 @@ public class ExploratoryCreateAzure extends ExploratoryCreateDTO<ExploratoryCrea
         this.azureUserRefreshToken = azureUserRefreshToken;
     }
 
-    public ExploratoryCreateAzure withNotebookInstanceSize(String notebookInstanceType) {
-        setNotebookInstanceType(notebookInstanceType);
-        return this;
-    }
-
-    public ExploratoryCreateAzure withAzureClientId(String azureClientId) {
+    public ExploratoryActionStartAzure withAzureClientId(String azureClientId) {
         setAzureClientId(azureClientId);
         return this;
     }
 
-    public ExploratoryCreateAzure withAzureDataLakeEnabled(String azureDataLakeEnabled) {
+    public ExploratoryActionStartAzure withAzureDataLakeEnabled(String azureDataLakeEnabled) {
         setAzureDataLakeEnabled(azureDataLakeEnabled);
         return this;
     }
 
-    public ExploratoryCreateAzure withAzureUserRefreshToken(String azureUserRefreshToken) {
+    public ExploratoryActionStartAzure withAzureUserRefreshToken(String azureUserRefreshToken) {
         setAzureUserRefreshToken(azureUserRefreshToken);
         return this;
     }
@@ -85,14 +70,8 @@ public class ExploratoryCreateAzure extends ExploratoryCreateDTO<ExploratoryCrea
     @Override
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
-                .add("notebookInstanceType", notebookInstanceType)
                 .add("azureClientId", azureClientId != null ? "***" : null)
                 .add("azureDataLakeEnabled", azureDataLakeEnabled)
                 .add("azureUserRefreshToken", azureUserRefreshToken != null ? "***" : null);
-    }
-
-    @Override
-    public String toString() {
-        return toStringHelper(this).toString();
     }
 }

@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.auth.azure;
+package com.epam.dlab.auth.rest;
 
-import com.microsoft.aad.adal4j.AuthenticationResult;
+import com.epam.dlab.auth.UserInfo;
 
-import javax.ws.rs.core.Response;
-
-public interface AzureAuthorizationCodeService {
-
-    Response authenticateAndLogin(AuthorizationSupplier authorizationSupplier);
-
-    boolean validatePermissions(AuthenticationResult authenticationResult);
+@FunctionalInterface
+public interface UserSessionDurationCallback {
+    void onSessionExpired(UserInfo userInfo);
 }

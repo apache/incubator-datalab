@@ -16,13 +16,20 @@
 
 package com.epam.dlab.auth.azure;
 
-import com.microsoft.aad.adal4j.AuthenticationResult;
+import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.rest.mappers.GenericExceptionMapper;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.Provider;
 
-public interface AzureAuthorizationCodeService {
+@Provider
+public class DlabExceptionMapper extends GenericExceptionMapper<DlabException> {
 
-    Response authenticateAndLogin(AuthorizationSupplier authorizationSupplier);
-
-    boolean validatePermissions(AuthenticationResult authenticationResult);
+    @Override
+    public Response toResponse(DlabException exception) {
+        return Response
+                .serverError()
+                .entity(exception.getMessage())
+                .build();
+    }
 }

@@ -199,6 +199,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                                                                                                    application_id))
                         sudo('sed -i "s|<DLAB_SUBSCRIPTION_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
                                                                                                    subscription_id))
+                        sudo('sed -i "s|<MANAGEMENT_API_AUTH_FILE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, authentication_file))
                         sudo('sed -i "s|<VALIDATE_PERMISSION_SCOPE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(
                             config, validate_permission_scope))
                         sudo('sed -i "s|<LOGIN_APPLICATION_REDIRECT_URL>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
