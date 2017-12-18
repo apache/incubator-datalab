@@ -59,12 +59,12 @@ limitations under the License.
           </div>
           <br/>
 
-          <div *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.shared.datalake_name">
+          <div *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.datalake_name">
             <p>Data Lake Store: </p>
             <div  class="links_block">
-              <p>&#9642; Data Lake Store Account: <strong>{{ notebook.shared.datalake_name}}</strong></p>
-              <p>&#9642; Collaboration folder: <strong>{{ notebook.shared.datalake_user_directory_name}}</strong></p>
-              <p>&#9642; Personal folder: <strong>{{ notebook.shared.datalake_shared_directory_name}}</strong></p>
+              <p>&#9642; Data Lake Store Account: <strong>{{ notebook.datalake_name}}</strong></p>
+              <p>&#9642; Collaboration folder: <strong>{{ notebook.datalake_user_directory_name}}</strong></p>
+              <p>&#9642; Personal folder: <strong>{{ notebook.datalake_shared_directory_name}}</strong></p>
             </div>
           </div>
 
