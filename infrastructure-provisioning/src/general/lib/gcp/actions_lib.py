@@ -239,7 +239,7 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
 
     def create_instance(self, instance_name, region, zone, vpc_name, subnet_name, instance_size, ssh_key_path,
-                        initial_user, ami_name, service_account_name, instance_class, network_tag, static_ip='',
+                        initial_user, ami_name, service_account_name, instance_class, network_tag, labels, static_ip='',
                         primary_disk_size='12', secondary_disk_size='30', gpu_accelerator_type='None'):
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         ssh_key = key.publickey().exportKey("OpenSSH")
@@ -291,6 +291,7 @@ class GCPActions:
         instance_params = {
             "name": instance_name,
             "machineType": "zones/{}/machineTypes/{}".format(zone, instance_size),
+            "labels": labels,
             "networkInterfaces": [
                 {
                     "network": "global/networks/{}".format(vpc_name),
@@ -514,6 +515,28 @@ class GCPActions:
                 "Unable to remove IAM role: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
             append_result(str({"error": "Unable to remove IAM role",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+
+    def set_label_for_instance(self, zone, instance_name, key, value):
+        try:
+            instance_params = self.service.instances().get(project=self.project, zone=zone,
+                                                           instance=instance_name).execute()
+            label_fingerprint = instance_params.get('labelFingerprint')
+
+            self.service.instances().setLabels(project=self.project, zone=zone, instance=instance_name, body={
+                "labels":
+                    {
+                        key: value
+                    },
+                "labelFingerprint": label_fingerprint
+            }).execute()
+        except Exception as err:
+            logging.info(
+                "Unable to set label to instance: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to set label to instance",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)

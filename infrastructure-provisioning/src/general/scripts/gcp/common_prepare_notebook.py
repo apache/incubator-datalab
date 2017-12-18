@@ -104,18 +104,20 @@ if __name__ == "__main__":
 
     notebook_config['network_tag'] = '{0}-{1}-nb-de-des'.format(notebook_config['service_base_name'],
                                                                 notebook_config['edge_user_name'])
-
+    notebook_config['labels'] = {"name": notebook_config['instance_name'],
+                                 "sbn": notebook_config['service_base_name'],
+                                 "user": notebook_config['edge_user_name']}
     # launching instance for notebook server
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
         print('[CREATE NOTEBOOK INSTANCE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --primary_disk_size {} --secondary_disk_size {} --gpu_accelerator_type {} --network_tag {}".\
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --primary_disk_size {} --secondary_disk_size {} --gpu_accelerator_type {} --network_tag {} --labels '{}'".\
             format(notebook_config['instance_name'], notebook_config['region'], notebook_config['zone'],
                    notebook_config['vpc_name'], notebook_config['subnet_name'], notebook_config['instance_size'],
                    notebook_config['ssh_key_path'], initial_user, notebook_config['notebook_service_account_name'],
                    notebook_config['ami_name'], 'notebook', notebook_config['primary_disk_size'],
                    notebook_config['secondary_disk_size'], notebook_config['gpu_accelerator_type'],
-                   notebook_config['network_tag'])
+                   notebook_config['network_tag'], json.dumps(notebook_config['labels']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
