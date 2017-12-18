@@ -16,6 +16,7 @@
 #
 # ******************************************************************************
 
+from xml.etree.ElementTree import parse, Element
 from azure.common.client_factory import get_client_from_auth_file
 import azure.common
 from azure.mgmt.authorization import AuthorizationManagementClient
@@ -1173,3 +1174,16 @@ def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_
                 spark_dist_classpath, cluster_dir))
     except:
         sys.exit(1)
+
+
+def update_refresh_token_on_notebook(refresh_token):
+    core_site_path = '/opt/hadoop/etc/hadoop/core-site.xml'
+    doc = parse(core_site_path)
+    root = doc.getroot()
+    for child in root:
+        for i in child._children:
+            if i.tag == 'name' and i.text == 'fs.adl.oauth2.access.token.provider.type':
+                for j in child._children:
+                    if j.tag == 'value':
+                        j.text = refresh_token
+    doc.write(core_site_path)
