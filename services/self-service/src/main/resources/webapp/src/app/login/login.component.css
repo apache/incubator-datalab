@@ -90,7 +90,7 @@ limitations under the License.
 	border: 1px solid #35afd5 !important;
 	border-left: 1px solid #35afd5;
 	transition: all .35s ease-in-out;
-	font: 300 14px/24px 'Open Sans', sans-serif;
+	font: 300 14px/24px 'Open Sans', sans-serif !important;
 }
 
 .input-icon {
