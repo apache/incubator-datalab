@@ -21,6 +21,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { LoginModel } from './login.model';
 import { AppRoutingService, HealthStatusService, ApplicationSecurityService } from '../core/services';
+import { ErrorMapUtils } from '../core/util';
 import { DICTIONARY } from '../../dictionary/global.dictionary';
 
 @Component({
@@ -69,10 +70,8 @@ export class LoginComponent implements OnInit {
 
         return false;
       }, (err) => {
-        if (err && err.text()) this.error = err.text();
-        if (DICTIONARY.cloud_provider === 'azure' && err.json().error_message)
-          this.error = err.json().error_message;
 
+        this.error = ErrorMapUtils.handleError(err);
         this.loading = false;
       });
 
