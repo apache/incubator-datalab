@@ -81,7 +81,7 @@ limitations under the License.
         <hudson.model.StringParameterDefinition>
           <name>dataproc_version</name>
           <description></description>
-          <defaultValue>1.2</defaultValue>
+          <defaultValue>1.1</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>master_instance_type</name>
