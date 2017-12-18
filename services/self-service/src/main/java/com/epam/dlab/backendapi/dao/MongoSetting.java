@@ -52,7 +52,7 @@ public enum MongoSetting {
     AZURE_EDGE_INSTANCE_SIZE("edge_instance_size"),
     AZURE_SSN_INSTANCE_SIZE("ssn_instance_size"),
     AZURE_DATA_LAKE_NAME_TAG("datalake_tag_name"),
-    AZURE_DATA_LAKE_CLIENT_ID("azure_client_id ");
+    AZURE_DATA_LAKE_CLIENT_ID("azure_client_id");
 
 
     private String id;

@@ -36,6 +36,23 @@ public class EdgeCreateAzure extends ResourceSysBaseDTO<EdgeCreateAzure> {
         return this;
     }
 
+    public String getAzureDataLakeEnable() {
+        return azureDataLakeEnable;
+    }
+
+    public String getAzureUserName() {
+        return azureUserName;
+    }
+
+
+    public void setAzureDataLakeEnable(String azureDataLakeEnable) {
+        this.azureDataLakeEnable = azureDataLakeEnable;
+    }
+
+    public void setAzureUserName(String azureUserName) {
+        this.azureUserName = azureUserName;
+    }
+
     @Override
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(this)
