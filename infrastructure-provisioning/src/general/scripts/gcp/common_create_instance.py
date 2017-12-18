@@ -41,7 +41,7 @@ parser.add_argument('--secondary_disk_size', type=str, default='30')
 parser.add_argument('--instance_class', type=str, default='')
 parser.add_argument('--static_ip', type=str, default='')
 parser.add_argument('--labels', type=str, default='{"empty":"string"}')
-parser.add_argument('--gpu_accelerator_type', type=str, default='')
+parser.add_argument('--gpu_accelerator_type', type=str, default='None')
 parser.add_argument('--network_tag', type=str, default='')
 args = parser.parse_args()
 
