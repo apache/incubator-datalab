@@ -24,6 +24,9 @@ import javax.xml.bind.DataBindingException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+/**
+ * Builds login url for authentication through Azure Active Directory using OAuth2 protocol
+ */
 @Slf4j
 @Singleton
 public class AzureLoginUrlBuilder {
