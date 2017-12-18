@@ -36,14 +36,13 @@ export class CheckParamsGuard implements CanActivate {
     return this._authGuard.canActivate(next, state).toPromise().then((auth: boolean) => {
         const search = document.URL.split('?')[1];
 
-        console.log('auth: '+ auth);
           if (search && this.checkParamsCoincidence(search)) {
             this.result = search.split("&").reduce(function(prev, curr, i, arr) {
                 let p = curr.split("=");
                 prev[decodeURIComponent(p[0])] = decodeURIComponent(p[1]);
                 return prev;
             }, {});
-            console.log(this.result);
+
             return this.applicationSecurityService.redirectParams(this.result).toPromise();
           }
 
