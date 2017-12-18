@@ -104,9 +104,9 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
@@ -137,9 +137,9 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
@@ -170,9 +170,10 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
@@ -208,9 +209,9 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
@@ -251,9 +252,9 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
@@ -338,9 +339,9 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
