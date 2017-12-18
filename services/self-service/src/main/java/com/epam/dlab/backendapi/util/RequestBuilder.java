@@ -131,6 +131,10 @@ public class RequestBuilder {
 
             case AZURE:
                 EdgeCreateAzure edgeCreateAzure = newResourceSysBaseDTO(userInfo, EdgeCreateAzure.class);
+                if (settingsDAO.isAzureDataLakeEnabled()) {
+                    edgeCreateAzure.withAzureDataLakeEnable("true");
+                    edgeCreateAzure.withAzureUserName(userInfo.getName());
+                }
 
                 UploadFileAzure uploadFileAzure = new UploadFileAzure();
                 uploadFileAzure.setEdge(edgeCreateAzure);
