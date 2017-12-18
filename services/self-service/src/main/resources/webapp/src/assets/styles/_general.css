@@ -39,7 +39,8 @@ body.modal-open {
 .txt-l {text-align: left }
 
 input[type='text']:not(.mat-input-element),
-input[type='number']:not(.mat-input-element) {
+input[type='number']:not(.mat-input-element),
+input[type='password']:not(.mat-input-element), {
   width: 100%;
   height: 36px;
   padding: 0 10px;
@@ -54,7 +55,8 @@ input[type='number']:not(.mat-input-element) {
 }
 
 input[type='text']:not(.mat-input-element):focus,
-input[type='number']:not(.mat-input-element):focus {
+input[type='number']:not(.mat-input-element):focus,
+input[type='password']:not(.mat-input-element):focus {
   border: none;
   background: #fff;
   transition: border 0.2s ease-in;
@@ -68,7 +70,8 @@ input[type='text']:disabled {
 }
 
 input[type='text']:not(.mat-input-element)::placeholder,
-input[type='number']:not(.mat-input-element)::placeholder {
+input[type='number']:not(.mat-input-element)::placeholder,
+input[type='password']:not(.mat-input-element)::placeholder {
   color: #718ba6;
 }
 
