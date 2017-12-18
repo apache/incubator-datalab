@@ -79,3 +79,10 @@ limitations under the License.
 .mat-input-placeholder {
 font-weight: 400;
 }
+
+/* grid filtering */
+.filter-row .dropdown-multiselect button,
+.filter-row input[type=text] {
+  font-size: 14px;
+  height: 34px;
+}

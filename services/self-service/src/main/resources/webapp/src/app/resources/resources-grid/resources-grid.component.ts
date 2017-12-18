@@ -17,7 +17,7 @@ limitations under the License.
 ****************************************************************************/
 /* tslint:disable:no-empty */
 
-import { Component, ViewChild, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { UserResourceService } from '../../core/services';
 import { ResourcesGridRowModel, FilterConfigurationModel, CreateResourceModel } from './';
 import { ConfirmationDialogType } from '../../shared';
@@ -29,8 +29,7 @@ import { DICTIONARY } from '../../../dictionary/global.dictionary';
   moduleId: module.id,
   selector: 'resources-grid',
   templateUrl: 'resources-grid.component.html',
-  styleUrls: ['./resources-grid.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./resources-grid.component.css']
 })
 
 export class ResourcesGridComponent implements OnInit {
