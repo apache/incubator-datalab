@@ -86,9 +86,9 @@ if __name__ == "__main__":
             env.host_string = env.user + "@" + env.hosts
             params = '--refresh_token {}'.format(os.environ['azure_user_refresh_token'])
             try:
-                put('~/scripts/notebook_update_refresh_token.py', '/tmp/notebook_update_refresh_token.py')
-                sudo('mv /tmp/notebook_update_refresh_token.py /usr/local/bin/notebook_update_refresh_token.py')
-                sudo("/usr/bin/python /usr/local/bin/{}.py {}".format('notebook_update_refresh_token', params))
+                put('~/scripts/common_notebook_update_refresh_token.py', '/tmp/common_notebook_update_refresh_token.py')
+                sudo('mv /tmp/common_notebook_update_refresh_token.py /usr/local/bin/common_notebook_update_refresh_token.py')
+                sudo("/usr/bin/python /usr/local/bin/{}.py {}".format('common_notebook_update_refresh_token', params))
             except Exception as err:
                 traceback.print_exc()
                 append_result("Failed to update storage credentials.", str(err))
