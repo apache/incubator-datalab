@@ -18,6 +18,7 @@
 #
 # ******************************************************************************
 
+from xml.etree.ElementTree import parse, Element
 from fabric.api import *
 import argparse
 import os
@@ -25,14 +26,24 @@ import sys
 import time
 from fabric.api import lcd
 from fabric.contrib.files import exists
-from dlab.notebook_lib import *
-from dlab.actions_lib import *
-from dlab.fab import *
-from dlab.common_lib import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--refresh_token', type=str, default='')
 args = parser.parse_args()
+
+
+def update_refresh_token_on_notebook(refresh_token):
+    core_site_path = '/opt/hadoop/etc/hadoop/core-site.xml'
+    doc = parse(core_site_path)
+    root = doc.getroot()
+    for child in root:
+        for i in child._children:
+            if i.tag == 'name' and i.text == 'fs.adl.oauth2.refresh.token':
+                for j in child._children:
+                    if j.tag == 'value':
+                        j.text = refresh_token
+    doc.write(core_site_path)
+
 
 if __name__ == "__main__":
     update_refresh_token_on_notebook(args.refresh_token)
