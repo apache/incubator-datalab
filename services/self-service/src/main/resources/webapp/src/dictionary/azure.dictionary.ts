@@ -55,6 +55,9 @@ export const NAMING_CONVENTION = {
     'shared_storage_account_name': 'shared_storage_account_name',
     'bucket_name': 'user_container_name',
     'shared_bucket_name': 'shared_container_name',
+    'datalake_name': 'datalake_name',
+    'datalake_user_directory_name': 'datalake_user_directory_name',
+    'datalake_shared_directory_name': 'datalake_shared_directory_name',
     'docker.dlab-dataengine-service': {
         'total_instance_number_min': 'min_emr_instance_count',
         'total_instance_number_max': 'max_emr_instance_count',

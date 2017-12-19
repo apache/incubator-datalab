@@ -36,6 +36,9 @@ export class ResourcesGridRowModel {
               public billing: Array<any>,
               public libs: Array<any>,
               public account_name: string,
-              public shared_account_name: string
+              public shared_account_name: string,
+              public datalake_name: string,
+              public datalake_directory: string,
+              public datalake_shared_directory: string
             ) { }
 }
