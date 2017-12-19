@@ -44,6 +44,18 @@ def terminate_nb(instance_name, bucket_name, region, zone, user_name):
     except:
        sys.exit(1)
 
+    print("Terminating data engine cluster")
+    try:
+        for vm in GCPMeta().get_list_instances(zone)['items']:
+            try:
+                if instance_name == vm['labels']['notebook_name']:
+                    GCPActions().remove_instance(vm['name'], zone)
+                    print("Instance {} has been terminated".format(vm['name']))
+            except:
+                pass
+    except:
+        sys.exit(1)
+
     print("Terminating notebook")
     try:
         GCPActions().remove_instance(instance_name, zone)

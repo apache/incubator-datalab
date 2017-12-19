@@ -47,6 +47,28 @@ def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, 
     except:
        sys.exit(1)
 
+    print("Terminating data engine cluster")
+    cluster_list = []
+    try:
+        for vm in GCPMeta().get_list_instances(zone)['items']:
+            try:
+                if instance_name == vm['labels']['notebook_name']:
+                    if 'master' == vm['labels']["type"]:
+                        cluster_list.append(vm['labels']["name"])
+                    GCPActions().remove_instance(vm['name'], zone)
+                    print("Instance {} has been terminated".format(vm['name']))
+            except:
+                pass
+    except:
+        sys.exit(1)
+
+    print("Removing Data Engine kernels from notebook")
+    try:
+        for cluster_name in cluster_list:
+            remove_dataengine_kernels(instance_name, ssh_user, key_path, cluster_name)
+    except:
+        sys.exit(1)
+
     print("Stopping notebook")
     try:
         GCPActions().stop_instance(instance_name, zone)
