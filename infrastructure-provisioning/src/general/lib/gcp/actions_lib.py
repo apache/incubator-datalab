@@ -173,6 +173,7 @@ class GCPActions:
 
     def remove_bucket(self, bucket_name):
         try:
+            GCPActions().bucket_cleanup(bucket_name)
             storage_resource = storage.Bucket(self.storage_client, bucket_name)
             storage_resource.delete(force=True)
             print('Bucket {} removed.'.format(bucket_name))
