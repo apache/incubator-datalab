@@ -132,9 +132,9 @@ public class RequestBuilder {
             case AZURE:
                 EdgeCreateAzure edgeCreateAzure = newResourceSysBaseDTO(userInfo, EdgeCreateAzure.class);
                 if (settingsDAO.isAzureDataLakeEnabled()) {
-                    edgeCreateAzure.withAzureDataLakeEnable("true");
                     edgeCreateAzure.withAzureUserName(userInfo.getName());
                 }
+                edgeCreateAzure.withAzureDataLakeEnable(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
 
                 UploadFileAzure uploadFileAzure = new UploadFileAzure();
                 uploadFileAzure.setEdge(edgeCreateAzure);
@@ -188,10 +188,12 @@ public class RequestBuilder {
                         .withNotebookInstanceSize(formDTO.getShape());
                 if (settingsDAO.isAzureDataLakeEnabled()) {
                     ((ExploratoryCreateAzure) exploratoryCreate)
-                            .withAzureDataLakeEnabled("true")
                             .withAzureClientId(settingsDAO.getAzureDataLakeClientId())
                             .withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
                 }
+
+                ((ExploratoryCreateAzure) exploratoryCreate)
+                        .withAzureDataLakeEnabled(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
                 break;
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
@@ -223,10 +225,12 @@ public class RequestBuilder {
 
                 if (settingsDAO.isAzureDataLakeEnabled()) {
                     ((ExploratoryActionStartAzure) exploratoryStart)
-                            .withAzureDataLakeEnabled("true")
                             .withAzureClientId(settingsDAO.getAzureDataLakeClientId())
                             .withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
                 }
+
+                ((ExploratoryActionStartAzure) exploratoryStart)
+                        .withAzureDataLakeEnabled(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
 
                 return exploratoryStart;
             default:
@@ -399,10 +403,13 @@ public class RequestBuilder {
 
                 if (settingsDAO.isAzureDataLakeEnabled()) {
                     ((SparkComputationalCreateAzure) computationalCreate)
-                            .withAzureDataLakeEnabled("true")
                             .withAzureClientId(settingsDAO.getAzureDataLakeClientId())
                             .withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
                 }
+
+                ((SparkComputationalCreateAzure) computationalCreate)
+                        .withAzureDataLakeEnabled(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
+                
                 break;
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
