@@ -16,6 +16,11 @@ limitations under the License.
 
 ****************************************************************************/
 
+/* helper */
+.flex {
+	display: flex;
+}
+
 .butt-login.mat-raised-button {
   display: block;
   margin: 0 auto;
@@ -55,7 +60,7 @@ limitations under the License.
 }
 
 .login_page form {
-  width: 280px;
+  width: 320px;
   margin: 0 auto;
 }
 

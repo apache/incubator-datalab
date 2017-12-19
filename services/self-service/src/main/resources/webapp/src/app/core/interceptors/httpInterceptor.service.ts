@@ -80,8 +80,7 @@ export class HttpInterceptor extends Http {
         url = url.substr(0, url.indexOf('?'));
       }
 
-      if ((err.status === HTTP_STATUS_CODES.FORBIDDEN
-        || err.status === HTTP_STATUS_CODES.UNAUTHORIZED)
+      if ((err.status === HTTP_STATUS_CODES.UNAUTHORIZED)
         && !url.endsWith('login')) {
         localStorage.removeItem('access_token');
         this.router.navigate(['/login']);

@@ -48,6 +48,25 @@ billingConfFile: ${sys['user.dir']}/../billing/billing.yml
 billingConfFile: ${DLAB_CONF_DIR}/billing.yml
 </#if>
 
+<#if CLOUD_TYPE == "azure">
+
+azureLoginConfiguration:
+    useLdap: <LOGIN_USE_LDAP>
+    tenant: <LOGIN_TENANT_ID>
+    authority: https://login.microsoftonline.com/
+    clientId: <LOGIN_APPLICATION_ID>
+    redirectUrl: https://<LOGIN_APPLICATION_REDIRECT_URL>/
+    responseMode: query
+    responseType: code
+    prompt: consent
+    silent: true
+    loginPage: https://<LOGIN_PAGE>/
+    validatePermissionScope: <VALIDATE_PERMISSION_SCOPE>
+    permissionScope: subscriptions/<DLAB_SUBSCRIPTION_ID>/resourceGroups/<DLAB_RESOURCE_GROUP>/providers/Microsoft.DataLakeStore/accounts/<DATA_LAKE_STORAGE_ACCOUNT>/providers/Microsoft.Authorization/
+    maxSessionDurabilityMilliseconds: 288000000
+
+</#if>
+
 server:
   requestLog:
     appenders:

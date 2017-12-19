@@ -104,9 +104,9 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
@@ -137,9 +137,9 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
@@ -170,9 +170,10 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
@@ -208,9 +209,9 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
@@ -251,9 +252,9 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])
@@ -292,6 +293,7 @@ if __name__ == "__main__":
             tenant_id = None
             datalake_application_id = None
             datalake_store_name = None
+            subscription_id = None
         else:
             mongo_parameters = {
                 "azure_resource_group_name": os.environ['azure_resource_group_name'],
@@ -306,25 +308,28 @@ if __name__ == "__main__":
                 "edge_instance_size": os.environ['azure_edge_instance_size'],
                 "ssn_storage_account_tag_name": ssn_conf['ssn_storage_account_name'],
                 "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name'],
-                "datalake_tag_name": ssn_conf['datalake_store_name']
+                "datalake_tag_name": ssn_conf['datalake_store_name'],
+                "azure_client_id": os.environ['azure_application_id']
             }
             ldap_login = 'false'
             tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
-            # need to change None to application_id from os_environment when will be implemented in deploy script
-            datalake_application_id = None
+            subscription_id = json.dumps(AzureMeta().sp_creds['subscriptionId']).replace('"', '')
+            datalake_application_id = os.environ['azure_application_id']
             for datalake in AzureMeta().list_datalakes(os.environ['azure_resource_group_name']):
                 if ssn_conf['datalake_store_name'] == datalake.tags["Name"]:
                     datalake_store_name = datalake.name
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} \
                  --resource {} --service_base_name {} --cloud_provider {} --billing_enabled {} --authentication_file {} \
                  --offer_number {} --currency {} --locale {} --region_info {}  --ldap_login {} --tenant_id {} \
-                 --application_id {} --datalake_store_name {} --mongo_parameters '{}'". \
+                 --application_id {} --datalake_store_name {} --mongo_parameters '{}' --subscription_id {}  \
+                 --validate_permission_scope {}". \
             format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'],
                    ssn_conf['dlab_ssh_user'], os.environ['conf_os_family'], os.environ['request_id'],
                    os.environ['conf_resource'], ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],
                    billing_enabled, azure_auth_path, os.environ['azure_offer_number'],
                    os.environ['azure_currency'], os.environ['azure_locale'], os.environ['azure_region_info'],
-                   ldap_login, tenant_id, datalake_application_id, datalake_store_name, json.dumps(mongo_parameters))
+                   ldap_login, tenant_id, datalake_application_id, datalake_store_name, json.dumps(mongo_parameters),
+                   subscription_id, os.environ['azure_validate_permission_scope'])
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:
@@ -334,9 +339,9 @@ if __name__ == "__main__":
         if pre_defined_resource_group:
             AzureActions().remove_resource_group(os.environ['azure_resource_group_name'], ssn_conf['region'])
         if pre_defined_vpc:
-            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
             AzureActions().remove_subnet(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'],
                                          ssn_conf['subnet_name'])
+            AzureActions().remove_vpc(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'])
         if pre_defined_sg:
             AzureActions().remove_security_group(os.environ['azure_resource_group_name'],
                                                  ssn_conf['security_group_name'])

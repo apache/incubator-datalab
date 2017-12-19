@@ -24,6 +24,7 @@ import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
+import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
  * DAO for user exploratory.
  */
 @Slf4j
+@Singleton
 public class ExploratoryDAO extends BaseDAO {
     public static final String EXPLORATORY_ID = "exploratory_id";
     public static final String COMPUTATIONAL_RESOURCES = "computational_resources";
