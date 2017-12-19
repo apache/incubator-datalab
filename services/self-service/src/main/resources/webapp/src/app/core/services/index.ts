@@ -16,16 +16,31 @@ limitations under the License.
 
 ****************************************************************************/
 
-export { ApplicationServiceFacade } from './applicationServiceFacade.service';
-export { AppRoutingService } from './appRouting.service';
-export { ApplicationSecurityService } from './applicationSecurity.service';
+import { ApplicationServiceFacade } from './applicationServiceFacade.service';
+import { AppRoutingService } from './appRouting.service';
 
-export { UserAccessKeyService } from './userAccessKey.service';
-export { UserResourceService } from './userResource.service';
-export { HealthStatusService } from './healthStatus.service';
+import { ApplicationSecurityService } from './applicationSecurity.service';
+import { HealthStatusService } from './healthStatus.service';
 
-export { AuthorizationGuard } from './authorization.guard';
-export { CloudProviderGuard } from './cloudProvider.guard';
-export { LibrariesInstallationService } from './librariesInstallation.service';
-export { ManageUngitService } from './manageUngit.service';
-export { BillingReportService } from './billingReport.service';
+import { UserAccessKeyService } from './userAccessKey.service';
+import { UserResourceService } from './userResource.service';
+import { AuthorizationGuard } from './authorization.guard';
+import { CloudProviderGuard } from './cloudProvider.guard';
+import { CheckParamsGuard } from './checkParams.guard';
+import { LibrariesInstallationService } from './librariesInstallation.service';
+import { ManageUngitService } from './manageUngit.service';
+import { BillingReportService } from './billingReport.service';
+
+
+export * from './applicationServiceFacade.service';
+export * from './appRouting.service';
+export * from './applicationSecurity.service';
+export * from './healthStatus.service';
+export * from './userAccessKey.service';
+export * from './userResource.service';
+export * from './authorization.guard';
+export * from './cloudProvider.guard';
+export * from './checkParams.guard';
+export * from './librariesInstallation.service';
+export * from './manageUngit.service';
+export * from './billingReport.service';

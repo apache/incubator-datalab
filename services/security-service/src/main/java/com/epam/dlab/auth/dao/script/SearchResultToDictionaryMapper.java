@@ -78,7 +78,6 @@ public class SearchResultToDictionaryMapper implements SearchResultMapper<Map<St
 				});
 			}
 		});
-		cursor.close();
 		return reqBranch.getRoot();
 	}
 

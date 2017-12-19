@@ -18,9 +18,11 @@ package com.epam.dlab.backendapi.dao.azure;
 
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.dto.azure.edge.EdgeInfoAzure;
+import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Singleton
 public class AzureKeyDao extends KeyDAO {
 
     public AzureKeyDao() {

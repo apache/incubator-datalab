@@ -17,13 +17,47 @@
 package com.epam.dlab.dto.azure.edge;
 
 import com.epam.dlab.dto.ResourceSysBaseDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 public class EdgeCreateAzure extends ResourceSysBaseDTO<EdgeCreateAzure> {
+    @JsonProperty("azure_datalake_enable")
+    private String azureDataLakeEnable;
+    @JsonProperty("azure_user_name")
+    private String azureUserName;
+
+    public EdgeCreateAzure withAzureDataLakeEnable(String azureDataLakeEnable) {
+        this.azureDataLakeEnable = azureDataLakeEnable;
+        return this;
+    }
+
+    public EdgeCreateAzure withAzureUserName(String azureUserName) {
+        this.azureUserName = azureUserName;
+        return this;
+    }
+
+    public String getAzureDataLakeEnable() {
+        return azureDataLakeEnable;
+    }
+
+    public String getAzureUserName() {
+        return azureUserName;
+    }
+
+
+    public void setAzureDataLakeEnable(String azureDataLakeEnable) {
+        this.azureDataLakeEnable = azureDataLakeEnable;
+    }
+
+    public void setAzureUserName(String azureUserName) {
+        this.azureUserName = azureUserName;
+    }
 
     @Override
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
-        return MoreObjects.toStringHelper(self);
+        return super.toStringHelper(this)
+                .add("azureDataLakeEnable", azureDataLakeEnable)
+                .add("azureUserName", azureUserName);
     }
 
     @Override

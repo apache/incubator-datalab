@@ -62,6 +62,21 @@ limitations under the License.
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
+          <name>DataLake_enable</name>
+          <description>Provision DataLake storage instead of Blob storage</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>false</string>
+              <string>true</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>User_Refresh_Token</name>
+          <description>Refresh_Token of the AD user</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
           <name>Region</name>
           <description>aws region where infrastructure was deployed</description>
           <choices class="java.util.Arrays$ArrayList">
@@ -111,7 +126,7 @@ limitations under the License.
     <hudson.tasks.Shell>
       <command>
         rand=`openssl rand -hex 10`; creds=$git_creds;
-sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/start_notebook_server/template.json | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &quot;s/GIT/${creds}/g&quot; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response  docker.dlab-${notebook_app} --action $Action
+sed &apos;s/RID/&apos;${rand}&apos;/g&apos; /var/lib/jenkins/jobs/start_notebook_server/template.json | sed &apos;s/ARGN/&apos;${Resource_group_name}&apos;/g&apos; | sed &apos;s/SBN/&apos;${Service_base_name}&apos;/g&apos; | sed &apos;s/CREG/&apos;${Region}&apos;/g&apos; | sed &apos;s/NIN/&apos;${Notebook_Name}&apos;/g&apos; | sed &apos;s/NUN/&apos;${Username}&apos;/g&apos; | sed &apos;s/DLE/&apos;${DataLake_enable}&apos;/g&apos; | sed &apos;s/AURT/&apos;${User_Refresh_Token}&apos;/g&apos; | sed &apos;s/CKN/&apos;${SSH_Key_Name}&apos;/g&apos; | sed &quot;s/GIT/${creds}/g&quot; | sudo docker run -i -v /home/dlab-user/keys:/root/keys -v /opt/dlab/tmp/result:/response  docker.dlab-${notebook_app} --action $Action
       </command>
     </hudson.tasks.Shell>
   </builders>

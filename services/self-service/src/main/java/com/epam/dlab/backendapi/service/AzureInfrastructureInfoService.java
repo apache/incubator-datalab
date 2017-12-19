@@ -37,6 +37,9 @@ public class AzureInfrastructureInfoService implements InfrastructureInfoService
         shared.put("shared_container_name", edgeInfo.getSharedContainerName());
         shared.put("user_storage_account_name", edgeInfo.getUserStorageAccountName());
         shared.put("shared_storage_account_name", edgeInfo.getSharedStorageAccountName());
+        shared.put("datalake_name", edgeInfo.getDataLakeName());
+        shared.put("datalake_user_directory_name", edgeInfo.getDataLakeDirectoryName());
+        shared.put("datalake_shared_directory_name", edgeInfo.getDataLakeSharedDirectoryName());
 
         return shared;
     }

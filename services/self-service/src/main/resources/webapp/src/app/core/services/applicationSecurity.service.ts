@@ -16,19 +16,29 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/throw';
 
 import { LoginModel } from '../../login/login.model';
 import { ApplicationServiceFacade, AppRoutingService } from './';
-import { HTTP_STATUS_CODES } from '../util';
+import { ErrorMapUtils, HTTP_STATUS_CODES } from '../util';
+import { DICTIONARY } from '../../../dictionary/global.dictionary';
 
 @Injectable()
 export class ApplicationSecurityService {
   private accessTokenKey: string = 'access_token';
   private userNameKey: string = 'user_name';
+  readonly DICTIONARY = DICTIONARY;
+
+  emitter: BehaviorSubject<any> = new BehaviorSubject<any>('');
+  emitter$ = this.emitter.asObservable();
 
   constructor(
     private serviceFacade: ApplicationServiceFacade,
@@ -40,9 +50,13 @@ export class ApplicationSecurityService {
       .buildLoginRequest(loginModel.toJsonString())
       .map((response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
-          this.setAuthToken(response.text());
-          this.setUserName(loginModel.username);
-
+          if (DICTIONARY.cloud_provider === 'azure') {
+            this.setAuthToken(response.json().access_token);
+            this.setUserName(response.json().username);
+          } else {
+            this.setAuthToken(response.text());
+            this.setUserName(loginModel.username);
+          }
           return true;
         }
         return false;
@@ -87,11 +101,57 @@ export class ApplicationSecurityService {
           this.clearAuthToken();
           this.appRoutingService.redirectToLoginPage();
           return false;
-        }, this);
+        })
+        .catch((error: any) => {
+          this.handleError(error);
+          this.clearAuthToken();
+
+          return Observable.of(false);
+        });
     }
 
     this.appRoutingService.redirectToLoginPage();
     return Observable.of(false);
+  }
+
+  public redirectParams(params): Observable<boolean> {
+
+    return this.serviceFacade
+      .buildGetAuthToken(params)
+      .map((response: any) => {
+        const data = response.json();
+        if (response.status === HTTP_STATUS_CODES.OK && data.access_token) {
+          this.setAuthToken(data.access_token);
+          this.setUserName(data.username);
+
+          this.appRoutingService.redirectToHomePage();
+          return true;
+        }
+
+        if (response.status !== 200) {
+          this.handleError(response);
+        }
+        return false;
+
+      }).catch((error: any) => {
+
+        if (error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
+          window.location.href = error.headers.get('Location');
+        }
+
+        this.handleError(error);
+        return Observable.of(false);
+      });
+  }
+
+  private handleError(error: any) {
+
+    this.emmitMessage(ErrorMapUtils.handleError(error));
+  }
+
+  private emmitMessage(message): void {
+    this.appRoutingService.redirectToLoginPage();
+    this.emitter.next(message);
   }
 
   private setUserName(userName): void {

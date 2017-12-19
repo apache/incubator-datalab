@@ -16,7 +16,7 @@ limitations under the License.
 
 -->
 
-<modal-dialog #bindDialog  modalClass="detail-dialog modal-sm header-white">
+<modal-dialog #bindDialog  modalClass="detail-dialog modal-lg header-white">
   <modal-header></modal-header>
   <modal-content>
     <div *ngIf="notebook">
@@ -58,6 +58,16 @@ limitations under the License.
             <p *ngIf="notebook.shared_bucket_name">&#9642; {{ DICTIONARY.container }} <strong>{{ notebook.shared_bucket_name }}</strong></p>
           </div>
           <br/>
+
+          <div *ngIf="DICTIONARY.cloud_provider === 'azure' && notebook.datalake_name">
+            <p>Data Lake Store: </p>
+            <div  class="links_block">
+              <p>&#9642; Data Lake Store Account: <strong>{{ notebook.datalake_name }}</strong></p>
+              <p>&#9642; Personal folder: <strong>{{ notebook.datalake_directory }}</strong></p>
+              <p>&#9642; Collaboration folder: <strong>{{ notebook.datalake_shared_directory }}</strong></p>
+            </div>
+          </div>
+
           <p>
             <a href="#/help/accessnotebookguide" target="_blank">
               <small class="helper_instruction">Read instruction how to create the tunnel</small>
