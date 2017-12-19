@@ -652,8 +652,8 @@ class GCPActions:
             for bucket_object in objects:
                 object_params = bucket.get_blob(bucket_object.name)
                 for acl in default_acl:
-                    if acl.get('role') == 'OWNER':
-                        object_params.acl.user(acl.get('entity').grant_owner())
+                    if acl.get('role') == 'OWNER' and acl.get('entity')[:5] == 'user-':
+                        object_params.acl.user(acl.get('entity')[5:]).grant_owner()
                         object_params.acl.save()
         except Exception as err:
             logging.info(

@@ -47,6 +47,8 @@
     "storage.objects.get",
     "storage.objects.list",
     "storage.objects.update",
+    "storage.objects.getIamPolicy",
+    "storage.objects.setIamPolicy",
     "compute.addresses.create",
     "compute.addresses.delete",
     "compute.addresses.get",
