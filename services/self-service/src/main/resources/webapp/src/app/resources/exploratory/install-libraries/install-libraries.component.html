@@ -88,7 +88,9 @@ limitations under the License.
             <img src="assets/img/gif-spinner.gif" alt="loading">
           </div>
         </div>
-        <p class="info message" *ngIf="notebook?.status !== 'running'">Cannot install libraries: Exploratory {{ notebook?.name }} is not running</p>
+        <div class="tab-content" *ngIf="notebook?.status !== 'running'">
+          <p class="info message">Cannot install libraries: Exploratory <strong>{{ notebook?.name }}</strong> is not running</p>
+        </div>
         <div *ngIf="notebook?.status === 'running'" class="tab-content">
           <div class="search-box col" *ngIf="!uploading">
             <div class="search-form">
