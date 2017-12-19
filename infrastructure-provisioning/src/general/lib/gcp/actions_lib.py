@@ -645,6 +645,16 @@ class GCPActions:
                 "entity": "user-{}".format(service_account_email),
                 "role": "OWNER"
             }).execute()
+            # setting new default ACL for all objects in bucket
+            default_acl = self.service_storage.defaultObjectAccessControls().list(
+                bucket=bucket_name).execute().get('items')
+            objects = bucket.list_blobs()
+            for bucket_object in objects:
+                object_params = bucket.get_blob(bucket_object.name)
+                for acl in default_acl:
+                    if acl.get('role') == 'OWNER':
+                        object_params.acl.user(acl.get('entity').grant_owner())
+                        object_params.acl.save()
         except Exception as err:
             logging.info(
                 "Unable to modify bucket ACL: " + str(err) + "\n Traceback: " + traceback.print_exc(
