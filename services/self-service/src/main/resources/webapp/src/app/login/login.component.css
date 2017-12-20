@@ -21,6 +21,13 @@ limitations under the License.
 	display: flex;
 }
 
+.butt-azure {
+	color: #fff;
+	background-color: #5bc0de;
+	margin-left: 10px;
+	padding: 0 15px;
+}
+
 .butt-login.mat-raised-button {
   display: block;
   margin: 0 auto;
