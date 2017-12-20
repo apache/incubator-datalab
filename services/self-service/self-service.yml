@@ -67,7 +67,7 @@ azureLoginConfiguration:
     # Type of consent that requires interaction with user(consent,login are allowed)
     prompt: consent
     # Defines if try to log in user silently without user interaction (with "none" prompt). if false start with configured prompt
-    silent: false
+    silent: true
     # login page of DLab
     loginPage: https://<LOGIN_PAGE>/
     # Max duration of user session if he/she is logged in with Azure OAuth.
