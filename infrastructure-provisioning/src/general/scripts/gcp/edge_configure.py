@@ -51,8 +51,8 @@ if __name__ == "__main__":
     edge_conf['zone'] = os.environ['gcp_zone']
     edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
     edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
-    edge_conf['edge_service_account_name'] = '{}-{}-edge-sa'.format(edge_conf['service_base_name'],
-                                                                    os.environ['edge_user_name']).replace('_', '-')
+    edge_conf['edge_service_account_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'],
+                                                                 edge_conf['edge_user_name'])
     edge_conf['edge_role_name'] = '{}-{}-edge-role'.format(edge_conf['service_base_name'],
                                                            os.environ['edge_user_name']).replace('_', '-')
     edge_conf['ps_service_account_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'],
