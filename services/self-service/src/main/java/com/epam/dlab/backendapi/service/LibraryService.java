@@ -18,6 +18,7 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.dao.BaseDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
@@ -78,10 +79,8 @@ public class LibraryService {
         }
 
         if (document.get(ExploratoryLibDAO.COMPUTATIONAL_LIBS) != null) {
-            Document computationalLibs = (Document) document.get(ExploratoryLibDAO.COMPUTATIONAL_LIBS);
-            if (computationalLibs != null) {
-                populateComputational(computationalLibs, model);
-            }
+            Document computationalLibs = getLibsOfActiveComputationalResources(document);
+            populateComputational(computationalLibs, model);
         }
 
         List<LibInfoRecord> libInfoRecords = new ArrayList<>();
@@ -93,6 +92,24 @@ public class LibraryService {
 
         return libInfoRecords;
     }
+
+    @SuppressWarnings("unchecked")
+    private Document getLibsOfActiveComputationalResources(Document document) {
+        Document computationalLibs = (Document) document.get(ExploratoryLibDAO.COMPUTATIONAL_LIBS);
+
+        if (document.get(ExploratoryDAO.COMPUTATIONAL_RESOURCES) != null) {
+            List<Document> computationalResources = (List<Document>) document.get(ExploratoryDAO.COMPUTATIONAL_RESOURCES);
+
+            Set<String> terminated = computationalResources.stream()
+                    .filter(doc -> doc.getString(BaseDAO.STATUS).equalsIgnoreCase(UserInstanceStatus.TERMINATED.toString()))
+                    .map(doc -> doc.getString("computational_name")).collect(Collectors.toSet());
+
+            terminated.forEach(computationalLibs::remove);
+        }
+
+        return computationalLibs;
+    }
+
 
     private void populateModel(String exploratoryName, Document document, Map<LibKey, List<LibraryStatus>> model) {
         String name = document.getString(ExploratoryLibDAO.LIB_NAME);
