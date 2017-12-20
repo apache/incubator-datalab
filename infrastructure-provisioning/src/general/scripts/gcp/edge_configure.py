@@ -50,15 +50,15 @@ if __name__ == "__main__":
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
     edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
-    edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
+    edge_conf['private_subnet_prefix'] = os.environ['gcp_private_subnet_prefix']
     edge_conf['edge_service_account_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'],
                                                                  edge_conf['edge_user_name'])
-    edge_conf['edge_role_name'] = '{}-{}-edge-role'.format(edge_conf['service_base_name'],
-                                                           os.environ['edge_user_name']).replace('_', '-')
+    edge_conf['edge_role_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'],
+                                                      edge_conf['edge_user_name'])
     edge_conf['ps_service_account_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'],
                                                              edge_conf['edge_user_name'])
-    edge_conf['ps_role_name'] = '{}-{}-ps-role'.format(edge_conf['service_base_name'],
-                                                       edge_conf['edge_user_name'])
+    edge_conf['ps_role_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'],
+                                                  edge_conf['edge_user_name'])
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['firewall_name'] = edge_conf['instance_name'] + '{}-firewall'.format(edge_conf['instance_name'])
     edge_conf['notebook_firewall_name'] = '{0}-{1}-nb-firewall'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
