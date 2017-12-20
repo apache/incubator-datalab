@@ -55,14 +55,14 @@ if __name__ == "__main__":
     edge_conf['zone'] = os.environ['gcp_zone']
     edge_conf['vpc_selflink'] = GCPMeta().get_vpc(edge_conf['vpc_name'])['selfLink']
     edge_conf['private_subnet_prefix'] = os.environ['gcp_private_subnet_prefix']
-    edge_conf['edge_service_account_name'] = '{}-{}-edge-sa'.format(edge_conf['service_base_name'],
-                                                                    os.environ['edge_user_name']).replace('_', '-')
-    edge_conf['edge_role_name'] = '{}-{}-edge-role'.format(edge_conf['service_base_name'],
-                                                           os.environ['edge_user_name']).replace('_', '-')
-    edge_conf['ps_service_account_name'] = '{}-{}-nb-de-des-sa'.format(edge_conf['service_base_name'],
-                                                                       os.environ['edge_user_name']).replace('_', '-')
-    edge_conf['ps_role_name'] = '{}-{}-nb-de-des-role'.format(edge_conf['service_base_name'],
-                                                              os.environ['edge_user_name']).replace('_', '-')
+    edge_conf['edge_service_account_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'],
+                                                                 edge_conf['edge_user_name'])
+    edge_conf['edge_role_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'],
+                                                      edge_conf['edge_user_name'])
+    edge_conf['ps_service_account_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'],
+                                                             edge_conf['edge_user_name'])
+    edge_conf['ps_role_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'],
+                                                  edge_conf['edge_user_name'])
     edge_conf['ps_policy_path'] = '/root/files/ps_policy.json'
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['ssn_instance_name'] = '{}-ssn'.format(edge_conf['service_base_name'])
@@ -76,9 +76,9 @@ if __name__ == "__main__":
     edge_conf['fw_edge_ingress_internal'] = '{}-ingress-internal'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_public'] = '{}-egress-public'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_egress_internal'] = '{}-egress-internal'.format(edge_conf['instance_name'])
-    edge_conf['ps_firewall_target'] = '{0}-{1}-nb-de-des'.format(edge_conf['service_base_name'],
-                                                                 edge_conf['edge_user_name'])
-    edge_conf['fw_common_name'] = '{}-{}-nb-de-des'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['ps_firewall_target'] = '{0}-{1}-ps'.format(edge_conf['service_base_name'],
+                                                          edge_conf['edge_user_name'])
+    edge_conf['fw_common_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['fw_ps_ingress'] = '{}-ingress'.format(edge_conf['fw_common_name'])
     edge_conf['fw_ps_egress_private'] = '{}-egress-private'.format(edge_conf['fw_common_name'])
     edge_conf['fw_ps_egress_public'] = '{}-egress-public'.format(edge_conf['fw_common_name'])

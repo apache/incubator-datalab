@@ -55,10 +55,10 @@ if __name__ == "__main__":
                                                                     os.environ['edge_user_name']).replace('_', '-')
     edge_conf['edge_role_name'] = '{}-{}-edge-role'.format(edge_conf['service_base_name'],
                                                            os.environ['edge_user_name']).replace('_', '-')
-    edge_conf['ps_service_account_name'] = '{}-{}-nb-de-des-sa'.format(edge_conf['service_base_name'],
-                                                                       os.environ['edge_user_name']).replace('_', '-')
-    edge_conf['ps_role_name'] = '{}-{}-nb-de-des-role'.format(edge_conf['service_base_name'],
-                                                              os.environ['edge_user_name']).replace('_', '-')
+    edge_conf['ps_service_account_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'],
+                                                             edge_conf['edge_user_name'])
+    edge_conf['ps_role_name'] = '{}-{}-ps-role'.format(edge_conf['service_base_name'],
+                                                       edge_conf['edge_user_name'])
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['firewall_name'] = edge_conf['instance_name'] + '{}-firewall'.format(edge_conf['instance_name'])
     edge_conf['notebook_firewall_name'] = '{0}-{1}-nb-firewall'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     edge_conf['static_ip'] = \
         GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
     edge_conf['private_ip'] = GCPMeta().get_private_ip_address(edge_conf['instance_name'])
-    edge_conf['fw_common_name'] = '{}-{}-nb-de-des'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
+    edge_conf['fw_common_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['fw_ps_ingress'] = '{}-ingress'.format(edge_conf['fw_common_name'])
     edge_conf['fw_ps_egress_private'] = '{}-egress-private'.format(edge_conf['fw_common_name'])
     edge_conf['fw_ps_egress_public'] = '{}-egress-public'.format(edge_conf['fw_common_name'])

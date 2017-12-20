@@ -450,3 +450,23 @@ def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
         env.host_string = os_user + '@' + hostname
     sudo("systemctl daemon-reload")
     sudo("systemctl restart zeppelin-notebook")
+
+
+def replace_multi_symbols(string, symbol, symbol_cut=False):
+    try:
+        symbol_amount = 0
+        for i in range(len(string)):
+            if string[i] == symbol:
+                symbol_amount = symbol_amount + 1
+        while symbol_amount > 1:
+            string = string.replace(symbol + symbol, symbol)
+            symbol_amount = symbol_amount - 1
+        if symbol_cut and string[-1] == symbol:
+            string = string[:-1]
+        return string
+    except Exception as err:
+        logging.info("Error with replacing multi symbols: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with replacing multi symbols",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)

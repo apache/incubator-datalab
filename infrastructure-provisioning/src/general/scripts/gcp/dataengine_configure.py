@@ -154,9 +154,8 @@ if __name__ == "__main__":
         data_engine['slave_size'] = os.environ['gcp_dataengine_slave_size']
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], data_engine['key_name'])
-        data_engine['dataengine_service_account_name'] = data_engine['service_base_name'].lower().replace('_',
-                                                                                                          '-') + \
-                                                         "-" + data_engine['edge_user_name'] + '-nb-de-des-sa'
+        data_engine['dataengine_service_account_name'] = '{}-{}-ps'.format(data_engine['service_base_name'],
+                                                                           data_engine['edge_user_name'])
 
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
@@ -175,8 +174,8 @@ if __name__ == "__main__":
         data_engine['gpu_accelerator_type'] = 'None'
         if os.environ['application'] in ('tensor', 'deeplearning'):
             data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']
-        data_engine['network_tag'] = '{0}-{1}-nb-de-des'.format(data_engine['service_base_name'],
-                                                                data_engine['edge_user_name'])
+        data_engine['network_tag'] = '{0}-{1}-ps'.format(data_engine['service_base_name'],
+                                                         data_engine['edge_user_name'])
         master_node_hostname = GCPMeta().get_private_ip_address(data_engine['master_node_name'])
         edge_instance_name = '{0}-{1}-edge'.format(data_engine['service_base_name'],
                                                    data_engine['edge_user_name'])
