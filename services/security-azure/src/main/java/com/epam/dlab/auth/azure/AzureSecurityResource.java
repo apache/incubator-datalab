@@ -84,7 +84,8 @@ public class AzureSecurityResource {
         } else {
             log.info("Check if silent authentication {}", authorizationCodeFlowResponse);
             if (cache.getIfPresent(authorizationCodeFlowResponse.getState()) != null
-                    && "login_required".equals(authorizationCodeFlowResponse.getError())) {
+                    && ("login_required".equals(authorizationCodeFlowResponse.getError())
+                    || "interaction_required".equals(authorizationCodeFlowResponse.getError()))) {
 
                 log.debug("Silent authentication detected {}", authorizationCodeFlowResponse);
                 return Response.status(Response.Status.FORBIDDEN).header("Location", URI.create(

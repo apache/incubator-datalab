@@ -36,8 +36,6 @@ public class AzureLoginConfiguration {
     @JsonProperty
     private String responseMode;
     @JsonProperty
-    private String responseType;
-    @JsonProperty
     private String prompt;
     @JsonProperty
     private String loginPage;
