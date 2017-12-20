@@ -1022,49 +1022,51 @@ def ensure_local_jars(os_user, jars_dir):
 
 
 def configure_local_spark(os_user, jars_dir, region, templates_dir):
-    if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
-        try:
-            user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
-                replace('_', '-') + '-storage'
-            shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
-            for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
-                if user_storage_account_tag == storage_account.tags["Name"]:
-                    user_storage_account_name = storage_account.name
-                    user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
-                                                                                      user_storage_account_name)[0]
-                if shared_storage_account_tag == storage_account.tags["Name"]:
-                    shared_storage_account_name = storage_account.name
-                    shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
-                                                                                        shared_storage_account_name)[0]
-            if os.environ['azure_datalake_enable'] == 'false':
-                put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
-            else:
-                put(templates_dir + 'core-site-datalake.xml', '/tmp/core-site.xml')
-            sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
-            sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
-            sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
-            sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
-            if os.environ['azure_datalake_enable'] == 'true':
-                client_id = os.environ['azure_client_id']
-                refresh_token = os.environ['azure_user_refresh_token']
-                sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
-                sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
-            if os.environ['azure_datalake_enable'] == 'false':
-                sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
-            else:
-                sudo('mv /tmp/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml')
+    try:
+        user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
+            replace('_', '-') + '-storage'
+        shared_storage_account_tag = os.environ['conf_service_base_name'] + '-shared-storage'
+        for storage_account in meta_lib.AzureMeta().list_storage_accounts(os.environ['azure_resource_group_name']):
+            if user_storage_account_tag == storage_account.tags["Name"]:
+                user_storage_account_name = storage_account.name
+                user_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
+                                                                                  user_storage_account_name)[0]
+            if shared_storage_account_tag == storage_account.tags["Name"]:
+                shared_storage_account_name = storage_account.name
+                shared_storage_account_key = meta_lib.AzureMeta().list_storage_keys(os.environ['azure_resource_group_name'],
+                                                                                    shared_storage_account_name)[0]
+        if os.environ['azure_datalake_enable'] == 'false':
+            put(templates_dir + 'core-site-storage.xml', '/tmp/core-site.xml')
+        else:
+            put(templates_dir + 'core-site-datalake.xml', '/tmp/core-site.xml')
+        sudo('sed -i "s|USER_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(user_storage_account_name))
+        sudo('sed -i "s|SHARED_STORAGE_ACCOUNT|{}|g" /tmp/core-site.xml'.format(shared_storage_account_name))
+        sudo('sed -i "s|USER_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(user_storage_account_key))
+        sudo('sed -i "s|SHARED_ACCOUNT_KEY|{}|g" /tmp/core-site.xml'.format(shared_storage_account_key))
+        if os.environ['azure_datalake_enable'] == 'true':
+            client_id = os.environ['azure_client_id']
+            refresh_token = os.environ['azure_user_refresh_token']
+            sudo('sed -i "s|CLIENT_ID|{}|g" /tmp/core-site.xml'.format(client_id))
+            sudo('sed -i "s|REFRESH_TOKEN|{}|g" /tmp/core-site.xml'.format(refresh_token))
+        if os.environ['azure_datalake_enable'] == 'false':
+            sudo('rm -f /opt/spark/conf/core-site.xml')
+            sudo('mv /tmp/core-site.xml /opt/spark/conf/core-site.xml')
+        else:
+            sudo('rm -f /opt/hadoop/etc/hadoop/core-site.xml')
+            sudo('mv /tmp/core-site.xml /opt/hadoop/etc/hadoop/core-site.xml')
+        if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             sudo("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
                   /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
             sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
-        except Exception as err:
-            logging.info(
-                "Unable to configure Spark: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to configure Spark",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
+    except Exception as err:
+        logging.info(
+            "Unable to configure Spark: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+        append_result(str({"error": "Unable to configure Spark",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                               file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)
 
 
 def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled):
