@@ -54,15 +54,7 @@ public class ConfigPropertyValue {
     
     private static final String TIMEOUT_JENKINS_AUTOTEST="TIMEOUT_JENKINS_AUTOTEST";
     private static final String TIMEOUT_UPLOAD_KEY="TIMEOUT_UPLOAD_KEY";
-    private static final String TIMEOUT_NOTEBOOK_CREATE="TIMEOUT_NOTEBOOK_CREATE";
-    private static final String TIMEOUT_NOTEBOOK_STARTUP="TIMEOUT_NOTEBOOK_STARTUP";
-    private static final String TIMEOUT_NOTEBOOK_SHUTDOWN="TIMEOUT_NOTEBOOK_SHUTDOWN";
-    private static final String TIMEOUT_NOTEBOOK_TERMINATE="TIMEOUT_NOTEBOOK_TERMINATE";
-    private static final String TIMEOUT_EMR_CREATE="TIMEOUT_EMR_CREATE";
-    private static final String TIMEOUT_EMR_TERMINATE="TIMEOUT_EMR_TERMINATE";
-    private static final String TIMEOUT_LIB_GROUPS="TIMEOUT_LIB_GROUPS";
-    private static final String TIMEOUT_LIB_LIST="TIMEOUT_LIB_LIST";
-    private static final String TIMEOUT_LIB_INSTALL="TIMEOUT_LIB_INSTALL";
+    private static final String TIMEOUT_SSN_STARTUP="TIMEOUT_SSN_STARTUP";
 
     private static final String CLUSTER_OS_USERNAME = "CLUSTER_OS_USERNAME";
     private static final String CLUSTER_OS_FAMILY = "CLUSTER_OS_FAMILY";
@@ -169,15 +161,7 @@ public class ConfigPropertyValue {
         
         printProperty(TIMEOUT_JENKINS_AUTOTEST);
         printProperty(TIMEOUT_UPLOAD_KEY);
-        printProperty(TIMEOUT_NOTEBOOK_CREATE);
-        printProperty(TIMEOUT_NOTEBOOK_STARTUP);
-        printProperty(TIMEOUT_NOTEBOOK_SHUTDOWN);
-        printProperty(TIMEOUT_NOTEBOOK_TERMINATE);
-        printProperty(TIMEOUT_EMR_CREATE);
-        printProperty(TIMEOUT_EMR_TERMINATE);
-        printProperty(TIMEOUT_LIB_GROUPS);
-        printProperty(TIMEOUT_LIB_LIST);
-        printProperty(TIMEOUT_LIB_INSTALL);
+        printProperty(TIMEOUT_SSN_STARTUP);
 
         printProperty(JUPYTER_SCENARIO_FILES);
         printProperty(S3_TESTS_TEMPLATE_BUCKET_NAME);
@@ -292,41 +276,10 @@ public class ConfigPropertyValue {
     	return getDuration(get(TIMEOUT_UPLOAD_KEY, "0s"));
     }
 
-    public static Duration getTimeoutNotebookCreate() {
-    	return getDuration(get(TIMEOUT_NOTEBOOK_CREATE, "0s"));
+    public static Duration getTimeoutSSNStartup() {
+    	return getDuration(get(TIMEOUT_SSN_STARTUP, "0s"));
     }
 
-    public static Duration getTimeoutNotebookStartup() {
-    	return getDuration(get(TIMEOUT_NOTEBOOK_STARTUP, "0s"));
-    }
-
-    public static Duration getTimeoutNotebookShutdown() {
-    	return getDuration(get(TIMEOUT_NOTEBOOK_SHUTDOWN, "0s"));
-    }
-
-    public static int getTimeoutNotebookTerminate() {
-    	return get(TIMEOUT_NOTEBOOK_TERMINATE, 0);
-    }
-
-    public static Duration  getTimeoutEMRCreate() {
-    	return getDuration(get(TIMEOUT_EMR_CREATE, "0s"));
-    }
-
-    public static Duration getTimeoutEMRTerminate() {
-    	return getDuration(get(TIMEOUT_EMR_TERMINATE, "0s"));
-    }
-
-    public static Duration getTimeoutLibGroups() {
-        return getDuration(get(TIMEOUT_LIB_GROUPS, "5m"));
-    }
-
-    public static Duration getTimeoutLibList() {
-        return getDuration(get(TIMEOUT_LIB_LIST, "5m"));
-    }
-
-    public static Duration getTimeoutLibInstall() {
-        return getDuration(get(TIMEOUT_LIB_INSTALL, "15m"));
-    }
 
     public static String getClusterOsUser() {
     	return get(CLUSTER_OS_USERNAME);
