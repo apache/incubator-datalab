@@ -90,16 +90,30 @@ public class NamingHelper {
     	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
     }
     
-    public static String getEmrInstanceName(String notebookName, String emrName) {
-    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "emr", notebookName, emrName);
+    public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
+    	if("dataengine".equals(dataEngineType)) {
+    		return String.join("-", getClusterInstanceNameForTestEmr(notebookName,clusterName,dataEngineType), "m");
+    	}
+    	else {
+    		return getClusterInstanceNameForTestEmr(notebookName,clusterName,dataEngineType);
+    	}
+    }
+    
+    public static String getClusterInstanceNameForTestEmr(String notebookName, String clusterName, String dataEngineType) {
+    	if("dataengine".equals(dataEngineType)) {
+    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
+    	}
+    	else {
+    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "emr", notebookName, clusterName);
+    	}
     }
 
     public static String getNotebookContainerName(String notebookName, String action) {
     	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "exploratory", notebookName);
     }
     
-    public static String getEmrContainerName(String emrName, String action) {
-    	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "computational", emrName);
+    public static String getClusterContainerName(String clusterName, String action) {
+    	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "computational", clusterName);
     }
     
     
@@ -109,8 +123,7 @@ public class NamingHelper {
     }
 
     public static String generateRandomValue(String notebokTemplateName) {
-        SimpleDateFormat df = new SimpleDateFormat("YYYYMMddhmmss");
-        return String.join("_",  "ITest", notebokTemplateName, df.format(new Date()), String.valueOf(idCounter.incrementAndGet()));
+        return String.join("_", notebokTemplateName, String.valueOf(idCounter.incrementAndGet()));
     }
     
     public static String getSelfServiceURL(String path) {
@@ -121,13 +134,27 @@ public class NamingHelper {
     	return String.format("%s-%s-bucket", serviceBaseName, ConfigPropertyValue.getUsernameSimple()).replace('_', '-').toLowerCase();
     }
     
-    public static String getEmrClusterName(String emrName) throws Exception {
-        Instance instance = AmazonHelper.getInstance(emrName);
+    public static String getClusterName(String clusterInstanceName) throws Exception {
+        Instance instance = AmazonHelper.getInstance(clusterInstanceName);
         for (Tag tag : instance.getTags()) {
 			if (tag.getKey().equals("Name")) {
 		        return tag.getValue();
 			}
 		}
-        throw new Exception("Could not detect cluster name for EMR " + emrName);
+        throw new Exception("Could not detect cluster name for cluster instance " + clusterInstanceName);
+    }
+
+    public static String getClusterName(String clusterInstanceName, String dataEngineType) throws Exception {
+        if ("dataengine".equals(dataEngineType)) {
+            return clusterInstanceName;
+        } else {
+            Instance instance = AmazonHelper.getInstance(clusterInstanceName);
+            for (Tag tag : instance.getTags()) {
+                if (tag.getKey().equals("Name")) {
+                    return tag.getValue();
+                }
+            }
+            throw new Exception("Could not detect cluster name for cluster instance " + clusterInstanceName);
+        }
     }
 }

@@ -22,7 +22,7 @@ import { Input, Output, Component, EventEmitter, ViewEncapsulation } from '@angu
   moduleId: module.id,
   selector: 'multi-select-dropdown',
   templateUrl: 'multi-select-dropdown.component.html',
-  styleUrls: ['./multi-select-dropdown.component.css'],
+  styleUrls: ['../dropdowns.component.css'],
   encapsulation: ViewEncapsulation.None
 })
 
@@ -33,17 +33,6 @@ export class MultiSelectDropdownComponent {
   @Input() model: Array<any>;
   @Input() type: string;
   @Output() selectionChange: EventEmitter<{}> = new EventEmitter();
-
-
-  toggleDropdown(): void {
-    this.isOpen = !this.isOpen;
-  }
-
-  onClickOutside($event: Object) {
-    if ($event && $event['value'] === true) {
-      this.isOpen = false;
-    }
-  }
 
   toggleSelectedOptions($event, model, value) {
     const index = model.indexOf(value);

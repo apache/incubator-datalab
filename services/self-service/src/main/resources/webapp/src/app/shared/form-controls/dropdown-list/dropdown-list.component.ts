@@ -23,7 +23,7 @@ import { DropdownListModel } from './dropdown-list.model';
   moduleId: module.id,
   selector: 'dropdown-list',
   templateUrl: 'dropdown-list.component.html',
-  styleUrls: ['./dropdown-list.component.css'],
+  styleUrls: ['../dropdowns.component.css'],
   encapsulation: ViewEncapsulation.None
 })
 

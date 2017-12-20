@@ -21,7 +21,7 @@ limitations under the License.
     <th *ngFor="let column of filteringColumns"
         ngClass="{{column.className || ''}}">
       {{column.title}}
-      <button md-icon-button *ngIf="column.filtering" aria-label="More" class="pull-right" (click)="toggleFilterRow()">
+      <button md-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
         <i class="material-icons">
           <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">filter_list</span>
           <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">more_vert</span>
@@ -32,7 +32,7 @@ limitations under the License.
 
   <tr *ngIf="filteredEnvironments && collapseFilterRow" class="filter-row">
     <td>
-      <input placeholder="Filter by environment name" class="form-control filter-field" [value]="filterForm.name" (input)="filterForm.name = $event.target.value" />
+      <input placeholder="Filter by environment name" type="text" class="form-control filter-field" [value]="filterForm.name" (input)="filterForm.name = $event.target.value" />
     </td>
     <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'" [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
@@ -76,7 +76,9 @@ limitations under the License.
     </td>
     <td>
       <span class="total_cost">{{ env.cost || 'N/A' }} {{env.currency_code || ''}}</span>
-      <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}"></span>
+      <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}">
+        <i class="material-icons">help_outline</i>
+      </span>
     </td>
     <td class="settings">
       <span #settings (click)="actions.toggle($event, settings)" class="actions"

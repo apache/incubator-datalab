@@ -61,6 +61,7 @@ limitations under the License.
 .dashboard_table tr th {
   border-right: 1px solid #d5dfea;
   border-bottom: 1px solid #d5dfea;
+  text-align: left;
 }
 
 .dashboard_table tr td:last-child {
@@ -202,26 +203,18 @@ limitations under the License.
 }
 
 .currency_details {
-  text-align: right;
+  float: right;
   color: #35afd5;
   cursor: pointer;
-  display: inline-block;
-  margin-top: 5px;
+  transition: all .45s ease-in-out;
 }
 
-.currency_details::before {
-    content: "?";
-    display: inline-block;
-    position: relative;
-    width: 16px;
-    height: 16px;
-    border: 1px solid #35afd5;
-    border-radius: 50%;
-    font-size: 12px;
-    margin-right: 7px;
-    text-align: center;
-    line-height: 16px;
-    padding-left: 1px;
+.currency_details:hover {
+  color: #3392b0;
+}
+
+.currency_details .material-icons {
+  font-size: 20px;
 }
 
 .mat-icon-button .mat-icon, .mat-icon-button i {

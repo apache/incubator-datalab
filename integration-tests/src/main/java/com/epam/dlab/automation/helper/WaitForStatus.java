@@ -118,7 +118,7 @@ public class WaitForStatus {
         return actualStatus;
     }
 
-    public static String emr(String url, String token, String notebookName, String computationalName, String status, Duration duration)
+    public static String cluster(String url, String token, String notebookName, String computationalName, String status, Duration duration)
             throws InterruptedException {
         LOGGER.info("{}: Waiting until status {} with URL {} with token {} for computational {} on notebook ", notebookName, status, url, token, computationalName, notebookName);
         HttpRequest request = new HttpRequest();
@@ -126,7 +126,7 @@ public class WaitForStatus {
         long timeout = duration.toMillis();
         long expiredTime = System.currentTimeMillis() + timeout;
 
-        while ((actualStatus = getEmrStatus(request.webApiGet(url, token)
+        while ((actualStatus = getClusterStatus(request.webApiGet(url, token)
                 .getBody()
                 .jsonPath(), notebookName, computationalName)).equals(status)) {
             if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
@@ -142,13 +142,13 @@ public class WaitForStatus {
             LOGGER.info("  status is {}", status);
             LOGGER.info("  timeout is {}", duration);
         } else {
-            LOGGER.info("{}: Current state for EMR {} on notebook is {}", notebookName, computationalName, actualStatus);
+            LOGGER.info("{}: Current state for cluster {} on notebook is {}", notebookName, computationalName, actualStatus);
         }
 
         return actualStatus;
     }
 
-    public static String getEmrStatus(JsonPath json, String notebookName, String computationalName) {
+    public static String getClusterStatus(JsonPath json, String notebookName, String computationalName) {
 
         List<Map<String, List<Map<String, String>>>> notebooks = json.getList("exploratory");
         List<Map<String, List<Map<String, String>>>> filterred = notebooks.stream()

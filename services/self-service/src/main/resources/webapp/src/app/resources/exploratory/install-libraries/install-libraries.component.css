@@ -44,6 +44,11 @@ limitations under the License.
     width: 50%;
     height: 100%;
 }
+.tab-content .info {
+    width: 100%;
+    padding-top: 100px;
+}
+
 .search-box {
     padding: 40px 25px 0;
 }
