@@ -289,7 +289,7 @@ if __name__ == "__main__":
                 "ssn_storage_account_tag_name": ssn_conf['ssn_storage_account_name'],
                 "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name']
             }
-            ldap_login = 'true'
+            ldap_login = os.environ['azure_oauth2_enabled']
             tenant_id = None
             datalake_application_id = None
             datalake_store_name = None

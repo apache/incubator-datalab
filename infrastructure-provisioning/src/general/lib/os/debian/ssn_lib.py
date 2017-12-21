@@ -205,8 +205,15 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                         sudo('sed -i "s|<LOGIN_APPLICATION_REDIRECT_URL>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
                                                                                                              hostname))
                         sudo('sed -i "s|<LOGIN_PAGE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, hostname))
-                    sudo('sed -i "s|<DLAB_RESOURCE_GROUP>|{}|g" /tmp/yml_tmp/security.yml'.format(service_base_name))
-                    sudo('sed -i "s|<DATA_LAKE_STORAGE_ACCOUNT>|{}|g" /tmp/yml_tmp/security.yml'.format(data_lake_name))
+                    if os.environ['azure_datalake_enable'] == 'true':
+                        permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.DataLakeStore/accounts/{}/providers/Microsoft.Authorization/'.format(
+                            subscription_id, service_base_name, data_lake_name
+                        )
+                    else:
+                        permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.Authorization/'.format(
+                            subscription_id, service_base_name
+                        )
+                    sudo('sed -i "s|<PERMISSION_SCOPE>|{}|g" /tmp/yml_tmp/security.yml'.format(permission_scope))
                 sudo('mv /tmp/yml_tmp/* ' + os.environ['ssn_dlab_path'] + 'conf/')
                 sudo('rmdir /tmp/yml_tmp/')
             except:
