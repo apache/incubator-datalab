@@ -57,14 +57,13 @@ public class SecurityServiceApplication extends Application<SecurityServiceConfi
 	@Override
 	public void run(SecurityServiceConfiguration conf, Environment env) throws Exception {
 
-	    env.jersey().register(new DlabExceptionMapper());
-
 	    switch (conf.getCloudProvider()) {
             case AWS:
             case GCP:
                 env.jersey().register(new SynchronousLdapAuthenticationService(conf,env));
                 break;
             case AZURE:
+                env.jersey().register(new DlabExceptionMapper());
                 if (conf.getAzureLoginConfiguration().isUseLdap()) {
                     env.jersey().register(new SynchronousLdapAuthenticationService(conf,env));
                 } else {
