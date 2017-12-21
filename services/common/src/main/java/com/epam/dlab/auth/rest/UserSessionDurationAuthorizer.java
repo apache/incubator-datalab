@@ -81,7 +81,7 @@ public final class UserSessionDurationAuthorizer implements Authorizer<UserInfo>
         try {
             callback.onSessionExpired(principal);
         } catch (RuntimeException e) {
-            log.warn("Error during logout user {}", principal.getName());
+            log.warn("Error during logout user {}", principal.getName(), e);
         }
     }
 }

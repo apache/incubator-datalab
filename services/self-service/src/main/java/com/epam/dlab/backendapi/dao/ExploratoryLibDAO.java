@@ -18,6 +18,7 @@
 
 package com.epam.dlab.backendapi.dao;
 
+import static com.epam.dlab.backendapi.dao.ExploratoryDAO.COMPUTATIONAL_RESOURCES;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.runningExploratoryAndComputationalCondition;
 import static com.mongodb.client.model.Filters.and;
@@ -106,7 +107,7 @@ public class ExploratoryLibDAO extends BaseDAO {
     }
 
     public Document findAllLibraries(String user, String exploratoryName) {
-        return findLibraries(user, exploratoryName, include(EXPLORATORY_LIBS, COMPUTATIONAL_LIBS));
+        return findLibraries(user, exploratoryName, include(EXPLORATORY_LIBS, COMPUTATIONAL_LIBS, COMPUTATIONAL_RESOURCES));
     }
 
     public Document findExploratoryLibraries(String user, String exploratoryName) {
