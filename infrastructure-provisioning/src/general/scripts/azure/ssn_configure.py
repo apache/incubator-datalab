@@ -290,10 +290,10 @@ if __name__ == "__main__":
                 "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name']
             }
             ldap_login = os.environ['azure_oauth2_enabled']
-            tenant_id = None
-            datalake_application_id = None
+            tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
+            subscription_id = json.dumps(AzureMeta().sp_creds['subscriptionId']).replace('"', '')
+            datalake_application_id = os.environ['azure_application_id']
             datalake_store_name = None
-            subscription_id = None
         else:
             mongo_parameters = {
                 "azure_resource_group_name": os.environ['azure_resource_group_name'],
