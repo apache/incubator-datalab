@@ -130,11 +130,8 @@ public class RequestBuilder {
                 return uploadFileAws;
 
             case AZURE:
-                EdgeCreateAzure edgeCreateAzure = newResourceSysBaseDTO(userInfo, EdgeCreateAzure.class);
-                if (settingsDAO.isAzureDataLakeEnabled()) {
-                    edgeCreateAzure.withAzureUserName(userInfo.getName());
-                }
-                edgeCreateAzure.withAzureDataLakeEnable(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
+                EdgeCreateAzure edgeCreateAzure = newResourceSysBaseDTO(userInfo, EdgeCreateAzure.class)
+                        .withAzureDataLakeEnable(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
 
                 UploadFileAzure uploadFileAzure = new UploadFileAzure();
                 uploadFileAzure.setEdge(edgeCreateAzure);
@@ -409,7 +406,7 @@ public class RequestBuilder {
 
                 ((SparkComputationalCreateAzure) computationalCreate)
                         .withAzureDataLakeEnabled(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
-                
+
                 break;
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
