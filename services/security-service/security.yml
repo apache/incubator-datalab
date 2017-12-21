@@ -167,7 +167,7 @@ azureLoginConfiguration:
     # If user does not have permissions(no Role assigned in permissionScope) he/she will not be logged in DLab
     validatePermissionScope: <VALIDATE_PERMISSION_SCOPE>
     # Scope for validation user permissions if validatePermissionScope: true
-    permissionScope: subscriptions/<DLAB_SUBSCRIPTION_ID>/resourceGroups/<DLAB_RESOURCE_GROUP>/providers/Microsoft.DataLakeStore/accounts/<DATA_LAKE_STORAGE_ACCOUNT>/providers/Microsoft.Authorization/
+    permissionScope: <PERMISSION_SCOPE>
     # Authentication file that used for validation user permissions(query Microsoft API)
     managementApiAuthFile: <MANAGEMENT_API_AUTH_FILE>
 
