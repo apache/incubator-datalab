@@ -50,7 +50,7 @@ export class ApplicationSecurityService {
       .buildLoginRequest(loginModel.toJsonString())
       .map((response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
-          if (DICTIONARY.cloud_provider === 'azure') {
+          if (!DICTIONARY.use_ldap) {
             this.setAuthToken(response.json().access_token);
             this.setUserName(response.json().username);
           } else {

@@ -18,6 +18,7 @@ limitations under the License.
 
 export const NAMING_CONVENTION = {
     'cloud_provider': 'aws',
+    'use_ldap': true,
     'notebook_instance_size': 'Instance shape',
     'personal_storage': 'Data bucket',
     'collaboration_storage': 'Collaboration bucket',
