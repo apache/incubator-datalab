@@ -49,7 +49,7 @@ if __name__ == "__main__":
                                                                notebook_config['exploratory_name'])
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
-    edge_instance_hostname = GCPMeta().get_private_ip_address(edge_instance_name)
+    # edge_instance_hostname = GCPMeta().get_private_ip_address(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE PROXY ON JUPYTER INSTANCE]')
         print('[CONFIGURE PROXY ON JUPYTER INSTANCE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": edge_instance_name, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'], json.dumps(additional_config),
                     notebook_config['dlab_ssh_user'])
