@@ -30,6 +30,8 @@ public class LibraryStatus {
     @JsonProperty
     private String resource;
     @JsonProperty
+    private String resourceType;
+    @JsonProperty
     private String status;
     @JsonProperty
     private String error;

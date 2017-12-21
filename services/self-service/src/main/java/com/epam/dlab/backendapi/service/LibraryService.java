@@ -74,13 +74,13 @@ public class LibraryService {
 
         if (document.get(ExploratoryLibDAO.EXPLORATORY_LIBS) != null) {
             List<Document> exploratoryLibs = (List<Document>) document.get(ExploratoryLibDAO.EXPLORATORY_LIBS);
-            exploratoryLibs.forEach(e -> populateModel(exploratoryName, e, model));
+            exploratoryLibs.forEach(e -> populateModel(exploratoryName, e, model, "notebook"));
 
         }
 
         if (document.get(ExploratoryLibDAO.COMPUTATIONAL_LIBS) != null) {
             Document computationalLibs = getLibsOfActiveComputationalResources(document);
-            populateComputational(computationalLibs, model);
+            populateComputational(computationalLibs, model, "cluster");
         }
 
         List<LibInfoRecord> libInfoRecords = new ArrayList<>();
@@ -111,7 +111,7 @@ public class LibraryService {
     }
 
 
-    private void populateModel(String exploratoryName, Document document, Map<LibKey, List<LibraryStatus>> model) {
+    private void populateModel(String exploratoryName, Document document, Map<LibKey, List<LibraryStatus>> model, String resourceType) {
         String name = document.getString(ExploratoryLibDAO.LIB_NAME);
         String version = document.getString(ExploratoryLibDAO.LIB_VERSION);
         String group = document.getString(ExploratoryLibDAO.LIB_GROUP);
@@ -125,15 +125,15 @@ public class LibraryService {
             model.put(libKey, statuses);
         }
 
-        statuses.add(new LibraryStatus(exploratoryName, status, error));
+        statuses.add(new LibraryStatus(exploratoryName, resourceType, status, error));
     }
 
     @SuppressWarnings("unchecked")
-    private void populateComputational(Document computationalLibs, Map<LibKey, List<LibraryStatus>> model) {
+    private void populateComputational(Document computationalLibs, Map<LibKey, List<LibraryStatus>> model, String resourceType) {
         for (Map.Entry<String, Object> entry : computationalLibs.entrySet()) {
             if (entry.getValue() != null) {
                 List<Document> docs = (List<Document>) entry.getValue();
-                docs.forEach(e -> populateModel(entry.getKey(), e, model));
+                docs.forEach(e -> populateModel(entry.getKey(), e, model, resourceType));
             }
         }
     }
