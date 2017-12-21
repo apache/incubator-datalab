@@ -48,8 +48,10 @@ limitations under the License.
           </div>
           <div class="col-xs-8">
               <input [class.danger_field]="computationalResourceExist || !resourceForm.controls['cluster_alias_name'].valid && resourceForm.controls['cluster_alias_name'].dirty" type="text" class="form-control" placeholder="Enter cluster alias" formControlName="cluster_alias_name" />
-              <span class="danger_color" *ngIf="computationalResourceExist">This cluster name already exists.</span>
-              <span class="danger_color" *ngIf="!resourceForm.controls.cluster_alias_name.valid && resourceForm.controls['cluster_alias_name'].dirty">
+              <span class="danger_color" *ngIf="resourceForm.controls['cluster_alias_name'].hasError('duplication')">This cluster name already exists.</span>
+              <span class="danger_color" *ngIf="!resourceForm.controls.cluster_alias_name.valid
+                                         && resourceForm.controls['cluster_alias_name'].dirty
+                                         && !resourceForm.controls['cluster_alias_name'].hasError('duplication')">
                 Cluster name <span *ngIf="DICTIONARY.cloud_provider === 'azure'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_'
               </span>
           </div>
