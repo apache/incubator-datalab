@@ -89,18 +89,21 @@ if __name__ == "__main__":
     print('Generating infrastructure names and tags')
     notebook_config = dict()
     notebook_config['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
+    notebook_config['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
-    notebook_config['bucket_name'] = '{}-ssn-bucket'.format(notebook_config['service_base_name'])
+    notebook_config['bucket_name'] = '{}-{}-bucket'.format(notebook_config['service_base_name'],
+                                                           notebook_config['edge_user_name'])
     notebook_config['key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    notebook_config['user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     notebook_config['gcp_region'] = os.environ['gcp_region']
     notebook_config['gcp_zone'] = os.environ['gcp_zone']
 
     logging.info('[STOP NOTEBOOK]')
     print('[STOP NOTEBOOK]')
     try:
-        stop_notebook(notebook_config['notebook_name'], notebook_config['bucket_name'], notebook_config['gcp_region'],
-                      notebook_config['gcp_zone'], os.environ['conf_os_user'], notebook_config['key_path'], notebook_config['user_name'])
+        stop_notebook(notebook_config['notebook_name'], notebook_config['bucket_name'],
+                      notebook_config['gcp_region'], notebook_config['gcp_zone'],
+                      os.environ['conf_os_user'], notebook_config['key_path'],
+                      notebook_config['edge_user_name'])
     except Exception as err:
         append_result("Failed to stop notebook.", str(err))
         sys.exit(1)
