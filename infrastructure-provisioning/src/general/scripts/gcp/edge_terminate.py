@@ -77,11 +77,11 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
 
     print("Removing subnets")
     try:
-        list_subnets = GCPMeta().get_list_subnetworks(region, '', service_base_name + '-' + user_name)
+        list_subnets = GCPMeta().get_list_subnetworks(region, '', '{}-{}'.format(service_base_name, user_name))
         if 'items' in list_subnets:
             vpc_selflink = list_subnets['items'][0]['network']
             vpc_name = vpc_selflink.split('/')[-1]
-            subnets = GCPMeta().get_list_subnetworks(region, vpc_name, service_base_name + '-' + user_name)
+            subnets = GCPMeta().get_list_subnetworks(region, vpc_name, '{}-{}'.format(service_base_name, user_name))
             for i in subnets['items']:
                 GCPActions().remove_subnet(i['name'], region)
     except:
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     print('Generating infrastructure names and tags')
     edge_conf = dict()
     edge_conf['service_base_name'] = (os.environ['conf_service_base_name']).lower().replace('_', '-')
-    edge_conf['user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
+    edge_conf['edge_user_name'] = (os.environ['edge_user_name']).lower().replace('_', '-')
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']
 
@@ -107,8 +107,8 @@ if __name__ == "__main__":
         logging.info('[TERMINATE EDGE]')
         print('[TERMINATE EDGE]')
         try:
-            terminate_edge_node(edge_conf['user_name'], edge_conf['service_base_name'], edge_conf['region'],
-                                edge_conf['zone'])
+            terminate_edge_node(edge_conf['edge_user_name'], edge_conf['service_base_name'],
+                                edge_conf['region'], edge_conf['zone'])
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to terminate edge.", str(err))
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     try:
         with open("/root/result.json", 'w') as result:
             res = {"service_base_name": edge_conf['service_base_name'],
-                   "user_name": edge_conf['user_name'],
+                   "user_name": edge_conf['edge_user_name'],
                    "Action": "Terminate edge node"}
             print(json.dumps(res))
             result.write(json.dumps(res))
