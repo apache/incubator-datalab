@@ -28,7 +28,7 @@ from dlab.actions_lib import *
 def terminate_edge_node(user_name, service_base_name, region, zone):
     print("Terminating EDGE and notebook instances")
     try:
-        instances = GCPMeta().get_list_instances(zone, service_base_name + '-' + user_name)
+        instances = GCPMeta().get_list_instances(zone, '{}-{}'.format(service_base_name, user_name))
         if 'items' in instances:
             for i in instances['items']:
                 GCPActions().remove_instance(i['name'], zone)
@@ -37,16 +37,16 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
 
     print("Removing static addresses")
     try:
-        static_addresses = GCPMeta().get_list_static_addresses(region, service_base_name + '-' + user_name)
+        static_addresses = GCPMeta().get_list_static_addresses(region, '{}-{}'.format(service_base_name, user_name))
         if 'items' in static_addresses:
             for i in static_addresses['items']:
                 GCPActions().remove_static_address(i['name'], region)
     except:
         sys.exit(1)
 
-    print("Removing s3 bucket")
+    print("Removing storage bucket")
     try:
-        buckets = GCPMeta().get_list_buckets(service_base_name + '-' + user_name)
+        buckets = GCPMeta().get_list_buckets('{}-{}'.format(service_base_name, user_name))
         if 'items' in buckets:
             for i in buckets['items']:
                 GCPActions().remove_bucket(i['name'])
@@ -55,7 +55,7 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
 
     print("Removing firewalls")
     try:
-        firewalls = GCPMeta().get_list_firewalls(service_base_name + '-' + user_name)
+        firewalls = GCPMeta().get_list_firewalls('{}-{}'.format(service_base_name, user_name))
         if 'items' in firewalls:
             for i in firewalls['items']:
                 GCPActions().remove_firewall(i['name'])
@@ -66,11 +66,11 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
     try:
         list_service_accounts = GCPMeta().get_list_service_accounts()
         for service_account in list_service_accounts:
-            if "{}-{}".format(service_base_name, user_name) in service_account:
+            if "{}-{}-".format(service_base_name, user_name) in service_account:
                 GCPActions().remove_service_account(service_account)
         list_roles_names = GCPMeta().get_list_roles()
         for role in list_roles_names:
-            if "{}-{}".format(service_base_name, user_name) in role:
+            if "{}-{}-".format(service_base_name, user_name) in role:
                 GCPActions().remove_role(role)
     except:
         sys.exit(1)
