@@ -52,7 +52,7 @@ if __name__ == "__main__":
         ssn_conf['shared_storage_account_name'] = ssn_conf['service_base_name'] + '-shared-storage'
         ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared-container').lower()
         ssn_conf['datalake_store_name'] = ssn_conf['service_base_name'] + '-ssn-datalake'
-        ssn_conf['datalake_shared_directory_name'] = ssn_conf['service_base_name'] + '-shared-directory'
+        ssn_conf['datalake_shared_directory_name'] = ssn_conf['service_base_name'] + '-shared-folder'
         ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
         ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-vpc'
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
