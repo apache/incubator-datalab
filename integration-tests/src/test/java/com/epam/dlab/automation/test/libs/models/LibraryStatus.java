@@ -22,8 +22,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 public class LibraryStatus {
-	 @JsonProperty
+	    @JsonProperty
 	    private String resource;
+	    @JsonProperty
+	    private String resourceType;
 	    @JsonProperty
 	    private String status;
 	    @JsonProperty
@@ -32,7 +34,8 @@ public class LibraryStatus {
 		public String getResource() {
 			return resource;
 		}
-		public String getStatus() {
+	    public String getResourceType() { return resourceType;}
+	    public String getStatus() {
 			return status;
 		}
 		public String getError() {
@@ -46,6 +49,7 @@ public class LibraryStatus {
 			result = prime * result + ((error == null) ? 0 : error.hashCode());
 			result = prime * result + ((resource == null) ? 0 : resource.hashCode());
 			result = prime * result + ((status == null) ? 0 : status.hashCode());
+			result = prime * result + ((resourceType == null) ? 0 : resourceType.hashCode());
 			return result;
 		}
 		@Override
@@ -72,12 +76,18 @@ public class LibraryStatus {
 					return false;
 			} else if (!status.equals(other.status))
 				return false;
+			if (resourceType == null) {
+				if (other.resourceType != null)
+					return false;
+			} else if (!resourceType.equals(other.resourceType))
+				return false;
 			return true;
 		}
 		@Override
 		public String toString() {
 			return MoreObjects.toStringHelper(this)
 					.add("resource", resource)
+					.add("resourceType", resourceType)
 					.add("status", status)
 					.add("error", error)
 					.toString();
