@@ -35,7 +35,7 @@ limitations under the License.
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>gcp_subnet_name</name>
-          <description>name of vpc</description>
+          <description>name of subnet name</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>

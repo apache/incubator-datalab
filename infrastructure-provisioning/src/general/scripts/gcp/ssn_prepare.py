@@ -59,6 +59,7 @@ if __name__ == "__main__":
     ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-ssn-role'
     ssn_conf['static_address_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])
     ssn_conf['ssn_policy_path'] = '/root/files/ssn_policy.json'
+    ssn_conf['ssn_roles_path'] = '/root/files/ssn_roles.json'
     ssn_conf['network_tag'] = ssn_conf['instance_name']
     ssn_conf['instance_labels'] = {"name": ssn_conf['instance_name'],
                                    "sbn": ssn_conf['service_base_name']}
@@ -177,10 +178,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SERVICE ACCOUNT AND ROLE]')
         print('[CREATE SERVICE ACCOUNT AND ROLE]')
-        params = "--service_account_name {} --role_name {} --policy_path {}".format(ssn_conf['service_account_name'],
-                                                                                    ssn_conf['role_name'],
-                                                                                    ssn_conf['ssn_policy_path'])
-
+        params = "--service_account_name {} --role_name {} --policy_path {} --roles_path {}".format(
+            ssn_conf['service_account_name'], ssn_conf['role_name'],
+            ssn_conf['ssn_policy_path'], ssn_conf['ssn_roles_path'])
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))
         except:

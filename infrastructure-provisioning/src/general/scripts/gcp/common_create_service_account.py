@@ -27,6 +27,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--service_account_name', type=str, default='')
 parser.add_argument('--role_name', type=str, default='')
 parser.add_argument('--policy_path', type=str, default='')
+parser.add_argument('--roles_path', type=str, default='')
 args = parser.parse_args()
 
 
@@ -48,8 +49,16 @@ if __name__ == "__main__":
                     permissions = json.loads(json_file)
                 print("Creating Role {}".format(args.role_name))
                 GCPActions().create_role(args.role_name, permissions)
-            print("Assigning role to Service account.")
+            print("Assigning custom role to Service account.")
             GCPActions().set_role_to_service_account(args.service_account_name, args.role_name)
+            print("Assigning predefined roles to Service account.")
+            predefined_roles = []
+            if args.roles_path != '':
+                with open(args.roles_path, 'r') as f:
+                    json_file = f.read()
+                roles = json.loads(json_file)
+                for role in roles:
+                    GCPActions().set_role_to_service_account(args.service_account_name, args.role_name)
     else:
         sys.exit(1)
 
