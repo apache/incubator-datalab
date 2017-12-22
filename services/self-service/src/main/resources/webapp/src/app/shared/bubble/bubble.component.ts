@@ -31,17 +31,16 @@ import { BubblesCollector, BubbleService } from './bubble.service';
 })
 export class BubbleComponent implements OnDestroy {
   public changeDirection: boolean = false;
-  @Input('keep-open') public keepOpen: boolean = false;
 
+  @Input('keep-open') public keepOpen: boolean = false;
   @Input('position') public position: string;
   @Input('alternative') public alternative: string;
 
-
   @Output() onShow: EventEmitter<any> = new EventEmitter();
   @Output() onHide: EventEmitter<any> = new EventEmitter();
+
   @HostBinding('class.is-visible') public isVisible = false;
   @HostListener('click', ['$event']) onClick($event) {
-    console.log('$event => ' + $event);
     this.keepOpen && event.stopPropagation();
   }
 

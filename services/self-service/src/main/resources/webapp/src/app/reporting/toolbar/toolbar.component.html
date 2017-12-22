@@ -31,14 +31,6 @@ limitations under the License.
     <ng-daterangepicker [(ngModel)]="value" [options]="options" (ngModelChange)="onChange($event)"></ng-daterangepicker>
   </div>
   <div class="action-butt">
-    <!--<button md-raised-button class="butt butt-report-range" [mdMenuTriggerFor]="dateRange">-->
-      <!--<i class="material-icons">date_range</i>-->
-      <!--<i class="material-icons">event</i>
-      Report period range
-    </button>-->
-    <!--<md-menu #dateRange="mdMenu">
-      <button md-menu-item *ngFor="let item of rangeOptions | keys" (click)="calculateRange(item.key)">{{item.value}}</button>
-    </md-menu>-->
     <button md-raised-button class="butt" (click)="export($event)" [disabled]="!reportData?.lines.length">
       <i class="material-icons">file_download</i>Export
     </button>
