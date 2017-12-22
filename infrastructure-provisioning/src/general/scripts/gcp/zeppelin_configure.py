@@ -53,7 +53,7 @@ if __name__ == "__main__":
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
-    edge_instance_hostname = GCPMeta().get_private_ip_address(edge_instance_name)
+    # edge_instance_hostname = GCPMeta().get_private_ip_address(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE PROXY ON ZEPPELIN INSTANCE]')
         print('[CONFIGURE PROXY ON ZEPPELIN INSTANCE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": edge_instance_name, "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'])
@@ -121,14 +121,14 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE ZEPPELIN NOTEBOOK INSTANCE]')
         print('[CONFIGURE ZEPPELIN NOTEBOOK INSTANCE]')
-        additional_config = {"frontend_hostname": edge_instance_hostname,
+        additional_config = {"frontend_hostname": edge_instance_name,
                              "backend_hostname": instance_hostname,
                              "backend_port": "8080",
                              "nginx_template_dir": "/root/templates/"}
         params = "--hostname {} --instance_name {} --keyfile {} --region {} --additional_config '{}' --os_user {} --spark_version {} --hadoop_version {} --edge_hostname {} --proxy_port {} --zeppelin_version {} --scala_version {} --livy_version {} --multiple_clusters {} --r_mirror {} --endpoint_url {}" \
             .format(instance_hostname, notebook_config['instance_name'], notebook_config['ssh_key_path'], os.environ['gcp_region'],
                     json.dumps(additional_config), notebook_config['dlab_ssh_user'], os.environ['notebook_spark_version'],
-                    os.environ['notebook_hadoop_version'], edge_instance_hostname, '3128',
+                    os.environ['notebook_hadoop_version'], edge_instance_name, '3128',
                     os.environ['notebook_zeppelin_version'], os.environ['notebook_scala_version'],
                     os.environ['notebook_livy_version'], os.environ['notebook_multiple_clusters'],
                     os.environ['notebook_r_mirror'], 'null')

@@ -33,12 +33,12 @@ import multiprocessing
 
 def configure_dataengine_service(instance, dataproc_conf):
     dataproc_conf['instance_ip'] = meta_lib.GCPMeta().get_private_ip_address(instance)
-    edge_instance_hostname = GCPMeta().get_private_ip_address(dataproc_conf['edge_instance_hostname'])
+    # edge_instance_hostname = GCPMeta().get_private_ip_address(dataproc_conf['edge_instance_name'])
     # configuring proxy on Data Engine service
     try:
         logging.info('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
         print('[CONFIGURE PROXY ON DATAENGINE SERVICE]')
-        additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+        additional_config = {"proxy_host": dataproc_conf['edge_instance_name'], "proxy_port": "3128"}
         params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}"\
             .format(dataproc_conf['instance_ip'], dataproc_conf['cluster_name'], dataproc_conf['key_path'],
                     json.dumps(additional_config), dataproc_conf['dlab_ssh_user'])
@@ -105,8 +105,8 @@ if __name__ == "__main__":
     service_account_email = "{}@{}.iam.gserviceaccount.com".format(dataproc_conf['dataproc_service_account_name'],
                                                                    os.environ['gcp_project_id'])
 
-    dataproc_conf['edge_instance_hostname'] = '{0}-{1}-edge'.format(dataproc_conf['service_base_name'],
-                                                                    dataproc_conf['edge_user_name'])
+    dataproc_conf['edge_instance_name'] = '{0}-{1}-edge'.format(dataproc_conf['service_base_name'],
+                                                                dataproc_conf['edge_user_name'])
     dataproc_conf['dlab_ssh_user'] = os.environ['conf_os_user']
 
     try:
