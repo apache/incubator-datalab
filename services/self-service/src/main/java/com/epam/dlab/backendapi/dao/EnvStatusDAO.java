@@ -49,7 +49,6 @@ import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplication;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
-import com.epam.dlab.backendapi.domain.EnvStatusListenerUserInfo;
 import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusEnum;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
@@ -351,7 +350,8 @@ public class EnvStatusDAO extends BaseDAO {
 			return false;
 		}
 
-    	EnvStatusListenerUserInfo userInfo = EnvStatusListener.getUserInfo(user);
+		EnvStatusListener envStatusListener = SelfServiceApplication.getInjector().getInstance(EnvStatusListener.class);
+    	UserInfo userInfo = (envStatusListener != null) ? envStatusListener.getSession(user) : null;
     	if (userInfo == null) {
     		// User logged off. Computational will be terminated when user logged in.
     		return true;

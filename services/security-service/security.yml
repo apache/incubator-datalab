@@ -18,7 +18,7 @@
 
 <#include "ssn.yml">
 
-inactiveUserTimeoutMillSec: 7200000
+ldapUseConnectionPool: false
 ldapConnectionConfig:
 #  ldapHost: localhost
   ldapHost: LDAP_HOST
@@ -150,6 +150,27 @@ awsUserIdentificationEnabled: true
 loginAuthenticationTimeout: 10
 <#elseif CLOUD_TYPE == "azure">
 loginAuthenticationTimeout: 20
+
+# Azure login configuration
+azureLoginConfiguration:
+    # defines of LDAP server is used as authentication point, if false Azure OAuth authentication should be configured
+    useLdap: <LOGIN_USE_LDAP>
+    # Tenant id in Azure
+    tenant: <LOGIN_TENANT_ID>
+    # Authority url
+    authority: https://login.microsoftonline.com/
+    # Id of the application that logs in users
+    clientId: <LOGIN_APPLICATION_ID>
+    # Redirect url for OAuth2 Authorization code flow
+    redirectUrl: https://<LOGIN_APPLICATION_REDIRECT_URL>/
+    # defines if DLab checks user permission to the configured permissionScope(true|false).
+    # If user does not have permissions(no Role assigned in permissionScope) he/she will not be logged in DLab
+    validatePermissionScope: <VALIDATE_PERMISSION_SCOPE>
+    # Scope for validation user permissions if validatePermissionScope: true
+    permissionScope: <PERMISSION_SCOPE>
+    # Authentication file that used for validation user permissions(query Microsoft API)
+    managementApiAuthFile: <MANAGEMENT_API_AUTH_FILE>
+
 </#if>
 
 
@@ -161,9 +182,9 @@ logging:
     com.epam: DEBUG
     com.aegisql: INFO
   appenders:
-<#if DEV_MODE == "true">
+#<#if DEV_MODE == "true">
     - type: console
-</#if>
+#</#if>
     - type: file
       currentLogFilename: ${LOG_ROOT_DIR}/ssn/security.log
       archive: true

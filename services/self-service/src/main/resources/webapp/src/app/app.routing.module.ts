@@ -16,16 +16,16 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { NgModule } from '@angular/core';
+import { NgModule, ModuleWithProviders } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { LoginComponent } from './login/login.component';
+import { LoginComponent, LogParamsComponent } from './login/login.module';
 import { ResourcesComponent } from './resources/resources.component';
 import { HealthStatusComponent } from './health-status/health-status.component';
 import { AccessNotebookGuideComponent, PublicKeyGuideComponent } from './help';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { ReportingComponent } from './reporting/reporting.component';
-import { AuthorizationGuard } from './core/services';
+import { AuthorizationGuard, CheckParamsGuard } from './core/services';
 
 const routes: Routes = [{
     path: 'login',
@@ -33,7 +33,7 @@ const routes: Routes = [{
   }, {
     path: 'resources_list',
     component: ResourcesComponent,
-    canActivate: [AuthorizationGuard]
+    canActivate: [CheckParamsGuard]
   }, {
     path: 'environment_health_status',
     component: HealthStatusComponent,
@@ -51,6 +51,10 @@ const routes: Routes = [{
     component: AccessNotebookGuideComponent,
     canActivate: [AuthorizationGuard]
   }, {
+    path: 'log_params',
+    component: LogParamsComponent,
+    canActivate: [CheckParamsGuard]
+  }, {
     path: '',
     redirectTo: 'resources_list',
     pathMatch: 'full'
@@ -59,9 +63,4 @@ const routes: Routes = [{
     component: NotFoundComponent
   }];
 
-@NgModule({
-  imports: [
-    RouterModule.forRoot(routes, { useHash: true })
-  ]
-})
-export class AppRoutingModule { }
+export const AppRoutingModule: ModuleWithProviders = RouterModule.forRoot(routes, { useHash: true });

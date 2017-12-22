@@ -24,6 +24,7 @@ import static com.epam.dlab.UserInstanceStatus.STARTING;
 import static com.epam.dlab.UserInstanceStatus.STOPPING;
 import static com.epam.dlab.UserInstanceStatus.TERMINATING;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -36,6 +37,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.epam.dlab.auth.rest.UserSessionDurationAuthorizer;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +94,7 @@ public class ExploratoryResource implements ExploratoryAPI {
      * @throws DlabException
      */
     @PUT
+    @RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
     public Response create(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryCreateFormDTO formDTO) throws DlabException {
         LOGGER.debug("Creating exploratory environment {} with name {} for user {}",
                 formDTO.getImage(), formDTO.getName(), userInfo.getName());
@@ -134,6 +137,7 @@ public class ExploratoryResource implements ExploratoryAPI {
      * @throws DlabException
      */
     @POST
+    @RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
     public String start(@Auth UserInfo userInfo, @Valid @NotNull ExploratoryActionFormDTO formDTO) throws DlabException {
         LOGGER.debug("Starting exploratory environment {} for user {}", formDTO.getNotebookInstanceName(), userInfo.getName());
         return action(userInfo, formDTO.getNotebookInstanceName(), EXPLORATORY_START, STARTING);

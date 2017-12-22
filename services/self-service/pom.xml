@@ -16,7 +16,6 @@
                     <groupId>com.epam.dlab</groupId>
                     <artifactId>billing-aws</artifactId>
                     <version>${project.parent.version}</version>
-                    <scope>compile</scope>
                 </dependency>
             </dependencies>
         </profile>
@@ -27,7 +26,11 @@
                     <groupId>com.epam.dlab</groupId>
                     <artifactId>billing-azure</artifactId>
                     <version>${project.parent.version}</version>
-                    <scope>compile</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.epam.dlab</groupId>
+                    <artifactId>security-azure</artifactId>
+                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -44,6 +47,12 @@
             <groupId>com.epam.dlab</groupId>
             <artifactId>common</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>security-azure</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.epam.dlab</groupId>

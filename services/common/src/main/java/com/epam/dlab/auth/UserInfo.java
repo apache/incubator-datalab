@@ -178,7 +178,7 @@ public class UserInfo implements Principal {
                 "username='" + username + '\'' +
                 ", accessToken='" + accessToken + '\'' +
                 ", roles=" + roles +
-                ", keys=" + keys +
+                ", keys=" + keys.keySet() +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", remoteIp='" + remoteIp + '\'' +

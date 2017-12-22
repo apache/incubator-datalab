@@ -19,6 +19,7 @@ package com.epam.dlab.auth;
 
 import com.epam.dlab.ServiceConfiguration;
 import com.epam.dlab.auth.dao.Request;
+import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
@@ -35,10 +36,10 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
     @JsonProperty
     private boolean awsUserIdentificationEnabled = false;
     @JsonProperty
+    private boolean ldapUseConnectionPool = false;
+    @JsonProperty
     @Min(5)
     private int loginAuthenticationTimeout = 10;
-    @JsonProperty
-    private long inactiveUserTimeoutMillSec;
     @JsonProperty
     private List<Request> ldapSearch;
     @JsonProperty
@@ -49,14 +50,13 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
     private String ldapSearchAttribute;
     @JsonProperty
     private Map<String, String> ldapConnectionConfig = new HashMap<>();
+    @JsonProperty
+    private AzureLoginConfiguration azureLoginConfiguration;
+
     private LdapConnectionConfig _ldapConnectionConfig;
 
     public SecurityServiceConfiguration() {
         super();
-    }
-
-    public long getInactiveUserTimeoutMillSec() {
-        return inactiveUserTimeoutMillSec;
     }
 
     public boolean isUserInfoPersistenceEnabled() {
@@ -99,5 +99,13 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
     public int getLoginAuthenticationTimeout() {
         return loginAuthenticationTimeout;
+    }
+
+    public boolean isLdapUseConnectionPool() {
+        return ldapUseConnectionPool;
+    }
+
+    public AzureLoginConfiguration getAzureLoginConfiguration() {
+        return azureLoginConfiguration;
     }
 }

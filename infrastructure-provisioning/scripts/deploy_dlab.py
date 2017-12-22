@@ -53,7 +53,10 @@ parser.add_argument('--azure_ad_group_id', type=str, default='', help='ID of Azu
 parser.add_argument('--azure_offer_number', type=str, default='', help='Azure offer number')
 parser.add_argument('--azure_currency', type=str, default='', help='Azure currency code')
 parser.add_argument('--azure_locale', type=str, default='', help='Azure locale')
+parser.add_argument('--azure_application_id', type=str, default='', help='Azure login application ID')
+parser.add_argument('--azure_validate_permission_scope', type=str, default='true', help='Azure permission scope validation(true|false).')
 parser.add_argument('--azure_region_info', type=str, default='', help='Azure region info')
+parser.add_argument('--azure_oauth2_enabled', type=str, default='false', help='Using OAuth2 for logging in DLab')
 parser.add_argument('--action', required=True, type=str, default='', choices=['build', 'deploy', 'create', 'terminate'],
                     help='Available options: build, deploy, create, terminate')
 args = parser.parse_args()
@@ -80,6 +83,10 @@ def build_front_end(args):
     # Building front-end
     with lcd(args.workspace_path + '/services/self-service/src/main/resources/webapp/'):
         local('sed -i "s|CLOUD_PROVIDER|{}|g" src/dictionary/global.dictionary.ts'.format(args.conf_cloud_provider))
+
+        if args.conf_cloud_provider == 'azure' and args.azure_datalake_enable == 'true':
+            local('sed -i "s|\'use_ldap\': true|{}|g" src/dictionary/azure.dictionary.ts'.format('\'use_ldap\': false'))
+
         local('sudo npm install')
         local('sudo npm run build.prod')
         local('sudo chown -R {} {}/*'.format(os.environ['USER'], args.workspace_path))

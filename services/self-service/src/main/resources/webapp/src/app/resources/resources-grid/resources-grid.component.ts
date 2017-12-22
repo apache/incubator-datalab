@@ -219,6 +219,9 @@ export class ResourcesGridComponent implements OnInit {
           value.libs,
           sharedDataList[DICTIONARY.user_storage_account_name],
           sharedDataList[DICTIONARY.shared_storage_account_name],
+          sharedDataList[DICTIONARY.datalake_name],
+          sharedDataList[DICTIONARY.datalake_user_directory_name],
+          sharedDataList[DICTIONARY.datalake_shared_directory_name],
         );
       });
     }

@@ -119,8 +119,6 @@ export class ReportingComponent implements OnInit, OnDestroy {
     let blob = new Blob([parsedResponse], { type: 'text/csv' });
     let url = window.URL.createObjectURL(blob);
 
-    console.log(fileName + ' ::data file name');
-
     if (navigator.msSaveOrOpenBlob) {
         navigator.msSaveBlob(blob, fileName);
     } else {

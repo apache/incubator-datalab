@@ -37,37 +37,37 @@ limitations under the License.
         </table>
       </div>
       <div class="detail-info content-box" *ngIf="!resource.error_message">
-        <div class="row">
-          <div class="col-xs-6"><p>Cluster type:</p></div>
-          <div class="col-xs-6"><span>{{ resource.template_name }}</span></div>
+        <div class="row-wrap">
+          <div class="col"><p>Cluster type:</p></div>
+          <div class="col"><span>{{ resource.template_name }}</span></div>
         </div>
-        <div class="row">
-         <div class="col-xs-6"><p>Cluster alias:</p></div>
-         <div class="col-xs-6 tooltip-wrap" (mouseover)="isEllipsisActive($event)">
+        <div class="row-wrap">
+         <div class="col"><p>Cluster alias:</p></div>
+         <div class="col tooltip-wrap" (mouseover)="isEllipsisActive($event)">
            <span>{{resource.computational_name}}</span>
            <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{resource.computational_name}}</div>
          </div>
         </div>
-        <div class="row">
-          <div class="col-xs-6"><p>{{ DICTIONARY[resource.image].instance_number }}:</p></div>
-          <div class="col-xs-6"><span>{{ resource[DICTIONARY[resource.image].total_instance_number] }}</span></div>
+        <div class="row-wrap">
+          <div class="col"><p>{{ DICTIONARY[resource.image].instance_number }}:</p></div>
+          <div class="col"><span>{{ resource[DICTIONARY[resource.image].total_instance_number] }}</span></div>
         </div>
-        <div class="row">
-         <div class="col-xs-6"><p>{{ DICTIONARY[resource.image].data_engine_master_instance_size }}:</p></div>
-         <div class="col-xs-6"><span>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</span></div>
+        <div class="row-wrap">
+         <div class="col"><p>{{ DICTIONARY[resource.image].data_engine_master_instance_size }}:</p></div>
+         <div class="col"><span>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</span></div>
         </div>
-        <div class="row">
-         <div class="col-xs-6"><p>{{ DICTIONARY[resource.image].data_engine_slave_instance_size }}:</p></div>
-         <div class="col-xs-6"><span>{{ resource[DICTIONARY[resource.image].slave_node_shape] }}</span></div>
+        <div class="row-wrap">
+         <div class="col"><p>{{ DICTIONARY[resource.image].data_engine_slave_instance_size }}:</p></div>
+         <div class="col"><span>{{ resource[DICTIONARY[resource.image].slave_node_shape] }}</span></div>
         </div>
-        <div class="row">
-          <div class="col-xs-12" *ngIf="resource.status === 'running'">
+        <div class="row-wrap">
+          <div *ngIf="resource.status === 'running'">
             <p class="time_info">Up time {{upTimeInHours}} hour(s) since {{upTimeSince || "not specified."}}</p>
           </div>
         </div>
       </div>
-      <div class="row detail-info content-box" *ngIf="resource.error_message">
-        <p class="col-xs-12 failed">{{resource.error_message}}</p>
+      <div class="row-wrap detail-info content-box" *ngIf="resource.error_message">
+        <p class="failed">{{resource.error_message}}</p>
       </div>
     </div>
   </modal-content>

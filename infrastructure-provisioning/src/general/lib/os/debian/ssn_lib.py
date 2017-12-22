@@ -156,7 +156,7 @@ def ensure_mongo():
 def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passwd, keystore_passwd, cloud_provider,
              service_base_name, tag_resource_id, account_id, billing_bucket, dlab_path, billing_enabled,
              authentication_file, offer_number, currency, locale, region_info, ldap_login, tenant_id, application_id,
-             hostname, data_lake_name, report_path=''):
+             hostname, data_lake_name, subscription_id, validate_permission_scope, report_path=''):
     try:
         if not exists(os.environ['ssn_dlab_path'] + 'tmp/ss_started'):
             java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
@@ -197,11 +197,23 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                         sudo('sed -i "s|<LOGIN_TENANT_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, tenant_id))
                         sudo('sed -i "s|<LOGIN_APPLICATION_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
                                                                                                    application_id))
+                        sudo('sed -i "s|<DLAB_SUBSCRIPTION_ID>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
+                                                                                                   subscription_id))
+                        sudo('sed -i "s|<MANAGEMENT_API_AUTH_FILE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, authentication_file))
+                        sudo('sed -i "s|<VALIDATE_PERMISSION_SCOPE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(
+                            config, validate_permission_scope))
                         sudo('sed -i "s|<LOGIN_APPLICATION_REDIRECT_URL>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config,
                                                                                                              hostname))
                         sudo('sed -i "s|<LOGIN_PAGE>|{1}|g" /tmp/yml_tmp/{0}.yml'.format(config, hostname))
-                    sudo('sed -i "s|<DLAB_RESOURCE_GROUP>|{}|g" /tmp/yml_tmp/security.yml'.format(service_base_name))
-                    sudo('sed -i "s|<DATA_LAKE_STORAGE_ACCOUNT>|{}|g" /tmp/yml_tmp/security.yml'.format(data_lake_name))
+                    if os.environ['azure_datalake_enable'] == 'true':
+                        permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.DataLakeStore/accounts/{}/providers/Microsoft.Authorization/'.format(
+                            subscription_id, service_base_name, data_lake_name
+                        )
+                    else:
+                        permission_scope = 'subscriptions/{}/resourceGroups/{}/providers/Microsoft.Authorization/'.format(
+                            subscription_id, service_base_name
+                        )
+                    sudo('sed -i "s|<PERMISSION_SCOPE>|{}|g" /tmp/yml_tmp/security.yml'.format(permission_scope))
                 sudo('mv /tmp/yml_tmp/* ' + os.environ['ssn_dlab_path'] + 'conf/')
                 sudo('rmdir /tmp/yml_tmp/')
             except:

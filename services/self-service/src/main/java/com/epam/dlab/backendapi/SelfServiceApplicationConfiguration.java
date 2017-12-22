@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi;
 
 import com.epam.dlab.ServiceConfiguration;
 import com.epam.dlab.backendapi.validation.SelfServiceCloudConfigurationSequenceProvider;
+import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.epam.dlab.validation.AwsValidation;
 import com.epam.dlab.validation.AzureValidation;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -59,6 +60,9 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @Max(value = 1000, groups = {AzureValidation.class, AwsValidation.class})
     @JsonProperty
     private int maxSparkInstanceCount;
+
+    @JsonProperty
+    private AzureLoginConfiguration azureLoginConfiguration;
 
     @JsonProperty
     private boolean rolePolicyEnabled = false;
@@ -140,5 +144,12 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
      */
     public String getBillingConfFile() {
         return billingConfFile;
+    }
+
+    /**
+     * Return the Azure login configuration
+     */
+    public AzureLoginConfiguration getAzureLoginConfiguration() {
+        return azureLoginConfiguration;
     }
 }

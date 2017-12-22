@@ -27,6 +27,12 @@ public class SparkComputationalCreateAzure extends ComputationalBase<SparkComput
     private String dataEngineSlaveSize;
     @JsonProperty("azure_dataengine_master_size")
     private String dataEngineMasterSize;
+    @JsonProperty("azure_client_id")
+    private String azureClientId;
+    @JsonProperty("azure_datalake_enable")
+    private String azureDataLakeEnabled;
+    @JsonProperty("azure_user_refresh_token")
+    private String azureUserRefreshToken;
 
     public SparkComputationalCreateAzure withDataEngineInstanceCount(String dataEngineInstanceCount) {
         this.dataEngineInstanceCount = dataEngineInstanceCount;
@@ -43,6 +49,21 @@ public class SparkComputationalCreateAzure extends ComputationalBase<SparkComput
         return this;
     }
 
+    public SparkComputationalCreateAzure withAzureClientId(String azureClientId) {
+        this.azureClientId = azureClientId;
+        return this;
+    }
+
+    public SparkComputationalCreateAzure withAzureDataLakeEnabled(String azureDataLakeEnabled) {
+        this.azureDataLakeEnabled = azureDataLakeEnabled;
+        return this;
+    }
+
+    public SparkComputationalCreateAzure withAzureUserRefreshToken(String azureUserRefreshToken) {
+        this.azureUserRefreshToken = azureUserRefreshToken;
+        return this;
+    }
+
     public String getDataEngineInstanceCount() {
         return dataEngineInstanceCount;
     }
@@ -55,12 +76,27 @@ public class SparkComputationalCreateAzure extends ComputationalBase<SparkComput
         return dataEngineMasterSize;
     }
 
+    public String getAzureClientId() {
+        return azureClientId;
+    }
+
+    public String getAzureDataLakeEnabled() {
+        return azureDataLakeEnabled;
+    }
+
+    public String getAzureUserRefreshToken() {
+        return azureUserRefreshToken;
+    }
+
     @Override
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
                 .add("dataEngineInstanceCount", dataEngineInstanceCount)
                 .add("dataEngineSlaveSize", dataEngineSlaveSize)
-                .add("dataEngineMasterSize", dataEngineMasterSize);
+                .add("dataEngineMasterSize", dataEngineMasterSize)
+                .add("azureClientId", azureClientId != null ? "***" : null)
+                .add("azureDataLakeEnabled", azureDataLakeEnabled)
+                .add("azureUserRefreshToken", azureUserRefreshToken != null ? "***" : null);
     }
 
     @Override

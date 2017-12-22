@@ -19,7 +19,7 @@
   [
     {
       "template_name": "RStudio 1.0.143",
-      "description": "Base image with rstudio node creation routines",
+      "description": "Base image with RStudio node creation routines",
       "environment_type": "exploratory",
       "version": "RStudio-1.0.143",
       "vendor": "AWS"

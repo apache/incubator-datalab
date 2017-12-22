@@ -16,7 +16,7 @@
   [
     {
       "template_name": "Zeppelin 0.7.2",
-      "description": "Base image with zeppelin node creation routines",
+      "description": "Base image with Zeppelin node creation routines",
       "environment_type": "exploratory",
       "version": "zeppelin-0.7.2",
       "vendor": "Azure"
