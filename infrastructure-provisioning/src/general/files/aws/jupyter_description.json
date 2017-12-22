@@ -19,7 +19,7 @@
   [
     {
       "template_name": "Jupyter notebook 5.0.0",
-      "description": "Base image with jupyter node creation routines",
+      "description": "Base image with Jupyter node creation routines",
       "environment_type": "exploratory",
       "version": "jupyter_notebook-5.0.0",
       "vendor": "AWS"

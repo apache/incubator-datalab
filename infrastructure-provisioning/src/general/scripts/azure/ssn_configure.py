@@ -52,7 +52,7 @@ if __name__ == "__main__":
         ssn_conf['shared_storage_account_name'] = ssn_conf['service_base_name'] + '-shared-storage'
         ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared-container').lower()
         ssn_conf['datalake_store_name'] = ssn_conf['service_base_name'] + '-ssn-datalake'
-        ssn_conf['datalake_shared_directory_name'] = ssn_conf['service_base_name'] + '-shared-directory'
+        ssn_conf['datalake_shared_directory_name'] = ssn_conf['service_base_name'] + '-shared-folder'
         ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
         ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-vpc'
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
@@ -274,6 +274,7 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
         azure_auth_path = '/home/{}/keys/azure_auth.json'.format(ssn_conf['dlab_ssh_user'])
+        ldap_login = 'false'
         if os.environ['azure_datalake_enable'] == 'false':
             mongo_parameters = {
                 "azure_resource_group_name": os.environ['azure_resource_group_name'],
@@ -289,7 +290,8 @@ if __name__ == "__main__":
                 "ssn_storage_account_tag_name": ssn_conf['ssn_storage_account_name'],
                 "shared_storage_account_tag_name": ssn_conf['shared_storage_account_name']
             }
-            ldap_login = os.environ['azure_oauth2_enabled']
+            if os.environ['azure_oauth2_enabled'] == 'false':
+                ldap_login = 'true'
             tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
             subscription_id = json.dumps(AzureMeta().sp_creds['subscriptionId']).replace('"', '')
             datalake_application_id = os.environ['azure_application_id']
@@ -311,7 +313,6 @@ if __name__ == "__main__":
                 "datalake_tag_name": ssn_conf['datalake_store_name'],
                 "azure_client_id": os.environ['azure_application_id']
             }
-            ldap_login = 'false'
             tenant_id = json.dumps(AzureMeta().sp_creds['tenantId']).replace('"', '')
             subscription_id = json.dumps(AzureMeta().sp_creds['subscriptionId']).replace('"', '')
             datalake_application_id = os.environ['azure_application_id']
