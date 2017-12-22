@@ -23,4 +23,5 @@ public interface SecurityAPI {
     String LOGIN_OAUTH = LOGIN + '/' + "oauth";
     String GET_USER_INFO = "getuserinfo";
     String LOGOUT = "logout";
+    String INIT_LOGIN_OAUTH = "/user/azure/init";
 }

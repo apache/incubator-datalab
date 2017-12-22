@@ -134,13 +134,12 @@ export class ApplicationSecurityService {
         return false;
 
       }).catch((error: any) => {
-
-        if (error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
+        if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
           window.location.href = error.headers.get('Location');
+        } else {
+          this.handleError(error);
+          return Observable.of(false);
         }
-
-        this.handleError(error);
-        return Observable.of(false);
       });
   }
 

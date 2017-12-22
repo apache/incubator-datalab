@@ -31,6 +31,7 @@ import com.microsoft.aad.adal4j.AuthenticationResult;
 import com.microsoft.azure.AzureEnvironment;
 import com.microsoft.azure.credentials.ApplicationTokenCredentials;
 import io.dropwizard.Configuration;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -42,6 +43,7 @@ import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,7 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
     private final UserInfoDAO userInfoDao;
     private final String authority;
     private final AzureLoginConfiguration azureLoginConfiguration;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private String clientId;
     private String tenantId;
     private String clientSecret;
@@ -77,7 +80,7 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
         this.azureLoginConfiguration = azureLoginConfiguration;
 
         if (azureLoginConfiguration.isValidatePermissionScope()) {
-            Map<String, String> authenticationParameters = new ObjectMapper()
+            Map<String, String> authenticationParameters = objectMapper
                     .readValue(new File(azureLoginConfiguration.getManagementApiAuthFile()),
                             new TypeReference<HashMap<String, String>>() {
                             });
@@ -109,9 +112,7 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
             return authenticateAndLogin(new UsernamePasswordSupplier(azureLoginConfiguration, credential));
         } catch (AuthenticationException e) {
             log.error("Basic authentication failed", e);
-            return Response.status(Response.Status.UNAUTHORIZED)
-                    .entity(new AzureLocalAuthResponse(null, null,
-                            "User authentication failed")).build();
+            return handleUserCredentialsLogin(e);
         }
     }
 
@@ -324,5 +325,38 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
             log.error("Cannot retrieve authentication token due to", e);
             throw new DlabException("Cannot retrieve authentication token", e);
         }
+    }
+
+    private Response handleUserCredentialsLogin(AuthenticationException e) {
+        String message = e.getMessage();
+
+        log.info("Try to handle exception with message {}", message);
+
+        String invalidGrantError = "invalid_grant";
+        String errorCode = "AADSTS65001";
+        String errorDescriptionKey = "error_description";
+
+        if (StringUtils.isNotEmpty(message)) {
+            try {
+                Map<String, String> errors = objectMapper
+                        .readValue(message,
+                                new TypeReference<HashMap<String, String>>() {
+                                });
+                if (errors != null
+                        && invalidGrantError.equalsIgnoreCase(errors.get("error"))
+                        && StringUtils.isNotEmpty(errors.get(errorDescriptionKey))
+                        && errors.get(errorDescriptionKey).startsWith(errorCode)) {
+
+                    return Response.status(Response.Status.FORBIDDEN)
+                            .header("Location", URI.create(azureLoginConfiguration.getRedirectUrl()
+                                    + "api" + SecurityAPI.INIT_LOGIN_OAUTH)).build();
+                }
+            } catch (IOException ioException) {
+                log.warn("Cannot handle authentication exception", ioException);
+            }
+        }
+        return Response.status(Response.Status.UNAUTHORIZED)
+                .entity(new AzureLocalAuthResponse(null, null,
+                        "User authentication failed")).build();
     }
 }
