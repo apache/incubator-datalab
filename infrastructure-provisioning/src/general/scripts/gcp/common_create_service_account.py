@@ -51,14 +51,13 @@ if __name__ == "__main__":
                 GCPActions().create_role(args.role_name, permissions)
             print("Assigning custom role to Service account.")
             GCPActions().set_role_to_service_account(args.service_account_name, args.role_name)
-            print("Assigning predefined roles to Service account.")
-            predefined_roles = []
             if args.roles_path != '':
+                print("Assigning predefined roles to Service account.")
                 with open(args.roles_path, 'r') as f:
                     json_file = f.read()
-                roles = json.loads(json_file)
-                for role in roles:
-                    GCPActions().set_role_to_service_account(args.service_account_name, args.role_name)
+                predefined_roles = json.loads(json_file)
+                for role in predefined_roles:
+                    GCPActions().set_role_to_service_account(args.service_account_name, args.role_name, 'predefined')
     else:
         sys.exit(1)
 
