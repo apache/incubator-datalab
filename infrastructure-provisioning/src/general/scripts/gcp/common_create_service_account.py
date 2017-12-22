@@ -57,7 +57,7 @@ if __name__ == "__main__":
                     json_file = f.read()
                 predefined_roles = json.loads(json_file)
                 for role in predefined_roles:
-                    GCPActions().set_role_to_service_account(args.service_account_name, args.role_name, 'predefined')
+                    GCPActions().set_role_to_service_account(args.service_account_name, role, 'predefined')
     else:
         sys.exit(1)
 
