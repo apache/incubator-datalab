@@ -35,7 +35,6 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
 
   model: ExploratoryEnvironmentCreateModel;
-  notebookExist: boolean = false;
   templateDescription: string;
   namePattern = '[-_a-zA-Z0-9]+';
   resourceGrid: any;
@@ -67,13 +66,18 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
 
   initFormModel(): void {
     this.createExploratoryEnvironmentForm = this._fb.group({
-      environment_name: ['', [Validators.required, Validators.pattern(this.namePattern), this.providerMaxLength]]
+      environment_name: ['', [Validators.required, Validators.pattern(this.namePattern), this.providerMaxLength, this.checkDuplication.bind(this)]]
     });
   }
 
   providerMaxLength(control) {
     if (DICTIONARY.cloud_provider === 'azure')
       return control.value.length <=10 ? null : { valid: false };
+  }
+
+  checkDuplication(control) {
+    if (this.resourceGrid.containsNotebook(control.value))
+      return { duplication: true }
   }
 
   shapePlaceholder(resourceShapes, byField: string): string {
@@ -103,12 +107,6 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   }
 
   createExploratoryEnvironment_btnClick($event, data, valid, template) {
-    this.notebookExist = false;
-
-    if (this.resourceGrid.containsNotebook(data.environment_name)) {
-      this.notebookExist = true;
-      return false;
-    }
     this.model.setCreatingParams(data.environment_name, this.environment_shape);
     this.model.confirmAction();
     $event.preventDefault();
@@ -144,7 +142,6 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   }
 
   private resetDialog(): void {
-    this.notebookExist = false;
     this.processError = false;
     this.errorMessage = '';
 

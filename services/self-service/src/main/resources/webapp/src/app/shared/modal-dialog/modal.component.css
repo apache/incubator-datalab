@@ -273,7 +273,7 @@ limitations under the License.
 }
 
 .dialog-content .danger_field {
-  border-color: #d9534f;
+  border-color: #d9534f !important;
 }
 .modal-footer .btn {
   margin-top: 0;
