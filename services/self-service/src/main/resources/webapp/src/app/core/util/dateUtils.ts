@@ -30,12 +30,12 @@ export class DateUtils {
   public getQuarterRange() {
     const currentMonth = (new Date()).getMonth();
     const yyyy = (new Date()).getFullYear();
-    let start = (Math.floor(currentMonth / 3) * 3 ) + 1,
-          end = start+3,
-          startDate = new Date(start + '-01-' + yyyy),
-          endDate = end > 12 ? new Date('01-01-' + (yyyy+1)) : new Date(end + '-01-' + (yyyy));
-    endDate = new Date((endDate.getTime()) -1);
+    const start = (Math.floor(currentMonth / 3) * 3 ) + 1,
+          end = start + 3,
+          startDate = new Date(start + '-01-' + yyyy);
+    let endDate = end > 12 ? new Date('01-01-' + (yyyy + 1)) : new Date(end + '-01-' + (yyyy));
 
+    endDate = new Date((endDate.getTime()) - 1);
     console.log('startDate =', startDate, 'endDate =', endDate);
   }
 }

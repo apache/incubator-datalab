@@ -39,11 +39,6 @@ import { BillingReportService } from './services/billingReport.service';
 })
 
 export class CoreModule {
-  constructor (@Optional() @SkipSelf() parentModule: CoreModule) {
-    if (parentModule) {
-      throw new Error('CoreModule is already loaded. Import it in the AppModule only');
-    }
-  }
 
   static forRoot(): ModuleWithProviders {
     return {
@@ -62,6 +57,11 @@ export class CoreModule {
         BillingReportService,
         ApplicationServiceFacade
       ]
-    }
+    };
+  }
+
+  constructor (@Optional() @SkipSelf() parentModule: CoreModule) {
+    if (parentModule)
+      throw new Error('CoreModule is already loaded. Import it in the AppModule only');
   }
 }
