@@ -450,7 +450,7 @@ List of parameters for SSN node termination:
 | key\_path                  | Path to admin key (without key name)                                               |
 | conf\_key\_name            | Name of the uploaded SSH key file (without “.pem” extension)                       |
 | conf\_os\_family           | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)  |
-| conf\_cloud\_provider      | Name of the cloud provider, which is supported by DLab (Azure)                     |
+| conf\_cloud\_provider      | Name of the cloud provider, which is supported by DLab (AWS)                       |
 | action                     | terminate                                                                          |
 
 #### In Azure
@@ -459,8 +459,8 @@ List of parameters for SSN node termination:
 ```
 List of parameters for SSN node termination:
 
-| Parameter            | Description/Value                                                                        |
-|----------------------|------------------------------------------------------------------------------------------|
+| Parameter                  | Description/Value                                                                  |
+|----------------------------|------------------------------------------------------------------------------------|
 | conf\_service\_base\_name  | Unique infrastructure value                                                        |
 | azure\_region              | Azure region                                                                       |
 | conf\_os\_family           | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)  |
@@ -470,6 +470,26 @@ List of parameters for SSN node termination:
 | conf\_key\_name            | Name of the uploaded SSH key file (without “.pem” extension)                       |
 | azure\_auth\_path          | Full path to auth json file                                                        |
 | action                     | terminate                                                                          |
+
+
+#### In Google cloud
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --gcp_project_id project_id --conf_service_base_name dlab --gcp_region us-west1 --gcp_zone us-west1-a --key_path /root/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider gcp --gcp_service_account_path /path/to/auth/file.json --action terminate
+```
+List of parameters for SSN node termination:
+
+| Parameter                    | Description/Value                                                                       |
+|------------------------------|-----------------------------------------------------------------------------------------|
+| conf\_service\_base\_name    | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| gcp\_region                  | GCP region                                                                              |
+| gcp\_zone                    | GCP zone                                                                                |
+| conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
+| conf\_cloud\_provider        | Name of the cloud provider, which is supported by DLab (GCP)                            |
+| key\_path                    | Path to admin key (without key name)                                                    |
+| conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| gcp\_service\_account\_path  | Full path to auth json file                                                             |
+| gcp\_project\_id             | ID of GCP project                                                                       |
+| action                       | In case of SSN node termination, this parameter should be set to “terminate”            |
 
 
 ## Edge Node <a name="Edge_Node"></a>
