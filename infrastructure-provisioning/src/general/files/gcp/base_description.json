@@ -1,0 +1,4 @@
+{
+  "template_name": "DLab GCP Base",
+  "description": "Base image with gcp tools"
+}
