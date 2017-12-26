@@ -424,7 +424,7 @@ class GCPMeta:
             if not prefix:
                 request = self.service_storage.buckets().list(project=self.project)
             else:
-                request = self.service_storage.buckets().list(project=self.project, prefix='{}'.format(prefix))
+                request = self.service_storage.buckets().list(project=self.project, prefix='{}-'.format(prefix))
             result = request.execute()
             return result
         except Exception as err:
