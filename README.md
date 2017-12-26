@@ -1100,11 +1100,11 @@ Dataengine-service is a cluster provided by cloud as a service (EMR on AWS) can 
 
 ### Create
 
-#### In Amazon
-
 To create dataengine-service cluster click on the “gear” button in Actions column, and click on “Add computational resources”. Specify dataengine-service version, fill in dataengine-service name, specify number of instances and instance shapes. Click on the “Create” button.
 
 List of parameters for dataengine-service cluster creation:
+
+#### In Amazon
 
 | Parameter                   | Description/Value                                                        |
 |-----------------------------|--------------------------------------------------------------------------|
@@ -1124,13 +1124,35 @@ List of parameters for dataengine-service cluster creation:
 
 **Note:** If “Spot instances” is enabled, dataengine-service Slave nodes will be created as EC2 Spot instances.
 
-### Terminate
+#### In Google cloud
 
-#### In Amazon
+| Parameter                       | Description/Value                                                        |
+|---------------------------------|--------------------------------------------------------------------------|
+| conf\_resource                  | dataengine-service                                                       |
+| conf\_service\_base\_name       | Unique infrastructure value, specified during SSN deployment             |
+| conf\_key\_name                 | Name of the uploaded SSH key file (without ".pem")                       |
+| notebook\_instance\_name        | Name of the Notebook dataengine-service will be linked to                |
+| edge\_user\_name                | Value that previously was used when Edge being provisioned               |
+| gcp\_subnet\_name               | Name of subnet                                                           |
+| dataproc\_version               | Version of Dataproc                                                      |
+| dataproc\_master\_count         | Number of master nodes                                                   |
+| dataproc\_slave\_count          | Number of slave nodes                                                    |
+| dataproc\_preemptible\_count    | Number of preemptible nodes                                              |
+| dataproc\_master\_instance\_type| Size of master node                                                      |
+| dataproc\_slave\_instance\_type | Size of slave node                                                       |
+| gcp\_project\_id                | ID of GCP project                                                        |
+| gcp\_region                     | GCP region where infrastructure was deployed                             |
+| gcp\_zone                       | GCP zone name                                                            |
+| conf\_tag\_resource\_id         | The name of tag for billing reports                                      |
+| action                          | create                                                                   |
+
+### Terminate
 
 In order to terminate dataengine-service cluster, click on “x” button which is located in “Computational resources” field.
 
 List of parameters for dataengine-service cluster termination:
+
+#### In Amazon
 
 | Parameter                 | Description/Value                                                   |
 |---------------------------|---------------------------------------------------------------------|
@@ -1143,17 +1165,67 @@ List of parameters for dataengine-service cluster termination:
 | aws\_region               | AWS region where infrastructure was deployed                        |
 | action                    | Terminate                                                           |
 
+#### In Google cloud
+
+| Parameter                 | Description/Value                                                   |
+|---------------------------|---------------------------------------------------------------------|
+| conf\_resource            | dataengine-service                                                  |
+| conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment        |
+| conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")                  |
+| edge\_user\_name          | Value that previously was used when Edge being provisioned          |
+| notebook\_instance\_name  | Name of the Notebook instance which dataengine-service is linked to |
+| gcp\_project\_id          | ID of GCP project                                                   |
+| gcp\_region               | GCP region where infrastructure was deployed                        |
+| gcp\_zone                 | GCP zone name                                                       |
+| dataproc\_cluster\_name   | Dataproc cluster name                                               |
+| action                    | Terminate                                                           |
+
 ## Dataengine cluster <a name="Dataengine cluster"></a>
 
 Dataengine is cluster based on Standalone Spark framework can be created if more computational resources are needed for executing analytical algorithms, but without additional expenses for cloud provided service.
 
 ### Create
 
-#### In Azure
-
 To create Spark standalone cluster click on the “gear” button in Actions column, and click on “Add computational resources”. Specify dataengine version, fill in dataengine name, specify number of instances and instance shapes. Click on the “Create” button.
 
 List of parameters for dataengine cluster creation:
+
+#### In Amazon
+
+| Parameter                      | Description/Value                                                                 |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | dataengine                                                                        |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
+| conf\_os\_family               | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat) |
+| notebook\_instance\_name       | Name of the Notebook dataengine will be linked to                                 |
+| dataengine\_instance\_count    | Number of nodes in cluster                                                        |
+| edge\_user\_name               | Value that previously was used when Edge being provisioned                        |
+| aws\_region                    | Amazon region where all infrastructure was deployed                               |
+| aws\_dataengine\_master\_size  | Size of master node                                                               |
+| aws\_dataengine\_slave\_size   | Size of slave node                                                                |
+| action                         | create                                                                            |
+
+#### In Azure
+
+| Parameter                      | Description/Value                                                                 |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | dataengine                                                                        |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
+| conf\_os\_family               | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat) |
+| notebook\_instance\_name       | Name of the Notebook dataengine will be linked to                                 |
+| dataengine\_instance\_count    | Number of nodes in cluster                                                        |
+| edge\_user\_name               | Value that previously was used when Edge being provisioned                        |
+| azure\_vpc\_name               | Name of Azure Virtual network where all infrastructure is being deployed          |
+| azure\_region                  | Azure region where all infrastructure was deployed                                |
+| azure\_dataengine\_master\_size| Size of master node                                                               |
+| azure\_dataengine\_slave\_size | Size of slave node                                                                |
+| azure\_resource\_group\_name   | Name of the resource group where all DLAb resources are being provisioned         |
+| azure\_subnet\_name            | Name of the Azure public subnet where Edge was deployed                           |
+| action                         | create                                                                            |
+
+#### In Google cloud
 
 | Parameter                    | Description/Value                                                                 |
 |------------------------------|-----------------------------------------------------------------------------------|
@@ -1162,21 +1234,25 @@ List of parameters for dataengine cluster creation:
 | conf\_key\_name              | Name of the uploaded SSH key file (without ".pem")                                |
 | conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat) |
 | notebook\_instance\_name     | Name of the Notebook dataengine will be linked to                                 |
+| gcp\_vpc\_name               | GCP VPC name                                                                      |
+| gcp\_subnet\_name            | GCP subnet name                                                                   |
+| dataengine\_instance\_count  | Number of nodes in cluster                                                        |
+| gcp\_dataengine\_master\_size| Size of master node                                                               |
+| gcp\_dataengine\_slave\_size | Size of slave node                                                                |
+| gcp\_project\_id             | ID of GCP project                                                                 |
+| gcp\_region                  | GCP region where infrastructure was deployed                                      |
+| gcp\_zone                    | GCP zone name                                                                     |
 | edge\_user\_name             | Value that previously was used when Edge being provisioned                        |
-| azure\_vpc\_name             | Name of Azure Virtual network where all infrastructure is being deployed          |
-| azure\_region                | Azure region where all infrastructure was deployed                                |
-| azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned         |
-| azure\_subnet\_name          | Name of the Azure public subnet where Edge was deployed                           |
 | action                       | create                                                                            |
 
 
 ### Terminate
 
-#### In Azure
-
 In order to terminate dataengine cluster, click on “x” button which is located in “Computational resources” field.
 
 List of parameters for dataengine cluster termination:
+
+#### In Amazon
 
 | Parameter                    | Description/Value                                                        |
 |------------------------------|--------------------------------------------------------------------------|
@@ -1185,9 +1261,39 @@ List of parameters for dataengine cluster termination:
 | conf\_key\_name              | Name of the uploaded SSH key file (without ".pem")                       |
 | edge\_user\_name             | Value that previously was used when Edge being provisioned               |
 | notebook\_instance\_name     | Name of the Notebook instance which dataengine is linked to              |
+| computational\_name          | Name of cluster                                                          |
+| aws\_region                  | AWS region where infrastructure was deployed                             |
+| action                       | Terminate                                                                |
+
+#### In Azure
+
+| Parameter                    | Description/Value                                                        |
+|------------------------------|--------------------------------------------------------------------------|
+| conf\_resource               | dataengine                                                               |
+| conf\_service\_base\_name    | Unique infrastructure value, specified during SSN deployment             |
+| conf\_key\_name              | Name of the uploaded SSH key file (without ".pem")                       |
+| edge\_user\_name             | Value that previously was used when Edge being provisioned               |
+| computational\_name          | Name of cluster                                                          |
+| notebook\_instance\_name     | Name of the Notebook instance which dataengine is linked to              |
 | azure\_region                | Azure region where infrastructure was deployed                           |
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned|
 | action                       | Terminate                                                                |
+
+#### In Google cloud
+
+| Parameter                    | Description/Value                                                        |
+|------------------------------|--------------------------------------------------------------------------|
+| conf\_resource               | dataengine                                                               |
+| conf\_service\_base\_name    | Unique infrastructure value, specified during SSN deployment             |
+| conf\_key\_name              | Name of the uploaded SSH key file (without ".pem")                       |
+| edge\_user\_name             | Value that previously was used when Edge being provisioned               |
+| notebook\_instance\_name     | Name of the Notebook instance which dataengine is linked to              |
+| computational\_name          | Name of cluster                                                          |
+| gcp\_project\_id             | ID of GCP project                                                        |
+| gcp\_region                  | GCP region where infrastructure was deployed                             |
+| gcp\_zone                    | GCP zone name                                                            |
+| action                       | Terminate                                                                |
+
 
 ## Configuration files <a name="Configuration_files"></a>
 
