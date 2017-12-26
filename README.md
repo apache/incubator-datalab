@@ -310,6 +310,11 @@ Prerequisites:
 - IAM user with Contributor permissions.
 - Service principal and JSON based auth file with clientId, clientSecret and tenantId. 
 
+**Note:** The following permissions should be assigned to the service principal:
+
+- Windows Azure Active Directory
+- Microsoft Graph
+- Windows Azure Service Management API
 
 To build SSN node, following steps should be executed:
 
