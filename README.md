@@ -193,9 +193,17 @@ These directories contain the log files for each template and for DLab back-end 
 
 ### Create
 
+Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud. 
+For each cloud provider, prerequisites are different.
+
 #### In Amazon cloud
 
-The IAM user with following permissions is required for deploying DLAB at AWS cloud :
+Prerequisites:
+ 
+ - SSH key for EC2 instances. This key could be created through Amazon Console.
+ - IAM user
+ - AWS access key ID and secret access key
+ - The following permissions should be assigned for IAM user:
 ```
 {
 	"Version": "2012-10-17",
@@ -292,13 +300,15 @@ After SSN node deployment following AWS resources will be created:
 -   IAM role and EC2 Instance Profile for SSN
 -   Security Group for SSN node (if it was specified, script will attach the provided one)
 -   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
--   S3 bucket – its name will be \<service\_base\_name\>-ssn. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
--   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared
+-   S3 bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
+-   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket
 
 #### In Azure cloud
 
-JSON based auth file with service principal clientId, clientSecret and tenantId is required for deploying DLAB 
-at Azure cloud:
+Prerequisites:
+
+- IAM user with Contributor permissions.
+- Service principal and JSON based auth file with clientId, clientSecret and tenantId. 
 
 
 To build SSN node, following steps should be executed:
@@ -314,25 +324,30 @@ This python script will build front-end and back-end part of DLab, create SSN do
 
 List of parameters for SSN node deployment:
 
-| Parameter                    | Description/Value                                                                       |
-|------------------------------|-----------------------------------------------------------------------------------------|
-| conf\_service\_base\_name    | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
-| azure\_region                | Azure region                                                                            |
-| conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
-| conf\_cloud\_provider        | Name of the cloud provider, which is supported by DLab (Azure)                          |
-| azure\_vpc\_name             | Name of the Virtual Network (VN)                                                        |
-| azure\_subnet\_name          | Name of the Azure subnet                                                                |
-| azure\_security\_groups\_name| One or more Name\`s of Azure Security Groups, which will be assigned to SSN node        |
-| key\_path                    | Path to admin key (without key name)                                                    |
-| conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
-| azure\_auth\_path            | Full path to auth json file                                                             |
-| azure\_offer\_number         | Azure offer id number                                                                   |
-| azure\_currency              | Currency that is used for billing information(e.g. USD)                                 |
-| azure\_locale                | Locale that is used for billing information(e.g. en-US)                                 |
-| azure\_region\_info          | Region info that is used for billing information(e.g. US)                               |
-| azure\_datalake\_enable      | Support of Azure Data Lake (true/false)                                                 |
-| azure\_ad\_group\_id         | ID of AD group                                                                          |
-| action                       | In case of SSN node creation, this parameter should be set to “create”                  |
+| Parameter                         | Description/Value                                                                       |
+|-----------------------------------|-----------------------------------------------------------------------------------------|
+| conf\_service\_base\_name         | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| azure\_resource\_group\_name      | Resource group name (could be the same as service base name                             |
+| azure\_region                     | Azure region                                                                            |
+| conf\_os\_family                  | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
+| conf\_cloud\_provider             | Name of the cloud provider, which is supported by DLab (Azure)                          |
+| azure\_vpc\_name                  | Name of the Virtual Network (VN)                                                        |
+| azure\_subnet\_name               | Name of the Azure subnet                                                                |
+| azure\_security\_groups\_name     | One or more Name\`s of Azure Security Groups, which will be assigned to SSN node        |
+| azure\_ssn\_instance\_size        | Instance size of SSN instance in Azure                                                  |
+| key\_path                         | Path to admin key (without key name)                                                    |
+| conf\_key\_name                   | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| azure\_auth\_path                 | Full path to auth json file                                                             |
+| azure\_offer\_number              | Azure offer id number                                                                   |
+| azure\_currency                   | Currency that is used for billing information(e.g. USD)                                 |
+| azure\_locale                     | Locale that is used for billing information(e.g. en-US)                                 |
+| azure\_region\_info               | Region info that is used for billing information(e.g. US)                               |
+| azure\_datalake\_enable           | Support of Azure Data Lake (true/false)                                                 |
+| azure\_validate\_permission\_scope| Azure permission scope validation (true or false)                                       |
+| azure\_oauth2\_enabled            | Using OAuth2 for logging in DLab                                                        |
+| azure\_application\_id            | Azure login application ID                                                              |
+| azure\_ad\_group\_id              | ID of AD group                                                                          |
+| action                            | In case of SSN node creation, this parameter should be set to “create”                  |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
 -   azure\_vpc\_nam
@@ -364,6 +379,56 @@ After SSN node deployment following Azure resources will be created:
 -   Storage account and blob container for necessary further dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
 -   Storage account and blob container for collaboration between Dlab users
 -   If support of Data Lake is enabled: Data Lake and shared directory will be created 
+
+#### In Google cloud (GCP)
+
+Prerequisites:
+
+- IAM user
+- Service account and JSON auth file for it. In order to get JSON auth file, Key should be created for service account through Google cloud console.
+  
+To build SSN node, following steps should be executed:
+
+1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed.
+2.  Go to *dlab* directory.
+3.  Execute following script:
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab --gcp_region us-west1 --gcp_zone us-west1-a --conf_os_family debian --conf_cloud_provider gcp --key_path /key/path/ --conf_key_name key_name --gcp_ssn_instance_size n1-standard-1 --gcp_project_id project_id --gcp_service_account_path /path/to/auth/file.json --action create
+```
+
+This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
+
+List of parameters for SSN node deployment:
+
+| Parameter                    | Description/Value                                                                       |
+|------------------------------|-----------------------------------------------------------------------------------------|
+| conf\_service\_base\_name    | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| gcp\_region                  | GCP region                                                                              |
+| gcp\_zone                    | GCP zone                                                                                |
+| conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
+| conf\_cloud\_provider        | Name of the cloud provider, which is supported by DLab (GCP)                            |
+| gcp\_vpc\_name               | Name of the Virtual Network (VN)                                                        |
+| gcp\_subnet\_name            | Name of the GCP subnet                                                                  |
+| gcp\_firewall\_name          | One or more Name\`s of GCP Security Groups, which will be assigned to SSN node          |
+| key\_path                    | Path to admin key (without key name)                                                    |
+| conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| gcp\_service\_account\_path  | Full path to auth json file                                                             |
+| gcp\_ssn\_instance\_size     | Instance size of SSN instance in GCP                                                    |
+| gcp\_project\_id             | ID of GCP project                                                                       |
+| action                       | In case of SSN node creation, this parameter should be set to “create”                  |
+
+
+**Note:** In current release, Web UI and back-end won't be working. For managing further nodes, Jenkins will be installed on SSN node. URL and credentials will be provided at the end of executing *dlab-deploy.py* script.
+
+After SSN node deployment following GCP resources will be created:
+
+-   SSN VM instance
+-   External IP address for SSN instance
+-   IAM role and Service account for SSN
+-   Security Groups for SSN node (if it was specified, script will attach the provided one)
+-   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
+-   Bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
+-   Bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket
 
 ### Terminate
 
