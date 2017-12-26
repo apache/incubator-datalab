@@ -24,14 +24,12 @@ import com.epam.dlab.auth.core.LdapFilterCache;
 import com.epam.dlab.auth.dao.filter.SearchResultProcessor;
 import com.epam.dlab.auth.dao.script.ScriptHolder;
 import com.epam.dlab.auth.dao.script.SearchResultToDictionaryMapper;
+import com.epam.dlab.exceptions.DlabException;
 import org.apache.commons.pool.PoolableObjectFactory;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.SearchRequest;
-import org.apache.directory.ldap.client.api.LdapConnection;
-import org.apache.directory.ldap.client.api.LdapConnectionConfig;
-import org.apache.directory.ldap.client.api.LdapConnectionPool;
-import org.apache.directory.ldap.client.api.ValidatingPoolableLdapConnectionFactory;
+import org.apache.directory.ldap.client.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +55,10 @@ public class LdapUserDAO {
     private final LdapConnectionPool searchPool;
     private final ScriptHolder script = new ScriptHolder();
     protected final static Logger LOG = LoggerFactory.getLogger(LdapUserDAO.class);
+    private boolean useCache = true;
+    private boolean ldapUseConnectionPool;
 
-    public LdapUserDAO(	SecurityServiceConfiguration config ) {
+    public LdapUserDAO(	SecurityServiceConfiguration config, boolean useCache ) {
         this.connConfig = config.getLdapConnectionConfig();
         this.requests = config.getLdapSearch();
         this.bindTemplate = config.getLdapBindTemplate();
@@ -68,16 +68,29 @@ public class LdapUserDAO {
         this.usersPool = new LdapConnectionPool(userPoolFactory);
         PoolableObjectFactory<LdapConnection> searchPoolFactory = new ValidatingPoolableLdapConnectionFactory(connConfig);
         this.searchPool = new LdapConnectionPool(searchPoolFactory);
+        this.useCache = useCache;
+        this.ldapUseConnectionPool = config.isLdapUseConnectionPool();
     }
 
     public UserInfo getUserInfo(String username, String password) throws Exception {
         Map<String, Object> userAttributes = null;
-        try (ReturnableConnection userRCon = new ReturnableConnection(usersPool)) {
-            LdapConnection userCon = userRCon.getConnection();
 
-            userAttributes = searchUsersAttributes(username, userCon);
+        ReturnableConnection returnableConnection = null;
+        LdapConnection ldapConnection = null;
+        try {
+            if (ldapUseConnectionPool) {
+                returnableConnection = new ReturnableConnection(usersPool);
+                ldapConnection = returnableConnection.getConnection();
+            } else {
+                ldapConnection = new LdapNetworkConnection(connConfig);
+                if (!ldapConnection.connect()) {
+                    LOG.error("Cannot establish a connection to LDAP server");
+                    throw new DlabException("Login user failed. LDAP server is not available");
+                }
+            }
+            userAttributes = searchUsersAttributes(username, ldapConnection);
             String bindAttribute = userAttributes.get(ldapBindAttribute).toString();
-            bindUser(username, password, bindAttribute, userCon);
+            bindUser(username, password, bindAttribute, ldapConnection);
 
             UserInfo userInfo = new UserInfo(username, "******");
             for(Map.Entry<String, Object> entry: userAttributes.entrySet()) {
@@ -87,13 +100,15 @@ public class LdapUserDAO {
 
             return userInfo;
         } catch(Exception e){
-            LOG.error("LDAP getUserInfo authentication error for username '{}': {}", username ,e.getMessage());
+            LOG.error("LDAP getUserInfo authentication error for username '{}': {}", username, e.getMessage(), e);
             throw e;
+        } finally {
+            closeQuietly(returnableConnection, ldapConnection);
         }
     }
 
     private void bindUser(String username, String password, String cn, LdapConnection userCon) throws LdapException {
-        LOG.info("Biding with template : "  + bindTemplate + " and username/cn: " + cn);
+        LOG.info("Biding with template : {} and username/cn: {}", bindTemplate, cn);
         String bind = String.format(bindTemplate, cn);
         userCon.bind(bind, password);
         userCon.unBind();
@@ -101,7 +116,7 @@ public class LdapUserDAO {
     }
 
     private Map<String, Object> searchUsersAttributes(final String username, LdapConnection userCon) throws IOException, LdapException {
-        Map<String, Object> contextMap = new HashMap<>();
+        Map<String, Object> contextMap;
         Map<String, Object> userAttributes = new HashMap<>();
         for(Request request: requests) {
             if (request.getName().equalsIgnoreCase(USER_LOOK_UP)) {
@@ -115,7 +130,7 @@ public class LdapUserDAO {
                     }
                 });
                 String filter = sr.getFilter().toString();
-                contextMap = LdapFilterCache.getInstance().getLdapFilterInfo(filter);
+                contextMap = (useCache) ? LdapFilterCache.getInstance().getLdapFilterInfo(filter) : null;
                 SearchResultToDictionaryMapper mapper = new SearchResultToDictionaryMapper(request.getName(),
                         new HashMap<>());
                 LOG.debug("Retrieving new branch {} for {}", request.getName(), filter);
@@ -124,7 +139,8 @@ public class LdapUserDAO {
                     Iterator<Object> iterator = contextMap.values().iterator();
                     if(iterator.hasNext()) {
                     	@SuppressWarnings("unchecked")
-						Map<String, Object> ua = (Map<String, Object>)iterator.next(); 
+						Map<String, Object> ua = (Map<String, Object>)iterator.next();
+                    	LOG.info("User atttr {} ", ua);
                         userAttributes = ua;
                     }
                 }
@@ -139,14 +155,25 @@ public class LdapUserDAO {
 
         String username = userInfo.getName();
         UserInfo ui = userInfo.withToken("******");
-        try (ReturnableConnection searchRCon = new ReturnableConnection(searchPool)) {
-            LdapConnection searchCon = searchRCon.getConnection();
+        ReturnableConnection returnableConnection = null;
+        LdapConnection ldapConnection = null;
+        try {
+            if (ldapUseConnectionPool) {
+                returnableConnection = new ReturnableConnection(searchPool);
+                ldapConnection = returnableConnection.getConnection();
+            } else {
+                ldapConnection = new LdapNetworkConnection(connConfig);
+                if (!ldapConnection.connect()) {
+                    LOG.error("Connect to LDAP server is failed");
+                    throw new DlabException("User enrichment failed. LDAP server is not available.");
+                }
+            }
             Map<String, Object> conextTree = new HashMap<>();
             for (Request req : requests) {
                 if (req == null ) {
                     continue;
                 } else if (req.getName().equalsIgnoreCase(USER_LOOK_UP)) {
-                    Map<String, Object> usersAttributes = searchUsersAttributes(username, searchCon);
+                    Map<String, Object> usersAttributes = searchUsersAttributes(username, ldapConnection);
                     for (Map.Entry<String, Object> attribute : usersAttributes.entrySet()) {
                         if (null != attribute.getValue()) {
                             ui.addKey(attribute.getKey().toLowerCase(), attribute.getValue().toString());
@@ -164,15 +191,15 @@ public class LdapUserDAO {
                     }
                 });
                 String filter = sr.getFilter().toString();
-                Map<String, Object> contextMap = LdapFilterCache.getInstance().getLdapFilterInfo(filter);
+                Map<String, Object> contextMap = (useCache) ? LdapFilterCache.getInstance().getLdapFilterInfo(filter) : null;
                 SearchResultToDictionaryMapper mapper = new SearchResultToDictionaryMapper(req.getName(),
                         conextTree);
                 if (contextMap == null) {
                     LOG.debug("Retrieving new branch {} for {}", req.getName(), filter);
-                    try (SearchCursor cursor = searchCon.search(sr)) {
+                    try (SearchCursor cursor = ldapConnection.search(sr)) {
                         contextMap = mapper.transformSearchResult(cursor);
                     }
-                    if (req.isCache()) {
+                    if (req.isCache() && useCache) {
                         LdapFilterCache.getInstance().save(filter, contextMap, req.getExpirationTimeMsec());
                     }
                 } else {
@@ -185,10 +212,28 @@ public class LdapUserDAO {
                 }
             }
         } catch (Exception e) {
-            LOG.error("LDAP enrichUserInfo authentication error for username '{}': {}",username ,e.getMessage());
+            LOG.error("LDAP enrichUserInfo authentication error for username '{}': {}",username ,e.getMessage(), e);
             throw e;
+        } finally {
+            closeQuietly(returnableConnection, ldapConnection);
         }
         return ui;
     }
 
+    private void closeQuietly(ReturnableConnection returnableConnection, LdapConnection ldapConnection) {
+        try {
+            if (ldapUseConnectionPool) {
+                if (returnableConnection != null) {
+                    returnableConnection.close();
+                }
+            } else {
+                if (ldapConnection != null) {
+                    ldapConnection.close();
+                }
+            }
+
+        } catch (IOException e) {
+            LOG.error("Connection closing failed", e);
+        }
+    }
 }

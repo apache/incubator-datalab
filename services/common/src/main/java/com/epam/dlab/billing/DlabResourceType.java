@@ -26,6 +26,7 @@ public enum DlabResourceType {
     SSN_BUCKET,
     SSN_CONTAINER,
     SSN_STORAGE_ACCOUNT,
+    DATA_LAKE_STORE,
     COLLABORATION_BUCKET,
     COLLABORATION_CONTAINER,
     COLLABORATION_STORAGE_ACCOUNT,
@@ -71,6 +72,8 @@ public enum DlabResourceType {
                     return "Storage Account";
                 case SSN:
                     return "SSN";
+                case DATA_LAKE_STORE:
+                    return "Data Lake Store Account";
             }
         }
         return id;
@@ -110,6 +113,9 @@ public enum DlabResourceType {
                     list.add(DlabResourceType.SSN_STORAGE_ACCOUNT.toString());
                     list.add(DlabResourceType.EDGE_STORAGE_ACCOUNT.toString());
                     list.add(DlabResourceType.COLLABORATION_STORAGE_ACCOUNT.toString());
+                    break;
+                case "Data Lake Store Account":
+                    list.add(DlabResourceType.DATA_LAKE_STORE.toString());
                     break;
                 default:
                     list.add(e);

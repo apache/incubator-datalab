@@ -19,9 +19,9 @@ package com.epam.dlab.backendapi.resources.azure;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.backendapi.resources.base.ExploratoryService;
+import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStartAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
-import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -47,7 +47,7 @@ public class ExploratoryResourceAzure {
 
     @Path("/start")
     @POST
-    public String start(@Auth UserInfo ui, ExploratoryGitCredsUpdateDTO dto) throws JsonProcessingException {
+    public String start(@Auth UserInfo ui, ExploratoryActionStartAzure dto) throws JsonProcessingException {
         return exploratoryService.action(ui.getName(), dto, DockerAction.START);
     }
 

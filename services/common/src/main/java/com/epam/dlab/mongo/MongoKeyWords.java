@@ -23,6 +23,7 @@ public abstract class MongoKeyWords {
     public static final String SERVICE_BASE_NAME_KEY = "conf_service_base_name";
     public static final String SSN_STORAGE_ACCOUNT_TAG_KEY = "ssn_storage_account_tag_name";
     public static final String SHARED_STORAGE_ACCOUNT_TAG_KEY = "shared_storage_account_tag_name";
+    public static final String DATA_LAKE_TAG_NAME = "datalake_tag_name";
     public static final String BILLING_DETAILS = "billing";
     public static final String AZURE_BILLING_SCHEDULER = "billingScheduler";
     public static final String AZURE_BILLING_SCHEDULER_HISTORY = "billingSchedulerHistory";

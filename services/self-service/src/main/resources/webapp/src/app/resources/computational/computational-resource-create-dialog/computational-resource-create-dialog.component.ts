@@ -43,7 +43,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   shapes: any;
   spotInstance: boolean = false;
 
-  computationalResourceExist: boolean = false;
   clusterNamePattern: string = '[-_a-zA-Z0-9]+';
   nodeCountPattern: string = '^[1-9]\\d*$';
 
@@ -116,13 +115,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public createComputationalResource($event, data, shape_master: string, shape_slave: string) {
-    this.computationalResourceExist = false;
-
-    if (this.containsComputationalResource(data.cluster_alias_name)) {
-      this.computationalResourceExist = true;
-      return false;
-    }
-
     this.model.setCreatingParams(data.cluster_alias_name, data.instance_number, shape_master, shape_slave,
       this.spotInstance, data.instance_price);
     this.model.confirmAction();
@@ -184,7 +176,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.notebook_instance = notebook_instance;
       this.model = new ComputationalResourceCreateModel('', 0, '', '', notebook_instance.name, (response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
-          this.computationalResourceExist = false;
           this.close();
           this.buildGrid.emit();
         }
@@ -214,7 +205,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private initFormModel(): void {
     this.resourceForm = this._fb.group({
-      cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern), this.providerMaxLength]],
+      cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]]
     });
@@ -248,6 +239,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       return this.spotInstancesSelect.nativeElement['checked']
         ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
         : control.value;
+  }
+
+  private checkDuplication(control) {
+    if (this.containsComputationalResource(control.value))
+      return { duplication: true }
   }
 
   private providerMaxLength(control) {
@@ -294,7 +290,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private resetDialog(): void {
-    this.computationalResourceExist = false;
     this.processError = false;
     this.errorMessage = '';
 

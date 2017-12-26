@@ -18,6 +18,7 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.dao.BaseDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.resources.dto.LibInfoRecord;
@@ -73,15 +74,13 @@ public class LibraryService {
 
         if (document.get(ExploratoryLibDAO.EXPLORATORY_LIBS) != null) {
             List<Document> exploratoryLibs = (List<Document>) document.get(ExploratoryLibDAO.EXPLORATORY_LIBS);
-            exploratoryLibs.forEach(e -> populateModel(exploratoryName, e, model));
+            exploratoryLibs.forEach(e -> populateModel(exploratoryName, e, model, "notebook"));
 
         }
 
         if (document.get(ExploratoryLibDAO.COMPUTATIONAL_LIBS) != null) {
-            Document computationalLibs = (Document) document.get(ExploratoryLibDAO.COMPUTATIONAL_LIBS);
-            if (computationalLibs != null) {
-                populateComputational(computationalLibs, model);
-            }
+            Document computationalLibs = getLibsOfActiveComputationalResources(document);
+            populateComputational(computationalLibs, model, "cluster");
         }
 
         List<LibInfoRecord> libInfoRecords = new ArrayList<>();
@@ -94,7 +93,25 @@ public class LibraryService {
         return libInfoRecords;
     }
 
-    private void populateModel(String exploratoryName, Document document, Map<LibKey, List<LibraryStatus>> model) {
+    @SuppressWarnings("unchecked")
+    private Document getLibsOfActiveComputationalResources(Document document) {
+        Document computationalLibs = (Document) document.get(ExploratoryLibDAO.COMPUTATIONAL_LIBS);
+
+        if (document.get(ExploratoryDAO.COMPUTATIONAL_RESOURCES) != null) {
+            List<Document> computationalResources = (List<Document>) document.get(ExploratoryDAO.COMPUTATIONAL_RESOURCES);
+
+            Set<String> terminated = computationalResources.stream()
+                    .filter(doc -> doc.getString(BaseDAO.STATUS).equalsIgnoreCase(UserInstanceStatus.TERMINATED.toString()))
+                    .map(doc -> doc.getString("computational_name")).collect(Collectors.toSet());
+
+            terminated.forEach(computationalLibs::remove);
+        }
+
+        return computationalLibs;
+    }
+
+
+    private void populateModel(String exploratoryName, Document document, Map<LibKey, List<LibraryStatus>> model, String resourceType) {
         String name = document.getString(ExploratoryLibDAO.LIB_NAME);
         String version = document.getString(ExploratoryLibDAO.LIB_VERSION);
         String group = document.getString(ExploratoryLibDAO.LIB_GROUP);
@@ -108,15 +125,15 @@ public class LibraryService {
             model.put(libKey, statuses);
         }
 
-        statuses.add(new LibraryStatus(exploratoryName, status, error));
+        statuses.add(new LibraryStatus(exploratoryName, resourceType, status, error));
     }
 
     @SuppressWarnings("unchecked")
-    private void populateComputational(Document computationalLibs, Map<LibKey, List<LibraryStatus>> model) {
+    private void populateComputational(Document computationalLibs, Map<LibKey, List<LibraryStatus>> model, String resourceType) {
         for (Map.Entry<String, Object> entry : computationalLibs.entrySet()) {
             if (entry.getValue() != null) {
                 List<Document> docs = (List<Document>) entry.getValue();
-                docs.forEach(e -> populateModel(entry.getKey(), e, model));
+                docs.forEach(e -> populateModel(entry.getKey(), e, model, resourceType));
             }
         }
     }

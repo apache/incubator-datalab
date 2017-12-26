@@ -91,8 +91,8 @@ def terminate_edge_node(resource_group_name, service_base_name, user_name, subne
         for datalake in AzureMeta().list_datalakes(resource_group_name):
             try:
                 if service_base_name == datalake.tags["SBN"]:
-                    AzureActions().remove_datalake_directory(datalake.name, user_name + '-directory')
-                    print("Data Lake Store directory {} has been deleted".format(user_name + '-directory'))
+                    AzureActions().remove_datalake_directory(datalake.name, user_name + '-folder')
+                    print("Data Lake Store directory {} has been deleted".format(user_name + '-folder'))
             except:
                 pass
     except:

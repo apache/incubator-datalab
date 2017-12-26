@@ -109,12 +109,12 @@ export class InstallLibrariesComponent implements OnInit {
 
   private getResourcesList() {
     this.notebook.type = 'EXPLORATORY';
-    this.notebook.title = `${ this.notebook.name } <em>[notebook]</em>`;
+    this.notebook.title = `${ this.notebook.name } <em>notebook</em>`;
     return [this.notebook].concat(this.notebook.resources
       .filter(item => item.status === 'running')
       .map(item => {
         item['name'] = item.computational_name;
-        item['title'] = `${ item.computational_name } <em>[computational]</em>`;
+        item['title'] = `${ item.computational_name } <em>cluster</em>`;
         item['type'] = 'СOMPUTATIONAL';
         return item;
       }));

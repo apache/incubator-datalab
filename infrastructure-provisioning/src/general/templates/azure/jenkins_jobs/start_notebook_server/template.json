@@ -5,6 +5,8 @@
     "azure_resource_group_name": "ARGN",
     "edge_user_name":"NUN",
     "azure_region":"CREG",
+    "azure_user_refresh_token":"AURT",
+    "azure_datalake_enable":"DLE",
     "notebook_instance_name":"NIN",
     "conf_key_name":"CKN",
     "git_creds": GIT

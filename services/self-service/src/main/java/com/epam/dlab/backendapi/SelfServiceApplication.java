@@ -16,7 +16,6 @@
 
 package com.epam.dlab.backendapi;
 
-import com.epam.dlab.auth.SecurityFactory;
 import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
@@ -81,8 +80,6 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
         environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
         environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
-
-        injector.getInstance(SecurityFactory.class).configure(injector, environment);
 
         JerseyEnvironment jersey = environment.jersey();
         jersey.register(new RuntimeExceptionMapper());

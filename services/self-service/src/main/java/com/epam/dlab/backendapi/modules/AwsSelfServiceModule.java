@@ -16,6 +16,8 @@
 
 package com.epam.dlab.backendapi.modules;
 
+import com.epam.dlab.auth.SecurityFactory;
+import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthenticator;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.aws.AwsKeyDao;
 import com.epam.dlab.backendapi.domain.aws.BillingSchedulerManagerAws;
@@ -47,5 +49,8 @@ public class AwsSelfServiceModule extends CloudModule {
         environment.jersey().register(injector.getInstance(ComputationalResourceAws.class));
         environment.jersey().register(injector.getInstance(BillingResourceAws.class));
         environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAws.class));
+
+        injector.getInstance(SecurityFactory.class).configure(injector, environment,
+                SelfServiceSecurityAuthenticator.class, (p, r) -> true);
     }
 }

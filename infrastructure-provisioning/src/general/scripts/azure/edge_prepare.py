@@ -40,7 +40,7 @@ if __name__ == "__main__":
         edge_conf['service_base_name'] = os.environ['conf_service_base_name']
         edge_conf['resource_group_name'] = os.environ['azure_resource_group_name']
         edge_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        edge_conf['azure_ad_user_name'] = os.environ['azure_user_name']
+        edge_conf['azure_ad_user_name'] = os.environ['azure_iam_user']
         edge_conf['key_name'] = os.environ['conf_key_name']
         edge_conf['user_keyname'] = os.environ['edge_user_name']
         edge_conf['vpc_name'] = os.environ['azure_vpc_name']
@@ -65,8 +65,8 @@ if __name__ == "__main__":
         edge_conf['edge_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] +
                                             '-container').lower()
         edge_conf['datalake_store_name'] = edge_conf['service_base_name'] + '-ssn-datalake'
-        edge_conf['datalake_user_directory_name'] = edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + \
-                                                    '-directory'
+        edge_conf['datalake_user_directory_name'] = '{0}-{1}-folder'.format(edge_conf['service_base_name'],
+                                                                            edge_conf['user_name'])
         ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         edge_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")

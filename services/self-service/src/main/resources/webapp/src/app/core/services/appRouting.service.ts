@@ -40,4 +40,8 @@ export class AppRoutingService {
   redirectToHealthStatusPage(): void {
     this.router.navigate(['/environment_health_status']);
   }
+
+  redirectToAzure(): void {
+    window.location.href =  `${ window.location.origin }/api/user/azure/init`;
+  }
 }
