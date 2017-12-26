@@ -48,7 +48,7 @@ if __name__ == "__main__":
                        AzureActions().set_user_permissions_to_datalake_directory(
                            datalake.name, '/{}'.format(args.directory_name), args.ad_user)
                        AzureActions().set_user_permissions_to_datalake_directory(datalake.name, '/', args.ad_user,
-                                                                                 '--x')
+                                                                                 'r-x')
                     else:
                         AzureActions().chown_datalake_directory(datalake_name=datalake.name,
                                                                 dir_name='/{}'.format(args.directory_name),
