@@ -508,6 +508,8 @@ The following AWS resources will be created:
 -   User's S3 bucket
 -   Security Group for user's Edge instance
 -   Security Group for all further user's Notebook instances
+-   Security Groups for all further user's master nodes of data engine cluster
+-   Security Groups for all further user's slave nodes of data engine cluster
 -   IAM Roles and Instance Profiles for user's Edge instance
 -   IAM Roles and Instance Profiles all further user's Notebook instances
 -   User private subnet. All further nodes (Notebooks, EMR clusters) will be provisioned in different subnet than SSN.
@@ -533,7 +535,7 @@ List of parameters for Edge node creation:
 
 The following Azure resources will be created:
 -   Edge virtual machine
--   Static public IP address dor Edge virtual machine
+-   Static public IP address for Edge virtual machine
 -   Network interface for Edge node
 -   Security Group for user's Edge instance
 -   Security Group for all further user's Notebook instances
@@ -554,7 +556,35 @@ List of parameters for Edge node creation:
 | azure\_resource\_group\_name   | Name of the resource group where all DLAb resources are being provisioned         |
 | azure\_region                  | Azure region where infrastructure was deployed                                    |
 | azure\_vpc\_name               | Name of Azure Virtual network where all infrastructure is being deployed          |
-| azure\_subnet\_name            | NAme of the Azure public subnet where Edge will be deployed                       |
+| azure\_subnet\_name            | Name of the Azure public subnet where Edge will be deployed                       |
+| action                         | create                                                                            |
+
+#### In Google cloud
+
+The following GCP resources will be created:
+-   Edge VM instance
+-   External static IP address for Edge VM instance
+-   Security Group for user's Edge instance
+-   Security Group for all further user's Notebook instances
+-   Security Groups for all further user's master nodes of data engine cluster
+-   Security Groups for all further user's slave nodes of data engine cluster
+-   User's private subnet. All further nodes (Notebooks, data engine clusters) will be provisioned in different subnet than SSN.
+-   User's bucket 
+
+List of parameters for Edge node creation:
+
+| Parameter                  | Description/Value                                                                     |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | edge                                                                              |
+| conf\_os\_family               | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name               | Name of the user                                                                  |
+| gcp\_region                    | GCP region where infrastructure was deployed                                      |
+| gcp\_zone                      | GCP zone where infrastructure was deployed                                        |
+| gcp\_vpc\_name                 | Name of Azure Virtual network where all infrastructure is being deployed          |
+| gcp\_subnet\_name              | Name of the Azure public subnet where Edge will be deployed                       |
+| gcp\_project\_id               | ID of GCP project                                                                 |
 | action                         | create                                                                            |
 
 ### Start/Stop <a name=""></a>
@@ -596,6 +626,20 @@ List of parameters for Edge node stopping:
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned |
 | action                       | stop                                                                      |
 
+#### In Google cloud
+
+List of parameters for Edge node starting/stopping:
+
+| Parameter                  | Description/Value                                                                     |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | edge                                                                              |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| edge\_user\_name               | Name of the user                                                                  |
+| gcp\_region                    | GCP region where infrastructure was deployed                                      |
+| gcp\_zone                      | GCP zone where infrastructure was deployed                                        |
+| gcp\_project\_id               | ID of GCP project                                                                 |
+| action                         | start/stop                                                                        |
+
 ### Recreate <a name=""></a>
 
 In case Edge node was damaged, or terminated manually, there is an option to re-create it.
@@ -635,6 +679,21 @@ List of parameters for Edge node recreation:
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned         |
 | azure\_subnet\_name          | Name of the Azure public subnet where Edge was deployed                           |
 | action                       | Create                                                                            |
+
+#### In Google cloud
+| Parameter                  | Description/Value                                                                     |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | edge                                                                              |
+| conf\_os\_family               | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name               | Name of the user                                                                  |
+| gcp\_region                    | GCP region where infrastructure was deployed                                      |
+| gcp\_zone                      | GCP zone where infrastructure was deployed                                        |
+| gcp\_vpc\_name                 | Name of Azure Virtual network where all infrastructure is being deployed          |
+| gcp\_subnet\_name              | Name of the Azure public subnet where Edge will be deployed                       |
+| gcp\_project\_id               | ID of GCP project                                                                 |
+| action                         | create                                                                            |
 
 ## Notebook node <a name="Notebook_node"></a>
 
@@ -682,6 +741,24 @@ List of parameters for Notebook node creation:
 | git\_creds                      | User git credentials in JSON format                                               |
 | action                          | Create                                                                            |
 
+#### In Google cloud
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_os\_family              | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| gcp\_vpc\_name                | Name of Azure Virtual network where all infrastructure is being deployed          |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_notebook\_instance\_size | Value of the Notebook VM instance size                                            |
+| gcp\_region                   | GCP region where infrastructure was deployed                                      |
+| gcp\_zone                     | GCP zone where infrastructure was deployed                                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| git\_creds                    | User git credentials in JSON format                                               |
+| action                        | Create                                                                            |
+
 ### Stop
 
 In order to stop Notebook node, click on the “gear” button in Actions column. From the drop-down menu click on “Stop” action.
@@ -711,6 +788,20 @@ List of parameters for Notebook node stopping:
 | notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
 | azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
 | action                          | Stop                                                                              |
+
+#### In Google cloud
+
+| Parameter                 | Description/Value                                            |
+|---------------------------|--------------------------------------------------------------|
+| conf\_resource            | notebook                                                     |
+| conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment |
+| conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")           |
+| edge\_user\_name          | Value that previously was used when Edge being provisioned   |
+| notebook\_instance\_name  | Name of the Notebook instance to terminate                   |
+| gcp\_region               | GCP region where infrastructure was deployed                 |
+| gcp\_zone                 | GCP zone where infrastructure was deployed                   |
+| gcp\_project\_id          | ID of GCP project                                            |
+| action                    | Stop                                                         |
 
 ### Start
 
@@ -747,6 +838,21 @@ List of parameters for Notebook node start:
 | git\_creds                      | User git credentials in JSON format                                               |
 | action                          | start                                                                             |
 
+#### In Google cloud
+
+| Parameter                 | Description/Value                                            |
+|---------------------------|--------------------------------------------------------------|
+| conf\_resource            | notebook                                                     |
+| conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment |
+| conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")           |
+| edge\_user\_name          | Value that previously was used when Edge being provisioned   |
+| notebook\_instance\_name  | Name of the Notebook instance to terminate                   |
+| gcp\_region               | GCP region where infrastructure was deployed                 |
+| gcp\_zone                 | GCP zone where infrastructure was deployed                   |
+| gcp\_project\_id          | ID of GCP project                                            |
+| git\_creds                | User git credentials in JSON format                          |
+| action                    | Stop                                                         |
+
 ### Terminate
 
 In order to terminate Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Terminate” action.
@@ -777,6 +883,20 @@ List of parameters for Notebook node termination:
 | notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
 | azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
 | action                          | terminate                                                                         |
+
+#### In Google cloud
+
+| Parameter                 | Description/Value                                            |
+|---------------------------|--------------------------------------------------------------|
+| conf\_resource            | notebook                                                     |
+| conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment |
+| edge\_user\_name          | Value that previously was used when Edge being provisioned   |
+| notebook\_instance\_name  | Name of the Notebook instance to terminate                   |
+| gcp\_region               | GCP region where infrastructure was deployed                 |
+| gcp\_zone                 | GCP zone where infrastructure was deployed                   |
+| gcp\_project\_id          | ID of GCP project                                            |
+| git\_creds                | User git credentials in JSON format                          |
+| action                    | Stop                                                         |
 
 ### List/Install additional libraries
 
@@ -872,6 +992,38 @@ List of parameters for Notebook node to **install** additional libraries:
 | libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
 | action                        | lib_install                                                                          |
 
+
+#### In Google cloud
+
+List of parameters for Notebook node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_zone                     | GCP zone name                                                                     |
+| action                        | lib_list                                                                          |
+
+List of parameters for Notebook node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                    |
+|-------------------------------|--------------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                             |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                         |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                   |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                           |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                           |
+| gcp\_project\_id              | ID of GCP project                                                                    |
+| gcp\_zone                     | GCP zone name                                                                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
+| action                        | lib_install                                                                          |
+
 ### Manage git credentials
 
 In order to manage git credentials on Notebook node, click on the button “Git credentials”. Then in menu you can add or edit existing credentials.
@@ -919,6 +1071,21 @@ List of parameters for Notebook node to **manage git credentials**:
 | edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
 | notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
 | azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned         |
+| git\_creds                    | User git credentials in JSON format                                               |
+| action                        | git\_creds                                                                        |
+
+#### In Google cloud
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_region                   | GCP region name                                                                   |
+| gcp\_zone                     | GCP zone name                                                                     |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | git\_creds                                                                        |
 
