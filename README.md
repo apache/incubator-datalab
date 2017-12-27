@@ -55,7 +55,9 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Infrastructure provisioning](#Infrastructure_provisioning)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [LDAP Authentication](#LDAP Authentication)
+&nbsp; &nbsp; &nbsp; &nbsp; [LDAP Authentication](#LDAP_Authentication)
+
+&nbsp; &nbsp; &nbsp; &nbsp; [Azure OAuth2 Authentication](#Azure_OAuth2_Authentication)
 
 ---------------
 # What is DLAB? <a name="What_is_DLAB"></a>
@@ -2318,7 +2320,7 @@ For example:
 ...
 ```
 
-## LDAP Authentication <a name="LDAP Authentication"></a>
+## LDAP Authentication <a name="LDAP_Authentication"></a>
 
 ### Unified logging and group management
 
@@ -2408,7 +2410,7 @@ Script code:
     timeLimit: 0
     base: ou=users,ou=alxn,dc=alexion,dc=cloud
     filter: "(&(objectCategory=person)(objectClass=user)(mail=%mail%))"
-   s
+    
 In the example above, the user login passed from GUI is a mail (**ldapSearchAttribute: mail**) and based on the filer (**filter: "(&(objectCategory=person)(objectClass=user)(mail=%mail%))")** so, the service would search user by its **“mail”**.
 If corresponding users are found - the script will return additional user`s attributes:
   - cn
@@ -2418,7 +2420,7 @@ If corresponding users are found - the script will return additional user`s attr
    
 User`s authentication into LDAP would be done for DN with following template **ldapBindTemplate: 'cn=%s,ou=users,ou=alxn,dc=alexion,dc=cloud'**, where CN is attribute retrieved by  **“userLookUp”** script.
 
-## Azure OAuth2 Authentication <a name="Azure OAuth2 Authentication"></a>
+## Azure OAuth2 Authentication <a name="Azure_OAuth2_Authentication"></a>
 DLab supports Oauth2 authentication that is configured automatically in Security Service and Self Service after DLab deployment. 
 Please see explanation details about configuration parameters for Self Service and Security Service below. 
 DLab supports client credentials(username + password) and authorization code flow for authentication. 
