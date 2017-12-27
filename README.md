@@ -2421,7 +2421,7 @@ If corresponding users are found - the script will return additional user`s attr
 User`s authentication into LDAP would be done for DN with following template **ldapBindTemplate: 'cn=%s,ou=users,ou=alxn,dc=alexion,dc=cloud'**, where CN is attribute retrieved by  **“userLookUp”** script.
 
 ## Azure OAuth2 Authentication <a name="Azure_OAuth2_Authentication"></a>
-DLab supports Oauth2 authentication that is configured automatically in Security Service and Self Service after DLab deployment. 
+DLab supports OAuth2 authentication that is configured automatically in Security Service and Self Service after DLab deployment. 
 Please see explanation details about configuration parameters for Self Service and Security Service below. 
 DLab supports client credentials(username + password) and authorization code flow for authentication. 
 
