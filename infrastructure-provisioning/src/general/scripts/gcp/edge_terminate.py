@@ -27,63 +27,70 @@ from dlab.actions_lib import *
 
 def terminate_edge_node(user_name, service_base_name, region, zone):
     print("Terminating EDGE and notebook instances")
+    base = '{}-{}'.format(service_base_name, user_name)
+    keys = ['edge', 'ps', 'ip', 'bucket', 'subnet']
+    targets = ['{}-{}'.format(base, k) for k in keys]
     try:
-        instances = GCPMeta().get_list_instances(zone, '{}-{}'.format(service_base_name, user_name))
+        instances = GCPMeta().get_list_instances(zone, base)
         if 'items' in instances:
             for i in instances['items']:
-                GCPActions().remove_instance(i['name'], zone)
+                if 'user' in i['labels']:
+                    if user_name == i['labels']['user']:
+                        GCPActions().remove_instance(i['name'], zone)
     except:
         sys.exit(1)
 
     print("Removing static addresses")
     try:
-        static_addresses = GCPMeta().get_list_static_addresses(region, '{}-{}'.format(service_base_name, user_name))
+        static_addresses = GCPMeta().get_list_static_addresses(region, base)
         if 'items' in static_addresses:
             for i in static_addresses['items']:
-                GCPActions().remove_static_address(i['name'], region)
+                if bool(set(targets) & set([i['name']])):
+                    GCPActions().remove_static_address(i['name'], region)
     except:
         sys.exit(1)
 
     print("Removing storage bucket")
     try:
-        buckets = GCPMeta().get_list_buckets('{}-{}'.format(service_base_name, user_name))
+        buckets = GCPMeta().get_list_buckets(base)
         if 'items' in buckets:
             for i in buckets['items']:
-                GCPActions().remove_bucket(i['name'])
+                if bool(set(targets) & set([i['name']])):
+                    GCPActions().remove_bucket(i['name'])
     except:
         sys.exit(1)
 
     print("Removing firewalls")
     try:
-        firewalls = GCPMeta().get_list_firewalls('{}-{}'.format(service_base_name, user_name))
+        firewalls = GCPMeta().get_list_firewalls(base)
         if 'items' in firewalls:
             for i in firewalls['items']:
-                GCPActions().remove_firewall(i['name'])
+                if bool(set(targets) & set(i['targetTags'])):
+                    GCPActions().remove_firewall(i['name'])
     except:
         sys.exit(1)
 
     print("Removing Service accounts and roles")
     try:
         list_service_accounts = GCPMeta().get_list_service_accounts()
-        for service_account in list_service_accounts:
-            if "{}-{}-".format(service_base_name, user_name) in service_account:
-                GCPActions().remove_service_account(service_account)
+        for service_account in (set(targets) & set(list_service_accounts)):
+            GCPActions().remove_service_account(service_account)
         list_roles_names = GCPMeta().get_list_roles()
-        for role in list_roles_names:
-            if "{}-{}-".format(service_base_name, user_name) in role:
-                GCPActions().remove_role(role)
+        for role in (set(targets) & set(list_roles_names)):
+            GCPActions().remove_role(role)
     except:
         sys.exit(1)
 
     print("Removing subnets")
     try:
-        list_subnets = GCPMeta().get_list_subnetworks(region, '', '{}-{}'.format(service_base_name, user_name))
+        list_subnets = GCPMeta().get_list_subnetworks(region, '', base)
         if 'items' in list_subnets:
             vpc_selflink = list_subnets['items'][0]['network']
             vpc_name = vpc_selflink.split('/')[-1]
-            subnets = GCPMeta().get_list_subnetworks(region, vpc_name, '{}-{}'.format(service_base_name, user_name))
+            subnets = GCPMeta().get_list_subnetworks(region, vpc_name, base)
             for i in subnets['items']:
-                GCPActions().remove_subnet(i['name'], region)
+                if bool(set(targets) & set([i['name']])):
+                    GCPActions().remove_subnet(i['name'], region)
     except:
         sys.exit(1)
 
