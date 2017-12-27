@@ -41,7 +41,7 @@ export class LibrariesInstallationService {
             .catch((error: any) => {
                 return Observable.throw(
                     new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`)
-                )
+                );
             });
     }
 
@@ -64,7 +64,7 @@ export class LibrariesInstallationService {
     }
 
     public getInstalledLibrariesList(exploratory): Observable<Response> {
-        let body = `?exploratory_name=${ exploratory }`;
+        const body = `?exploratory_name=${ exploratory }`;
 
         return this.applicationServiceFacade
             .buildGetInstalledLibrariesList(body)
