@@ -55,7 +55,7 @@ CONTENTS
 
 &nbsp; &nbsp; &nbsp; &nbsp; [Infrastructure provisioning](#Infrastructure_provisioning)
 
-&nbsp; &nbsp; &nbsp; &nbsp; [Authentification](#Authentification)
+&nbsp; &nbsp; &nbsp; &nbsp; [LDAP Authentication](#LDAP Authentication)
 
 ---------------
 # What is DLAB? <a name="What_is_DLAB"></a>
@@ -318,9 +318,11 @@ Prerequisites:
 
 To build SSN node, following steps should be executed:
 
-1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed.
-2.  Go to *dlab* directory.
-3.  Execute following script:
+1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed
+2.  Go to *dlab* directory
+3.  To have working billing functionality please review Billing configuration note and use proper parameters for SSN node deployment
+4.  To use Data Lake Store please review Azure Data Lake usage pre-requisites note and use proper parameters for SSN node deployment
+5.  Execute following deploy_dlab.py script:
 ```
 /usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab_test --azure_region westus2 --conf_os_family debian --conf_cloud_provider azure --azure_vpc_name vpc-test --azure_subnet_name subnet-test --azure_security_group_name sg-test1,sg-test2 --key_path /root/ --conf_key_name Test --azure_auth_path /dir/file.json  --action create
 ```
@@ -348,10 +350,10 @@ List of parameters for SSN node deployment:
 | azure\_locale                     | Locale that is used for billing information(e.g. en-US)                                 |
 | azure\_region\_info               | Region info that is used for billing information(e.g. US)                               |
 | azure\_datalake\_enable           | Support of Azure Data Lake (true/false)                                                 |
-| azure\_validate\_permission\_scope| Azure permission scope validation (true or false)                                       |
-| azure\_oauth2\_enabled            | Using OAuth2 for logging in DLab                                                        |
-| azure\_application\_id            | Azure login application ID                                                              |
-| azure\_ad\_group\_id              | ID of AD group                                                                          |
+| azure\_oauth2\_enabled            | Defines if Azure OAuth2 authentication mechanisms is enabled(true/false)                |
+| azure\_validate\_permission\_scope| Defines if DLab verifies user's permission to the configured resource(scope) during login with OAuth2 (true/false). If Data Lake is enabled default scope is Data Lake Store Account, else Resource Group, where DLab is deployed, is default scope. If user does not have any role in scope he/she is forbidden to log in
+| azure\_application\_id            | Azure application ID that is used to log in users in DLab                                                     |
+| azure\_ad\_group\_id              | ID of group in Active directory whose members have full access to shared folder in Azure Data Lake Store                                                                          |
 | action                            | In case of SSN node creation, this parameter should be set to “create”                  |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
@@ -368,10 +370,15 @@ To know azure\_offer\_number open [Azure Portal](https://portal.azure.com), go t
 Please see [RateCard API](https://msdn.microsoft.com/en-us/library/mt219004.aspx) to get more details about azure\_offer\_number,
 azure\_currency, azure\_locale, azure\_region_info. These DLab deploy properties correspond to RateCard API request parameters.
 
-**Note:** Azure Data Lake configuration:
+**Note:** Azure Data Lake usage pre-requisites:
 
-Before deploying SSN node, group should be created in Active Directory and all users should be added to this group.
-Or if the group exists, ID of this group should be passed in azure_ad_group_id parameter. 
+1. Configure application in Azure portal and grant proper permissions to it.
+- Open *Azure Active Directory* tab, then *App registrations* and click *New application registration*
+- Fill in ui form with the following parameters *Name* - put name of the new application, *Application type* - select Native, *Sign-on URL* put any valid url as it will be updated later
+- Grant proper permissions to the application. Select the application you just created on *App registration* view, then click *Required permissions*, then *Add->Select an API-> Azure Data Lake* and press *Select*, then check the box *Have full access to the Azure Data Lake service* and save the changes. Repeat the same actions for *Windows Azure Active Directory* API (available on *Required permissions->Add->Select an API*) and the box *Sign in and read user profile*
+- Get *Application ID* from application properties  it will be used as azure_application_id for deploy_dlap.py script 
+2. Usage of Data Lake resource predicts shared folder where all users can write or read any data. To manage access to this folder please create ot use existing group in Active Directory. All users from this group will have RW access to the shared folder. Put ID(in Active Directory) of the group as *azure_ad_group_id* parameter to deploy_dlab.py script
+3. After execution of deploy_dlab.py script go to the application created in step 1 and change *Redirect URIs* value to the https://SSN_HOSTNAME/ where SSN_HOSTNAME - SSN node hostname 
 
 After SSN node deployment following Azure resources will be created:
 
@@ -1779,7 +1786,15 @@ Some class names may have endings like Aws or Azure(e.g. ComputationalResourceAw
 
 #### Security service
 
-Security service is REST based service for user authentication against LDAP or LDAP + AWS depending on module configuration and cloud provider. LDAP only provides with authentication end point that allows to verify authenticity of users against LDAP instance. If you use AWS cloud provider LDAP + AWS authentication could be useful as it allows to combine LDAP authentication and verification if user has any role in AWS account
+Security service is REST based service for user authentication against LDAP/LDAP + AWS/Azure OAuth2 depending on module configuration and cloud provider. 
+LDAP only provides with authentication end point that allows to verify authenticity of users against LDAP instance. 
+If you use AWS cloud provider LDAP + AWS authentication could be useful as it allows to combine LDAP authentication and verification if user has any role in AWS account
+
+DLab provides OAuth2(client credentials and authorization code flow) security authorization mechanism for Azure users. This kind of authentication is required when you are going to use Data Lake. If Data Lake is not enabled you have two options LDAP ot OAuth2
+If OAuth2 is in use security-service validates user's permissions to configured permission scope(resource in Azure). 
+If Data Lake is enabled default permission scope(can be configured manually after deploy DLab) is Data Lake Store account so only if user has any role in scope of Data Lake Store Account resource he/she will be allowed to log in
+If Data Lake is disabled but Azure OAuth2 is in use default permission scope will be Resource Group where DLab is created and only users who have any roles in the resource group will be allowed to log in.
+
 
 ## Front-end <a name="Front_end"></a>
 
@@ -2303,7 +2318,7 @@ For example:
 ...
 ```
 
-## Authentification <a name="Authentification"></a>
+## LDAP Authentication <a name="LDAP Authentication"></a>
 
 ### Unified logging and group management
 
@@ -2393,7 +2408,7 @@ Script code:
     timeLimit: 0
     base: ou=users,ou=alxn,dc=alexion,dc=cloud
     filter: "(&(objectCategory=person)(objectClass=user)(mail=%mail%))"
-   
+   s
 In the example above, the user login passed from GUI is a mail (**ldapSearchAttribute: mail**) and based on the filer (**filter: "(&(objectCategory=person)(objectClass=user)(mail=%mail%))")** so, the service would search user by its **“mail”**.
 If corresponding users are found - the script will return additional user`s attributes:
   - cn
@@ -2402,3 +2417,61 @@ If corresponding users are found - the script will return additional user`s attr
   - memberOf
    
 User`s authentication into LDAP would be done for DN with following template **ldapBindTemplate: 'cn=%s,ou=users,ou=alxn,dc=alexion,dc=cloud'**, where CN is attribute retrieved by  **“userLookUp”** script.
+
+## Azure OAuth2 Authentication <a name="Azure OAuth2 Authentication"></a>
+DLab supports Oauth2 authentication that is configured automatically in Security Service and Self Service after DLab deployment. 
+Please see explanation details about configuration parameters for Self Service and Security Service below. 
+DLab supports client credentials(username + password) and authorization code flow for authentication. 
+
+
+### Azure OAuth2 Self Service configuration
+
+    azureLoginConfiguration:
+        useLdap: false
+        tenant: xxxx-xxxx-xxxx-xxxx 
+        authority: https://login.microsoftonline.com/
+        clientId: xxxx-xxxx-xxxx-xxxx
+        redirectUrl: https://dlab.azure.cloudapp.azure.com/
+        responseMode: query
+        prompt: consent
+        silent: true
+        loginPage: https://dlab.azure.cloudapp.azure.com/
+        maxSessionDurabilityMilliseconds: 288000000
+        
+where:
+- **useLdap** - defines if LDAP authentication is enabled(true/false). If false Azure OAuth2 takes place with configuration properties below
+- **tenant** - tenant id of your company
+- **authority** - Microsoft login endpoint
+- **clientId** - id of the application that users log in through
+- **redirectUrl** - redirect URL to DLab application after try to login to Azure using OAuth2
+- **responseMode** - defines how Azure sends authorization code or error information to DLab during log in procedure
+- **prompt** - defines kind of prompt during Oauth2 login
+- **silent** - defines if DLab tries to log in user without interaction(true/false), if false DLab tries to login user with configured prompt 
+- **loginPage** - start page of DLab application
+- **maxSessionDurabilityMilliseconds** - max user session durability. user will be asked to login after this period of time and when he/she creates ot starts notebook/cluster. This operation is needed to update refresh_token that is used by notebooks to access Data Lake Store 
+        
+To get more info about *responseMode*, *prompt* parameters please visit [Authorize access to web applications using OAuth 2.0 and Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code)
+        
+   
+### Azure OAuth2 Security Service configuration
+
+    azureLoginConfiguration:
+        useLdap: false
+        tenant: xxxx-xxxx-xxxx-xxxx 
+        authority: https://login.microsoftonline.com/
+        clientId: xxxx-xxxx-xxxx-xxxx
+        redirectUrl: https://dlab.azure.cloudapp.azure.com/
+        validatePermissionScope: true 
+        permissionScope: subscriptions/xxxx-xxxx-xxxx-xxxx/resourceGroups/xxxx-xxxx/providers/Microsoft.DataLakeStore/accounts/xxxx/providers/Microsoft.Authorization/
+        managementApiAuthFile: /dlab/keys/azure_authentication.json
+        
+where:
+- **useLdap** - defines if LDAP authentication is enabled(true/false). If false Azure OAuth2 takes place with configuration properties below
+- **tenant** - tenant id of your company
+- **authority** - Microsoft login endpoint
+- **clientId** - id of the application that users log in through
+- **redirectUrl** - redirect URL to DLab application after try to login to Azure using OAuth2
+- **validatePermissionScope** - defines(true/false) if user's permissions should be validated to resource that is provided in permissionScope parameter. User will be logged in onlu in case he/she has any role in resource IAM described with permissionScope parameter
+- **permissionScope** - describes Azure resource where user should have any role to pass authentication. If user has no role in resource IAM he/she will not be logged in  
+- **managementApiAuthFile** - authentication file that is used to query Microsoft Graph API to check user roles in resource decriveb in permissionScope  
+
