@@ -142,7 +142,7 @@ Apache Spark is also installed for each of the analytical tools above.
 
 After deploying Notebook node, user can create one of the cluster for it:
 -   Data engine - Spark standalone cluster
--   Data engine service - cloud managed cluster platform (EMR for AWS)
+-   Data engine service - cloud managed cluster platform (EMR for AWS or Dataproc for GCP)
 That simplifies running big data frameworks, such as Apache Hadoop and Apache Spark to process and analyze vast amounts of data. Adding cluster is not mandatory and is only needed in case additional computational resources are required for job execution.
 ----------------------
 # DLab Deployment <a name="DLab_Deployment"></a>
@@ -193,9 +193,17 @@ These directories contain the log files for each template and for DLab back-end 
 
 ### Create
 
+Deployment of DLab starts from creating Self-Service(SSN) node. DLab can be deployed in AWS, Azure and Google cloud. 
+For each cloud provider, prerequisites are different.
+
 #### In Amazon cloud
 
-The IAM user with following permissions is required for deploying DLAB at AWS cloud :
+Prerequisites:
+ 
+ - SSH key for EC2 instances. This key could be created through Amazon Console.
+ - IAM user
+ - AWS access key ID and secret access key
+ - The following permissions should be assigned for IAM user:
 ```
 {
 	"Version": "2012-10-17",
@@ -292,14 +300,21 @@ After SSN node deployment following AWS resources will be created:
 -   IAM role and EC2 Instance Profile for SSN
 -   Security Group for SSN node (if it was specified, script will attach the provided one)
 -   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
--   S3 bucket – its name will be \<service\_base\_name\>-ssn. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
--   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared
+-   S3 bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
+-   S3 bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket
 
 #### In Azure cloud
 
-JSON based auth file with service principal clientId, clientSecret and tenantId is required for deploying DLAB 
-at Azure cloud:
+Prerequisites:
 
+- IAM user with Contributor permissions.
+- Service principal and JSON based auth file with clientId, clientSecret and tenantId. 
+
+**Note:** The following permissions should be assigned to the service principal:
+
+- Windows Azure Active Directory
+- Microsoft Graph
+- Windows Azure Service Management API
 
 To build SSN node, following steps should be executed:
 
@@ -314,25 +329,30 @@ This python script will build front-end and back-end part of DLab, create SSN do
 
 List of parameters for SSN node deployment:
 
-| Parameter                    | Description/Value                                                                       |
-|------------------------------|-----------------------------------------------------------------------------------------|
-| conf\_service\_base\_name    | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
-| azure\_region                | Azure region                                                                            |
-| conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
-| conf\_cloud\_provider        | Name of the cloud provider, which is supported by DLab (Azure)                          |
-| azure\_vpc\_name             | Name of the Virtual Network (VN)                                                        |
-| azure\_subnet\_name          | Name of the Azure subnet                                                                |
-| azure\_security\_groups\_name| One or more Name\`s of Azure Security Groups, which will be assigned to SSN node        |
-| key\_path                    | Path to admin key (without key name)                                                    |
-| conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
-| azure\_auth\_path            | Full path to auth json file                                                             |
-| azure\_offer\_number         | Azure offer id number                                                                   |
-| azure\_currency              | Currency that is used for billing information(e.g. USD)                                 |
-| azure\_locale                | Locale that is used for billing information(e.g. en-US)                                 |
-| azure\_region\_info          | Region info that is used for billing information(e.g. US)                               |
-| azure\_datalake\_enable      | Support of Azure Data Lake (true/false)                                                 |
-| azure\_ad\_group\_id         | ID of AD group                                                                          |
-| action                       | In case of SSN node creation, this parameter should be set to “create”                  |
+| Parameter                         | Description/Value                                                                       |
+|-----------------------------------|-----------------------------------------------------------------------------------------|
+| conf\_service\_base\_name         | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| azure\_resource\_group\_name      | Resource group name (could be the same as service base name                             |
+| azure\_region                     | Azure region                                                                            |
+| conf\_os\_family                  | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
+| conf\_cloud\_provider             | Name of the cloud provider, which is supported by DLab (Azure)                          |
+| azure\_vpc\_name                  | Name of the Virtual Network (VN)                                                        |
+| azure\_subnet\_name               | Name of the Azure subnet                                                                |
+| azure\_security\_groups\_name     | One or more Name\`s of Azure Security Groups, which will be assigned to SSN node        |
+| azure\_ssn\_instance\_size        | Instance size of SSN instance in Azure                                                  |
+| key\_path                         | Path to admin key (without key name)                                                    |
+| conf\_key\_name                   | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| azure\_auth\_path                 | Full path to auth json file                                                             |
+| azure\_offer\_number              | Azure offer id number                                                                   |
+| azure\_currency                   | Currency that is used for billing information(e.g. USD)                                 |
+| azure\_locale                     | Locale that is used for billing information(e.g. en-US)                                 |
+| azure\_region\_info               | Region info that is used for billing information(e.g. US)                               |
+| azure\_datalake\_enable           | Support of Azure Data Lake (true/false)                                                 |
+| azure\_validate\_permission\_scope| Azure permission scope validation (true or false)                                       |
+| azure\_oauth2\_enabled            | Using OAuth2 for logging in DLab                                                        |
+| azure\_application\_id            | Azure login application ID                                                              |
+| azure\_ad\_group\_id              | ID of AD group                                                                          |
+| action                            | In case of SSN node creation, this parameter should be set to “create”                  |
 
 **Note:** If the following parameters are not specified, they will be created automatically:
 -   azure\_vpc\_nam
@@ -365,6 +385,56 @@ After SSN node deployment following Azure resources will be created:
 -   Storage account and blob container for collaboration between Dlab users
 -   If support of Data Lake is enabled: Data Lake and shared directory will be created 
 
+#### In Google cloud (GCP)
+
+Prerequisites:
+
+- IAM user
+- Service account and JSON auth file for it. In order to get JSON auth file, Key should be created for service account through Google cloud console.
+  
+To build SSN node, following steps should be executed:
+
+1.  Clone Git repository and make sure that all [pre-requisites](#Pre-requisites) are installed.
+2.  Go to *dlab* directory.
+3.  Execute following script:
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --conf_service_base_name dlab --gcp_region us-west1 --gcp_zone us-west1-a --conf_os_family debian --conf_cloud_provider gcp --key_path /key/path/ --conf_key_name key_name --gcp_ssn_instance_size n1-standard-1 --gcp_project_id project_id --gcp_service_account_path /path/to/auth/file.json --action create
+```
+
+This python script will build front-end and back-end part of DLab, create SSN docker image and run Docker container for creating SSN node.
+
+List of parameters for SSN node deployment:
+
+| Parameter                    | Description/Value                                                                       |
+|------------------------------|-----------------------------------------------------------------------------------------|
+| conf\_service\_base\_name    | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| gcp\_region                  | GCP region                                                                              |
+| gcp\_zone                    | GCP zone                                                                                |
+| conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
+| conf\_cloud\_provider        | Name of the cloud provider, which is supported by DLab (GCP)                            |
+| gcp\_vpc\_name               | Name of the Virtual Network (VN)                                                        |
+| gcp\_subnet\_name            | Name of the GCP subnet                                                                  |
+| gcp\_firewall\_name          | One or more Name\`s of GCP Security Groups, which will be assigned to SSN node          |
+| key\_path                    | Path to admin key (without key name)                                                    |
+| conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| gcp\_service\_account\_path  | Full path to auth json file                                                             |
+| gcp\_ssn\_instance\_size     | Instance size of SSN instance in GCP                                                    |
+| gcp\_project\_id             | ID of GCP project                                                                       |
+| action                       | In case of SSN node creation, this parameter should be set to “create”                  |
+
+
+**Note:** In current release, Web UI and back-end won't be working. For managing further nodes, Jenkins will be installed on SSN node. URL and credentials will be provided at the end of executing *dlab-deploy.py* script.
+
+After SSN node deployment following GCP resources will be created:
+
+-   SSN VM instance
+-   External IP address for SSN instance
+-   IAM role and Service account for SSN
+-   Security Groups for SSN node (if it was specified, script will attach the provided one)
+-   VPC, Subnet (if they have not been specified) for SSN and EDGE nodes
+-   Bucket – its name will be \<service\_base\_name\>-ssn-bucket. This bucket will contain necessary dependencies and configuration files for Notebook nodes (such as .jar files, YARN configuration, etc.)
+-   Bucket for for collaboration between Dlab users. Its name will be \<service\_base\_name\>-shared-bucket
+
 ### Terminate
 
 Terminating SSN node will also remove all nodes and components related to it. Basically, terminating Self-service node will terminate all DLab’s infrastructure.
@@ -385,7 +455,7 @@ List of parameters for SSN node termination:
 | key\_path                  | Path to admin key (without key name)                                               |
 | conf\_key\_name            | Name of the uploaded SSH key file (without “.pem” extension)                       |
 | conf\_os\_family           | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)  |
-| conf\_cloud\_provider      | Name of the cloud provider, which is supported by DLab (Azure)                     |
+| conf\_cloud\_provider      | Name of the cloud provider, which is supported by DLab (AWS)                       |
 | action                     | terminate                                                                          |
 
 #### In Azure
@@ -394,8 +464,8 @@ List of parameters for SSN node termination:
 ```
 List of parameters for SSN node termination:
 
-| Parameter            | Description/Value                                                                        |
-|----------------------|------------------------------------------------------------------------------------------|
+| Parameter                  | Description/Value                                                                  |
+|----------------------------|------------------------------------------------------------------------------------|
 | conf\_service\_base\_name  | Unique infrastructure value                                                        |
 | azure\_region              | Azure region                                                                       |
 | conf\_os\_family           | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)  |
@@ -405,6 +475,26 @@ List of parameters for SSN node termination:
 | conf\_key\_name            | Name of the uploaded SSH key file (without “.pem” extension)                       |
 | azure\_auth\_path          | Full path to auth json file                                                        |
 | action                     | terminate                                                                          |
+
+
+#### In Google cloud
+```
+/usr/bin/python infrastructure-provisioning/scripts/deploy_dlab.py --gcp_project_id project_id --conf_service_base_name dlab --gcp_region us-west1 --gcp_zone us-west1-a --key_path /root/ --conf_key_name key_name --conf_os_family debian --conf_cloud_provider gcp --gcp_service_account_path /path/to/auth/file.json --action terminate
+```
+List of parameters for SSN node termination:
+
+| Parameter                    | Description/Value                                                                       |
+|------------------------------|-----------------------------------------------------------------------------------------|
+| conf\_service\_base\_name    | Any infrastructure value (should be unique if multiple SSN’s have been deployed before) |
+| gcp\_region                  | GCP region                                                                              |
+| gcp\_zone                    | GCP zone                                                                                |
+| conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat)       |
+| conf\_cloud\_provider        | Name of the cloud provider, which is supported by DLab (GCP)                            |
+| key\_path                    | Path to admin key (without key name)                                                    |
+| conf\_key\_name              | Name of the uploaded SSH key file (without “.pem” extension)                            |
+| gcp\_service\_account\_path  | Full path to auth json file                                                             |
+| gcp\_project\_id             | ID of GCP project                                                                       |
+| action                       | In case of SSN node termination, this parameter should be set to “terminate”            |
 
 
 ## Edge Node <a name="Edge_Node"></a>
@@ -423,6 +513,8 @@ The following AWS resources will be created:
 -   User's S3 bucket
 -   Security Group for user's Edge instance
 -   Security Group for all further user's Notebook instances
+-   Security Groups for all further user's master nodes of data engine cluster
+-   Security Groups for all further user's slave nodes of data engine cluster
 -   IAM Roles and Instance Profiles for user's Edge instance
 -   IAM Roles and Instance Profiles all further user's Notebook instances
 -   User private subnet. All further nodes (Notebooks, EMR clusters) will be provisioned in different subnet than SSN.
@@ -448,7 +540,7 @@ List of parameters for Edge node creation:
 
 The following Azure resources will be created:
 -   Edge virtual machine
--   Static public IP address dor Edge virtual machine
+-   Static public IP address for Edge virtual machine
 -   Network interface for Edge node
 -   Security Group for user's Edge instance
 -   Security Group for all further user's Notebook instances
@@ -469,7 +561,35 @@ List of parameters for Edge node creation:
 | azure\_resource\_group\_name   | Name of the resource group where all DLAb resources are being provisioned         |
 | azure\_region                  | Azure region where infrastructure was deployed                                    |
 | azure\_vpc\_name               | Name of Azure Virtual network where all infrastructure is being deployed          |
-| azure\_subnet\_name            | NAme of the Azure public subnet where Edge will be deployed                       |
+| azure\_subnet\_name            | Name of the Azure public subnet where Edge will be deployed                       |
+| action                         | create                                                                            |
+
+#### In Google cloud
+
+The following GCP resources will be created:
+-   Edge VM instance
+-   External static IP address for Edge VM instance
+-   Security Group for user's Edge instance
+-   Security Group for all further user's Notebook instances
+-   Security Groups for all further user's master nodes of data engine cluster
+-   Security Groups for all further user's slave nodes of data engine cluster
+-   User's private subnet. All further nodes (Notebooks, data engine clusters) will be provisioned in different subnet than SSN.
+-   User's bucket 
+
+List of parameters for Edge node creation:
+
+| Parameter                  | Description/Value                                                                     |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | edge                                                                              |
+| conf\_os\_family               | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name               | Name of the user                                                                  |
+| gcp\_region                    | GCP region where infrastructure was deployed                                      |
+| gcp\_zone                      | GCP zone where infrastructure was deployed                                        |
+| gcp\_vpc\_name                 | Name of Azure Virtual network where all infrastructure is being deployed          |
+| gcp\_subnet\_name              | Name of the Azure public subnet where Edge will be deployed                       |
+| gcp\_project\_id               | ID of GCP project                                                                 |
 | action                         | create                                                                            |
 
 ### Start/Stop <a name=""></a>
@@ -511,6 +631,20 @@ List of parameters for Edge node stopping:
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned |
 | action                       | stop                                                                      |
 
+#### In Google cloud
+
+List of parameters for Edge node starting/stopping:
+
+| Parameter                  | Description/Value                                                                     |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | edge                                                                              |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| edge\_user\_name               | Name of the user                                                                  |
+| gcp\_region                    | GCP region where infrastructure was deployed                                      |
+| gcp\_zone                      | GCP zone where infrastructure was deployed                                        |
+| gcp\_project\_id               | ID of GCP project                                                                 |
+| action                         | start/stop                                                                        |
+
 ### Recreate <a name=""></a>
 
 In case Edge node was damaged, or terminated manually, there is an option to re-create it.
@@ -550,6 +684,21 @@ List of parameters for Edge node recreation:
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned         |
 | azure\_subnet\_name          | Name of the Azure public subnet where Edge was deployed                           |
 | action                       | Create                                                                            |
+
+#### In Google cloud
+| Parameter                  | Description/Value                                                                     |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | edge                                                                              |
+| conf\_os\_family               | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name               | Name of the user                                                                  |
+| gcp\_region                    | GCP region where infrastructure was deployed                                      |
+| gcp\_zone                      | GCP zone where infrastructure was deployed                                        |
+| gcp\_vpc\_name                 | Name of Azure Virtual network where all infrastructure is being deployed          |
+| gcp\_subnet\_name              | Name of the Azure public subnet where Edge will be deployed                       |
+| gcp\_project\_id               | ID of GCP project                                                                 |
+| action                         | create                                                                            |
 
 ## Notebook node <a name="Notebook_node"></a>
 
@@ -597,6 +746,24 @@ List of parameters for Notebook node creation:
 | git\_creds                      | User git credentials in JSON format                                               |
 | action                          | Create                                                                            |
 
+#### In Google cloud
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_os\_family              | Name of the Linux distributive family, which is supported by DLAB (debian/redhat) |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| gcp\_vpc\_name                | Name of Azure Virtual network where all infrastructure is being deployed          |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_notebook\_instance\_size | Value of the Notebook VM instance size                                            |
+| gcp\_region                   | GCP region where infrastructure was deployed                                      |
+| gcp\_zone                     | GCP zone where infrastructure was deployed                                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| git\_creds                    | User git credentials in JSON format                                               |
+| action                        | Create                                                                            |
+
 ### Stop
 
 In order to stop Notebook node, click on the “gear” button in Actions column. From the drop-down menu click on “Stop” action.
@@ -626,6 +793,20 @@ List of parameters for Notebook node stopping:
 | notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
 | azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
 | action                          | Stop                                                                              |
+
+#### In Google cloud
+
+| Parameter                 | Description/Value                                            |
+|---------------------------|--------------------------------------------------------------|
+| conf\_resource            | notebook                                                     |
+| conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment |
+| conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")           |
+| edge\_user\_name          | Value that previously was used when Edge being provisioned   |
+| notebook\_instance\_name  | Name of the Notebook instance to terminate                   |
+| gcp\_region               | GCP region where infrastructure was deployed                 |
+| gcp\_zone                 | GCP zone where infrastructure was deployed                   |
+| gcp\_project\_id          | ID of GCP project                                            |
+| action                    | Stop                                                         |
 
 ### Start
 
@@ -662,6 +843,21 @@ List of parameters for Notebook node start:
 | git\_creds                      | User git credentials in JSON format                                               |
 | action                          | start                                                                             |
 
+#### In Google cloud
+
+| Parameter                 | Description/Value                                            |
+|---------------------------|--------------------------------------------------------------|
+| conf\_resource            | notebook                                                     |
+| conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment |
+| conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")           |
+| edge\_user\_name          | Value that previously was used when Edge being provisioned   |
+| notebook\_instance\_name  | Name of the Notebook instance to terminate                   |
+| gcp\_region               | GCP region where infrastructure was deployed                 |
+| gcp\_zone                 | GCP zone where infrastructure was deployed                   |
+| gcp\_project\_id          | ID of GCP project                                            |
+| git\_creds                | User git credentials in JSON format                          |
+| action                    | Stop                                                         |
+
 ### Terminate
 
 In order to terminate Notebook node, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Terminate” action.
@@ -692,6 +888,20 @@ List of parameters for Notebook node termination:
 | notebook\_instance\_name        | Name of the Notebook instance to terminate                                        |
 | azure\_resource\_group\_name    | Name of the resource group where all DLAb resources are being provisioned         |
 | action                          | terminate                                                                         |
+
+#### In Google cloud
+
+| Parameter                 | Description/Value                                            |
+|---------------------------|--------------------------------------------------------------|
+| conf\_resource            | notebook                                                     |
+| conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment |
+| edge\_user\_name          | Value that previously was used when Edge being provisioned   |
+| notebook\_instance\_name  | Name of the Notebook instance to terminate                   |
+| gcp\_region               | GCP region where infrastructure was deployed                 |
+| gcp\_zone                 | GCP zone where infrastructure was deployed                   |
+| gcp\_project\_id          | ID of GCP project                                            |
+| git\_creds                | User git credentials in JSON format                          |
+| action                    | Stop                                                         |
 
 ### List/Install additional libraries
 
@@ -787,6 +997,38 @@ List of parameters for Notebook node to **install** additional libraries:
 | libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
 | action                        | lib_install                                                                          |
 
+
+#### In Google cloud
+
+List of parameters for Notebook node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_zone                     | GCP zone name                                                                     |
+| action                        | lib_list                                                                          |
+
+List of parameters for Notebook node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                    |
+|-------------------------------|--------------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                             |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                         |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                   |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                           |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                           |
+| gcp\_project\_id              | ID of GCP project                                                                    |
+| gcp\_zone                     | GCP zone name                                                                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
+| action                        | lib_install                                                                          |
+
 ### Manage git credentials
 
 In order to manage git credentials on Notebook node, click on the button “Git credentials”. Then in menu you can add or edit existing credentials.
@@ -837,17 +1079,32 @@ List of parameters for Notebook node to **manage git credentials**:
 | git\_creds                    | User git credentials in JSON format                                               |
 | action                        | git\_creds                                                                        |
 
+#### In Google cloud
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | notebook                                                                          |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_region                   | GCP region name                                                                   |
+| gcp\_zone                     | GCP zone name                                                                     |
+| notebook\_instance\_name      | Name of the Notebook instance to terminate                                        |
+| git\_creds                    | User git credentials in JSON format                                               |
+| action                        | git\_creds                                                                        |
+
 ## Dataengine-service cluster <a name="Dataengine-service cluster"></a>
 
 Dataengine-service is a cluster provided by cloud as a service (EMR on AWS) can be created if more computational resources are needed for executing analytical algorithms and models, triggered from analytical tools. Jobs execution will be scaled to a cluster mode increasing the performance and decreasing execution time.
 
 ### Create
 
-#### In Amazon
-
 To create dataengine-service cluster click on the “gear” button in Actions column, and click on “Add computational resources”. Specify dataengine-service version, fill in dataengine-service name, specify number of instances and instance shapes. Click on the “Create” button.
 
 List of parameters for dataengine-service cluster creation:
+
+#### In Amazon
 
 | Parameter                   | Description/Value                                                        |
 |-----------------------------|--------------------------------------------------------------------------|
@@ -867,13 +1124,35 @@ List of parameters for dataengine-service cluster creation:
 
 **Note:** If “Spot instances” is enabled, dataengine-service Slave nodes will be created as EC2 Spot instances.
 
-### Terminate
+#### In Google cloud
 
-#### In Amazon
+| Parameter                       | Description/Value                                                        |
+|---------------------------------|--------------------------------------------------------------------------|
+| conf\_resource                  | dataengine-service                                                       |
+| conf\_service\_base\_name       | Unique infrastructure value, specified during SSN deployment             |
+| conf\_key\_name                 | Name of the uploaded SSH key file (without ".pem")                       |
+| notebook\_instance\_name        | Name of the Notebook dataengine-service will be linked to                |
+| edge\_user\_name                | Value that previously was used when Edge being provisioned               |
+| gcp\_subnet\_name               | Name of subnet                                                           |
+| dataproc\_version               | Version of Dataproc                                                      |
+| dataproc\_master\_count         | Number of master nodes                                                   |
+| dataproc\_slave\_count          | Number of slave nodes                                                    |
+| dataproc\_preemptible\_count    | Number of preemptible nodes                                              |
+| dataproc\_master\_instance\_type| Size of master node                                                      |
+| dataproc\_slave\_instance\_type | Size of slave node                                                       |
+| gcp\_project\_id                | ID of GCP project                                                        |
+| gcp\_region                     | GCP region where infrastructure was deployed                             |
+| gcp\_zone                       | GCP zone name                                                            |
+| conf\_tag\_resource\_id         | The name of tag for billing reports                                      |
+| action                          | create                                                                   |
+
+### Terminate
 
 In order to terminate dataengine-service cluster, click on “x” button which is located in “Computational resources” field.
 
 List of parameters for dataengine-service cluster termination:
+
+#### In Amazon
 
 | Parameter                 | Description/Value                                                   |
 |---------------------------|---------------------------------------------------------------------|
@@ -886,17 +1165,159 @@ List of parameters for dataengine-service cluster termination:
 | aws\_region               | AWS region where infrastructure was deployed                        |
 | action                    | Terminate                                                           |
 
+#### In Google cloud
+
+| Parameter                 | Description/Value                                                   |
+|---------------------------|---------------------------------------------------------------------|
+| conf\_resource            | dataengine-service                                                  |
+| conf\_service\_base\_name | Unique infrastructure value, specified during SSN deployment        |
+| conf\_key\_name           | Name of the uploaded SSH key file (without ".pem")                  |
+| edge\_user\_name          | Value that previously was used when Edge being provisioned          |
+| notebook\_instance\_name  | Name of the Notebook instance which dataengine-service is linked to |
+| gcp\_project\_id          | ID of GCP project                                                   |
+| gcp\_region               | GCP region where infrastructure was deployed                        |
+| gcp\_zone                 | GCP zone name                                                       |
+| dataproc\_cluster\_name   | Dataproc cluster name                                               |
+| action                    | Terminate                                                           |
+
+### List/Install additional libraries
+
+In order to list available libraries (OS/Python2/Python3/R/Others) on Dataengine-service, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
+
+#### In Amazon
+
+List of parameters for Dataengine-service node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine-service                                                                |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| computational\_id             | Name of Dataengine-service                                                        |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| aws\_region                   | AWS region where infrastructure was deployed                                      |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_list                                                                          |
+
+**Note:** This operation will return a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
+
+**Example** of available libraries in response (type->library->version):
+
+```
+{
+  "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
+  "pip2": {"requests": "N/A", "configparser": "N/A"},
+  "pip3": {"configparser": "N/A"},
+  "r_pkg": {"rmarkdown": "1.5"},
+  "others": {"Keras": "N/A"} 
+}
+```
+
+
+List of parameters for Dataengine-service to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                    |
+|-------------------------------|--------------------------------------------------------------------------------------|
+| conf\_resource                | dataengine-service                                                                   |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                   |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                           |
+| computational\_id             | Name of Dataengine-service                                                           |
+| aws\_region                   | AWS region where infrastructure was deployed                                         |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
+| action                        | lib_install                                                                          |
+
+**Example** of additional_libs parameter:
+
+```
+{
+  ...
+  "libs": [
+    {"group": "os_pkg", "name": "nmap"},
+    {"group": "os_pkg", "name": "htop"},
+    {"group": "pip2", "name": "requests"},
+    {"group": "pip3", "name": "configparser"},
+    {"group": "r_pkg", "name": "rmarkdown"},
+    {"group": "others", "name": "Keras"}
+  ]
+  ...
+}
+```
+
+#### In Google cloud
+
+List of parameters for Dataengine-service node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine-service                                                                |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_region                   | GCP region name                                                                   |
+| gcp\_zone                     | GCP zone name                                                                     |
+| action                        | lib_list                                                                          |
+
+List of parameters for Dataengine-service node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine-service                                                                |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_region                   | GCP region name                                                                   |
+| gcp\_zone                     | GCP zone name                                                                     |
+| action                        | lib_install                                                                       |
+
+
 ## Dataengine cluster <a name="Dataengine cluster"></a>
 
 Dataengine is cluster based on Standalone Spark framework can be created if more computational resources are needed for executing analytical algorithms, but without additional expenses for cloud provided service.
 
 ### Create
 
-#### In Azure
-
 To create Spark standalone cluster click on the “gear” button in Actions column, and click on “Add computational resources”. Specify dataengine version, fill in dataengine name, specify number of instances and instance shapes. Click on the “Create” button.
 
 List of parameters for dataengine cluster creation:
+
+#### In Amazon
+
+| Parameter                      | Description/Value                                                                 |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | dataengine                                                                        |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
+| conf\_os\_family               | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat) |
+| notebook\_instance\_name       | Name of the Notebook dataengine will be linked to                                 |
+| dataengine\_instance\_count    | Number of nodes in cluster                                                        |
+| edge\_user\_name               | Value that previously was used when Edge being provisioned                        |
+| aws\_region                    | Amazon region where all infrastructure was deployed                               |
+| aws\_dataengine\_master\_size  | Size of master node                                                               |
+| aws\_dataengine\_slave\_size   | Size of slave node                                                                |
+| action                         | create                                                                            |
+
+#### In Azure
+
+| Parameter                      | Description/Value                                                                 |
+|--------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                 | dataengine                                                                        |
+| conf\_service\_base\_name      | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name                | Name of the uploaded SSH key file (without ".pem")                                |
+| conf\_os\_family               | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat) |
+| notebook\_instance\_name       | Name of the Notebook dataengine will be linked to                                 |
+| dataengine\_instance\_count    | Number of nodes in cluster                                                        |
+| edge\_user\_name               | Value that previously was used when Edge being provisioned                        |
+| azure\_vpc\_name               | Name of Azure Virtual network where all infrastructure is being deployed          |
+| azure\_region                  | Azure region where all infrastructure was deployed                                |
+| azure\_dataengine\_master\_size| Size of master node                                                               |
+| azure\_dataengine\_slave\_size | Size of slave node                                                                |
+| azure\_resource\_group\_name   | Name of the resource group where all DLAb resources are being provisioned         |
+| azure\_subnet\_name            | Name of the Azure public subnet where Edge was deployed                           |
+| action                         | create                                                                            |
+
+#### In Google cloud
 
 | Parameter                    | Description/Value                                                                 |
 |------------------------------|-----------------------------------------------------------------------------------|
@@ -905,21 +1326,25 @@ List of parameters for dataengine cluster creation:
 | conf\_key\_name              | Name of the uploaded SSH key file (without ".pem")                                |
 | conf\_os\_family             | Name of the Linux distributive family, which is supported by DLab (Debian/RedHat) |
 | notebook\_instance\_name     | Name of the Notebook dataengine will be linked to                                 |
+| gcp\_vpc\_name               | GCP VPC name                                                                      |
+| gcp\_subnet\_name            | GCP subnet name                                                                   |
+| dataengine\_instance\_count  | Number of nodes in cluster                                                        |
+| gcp\_dataengine\_master\_size| Size of master node                                                               |
+| gcp\_dataengine\_slave\_size | Size of slave node                                                                |
+| gcp\_project\_id             | ID of GCP project                                                                 |
+| gcp\_region                  | GCP region where infrastructure was deployed                                      |
+| gcp\_zone                    | GCP zone name                                                                     |
 | edge\_user\_name             | Value that previously was used when Edge being provisioned                        |
-| azure\_vpc\_name             | Name of Azure Virtual network where all infrastructure is being deployed          |
-| azure\_region                | Azure region where all infrastructure was deployed                                |
-| azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned         |
-| azure\_subnet\_name          | Name of the Azure public subnet where Edge was deployed                           |
 | action                       | create                                                                            |
 
 
 ### Terminate
 
-#### In Azure
-
 In order to terminate dataengine cluster, click on “x” button which is located in “Computational resources” field.
 
 List of parameters for dataengine cluster termination:
+
+#### In Amazon
 
 | Parameter                    | Description/Value                                                        |
 |------------------------------|--------------------------------------------------------------------------|
@@ -928,9 +1353,160 @@ List of parameters for dataengine cluster termination:
 | conf\_key\_name              | Name of the uploaded SSH key file (without ".pem")                       |
 | edge\_user\_name             | Value that previously was used when Edge being provisioned               |
 | notebook\_instance\_name     | Name of the Notebook instance which dataengine is linked to              |
+| computational\_name          | Name of cluster                                                          |
+| aws\_region                  | AWS region where infrastructure was deployed                             |
+| action                       | Terminate                                                                |
+
+#### In Azure
+
+| Parameter                    | Description/Value                                                        |
+|------------------------------|--------------------------------------------------------------------------|
+| conf\_resource               | dataengine                                                               |
+| conf\_service\_base\_name    | Unique infrastructure value, specified during SSN deployment             |
+| conf\_key\_name              | Name of the uploaded SSH key file (without ".pem")                       |
+| edge\_user\_name             | Value that previously was used when Edge being provisioned               |
+| computational\_name          | Name of cluster                                                          |
+| notebook\_instance\_name     | Name of the Notebook instance which dataengine is linked to              |
 | azure\_region                | Azure region where infrastructure was deployed                           |
 | azure\_resource\_group\_name | Name of the resource group where all DLAb resources are being provisioned|
 | action                       | Terminate                                                                |
+
+#### In Google cloud
+
+| Parameter                    | Description/Value                                                        |
+|------------------------------|--------------------------------------------------------------------------|
+| conf\_resource               | dataengine                                                               |
+| conf\_service\_base\_name    | Unique infrastructure value, specified during SSN deployment             |
+| conf\_key\_name              | Name of the uploaded SSH key file (without ".pem")                       |
+| edge\_user\_name             | Value that previously was used when Edge being provisioned               |
+| notebook\_instance\_name     | Name of the Notebook instance which dataengine is linked to              |
+| computational\_name          | Name of cluster                                                          |
+| gcp\_project\_id             | ID of GCP project                                                        |
+| gcp\_region                  | GCP region where infrastructure was deployed                             |
+| gcp\_zone                    | GCP zone name                                                            |
+| action                       | Terminate                                                                |
+
+### List/Install additional libraries
+
+In order to list available libraries (OS/Python2/Python3/R/Others) on Dataengine, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
+
+#### In Amazon
+
+List of parameters for Dataengine node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine                                                                        |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| computational\_id             | Name of cluster                                                                   |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_list                                                                          |
+
+**Note:** This operation will return a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
+
+**Example** of available libraries in response (type->library->version):
+
+```
+{
+  "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
+  "pip2": {"requests": "N/A", "configparser": "N/A"},
+  "pip3": {"configparser": "N/A"},
+  "r_pkg": {"rmarkdown": "1.5"},
+  "others": {"Keras": "N/A"} 
+}
+```
+
+
+List of parameters for Dataengine node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine                                                                        |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| computational\_id             | Name of cluster                                                                   |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_install                                                                       |
+
+**Example** of additional_libs parameter:
+
+```
+{
+  ...
+  "libs": [
+    {"group": "os_pkg", "name": "nmap"},
+    {"group": "os_pkg", "name": "htop"},
+    {"group": "pip2", "name": "requests"},
+    {"group": "pip3", "name": "configparser"},
+    {"group": "r_pkg", "name": "rmarkdown"},
+    {"group": "others", "name": "Keras"}
+  ]
+  ...
+}
+```
+
+#### In Azure
+
+List of parameters for Dataengine node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine                                                                        |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned         |
+| computational\_id             | Name of cluster                                                                   |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_list                                                                          |
+
+List of parameters for Dataengine node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine                                                                        |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned         |
+| computational\_id             | Name of cluster                                                                   |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_install                                                                       |
+
+
+#### In Google cloud
+
+List of parameters for Dataengine node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine                                                                        |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_zone                     | GCP zone name                                                                     |
+| computational\_id             | Name of cluster                                                                   |
+| action                        | lib_list                                                                          |
+
+List of parameters for Dataengine node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine                                                                        |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_zone                     | GCP zone name                                                                     |
+| computational\_id             | Name of cluster                                                                   |
+| action                        | lib_install                                                                       |
+
 
 ## Configuration files <a name="Configuration_files"></a>
 
