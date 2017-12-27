@@ -144,7 +144,7 @@ if __name__ == "__main__":
         except:
             data_engine['exploratory_name'] = ''
         try:
-            data_engine['computational_name'] = os.environ['computational_name'].replace('_', '-')
+            data_engine['computational_name'] = os.environ['computational_name'].lower().replace('_', '-')
         except:
             data_engine['computational_name'] = ''
 
