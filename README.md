@@ -1180,6 +1180,98 @@ List of parameters for dataengine-service cluster termination:
 | dataproc\_cluster\_name   | Dataproc cluster name                                               |
 | action                    | Terminate                                                           |
 
+### List/Install additional libraries
+
+In order to list available libraries (OS/Python2/Python3/R/Others) on Dataengine-service, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
+
+#### In Amazon
+
+List of parameters for Dataengine-service node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine-service                                                                |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| computational\_id             | Name of Dataengine-service                                                        |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| aws\_region                   | AWS region where infrastructure was deployed                                      |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_list                                                                          |
+
+**Note:** This operation will return a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
+
+**Example** of available libraries in response (type->library->version):
+
+```
+{
+  "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
+  "pip2": {"requests": "N/A", "configparser": "N/A"},
+  "pip3": {"configparser": "N/A"},
+  "r_pkg": {"rmarkdown": "1.5"},
+  "others": {"Keras": "N/A"} 
+}
+```
+
+
+List of parameters for Dataengine-service to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                    |
+|-------------------------------|--------------------------------------------------------------------------------------|
+| conf\_resource                | dataengine-service                                                                   |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                   |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                           |
+| computational\_id             | Name of Dataengine-service                                                           |
+| aws\_region                   | AWS region where infrastructure was deployed                                         |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)         |
+| libs                          | List of additional libraries in JSON format with type (os_pkg/pip2/pip3/r_pkg/others)|
+| action                        | lib_install                                                                          |
+
+**Example** of additional_libs parameter:
+
+```
+{
+  ...
+  "libs": [
+    {"group": "os_pkg", "name": "nmap"},
+    {"group": "os_pkg", "name": "htop"},
+    {"group": "pip2", "name": "requests"},
+    {"group": "pip3", "name": "configparser"},
+    {"group": "r_pkg", "name": "rmarkdown"},
+    {"group": "others", "name": "Keras"}
+  ]
+  ...
+}
+```
+
+#### In Google cloud
+
+List of parameters for Dataengine-service node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine-service                                                                |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_region                   | GCP region name                                                                   |
+| gcp\_zone                     | GCP zone name                                                                     |
+| action                        | lib_list                                                                          |
+
+List of parameters for Dataengine-service node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine-service                                                                |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_region                   | GCP region name                                                                   |
+| gcp\_zone                     | GCP zone name                                                                     |
+| action                        | lib_install                                                                       |
+
+
 ## Dataengine cluster <a name="Dataengine cluster"></a>
 
 Dataengine is cluster based on Standalone Spark framework can be created if more computational resources are needed for executing analytical algorithms, but without additional expenses for cloud provided service.
@@ -1293,6 +1385,127 @@ List of parameters for dataengine cluster termination:
 | gcp\_region                  | GCP region where infrastructure was deployed                             |
 | gcp\_zone                    | GCP zone name                                                            |
 | action                       | Terminate                                                                |
+
+### List/Install additional libraries
+
+In order to list available libraries (OS/Python2/Python3/R/Others) on Dataengine, click on the button, which looks like gear in “Action” field. Then in drop-down menu choose “Manage libraries” action.
+
+#### In Amazon
+
+List of parameters for Dataengine node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine                                                                        |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| computational\_id             | Name of cluster                                                                   |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_list                                                                          |
+
+**Note:** This operation will return a file with response **[edge_user_name]\_[application]\_[request_id]\_all\_pkgs.json**
+
+**Example** of available libraries in response (type->library->version):
+
+```
+{
+  "os_pkg": {"htop": "2.0.1-1ubuntu1", "python-mysqldb": "1.3.7-1build2"},
+  "pip2": {"requests": "N/A", "configparser": "N/A"},
+  "pip3": {"configparser": "N/A"},
+  "r_pkg": {"rmarkdown": "1.5"},
+  "others": {"Keras": "N/A"} 
+}
+```
+
+
+List of parameters for Dataengine node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine                                                                        |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| computational\_id             | Name of cluster                                                                   |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_install                                                                       |
+
+**Example** of additional_libs parameter:
+
+```
+{
+  ...
+  "libs": [
+    {"group": "os_pkg", "name": "nmap"},
+    {"group": "os_pkg", "name": "htop"},
+    {"group": "pip2", "name": "requests"},
+    {"group": "pip3", "name": "configparser"},
+    {"group": "r_pkg", "name": "rmarkdown"},
+    {"group": "others", "name": "Keras"}
+  ]
+  ...
+}
+```
+
+#### In Azure
+
+List of parameters for Dataengine node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine                                                                        |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned         |
+| computational\_id             | Name of cluster                                                                   |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_list                                                                          |
+
+List of parameters for Dataengine node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine                                                                        |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| azure\_resource\_group\_name  | Name of the resource group where all DLAb resources are being provisioned         |
+| computational\_id             | Name of cluster                                                                   |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| action                        | lib_install                                                                       |
+
+
+#### In Google cloud
+
+List of parameters for Dataengine node to **get list** of available libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine                                                                        |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_zone                     | GCP zone name                                                                     |
+| computational\_id             | Name of cluster                                                                   |
+| action                        | lib_list                                                                          |
+
+List of parameters for Dataengine node to **install** additional libraries:
+
+| Parameter                     | Description/Value                                                                 |
+|-------------------------------|-----------------------------------------------------------------------------------|
+| conf\_resource                | dataengine                                                                        |
+| conf\_service\_base\_name     | Unique infrastructure value, specified during SSN deployment                      |
+| conf\_key\_name               | Name of the uploaded SSH key file (without ".pem")                                |
+| edge\_user\_name              | Value that previously was used when Edge being provisioned                        |
+| application                   | Type of the notebook template (jupyter/rstudio/zeppelin/tensor/deeplearning)      |
+| gcp\_project\_id              | ID of GCP project                                                                 |
+| gcp\_zone                     | GCP zone name                                                                     |
+| computational\_id             | Name of cluster                                                                   |
+| action                        | lib_install                                                                       |
 
 
 ## Configuration files <a name="Configuration_files"></a>
