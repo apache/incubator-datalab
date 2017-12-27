@@ -377,7 +377,7 @@ class GCPMeta:
             if not filter_string:
                 request = self.service.firewalls().list(project=self.project)
             else:
-                request = self.service.firewalls().list(project=self.project, filter='name eq {}-.*'.format(
+                request = self.service.firewalls().list(project=self.project, filter='name eq {}.*'.format(
                     filter_string))
             result = request.execute()
             return result
@@ -424,7 +424,7 @@ class GCPMeta:
             if not prefix:
                 request = self.service_storage.buckets().list(project=self.project)
             else:
-                request = self.service_storage.buckets().list(project=self.project, prefix='{}-'.format(prefix))
+                request = self.service_storage.buckets().list(project=self.project, prefix='{}'.format(prefix))
             result = request.execute()
             return result
         except Exception as err:
@@ -441,7 +441,7 @@ class GCPMeta:
                 request = self.service.addresses().list(project=self.project, region=region)
             else:
                 request = self.service.addresses().list(project=self.project, region=region,
-                                                        filter='name eq {}-.*'.format(filter_string))
+                                                        filter='name eq {}.*'.format(filter_string))
             result = request.execute()
             return result
         except Exception as err:
