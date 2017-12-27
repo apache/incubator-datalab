@@ -39,6 +39,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   model: ComputationalResourceCreateModel;
   notebook_instance: any;
+  full_list: any;
   template_description: string;
   shapes: any;
   spotInstance: boolean = false;
@@ -124,11 +125,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public containsComputationalResource(conputational_resource_name: string): boolean {
     if (conputational_resource_name)
-      for (let index = 0; index < this.notebook_instance.resources.length; index++) {
-        const computational_name = this.notebook_instance.resources[index].computational_name.toString().toLowerCase();
-
-        if (conputational_resource_name.toLowerCase() === computational_name)
-          return true;
+      for (let index = 0; index < this.full_list.length; index++) {
+        if (this.notebook_instance.name === this.full_list[index].name) {
+          for (let iindex = 0; iindex < this.full_list[index].resources.length; iindex++) {
+            const computational_name = this.full_list[index].resources[iindex].computational_name.toString().toLowerCase();
+            if (conputational_resource_name.toLowerCase() === computational_name)
+                return true;
+          }
+        }
       }
     return false;
   }
@@ -171,9 +175,10 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     return false;
   }
 
-  public open(params, notebook_instance): void {
+  public open(params, notebook_instance, full_list): void {
     if (!this.bindDialog.isOpened) {
       this.notebook_instance = notebook_instance;
+      this.full_list = full_list;
       this.model = new ComputationalResourceCreateModel('', 0, '', '', notebook_instance.name, (response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
           this.close();
