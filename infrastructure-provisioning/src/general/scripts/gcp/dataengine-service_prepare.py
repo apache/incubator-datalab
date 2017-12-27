@@ -67,7 +67,13 @@ if __name__ == "__main__":
     dataproc_conf['cluster_tag'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['bucket_name'] = '{}-{}-bucket'.format(dataproc_conf['service_base_name'], dataproc_conf['edge_user_name'])
     dataproc_conf['release_label'] = os.environ['dataproc_version']
-    dataproc_conf['cluster_label'] = {os.environ['notebook_instance_name']: "not-configured"}
+    dataproc_conf['cluster_labels'] = {
+        os.environ['notebook_instance_name']: "not-configured",
+        "name": dataproc_conf['cluster_name'],
+        "sbn": dataproc_conf['service_base_name'],
+        "user": dataproc_conf['edge_user_name'],
+        "notebook_name": os.environ['notebook_instance_name']
+    }
     dataproc_conf['dataproc_service_account_name'] = '{0}-{1}-ps'.format(dataproc_conf['service_base_name'],
                                                                          dataproc_conf['edge_user_name'])
     service_account_email = "{}@{}.iam.gserviceaccount.com".format(dataproc_conf['dataproc_service_account_name'],
@@ -93,7 +99,7 @@ if __name__ == "__main__":
     dataproc_cluster = json.loads(open('/root/templates/dataengine-service_cluster.json').read().decode('utf-8-sig'))
     dataproc_cluster['projectId'] = os.environ['gcp_project_id']
     dataproc_cluster['clusterName'] = dataproc_conf['cluster_name']
-    dataproc_cluster['labels'] = dataproc_conf['cluster_label']
+    dataproc_cluster['labels'] = dataproc_conf['cluster_labels']
     dataproc_cluster['config']['configBucket'] = dataproc_conf['bucket_name']
     dataproc_cluster['config']['gceClusterConfig']['serviceAccount'] = service_account_email
     dataproc_cluster['config']['gceClusterConfig']['zoneUri'] = dataproc_conf['zone']
