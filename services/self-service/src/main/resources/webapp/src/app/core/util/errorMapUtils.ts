@@ -33,7 +33,7 @@ export class ErrorMapUtils {
         return false;
       }
       return true;
-    }
+    };
 
     let errMsg: string;
     if (typeof error === 'object' && error._body && isJson(error._body)) {
