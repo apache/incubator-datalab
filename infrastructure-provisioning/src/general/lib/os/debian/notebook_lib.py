@@ -184,9 +184,10 @@ def ensure_additional_python_libs(os_user):
 def ensure_python3_specific_version(python3_version, os_user):
     if not exists('/home/' + os_user + '/.ensure_dir/python3_specific_version_ensured'):
         try:
-            sudo('add-apt-repository -y ppa:fkrull/deadsnakes')
-            sudo('apt update')
-            sudo('apt install -y python' + python3_version + ' python' + python3_version +'-dev')
+            if len(python3_version) < 4:
+                python3_version = python3_version + ".0"
+            sudo('wget https://www.python.org/ftp/python/{0}/Python-{0}.tgz'.format(python3_version))
+            sudo('tar xzf Python-{0}.tgz; cd Python-{0}; ./configure --prefix=/usr/local; make altinstall'.format(python3_version))
             sudo('touch /home/' + os_user + '/.ensure_dir/python3_specific_version_ensured')
         except:
             sys.exit(1)
