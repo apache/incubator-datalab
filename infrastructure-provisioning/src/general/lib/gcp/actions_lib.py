@@ -724,8 +724,8 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
             return ''
 
-    def update_dataproc_cluster(self, cluster_name, notebook_instance_name):
-        body = {"labels": {notebook_instance_name: "configured"}}
+    def update_dataproc_cluster(self, cluster_name, cluster_labels):
+        body = {"labels": cluster_labels}
         request = self.dataproc.projects().regions().clusters().patch(projectId=self.project,
                                                                       region=os.environ['gcp_region'],
                                                                       clusterName=cluster_name,
