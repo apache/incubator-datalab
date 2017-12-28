@@ -49,6 +49,7 @@ def upload_response_file(instance_name, local_log_filepath, os_user):
 
 
 if __name__ == "__main__":
+    print("Uploading response file")
     if not upload_response_file(args.instance_name, args.local_log_filepath, args.os_user):
         logging.error('Failed to upload response file')
         sys.exit(1)

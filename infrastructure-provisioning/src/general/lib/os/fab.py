@@ -222,7 +222,6 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
-    # python_version = python_version[0:3]
     if python_version != '\n':
         installing_python(region, bucket, user_name, cluster_name, application, pip_mirror)
         local('mkdir -p {0}py3spark_{1}/'.format(kernels_dir, cluster_name))

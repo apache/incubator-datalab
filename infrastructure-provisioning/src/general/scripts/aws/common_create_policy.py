@@ -79,7 +79,6 @@ if __name__ == "__main__":
             except botocore.exceptions.ClientError as e:
                 print(e.response['Error']['Message'])
                 success = False
-            # success = True # This should be removed when goes PROD
         except Exception as ex:
             print(ex)
             success = False
