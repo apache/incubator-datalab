@@ -33,7 +33,10 @@ import sys
 def stop_notebook(instance_name, bucket_name, region, zone, ssh_user, key_path, user_name):
     print('Terminating Dataproc cluster and cleaning Dataproc config from bucket')
     try:
-        clusters_list = meta_lib.GCPMeta().get_dataproc_list(instance_name)
+        labels = [
+            {instance_name: '*'}
+        ]
+        clusters_list = meta_lib.GCPMeta().get_dataproc_list(labels)
         if clusters_list:
             for cluster_name in clusters_list:
                 cluster = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])

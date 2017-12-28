@@ -31,7 +31,10 @@ import uuid
 def terminate_nb(instance_name, bucket_name, region, zone, user_name):
     print('Terminating Dataproc cluster and cleaning Dataproc config from bucket')
     try:
-        clusters_list = meta_lib.GCPMeta().get_dataproc_list(instance_name)
+        labels = [
+            {instance_name: '*'}
+        ]
+        clusters_list = meta_lib.GCPMeta().get_dataproc_list(labels)
         if clusters_list:
             for cluster_name in clusters_list:
                 actions_lib.GCPActions().bucket_cleanup(bucket_name, user_name, cluster_name)
