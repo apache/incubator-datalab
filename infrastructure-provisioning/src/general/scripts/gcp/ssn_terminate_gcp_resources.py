@@ -37,6 +37,20 @@ args = parser.parse_args()
 ##############
 
 if __name__ == "__main__":
+    print("Terminating Dataengine-service clusters")
+    try:
+        labels = [
+            {'sbn': args.service_base_name}
+        ]
+        clusters_list = meta_lib.GCPMeta().get_dataproc_list(labels)
+        if clusters_list:
+            for cluster_name in clusters_list:
+                actions_lib.GCPActions().delete_dataproc_cluster(cluster_name, args.region)
+                print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
+        else:
+            print("There are no Dataproc clusters to terminate.")
+    except:
+        sys.exit(1)
 
     print("Terminating instances")
     try:
