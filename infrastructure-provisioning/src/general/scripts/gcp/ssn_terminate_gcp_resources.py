@@ -49,7 +49,9 @@ if __name__ == "__main__":
                 print('The Dataproc cluster {} has been terminated successfully'.format(cluster_name))
         else:
             print("There are no Dataproc clusters to terminate.")
-    except:
+    except Exception as err:
+        print("Error:")
+        print(str(err))
         sys.exit(1)
 
     print("Terminating instances")
