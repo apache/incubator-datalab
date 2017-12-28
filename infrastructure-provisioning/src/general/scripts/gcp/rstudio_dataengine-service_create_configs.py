@@ -55,28 +55,29 @@ yarn_dir = '/opt/' + args.dataproc_version + '/' + args.cluster_name + '/conf/'
 def configure_rstudio():
     if not os.path.exists('/home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured'):
         try:
-            local('echo "export R_LIBS_USER={0}/R/lib:" >> /home/{1}/.bashrc'.format(spark_dir, args.os_user))
-            local("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/{}/.Renviron".format(args.os_user))
-            local('echo \'SPARK_HOME="{0}"\' >> /home/{1}/.Renviron'.format(spark_dir, args.os_user))
-            local('echo \'YARN_CONF_DIR="{0}"\' >> /home/{1}/.Renviron'.format(yarn_dir, args.os_user))
-            local('echo \'HADOOP_CONF_DIR="{0}"\' >> /home/{1}/.Renviron'.format(yarn_dir, args.os_user))
-            local("sed -i 's/^master/#master/' /home/{}/.Rprofile".format(args.os_user))
+            local('echo "export R_LIBS_USER=' + spark_dir + '/R/lib:" >> /home/' + args.os_user + '/.bashrc')
+            local("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron")
+            local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
+            local('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
+            local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
+            local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
-            local('touch /home/{}/.ensure_dir/rstudio_dataengine-service_ensured'.format(args.os_user))
+            local('touch /home/' + args.os_user + '/.ensure_dir/rstudio_dataengine-service_ensured')
         except:
             sys.exit(1)
     else:
         try:
-            local("sed -i '/R_LIBS_USER/ { s|=\(.*\)|=\\1{0}/R/lib:| }' /home/{1}/.bashrc".format(spark_dir, args.os_user))
-            local("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/{}/.Renviron".format(args.os_user))
-            local("sed -i 's/^YARN_CONF_DIR/#YARN_CONF_DIR/' /home/{}/.Renviron".format(args.os_user))
-            local("sed -i 's/^HADOOP_CONF_DIR/#HADOOP_CONF_DIR/' /home/{}/.Renviron".format(args.os_user))
-            local("sed -i 's/^master/#master/' /home/{}/.Rprofile".format(args.os_user))
-            local('echo \'SPARK_HOME="{0}"\' >> /home/{1}/.Renviron'.format(spark_dir, args.os_user))
-            local('echo \'YARN_CONF_DIR="{0}"\' >> /home/{1}/.Renviron'.format(yarn_dir, args.os_user))
-            local('echo \'HADOOP_CONF_DIR="{0}"\' >> /home/{1}/.Renviron'.format(yarn_dir, args.os_user))
+            local("sed -i '/R_LIBS_USER/ { s|=\(.*\)|=\\1" + spark_dir + "/R/lib:| }' /home/" + args.os_user + "/.bashrc")
+            local("sed -i 's/^SPARK_HOME/#SPARK_HOME/' /home/" + args.os_user + "/.Renviron")
+            local("sed -i 's/^YARN_CONF_DIR/#YARN_CONF_DIR/' /home/" + args.os_user + "/.Renviron")
+            local("sed -i 's/^HADOOP_CONF_DIR/#HADOOP_CONF_DIR/' /home/" + args.os_user + "/.Renviron")
+            local("sed -i 's/^master/#master/' /home/" + args.os_user + "/.Rprofile")
+            local('echo \'SPARK_HOME="' + spark_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
+            local('echo \'YARN_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
+            local('echo \'HADOOP_CONF_DIR="' + yarn_dir + '"\' >> /home/' + args.os_user + '/.Renviron')
             local('''R -e "source('/home/{}/.Rprofile')"'''.format(args.os_user))
-        except:
+        except Exception as err:
+            print('Error:', str(err))
             sys.exit(1)
 
 
