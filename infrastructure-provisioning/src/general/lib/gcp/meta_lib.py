@@ -24,7 +24,7 @@ from google.cloud import storage
 from google.cloud import exceptions
 from dlab.fab import *
 import actions_lib
-import os
+import os, re
 from googleapiclient import errors
 import logging
 import traceback
@@ -508,11 +508,17 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
             return ''
 
-    def get_dataproc_list(self, notebook_instance_name):
-        cluster_filter = 'labels.{}:*'.format(notebook_instance_name)
+    def get_dataproc_list(self, labels):
+        filter_string = ''
+        for label in labels:
+            for key in label.keys():
+                filter_string += 'labels.{}:{}'.format(key, label[j])
+            filter_string += ' AND '
+
+        filter_string = re.sub('AND $', '', filter_string)
         request = self.dataproc.projects().regions().clusters().list(projectId=self.project,
                                                                      region=os.environ['gcp_region'],
-                                                                     filter=cluster_filter)
+                                                                     filter=filter_string)
         try:
             res = request.execute()
             if res != dict():
