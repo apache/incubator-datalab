@@ -268,9 +268,8 @@ def restore_finalize():
         print("Failed to start all services.")
 
     try:
-        if ask("Clean temporary folder {}?".format(temp_folder)):
-            if temp_folder != "/":
-                local("rm -rf {}".format(temp_folder))
+        if ask("Clean temporary folder {}?".format(temp_folder)) and temp_folder != "/":
+            local("rm -rf {}".format(temp_folder))
     except Exception as err:
         print("Clear temp folder failed. {}".format(str(err)))
 

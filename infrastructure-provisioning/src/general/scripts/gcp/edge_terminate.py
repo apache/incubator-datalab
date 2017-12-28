@@ -50,9 +50,8 @@ def terminate_edge_node(user_name, service_base_name, region, zone):
         instances = GCPMeta().get_list_instances(zone, base)
         if 'items' in instances:
             for i in instances['items']:
-                if 'user' in i['labels']:
-                    if user_name == i['labels']['user']:
-                        GCPActions().remove_instance(i['name'], zone)
+                if 'user' in i['labels'] and user_name == i['labels']['user']:
+                    GCPActions().remove_instance(i['name'], zone)
     except:
         sys.exit(1)
 

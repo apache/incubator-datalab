@@ -275,8 +275,6 @@ if __name__ == "__main__":
         print("SSN Name: {}".format(ssn_conf['instance_name']))
         print("SSN Hostname: {}".format(instance_hostname))
         print("Role name: {}".format(ssn_conf['role_name']))
-        # print("Role profile name: {}".format(role_profile_name))
-        # print("Policy name: {}".format(policy_name))
         print("Key name: {}".format(os.environ['conf_key_name']))
         print("VPC Name: {}".format(ssn_conf['vpc_name']))
         print("Subnet Name: {}".format(ssn_conf['subnet_name']))

@@ -49,7 +49,6 @@ if __name__ == "__main__":
                                                                notebook_config['exploratory_name'])
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
-    # edge_instance_hostname = GCPMeta().get_private_ip_address(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
@@ -162,22 +161,6 @@ if __name__ == "__main__":
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
 
-    #try:
-    #    print('[CREATING IMAGE]')
-    #    logging.info('[CREATING IMAGE]')
-    #    ami_name = GCPMeta().get_ami_by_name(notebook_config['expected_ami_name'])
-    #    if ami_name == '':
-    #        print("Looks like it's first time we configure notebook server. Creating image.")
-    #        ami_name = GCPActions().create_image_from_instance_disk(notebook_config['expected_ami_name'],
-    #                                                                notebook_config['instance_name'],
-    #                                                                os.environ['gcp_zone'])["name"]
-    #        if ami_name != '':
-    #            print("Image {} was successfully created".format(ami_name))
-    #except Exception as err:
-    #    append_result("Failed to create image from disk.", str(err))
-    #    GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
-    #    sys.exit(1)
-
     # generating output information
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     jupyter_ip_url = "http://" + ip_address + ":8888/"
@@ -189,9 +172,6 @@ if __name__ == "__main__":
     print("Instance type: {}".format(notebook_config['instance_type']))
     print("Key name: {}".format(notebook_config['key_name']))
     print("User key name: {}".format(os.environ['edge_user_name']))
-    # print("AMI name: {}".format(notebook_config['expected_ami_name']))
-    # print("Profile name: {}".format(notebook_config['role_profile_name']))
-    # print("SG name: {}".format(notebook_config['security_group_name']))
     print("Jupyter URL: {}".format(jupyter_ip_url))
     print("Ungit URL: {}".format(ungit_ip_url))
     print('SSH access (from Edge node, via IP address): ssh -i {0}.pem {1}@{2}'.format(notebook_config['key_name'],

@@ -173,8 +173,6 @@ def parse_steps(step_string):
                 value = value.split(" ")
                 hdp_jar_step.update({key: value})
             elif key == "Jar":
-                # if key=="Type":
-                #    key="MainClass"
                 hdp_jar_step.update({key: value})
             else:
                 task.update({key: value})
