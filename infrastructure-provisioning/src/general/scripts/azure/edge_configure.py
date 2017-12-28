@@ -285,7 +285,7 @@ if __name__ == "__main__":
                        "user_storage_account_tag_name": edge_conf['user_storage_account_name'],
                        "datalake_name": datalake_id,
                        "datalake_tag_name": edge_conf['datalake_store_name'],
-                       "datalake_shared_directory_name": edge_conf['datalake_user_directory_name'],
+                       "datalake_shared_directory_name": edge_conf['datalake_shared_directory_name'],
                        "datalake_user_directory_name": edge_conf['datalake_user_directory_name'],
                        "tunnel_port": "22",
                        "socks_port": "1080",
