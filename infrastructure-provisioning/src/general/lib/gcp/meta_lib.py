@@ -512,7 +512,7 @@ class GCPMeta:
         filter_string = ''
         for label in labels:
             for key in label.keys():
-                filter_string += 'labels.{}:{}'.format(key, label[j])
+                filter_string += 'labels.{}:{}'.format(key, label[key])
             filter_string += ' AND '
 
         filter_string = re.sub('AND $', '', filter_string)
