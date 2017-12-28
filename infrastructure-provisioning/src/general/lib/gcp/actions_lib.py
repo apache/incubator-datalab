@@ -250,8 +250,6 @@ class GCPActions:
         ssh_key = key.publickey().exportKey("OpenSSH")
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         access_configs = ''
-        # if instance_class == 'ssn' or instance_class == 'notebook':
-        #     access_configs = [{"type": "ONE_TO_ONE_NAT"}]
         if instance_class == 'ssn' or instance_class == 'edge':
             access_configs = [{
                 "type": "ONE_TO_ONE_NAT",
@@ -960,7 +958,6 @@ class GCPActions:
                         break
                     except:
                         local('sleep 5')
-                        pass
                 local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-{}.service'.format(str(livy_port)))
                 local("sudo sed -i 's|OS_USER|{0}|' /etc/systemd/system/livy-server-{1}.service".format(os_user, str(livy_port)))
                 local("sudo sed -i 's|LIVY_PATH|{0}|' /etc/systemd/system/livy-server-{1}.service".format(livy_path, str(livy_port)))
@@ -990,7 +987,6 @@ class GCPActions:
                             break
                         except:
                             local('sleep 5')
-                            pass
             local('touch /home/{0}/.ensure_dir/dataengine-service_{1}_interpreter_ensured'.format(os_user, cluster_name))
         except:
             sys.exit(1)

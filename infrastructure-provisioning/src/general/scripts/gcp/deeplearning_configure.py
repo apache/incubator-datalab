@@ -50,7 +50,6 @@ if __name__ == "__main__":
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = GCPMeta().get_private_ip_address(notebook_config['instance_name'])
     edge_instance_name = '{0}-{1}-edge'.format(notebook_config['service_base_name'], notebook_config['edge_user_name'])
-    # edge_instance_hostname = GCPMeta().get_private_ip_address(edge_instance_name)
     notebook_config['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
     notebook_config['zone'] = os.environ['gcp_zone']
@@ -164,22 +163,6 @@ if __name__ == "__main__":
         append_result("Failed to setup git credentials.", str(err))
         GCPActions().remove_instance(notebook_config['instance_name'], notebook_config['zone'])
         sys.exit(1)
-
-    # try:
-    #     print('[CREATING AMI]')
-    #     logging.info('[CREATING AMI]')
-    #     ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
-    #     if ami_id == '':
-    #         print("Looks like it's first time we configure notebook server. Creating image.")
-    #         image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
-    #                                               instance_name=notebook_config['instance_name'],
-    #                                               image_name=notebook_config['expected_ami_name'])
-    #         if image_id != '':
-    #             print("Image was successfully created. It's ID is {}".format(image_id))
-    # except Exception as err:
-    #     append_result("Failed installing users key.", str(err))
-    #     remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
-    #     sys.exit(1)
 
     # generating output information
     ip_address = GCPMeta().get_private_ip_address(notebook_config['instance_name'])

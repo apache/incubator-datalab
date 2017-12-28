@@ -57,10 +57,5 @@ if __name__ == "__main__":
                                          args.service_account_name, args.instance_class, args.network_tag,
                                          json.loads(args.labels), args.static_ip, args.primary_disk_size,
                                          args.secondary_disk_size, args.gpu_accelerator_type)
-            # print("Setting Service account to the instance")
-            # print "Setting Service account to the instance"
-            # GCPActions().stop_instance(args.instance_name, args.zone)
-            # GCPActions().set_service_account_to_instance(args.service_account_name, args.instance_name)
-            # GCPActions().start_instance(args.instance_name, args.zone)
     else:
         sys.exit(1)
