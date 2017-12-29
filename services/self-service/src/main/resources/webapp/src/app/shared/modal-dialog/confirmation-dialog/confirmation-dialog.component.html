@@ -19,38 +19,34 @@ limitations under the License.
 <modal-dialog #bindDialog modalClass="confirmation-dialog modal-md">
   <modal-header>
     <h4 class="modal-title">
-      <span *ngIf="model.notebook.name">Exploratory Environment: {{model.notebook.name}}</span>
+      <span *ngIf="model.notebook.name">Exploratory Environment: {{ model.notebook.name }}</span>
       <span *ngIf="model.notebook.type">
-        <i class="material-icons">priority_high</i>
-        Warning
-        </span>
+        <i class="material-icons">priority_high</i>Warning
+      </span>
     </h4>
   </modal-header>
   <modal-content>
     <div class="content-box">
-      <p>{{model.title}}</p>
-
-      <div *ngIf="model.notebook.resources" class="row">
-        <div class="col-xs-6">
+      <p>{{ model.title }}</p>
+      <div *ngIf="model.notebook.resources" class="row-wrap">
+        <div class="col">
           <p>Computational resources:</p>
         </div>
-        <div class="col-xs-6">
-          <ul class="list-unstyled" *ngIf="model.notebook.resources && model.notebook.resources.length > 0 && isAliveResources">
-            <li *ngFor="let resource of model.notebook.resources" [hidden]="resource.status != 'running'"> &#9642; {{resource.computational_name}}</li>
+        <div class="col">
+          <ul *ngIf="model.notebook.resources && model.notebook.resources.length > 0 && isAliveResources">
+            <li *ngFor="let resource of model.notebook.resources" [hidden]="resource.status != 'running'"> &#9642; {{ resource.computational_name }}</li>
           </ul>
           <span *ngIf="!model.notebook.resources || model.notebook.resources.length === 0 || !isAliveResources">none</span>
         </div>
       </div>
-      <div class="row">
-        <div class="col-xs-8">
-          <p *ngIf="model.notebook.name">Do you want to proceed?</p>
-          <p *ngIf="model.notebook.type">Are you sure you want to continue?</p>
-        </div>
+      <div class="m-top-20">
+        <p *ngIf="model.notebook.name">Do you want to proceed?</p>
+        <p *ngIf="model.notebook.type">Are you sure you want to continue?</p>
       </div>
       <div class="text-right" *ngIf="processError">
-        <small class="danger_color">{{errorMessage}}</small>
+        <small class="danger_color">{{ errorMessage }}</small>
       </div>
-      <div class="text-center m-top-10">
+      <div class="text-center m-top-20">
         <button md-raised-button type="button" class="butt" (click)="bindDialog.close()">No</button>
         <button md-raised-button type="button" class="butt butt-success" (click)="model.confirmAction()">Yes</button>
       </div>
