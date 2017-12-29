@@ -2475,5 +2475,5 @@ where:
 - **redirectUrl** - redirect URL to DLab application after try to login to Azure using OAuth2
 - **validatePermissionScope** - defines(true/false) if user's permissions should be validated to resource that is provided in permissionScope parameter. User will be logged in onlu in case he/she has any role in resource IAM described with permissionScope parameter
 - **permissionScope** - describes Azure resource where user should have any role to pass authentication. If user has no role in resource IAM he/she will not be logged in  
-- **managementApiAuthFile** - authentication file that is used to query Microsoft Graph API to check user roles in resource decriveb in permissionScope  
+- **managementApiAuthFile** - authentication file that is used to query Microsoft Graph API to check user roles in resource described in permissionScope  
 
