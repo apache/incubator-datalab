@@ -179,7 +179,6 @@ if __name__ == "__main__":
         master_node_hostname = GCPMeta().get_private_ip_address(data_engine['master_node_name'])
         edge_instance_name = '{0}-{1}-edge'.format(data_engine['service_base_name'],
                                                    data_engine['edge_user_name'])
-        # edge_instance_hostname = GCPMeta().get_private_ip_address(edge_instance_name)
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
     except Exception as err:

@@ -1729,7 +1729,7 @@ In order to start development of Front-end Web UI part of DLab - Git repository 
 -   Mongo DB 3.0 or higher
 -   Docker 1.12 - Infrastructure provisioning
 -   Java Development Kit 8 – Back-end
--   Node.js 6.1 or higher - WebUI
+-   Node.js 6.x & 7.x - WebUI
 -   Angular CLI v1.0.0-rc.1 or higher - WebUI
 -   TypeScript v2.0 or higher - WebUI
 -   Angular2 v2.4 – WebUI

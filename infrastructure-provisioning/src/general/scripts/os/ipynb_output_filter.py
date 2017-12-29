@@ -55,16 +55,15 @@ if __name__ == "__main__":
     for sheet in sheets:
         for cell in sheet.cells:
             # Uncomment next 2 lines and comment next section to clear all output in notebook
-            #if "outputs" in cell:
-            #    cell.outputs = []
+            # if "outputs" in cell:
+            #     cell.outputs = []
 
-            if hasattr(cell, "outputs"):
-                if len(cell.outputs) >= 1:
-                    for field in cell.outputs[0]:
-                        if field == "execution_count":
-                            cell.outputs[0].execution_count = None
-                        elif field == "metadata":
-                            cell.outputs[0].metadata = dict()
+            if hasattr(cell, "outputs") and len(cell.outputs) >= 1:
+                for field in cell.outputs[0]:
+                    if field == "execution_count":
+                        cell.outputs[0].execution_count = None
+                    elif field == "metadata":
+                        cell.outputs[0].metadata = dict()
 
             for field in ("execution_count",):
                 if field in cell:

@@ -53,6 +53,13 @@ if __name__ == "__main__":
         application = 'jupyter'
     else:
         application = os.environ['application']
+    notebook_config['cluster_labels'] = {
+        os.environ['notebook_instance_name']: "configured",
+        "name": notebook_config['cluster_name'],
+        "sbn": notebook_config['service_base_name'],
+        "user": notebook_config['edge_user_name'],
+        "notebook_name": os.environ['notebook_instance_name']
+    }
 
     try:
         logging.info('[INSTALLING KERNELS INTO SPECIFIED NOTEBOOK]')
@@ -64,7 +71,8 @@ if __name__ == "__main__":
                     os.environ['notebook_scala_version'], os.environ['application'], os.environ['conf_pypi_mirror'])
         try:
             local("~/scripts/{}_{}.py {}".format(application, 'install_dataengine-service_kernels', params))
-            actions_lib.GCPActions().update_dataproc_cluster(notebook_config['cluster_name'], notebook_config['notebook_name'])
+            actions_lib.GCPActions().update_dataproc_cluster(notebook_config['cluster_name'],
+                                                             notebook_config['cluster_labels'])
         except:
             traceback.print_exc()
             raise Exception

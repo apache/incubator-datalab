@@ -48,6 +48,7 @@ class GCPActions:
                                        'https://www.googleapis.com/auth/cloud-platform'))
             self.service = build('compute', 'v1', credentials=credentials)
             self.service_iam = build('iam', 'v1', credentials=credentials)
+            self.dataproc = build('dataproc', 'v1', credentials=credentials)
             self.service_storage = build('storage', 'v1', credentials=credentials)
             self.storage_client = storage.Client.from_service_account_json('/root/service_account.json')
             self.service_resource = build('cloudresourcemanager', 'v1', credentials=credentials)
@@ -250,8 +251,6 @@ class GCPActions:
         ssh_key = key.publickey().exportKey("OpenSSH")
         service_account_email = "{}@{}.iam.gserviceaccount.com".format(service_account_name, self.project)
         access_configs = ''
-        # if instance_class == 'ssn' or instance_class == 'notebook':
-        #     access_configs = [{"type": "ONE_TO_ONE_NAT"}]
         if instance_class == 'ssn' or instance_class == 'edge':
             access_configs = [{
                 "type": "ONE_TO_ONE_NAT",
@@ -726,8 +725,8 @@ class GCPActions:
             traceback.print_exc(file=sys.stdout)
             return ''
 
-    def update_dataproc_cluster(self, cluster_name, notebook_instance_name):
-        body = {"labels": {notebook_instance_name: "configured"}}
+    def update_dataproc_cluster(self, cluster_name, cluster_labels):
+        body = {"labels": cluster_labels}
         request = self.dataproc.projects().regions().clusters().patch(projectId=self.project,
                                                                       region=os.environ['gcp_region'],
                                                                       clusterName=cluster_name,
@@ -960,7 +959,6 @@ class GCPActions:
                         break
                     except:
                         local('sleep 5')
-                        pass
                 local('sudo cp /opt/livy-server-cluster.service /etc/systemd/system/livy-server-{}.service'.format(str(livy_port)))
                 local("sudo sed -i 's|OS_USER|{0}|' /etc/systemd/system/livy-server-{1}.service".format(os_user, str(livy_port)))
                 local("sudo sed -i 's|LIVY_PATH|{0}|' /etc/systemd/system/livy-server-{1}.service".format(livy_path, str(livy_port)))
@@ -990,7 +988,6 @@ class GCPActions:
                             break
                         except:
                             local('sleep 5')
-                            pass
             local('touch /home/{0}/.ensure_dir/dataengine-service_{1}_interpreter_ensured'.format(os_user, cluster_name))
         except:
             sys.exit(1)

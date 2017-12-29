@@ -54,10 +54,10 @@ def change_pkg_repos():
 
 
 def find_java_path_remote():
-    java_path = sudo("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'")
+    java_path = sudo("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"")
     return java_path
 
 
 def find_java_path_local():
-    java_path = local("update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'", capture=True)
+    java_path = local("sh -c \"update-alternatives --query java | grep 'Value: ' | grep -o '/.*/jre'\"", capture=True)
     return java_path
