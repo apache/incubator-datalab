@@ -21,7 +21,7 @@ limitations under the License.
     <th *ngFor="let column of filteringColumns"
         ngClass="{{column.className || ''}}">
       {{column.title}}
-      <button md-icon-button *ngIf="column.filtering" aria-label="More" class="pull-right" (click)="toggleFilterRow()">
+      <button md-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
         <i class="material-icons">
           <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">filter_list</span>
           <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">more_vert</span>
@@ -32,7 +32,7 @@ limitations under the License.
 
   <tr *ngIf="filteredEnvironments && collapseFilterRow" class="filter-row">
     <td>
-      <input placeholder="Filter by environment name" class="form-control filter-field" [value]="filterForm.name" (input)="filterForm.name = $event.target.value" />
+      <input placeholder="Filter by environment name" type="text" class="form-control filter-field" [value]="filterForm.name" (input)="filterForm.name = $event.target.value" />
     </td>
     <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'statuses'" [items]="filterConfiguration.statuses" [model]="filterForm.statuses"></multi-select-dropdown>
@@ -76,19 +76,20 @@ limitations under the License.
     </td>
     <td>
       <span class="total_cost">{{ env.cost || 'N/A' }} {{env.currency_code || ''}}</span>
-      <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}"></span>
+      <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}">
+        <i class="material-icons">help_outline</i>
+      </span>
     </td>
-    <td>
-      <div class="dropdown">
-        <span data-toggle="dropdown" class="actions" (click)="dropdownPosition($event)" 
-              [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' ||
-                                      env.status.toLowerCase() == 'failed' ||
-                                      env.status.toLowerCase() == 'terminating' ||
-                                      env.status.toLowerCase() == 'terminated' ||
-                                      healthStatus === 'error'}">
-        </span>
-        <div class="dropdown-menu">
-          <ul class="list-unstyled">
+    <td class="settings">
+      <span #settings (click)="actions.toggle($event, settings)" class="actions"
+            [ngClass]="{'disabled': env.status.toLowerCase() == 'creating' || healthStatus === 'error'}">
+      </span>
+
+      <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
+        <ul class="list-unstyled">
+          <div class="active-items" *ngIf="env.status.toLowerCase() !== 'failed'
+                && env.status.toLowerCase() !== 'terminating'
+                && env.status.toLowerCase() !== 'terminated'">
             <li (click)="exploratoryAction(env, 'stop')"
                 *ngIf="env.status.toLowerCase() !== 'stopped'
                 && env.status.toLowerCase() !== 'stopping'
@@ -101,12 +102,12 @@ limitations under the License.
             <li (click)="exploratoryAction(env, 'deploy')"
                 *ngIf="env.status != 'stopping'
                 && env.status != 'stopped'
-                && env.status != 'starting'
-                ">Add computational resources</li>
-            <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
-          </ul>
-        </div>
-      </div>
+                && env.status != 'starting'">Add computational resources
+            </li>
+          </div>
+          <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
+        </ul>
+      </bubble-up>
     </td>
   </tr>
 </table>

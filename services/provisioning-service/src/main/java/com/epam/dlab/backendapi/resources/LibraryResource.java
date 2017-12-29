@@ -17,23 +17,20 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
-import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
+import com.epam.dlab.backendapi.service.DockerService;
 import com.epam.dlab.dto.LibListComputationalDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
-import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,18 +44,7 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class LibraryResource implements DockerCommands {
-
-    @Inject
-    private ProvisioningServiceApplicationConfiguration configuration;
-    @Inject
-    private FolderListenerExecutor folderListenerExecutor;
-    @Inject
-    private ICommandExecutor commandExecutor;
-    @Inject
-    private CommandBuilder commandBuilder;
-    @Inject
-    private RESTService selfService;
+public class LibraryResource extends DockerService implements DockerCommands {
 
     @POST
     @Path(ExploratoryAPI.EXPLORATORY + "/lib_list")

@@ -1,0 +1,50 @@
+{
+  "name": "CLUSTER_NAME",
+  "group": "livy",
+  "properties": {
+    "zeppelin.livy.concurrentSQL": "false",
+    "livy.spark.home":"SPARK_HOME",
+    "zeppelin.interpreter.localRepo": "/opt/zeppelin/local-repo/2CAC665T6",
+    "zeppelin.livy.url": "http://localhost:LIVY_PORT",
+    "zeppelin.spark.useHiveContext": "true",
+    "livy.spark.app.name": "Zeppelin",
+    "zeppelin.spark.printREPLOutput": "true",
+    "zeppelin.spark.maxResult": "1000",
+    "zeppelin.spark.concurrentSQL": "false",
+    "zeppelin.spark.importImplicit": "true",
+    "zeppelin.dep.localrepo": "local-repo",
+    "zeppelin.dep.additionalRemoteRepository": "spark-packages,http://dl.bintray.com/spark-packages/maven,false;",
+    "zeppelin.R.image.width": "100%",
+    "zeppelin.R.render.options": "out.format \u003d \u0027html\u0027, comment \u003d NA, echo \u003d FALSE, results \u003d \u0027asis\u0027, message \u003d F, warning \u003d F",
+    "zeppelin.R.cmd": "R",
+    "zeppelin.R.knitr": "true"
+  },
+    "interpreterGroup": [
+      {
+          "class": "org.apache.zeppelin.livy.LivySparkInterpreter",
+          "name": "spark"
+      },
+      {
+        "class": "org.apache.zeppelin.livy.LivyPySparkInterpreter",
+        "name": "pyspark"
+      },
+      {
+        "class": "org.apache.zeppelin.livy.LivyPySpark3Interpreter",
+        "name": "pyspark3"
+      },
+      {
+        "class": "org.apache.zeppelin.livy.LivySparkRInterpreter",
+        "name": "sparkr"
+      }
+    ],
+  "dependencies": [],
+  "option": {
+    "remote": true,
+    "isExistingProcess": false,
+    "perNoteSession": false,
+    "perNoteProcess": false
+  },
+  "propertyValue": "",
+  "propertyKey": ""
+}
+

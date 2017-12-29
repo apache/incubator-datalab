@@ -18,7 +18,6 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.commands;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +59,7 @@ public class CommandExecutorMock implements ICommandExecutor {
     }
 
     @Override
-    public List<String> executeSync(String user, String uuid, String command) throws IOException, InterruptedException {
+    public List<String> executeSync(String user, String uuid, String command) {
         LOGGER.debug("Run OS command for user {} with UUID {}: {}", user, uuid, command);
         if (command.startsWith("docker images |")) {
         	List<String> list =  Lists.newArrayList(

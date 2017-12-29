@@ -49,6 +49,7 @@ public class AzureBillableResourcesService {
     private String serviceBaseName;
     private String sharedStorageAccountTagName;
     private String ssnStorageAccountTagName;
+    private String azureDataLakeTagName;
 
     /**
      * Constructs the service class
@@ -63,6 +64,7 @@ public class AzureBillableResourcesService {
 
         this.sharedStorageAccountTagName = getConfigurationSettingValue(MongoKeyWords.SHARED_STORAGE_ACCOUNT_TAG_KEY);
         this.ssnStorageAccountTagName = getConfigurationSettingValue(MongoKeyWords.SSN_STORAGE_ACCOUNT_TAG_KEY);
+        this.azureDataLakeTagName = getConfigurationSettingValueOrEmpty(MongoKeyWords.DATA_LAKE_TAG_NAME);
 
     }
 
@@ -77,6 +79,7 @@ public class AzureBillableResourcesService {
         Set<AzureDlabBillableResource> billableResources = new HashSet<>();
 
         billableResources.addAll(getSsn());
+        billableResources.addAll(getDataLake());
         billableResources.addAll(getEdgeAndStorageAccount());
         billableResources.addAll(getNotebooksAndClusters());
 
@@ -86,7 +89,7 @@ public class AzureBillableResourcesService {
         try {
             log.debug("Billable resources is \n {}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(list));
         } catch (JsonProcessingException e) {
-            log.debug("Error during pretty printing. Show simple list");
+            log.debug("Error during pretty printing. Show simple list", e);
             log.debug("Billable resources is {}", list);
         }
 
@@ -111,6 +114,15 @@ public class AzureBillableResourcesService {
 
     }
 
+    private String getConfigurationSettingValueOrEmpty(String key) {
+        try {
+            return getConfigurationSettingValue(key);
+        } catch (IllegalStateException e) {
+            log.warn("key {} is not found", key, e);
+            return null;
+        }
+    }
+
     private Set<AzureDlabBillableResource> getSsn() {
 
         return Sets.newHashSet(
@@ -118,6 +130,16 @@ public class AzureBillableResourcesService {
                 AzureDlabBillableResource.builder().id(ssnStorageAccountTagName).type(DlabResourceType.SSN_STORAGE_ACCOUNT).build(),
                 AzureDlabBillableResource.builder().id(sharedStorageAccountTagName).type(DlabResourceType.COLLABORATION_STORAGE_ACCOUNT).build()
         );
+    }
+
+    private Set<AzureDlabBillableResource> getDataLake() {
+
+        if (azureDataLakeTagName != null) {
+            return Sets.newHashSet(AzureDlabBillableResource.builder().id(azureDataLakeTagName)
+                    .type(DlabResourceType.DATA_LAKE_STORE).build());
+        }
+
+        return Sets.newHashSet();
     }
 
     private Set<AzureDlabBillableResource> getEdgeAndStorageAccount() {

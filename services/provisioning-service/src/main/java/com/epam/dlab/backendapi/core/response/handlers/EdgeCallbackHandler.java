@@ -49,7 +49,7 @@ public class EdgeCallbackHandler<E extends EdgeInfo, T extends UploadFileResult<
         if (resultNode != null && getAction() == DockerAction.CREATE
                 && UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
             try {
-                E credential = MAPPER.readValue(resultNode.toString(), responseType);
+                E credential = mapper.readValue(resultNode.toString(), responseType);
                 credential.setEdgeStatus(UserInstanceStatus.RUNNING.toString());
                 baseStatus.withEdgeInfo(credential);
             } catch (IOException e) {

@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Component, Input, Output, EventEmitter, HostBinding,
          ChangeDetectorRef, ElementRef, OnInit, OnDestroy,
-         ViewEncapsulation } from '@angular/core';
+         ViewEncapsulation, HostListener } from '@angular/core';
 import { BubblesCollector, BubbleService } from './bubble.service';
 
 @Component({
@@ -30,10 +30,19 @@ import { BubblesCollector, BubbleService } from './bubble.service';
   encapsulation: ViewEncapsulation.None
 })
 export class BubbleComponent implements OnDestroy {
+  public changeDirection: boolean = false;
+
+  @Input('keep-open') public keepOpen: boolean = false;
   @Input('position') public position: string;
+  @Input('alternative') public alternative: string;
+
   @Output() onShow: EventEmitter<any> = new EventEmitter();
   @Output() onHide: EventEmitter<any> = new EventEmitter();
+
   @HostBinding('class.is-visible') public isVisible = false;
+  @HostListener('click', ['$event']) onClick($event) {
+    this.keepOpen && event.stopPropagation();
+  }
 
   constructor(
     public elementRef: ElementRef,
@@ -51,6 +60,7 @@ export class BubbleComponent implements OnDestroy {
     if (this.isVisible) {
       this.onHide.emit(null);
       this.isVisible = false;
+      this.changeDirection = false;
       this.ref.markForCheck();
     }
   }
@@ -72,14 +82,30 @@ export class BubbleComponent implements OnDestroy {
   private updateDirection(event: Event, element: any = null) {
     const bubbleElem = this.elementRef.nativeElement;
     bubbleElem.style.visibility = 'hidden';
+
     setTimeout(() => {
       if (element && this.position) {
         this.bubbleService.updatePosition(element, bubbleElem, this.position);
         bubbleElem.style.visibility = 'visible';
+
+        if (this.alternative) {
+          this.changeDirection = !this.isInViewport(bubbleElem);
+          this.changeDirection && this.bubbleService.updatePosition(element, bubbleElem, this.alternative);
+        }
+
         this.ref.markForCheck();
         return;
       }
     });
+  }
+
+  private isInViewport(element) {
+    const rect = element.getBoundingClientRect();
+    const html = document.documentElement;
+    return (rect.top >= 0 && rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || html.clientHeight) &&
+            rect.right <= (window.innerWidth || html.clientWidth)
+    );
   }
 
   public ngOnDestroy() {

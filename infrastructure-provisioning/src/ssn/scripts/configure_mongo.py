@@ -86,7 +86,7 @@ if __name__ == "__main__":
             json_data = json.load(data)
         for i in json_data:
             client.dlabdb.roles.insert_one(i)
-        client.dlabdb.security.insert({ "expireAt": "1" }, { "expireAfterSeconds": "3600" })
+        client.dlabdb.security.create_index("expireAt", expireAfterSeconds=7200)
         if add_2_yml_config(path,'security','authorization','enabled'):
             command = ['service', 'mongod', 'restart']
             subprocess.call(command, shell=False)

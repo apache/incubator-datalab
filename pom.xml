@@ -48,6 +48,7 @@ limitations under the License.
         <module>services/provisioning-service</module>
         <module>services/self-service</module>
         <module>services/billing-azure</module>
+        <module>services/security-azure</module>
     </modules>
 
     <properties>

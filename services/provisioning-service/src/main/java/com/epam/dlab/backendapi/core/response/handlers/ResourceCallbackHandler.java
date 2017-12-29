@@ -22,8 +22,6 @@ import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.StatusBaseDTO;
-import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
-import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.JsonParser;
@@ -38,7 +36,7 @@ import java.util.Date;
 
 abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implements FileHandlerCallback {
     private static final Logger log = LoggerFactory.getLogger(ResourceCallbackHandler.class);
-    final ObjectMapper MAPPER = new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
+    final ObjectMapper mapper = new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 
     private static final String STATUS_FIELD = "status";
     protected static final String RESPONSE_NODE = "response";
@@ -103,7 +101,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
     public boolean handle(String fileName, byte[] content) throws Exception {
     	debugMessage("Got file {} while waiting for UUID {}, for action {}, docker response: {}",
         		fileName, uuid, action.name(), new String(content));
-        JsonNode document = MAPPER.readTree(content);
+        JsonNode document = mapper.readTree(content);
         boolean success = isSuccess(document);
         UserInstanceStatus status = calcStatus(action, success);
         T result = getBaseStatusDTO(status);

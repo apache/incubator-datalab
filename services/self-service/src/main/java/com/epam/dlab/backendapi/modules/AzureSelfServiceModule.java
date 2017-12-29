@@ -16,9 +16,15 @@
 
 package com.epam.dlab.backendapi.modules;
 
+import com.epam.dlab.auth.SecurityFactory;
+import com.epam.dlab.auth.azure.AzureLoginUrlBuilder;
+import com.epam.dlab.auth.azure.AzureSecurityResource;
+import com.epam.dlab.auth.rest.UserSessionDurationAuthorizer;
+import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthenticator;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.dao.azure.AzureKeyDao;
 import com.epam.dlab.backendapi.domain.azure.BillingSchedulerManagerAzure;
+import com.epam.dlab.backendapi.resources.SecurityResource;
 import com.epam.dlab.backendapi.resources.azure.BillingResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.EdgeCallbackAzure;
@@ -28,16 +34,29 @@ import com.epam.dlab.backendapi.service.AzureInfrastructureInfoService;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.cloud.CloudModule;
+import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.google.inject.Injector;
 import io.dropwizard.setup.Environment;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AzureSelfServiceModule extends CloudModule {
+
+    private AzureLoginConfiguration azureLoginConfiguration;
+
+    public AzureSelfServiceModule(AzureLoginConfiguration azureLoginConfiguration) {
+        this.azureLoginConfiguration = azureLoginConfiguration;
+    }
 
     @Override
     protected void configure() {
         bind(BillingService.class).to(AzureBillingService.class);
         bind((KeyDAO.class)).to(AzureKeyDao.class);
         bind(InfrastructureInfoService.class).to(AzureInfrastructureInfoService.class);
+
+        if (!azureLoginConfiguration.isUseLdap()) {
+            bind(AzureLoginUrlBuilder.class).toInstance(new AzureLoginUrlBuilder(azureLoginConfiguration));
+        }
     }
 
     @Override
@@ -46,6 +65,19 @@ public class AzureSelfServiceModule extends CloudModule {
         environment.jersey().register(injector.getInstance(KeyUploaderCallbackAzure.class));
         environment.jersey().register(injector.getInstance(ComputationalResourceAzure.class));
         environment.jersey().register(injector.getInstance(BillingResourceAzure.class));
+
+        if (!azureLoginConfiguration.isUseLdap()) {
+            environment.jersey().register(injector.getInstance(AzureSecurityResource.class));
+            injector.getInstance(SecurityFactory.class).configure(injector, environment,
+                    SelfServiceSecurityAuthenticator.class,
+                    new UserSessionDurationAuthorizer(ui ->
+                            injector.getInstance(SecurityResource.class).userLogout(ui),
+                            azureLoginConfiguration.getMaxSessionDurabilityMilliseconds()));
+        }
+
         environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAzure.class));
+
+        injector.getInstance(SecurityFactory.class).configure(injector, environment,
+                SelfServiceSecurityAuthenticator.class, (p, r) -> true);
     }
 }

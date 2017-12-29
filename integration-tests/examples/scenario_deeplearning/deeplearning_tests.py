@@ -34,16 +34,19 @@ args = parser.parse_args()
 
 
 def get_files(s3client, s3resource, dist, bucket, local):
-    s3list = s3client.get_paginator('list_objects')
-    for result in s3list.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
-        if result.get('CommonPrefixes') is not None:
-            for subdir in result.get('CommonPrefixes'):
-                get_files(s3client, s3resource, subdir.get('Prefix'), bucket, local)
-        if result.get('Contents') is not None:
-            for file in result.get('Contents'):
-                if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
-                    os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
-                s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
+    try:
+        s3list = s3client.get_paginator('list_objects')
+        for result in s3list.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
+            if result.get('CommonPrefixes') is not None:
+                for subdir in result.get('CommonPrefixes'):
+                    get_files(s3client, s3resource, subdir.get('Prefix'), bucket, local)
+            if result.get('Contents') is not None:
+                for file in result.get('Contents'):
+                    if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
+                        os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
+                    s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
+    except Exception as err:
+        print(str(err))
 
 
 def prepare_ipynb(kernel_name, template_path, ipynb_name):
@@ -68,8 +71,9 @@ def prepare_templates():
 
 
 def run_tensor():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
-    local('tar -zxf train.tar.gz && test.tar.gz')
+    interpreters = ['pyspark_local']
+    with lcd('/home/{0}/test_templates'.format(args.os_user)):
+        local('tar -zxf train.tar.gz -C /home/{0} && tar -zxf test.tar.gz -C /home/{0}'.format(args.os_user))
     local('mkdir -p /home/{}/logs'.format(args.os_user))
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_preparation_tensor.ipynb'.format(args.os_user), 'preparation_tensor')
@@ -79,42 +83,42 @@ def run_tensor():
 
 
 def run_caffe():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_caffe.ipynb'.format(args.os_user), 'test_caffe')
         run_ipynb('test_caffe')
 
 
 def run_caffe2():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_caffe2.ipynb'.format(args.os_user), 'test_caffe2')
         run_ipynb('test_caffe2')
 
 
 def run_cntk():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_cntk.ipynb'.format(args.os_user), 'test_cntk')
         run_ipynb('test_cntk')
 
 
 def run_keras():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_keras.ipynb'.format(args.os_user), 'test_keras')
         run_ipynb('test_keras')
 
 
 def run_mxnet():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_mxnet.ipynb'.format(args.os_user), 'test_mxnet')
         run_ipynb('test_mxnet')
 
 
 def run_theano():
-    interpreters = ['pyspark_local', 'pyspark_' + args.cluster_name]
+    interpreters = ['pyspark_local']
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_theano.ipynb'.format(args.os_user), 'test_theano')
         run_ipynb('test_theano')

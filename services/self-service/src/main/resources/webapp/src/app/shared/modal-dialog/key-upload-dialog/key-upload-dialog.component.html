@@ -23,18 +23,18 @@ limitations under the License.
   <modal-content>
     <div class="content-box">
       <form (submit)="uploadUserAccessKey_btnClick($event)" novalidate>
-        <div class="row upload-key">
-          <div  class="col-xs-7">
+        <div class="row-wrap upload-key">
+          <div class="col">
             <label class="control-label">
               Upload public key to start environment creation
             </label>
             <div>
               <a href="#/help/publickeyguide" target="_blank">
-                <small class="helper_instruction">Where can I get public key?</small>
+                <small class="helper_instruction"><i class="material-icons">help_outline</i>Where can I get public key?</small>
               </a>
             </div>
           </div>
-          <div class="col-xs-5 text-right">
+          <div class="col txt-r">
             <span md-raised-button class="butt butt-file">
               <span class="upload-icon"></span> Upload
               <input #userAccessKeyUploadControl (change)="uploadUserAccessKey_onChange($event)" type="file" name="file" accept=".pub" />

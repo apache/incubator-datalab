@@ -21,41 +21,10 @@ limitations under the License.
 @import 'https://fonts.googleapis.com/icon?family=Material+Icons';
 @import '~@angular/material/core/theming/prebuilt/deeppurple-amber.css';
 
+@import './assets/styles/_reset.css';
+@import './assets/styles/_general.css';
+@import './assets/styles/_theme.css';
 
-/* material buttons */
-.mat-raised-button.butt {
-  width: 160px;
-  height: 35px;
-  padding: 0 20px;
-  border-radius: 0;
-  font: 600 16px/1.45 'Open Sans';
-  color: #577289;
-}
-
-.mat-raised-button.butt i,
-.mat-raised-button.butt span i {
-  margin: 0 5px 0 0;
-  font-size: 20px;
-  vertical-align: sub;
-}
-.mat-raised-button.butt.butt-success {
-  background-color: #49af38;
-  margin-left: 15px;
-  color: #fff;
-}
-
-.mat-raised-button.butt:disabled {
-  cursor: not-allowed;
-  opacity: .6;
-}
-
-.mat-button-focus-overlay {
-  background-color: rgba(255, 0, 0, 0)!important;
-}
-
-.mat-button-ripple.mat-button-ripple-round.mat-ripple {
-  border-radius: 0;
-}
 
 .install-libraries .mat-tab-label,
 .install-libraries .mat-tab-label,
@@ -101,74 +70,10 @@ limitations under the License.
     font-weight: 300;
 }
 
-.mat-option {
-    font-family: 'Open Sans', sans-serif;
-}
-
-.mat-option.mat-selected {
-    color: #35afd5 !important;
-}
-/*.mat-input-placeholder.mat-focused, */
-.mat-input-underline .mat-input-ripple,
-.mat-select-underline
-.mat-input-underline {
-    background-color: #35afd5 !important;
-}
-.mat-input-placeholder.mat-focused,
-.mat-select:focus:not(.mat-select-disabled) .mat-select-trigger,
-.mat-select:focus:not(.mat-select-disabled) .mat-select-arrow,
-.mat-select:focus:not(.mat-select-disabled) .mat-select-underline {
-    color: #35afd5 !important;
-}
-.mat-select:focus:not(.mat-select-disabled) .mat-select-underline {
-    background-color: #35afd5 !important;
-}
-.mat-select-placeholder {
-    font-size: 14px;
-}
-.mat-input-placeholder {
-  font-weight: 400;
-}
 
 
 
-[hidden], .hidden {
-  display: none !important;
-}
 
-body {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 16px;
-  overflow-x: hidden;
-  font-weight: 300;
-  /* display: flex; */
-  margin: 0;
-  padding: 0;
-}
-
-button {
-  font-family: 'Open Sans', sans-serif;
-}
-
-.primary_color {
-  color: #337ab7;
-}
-
-.success_color {
-  color: #5cb85c;
-}
-
-.info_color {
-  color: #5bc0de;
-}
-
-.warning_color {
-  color: #f0ad4e;
-}
-
-.danger_color {
-  color: #d9534f;
-}
 
 .loader {
   border: 3px solid #f3f3f3;
@@ -388,23 +293,4 @@ input[type=number] {
   background: #E2747D;
   color: #fff;
   box-shadow: 2px 5px 16px 5px rgba(88, 60, 60, 0.6)
-}
-
-/* controls */
-/* input[type=text] {} */
-
-.control-group {
-  display: flex;
-  padding-bottom: 20px;
-}
-.control-group .label {
-  width: 30%;
-  color: #718ba6;
-  font-size: 15px;
-  font-weight: 600;
-  align-self: flex-end;
-  text-align: left;
-}
-.control-group .control {
-  width: 70%;
 }

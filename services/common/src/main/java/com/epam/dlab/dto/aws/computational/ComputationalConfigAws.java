@@ -37,11 +37,6 @@ public class ComputationalConfigAws extends ComputationalBase<ComputationalConfi
         return this;
     }
 
-    public ComputationalConfigAws withNotebookInstanceName(String notebookInstanceName) {
-        setNotebookInstanceName(notebookInstanceName);
-        return this;
-    }
-
     @Override
     public ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)

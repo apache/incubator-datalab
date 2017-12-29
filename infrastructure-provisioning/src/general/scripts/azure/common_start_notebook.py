@@ -74,6 +74,27 @@ if __name__ == "__main__":
     except:
         sys.exit(1)
 
+    if os.environ['azure_datalake_enable'] == 'true':
+        try:
+            logging.info('[UPDATE STORAGE CREDENTIALS]')
+            print('[UPDATE STORAGE CREDENTIALS]')
+            notebook_config['notebook_ip'] = AzureMeta().get_private_ip_address(
+                notebook_config['resource_group_name'], notebook_config['notebook_name'])
+            env.hosts = "{}".format(notebook_config['notebook_ip'])
+            env.user = os.environ['conf_os_user']
+            env.key_filename = "{}".format(notebook_config['keyfile'])
+            env.host_string = env.user + "@" + env.hosts
+            params = '--refresh_token {}'.format(os.environ['azure_user_refresh_token'])
+            try:
+                put('~/scripts/common_notebook_update_refresh_token.py', '/tmp/common_notebook_update_refresh_token.py')
+                sudo('mv /tmp/common_notebook_update_refresh_token.py /usr/local/bin/common_notebook_update_refresh_token.py')
+                sudo("/usr/bin/python /usr/local/bin/{}.py {}".format('common_notebook_update_refresh_token', params))
+            except Exception as err:
+                traceback.print_exc()
+                append_result("Failed to update storage credentials.", str(err))
+                raise Exception
+        except:
+            sys.exit(1)
 
     try:
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],

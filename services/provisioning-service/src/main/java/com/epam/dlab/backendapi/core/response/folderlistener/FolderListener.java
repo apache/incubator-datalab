@@ -42,13 +42,13 @@ public class FolderListener implements Runnable {
 	public static final long LISTENER_TIMEOUT_MILLLIS = 1000;
 	
 	/** Timeout of the idle for the folder listener in milliseconds. */
-	public static final long LISTENER_IDLE_TIMEOUT_MILLLIS = 600  * 1000;
+	public static final long LISTENER_IDLE_TIMEOUT_MILLLIS = 600L  * 1000L;
 
 	/** Timeout of waiting for the directory creation in milliseconds. */
 	private static final long WAIT_DIR_TIMEOUT_MILLIS = 500;
 
 	/** List of the folder listeners. */
-	private static final List<FolderListener> listeners = new ArrayList<FolderListener>();
+	private static final List<FolderListener> listeners = new ArrayList<>();
 
 	
 	/** Appends the file handler for processing to the folder listener and returns instance of the file handler. 

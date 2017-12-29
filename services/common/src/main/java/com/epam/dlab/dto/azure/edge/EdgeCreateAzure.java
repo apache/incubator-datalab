@@ -17,13 +17,31 @@
 package com.epam.dlab.dto.azure.edge;
 
 import com.epam.dlab.dto.ResourceSysBaseDTO;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 
 public class EdgeCreateAzure extends ResourceSysBaseDTO<EdgeCreateAzure> {
+    @JsonProperty("azure_datalake_enable")
+    private String azureDataLakeEnable;
+
+    public EdgeCreateAzure withAzureDataLakeEnable(String azureDataLakeEnable) {
+        this.azureDataLakeEnable = azureDataLakeEnable;
+        return this;
+    }
+
+    public String getAzureDataLakeEnable() {
+        return azureDataLakeEnable;
+    }
+
+
+    public void setAzureDataLakeEnable(String azureDataLakeEnable) {
+        this.azureDataLakeEnable = azureDataLakeEnable;
+    }
 
     @Override
     public MoreObjects.ToStringHelper toStringHelper(Object self) {
-        return MoreObjects.toStringHelper(self);
+        return super.toStringHelper(this)
+                .add("azureDataLakeEnable", azureDataLakeEnable);
     }
 
     @Override

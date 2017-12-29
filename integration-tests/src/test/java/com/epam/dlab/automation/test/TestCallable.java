@@ -18,8 +18,11 @@ limitations under the License.
 
 package com.epam.dlab.automation.test;
 
+import static org.testng.Assert.fail;
+
 import java.io.File;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -45,8 +48,11 @@ import com.epam.dlab.automation.http.ContentType;
 import com.epam.dlab.automation.http.HttpRequest;
 import com.epam.dlab.automation.http.HttpStatusCode;
 import com.epam.dlab.automation.model.CreateNotebookDto;
+import com.epam.dlab.automation.model.DeployClusterDto;
 import com.epam.dlab.automation.model.DeployEMRDto;
+import com.epam.dlab.automation.model.DeploySparkDto;
 import com.epam.dlab.automation.model.JsonMapperDto;
+import com.epam.dlab.automation.model.NotebookConfig;
 import com.jayway.restassured.response.Response;
 
 public class TestCallable implements Callable<Boolean> {
@@ -54,14 +60,18 @@ public class TestCallable implements Callable<Boolean> {
 
     private final String notebookTemplate;
     private final boolean fullTest;
-    private final String token, ssnExpEnvURL, ssnProUserResURL;
+    private final String token, ssnExpEnvURL, ssnProUserResURL,ssnCompResURL;
     private final String bucketName;
-    private final String notebookName, emrName;
+    private final String notebookName, clusterName, dataEngineType;
+    private final NotebookConfig notebookConfig;
 
-    public TestCallable(String notebookTemplate, boolean fullTest) {
-    	this.notebookTemplate = notebookTemplate;
-        this.fullTest = fullTest;
+    public TestCallable(NotebookConfig notebookConfig) {
+    	this.notebookTemplate = notebookConfig.getNotebookTemplate();
+    	this.dataEngineType = notebookConfig.getDataEngineType();
+        this.fullTest = notebookConfig.isFullTest();
 
+        this.notebookConfig=notebookConfig;
+        
         this.token = NamingHelper.getSsnToken();
         this.ssnExpEnvURL = NamingHelper.getSelfServiceURL(ApiPath.EXP_ENVIRONMENT);
         this.ssnProUserResURL = NamingHelper.getSelfServiceURL(ApiPath.PROVISIONED_RES);
@@ -69,50 +79,134 @@ public class TestCallable implements Callable<Boolean> {
 
         final String suffixName = NamingHelper.generateRandomValue(notebookTemplate);
         notebookName = "nb" + suffixName;
-        emrName = "eimr" + suffixName;
+        
+        if ("dataengine".equals(dataEngineType)) {
+        	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES_SPARK);
+			clusterName = "spark" + suffixName;
+        } else if ("dataengine-service".equals(dataEngineType)) {
+        	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
+			clusterName = "eimr" + suffixName;
+        } else {
+        	ssnCompResURL="";
+			clusterName="";
+        	LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
+			fail("illegal argument dataEngineType "+dataEngineType +" , should be dataengine or dataengine-service");
+        }
 
         LOGGER.info("   SSN exploratory environment URL is {}", ssnExpEnvURL);
         LOGGER.info("   SSN provisioned user resources URL is {}", ssnProUserResURL);
     }
 
-    @Override
+    private static Duration getDuration(String duration) {
+    	return Duration.parse("PT" + duration);
+    }
+
+	@Override
     public Boolean call() throws Exception {
-        final String notebookIp = createNotebook(notebookName);
-        testLibs();
+        
+		try {
+			final String notebookIp = createNotebook(notebookName);
+			testLibs();
 
-        final DeployEMRDto deployEMR = createEMR();
+			final DeployClusterDto deployClusterDto = createClusterDto();
 
-        final String emrClusterName = NamingHelper.getEmrClusterName(NamingHelper.getEmrInstanceName(notebookName, emrName));
-        if (!ConfigPropertyValue.isRunModeLocal()) {
-        	TestEmr test = new TestEmr();
-        	test.run(notebookName, emrClusterName);
+			final String actualClusterName = NamingHelper.getClusterName(
+					NamingHelper.getClusterInstanceNameForTestEmr(notebookName, clusterName, dataEngineType),
+					dataEngineType);
 
-            String notebookFilesLocation = PropertiesResolver.getPropertyByName(String.format(PropertiesResolver.NOTEBOOK_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
-            test.run2(NamingHelper.getSsnIp(), notebookIp, emrClusterName, new File(notebookFilesLocation), notebookName);
-        }
+			if (!ConfigPropertyValue.isRunModeLocal()) {
+				TestEmr test = new TestEmr();
+				test.run(notebookName, actualClusterName);
 
-        stopEnvironment();
+				String notebookFilesLocation = PropertiesResolver.getPropertyByName(
+						String.format(PropertiesResolver.NOTEBOOK_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
+				test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File(notebookFilesLocation),
+						notebookName);
+			}
 
-        if (fullTest) {
-        	restartNotebookAndRedeployToTerminate(deployEMR);
-        }
-        if (deployEMR != null) {
-        	terminateNotebook(deployEMR);
-        }
+			stopEnvironment();
 
-       	// Create notebook from AMI
-       	String notebookNewName = "AMI" + notebookName;
-       	createNotebook(notebookNewName);
+			if (fullTest) {
+				restartNotebookAndRedeployToTerminate(deployClusterDto);
+			}
+			if (deployClusterDto != null) {
+				terminateNotebook(deployClusterDto);
+			}
 
-       	terminateNotebook(notebookName);
+			// Create notebook from AMI
+			String notebookNewName = "AMI" + notebookName;
+			createNotebook(notebookNewName);
 
-       	LOGGER.info("{} All tests finished successfully", notebookName);
-        return true;
+			terminateNotebook(notebookNewName);
+
+			LOGGER.info("{} All tests finished successfully", notebookName);
+			return true;
+		} catch (AssertionError | Exception e) {
+			LOGGER.error("Error occurred while testing notebook {} with configuration {}", notebookName, notebookConfig, e);
+			throw e;
+		}
    }
+    
 
-   private String  createNotebook(String notebookName) throws Exception {
+  
+
+private DeployClusterDto createClusterDto() throws Exception {
+	String gettingStatus;
+    LOGGER.info("7. {} cluster {} will be deployed for {} ...",dataEngineType, clusterName, notebookName);
+    LOGGER.info("  {} : SSN computational resources URL is {}", notebookName, ssnCompResURL);
+
+    DeployClusterDto clusterDto = null;
+    if ("dataengine".equals(dataEngineType)) {
+		clusterDto = JsonMapperDto.readNode(
+					Paths.get(String.format("%s/%s", PropertiesResolver.getClusterConfFileLocation(), notebookTemplate), "spark_cluster.json").toString(),
+					DeploySparkDto.class);
+    } else if ("dataengine-service".equals(dataEngineType)) {
+		clusterDto = JsonMapperDto.readNode(
+					Paths.get(String.format("%s/%s", PropertiesResolver.getClusterConfFileLocation(), notebookTemplate), "EMR.json").toString(),
+					DeployEMRDto.class);
+    } else {
+		LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
+		fail("illegal argument dataEngineType "+dataEngineType +" , should be dataengine or dataengine-service");
+	}
+
+    clusterDto.setName(clusterName);
+    clusterDto.setNotebook_name(notebookName);
+    LOGGER.info("{}: {} cluster = {}",notebookName,dataEngineType, clusterDto);
+    Response responseDeployingCluster = new HttpRequest().webApiPut(ssnCompResURL, ContentType.JSON,
+    		clusterDto, token);
+    LOGGER.info("{}:   responseDeployingCluster.getBody() is {}",notebookName, responseDeployingCluster.getBody().asString());
+    Assert.assertEquals(responseDeployingCluster.statusCode(), HttpStatusCode.OK, dataEngineType + " cluster " + clusterName + " was not deployed");
+
+    gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "creating", getDuration(notebookConfig.getTimeoutClusterCreate()));
+    if(!ConfigPropertyValue.isRunModeLocal()) {
+        if (!(gettingStatus.contains("configuring") || gettingStatus.contains("running")))
+            throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been deployed. Cluster status is " + gettingStatus);
+        LOGGER.info("{}: {} cluster {} has been deployed", notebookName, dataEngineType, clusterName);
+
+        AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), AmazonInstanceState.RUNNING);
+        Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
+    }
+    LOGGER.info("{}:   Waiting until {} cluster {} has been configured ...", notebookName,dataEngineType,clusterName);
+
+    gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "configuring", getDuration(notebookConfig.getTimeoutClusterCreate()));
+    if (!gettingStatus.contains("running"))
+        throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been configured. Spark cluster status is " + gettingStatus);
+    LOGGER.info(" {}: {} cluster {} has been configured", notebookName, dataEngineType , clusterName);
+
+    if(!ConfigPropertyValue.isRunModeLocal()) {
+        AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), AmazonInstanceState.RUNNING);
+        Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
+    }
+
+    LOGGER.info("{}:   Check bucket {}", notebookName, bucketName);
+    AmazonHelper.printBucketGrants(bucketName);
+
+    return clusterDto;
+}
+
+private String  createNotebook(String notebookName) throws Exception {
        LOGGER.info("6. Notebook {} will be created ...", notebookName);
-       String notebookConfigurationFile = String.format(PropertiesResolver.NOTEBOOK_CONFIGURATION_FILE_TEMPLATE, notebookTemplate);
+       String notebookConfigurationFile = String.format(PropertiesResolver.NOTEBOOK_CONFIGURATION_FILE_TEMPLATE, notebookTemplate, notebookTemplate);
        LOGGER.info("{} notebook configuration file: {}", notebookName, notebookConfigurationFile);
 
        CreateNotebookDto createNoteBookRequest =
@@ -127,7 +221,7 @@ public class TestCallable implements Callable<Boolean> {
        LOGGER.info(" {}:  responseCreateNotebook.getBody() is {}", notebookName, responseCreateNotebook.getBody().asString());
        Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not created");
 
-       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating", ConfigPropertyValue.getTimeoutNotebookCreate());
+       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating", getDuration(notebookConfig.getTimeoutNotebookCreate()));
        if (!gettingStatus.contains("running")) {
            LOGGER.error("Notebook {} is in state {}", notebookName, gettingStatus);
            throw new Exception("Notebook " + notebookName + " has not been created. Notebook status is " + gettingStatus);
@@ -150,7 +244,7 @@ public class TestCallable implements Callable<Boolean> {
        LOGGER.info("Install libraries  ...", notebookName);
 
        TestLibGroupStep testLibGroupStep = new TestLibGroupStep(ApiPath.LIB_GROUPS, token, notebookName,
-               ConfigPropertyValue.getTimeoutLibGroups().getSeconds(),
+               getDuration(notebookConfig.getTimeoutLibGroups()).getSeconds(),
                getTemplateTestLibFile("lib_groups.json"));
 
        testLibGroupStep.init();
@@ -161,7 +255,7 @@ public class TestCallable implements Callable<Boolean> {
 
        for (LibToSearchData libToSearchData : libToSearchDataList) {
            TestLibListStep testLibListStep = new TestLibListStep(ApiPath.LIB_LIST, token, notebookName,
-                   ConfigPropertyValue.getTimeoutLibList().getSeconds(), libToSearchData);
+        		   getDuration(notebookConfig.getTimeoutLibList()).getSeconds(), libToSearchData);
 
            testLibListStep.init();
            testLibListStep.verify();
@@ -169,7 +263,7 @@ public class TestCallable implements Callable<Boolean> {
            Lib lib = testLibListStep.getLibs().get(new Random().nextInt(testLibListStep.getLibs().size()));
 
            TestLibInstallStep testLibInstallStep = new TestLibInstallStep(ApiPath.LIB_INSTALL, ApiPath.LIB_LIST_EXPLORATORY_FORMATTED,
-                   token, notebookName, ConfigPropertyValue.getTimeoutLibInstall().getSeconds(), lib);
+                   token, notebookName, getDuration(notebookConfig.getTimeoutLibInstall()).getSeconds(), lib);
 
            testLibInstallStep.init();
            testLibInstallStep.verify();
@@ -188,72 +282,21 @@ public class TestCallable implements Callable<Boolean> {
         return absoluteFileName;
    }
 
-   private DeployEMRDto createEMR() throws Exception {
-       String gettingStatus;
-       LOGGER.info("7. EMR {} will be deployed for {} ...", emrName, notebookName);
-       final String ssnCompResURL = NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
-       LOGGER.info("  {} : SSN computational resources URL is {}", notebookName, ssnCompResURL);
-
-       DeployEMRDto deployEMR =
-               JsonMapperDto.readNode(
-                       Paths.get(PropertiesResolver.getClusterConfFileLocation(), "EMR.json").toString(),
-                       DeployEMRDto.class);
-
-       //TODO: add parameter for switching from regular ec2 instances to spot instances
-       /*DeployEMRDto deployEMRSpot40 =
-               NodeReader.readNode(
-                       Paths.get(PropertiesResolver.getClusterConfFileLocation(), "EMR_spot.json").toString(),
-                       DeployEMRDto.class);*/
-
-       deployEMR.setName(emrName);
-       deployEMR.setNotebook_name(notebookName);
-       LOGGER.info("{}: EMR = {}",notebookName, deployEMR);
-       Response responseDeployingEMR = new HttpRequest().webApiPut(ssnCompResURL, ContentType.JSON,
-               deployEMR, token);
-       LOGGER.info("{}:   responseDeployingEMR.getBody() is {}",notebookName, responseDeployingEMR.getBody().asString());
-       Assert.assertEquals(responseDeployingEMR.statusCode(), HttpStatusCode.OK, "EMR  " + emrName + " was not deployed");
-
-       gettingStatus = WaitForStatus.emr(ssnProUserResURL, token, notebookName, emrName, "creating", ConfigPropertyValue.getTimeoutEMRCreate());
-       if(!ConfigPropertyValue.isRunModeLocal()) {
-           if (!(gettingStatus.contains("configuring") || gettingStatus.contains("running")))
-               throw new Exception(notebookName + ": EMR " + emrName + " has not been deployed. EMR status is " + gettingStatus);
-           LOGGER.info("{}: EMR {} has been deployed", notebookName, emrName);
-
-           AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.RUNNING);
-           Docker.checkDockerStatus(NamingHelper.getEmrContainerName(emrName, "create"), NamingHelper.getSsnIp());
-       }
-       LOGGER.info("{}:   Waiting until EMR has been configured ...", notebookName);
-
-       gettingStatus = WaitForStatus.emr(ssnProUserResURL, token, notebookName, emrName, "configuring", ConfigPropertyValue.getTimeoutEMRCreate());
-       if (!gettingStatus.contains("running"))
-           throw new Exception(notebookName + ": EMR " + emrName + " has not been configured. EMR status is " + gettingStatus);
-       LOGGER.info(" {}:  EMR {} has been configured", notebookName, emrName);
-
-       if(!ConfigPropertyValue.isRunModeLocal()) {
-           AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.RUNNING);
-           Docker.checkDockerStatus(NamingHelper.getEmrContainerName(emrName, "create"), NamingHelper.getSsnIp());
-       }
-
-       LOGGER.info("{}:   Check bucket {}", notebookName, bucketName);
-       AmazonHelper.printBucketGrants(bucketName);
-
-       return deployEMR;
-   }
-
-   private void restartNotebookAndRedeployToTerminate(DeployEMRDto deployEMR) throws Exception {
+   private void restartNotebookAndRedeployToTerminate(DeployClusterDto deployClusterDto) throws Exception {
 	   restartNotebook();
-	   final String emrNewName = redeployEMR(deployEMR);
-	   terminateEMR(emrNewName);
+	   final String clusterNewName = redeployCluster(deployClusterDto);
+	   terminateCluster(clusterNewName);
    }
+   
 
-   private void restartNotebook() throws Exception {
+private void restartNotebook() throws Exception {
        LOGGER.info("9. Notebook {} will be re-started ...", notebookName);
        String requestBody = "{\"notebook_instance_name\":\"" + notebookName + "\"}";
        Response respStartNotebook = new HttpRequest().webApiPost(ssnExpEnvURL, ContentType.JSON, requestBody, token);
        LOGGER.info("    respStartNotebook.getBody() is {}", respStartNotebook.getBody().asString());
        Assert.assertEquals(respStartNotebook.statusCode(), HttpStatusCode.OK);
 
-       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "starting", ConfigPropertyValue.getTimeoutNotebookStartup());
+       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "starting", getDuration(notebookConfig.getTimeoutNotebookStartup()));
        if (!gettingStatus.contains(AmazonInstanceState.RUNNING.toString())){
            throw new Exception("Notebook " + notebookName + " has not been started. Notebook status is " + gettingStatus);
        }
@@ -271,75 +314,74 @@ public class TestCallable implements Callable<Boolean> {
        LOGGER.info("    respTerminateNotebook.getBody() is {}", respTerminateNotebook.getBody().asString());
        Assert.assertEquals(respTerminateNotebook.statusCode(), HttpStatusCode.OK);
 
-       gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "terminating", ConfigPropertyValue.getTimeoutEMRTerminate());
+       gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "terminating", getDuration(notebookConfig.getTimeoutClusterTerminate()));
        if (!gettingStatus.contains("terminated"))
            throw new Exception("Notebook" + notebookName + " has not been terminated. Notebook status is " + gettingStatus);
        AmazonHelper.checkAmazonStatus(NamingHelper.getNotebookInstanceName(notebookName), AmazonInstanceState.TERMINATED);
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "terminate"), NamingHelper.getSsnIp());
    }
 
-   private void terminateNotebook(DeployEMRDto deployEmr) throws Exception {
-       terminateNotebook(deployEmr.getNotebook_name());
+   private void terminateNotebook(DeployClusterDto deployCluster) throws Exception {
+       terminateNotebook(deployCluster.getNotebook_name());
 
-       String gettingStatus = WaitForStatus.getEmrStatus(
+       String gettingStatus = WaitForStatus.getClusterStatus(
 				new HttpRequest()
 					.webApiGet(ssnProUserResURL, token)
 					.getBody()
 					.jsonPath(),
-					deployEmr.getNotebook_name(), deployEmr.getName());
+					deployCluster.getNotebook_name(), deployCluster.getName());
        if (!gettingStatus.contains("terminated"))
-           throw new Exception("EMR has not been terminated for Notebook " + deployEmr.getNotebook_name() + ". EMR status is " + gettingStatus);
-       LOGGER.info("    EMR {} has been terminated for Notebook {}", deployEmr.getName(), deployEmr.getNotebook_name());
+           throw new Exception(dataEngineType+" cluster "+ deployCluster.getName() + " has not been terminated for Notebook " + deployCluster.getNotebook_name() + ". Cluster status is " + gettingStatus);
+       LOGGER.info("    {} cluster {} has been terminated for Notebook {}",dataEngineType, deployCluster.getName(), deployCluster.getNotebook_name());
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(deployEmr.getNotebook_name(), deployEmr.getName()), AmazonInstanceState.TERMINATED);
+       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(deployCluster.getNotebook_name(), deployCluster.getName(), dataEngineType), AmazonInstanceState.TERMINATED);
+   }
+   
+   private void terminateCluster(String clusterNewName) throws Exception {
+       String gettingStatus;
+       LOGGER.info("    New cluster {} will be terminated for notebook {} ...", clusterNewName, notebookName);
+       final String ssnTerminateClusterURL = NamingHelper.getSelfServiceURL(ApiPath.getTerminateClusterUrl(notebookName, clusterNewName));
+       LOGGER.info("    SSN terminate cluster URL is {}", ssnTerminateClusterURL);
+
+       Response respTerminateCluster = new HttpRequest().webApiDelete(ssnTerminateClusterURL, ContentType.JSON, token);
+       LOGGER.info("    respTerminateCluster.getBody() is {}", respTerminateCluster.getBody().asString());
+       Assert.assertEquals(respTerminateCluster.statusCode(), HttpStatusCode.OK);
+
+       gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "terminating", getDuration(notebookConfig.getTimeoutClusterTerminate()));
+       if (!gettingStatus.contains("terminated"))
+           throw new Exception("New "+dataEngineType+" cluster " + clusterNewName + " has not been terminated. Cluster status is " + gettingStatus);
+       LOGGER.info("    New {} cluster {} has been terminated for notebook {}",dataEngineType, clusterNewName, notebookName);
+
+       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), AmazonInstanceState.TERMINATED);
+       Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "terminate"), NamingHelper.getSsnIp());
    }
 
-   private void terminateEMR(String emrNewName) throws Exception {
-       String gettingStatus;
-       LOGGER.info("    New EMR {} will be terminated for notebook {} ...", emrNewName, notebookName);
-       final String ssnTerminateEMRURL = NamingHelper.getSelfServiceURL(ApiPath.getTerminateEMRUrl(notebookName, emrNewName));
-       LOGGER.info("    SSN terminate EMR URL is {}", ssnTerminateEMRURL);
-
-       Response respTerminateEMR = new HttpRequest().webApiDelete(ssnTerminateEMRURL, ContentType.JSON, token);
-       LOGGER.info("    respTerminateEMR.getBody() is {}", respTerminateEMR.getBody().asString());
-       Assert.assertEquals(respTerminateEMR.statusCode(), HttpStatusCode.OK);
-
-       gettingStatus = WaitForStatus.emr(ssnProUserResURL, token, notebookName, emrNewName, "terminating", ConfigPropertyValue.getTimeoutEMRTerminate());
-       if (!gettingStatus.contains("terminated"))
-           throw new Exception("New EMR " + emrNewName + " has not been terminated. EMR status is " + gettingStatus);
-       LOGGER.info("    New EMR {} has been terminated for notebook {}", emrNewName, notebookName);
-
-       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrNewName), AmazonInstanceState.TERMINATED);
-       Docker.checkDockerStatus(NamingHelper.getEmrContainerName(emrNewName, "terminate"), NamingHelper.getSsnIp());
-   }
-
-   private String redeployEMR(DeployEMRDto deployEMR) throws Exception {
-       final String emrNewName = "New" + emrName;
+   private String redeployCluster(DeployClusterDto deployCluster) throws Exception {
+       final String clusterNewName = "New" + clusterName;
        String gettingStatus;
 
-       LOGGER.info("10. New EMR {} will be deployed for termination for notebook {} ...", emrNewName, notebookName);
+       LOGGER.info("10. New {} cluster {} will be deployed for termination for notebook {} ...",dataEngineType, clusterNewName, notebookName);
 
-       deployEMR.setName(emrNewName);
-       deployEMR.setNotebook_name(notebookName);
-       Response responseDeployingEMRNew = new HttpRequest().webApiPut(NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES),
-                                                                      ContentType.JSON, deployEMR, token);
-       LOGGER.info("    responseDeployingEMRNew.getBody() is {}", responseDeployingEMRNew.getBody().asString());
-       Assert.assertEquals(responseDeployingEMRNew.statusCode(), HttpStatusCode.OK);
+       deployCluster.setName(clusterNewName);
+       deployCluster.setNotebook_name(notebookName);
+       Response responseDeployingClusterNew = new HttpRequest().webApiPut(ssnCompResURL, ContentType.JSON, deployCluster, token);
+       LOGGER.info("    responseDeployingClusterNew.getBody() is {}", responseDeployingClusterNew.getBody().asString());
+       Assert.assertEquals(responseDeployingClusterNew.statusCode(), HttpStatusCode.OK);
 
-       gettingStatus = WaitForStatus.emr(ssnProUserResURL, token, notebookName, emrNewName, "creating", ConfigPropertyValue.getTimeoutEMRCreate());
+       gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "creating", getDuration(notebookConfig.getTimeoutClusterCreate()));
        if (!(gettingStatus.contains("configuring") || gettingStatus.contains("running")))
-           throw new Exception("New EMR " + emrNewName + " has not been deployed. EMR status is " + gettingStatus);
-       LOGGER.info("    New EMR {} has been deployed", emrNewName);
+           throw new Exception("New cluster " + clusterNewName + " has not been deployed. Cluster status is " + gettingStatus);
+       LOGGER.info("    New cluster {} has been deployed", clusterNewName);
 
-       LOGGER.info("   Waiting until EMR {} has been configured ...", emrNewName);
-       gettingStatus = WaitForStatus.emr(ssnProUserResURL, token, notebookName, emrNewName, "configuring", ConfigPropertyValue.getTimeoutEMRCreate());
+       LOGGER.info("   Waiting until cluster {} has been configured ...", clusterNewName);
+       gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "configuring", getDuration(notebookConfig.getTimeoutClusterCreate()));
        if (!gettingStatus.contains(AmazonInstanceState.RUNNING.toString()))
-           throw new Exception("EMR " + emrNewName + " has not been configured. EMR status is " + gettingStatus);
-       LOGGER.info("   EMR {} has been configured", emrNewName);
+           throw new Exception("Cluster " + clusterNewName + " has not been configured. Cluster status is " + gettingStatus);
+       LOGGER.info("   Cluster {} has been configured", clusterNewName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrNewName), AmazonInstanceState.RUNNING);
-       Docker.checkDockerStatus(NamingHelper.getEmrContainerName(emrNewName, "create"), NamingHelper.getSsnIp());
-       return emrNewName;
+       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), AmazonInstanceState.RUNNING);
+       Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "create"), NamingHelper.getSsnIp());
+       return clusterNewName;
    }
 
    private void stopEnvironment() throws Exception {
@@ -352,22 +394,22 @@ public class TestCallable implements Callable<Boolean> {
        LOGGER.info("   responseStopNotebook.getBody() is {}", responseStopNotebook.getBody().asString());
        Assert.assertEquals(responseStopNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not stopped");
 
-       gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "stopping", ConfigPropertyValue.getTimeoutNotebookShutdown());
+       gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "stopping", getDuration(notebookConfig.getTimeoutNotebookShutdown()));
        if (!gettingStatus.contains("stopped"))
            throw new Exception("Notebook " + notebookName + " has not been stopped. Notebook status is " + gettingStatus);
        LOGGER.info("   Notebook {} has been stopped", notebookName);
-       gettingStatus = WaitForStatus.getEmrStatus(
+       gettingStatus = WaitForStatus.getClusterStatus(
                new HttpRequest()
                        .webApiGet(ssnProUserResURL, token)
                        .getBody()
                        .jsonPath(),
-               notebookName, emrName);
+               notebookName, clusterName);
 
        if (!gettingStatus.contains("terminated"))
            throw new Exception("Computational resources has not been terminated for Notebook " + notebookName + ". EMR status is " + gettingStatus);
        LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getEmrInstanceName(notebookName, emrName), AmazonInstanceState.TERMINATED);
+       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), AmazonInstanceState.TERMINATED);
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "stop"), NamingHelper.getSsnIp());
    }
 }

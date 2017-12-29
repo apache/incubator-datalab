@@ -523,22 +523,21 @@ def remove_all_iam_resources(instance_type, scientist=''):
         if roles_list:
             roles_list.sort(reverse=True)
             for iam_role in roles_list:
-                if '-ssn-Role' in iam_role:
-                    if instance_type == 'ssn' or instance_type == 'all':
-                        try:
-                            client.delete_role_policy(RoleName=iam_role, PolicyName=service_base_name + '-ssn-Policy')
-                        except:
-                            print('There is no policy {}-ssn-Policy to delete'.format(service_base_name))
-                        role_profiles = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
-                        if role_profiles:
-                            for i in role_profiles:
-                                role_profile_name = i.get('InstanceProfileName')
-                                if role_profile_name == service_base_name + '-ssn-Profile':
-                                    remove_roles_and_profiles(iam_role, role_profile_name)
-                        else:
-                            print("There is no instance profile for {}".format(iam_role))
-                            client.delete_role(RoleName=iam_role)
-                            print("The IAM role {} has been deleted successfully".format(iam_role))
+                if '-ssn-Role' in iam_role and instance_type == 'ssn' or instance_type == 'all':
+                    try:
+                        client.delete_role_policy(RoleName=iam_role, PolicyName=service_base_name + '-ssn-Policy')
+                    except:
+                        print('There is no policy {}-ssn-Policy to delete'.format(service_base_name))
+                    role_profiles = client.list_instance_profiles_for_role(RoleName=iam_role).get('InstanceProfiles')
+                    if role_profiles:
+                        for i in role_profiles:
+                            role_profile_name = i.get('InstanceProfileName')
+                            if role_profile_name == service_base_name + '-ssn-Profile':
+                                remove_roles_and_profiles(iam_role, role_profile_name)
+                    else:
+                        print("There is no instance profile for {}".format(iam_role))
+                        client.delete_role(RoleName=iam_role)
+                        print("The IAM role {} has been deleted successfully".format(iam_role))
                 if '-edge-Role' in iam_role:
                     if instance_type == 'edge' and scientist in iam_role:
                         remove_detach_iam_policies(iam_role, 'delete')
@@ -591,10 +590,9 @@ def remove_all_iam_resources(instance_type, scientist=''):
                 profile_list.append(item.get('InstanceProfileName'))
         if profile_list:
             for instance_profile in profile_list:
-                if '-ssn-Profile' in instance_profile:
-                    if instance_type == 'ssn' or instance_type == 'all':
-                        client.delete_instance_profile(InstanceProfileName=instance_profile)
-                        print("The instance profile {} has been deleted successfully".format(instance_profile))
+                if '-ssn-Profile' in instance_profile and instance_type == 'ssn' or instance_type == 'all':
+                    client.delete_instance_profile(InstanceProfileName=instance_profile)
+                    print("The instance profile {} has been deleted successfully".format(instance_profile))
                 if '-edge-Profile' in instance_profile:
                     if instance_type == 'edge' and scientist in instance_profile:
                         client.delete_instance_profile(InstanceProfileName=instance_profile)
@@ -741,19 +739,18 @@ def add_outbound_sg_rule(sg_id, rule):
             traceback.print_exc(file=sys.stdout)
 
 
-def deregister_image(scientist):
+def deregister_image():
     try:
+        resource = boto3.resource('ec2')
         client = boto3.client('ec2')
-        response = client.describe_images(
-            Filters=[{'Name': 'name', 'Values': ['{}-{}-*'.format(os.environ['conf_service_base_name'], scientist)]},
-                     {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]}])
-        images_list = response.get('Images')
-        if images_list:
-            for i in images_list:
-                client.deregister_image(ImageId=i.get('ImageId'))
-                print("Notebook AMI {} has been deregistered successfully".format(i.get('ImageId')))
-        else:
-            print("There is no notebook ami to deregister")
+        for image in resource.images.filter(
+                Filters=[{'Name': 'name', 'Values': ['{}-*'.format(os.environ['conf_service_base_name'])]},
+                         {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]}]):
+            client.deregister_image(ImageId=image.id)
+            for device in image.block_device_mappings:
+                if device.get('Ebs'):
+                    client.delete_snapshot(SnapshotId=device.get('Ebs').get('SnapshotId'))
+            print("Notebook AMI {} has been deregistered successfully".format(image.id))
     except Exception as err:
         logging.info("Unable to de-register image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to de-register image", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -1124,15 +1121,9 @@ def spark_defaults(args):
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> {}'.format(spark_def_path))
 
 
-def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
-    if not exists('/home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user)):
+def ensure_local_jars(os_user, jars_dir):
+    if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            if region == 'us-east-1':
-                endpoint_url = 'https://s3.amazonaws.com'
-            elif region == 'cn-north-1':
-                endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
-            else:
-                endpoint_url = 'https://s3-' + region + '.amazonaws.com'
             sudo('mkdir -p ' + jars_dir)
             sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.4/hadoop-aws-2.7.4.jar -O ' +
                  jars_dir + 'hadoop-aws-2.7.4.jar')
@@ -1140,13 +1131,27 @@ def ensure_local_jars(os_user, jars_dir, files_dir, region, templates_dir):
                  jars_dir + 'aws-java-sdk-1.7.4.jar')
             sudo('wget http://maven.twttr.com/com/hadoop/gplcompression/hadoop-lzo/0.4.20/hadoop-lzo-0.4.20.jar -O ' +
                  jars_dir + 'hadoop-lzo-0.4.20.jar')
+            sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
+        except:
+            sys.exit(1)
+
+
+def configure_local_spark(os_user, jars_dir, region, templates_dir):
+    if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
+        try:
+            if region == 'us-east-1':
+                endpoint_url = 'https://s3.amazonaws.com'
+            elif region == 'cn-north-1':
+                endpoint_url = "https://s3.{}.amazonaws.com.cn".format(region)
+            else:
+                endpoint_url = 'https://s3-' + region + '.amazonaws.com'
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')
             sudo('echo "spark.hadoop.fs.s3a.endpoint     {}" >> /tmp/notebook_spark-defaults_local.conf'.format(endpoint_url))
             sudo('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/notebook_spark-defaults_local.conf')
             if os.environ['application'] == 'zeppelin':
                 sudo('echo \"spark.jars $(ls -1 ' + jars_dir + '* | tr \'\\n\' \',\')\" >> /tmp/notebook_spark-defaults_local.conf')
             sudo('\cp /tmp/notebook_spark-defaults_local.conf /opt/spark/conf/spark-defaults.conf')
-            sudo('touch /home/{}/.ensure_dir/s3_kernel_ensured'.format(os_user))
+            sudo('touch /home/{}/.ensure_dir/local_spark_configured'.format(os_user))
         except:
             sys.exit(1)
 
@@ -1266,7 +1271,7 @@ def configure_zeppelin_emr_interpreter(emr_version, cluster_name, region, spark_
             sys.exit(1)
 
 
-def configure_dataengine_spark(jars_dir, spark_dir, region):
+def configure_dataengine_spark(jars_dir, cluster_dir, region, datalake_enabled):
     local("jar_list=`find {} -name '*.jar' | tr '\\n' ','` ; echo \"spark.jars   $jar_list\" >> \
           /tmp/notebook_spark-defaults_local.conf".format(jars_dir))
     if region == 'us-east-1':
@@ -1277,7 +1282,7 @@ def configure_dataengine_spark(jars_dir, spark_dir, region):
         endpoint_url = 'https://s3-' + region + '.amazonaws.com'
     local("""bash -c 'echo "spark.hadoop.fs.s3a.endpoint    """ + endpoint_url + """" >> /tmp/notebook_spark-defaults_local.conf'""")
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> /tmp/notebook_spark-defaults_local.conf')
-    local('mv /tmp/notebook_spark-defaults_local.conf  {}conf/spark-defaults.conf'.format(spark_dir))
+    local('mv /tmp/notebook_spark-defaults_local.conf  {}spark/conf/spark-defaults.conf'.format(cluster_dir))
 
 
 def remove_dataengine_kernels(tag_name, notebook_name, os_user, key_path, cluster_name):
@@ -1352,3 +1357,22 @@ def prepare_disk(os_user):
             sudo('touch /home/' + os_user + '/.ensure_dir/disk_ensured')
         except:
             sys.exit(1)
+
+
+def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
+    if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
+        try:
+            sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+            sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+            sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
+            sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
+            sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
+        except:
+            sys.exit(1)
+
+
+def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_dir, os_user, datalake_enabled):
+    local('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
+    local('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
+    local('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + cluster_dir + 'spark/')
+    local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')

@@ -56,6 +56,9 @@ section > div:nth-child(3) {
 #range-picker {
     margin-top: 5px;
 }
+#range-picker path#Shape {
+    fill: #36afd5;
+}
 
 #range-picker .ng-daterangepicker,
 #range-picker .ng-daterangepicker.is-active,

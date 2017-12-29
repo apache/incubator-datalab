@@ -54,6 +54,9 @@ if __name__ == "__main__":
         edge_conf['user_container_name'] = (edge_conf['service_base_name'] + '-' + edge_conf['user_name'] + '-container').lower()
         edge_conf['shared_storage_account_name'] = edge_conf['service_base_name'] + '-shared-storage'
         edge_conf['shared_container_name'] = (edge_conf['service_base_name'] + '-shared-container').lower()
+        edge_conf['datalake_store_name'] = edge_conf['service_base_name'] + '-ssn-datalake'
+        edge_conf['datalake_shared_directory_name'] = edge_conf['service_base_name'] + '-shared-folder'
+        edge_conf['datalake_user_directory_name'] = '{0}-{1}-folder'.format(edge_conf['service_base_name'], edge_conf['user_name'])
         edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-sg'
         edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + edge_conf['user_name'] + \
                                                     '-nb-sg'
@@ -85,6 +88,10 @@ if __name__ == "__main__":
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
             if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+        if os.environ['azure_datalake_enable'] == 'true':
+            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
+                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
+                    AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
         sys.exit(1)
 
     try:
@@ -120,6 +127,10 @@ if __name__ == "__main__":
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
             if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+        if os.environ['azure_datalake_enable'] == 'true':
+            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
+                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
+                    AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
         sys.exit(1)
 
     try:
@@ -146,6 +157,10 @@ if __name__ == "__main__":
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
             if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+        if os.environ['azure_datalake_enable'] == 'true':
+            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
+                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
+                    AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
         sys.exit(1)
 
     try:
@@ -174,6 +189,10 @@ if __name__ == "__main__":
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
             if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+        if os.environ['azure_datalake_enable'] == 'true':
+            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
+                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
+                    AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
         sys.exit(1)
 
 
@@ -203,14 +222,19 @@ if __name__ == "__main__":
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
             if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
                 AzureActions().remove_storage_account(edge_conf['resource_group_name'], storage_account.name)
+        if os.environ['azure_datalake_enable'] == 'true':
+            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
+                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
+                    AzureActions().remove_datalake_directory(datalake.name, edge_conf['datalake_user_directory_name'])
         sys.exit(1)
 
     try:
         for storage_account in AzureMeta().list_storage_accounts(edge_conf['resource_group_name']):
-            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
-                user_storage_account_name = storage_account.name
             if edge_conf['shared_storage_account_name'] == storage_account.tags["Name"]:
                 shared_storage_account_name = storage_account.name
+            if edge_conf['user_storage_account_name'] == storage_account.tags["Name"]:
+                user_storage_account_name = storage_account.name
+
         print('[SUMMARY]')
         logging.info('[SUMMARY]')
         print("Instance name: {}".format(edge_conf['instance_name']))
@@ -220,29 +244,57 @@ if __name__ == "__main__":
         print("Key name: {}".format(edge_conf['key_name']))
         print("User storage account name: {}".format(user_storage_account_name))
         print("User container name: {}".format(edge_conf['user_container_name']))
-        print("Shared storage account name: {}".format(shared_storage_account_name))
-        print("Shared container name: {}".format(edge_conf['shared_container_name']))
+        if os.environ['azure_datalake_enable'] == 'true':
+            for datalake in AzureMeta().list_datalakes(edge_conf['resource_group_name']):
+                if edge_conf['datalake_store_name'] == datalake.tags["Name"]:
+                    datalake_id = datalake.name
+            print("Data Lake name: {}".format(datalake_id))
+            print("Data Lake tag name: {}".format(edge_conf['datalake_store_name']))
+            print("Data Lake Store user directory name: {}".format(edge_conf['datalake_user_directory_name']))
         print("Notebook SG: {}".format(edge_conf['notebook_security_group_name']))
         print("Edge SG: {}".format(edge_conf['edge_security_group_name']))
         print("Notebook subnet: {}".format(edge_conf['private_subnet_cidr']))
         with open("/root/result.json", 'w') as result:
-            res = {"hostname": edge_conf['instance_dns_name'],
-                   "public_ip": edge_conf['edge_public_ip'],
-                   "ip": edge_conf['edge_private_ip'],
-                   "key_name": edge_conf['key_name'],
-                   "user_storage_account_name": user_storage_account_name,
-                   "user_container_name": edge_conf['user_container_name'],
-                   "shared_storage_account_name": shared_storage_account_name,
-                   "shared_container_name": edge_conf['shared_container_name'],
-                   "user_storage_account_tag_name": edge_conf['user_storage_account_name'],
-                   "tunnel_port": "22",
-                   "socks_port": "1080",
-                   "notebook_sg": edge_conf['notebook_security_group_name'],
-                   "edge_sg": edge_conf['edge_security_group_name'],
-                   "notebook_subnet": edge_conf['private_subnet_cidr'],
-                   "instance_id": edge_conf['instance_name'],
-                   "full_edge_conf": edge_conf,
-                   "Action": "Create new EDGE server"}
+            if os.environ['azure_datalake_enable'] == 'false':
+                res = {"hostname": edge_conf['instance_dns_name'],
+                       "public_ip": edge_conf['edge_public_ip'],
+                       "ip": edge_conf['edge_private_ip'],
+                       "key_name": edge_conf['key_name'],
+                       "user_storage_account_name": user_storage_account_name,
+                       "user_container_name": edge_conf['user_container_name'],
+                       "shared_storage_account_name": shared_storage_account_name,
+                       "shared_container_name": edge_conf['shared_container_name'],
+                       "user_storage_account_tag_name": edge_conf['user_storage_account_name'],
+                       "tunnel_port": "22",
+                       "socks_port": "1080",
+                       "notebook_sg": edge_conf['notebook_security_group_name'],
+                       "edge_sg": edge_conf['edge_security_group_name'],
+                       "notebook_subnet": edge_conf['private_subnet_cidr'],
+                       "instance_id": edge_conf['instance_name'],
+                       "full_edge_conf": edge_conf,
+                       "Action": "Create new EDGE server"}
+            else:
+                res = {"hostname": edge_conf['instance_dns_name'],
+                       "public_ip": edge_conf['edge_public_ip'],
+                       "ip": edge_conf['edge_private_ip'],
+                       "key_name": edge_conf['key_name'],
+                       "user_storage_account_name": user_storage_account_name,
+                       "user_container_name": edge_conf['user_container_name'],
+                       "shared_storage_account_name": shared_storage_account_name,
+                       "shared_container_name": edge_conf['shared_container_name'],
+                       "user_storage_account_tag_name": edge_conf['user_storage_account_name'],
+                       "datalake_name": datalake_id,
+                       "datalake_tag_name": edge_conf['datalake_store_name'],
+                       "datalake_shared_directory_name": edge_conf['datalake_shared_directory_name'],
+                       "datalake_user_directory_name": edge_conf['datalake_user_directory_name'],
+                       "tunnel_port": "22",
+                       "socks_port": "1080",
+                       "notebook_sg": edge_conf['notebook_security_group_name'],
+                       "edge_sg": edge_conf['edge_security_group_name'],
+                       "notebook_subnet": edge_conf['private_subnet_cidr'],
+                       "instance_id": edge_conf['instance_name'],
+                       "full_edge_conf": edge_conf,
+                       "Action": "Create new EDGE server"}
             print(json.dumps(res))
             result.write(json.dumps(res))
     except:

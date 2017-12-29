@@ -16,9 +16,6 @@ limitations under the License.
 
 ****************************************************************************/
 
-.modal-dialog .install-libraries .modal-body {
-    /* padding: 0 20px; */
-}
 .install-libraries .mat-list .mat-list-item .mat-list-item-content {
     height: auto !important;
     min-height: 54px !important;
@@ -44,6 +41,11 @@ limitations under the License.
     width: 50%;
     height: 100%;
 }
+.tab-content .info {
+    width: 100%;
+    padding-top: 100px;
+}
+
 .search-box {
     padding: 40px 25px 0;
 }
@@ -138,27 +140,31 @@ limitations under the License.
 }
 
  /* Tab info */
-.lib-name { width: 35%; }
+.lib-name { width: 30%; }
 .lib-name strong { font-weight: 400; }
-.lib-group, .lib-destination { width: 25%; }
+.lib-group, .lib-destination { width: 20%; }
 .lib-status { width: 20%; text-align: center; }
+.lib-resource-type { width: 12%; }
 
 .st-group {
     display: flex;
     flex-direction: column;
-    width: 45%;
+    width: 50%;
 }
 .wrap-col {  display: flex; padding: 5px 0px; }
 
 .lib-status-col {
     text-align: center;
     position: relative;
-    width: 45%;
+    width: 40%;
     text-align: center;
 }
-
+.lib-resource-type-col {
+    width: 20%;
+    color: #36afd5;
+}
 .lib-destination-col {
-    width: 55%;
+    width: 40%;
 }
 
 .warn-action {

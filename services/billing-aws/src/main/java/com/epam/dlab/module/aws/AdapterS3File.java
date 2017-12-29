@@ -95,18 +95,6 @@ public class AdapterS3File extends AdapterBase {
 	@JsonProperty
 	private String secretAccessKey;
 
-	
-	/** Default constructor for deserialization. */
-	public AdapterS3File() { }
-	
-	/** Instantiate adapter for reading or writing.
-	 * @param mode the mode of adapter.
-	 */
-	public AdapterS3File(Mode mode) {
-		super(mode);
-	}
-
-
 	/** Return the name of bucket. */
 	public String getBucket() {
 		return bucket;

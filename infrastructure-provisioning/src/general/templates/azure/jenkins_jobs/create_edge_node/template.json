@@ -10,5 +10,6 @@
     "azure_subnet_name":"CSI",
     "azure_vpc_name":"EVI",
     "azure_edge_instance_size":"EIS",
-    "azure_iam_user":"CIU"
+    "azure_datalake_enable":"DLE",
+    "azure_iam_user":"AUI"
 }

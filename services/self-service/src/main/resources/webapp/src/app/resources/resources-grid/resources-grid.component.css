@@ -61,6 +61,7 @@ limitations under the License.
 .dashboard_table tr th {
   border-right: 1px solid #d5dfea;
   border-bottom: 1px solid #d5dfea;
+  text-align: left;
 }
 
 .dashboard_table tr td:last-child {
@@ -134,27 +135,26 @@ limitations under the License.
   text-transform: capitalize;
 }
 
-.dashboard_table .dropdown-menu {
+.dashboard_table .list-menu {
   left: auto;
   margin-left: 0;
   right: 15px;
   padding: 10px 15px;
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, .175);
+  box-shadow: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12);
   border: none;
   width: 190px;
 }
 
-.dashboard_table .dropdown-outscreen .dropdown-menu {
-  top: -110px;
-  right: 55px;
+.settings {
+  position: relative;
 }
-
-.dropdown .disabled {
+.settings .disabled {
   opacity: .4;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
-.dropdown .actions {
+.settings .actions {
   background-image: url(../../../assets/svg/settings_icon.svg);
   width: 16px;
   height: 16px;
@@ -165,26 +165,36 @@ limitations under the License.
   cursor: pointer;
 }
 
-.dashboard_table .dropdown-menu li {
+.dashboard_table .list-menu li {
   font-size: 14px;
   border-bottom: 1px solid #edf1f5;
   padding: 12px 15px;
   cursor: pointer;
   margin: 5px -5px;
+  color: #577289;
+  transition: all .45s ease-in-out;
 }
 
-.dashboard_table .dropdown-menu li:last-child {
+.dashboard_table .list-menu li:hover {
+  background: none !important;
+  color: #36afd5;
+}
+
+.dashboard_table .list-menu li:last-child {
   border-bottom: 0;
 }
 
-.dashboard_table .dropdown-menu ul {
+.dashboard_table .list-menu ul {
   margin-bottom: 0;
+}
+
+.dashboard_table .list-menu .active-items li {
+  border-bottom: 1px solid #edf1f5;
 }
 
 .message_block td {
   text-align: left !important;
 }
-
 
 .dashboard_table .total_cost {
   display: inline-block;
@@ -193,26 +203,18 @@ limitations under the License.
 }
 
 .currency_details {
-  text-align: right;
+  float: right;
   color: #35afd5;
   cursor: pointer;
-  display: inline-block;
-  margin-top: 5px;
+  transition: all .45s ease-in-out;
 }
 
-.currency_details::before {
-    content: "?";
-    display: inline-block;
-    position: relative;
-    width: 16px;
-    height: 16px;
-    border: 1px solid #35afd5;
-    border-radius: 50%;
-    font-size: 12px;
-    margin-right: 7px;
-    text-align: center;
-    line-height: 16px;
-    padding-left: 1px;
+.currency_details:hover {
+  color: #3392b0;
+}
+
+.currency_details .material-icons {
+  font-size: 20px;
 }
 
 .mat-icon-button .mat-icon, .mat-icon-button i {

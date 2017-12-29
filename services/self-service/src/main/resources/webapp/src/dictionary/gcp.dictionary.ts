@@ -18,6 +18,7 @@ limitations under the License.
 
 export const NAMING_CONVENTION = {
     'cloud_provider': 'gcp',
+    'use_ldap': true,
     'notebook_instance_size': 'Instance type',
     'personal_storage': 'Data bucket',
     'collaboration_storage': 'Collaboration bucket',
@@ -31,5 +32,9 @@ export const NAMING_CONVENTION = {
     'service': 'Product',
     'type': 'Resource',
     'instance_size': 'Type',
-    'computational_resource': 'Computational resources'
+    'computational_resource': 'Computational resources',
+
+    'datalake_name': '',
+    'datalake_user_directory_name': '',
+    'datalake_shared_directory_name': '',
 };

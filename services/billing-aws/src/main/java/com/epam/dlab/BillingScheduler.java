@@ -162,7 +162,7 @@ public class BillingScheduler implements Runnable {
 		LOGGER.info("Billing report will be loaded at {}", schedule.getNextTime().getTime());
 		
 		try {
-			while (true) {
+			while (!Thread.currentThread().isInterrupted()) {
 				if (startTimeMillis <= System.currentTimeMillis()) {
 					try {
 						LOGGER.debug("Try to load billing report for schedule {}", schedule.getNextTime().getTime());
@@ -188,7 +188,8 @@ public class BillingScheduler implements Runnable {
 						Thread.sleep(timeMillis);
 					}
 				} catch (InterruptedException e) {
-					break;
+					LOGGER.warn("Billing scheduler interrupted", e);
+					Thread.currentThread().interrupt();
 				}
 			}
 		} catch (Exception e) {

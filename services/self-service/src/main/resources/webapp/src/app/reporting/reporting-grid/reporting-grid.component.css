@@ -24,7 +24,7 @@ limitations under the License.
     font-size: 12px;
 }
 .reporting .filter-row .filter-field,
-.reporting .dropdown-multiselect  button.dropdown-toggle.btn {
+.reporting .dropdown-multiselect button{
     font-size: 14px;
 }
 .dashboard_table.reporting .th_shape {

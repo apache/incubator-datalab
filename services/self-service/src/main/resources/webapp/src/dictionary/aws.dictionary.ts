@@ -18,6 +18,7 @@ limitations under the License.
 
 export const NAMING_CONVENTION = {
     'cloud_provider': 'aws',
+    'use_ldap': true,
     'notebook_instance_size': 'Instance shape',
     'personal_storage': 'Data bucket',
     'collaboration_storage': 'Collaboration bucket',
@@ -54,6 +55,9 @@ export const NAMING_CONVENTION = {
     'shared_storage_account_name': '',
     'bucket_name': 'user_own_bicket_name',
     'shared_bucket_name': 'shared_bucket_name',
+    'datalake_name': '',
+    'datalake_user_directory_name': '',
+    'datalake_shared_directory_name': '',
     'docker.dlab-dataengine-service': {
         'total_instance_number_min': 'min_emr_instance_count',
         'total_instance_number_max': 'max_emr_instance_count',

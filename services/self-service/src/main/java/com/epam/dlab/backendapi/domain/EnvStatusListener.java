@@ -1,182 +1,154 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
-****************************************************************************/
+ ****************************************************************************/
 
 
 package com.epam.dlab.backendapi.domain;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.SettingsDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.EnvStatusDAO;
+import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.dto.UserEnvironmentResources;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.InfrasctructureAPI;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalNotification;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
-
 import io.dropwizard.lifecycle.Managed;
+import lombok.extern.slf4j.Slf4j;
 
-/** Send requests to the docker for update the status of environment.
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Send requests to the docker to check environment status.
  */
 @Singleton
-public class EnvStatusListener implements Managed, Runnable {
-	private static final Logger LOGGER = LoggerFactory.getLogger(EnvStatusListener.class);
-	@Inject
-	private static SettingsDAO settingsDAO;
+@Slf4j
+public class EnvStatusListener implements Managed {
 
-	/** Environment status listener. */
-	private static EnvStatusListener listener;
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
-	/**
-	 * Append the status checker for user to environment status listener.
-	 * @param userInfo authentication info of the current user
-	 */
-	public static synchronized void listen(UserInfo userInfo) {
-		if (listener.userMap.containsKey(userInfo.getName())) {
-			LOGGER.debug("EnvStatus listener the status checker for user {} already exist", userInfo.getName());
-			return;
-		}
-		LOGGER.debug("EnvStatus listener will be added the status checker for user {}", userInfo.getName());
-		EnvStatusListenerUserInfo listenerUserInfo = new EnvStatusListenerUserInfo(userInfo);
-		listener.userMap.put(listenerUserInfo.getUsername(), listenerUserInfo);
-		if (listener.thread == null) {
-			LOGGER.info("EnvStatus listener not running and will be started ...");
-			listener.thread = new Thread(listener, listener.getClass().getSimpleName());
-			listener.thread.start();
-		}
-	}
-
-	/** Remove the status checker for user from environment status listener.
-	 * @param username the name of user.
-	 */
-	public static void listenStop(String username) {
-		LOGGER.debug("EnvStatus listener will be removed the status checker for user {}", username);
-		synchronized (listener.userMap) {
-			listener.userMap.remove(username);
-			if (listener.userMap.size() == 0) {
-				LOGGER.info("EnvStatus listener will be terminated because no have the status checkers anymore");
-				try {
-					listener.stop();
-				} catch (Exception e) {
-					LOGGER.warn("EnvStatus listener terminating failed: {}", e.getLocalizedMessage(), e);
-				}
-			}
-		}
-	}
-
-	/** Return the user info by user name.
-	 * @param username the name of user.
-	 * @return the user info.
-	 */
-	public static EnvStatusListenerUserInfo getUserInfo(String username) {
-		return (listener == null ? null : listener.userMap.get(username));
-	}
-
-	/** Thread of the folder listener. */
-	private Thread thread;
-
-	/** Timeout for check the status of environment in milliseconds. */
-	private long checkStatusTimeoutMillis;
-
-	@Inject
-	private SelfServiceApplicationConfiguration configuration;
-
-	@Inject
-	private EnvStatusDAO dao;
+    private final Cache<String, UserInfo> sessions;
+    private final EnvStatusDAO dao;
+    private final RESTService provisioningService;
+    private final StatusChecker statusChecker = new StatusChecker();
+    private final long checkEnvStatusTimeout;
 
     @Inject
-    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
-    private RESTService provisioningService;
+    public EnvStatusListener(SelfServiceApplicationConfiguration configuration, EnvStatusDAO dao,
+                             @Named(ServiceConsts.PROVISIONING_SERVICE_NAME) RESTService provisioningService) {
 
-    /** Map of users for the checker. */
-	private Map<String, EnvStatusListenerUserInfo> userMap = new HashMap<>();
+        this.sessions = CacheBuilder.newBuilder()
+                .expireAfterAccess(configuration.getInactiveUserTimeoutMillSec(), TimeUnit.MILLISECONDS)
+                .removalListener((RemovalNotification<String, Object> notification) ->
+                        log.info("User {} session is removed", notification.getKey()))
+                .build();
 
-	@Override
-	public void start() throws Exception {
-		if (listener == null) {
-			listener = this;
-			checkStatusTimeoutMillis = configuration
-					.getCheckEnvStatusTimeout()
-					.toMilliseconds();
-		}
-	}
+        this.dao = dao;
+        this.provisioningService = provisioningService;
+        this.checkEnvStatusTimeout = configuration.getCheckEnvStatusTimeout().toMilliseconds();
+    }
 
-	@Override
-	public void stop() throws Exception {
-		if (listener.thread != null) {
-			LOGGER.debug("EnvStatus listener will be stopped ...");
-			synchronized (listener.thread) {
-				listener.thread.interrupt();
-				listener.thread = null;
-				listener.userMap.clear();
-			}
-			LOGGER.info("EnvStatus listener has been stopped");
-		}
-	}
+    @Override
+    public void start() throws Exception {
+        executorService.scheduleAtFixedRate(new StatusChecker(), checkEnvStatusTimeout, checkEnvStatusTimeout,
+                TimeUnit.MILLISECONDS);
+    }
 
-	@Override
-	public void run() {
-		while (true) {
-			try {
-				long ticks = System.currentTimeMillis();
-				for (Entry<String, EnvStatusListenerUserInfo> item : userMap.entrySet()) {
-					EnvStatusListenerUserInfo userInfo = item.getValue();
-					if (userInfo.getNextCheckTimeMillis() < ticks) {
-						userInfo.setNextCheckTimeMillis(ticks + checkStatusTimeoutMillis);
-						checkStatus(userInfo);
-					}
-				}
+    @Override
+    public void stop() throws Exception {
+        statusChecker.shouldStop = true;
+        if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+            executorService.shutdownNow();
+        }
+    }
 
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				LOGGER.trace("EnvStatus listener has been interrupted");
-				break;
-			} catch (Exception e) {
-				LOGGER.warn("EnvStatus listener unhandled error: {}", e.getLocalizedMessage(), e);
-			}
-		}
-	}
+    public void registerSession(UserInfo userInfo) {
+        UserInfo ui = getSession(userInfo.getName());
+        log.info("Register session(existing = {}) for {}", ui != null, userInfo.getName());
+        sessions.put(userInfo.getName(), userInfo);
+    }
 
-	/** Send request to docker for check the status of user environment.
-	 * @param userInfo user info.
-	 */
-	private void checkStatus(EnvStatusListenerUserInfo userInfo) {
-		try {
-			EnvResourceList resourceList = dao.findEnvResources(userInfo.getUsername());
-			LOGGER.trace("EnvStatus listener check status for user {} with resource list {}", userInfo.getUsername(), resourceList);
-			if (resourceList.getHostList() != null || resourceList.getClusterList() != null) {
-				userInfo.getDTO().withResourceList(resourceList);
-				LOGGER.trace("Ask docker for the status of resources for user {}: {}", userInfo.getUsername(), userInfo.getDTO());
-				String uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_STATUS, userInfo.getAccessToken(), userInfo.getDTO(), String.class);
-				RequestId.put(userInfo.getUsername(), uuid);
-			}
-		} catch (Exception e) {
-			LOGGER.warn("Ask docker for the status of resources for user {} fails: {}", userInfo.getUsername(),
-					e.getLocalizedMessage(), e);
-		}
-	}
+    public void unregisterSession(UserInfo userInfo) {
+        log.info("Invalidate session for {}", userInfo.getName());
+        sessions.invalidate(userInfo.getName());
+    }
+
+    public UserInfo getSession(String username) {
+        return sessions.getIfPresent(username);
+    }
+
+    /**
+     * Scheduled @{@link Runnable} that verifies status of users' resources
+     */
+    private class StatusChecker implements Runnable {
+        private volatile boolean shouldStop = false;
+
+        @Override
+        public void run() {
+
+            log.debug("Start checking environment statuses");
+
+            sessions.cleanUp();
+
+            for (Map.Entry<String, UserInfo> entry : sessions.asMap().entrySet()) {
+                try {
+                    if (!shouldStop) {
+                        checkStatusThroughProvisioningService(entry.getValue());
+                    } else {
+                        log.info("Stopping env status listener");
+                    }
+                } catch (RuntimeException e) {
+                    log.error("Cannot check env status for user {}", entry.getKey(), e);
+                }
+            }
+        }
+
+        /**
+         * Sends request to docker to check the status of user environment.
+         *
+         * @param userInfo username
+         * @return UUID associated with async operation
+         */
+        private String checkStatusThroughProvisioningService(UserInfo userInfo) {
+
+            String uuid = null;
+            EnvResourceList resourceList = dao.findEnvResources(userInfo.getName());
+            UserEnvironmentResources dto = RequestBuilder.newUserEnvironmentStatus(userInfo);
+
+            log.trace("EnvStatus listener check status for user {} with resource list {}", userInfo.getName(), resourceList);
+
+            if (resourceList.getHostList() != null || resourceList.getClusterList() != null) {
+                dto.withResourceList(resourceList);
+                log.trace("Ask docker for the status of resources for user {}: {}", userInfo.getName(), dto);
+                uuid = provisioningService.post(InfrasctructureAPI.INFRASTRUCTURE_STATUS, userInfo.getAccessToken(), dto, String.class);
+                RequestId.put(userInfo.getName(), uuid);
+            }
+
+            return uuid;
+        }
+    }
 }

@@ -35,6 +35,7 @@ import com.epam.dlab.dto.aws.keyload.UploadFileAws;
 import com.epam.dlab.dto.azure.AzureCloudSettings;
 import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
 import com.epam.dlab.dto.azure.edge.EdgeCreateAzure;
+import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStartAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
 import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
@@ -53,6 +54,7 @@ import java.util.ArrayList;
 
 public class RequestBuilder {
     private static final String UNSUPPORTED_CLOUD_PROVIDER_MESSAGE = "Unsupported cloud provider ";
+    private static final String AZURE_REFRESH_TOKEN_KEY = "refresh_token";
 
     @Inject
     private static SelfServiceApplicationConfiguration configuration;
@@ -128,7 +130,8 @@ public class RequestBuilder {
                 return uploadFileAws;
 
             case AZURE:
-                EdgeCreateAzure edgeCreateAzure = newResourceSysBaseDTO(userInfo, EdgeCreateAzure.class);
+                EdgeCreateAzure edgeCreateAzure = newResourceSysBaseDTO(userInfo, EdgeCreateAzure.class)
+                        .withAzureDataLakeEnable(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
 
                 UploadFileAzure uploadFileAzure = new UploadFileAzure();
                 uploadFileAzure.setEdge(edgeCreateAzure);
@@ -180,6 +183,14 @@ public class RequestBuilder {
             case AZURE:
                 exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, ExploratoryCreateAzure.class)
                         .withNotebookInstanceSize(formDTO.getShape());
+                if (settingsDAO.isAzureDataLakeEnabled()) {
+                    ((ExploratoryCreateAzure) exploratoryCreate)
+                            .withAzureClientId(settingsDAO.getAzureDataLakeClientId())
+                            .withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
+                }
+
+                ((ExploratoryCreateAzure) exploratoryCreate)
+                        .withAzureDataLakeEnabled(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
                 break;
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
@@ -195,22 +206,33 @@ public class RequestBuilder {
     public static <T extends ExploratoryGitCredsUpdateDTO> T newExploratoryStart(UserInfo userInfo, UserInstanceDTO userInstance,
                                                                                  ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
 
-        T exploratoryStart;
-
         switch (cloudProvider()) {
             case AWS:
-            case AZURE:
-                exploratoryStart = (T) newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
+                return (T) newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
                         .withNotebookInstanceName(userInstance.getExploratoryId())
                         .withGitCreds(exploratoryGitCredsDTO.getGitCreds())
                         .withNotebookImage(userInstance.getImageName())
                         .withExploratoryName(userInstance.getExploratoryName());
-                break;
+            case AZURE:
+                T exploratoryStart = (T) newResourceSysBaseDTO(userInfo, ExploratoryActionStartAzure.class)
+                        .withNotebookInstanceName(userInstance.getExploratoryId())
+                        .withGitCreds(exploratoryGitCredsDTO.getGitCreds())
+                        .withNotebookImage(userInstance.getImageName())
+                        .withExploratoryName(userInstance.getExploratoryName());
+
+                if (settingsDAO.isAzureDataLakeEnabled()) {
+                    ((ExploratoryActionStartAzure) exploratoryStart)
+                            .withAzureClientId(settingsDAO.getAzureDataLakeClientId())
+                            .withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
+                }
+
+                ((ExploratoryActionStartAzure) exploratoryStart)
+                        .withAzureDataLakeEnabled(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
+
+                return exploratoryStart;
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
-
-        return exploratoryStart;
     }
 
     @SuppressWarnings("unchecked")
@@ -375,8 +397,17 @@ public class RequestBuilder {
                         .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
                         .withDataEngineMasterSize(form.getDataEngineMaster())
                         .withDataEngineSlaveSize(form.getDataEngineSlave());
-                break;
 
+                if (settingsDAO.isAzureDataLakeEnabled()) {
+                    ((SparkComputationalCreateAzure) computationalCreate)
+                            .withAzureClientId(settingsDAO.getAzureDataLakeClientId())
+                            .withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
+                }
+
+                ((SparkComputationalCreateAzure) computationalCreate)
+                        .withAzureDataLakeEnabled(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
+
+                break;
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }

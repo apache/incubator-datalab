@@ -67,7 +67,7 @@ public class ExploratoryCallbackHandler extends ResourceCallbackHandler<Explorat
     	List<ExploratoryURL> url = null;
     	if (nodeUrl != null) {
     		try {
-				url = MAPPER.readValue(nodeUrl.toString(), new TypeReference<List<ExploratoryURL>>() {});
+				url = mapper.readValue(nodeUrl.toString(), new TypeReference<List<ExploratoryURL>>() {});
 			} catch (IOException e) {
 				LOGGER.warn("Cannot parse field {} for UUID {} in JSON", RESPONSE_NODE + "." + RESULT_NODE + "." + EXPLORATORY_URL_FIELD, getUUID(), e);
 			}

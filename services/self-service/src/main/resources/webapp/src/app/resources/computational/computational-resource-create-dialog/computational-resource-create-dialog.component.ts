@@ -39,11 +39,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   model: ComputationalResourceCreateModel;
   notebook_instance: any;
+  full_list: any;
   template_description: string;
   shapes: any;
   spotInstance: boolean = false;
 
-  computationalResourceExist: boolean = false;
   clusterNamePattern: string = '[-_a-zA-Z0-9]+';
   nodeCountPattern: string = '^[1-9]\\d*$';
 
@@ -116,13 +116,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   public createComputationalResource($event, data, shape_master: string, shape_slave: string) {
-    this.computationalResourceExist = false;
-
-    if (this.containsComputationalResource(data.cluster_alias_name)) {
-      this.computationalResourceExist = true;
-      return false;
-    }
-
     this.model.setCreatingParams(data.cluster_alias_name, data.instance_number, shape_master, shape_slave,
       this.spotInstance, data.instance_price);
     this.model.confirmAction();
@@ -132,11 +125,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public containsComputationalResource(conputational_resource_name: string): boolean {
     if (conputational_resource_name)
-      for (let index = 0; index < this.notebook_instance.resources.length; index++) {
-        const computational_name = this.notebook_instance.resources[index].computational_name.toString().toLowerCase();
-
-        if (conputational_resource_name.toLowerCase() === computational_name)
-          return true;
+      for (let index = 0; index < this.full_list.length; index++) {
+        if (this.notebook_instance.name === this.full_list[index].name) {
+          for (let iindex = 0; iindex < this.full_list[index].resources.length; iindex++) {
+            const computational_name = this.full_list[index].resources[iindex].computational_name.toString().toLowerCase();
+            if (conputational_resource_name.toLowerCase() === computational_name)
+                return true;
+          }
+        }
       }
     return false;
   }
@@ -179,12 +175,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     return false;
   }
 
-  public open(params, notebook_instance): void {
+  public open(params, notebook_instance, full_list): void {
     if (!this.bindDialog.isOpened) {
       this.notebook_instance = notebook_instance;
+      this.full_list = full_list;
       this.model = new ComputationalResourceCreateModel('', 0, '', '', notebook_instance.name, (response: Response) => {
         if (response.status === HTTP_STATUS_CODES.OK) {
-          this.computationalResourceExist = false;
           this.close();
           this.buildGrid.emit();
         }
@@ -214,7 +210,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private initFormModel(): void {
     this.resourceForm = this._fb.group({
-      cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern), this.providerMaxLength]],
+      cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]]
     });
@@ -248,6 +244,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       return this.spotInstancesSelect.nativeElement['checked']
         ? (control.value >= this.minSpotPrice && control.value <= this.maxSpotPrice ? null : { valid: false })
         : control.value;
+  }
+
+  private checkDuplication(control) {
+    if (this.containsComputationalResource(control.value))
+      return { duplication: true }
   }
 
   private providerMaxLength(control) {
@@ -294,7 +295,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private resetDialog(): void {
-    this.computationalResourceExist = false;
     this.processError = false;
     this.errorMessage = '';
 

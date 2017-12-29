@@ -33,7 +33,7 @@ public class PropertiesResolver {
     public static final boolean DEV_MODE;
     public static final String CONFIG_FILE_NAME = "application.properties";
     public static String NOTEBOOK_FILES_LOCATION_PROPERTY_TEMPLATE = "scenario.%s.files.location";
-    public static String NOTEBOOK_CONFIGURATION_FILE_TEMPLATE = "%s-notebook.json";
+    public static String NOTEBOOK_CONFIGURATION_FILE_TEMPLATE = "%s/%s-notebook.json";
 
     //keys from application.properties(dev-application.properties)
     private final static String CONF_FILE_LOCATION_PROPERTY = "conf.file.location";

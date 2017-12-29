@@ -6,7 +6,7 @@
   {
     "group": "others",
     "start_with": "gh"
-  }
+  },
   {
     "group": "pip2",
     "start_with": "SparseA"

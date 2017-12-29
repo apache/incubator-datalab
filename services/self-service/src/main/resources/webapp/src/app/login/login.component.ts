@@ -16,35 +16,43 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 
 import { LoginModel } from './login.model';
 import { AppRoutingService, HealthStatusService, ApplicationSecurityService } from '../core/services';
+import { ErrorMapUtils, HTTP_STATUS_CODES } from '../core/util';
+import { DICTIONARY } from '../../dictionary/global.dictionary';
 
 @Component({
   moduleId: module.id,
   selector: 'dlab-login',
   templateUrl: 'login.component.html',
-  styleUrls: ['./login.component.css'],
-  providers: [ApplicationSecurityService]
+  styleUrls: ['./login.component.css']
 })
 
 export class LoginComponent implements OnInit {
+  readonly DICTIONARY = DICTIONARY;
   model = new LoginModel('', '');
-  error = '';
+  error: string;
   loading = false;
   userPattern = '\\w+.*\\w+';
+
+  subscription: Subscription;
 
   constructor(
     private applicationSecurityService: ApplicationSecurityService,
     private appRoutingService: AppRoutingService,
-    private healthStatusService: HealthStatusService
-  ) { }
+    private healthStatusService: HealthStatusService,
+    private ref: ChangeDetectorRef
+  ) {
+    this.subscription = this.applicationSecurityService.emitter$
+      .subscribe(message => this.error = message);
+  }
 
   ngOnInit() {
-    this.applicationSecurityService.isLoggedIn()
-      .subscribe(result => {
-        this.checkHealthStatusAndRedirect(result);
+    this.applicationSecurityService.isLoggedIn().subscribe(result => {
+      this.checkHealthStatusAndRedirect(result);
     });
   }
 
@@ -61,24 +69,31 @@ export class LoginComponent implements OnInit {
         }
 
         return false;
-      }, (err) => {
-          this.error = err.text();
+      }, (error) => {
+        if (DICTIONARY.cloud_provider === 'azure' && error && error.status === HTTP_STATUS_CODES.FORBIDDEN) {
+          window.location.href = error.headers.get('Location');
+        } else {
+          this.error = ErrorMapUtils.handleError(error);
           this.loading = false;
-        });
+        }
+      });
 
     return false;
   }
+  loginWithAzure_btnClick() {
+    this.appRoutingService.redirectToAzure();
+  }
 
   checkHealthStatusAndRedirect(isLoggedIn) {
-   if (isLoggedIn)
-     this.healthStatusService.isHealthStatusOk()
-      .subscribe(isHealthStatusOk => {
-        if (isLoggedIn && !isHealthStatusOk) {
-          this.appRoutingService.redirectToHealthStatusPage();
-        } else {
-          this.appRoutingService.redirectToHomePage();
-        }
-      });
+    if (isLoggedIn)
+      this.healthStatusService.isHealthStatusOk()
+        .subscribe(isHealthStatusOk => {
+          if (isLoggedIn && !isHealthStatusOk) {
+            this.appRoutingService.redirectToHealthStatusPage();
+          } else {
+            this.appRoutingService.redirectToHomePage();
+          }
+        });
   }
 }
 

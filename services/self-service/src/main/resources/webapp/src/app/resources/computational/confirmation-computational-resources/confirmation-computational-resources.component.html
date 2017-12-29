@@ -21,21 +21,15 @@ limitations under the License.
   <modal-header></modal-header>
   <modal-content>
     <div class="content-box">
-      <div class="row">
-        <div class="col-xs-12 tooltip-wrap" (mouseover)="isEllipsisActive($event)">
-          <p>Computational resource <strong class="truncate-name">{{model.computationalName}}</strong> will be decommissioned.</p>
-          <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{model.computationalName}}</div>
-        </div>
+      <div class="tooltip-wrap" (mouseover)="isEllipsisActive($event)">
+        <p>Computational resource <strong class="truncate-name">{{ model.computationalName }}</strong> will be decommissioned.</p>
+        <div class="tooltip" [style.visibility]="tooltip ? 'visible': 'hidden'">{{model.computationalName}}</div>
       </div>
-      <div class="row">
-        <div class="col-xs-5">
-          <p>Do you want to proceed?</p>
-        </div>
-      </div>
+      <p>Do you want to proceed?</p>
       <div class="text-right" *ngIf="processError">
-        <small class="danger_color">{{errorMessage}}</small>
+        <small class="danger_color">{{ errorMessag }}</small>
       </div>
-      <div class="text-center">
+      <div class="text-center m-top-30">
         <button md-raised-button type="button" class="butt" (click)="close()">No</button>
         <button md-raised-button type="button" class="butt butt-success" (click)="model.confirmAction()">Yes</button>
       </div>

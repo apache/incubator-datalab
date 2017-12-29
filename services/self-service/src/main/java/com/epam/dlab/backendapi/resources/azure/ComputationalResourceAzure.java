@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi.resources.azure;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.auth.rest.UserSessionDurationAuthorizer;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
@@ -32,6 +33,7 @@ import com.google.inject.name.Named;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -73,6 +75,7 @@ public class ComputationalResourceAzure {
      */
     @PUT
     @Path("dataengine")
+    @RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
     public Response createDataEngine(@Auth UserInfo userInfo, @Valid @NotNull SparkStandaloneClusterCreateForm form) {
         log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 

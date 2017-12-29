@@ -78,25 +78,6 @@ def id_generator(size=10, chars=string.digits + string.ascii_letters):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local_spark_path):
-    if not exists('/home/' + os_user + '/.ensure_dir/local_spark_ensured'):
-        try:
-            sudo('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-            sudo('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-            sudo('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + local_spark_path)
-            sudo('chown -R ' + os_user + ':' + os_user + ' ' + local_spark_path)
-            sudo('touch /home/' + os_user + '/.ensure_dir/local_spark_ensured')
-        except:
-            sys.exit(1)
-
-
-def install_dataengine_spark(spark_link, spark_version, hadoop_version, spark_dir, os_user):
-    local('wget ' + spark_link + ' -O /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz')
-    local('tar -zxvf /tmp/spark-' + spark_version + '-bin-hadoop' + hadoop_version + '.tgz -C /opt/')
-    local('mv /opt/spark-' + spark_version + '-bin-hadoop' + hadoop_version + ' ' + spark_dir)
-    local('chown -R ' + os_user + ':' + os_user + ' ' + spark_dir)
-
-
 def ensure_dataengine_tensorflow_jars(jars_dir):
     local('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
          -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
@@ -175,8 +156,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             if os.environ['application'] == 'jupyter':
-                sudo('jupyter-kernelspec remove -f python2')
-                sudo('jupyter-kernelspec remove -f python3')
+                sudo('jupyter-kernelspec remove -f python2 || echo "Such kernel doesnt exists"')
+                sudo('jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists"')
             sudo("systemctl daemon-reload")
             sudo("systemctl enable jupyter-notebook")
             sudo("systemctl start jupyter-notebook")
@@ -241,7 +222,6 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
-    # python_version = python_version[0:3]
     if python_version != '\n':
         installing_python(region, bucket, user_name, cluster_name, application, pip_mirror)
         local('mkdir -p {0}py3spark_{1}/'.format(kernels_dir, cluster_name))
@@ -281,7 +261,7 @@ def install_r_pkg(requisites):
     error_parser = "ERROR:|error:|Cannot|failed|Please run|requires"
     try:
         for r_pkg in requisites:
-            sudo('R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\'  2>&1 | if ! grep -w -E  "({1})" >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
+            sudo('R -e \'install.packages("{0}", repos="http://cran.us.r-project.org", dep=TRUE)\'  2>&1 | tee /tmp/tee.tmp; if ! grep -w -E  "({1})" /tmp/tee.tmp >  /tmp/install_{0}.log; then  echo "" > /tmp/install_{0}.log;fi'.format(r_pkg, error_parser))
             err = sudo('cat /tmp/install_{0}.log'.format(r_pkg)).replace('"', "'")
             sudo('R -e \'installed.packages()[,c(3:4)]\' | if ! grep -w {0} > /tmp/install_{0}.list; then  echo "" > /tmp/install_{0}.list;fi'.format(r_pkg))
             res = sudo('cat /tmp/install_{0}.list'.format(r_pkg))
@@ -469,3 +449,23 @@ def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
         env.host_string = os_user + '@' + hostname
     sudo("systemctl daemon-reload")
     sudo("systemctl restart zeppelin-notebook")
+
+
+def replace_multi_symbols(string, symbol, symbol_cut=False):
+    try:
+        symbol_amount = 0
+        for i in range(len(string)):
+            if string[i] == symbol:
+                symbol_amount = symbol_amount + 1
+        while symbol_amount > 1:
+            string = string.replace(symbol + symbol, symbol)
+            symbol_amount = symbol_amount - 1
+        if symbol_cut and string[-1] == symbol:
+            string = string[:-1]
+        return string
+    except Exception as err:
+        logging.info("Error with replacing multi symbols: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with replacing multi symbols",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)

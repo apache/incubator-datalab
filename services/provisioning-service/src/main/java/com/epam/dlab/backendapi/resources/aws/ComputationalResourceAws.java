@@ -17,13 +17,12 @@
 package com.epam.dlab.backendapi.resources.aws;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
-import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
+import com.epam.dlab.backendapi.service.DockerService;
 import com.epam.dlab.backendapi.service.SparkClusterService;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
@@ -31,7 +30,6 @@ import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
@@ -51,20 +49,10 @@ import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class ComputationalResourceAws implements DockerCommands {
+public class ComputationalResourceAws extends DockerService implements DockerCommands {
 
     private static final DataEngineType EMR_DATA_ENGINE = DataEngineType.CLOUD_SERVICE;
 
-    @Inject
-    private ProvisioningServiceApplicationConfiguration configuration;
-    @Inject
-    private FolderListenerExecutor folderListenerExecutor;
-    @Inject
-    private ICommandExecutor commandExecutor;
-    @Inject
-    private CommandBuilder commandBuilder;
-    @Inject
-    private RESTService selfService;
     @Inject
     private ComputationalConfigure computationalConfigure;
     @Inject

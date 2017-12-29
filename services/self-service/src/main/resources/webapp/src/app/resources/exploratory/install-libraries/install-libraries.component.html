@@ -31,6 +31,7 @@ limitations under the License.
               <div class="lib-name">Name</div>
               <div class="lib-group">Group</div>
               <div class="lib-destination">Destination</div>
+              <div class="lib-resource-type">Resource type</div>
               <div class="lib-status">Status</div>
             </md-list-item>
 
@@ -48,8 +49,9 @@ limitations under the License.
                 <div class="st-group">
                   <template let-item ngFor [ngForOf]="lib.status">
                     <div class="wrap-col">
-                      <div class="lib-destination-col">{{item.resource}}</div>
-                      <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || '' }}">{{item.status}}
+                      <div class="lib-destination-col">{{ item.resource }}</div>
+                      <div class="lib-resource-type-col">{{ item.resourceType }}</div>
+                      <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || '' }}">{{ item.status }}
                         <div class="warn-action" *ngIf="item.status === 'failed' && notebook?.status === 'running'">
                           <div>
                             <span *ngIf="!installingInProgress" mdTooltip="Retry installation" mdTooltipPosition="above" (click)="reinstallLibrary(item, lib)">
@@ -88,7 +90,9 @@ limitations under the License.
             <img src="assets/img/gif-spinner.gif" alt="loading">
           </div>
         </div>
-        <p class="info message" *ngIf="notebook?.status !== 'running'">Cannot install libraries: Exploratory {{ notebook?.name }} is not running</p>
+        <div class="tab-content" *ngIf="notebook?.status !== 'running'">
+          <p class="info message">Cannot install libraries: Exploratory <strong>{{ notebook?.name }}</strong> is not running</p>
+        </div>
         <div *ngIf="notebook?.status === 'running'" class="tab-content">
           <div class="search-box col" *ngIf="!uploading">
             <div class="search-form">
@@ -106,7 +110,9 @@ limitations under the License.
               </div>
               <div class="control-group">
                 <label class="label">Search</label>
-                <input class="form-control control" [formControl]="libSearch" [value]="query" placeholder="Enter library name" [attr.disabled]="!destination ? true : null">
+                <div class="control">
+                  <input type="text" [formControl]="libSearch" [value]="query" placeholder="Enter library name" [attr.disabled]="!destination ? true : null">
+                </div>
               </div>
             </div>
 

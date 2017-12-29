@@ -28,6 +28,7 @@ export class ApplicationServiceFacade {
   private static readonly LOGIN = 'login';
   private static readonly LOGOUT = 'logout';
   private static readonly AUTHORIZE = 'authorize';
+  private static readonly OAUTH = 'oauth';
   private static readonly ACCESS_KEY = 'access_key';
   private static readonly PROVISIONED_RESOURCES = 'provisioned_resources';
   private static readonly EXPLORATORY_ENVIRONMENT = 'exploratory_environment';
@@ -73,6 +74,13 @@ export class ApplicationServiceFacade {
   public buildAuthorizeRequest(body: any): Observable<Response> {
     return this.buildRequest(RequestMethod.Post,
       this.requestRegistry.Item(ApplicationServiceFacade.AUTHORIZE),
+      body,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetAuthToken(body: any): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.OAUTH),
       body,
       this.getRequestOptions(true, true));
   }
@@ -273,6 +281,8 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LOGIN, '/api/user/login');
     this.requestRegistry.Add(ApplicationServiceFacade.LOGOUT, '/api/user/logout');
     this.requestRegistry.Add(ApplicationServiceFacade.AUTHORIZE, '/api/user/authorize');
+
+    this.requestRegistry.Add(ApplicationServiceFacade.OAUTH, '/api/user/azure/oauth');
     this.requestRegistry.Add(ApplicationServiceFacade.ACCESS_KEY, '/api/user/access_key');
 
     // Exploratory Environment
@@ -308,7 +318,8 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/exploratory_environment/lib_groups');
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_LIST, '/api/infrastructure_provision/exploratory_environment/search/lib_list');
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_INSTALL, '/api/infrastructure_provision/exploratory_environment/lib_install');
-    this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS_FORMAT, '/api/infrastructure_provision/exploratory_environment/lib_list/formatted');
+    this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS_FORMAT,
+      '/api/infrastructure_provision/exploratory_environment/lib_list/formatted');
     this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS, '/api/infrastructure_provision/exploratory_environment/lib_list');
 
     // UnGit credentials
