@@ -45,6 +45,7 @@ parser.add_argument('--user_name', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--pip_mirror', type=str, default='')
 parser.add_argument('--application', type=str, default='')
+parser.add_argument('--r_version', type=str, default='')
 args = parser.parse_args()
 
 dataproc_dir = '/opt/{}/jars/'.format(args.dataproc_version)
@@ -58,14 +59,13 @@ def r_kernel(args):
     local('mkdir -p {}/r_{}/'.format(kernels_dir, args.cluster_name))
     kernel_path = "{}/r_{}/kernel.json".format(kernels_dir, args.cluster_name)
     template_file = "/tmp/r_dataengine-service_template.json"
-    r_version = local("R --version | awk '/version / {print $3}'", capture = True)
 
     with open(template_file, 'r') as f:
         text = f.read()
     text = text.replace('CLUSTER_NAME', args.cluster_name)
     text = text.replace('SPARK_PATH', spark_path)
     text = text.replace('SPARK_VERSION', 'Spark-' + args.spark_version)
-    text = text.replace('R_KERNEL_VERSION', 'R-{}'.format(str(r_version)))
+    text = text.replace('R_KERNEL_VERSION', 'R-{}'.format(args.r_version))
     text = text.replace('DATAENGINE-SERVICE_VERSION', args.dataproc_version)
     text = text.replace('YARN_CLI_TYPE', 'yarn')
     text = text.replace('SPARK_ACTION', 'session(master = \\\"yarn\\\")')
