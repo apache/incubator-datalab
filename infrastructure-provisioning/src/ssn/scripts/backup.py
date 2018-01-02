@@ -80,7 +80,9 @@ def backup_keys():
 def backup_certs():
     try:
         print("Backup certs: {}".format(args.certs))
-        if args.certs == "all":
+        if args.certs == "skip":
+            print("Skipped certs backup.")
+        elif args.certs == "all":
             for cert in all_certs:
                 local("sudo cp {0}{1} {2}certs".format(certs_folder, cert, temp_folder))
                 local("sudo chown {0}:{0} {1}certs/{2} ".format(os_user, temp_folder, cert))
@@ -95,6 +97,8 @@ def backup_certs():
 def backup_jars():
     try:
         print("Backup jars: {}".format(args.jars))
+        if args.jars == "skip":
+            print("Skipped jars backup.")
         if args.jars == "all":
             for root, dirs, files in os.walk("{0}{1}".format(args.dlab_path, jars_folder)):
                 for service in dirs:
