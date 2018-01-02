@@ -99,7 +99,7 @@ def backup_jars():
         print("Backup jars: {}".format(args.jars))
         if args.jars == "skip":
             print("Skipped jars backup.")
-        if args.jars == "all":
+        elif args.jars == "all":
             for root, dirs, files in os.walk("{0}{1}".format(args.dlab_path, jars_folder)):
                 for service in dirs:
                     local("cp -RP {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
