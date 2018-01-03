@@ -104,6 +104,7 @@ limitations under the License.
                 && env.status != 'stopped'
                 && env.status != 'starting'">Add computational resources
             </li>
+            <li (click)="exploratoryAction(env, 'schedule')">Scheduler</li>
           </div>
           <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
         </ul>
@@ -117,3 +118,4 @@ limitations under the License.
 <detail-dialog #detailDialog></detail-dialog>
 <cost-details-dialog #costDetailsDialog></cost-details-dialog>
 <install-libraries #installLibs (buildGrid)="buildGrid($event)"></install-libraries>
+<dlab-scheduler #envScheduler></dlab-scheduler>

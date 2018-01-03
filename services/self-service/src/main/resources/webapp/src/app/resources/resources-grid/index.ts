@@ -28,6 +28,7 @@ import { DetailDialogModule } from './../exploratory/detail-dialog';
 import { FormControlsModule } from '../../shared/form-controls';
 import { CostDetailsDialogModule } from './../billing/cost-details-dialog';
 import { InstallLibrariesModule } from './../exploratory/install-libraries';
+import { SchedulerModule } from './../scheduler';
 
 export * from './resources-grid.component';
 export * from './resources-grid.model';
@@ -46,6 +47,7 @@ export * from './filter-configuration.model';
     FormControlsModule,
     CostDetailsDialogModule,
     InstallLibrariesModule,
+    SchedulerModule,
     MaterialModule.forRoot()
   ],
   declarations: [ResourcesGridComponent],
