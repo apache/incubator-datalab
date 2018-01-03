@@ -1,8 +1,5 @@
 {
     "request_id":"RID",
     "conf_resource": "edge",
-    "azure_resource_group_name": "ARGN",
-    "conf_service_base_name":"SBN",
-    "edge_user_name":"EUN",
-    "azure_vpc_name":"EVI"
+    "edge_user_name":"EUN"
 }

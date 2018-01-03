@@ -38,6 +38,12 @@ parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 
+def modify_conf_file(args):
+    local('scp -i {} /root/scripts/configure_conf_file.py {}:/tmp/configure_conf_file.py'.format(env.key_filename,
+                                                                                                 env.host_string))
+    sudo('python /tmp/configure_conf_file.py --dlab_dir {}'.format(args.dlab_path))
+
+
 def add_china_repository(dlab_path):
     with cd('{}sources/base/'.format(dlab_path)):
         sudo('sed -i "/pip install/s/$/ -i https\:\/\/{0}\/simple --trusted-host {0} --timeout 60000/g" Dockerfile'.format(os.environ['conf_pypi_mirror']))
@@ -79,6 +85,12 @@ if __name__ == "__main__":
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
+
+    print('Modifying configuration files')
+    try:
+        modify_conf_file(args)
+    except:
+        sys.exit(1)
 
     print("Installing docker daemon")
     if not ensure_docker_daemon(args.dlab_path, args.os_user, args.region):
