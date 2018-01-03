@@ -39,6 +39,7 @@ args = parser.parse_args()
 
 
 def modify_conf_file(args):
+    local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, env.host_string, args.dlab_path))
     local('scp -i {} /root/scripts/configure_conf_file.py {}:/tmp/configure_conf_file.py'.format(env.key_filename,
                                                                                                  env.host_string))
     sudo('python /tmp/configure_conf_file.py --dlab_dir {}'.format(args.dlab_path))
@@ -53,7 +54,6 @@ def add_china_repository(dlab_path):
 
 def build_docker_images(image_list, region, dlab_path):
     try:
-        local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, env.host_string, args.dlab_path))
         if os.environ['conf_cloud_provider'] == 'azure':
             local('scp -i {} /root/azure_auth.json {}:{}sources/base/azure_auth.json'.format(args.keyfile,
                                                                                              env.host_string,
