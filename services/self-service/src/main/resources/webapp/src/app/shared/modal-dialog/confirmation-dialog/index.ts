@@ -18,17 +18,17 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import { ModalModule } from '../index';
 import { ConfirmationDialogComponent } from './confirmation-dialog.component';
-import { MaterialModule } from '@angular/material';
+import { MaterialModule } from '../../material.module';
 
 export * from './confirmation-dialog.component';
 export * from './confirmation-dialog-type.enum';
 
 @NgModule({
-  imports: [CommonModule, ModalModule, MaterialModule.forRoot()],
+  imports: [CommonModule, ModalModule, MaterialModule],
   declarations: [ConfirmationDialogComponent],
-  exports: [ConfirmationDialogComponent],
+  exports: [ConfirmationDialogComponent]
 })
-
-export class ConfirmationDialogModule { }
+export class ConfirmationDialogModule {}

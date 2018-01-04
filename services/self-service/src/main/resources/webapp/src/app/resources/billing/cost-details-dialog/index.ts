@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,23 +18,16 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import { MaterialModule } from '../../../shared/material.module';
-
-import {MatListModule} from '@angular/material/list';
-
 import { CostDetailsDialogComponent } from './cost-details-dialog.component';
 import { ModalModule } from '../../../shared';
 
 export * from './cost-details-dialog.component';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        ModalModule,
-        MaterialModule,
-        MatListModule
-    ],
-    declarations: [CostDetailsDialogComponent],
-    exports: [CostDetailsDialogComponent]
+  imports: [CommonModule, ModalModule, MaterialModule],
+  declarations: [CostDetailsDialogComponent],
+  exports: [CostDetailsDialogComponent]
 })
-export class CostDetailsDialogModule { }
+export class CostDetailsDialogModule {}

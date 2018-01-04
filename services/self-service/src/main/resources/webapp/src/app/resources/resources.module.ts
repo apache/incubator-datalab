@@ -18,18 +18,20 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from './../shared/material.module';
-//  ----------------------------------
-import {MatListModule} from '@angular/material/list';
-
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { MaterialModule } from './../shared/material.module';
 import { ResourcesComponent } from './resources.component';
 import { ResourcesGridModule } from './resources-grid';
-import { NavbarModule, ModalModule, ProgressDialogModule, UploadKeyDialogModule } from './../shared';
 import { ExploratoryEnvironmentCreateDialogModule } from './exploratory/exploratory-environment-create-dialog';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { DialogResultExampleDialog } from './manage-ungit/manage-ungit.component';
+import {
+  NavbarModule,
+  ModalModule,
+  ProgressDialogModule,
+  UploadKeyDialogModule
+} from './../shared';
 
 @NgModule({
   imports: [
@@ -42,11 +44,14 @@ import { DialogResultExampleDialog } from './manage-ungit/manage-ungit.component
     UploadKeyDialogModule,
     ExploratoryEnvironmentCreateDialogModule,
     NavbarModule,
-    MaterialModule,
-    MatListModule
+    MaterialModule
   ],
-  declarations: [ResourcesComponent, ManageUngitComponent, DialogResultExampleDialog],
+  declarations: [
+    ResourcesComponent,
+    ManageUngitComponent,
+    DialogResultExampleDialog
+  ],
   entryComponents: [DialogResultExampleDialog],
   exports: [ResourcesComponent]
 })
-export class ResourcesModule { }
+export class ResourcesModule {}
