@@ -19,8 +19,8 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MaterialModule } from '../../shared/material.module';
 
+import { MaterialModule } from '../../shared/material.module';
 import { ModalModule, BubbleModule } from '../../shared';
 import { FormControlsModule } from '../../shared/form-controls';
 import { SchedulerComponent } from './scheduler.component';
@@ -38,6 +38,6 @@ export * from './scheduler.component';
     BubbleModule
   ],
   declarations: [SchedulerComponent],
-  exports: [SchedulerComponent],
+  exports: [SchedulerComponent]
 })
-export class SchedulerModule { }
+export class SchedulerModule {}

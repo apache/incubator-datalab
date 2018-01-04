@@ -18,8 +18,8 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
 
+import { MaterialModule } from './../../shared/material.module';
 import { ResourcesGridComponent } from './resources-grid.component';
 import { ComputationalResourcesModule } from './../computational/computational-resources-list';
 import { ModalModule, ConfirmationDialogModule, BubbleModule } from './../../shared';
@@ -48,10 +48,9 @@ export * from './filter-configuration.model';
     CostDetailsDialogModule,
     InstallLibrariesModule,
     SchedulerModule,
-    MaterialModule.forRoot()
+    MaterialModule
   ],
   declarations: [ResourcesGridComponent],
   exports: [ResourcesGridComponent]
 })
-
-export class ResourcesGridModule { }
+export class ResourcesGridModule {}
