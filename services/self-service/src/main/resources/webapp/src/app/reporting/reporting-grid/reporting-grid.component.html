@@ -59,7 +59,7 @@ limitations under the License.
     </td>
   </tr>
 
-  <template [ngIf]="reportData">
+  <ng-template [ngIf]="reportData">
     <tr *ngFor="let line of reportData">
       <td *ngIf="full_report">{{ line.user }}</td>
       <td class="env_name">{{ line[DICTIONARY.billing.dlabId] }}</td>
@@ -70,7 +70,7 @@ limitations under the License.
       </td>
       <td>{{ line[DICTIONARY.billing.cost] }} {{ line[DICTIONARY.billing.currencyCode] }}</td>
     </tr>
-  </template>
+  </ng-template>
 </table>
 
 <div *ngIf="!reportData" class="message_block message info">
