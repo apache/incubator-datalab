@@ -22,15 +22,18 @@ from fabric.api import *
 import sys
 import argparse
 import os
+import json
 import ConfigParser
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dlab_dir', type=str, default='')
+parser.add_argument('--variables_list', type=str, default='')
 args = parser.parse_args()
 
 
 def modify_conf_file():
     try:
+        variables_list = json.loads(args.variables_list)
         conf_list = []
         conf_file = open('{}sources/general/conf/dlab.ini'.format(args.dlab_dir), 'r')
         for line in conf_file:
@@ -51,7 +54,7 @@ def modify_conf_file():
                 if not config.get(section, option):
                     try:
                         print('Trying to put variable {}_{} to conf file'.format(section, option))
-                        config.set(section, option, os.environ['{}_{}'.format(section, option)])
+                        config.set(section, option, variables_list['{}_{}'.format(section, option)])
                     except:
                         print('Such variable doesn`t exist!')
                         config.remove_option(section, option)
