@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Tag;
-import com.epam.dlab.automation.aws.AmazonHelper;
+import com.epam.dlab.automation.cloud.aws.AmazonHelper;
 
 public class NamingHelper {
     private static AtomicInteger idCounter = new AtomicInteger(0);

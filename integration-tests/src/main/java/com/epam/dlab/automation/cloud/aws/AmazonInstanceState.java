@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.automation.aws;
+package com.epam.dlab.automation.cloud.aws;
 
 public enum AmazonInstanceState {
     RUNNING,

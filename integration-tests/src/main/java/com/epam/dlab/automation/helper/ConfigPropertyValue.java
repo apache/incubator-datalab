@@ -45,12 +45,17 @@ public class ConfigPropertyValue {
 	private static final String PASSWORD_FOR_ACTIVATE_KEY="PASSWORD_FOR_ACTIVATE_KEY";
 	private static final String ACCESS_KEY_PRIV_FILE_NAME="ACCESS_KEY_PRIV_FILE_NAME";
 	private static final String ACCESS_KEY_PUB_FILE_NAME="ACCESS_KEY_PUB_FILE_NAME";
+
+	private static final  String CLOUD_PROVIDER="CLOUD_PROVIDER";
+	private static final String AZURE_AUTHENTICATION_FILE="AZURE_AUTHENTICATION_FILE";
     
     private static final String AWS_ACCESS_KEY_ID="AWS_ACCESS_KEY_ID";
     private static final String AWS_SECRET_ACCESS_KEY="AWS_SECRET_ACCESS_KEY";
     private static final String AWS_REGION="AWS_REGION";
     private static final String AWS_REQUEST_TIMEOUT="AWS_REQUEST_TIMEOUT";
     private static final String S3_TESTS_TEMPLATE_BUCKET_NAME="S3_TESTS_TEMPLATE_BUCKET_NAME";
+
+    private static final String AZURE_REQUEST_TIMEOUT="AZURE_REQUEST_TIMEOUT";
     
     private static final String TIMEOUT_JENKINS_AUTOTEST="TIMEOUT_JENKINS_AUTOTEST";
     private static final String TIMEOUT_UPLOAD_KEY="TIMEOUT_UPLOAD_KEY";
@@ -248,6 +253,15 @@ public class ConfigPropertyValue {
         return file.getAbsolutePath();
     }
 
+    public static String getCloudProvider(){
+        return get(CLOUD_PROVIDER);
+    }
+
+    public static String getAzureAuthFileName(){
+        File file = new File(get(AZURE_AUTHENTICATION_FILE));
+        return file.getAbsolutePath();
+    }
+
     public static String getAwsAccessKeyId() {
         return get(AWS_ACCESS_KEY_ID);
     }
@@ -262,6 +276,10 @@ public class ConfigPropertyValue {
 
 	public static Duration getAwsRequestTimeout() {
     	return getDuration(get(AWS_REQUEST_TIMEOUT, "10s"));
+    }
+
+    public static Duration getAzureRequestTimeout() {
+        return getDuration(get(AZURE_REQUEST_TIMEOUT, "10s"));
     }
 
     public static Duration getTimeoutJenkinsAutotest() {
