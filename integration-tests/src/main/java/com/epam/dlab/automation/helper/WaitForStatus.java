@@ -43,8 +43,6 @@ public class WaitForStatus {
         long timeout = duration.toMillis();
         long expiredTime = System.currentTimeMillis() + timeout;
 
-        LOGGER.info("Inside WaitForStatus.selfService(): SSN URL is: {}", NamingHelper.getSsnURL());
-
         while ((actualStatus = request.webApiGet(NamingHelper.getSsnURL(), ContentType.TEXT).statusCode()) != HttpStatusCode.OK) {
             if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
                 break;

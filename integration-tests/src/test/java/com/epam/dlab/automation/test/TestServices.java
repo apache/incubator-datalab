@@ -141,6 +141,9 @@ public class TestServices {
 			return;
 		}
 		NamingHelper.setSsnIp(PropertiesResolver.DEV_MODE ? publicSsnIp : privateSsnIp);
+
+		LOGGER.info("Inside testLoginServices()... PropertiesResolver.DEV_MODE=", PropertiesResolver.DEV_MODE);
+
 		VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getSsnName());
 		LOGGER.info("{} instance state is running", cloudProvider.toUpperCase());
 
