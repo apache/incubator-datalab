@@ -18,7 +18,9 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
+import { MaterialModule } from '../../../shared/material.module';
+
+import {MatListModule} from '@angular/material/list';
 
 import { CostDetailsDialogComponent } from './cost-details-dialog.component';
 import { ModalModule } from '../../../shared';
@@ -29,7 +31,8 @@ export * from './cost-details-dialog.component';
     imports: [
         CommonModule,
         ModalModule,
-        MaterialModule.forRoot()
+        MaterialModule,
+        MatListModule
     ],
     declarations: [CostDetailsDialogComponent],
     exports: [CostDetailsDialogComponent]

@@ -18,7 +18,10 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
+import { MaterialModule } from './../shared/material.module';
+//  ----------------------------------
+import {MatListModule} from '@angular/material/list';
+
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { ResourcesComponent } from './resources.component';
@@ -39,7 +42,8 @@ import { DialogResultExampleDialog } from './manage-ungit/manage-ungit.component
     UploadKeyDialogModule,
     ExploratoryEnvironmentCreateDialogModule,
     NavbarModule,
-    MaterialModule.forRoot()
+    MaterialModule,
+    MatListModule
   ],
   declarations: [ResourcesComponent, ManageUngitComponent, DialogResultExampleDialog],
   entryComponents: [DialogResultExampleDialog],

@@ -20,7 +20,9 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NavbarComponent } from './navbar.component';
-import { MaterialModule } from '@angular/material';
+import { MaterialModule } from '../material.module';
+// =====================
+import {MatMenuModule} from '@angular/material/menu';
 
 export * from './navbar.component';
 
@@ -28,7 +30,8 @@ export * from './navbar.component';
   imports: [
     CommonModule,
     RouterModule,
-    MaterialModule.forRoot()
+    MaterialModule,
+    MatMenuModule
   ],
   declarations: [NavbarComponent],
   exports: [
