@@ -22,19 +22,19 @@ limitations under the License.
   </modal-header>
   <modal-content class="manage-ungit">
    
-   <md-tab-group mat-stretch-tabs #tabGroup class="content-box">
-      <md-tab label="LIST">
-          <md-list>
-            <md-list-item class="list-header">
+   <mat-tab-group mat-stretch-tabs #tabGroup class="content-box">
+      <mat-tab label="LIST">
+          <mat-list>
+            <mat-list-item class="list-header">
               <div class="hostname-field">Host name</div>
               <div class="user-field">User</div>
               <div class="mail-field">Email</div>
               <div class="login-field">Login</div>
               <div class="actions"></div>
-            </md-list-item>
+            </mat-list-item>
 
             <div class="scrollingList" id="scrolling" *ngIf="gitCredentials?.length">
-              <md-list-item *ngFor="let item of gitCredentials">
+              <mat-list-item *ngFor="let item of gitCredentials">
                 <div class="hostname-field"><strong>{{ item.hostname }}</strong></div>
                 <div class="user-field">{{ item.username }}</div>
                 <div class="mail-field">{{ item.email }}</div>
@@ -48,29 +48,29 @@ limitations under the License.
                   </span>
                 </div>
 
-              </md-list-item>
+              </mat-list-item>
             </div>
             <div *ngIf="!gitCredentials?.length" class="scrollingList info">
               <p>You have no related accounts</p>
             </div>
-          </md-list>
+          </mat-list>
           <div class="info message error" *ngIf="processError">
             <small>{{ errorMessage }}</small>
           </div>
           <div class="text-center m-top-30 m-bott-10" *ngIf="editableForm">
-            <button md-raised-button type="button" class="butt" (click)="cancelAllModifyings()">Cancel</button>
-            <button md-raised-button type="button" class="butt butt-success" (click)="editAccounts_btnClick()">Apply changes</button>
+            <button mat-raised-button type="button" class="butt" (click)="cancelAllModifyings()">Cancel</button>
+            <button mat-raised-button type="button" class="butt butt-success" (click)="editAccounts_btnClick()">Apply changes</button>
           </div>
-      </md-tab>
-      <md-tab label="MANAGE ACCOUNT">
+      </mat-tab>
+      <mat-tab label="MANAGE ACCOUNT">
        <form [formGroup]="updateAccountCredentialsForm" novalidate>
          <div class="tab-content git-form">
            <div class="col">
-            <md-input-container>
-              <input mdInput type="text"
+            <mat-form-field>
+              <input matInput type="text"
                      formControlName="hostname"
                      placeholder="Enter host name ( without http:// or https:// )">
-            </md-input-container>
+            </mat-form-field>
             <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['hostname'].valid 
                 && updateAccountCredentialsForm.controls['hostname'].touched && !updateAccountCredentialsForm.controls['hostname'].hasError('duplicate')">
               Hostname field is required. Please provide a qualified domain name (e.g. gitlab.com or github.com)
@@ -78,57 +78,57 @@ limitations under the License.
             <span class="danger_color" *ngIf="updateAccountCredentialsForm.controls['hostname'].hasError('duplicate') && updateAccountCredentialsForm.controls['hostname'].dirty">
               The Host name is already in use
             </span>
-            <md-input-container>
-              <input mdInput type="text"
+            <mat-form-field>
+              <input matInput type="text"
                      formControlName="username"
                      placeholder="Enter user name">
-            </md-input-container>
+            </mat-form-field>
             <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['username'].valid && updateAccountCredentialsForm.controls['username'].touched">
               Username field is required. Please provide a valid username
             </span>
-            <md-input-container>
-              <input mdInput type="email"
+            <mat-form-field>
+              <input matInput type="email"
                      formControlName="email"
                      placeholder="Enter email">
-            </md-input-container>
+            </mat-form-field>
             <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['email'].valid && updateAccountCredentialsForm.controls['email'].touched">
               Email field is required. Please provide a valid email
             </span>
            </div>
 
            <div class="col">
-            <md-input-container>
-              <input mdInput type="text"
+            <mat-form-field>
+              <input matInput type="text"
                      formControlName="login"
                      placeholder="Enter login">
-            </md-input-container>
+            </mat-form-field>
             <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['login'].valid && updateAccountCredentialsForm.controls['login'].touched">
               Login field is required. Please provide a valid login
             </span>
-            <md-input-container>
-              <input mdInput type="password"
+            <mat-form-field>
+              <input matInput type="password"
                      formControlName="password"
                      placeholder="Enter Password">
-            </md-input-container>
+            </mat-form-field>
             <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['password'].valid && updateAccountCredentialsForm.controls['password'].touched">
               Field is required. Password must be at least 6 characters
             </span>
-            <md-input-container>
-              <input mdInput type="password"
+            <mat-form-field>
+              <input matInput type="password"
                      formControlName="confirmPassword"
                      placeholder="Confirm Password">
-            </md-input-container>
+            </mat-form-field>
             <span class="danger_color" *ngIf="!updateAccountCredentialsForm.controls['confirmPassword'].valid && updateAccountCredentialsForm.controls['confirmPassword'].touched">
               Field is required. Please confirm a password
             </span>
            </div>
          </div>
          <div class="text-center m-top-30 m-bott-10">
-           <button md-raised-button type="button" class="butt" (click)="resetForm()">Cancel</button>
-           <button md-raised-button type="button" [disabled]="!updateAccountCredentialsForm.valid" (click)="assignChanges(updateAccountCredentialsForm.value)" class="butt butt-success">Assign</button>
+           <button mat-raised-button type="button" class="butt" (click)="resetForm()">Cancel</button>
+           <button mat-raised-button type="button" [disabled]="!updateAccountCredentialsForm.valid" (click)="assignChanges(updateAccountCredentialsForm.value)" class="butt butt-success">Assign</button>
          </div>
        </form>
-      </md-tab>
-    </md-tab-group>
+      </mat-tab>
+    </mat-tab-group>
   </modal-content>
 </modal-dialog>
