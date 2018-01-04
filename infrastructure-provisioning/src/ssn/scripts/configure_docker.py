@@ -41,7 +41,7 @@ args = parser.parse_args()
 def modify_conf_file(args):
     variables_list = {}
     for os_var in os.environ:
-        if "'" not in os.environ[os_var]:
+        if "'" not in os.environ[os_var] and os_var != 'aws_access_key' and os_var != 'aws_secret_access_key':
             variables_list[os_var] = os.environ[os_var]
     local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, env.host_string, args.dlab_path))
     local('scp -i {} /root/scripts/configure_conf_file.py {}:/tmp/configure_conf_file.py'.format(args.keyfile,
