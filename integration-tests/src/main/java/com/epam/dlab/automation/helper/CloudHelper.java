@@ -13,7 +13,7 @@ public class CloudHelper {
             case "azure":
                 if(AzureHelper.getVirtualMachinesByTag(tagNameValue) != null){
                     return AzureHelper.getVirtualMachinesByTag(tagNameValue).get(0)
-                            .getPrimaryPublicIPAddress().toString();
+                            .getPrimaryPublicIPAddress().ipAddress();
                 }
                 else return null;
             default:

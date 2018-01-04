@@ -50,7 +50,7 @@ public class AzureHelper{
             PublicIPAddress mockedIPAddress = mock(PublicIPAddress.class);
             NetworkInterface mockedNetworkInterface = mock(NetworkInterface.class);
             when(mockedVM.getPrimaryPublicIPAddress()).thenReturn(mockedIPAddress);
-            when(mockedIPAddress.toString()).thenReturn("127.0.0.1");
+            when(mockedIPAddress.ipAddress()).thenReturn("127.0.0.1");
             when(mockedVM.getPrimaryNetworkInterface()).thenReturn(mockedNetworkInterface);
             when(mockedNetworkInterface.primaryPrivateIP()).thenReturn("127.0.0.1");
             vmLocalModeList.add(mockedVM);
@@ -112,12 +112,13 @@ public class AzureHelper{
 
         for (VirtualMachine  vm : vmsWithTag) {
             LOGGER.info("Azure virtual machine with tag {} state is {}. Virtual machine id {}, private IP {}, public IP {}",
-                    virtualMachineTag, getStatus(vm), vm.vmId(), vm.getPrimaryNetworkInterface().primaryPrivateIP(), vm.getPrimaryPublicIPAddress());
+                    virtualMachineTag, getStatus(vm), vm.vmId(), vm.getPrimaryNetworkInterface().primaryPrivateIP(),
+                    vm.getPrimaryPublicIPAddress().ipAddress());
         }
         Assert.assertEquals(virtualMachineState, expAzureState, "Azure virtual machine with tag " + virtualMachineTag +
                 " state is not correct. Virtual machine id " +
                 virtualMachine.vmId() + ", private IP " + virtualMachine.getPrimaryNetworkInterface().primaryPrivateIP() +
-                ", public IP " + virtualMachine.getPrimaryPublicIPAddress());
+                ", public IP " + virtualMachine.getPrimaryPublicIPAddress().ipAddress());
     }
 
 }
