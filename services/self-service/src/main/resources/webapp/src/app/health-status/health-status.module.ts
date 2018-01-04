@@ -18,7 +18,7 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
+import { MaterialModule } from './../shared/material.module';
 
 import { NavbarModule } from './../shared';
 import { HealthStatusComponent } from './health-status.component';
@@ -29,7 +29,7 @@ import { HealthStatusGridModule } from './health-status-grid/health-status-grid.
         CommonModule,
         NavbarModule,
         HealthStatusGridModule,
-        MaterialModule.forRoot()
+        MaterialModule
     ],
     declarations: [HealthStatusComponent],
     exports: [HealthStatusComponent]
