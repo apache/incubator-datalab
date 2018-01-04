@@ -51,7 +51,6 @@ if __name__ == "__main__":
                     VpcId = args.vpc_id
                 )['RouteTable']['RouteTableId'])
                 print('Created Route-Table with ID: {}'.format(route_table))
-                time.sleep(10)
                 create_tag(route_table, json.dumps(tag))
             endpoints = get_vpc_endpoints(args.vpc_id)
             if not endpoints:
