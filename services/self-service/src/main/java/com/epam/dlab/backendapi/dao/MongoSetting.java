@@ -52,8 +52,14 @@ public enum MongoSetting {
     AZURE_EDGE_INSTANCE_SIZE("edge_instance_size"),
     AZURE_SSN_INSTANCE_SIZE("ssn_instance_size"),
     AZURE_DATA_LAKE_NAME_TAG("datalake_tag_name"),
-    AZURE_DATA_LAKE_CLIENT_ID("azure_client_id");
+    AZURE_DATA_LAKE_CLIENT_ID("azure_client_id"),
 
+    // GCP related properties
+    GCP_REGION("gcp_region"),
+    GCP_ZONE("gcp_zone"),
+    GCP_SUBNET_NAME("gcp_subnet_name"),
+    GCP_PROJECT_ID("gcp_project_id"),
+    GCP_VPC_NAME("gcp_vpc_name");
 
     private String id;
 

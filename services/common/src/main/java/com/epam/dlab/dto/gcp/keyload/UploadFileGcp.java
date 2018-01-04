@@ -14,17 +14,25 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.base.keyload;
+package com.epam.dlab.dto.gcp.keyload;
 
+import com.epam.dlab.dto.base.keyload.UploadFile;
+import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class UploadFile {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class UploadFileGcp extends UploadFile {
     @JsonProperty
-    private String content;
+    private final EdgeCreateGcp edge;
+
+    public UploadFileGcp(EdgeCreateGcp edge, String content) {
+        super(content);
+        this.edge = edge;
+    }
 }

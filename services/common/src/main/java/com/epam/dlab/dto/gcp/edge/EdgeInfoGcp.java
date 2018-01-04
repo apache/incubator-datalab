@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.base.keyload;
+package com.epam.dlab.dto.gcp.edge;
 
+import com.epam.dlab.dto.base.edge.EdgeInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class UploadFile {
-    @JsonProperty
-    private String content;
+@Getter
+@Setter
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class EdgeInfoGcp extends EdgeInfo {
+    //TODO add specific fields
 }

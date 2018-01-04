@@ -31,6 +31,7 @@ import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
 import com.epam.dlab.dto.aws.exploratory.ExploratoryCreateAws;
+import com.epam.dlab.dto.gcp.GcpCloudSettings;
 import com.epam.dlab.dto.aws.keyload.UploadFileAws;
 import com.epam.dlab.dto.azure.AzureCloudSettings;
 import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
@@ -47,6 +48,8 @@ import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
+import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
+import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 
@@ -82,6 +85,12 @@ public class RequestBuilder {
                         .azureSubnetName(settingsDAO.getAzureSubnetName())
                         .azureVpcName(settingsDAO.getAzureVpcName())
                         .azureIamUser(userInfo.getName()).build();
+            case GCP:
+                return GcpCloudSettings.builder().gcpRegion(settingsDAO.getGcpRegion())
+                        .gcpProjectId(settingsDAO.getGcpProjectId())
+                        .gcpVpcName(settingsDAO.getGcpVpcName())
+                        .gcpSubnetName(settingsDAO.getGcpSubnetName())
+                        .gcpIamUser(userInfo.getName()).build();
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
@@ -94,6 +103,7 @@ public class RequestBuilder {
             switch (cloudProvider()) {
                 case AWS:
                 case AZURE:
+                case GCP:
                     return (T) resource
                             .withEdgeUserName(userInfo.getSimpleName())
                             .withCloudSettings(cloudSettings(userInfo));
@@ -140,6 +150,7 @@ public class RequestBuilder {
                 return uploadFileAzure;
 
             case GCP:
+                return new UploadFileGcp(newResourceSysBaseDTO(userInfo, EdgeCreateGcp.class), content);
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
@@ -150,9 +161,8 @@ public class RequestBuilder {
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
-                return (T) newResourceSysBaseDTO(userInfo, ResourceSysBaseDTO.class);
-
             case GCP:
+                return (T) newResourceSysBaseDTO(userInfo, ResourceSysBaseDTO.class);
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
@@ -162,8 +172,8 @@ public class RequestBuilder {
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
-                return newResourceSysBaseDTO(userInfo, UserEnvironmentResources.class);
             case GCP:
+                return newResourceSysBaseDTO(userInfo, UserEnvironmentResources.class);
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }

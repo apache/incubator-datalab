@@ -89,6 +89,7 @@ public class CommandExecutorMock implements ICommandExecutor {
             case AZURE:
                 return Lists.newArrayList("docker.dlab-dataengine:latest");
             case GCP:
+                return Lists.newArrayList("docker.dlab-dataengine-service:latest", "docker.dlab-dataengine:latest");
                 default:
                     throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider);
         }

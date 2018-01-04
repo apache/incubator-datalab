@@ -31,6 +31,7 @@ public class CloudModuleConfigurator {
             case AZURE:
                 return new AzureProvisioningModule();
             case GCP:
+                return new GcpProvisioningModule();
             default:
                 throw new UnsupportedOperationException("Unsupported cloud provider " + configuration.getCloudProvider());
         }

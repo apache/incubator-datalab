@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.dto.base.keyload;
+package com.epam.dlab.dto.gcp.edge;
 
+import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.google.common.base.MoreObjects;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class UploadFile {
-    @JsonProperty
-    private String content;
+public class EdgeCreateGcp extends ResourceSysBaseDTO<EdgeCreateGcp> {
+    //TODO add specific fields
 }
