@@ -32,7 +32,7 @@ args = parser.parse_args()
 def modify_conf_file():
     try:
         conf_list = []
-        conf_file = open('{}conf/dlab.ini'.format(args.dlab_dir), 'r')
+        conf_file = open('{}sources/general/conf/dlab.ini'.format(args.dlab_dir), 'r')
         for line in conf_file:
             conf_list.append(line)
 
@@ -56,7 +56,7 @@ def modify_conf_file():
                         print('Such variable doesn`t exist!')
                         config.remove_option(section, option)
 
-        conf_file_final = open('{}conf/overwrite.ini'.format(args.dlab_dir), 'w')
+        conf_file_final = open('{}sources/general/conf/overwrite.ini'.format(args.dlab_dir), 'w')
         config.write(conf_file_final)
     except Exception as error:
         print('Error with modifying conf files:')
