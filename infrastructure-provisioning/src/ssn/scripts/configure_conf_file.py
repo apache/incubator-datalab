@@ -58,9 +58,10 @@ def modify_conf_file():
 
         conf_file_final = open('{}conf/overwrite.ini'.format(args.dlab_dir), 'w')
         config.write(conf_file_final)
-    except:
-        print('Error with modifying conf files')
-        return False
+    except Exception as error:
+        print('Error with modifying conf files:')
+        print(str(error))
+        sys.exit(1)
 
 
 if __name__ == "__main__":
