@@ -35,7 +35,7 @@ export class BillingReportService {
         .catch((error: any) => error);
     }
 
-    public downloadReport(data): Observable<Response> {
+    public downloadReport(data): Observable<{} | Response> {
         return this.applicationServiceFacade
         .buildDownloadReportData(data)
         .map((response: Response) => response)
