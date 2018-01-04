@@ -18,16 +18,50 @@
 #
 # ******************************************************************************
 
+import sys
 from fabric.api import *
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--bucket', type=str, default='')
-parser.add_argument('--templates_bucket', type=str, default='')
-parser.add_argument('--region', type=str, default='')
+parser.add_argument('--storage', type=str, default='')
+parser.add_argument('--cloud', type=str, default='')
+parser.add_argument('--azure_datalake_enable', type=str, default='false')
 args = parser.parse_args()
 
-local('aws s3 cp --region {} --recursive s3://{}/ s3://{}/ --sse AES256'.format(args.region, args.templates_bucket, args.bucket))
-local('aws s3 cp --region {} s3://{}/carriers.csv s3://{}/ --sse AES256'.format(args.region, args.templates_bucket, args.bucket))
-local('aws s3 cp --region {} s3://{}/airports.csv s3://{}/ --sse AES256'.format(args.region, args.templates_bucket, args.bucket))
-local('aws s3 cp --region {} s3://{}/2008.csv.bz2 s3://{}/ --sse AES256'.format(args.region, args.templates_bucket, args.bucket))
+dataset_file = ['airports.csv', 'carriers.csv', '2008.csv.bz2']
+
+def download_dataset():
+    local('wget http://stat-computing.org/dataexpo/2009/{0} -O /tmp/{0}'.format(dataset_file[0]))
+    local('wget http://stat-computing.org/dataexpo/2009/{0} -O /tmp/{0}'.format(dataset_file[1]))
+    local('wget http://stat-computing.org/dataexpo/2009/{0} -O /tmp/{0}'.format(dataset_file[2]))
+
+def upload_aws():
+    local('aws s3 cp /tmp/{0} s3://{1}/ --sse AES256'.format(dataset_file[0], args.storage))
+    local('aws s3 cp /tmp/{0} s3://{1}/ --sse AES256'.format(dataset_file[1], args.storage))
+    local('aws s3 cp /tmp/{0} s3://{1}/ --sse AES256'.format(dataset_file[2], args.storage))
+
+def upload_azure(protocol):
+    pass
+
+def upload_gcp():
+    local('gsutil -m cp /tmp/{0} gs://{1}/'.format(dataset_file[0], args.storage))
+    local('gsutil -m cp /tmp/{0} gs://{1}/'.format(dataset_file[1], args.storage))
+    local('gsutil -m cp /tmp/{0} gs://{1}/'.format(dataset_file[2], args.storage))
+
+
+if __name__ == "__main__":
+    download_dataset()
+    if args.cloud == 'aws':
+        upload_aws()
+    elif args.cloud == 'azure':
+        if args.azure_datalake_enable == 'true':
+            upload_azure('adl')
+        else:
+            upload_azure('wasbs')
+    elif args.cloud == 'gcp':
+        upload_gcp()
+    else:
+        print('Error! Unknown cloud provider.')
+        sys.exit(1)
+
+    sys.exit(0)

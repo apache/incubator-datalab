@@ -28,25 +28,25 @@ import os
 from botocore.client import Config
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--bucket', type=str, default='')
-parser.add_argument('--cluster_name', type=str, default='')
+parser.add_argument('--storage', type=str, default='')
+parser.add_argument('--cloud', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
-parser.add_argument('--region', type=str, default='')
+parser.add_argument('--cluster_name', type=str, default='')
+parser.add_argument('--azure_datalake_enable', type=str, default='false')
 args = parser.parse_args()
 
-
-def get_files(s3client, s3resource, dist, bucket, local):
-    s3list = s3client.get_paginator('list_objects')
-    for result in s3list.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
-        if result.get('CommonPrefixes') is not None:
-            for subdir in result.get('CommonPrefixes'):
-                get_files(s3client, s3resource, subdir.get('Prefix'), bucket, local)
-        if result.get('Contents') is not None:
-            for file in result.get('Contents'):
-                if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
-                    os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
-                s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
-
+def get_storage_protocol():
+    protocol = ''
+    if args.cloud == 'aws':
+        protocol = 's3a'
+    elif args.cloud == 'azure':
+        if args.azure_datalake_enable == 'true':
+            protocol = 'adl'
+        else:
+            protocol = 'wasbs'
+    elif args.cloud == 'gcp':
+        protocol = 'gs'
+    return protocol
 
 def get_note_status(note_id, notebook_ip):
     running = False
@@ -79,8 +79,9 @@ def import_note(note_path, notebook_ip):
 def prepare_note(interpreter_name, template_path, note_name):
     with open(template_path, 'r') as f:
         text = f.read()
-    text = text.replace('S3_BUCKET', args.bucket)
     text = text.replace('INTERPRETER_NAME', interpreter_name)
+    text = text.replace('WORKING_STORAGE', args.storage)
+    text = text.replace('PROTOCOL_NAME', get_storage_protocol())
     with open(note_name, 'w') as f:
         f.write(text)
 
@@ -128,11 +129,6 @@ def run_spark():
         note_id = import_note('/home/{}/preparation_spark.json'.format( args.os_user), notebook_ip)
         run_note(note_id, notebook_ip)
         remove_note(note_id, notebook_ip)
-        #prepare_note(i, '/home/{}/test_templates/template_visualization_spark.json'.format(args.os_user),
-        # '/home/{0}/visualization_spark.json'.format(args.os_user))
-        #note_id = import_note('/home/{}/visualization_spark.json'.format( args.os_user), notebook_ip)
-        #run_note(note_id, notebook_ip)
-        #remove_note(note_id, notebook_ip)
 
 
 def run_sparkr():
@@ -154,15 +150,12 @@ def run_sparkr():
 
 
 def prepare_templates():
-    templates_dir = '/home/{}/'.format(args.os_user)
-    s3client = boto3.client('s3', config=Config(signature_version='s3v4'), endpoint_url='https://s3-{}.amazonaws.com'.format(args.region), region_name=args.region)
-    s3resource = boto3.resource('s3', config=Config(signature_version='s3v4'), endpoint_url='https://s3-{}.amazonaws.com'.format(args.region), region_name=args.region)
-    get_files(s3client, s3resource, 'test_templates_zeppelin', args.bucket, templates_dir)
-    local('mv /home/{0}/test_templates_zeppelin /home/{0}/test_templates'.format(args.os_user))
+    local('mv /tmp/zeppelin /home/{0}/test_templates'.format(args.os_user))
 
-    
-notebook_ip = local('hostname -I', capture=True)
-prepare_templates()
-run_pyspark()
-run_sparkr()
-run_spark()
+
+if __name__ == "__main__":
+    notebook_ip = local('hostname -I', capture=True)
+    prepare_templates()
+    run_pyspark()
+    run_sparkr()
+    run_spark()
