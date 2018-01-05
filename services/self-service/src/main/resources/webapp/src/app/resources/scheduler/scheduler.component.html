@@ -1,6 +1,6 @@
 <!--
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+Copyright (c) 2018, EPAM SYSTEMS INC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,12 +25,11 @@ limitations under the License.
       {{ notebook.name }}
 
       <form [formGroup]="schedulerFormGroup">
-
         <div class="control-group">
           <label class="label" for="options">Options :</label>
 
-          <div *ngFor="let day of weekdays; let i = index" >
-              <md-checkbox class="example-margin" (change)="onChange($event)" [checked]="day" name="{{ day }}">{{ day }}</md-checkbox>
+          <div *ngFor="let day of weekdays; let i = index">
+            <mat-checkbox class="example-margin" (change)="onChange($event)" [value]="day" name="{{ day }}">{{ day }}</mat-checkbox>
           </div>
         </div>
       </form>
