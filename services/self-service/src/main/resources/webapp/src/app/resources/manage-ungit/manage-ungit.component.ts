@@ -115,7 +115,7 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public deleteAccount(item: AccountCredentials) {
-    const dialogRef: MatDialogRef<DialogResultExampleDialog> = this.dialog.open(DialogResultExampleDialog, { data: item, width: '550px' });
+    const dialogRef: MatDialogRef<ConfirmDeleteAccountDialog> = this.dialog.open(ConfirmDeleteAccountDialog, { data: item, width: '550px' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
@@ -204,9 +204,9 @@ export class ManageUngitComponent implements OnInit {
     .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
   `]
 })
-export class DialogResultExampleDialog {
+export class ConfirmDeleteAccountDialog {
   constructor(
-    public dialogRef: MatDialogRef<DialogResultExampleDialog>,
+    public dialogRef: MatDialogRef<ConfirmDeleteAccountDialog>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) { }
 }

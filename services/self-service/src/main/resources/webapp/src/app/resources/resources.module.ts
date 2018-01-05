@@ -25,7 +25,7 @@ import { ResourcesComponent } from './resources.component';
 import { ResourcesGridModule } from './resources-grid';
 import { ExploratoryEnvironmentCreateDialogModule } from './exploratory/exploratory-environment-create-dialog';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
-import { DialogResultExampleDialog } from './manage-ungit/manage-ungit.component';
+import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.component';
 import {
   NavbarModule,
   ModalModule,
@@ -49,9 +49,9 @@ import {
   declarations: [
     ResourcesComponent,
     ManageUngitComponent,
-    DialogResultExampleDialog
+    ConfirmDeleteAccountDialog
   ],
-  entryComponents: [DialogResultExampleDialog],
+  entryComponents: [ConfirmDeleteAccountDialog],
   exports: [ResourcesComponent]
 })
 export class ResourcesModule {}
