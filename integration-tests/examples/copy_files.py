@@ -23,7 +23,7 @@ import argparse
 from fabric.api import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--storage', type=str, default='S3 bucket, Azure Blob/Datalake, GCP bucket')
+parser.add_argument('--storage', type=str, default='S3/GCP buckets, Azure Blob container / Datalake folder')
 parser.add_argument('--cloud', type=str, default='aws, azure, gcp')
 parser.add_argument('--azure_storage_account', type=str, default='')
 parser.add_argument('--azure_datalake_account', type=str, default='')
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         upload_aws()
     elif args.cloud == 'azure':
         os.environ['AZURE_AUTH_LOCATION'] = '/home/dlab-user/keys/azure_auth.json'
-        if args.azure_datalake_account != '':
+        if args.azure_datalake_account:
             upload_azure_datalake()
         else:
             upload_azure_blob()

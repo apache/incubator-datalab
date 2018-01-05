@@ -18,35 +18,33 @@
 #
 # ******************************************************************************
 
-import boto3
+import os, sys, json
 from fabric.api import *
-import uuid
 import argparse
-import sys
-import json
-import os
-from botocore.client import Config
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--storage', type=str, default='')
 parser.add_argument('--cloud', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--cluster_name', type=str, default='')
-parser.add_argument('--azure_datalake_enable', type=str, default='false')
+parser.add_argument('--azure_storage_account', type=str, default='')
+parser.add_argument('--azure_datalake_account', type=str, default='')
 args = parser.parse_args()
 
-def get_storage_protocol():
-    protocol = ''
-    if args.cloud == 'aws':
-        protocol = 's3a'
-    elif args.cloud == 'azure':
-        if args.azure_datalake_enable == 'true':
-            protocol = 'adl'
-        else:
-            protocol = 'wasbs'
-    elif args.cloud == 'gcp':
-        protocol = 'gs'
-    return protocol
+
+def prepare_templates():
+    local('mv /tmp/zeppelin /home/{0}/test_templates'.format(args.os_user))
+
+def get_storage():
+    storages = {"aws": args.storage,
+                "azure": "{0}@{1}.blob.core.windows.net".format(args.storage, args.azure_storage_account),
+                "gcp": args.storage}
+    protocols = {"aws": "s3a", "azure": "wasbs", "gcp": "gs"}
+    if args.azure_datalake_account:
+        storages['azure'] = "{0}.azuredatalakestore.net/{1}".format(args.azure_datalake_account, args.storage)
+        protocols['azure'] = 'adl'
+    return (storages[args.cloud], protocols[args.cloud])
 
 def get_note_status(note_id, notebook_ip):
     running = False
@@ -65,7 +63,6 @@ def get_note_status(note_id, notebook_ip):
     else:
         return "OK"
 
-
 def import_note(note_path, notebook_ip):
     response = local("curl -H 'Content-Type: application/json' -X POST -d @" + note_path + " http://" +
                      notebook_ip + ":8080/api/notebook/import", capture=True)
@@ -75,16 +72,14 @@ def import_note(note_path, notebook_ip):
     else:
         sys.exit(1)
 
-
 def prepare_note(interpreter_name, template_path, note_name):
     with open(template_path, 'r') as f:
         text = f.read()
     text = text.replace('INTERPRETER_NAME', interpreter_name)
-    text = text.replace('WORKING_STORAGE', args.storage)
-    text = text.replace('PROTOCOL_NAME', get_storage_protocol())
+    text = text.replace('WORKING_STORAGE', get_storage()[0])
+    text = text.replace('PROTOCOL_NAME', get_storage()[1])
     with open(note_name, 'w') as f:
         f.write(text)
-
 
 def run_note(note_id, notebook_ip):
     response = local("curl -H 'Content-Type: application/json' -X POST  http://" + notebook_ip +
@@ -105,7 +100,6 @@ def remove_note(note_id, notebook_ip):
     else:
         sys.exit(1)
 
-
 def run_pyspark():
     interpreters = ['local_interpreter_python2.pyspark', args.cluster_name + "_py2.pyspark"]
     for i in interpreters:
@@ -119,17 +113,6 @@ def run_pyspark():
         note_id = import_note('/home/{}/visualization_pyspark.json'.format( args.os_user), notebook_ip)
         run_note(note_id, notebook_ip)
         remove_note(note_id, notebook_ip)
-
-
-def run_spark():
-    interpreters = ['local_interpreter_python2.spark', args.cluster_name + "_py2.spark"]
-    for i in interpreters:
-        prepare_note(i, '/home/{}/test_templates/template_preparation_spark.json'.format(args.os_user),
-                     '/home/{}/preparation_spark.json'.format(args.os_user))
-        note_id = import_note('/home/{}/preparation_spark.json'.format( args.os_user), notebook_ip)
-        run_note(note_id, notebook_ip)
-        remove_note(note_id, notebook_ip)
-
 
 def run_sparkr():
     if os.path.exists('/opt/livy/'):
@@ -148,14 +131,25 @@ def run_sparkr():
         run_note(note_id, notebook_ip)
         remove_note(note_id, notebook_ip)
 
-
-def prepare_templates():
-    local('mv /tmp/zeppelin /home/{0}/test_templates'.format(args.os_user))
+def run_spark():
+    interpreters = ['local_interpreter_python2.spark', args.cluster_name + "_py2.spark"]
+    for i in interpreters:
+        prepare_note(i, '/home/{}/test_templates/template_preparation_spark.json'.format(args.os_user),
+                     '/home/{}/preparation_spark.json'.format(args.os_user))
+        note_id = import_note('/home/{}/preparation_spark.json'.format( args.os_user), notebook_ip)
+        run_note(note_id, notebook_ip)
+        remove_note(note_id, notebook_ip)
 
 
 if __name__ == "__main__":
-    notebook_ip = local('hostname -I', capture=True)
-    prepare_templates()
-    run_pyspark()
-    run_sparkr()
-    run_spark()
+    try:
+        notebook_ip = local('hostname -I', capture=True)
+        prepare_templates()
+        run_pyspark()
+        run_sparkr()
+        run_spark()
+    except Exception as err:
+        print('Error!', str(err))
+        sys.exit(1)
+
+    sys.exit(0)
