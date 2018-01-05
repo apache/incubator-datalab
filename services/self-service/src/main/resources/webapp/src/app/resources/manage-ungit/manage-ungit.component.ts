@@ -16,10 +16,10 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
-import { MdDialog, MdDialogRef, MdDialogConfig } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { AccountCredentials, MangeUngitModel } from './manage-ungit.model';
 import { ManageUngitService } from './../../core/services';
@@ -53,7 +53,8 @@ export class ManageUngitComponent implements OnInit {
   constructor(
     private manageUngitService: ManageUngitService,
     private _fb: FormBuilder,
-    public dialog: MdDialog) {
+    public dialog: MatDialog
+  ) {
     this.model = MangeUngitModel.getDefault(manageUngitService);
   }
 
@@ -114,7 +115,7 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public deleteAccount(item: AccountCredentials) {
-    const dialogRef: MdDialogRef<DialogResultExampleDialog> = this.dialog.open(DialogResultExampleDialog, { data: item, width: '550px' });
+    const dialogRef: MatDialogRef<DialogResultExampleDialog> = this.dialog.open(DialogResultExampleDialog, { data: item, width: '550px' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
@@ -190,13 +191,13 @@ export class ManageUngitComponent implements OnInit {
 @Component({
   selector: 'dialog-result-example-dialog',
   template: `
-  <div md-dialog-content class="content">
-    <p>Account <strong>{{ dialogRef.config.data.hostname }}</strong> will be decommissioned.</p>
-    <p><strong>Do you want to proceed?</strong></p>
+  <div mat-dialog-content class="content">
+    <p>Account <strong>{{ data.hostname }}</strong> will be decommissioned.</p>
+    <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
   </div>
   <div class="text-center">
-    <button type="button" class="butt" md-raised-button (click)="dialogRef.close()">No</button>
-    <button type="button" class="butt butt-success" md-raised-button (click)="dialogRef.close(true)">Yes</button>
+    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
+    <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
   </div>
   `,
   styles: [`
@@ -204,5 +205,8 @@ export class ManageUngitComponent implements OnInit {
   `]
 })
 export class DialogResultExampleDialog {
-  constructor(public dialogRef: MdDialogRef<DialogResultExampleDialog>) { }
+  constructor(
+    public dialogRef: MatDialogRef<DialogResultExampleDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) { }
 }

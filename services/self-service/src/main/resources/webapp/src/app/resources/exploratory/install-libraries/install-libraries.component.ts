@@ -16,11 +16,11 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, ViewEncapsulation, ChangeDetectorRef, Inject } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { Response } from '@angular/http';
-import { MdDialog, MdDialogRef, MdDialogConfig } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
@@ -72,7 +72,7 @@ export class InstallLibrariesComponent implements OnInit {
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
-    public dialog: MdDialog,
+    public dialog: MatDialog,
     private librariesInstallationService: LibrariesInstallationService,
     private changeDetector : ChangeDetectorRef) {
     this.model = InstallLibrariesModel.getDefault(librariesInstallationService);
@@ -197,7 +197,7 @@ export class InstallLibrariesComponent implements OnInit {
   }
 
   public showErrorMessage(item): void {
-    const dialogRef: MdDialogRef<ErrorMessageDialog> = this.dialog.open(ErrorMessageDialog, { data: item.error, width: '550px' });
+    const dialogRef: MatDialogRef<ErrorMessageDialog> = this.dialog.open(ErrorMessageDialog, { data: item.error, width: '550px' });
   }
 
   public isInstallingInProgress(data): void {
@@ -291,9 +291,12 @@ export class InstallLibrariesComponent implements OnInit {
 
 @Component({
   selector: 'error-message-dialog',
-  template: `<div class="content">{{ dialogRef.config.data }}</div>`,
+  template: `<div class="content">{{ data }}</div>`,
   styles: [`.content { color: #f1696e; padding: 20px 25px; font-size: 14px; font-weight: 400 }`]
 })
 export class ErrorMessageDialog {
-  constructor(public dialogRef: MdDialogRef<ErrorMessageDialog>) { }
+  constructor(
+    public dialogRef: MatDialogRef<ErrorMessageDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) { }
 }
