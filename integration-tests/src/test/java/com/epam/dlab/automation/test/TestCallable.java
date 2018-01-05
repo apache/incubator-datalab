@@ -27,6 +27,7 @@ import com.epam.dlab.automation.http.ContentType;
 import com.epam.dlab.automation.http.HttpRequest;
 import com.epam.dlab.automation.http.HttpStatusCode;
 import com.epam.dlab.automation.model.*;
+import com.epam.dlab.automation.test.libs.LibsHelper;
 import com.epam.dlab.automation.test.libs.TestLibGroupStep;
 import com.epam.dlab.automation.test.libs.TestLibInstallStep;
 import com.epam.dlab.automation.test.libs.TestLibListStep;
@@ -101,12 +102,13 @@ public class TestCallable implements Callable<Boolean> {
 
 			final DeployClusterDto deployClusterDto = createClusterDto();
 
-			final String actualClusterName = NamingHelper.getClusterName(
-					NamingHelper.getClusterInstanceNameForTestEmr(notebookName, clusterName, dataEngineType),
-					dataEngineType);
+			if (!ConfigPropertyValue.isRunModeLocal() && ConfigPropertyValue.getCloudProvider().equals("aws")) {
 
-			if (!ConfigPropertyValue.isRunModeLocal()) {
-				TestEmr test = new TestEmr();
+			    final String actualClusterName = NamingHelper.getClusterName(
+                        NamingHelper.getClusterInstanceNameForTestEmr(notebookName, clusterName, dataEngineType),
+                        dataEngineType);
+
+                TestEmr test = new TestEmr();
 				test.run(notebookName, actualClusterName);
 
 				String notebookFilesLocation = PropertiesResolver.getPropertyByName(
@@ -243,12 +245,12 @@ private String  createNotebook(String notebookName) throws Exception {
 
        TestLibGroupStep testLibGroupStep = new TestLibGroupStep(ApiPath.LIB_GROUPS, token, notebookName,
                getDuration(notebookConfig.getTimeoutLibGroups()).getSeconds(),
-               getTemplateTestLibFile("lib_groups.json"));
+               getTemplateTestLibFile(LibsHelper.getLibGroupsPath(notebookName)));
 
        testLibGroupStep.init();
        testLibGroupStep.verify();
 
-       List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(getTemplateTestLibFile("lib_list.json"),
+       List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(getTemplateTestLibFile(LibsHelper.getLibListPath(notebookName)),
                LibToSearchData.class);
 
        for (LibToSearchData libToSearchData : libToSearchDataList) {
