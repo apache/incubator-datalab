@@ -37,7 +37,7 @@ public class CloudHelper {
         }
     }
 
-    public static String getClusterConfFileLocation() throws Exception {
+    public static String getClusterConfFileLocation(){
         switch (ConfigPropertyValue.getCloudProvider()) {
             case "aws":
                 return PropertiesResolver.getClusterEC2ConfFileLocation();
