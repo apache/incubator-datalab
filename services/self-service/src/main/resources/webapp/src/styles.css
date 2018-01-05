@@ -25,23 +25,22 @@ limitations under the License.
 @import './assets/styles/_general.css';
 @import './assets/styles/_theme.css';
 
-
 .install-libraries .mat-tab-label,
 .install-libraries .mat-tab-label,
 .manage-ungit .mat-tab-label {
-    font-family: 'Open Sans',sans-serif !important;
+  font-family: 'Open Sans', sans-serif !important;
 }
 .install-libraries .mat-ink-bar,
 .install-libraries .mat-ink-bar,
 .manage-ungit .mat-ink-bar {
-    background-color: #35afd5 !important;
-    width: 50% !important;
+  background-color: #35afd5 !important;
+  width: 50% !important;
 }
 
 .install-libraries .mat-tab-labels .mat-tab-label:focus,
 .install-libraries .mat-tab-labels .mat-tab-label:focus,
 .manage-ungit .mat-tab-labels .mat-tab-label:focus {
-    background-color: rgba(53, 175, 213, 0.11);
+  background-color: rgba(53, 175, 213, 0.11);
 }
 
 .install-libraries .mat-tab-header-pagination.mat-tab-header-pagination-after,
@@ -49,31 +48,26 @@ limitations under the License.
   display: none !important;
 }
 
-.install-libraries md-chip.mat-chip {
-    outline: none;
-    color: #758ea8;
-    font-size: 14px;
-    padding: 8px 18px;
+.install-libraries mat-chip.mat-chip {
+  outline: none;
+  color: #758ea8;
+  font-size: 14px;
+  padding: 8px 18px;
 }
-.install-libraries md-chip.mat-chip a {
-    display: inline-block;
-    width: 12px;
-    cursor: pointer;
-    text-align: right;
-    text-decoration: none;
-    font-size: 20px;
-    vertical-align: middle;
-}
-
-.install-libraries md-chip.mat-chip strong {
-    font-size: 10px;
-    font-weight: 300;
+.install-libraries mat-chip.mat-chip a {
+  display: inline-block;
+  width: 12px;
+  cursor: pointer;
+  text-align: right;
+  text-decoration: none;
+  font-size: 20px;
+  vertical-align: middle;
 }
 
-
-
-
-
+.install-libraries mat-chip.mat-chip strong {
+  font-size: 10px;
+  font-weight: 300;
+}
 
 .loader {
   border: 3px solid #f3f3f3;
@@ -89,8 +83,8 @@ limitations under the License.
   float: right;
 }
 .rotate {
-    -webkit-animation: spin 2s linear infinite;
-    animation: spin 2s linear infinite;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
 }
 .status {
   text-transform: capitalize;
@@ -127,13 +121,13 @@ limitations under the License.
 }
 
 .message {
-    padding: 40px 20px;
-    text-align: center;
+  padding: 40px 20px;
+  text-align: center;
 }
 .info {
-    font-size: 16px;
-    font-weight: 300;
-    color: #35afd5;
+  font-size: 16px;
+  font-weight: 300;
+  color: #35afd5;
 }
 
 .base-retreat {
@@ -199,16 +193,16 @@ limitations under the License.
   -ms-transform: translateY(10px);
   -o-transform: translateY(10px);
   transform: translateY(10px);
-  -webkit-transition: all .25s ease-out;
-  -moz-transition: all .25s ease-out;
-  -ms-transition: all .25s ease-out;
-  -o-transition: all .25s ease-out;
-  transition: all .25s ease-out;
-  -webkit-box-shadow: 2px 2px 6px rgba(0, 0, 0, .28);
-  -moz-box-shadow: 2px 2px 6px rgba(0, 0, 0, .28);
-  -ms-box-shadow: 2px 2px 6px rgba(0, 0, 0, .28);
-  -o-box-shadow: 2px 2px 6px rgba(0, 0, 0, .28);
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, .28);
+  -webkit-transition: all 0.25s ease-out;
+  -moz-transition: all 0.25s ease-out;
+  -ms-transition: all 0.25s ease-out;
+  -o-transition: all 0.25s ease-out;
+  transition: all 0.25s ease-out;
+  -webkit-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+  -moz-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+  -ms-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+  -o-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
 }
 
 .tooltip-wrap:hover .tooltip {
@@ -232,44 +226,56 @@ limitations under the License.
 }
 
 /* Turn off number input spinners */
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-input[type=number] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 
 /* helper classes */
-.text-center { text-align: center!important; }
-.m-top-10 { margin-top: 10px; }
-.m-top-20 { margin-top: 20px; }
-.m-top-30 { margin-top: 30px; }
-.m-bott-10 { margin-bottom: 10px; }
-.m-top-10p { margin-top: 10%; }
+.text-center {
+  text-align: center !important;
+}
+.m-top-10 {
+  margin-top: 10px;
+}
+.m-top-20 {
+  margin-top: 20px;
+}
+.m-top-30 {
+  margin-top: 30px;
+}
+.m-bott-10 {
+  margin-bottom: 10px;
+}
+.m-top-10p {
+  margin-top: 10%;
+}
 
 .full-height {
   height: 100%;
 }
 
 #scrolling::-webkit-scrollbar,
-.list-selected md-chip-list .md-chip-list-wrapper::-webkit-scrollbar{
+.list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar {
   width: 6px;
 }
 
 #scrolling::-webkit-scrollbar-track,
-.list-selected md-chip-list .md-chip-list-wrapper::-webkit-scrollbar-track {
+.list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar-track {
   box-shadow: none;
   -webkit-box-shadow: none;
   background-color: rgb(243, 243, 243);
 }
 
 #scrolling::-webkit-scrollbar-thumb,
-.list-selected md-chip-list .md-chip-list-wrapper::-webkit-scrollbar-thumb {
+.list-selected mat-chip-list .mat-chip-list-wrapper::-webkit-scrollbar-thumb {
   background-color: #f6fafe;
-  background-color: rgba(0, 0, 0, .4);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .warning-alert {
@@ -279,7 +285,7 @@ input[type=number] {
   margin-bottom: 20px;
   padding: 15px;
   color: #fff;
-  background: #E2747D;
+  background: #e2747d;
   word-break: break-word;
 }
 .warning-alert span {
@@ -290,7 +296,7 @@ input[type=number] {
   height: 40px;
   padding: 8px;
   border-radius: 50%;
-  background: #E2747D;
+  background: #e2747d;
   color: #fff;
-  box-shadow: 2px 5px 16px 5px rgba(88, 60, 60, 0.6)
+  box-shadow: 2px 5px 16px 5px rgba(88, 60, 60, 0.6);
 }
