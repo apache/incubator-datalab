@@ -146,11 +146,11 @@ private DeployClusterDto createClusterDto() throws Exception {
     DeployClusterDto clusterDto = null;
     if ("dataengine".equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
-					Paths.get(String.format("%s/%s", PropertiesResolver.getClusterConfFileLocation(), notebookTemplate), "spark_cluster.json").toString(),
+					Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate), "spark_cluster.json").toString(),
 					DeploySparkDto.class);
     } else if ("dataengine-service".equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
-					Paths.get(String.format("%s/%s", PropertiesResolver.getClusterConfFileLocation(), notebookTemplate), "EMR.json").toString(),
+					Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate), "EMR.json").toString(),
 					DeployEMRDto.class);
     } else {
 		LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
@@ -201,14 +201,21 @@ private String  createNotebook(String notebookName) throws Exception {
 
        CreateNotebookDto createNoteBookRequest =
                JsonMapperDto.readNode(
-                       Paths.get(PropertiesResolver.getClusterConfFileLocation(), notebookConfigurationFile).toString(),
+                       Paths.get(CloudHelper.getClusterConfFileLocation(), notebookConfigurationFile).toString(),
                        CreateNotebookDto.class);
 
        createNoteBookRequest.setName(notebookName);
 
+       LOGGER.info("Inside createNotebook(): createNotebookRequest: image is {}, templateName is {}, shape is {}, " +
+               "version is {}", createNoteBookRequest.getImage(), createNoteBookRequest.getTemplateName(),
+               createNoteBookRequest.getShape(), createNoteBookRequest.getVersion());
+
        Response responseCreateNotebook = new HttpRequest().webApiPut(ssnExpEnvURL, ContentType.JSON,
                    createNoteBookRequest, token);
        LOGGER.info(" {}:  responseCreateNotebook.getBody() is {}", notebookName, responseCreateNotebook.getBody().asString());
+
+       LOGGER.info("Inside createNotebook(): responseCreateNotebook.statusCode() is {}", responseCreateNotebook.statusCode());
+
        Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not created");
 
        String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating", getDuration(notebookConfig.getTimeoutNotebookCreate()));

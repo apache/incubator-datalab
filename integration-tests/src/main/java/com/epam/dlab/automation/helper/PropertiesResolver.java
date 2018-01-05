@@ -44,6 +44,7 @@ public class PropertiesResolver {
     private static String RSTUDIO_FILES_LOCATION_PROPERTY = "scenario.rstudio.files.location";
     private static String ZEPPELIN_FILES_LOCATION_PROPERTY = "scenario.zeppelin.files.location";
     private static String CLUSTER_CONFIG_FILE_LOCATION_PROPERTY = "ec2.config.files.location";
+    private static String AZURE_CONFIG_FILE_LOCATION_PROPERTY = "azure.config.files.location";
 
     private static Properties properties = new Properties();
 
@@ -147,8 +148,12 @@ public class PropertiesResolver {
         return properties.getProperty(ZEPPELIN_FILES_LOCATION_PROPERTY);
     }
 
-    public static String getClusterConfFileLocation() {
+    public static String getClusterEC2ConfFileLocation() {
         return properties.getProperty(CLUSTER_CONFIG_FILE_LOCATION_PROPERTY );
+    }
+
+    public static String getClusterAzureConfFileLocation() {
+        return properties.getProperty(AZURE_CONFIG_FILE_LOCATION_PROPERTY );
     }
 
     public static String getPropertyByName(String propertyName) {
