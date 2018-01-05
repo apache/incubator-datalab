@@ -89,7 +89,7 @@ public class TestServices {
 
 		RestAssured.baseURI = NamingHelper.getSsnURL();
 		NamingHelper.setSsnToken(ssnLoginAndKeyUpload());
-		//runTestsInNotebooks();
+		runTestsInNotebooks();
 	}
 
 	private void testJenkinsJob() throws Exception {
@@ -141,10 +141,7 @@ public class TestServices {
 			return;
 		}
 		NamingHelper.setSsnIp(PropertiesResolver.DEV_MODE ? publicSsnIp : privateSsnIp);
-
-		LOGGER.info("Inside testLoginServices()... PropertiesResolver.DEV_MODE=", PropertiesResolver.DEV_MODE);
-
-		VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getSsnName());
+        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getSsnName());
 		LOGGER.info("{} instance state is running", cloudProvider.toUpperCase());
 
 		LOGGER.info("2. Waiting for SSN service ...");
