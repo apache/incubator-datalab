@@ -18,46 +18,85 @@
 #
 # ******************************************************************************
 
-import sys
-from fabric.api import *
+import os, sys, json
 import argparse
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--storage', type=str, default='')
-parser.add_argument('--cloud', type=str, default='')
-parser.add_argument('--azure_datalake_enable', type=str, default='false')
+parser.add_argument('--storage', type=str, default='S3 bucket, Azure Blob/Datalake, GCP bucket')
+parser.add_argument('--cloud', type=str, default='aws, azure, gcp')
+parser.add_argument('--azure_storage_account', type=str, default='')
+parser.add_argument('--azure_datalake_account', type=str, default='')
 args = parser.parse_args()
 
 dataset_file = ['airports.csv', 'carriers.csv', '2008.csv.bz2']
 
 def download_dataset():
-    local('wget http://stat-computing.org/dataexpo/2009/{0} -O /tmp/{0}'.format(dataset_file[0]))
-    local('wget http://stat-computing.org/dataexpo/2009/{0} -O /tmp/{0}'.format(dataset_file[1]))
-    local('wget http://stat-computing.org/dataexpo/2009/{0} -O /tmp/{0}'.format(dataset_file[2]))
+    try:
+        for f in dataset_file:
+            local('wget http://stat-computing.org/dataexpo/2009/{0} -O /tmp/{0}'.format(f))
+    except:
+        print('Failed to download test dataset')
+        sys.exit(1)
 
 def upload_aws():
-    local('aws s3 cp /tmp/{0} s3://{1}/ --sse AES256'.format(dataset_file[0], args.storage))
-    local('aws s3 cp /tmp/{0} s3://{1}/ --sse AES256'.format(dataset_file[1], args.storage))
-    local('aws s3 cp /tmp/{0} s3://{1}/ --sse AES256'.format(dataset_file[2], args.storage))
+    try:
+        for f in dataset_file:
+            local('aws s3 cp /tmp/{0} s3://{1}/ --sse AES256'.format(f, args.storage))
+    except:
+        print('Failed to upload test dataset to bucket')
+        sys.exit(1)
 
-def upload_azure(protocol):
-    pass
+def upload_azure_datalake():
+    try:
+        from azure.datalake.store import core, lib, multithread
+        sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
+        dl_filesystem_creds = lib.auth(tenant_id=json.dumps(sp_creds['tenantId']).replace('"', ''),
+                                       client_secret=json.dumps(sp_creds['clientSecret']).replace('"', ''),
+                                       client_id=json.dumps(sp_creds['clientId']).replace('"', ''),
+                                       resource='https://datalake.azure.net/')
+        datalake_client = core.AzureDLFileSystem(dl_filesystem_creds, store_name=args.azure_datalake_account)
+        for f in dataset_file:
+            multithread.ADLUploader(datalake_client,
+                                    lpath='/tmp/{0}'.format(f),
+                                    rpath='{0}/{1}'.format(args.storage, f))
+    except:
+        print('Failed to upload test dataset to datalake store')
+        sys.exit(1)
+
+def upload_azure_blob():
+    try:
+        from azure.mgmt.storage import StorageManagementClient
+        from azure.storage.blob import BlockBlobService
+        from azure.common.client_factory import get_client_from_auth_file
+        storage_client = get_client_from_auth_file(StorageManagementClient)
+        resource_group_name = args.storage.split('-shared-container')[0]
+        secret_key = storage_client.storage_accounts.list_keys(resource_group_name, args.azure_storage_account).keys[0].value
+        block_blob_service = BlockBlobService(account_name=args.azure_storage_account, account_key=secret_key)
+        for f in dataset_file:
+            block_blob_service.create_blob_from_path(args.storage, f, '/tmp/{0}'.format(f))
+    except:
+        print('Failed to upload test dataset to blob storage')
+        sys.exit(1)
 
 def upload_gcp():
-    local('gsutil -m cp /tmp/{0} gs://{1}/'.format(dataset_file[0], args.storage))
-    local('gsutil -m cp /tmp/{0} gs://{1}/'.format(dataset_file[1], args.storage))
-    local('gsutil -m cp /tmp/{0} gs://{1}/'.format(dataset_file[2], args.storage))
-
+    try:
+        for f in dataset_file:
+            local('gsutil -m cp /tmp/{0} gs://{1}/'.format(f, args.storage))
+    except:
+        print('Failed to upload test dataset to bucket')
+        sys.exit(1)
 
 if __name__ == "__main__":
     download_dataset()
     if args.cloud == 'aws':
         upload_aws()
     elif args.cloud == 'azure':
-        if args.azure_datalake_enable == 'true':
-            upload_azure('adl')
+        os.environ['AZURE_AUTH_LOCATION'] = '/home/dlab-user/keys/azure_auth.json'
+        if args.azure_datalake_account != '':
+            upload_azure_datalake()
         else:
-            upload_azure('wasbs')
+            upload_azure_blob()
     elif args.cloud == 'gcp':
         upload_gcp()
     else:
