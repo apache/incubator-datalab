@@ -1,0 +1,32 @@
+{
+  "name": "CLUSTERNAME_pyPYTHONVER_SHORT",
+  "group": "spark",
+  "properties": {
+    "args": "",
+    "zeppelin.spark.useHiveContext": "true",
+    "spark.app.name": "Zeppelin",
+    "zeppelin.spark.printREPLOutput": "true",
+    "zeppelin.spark.maxResult": "1000",
+    "master": "yarn",
+    "zeppelin.spark.concurrentSQL": "false",
+    "zeppelin.spark.sql.stacktrace": "false",
+    "zeppelin.spark.importImplicit": "true",
+    "zeppelin.pyspark.python": "pythonPYTHONVERSION",
+    "zeppelin.dep.localrepo": "local-repo",
+    "zeppelin.dep.additionalRemoteRepository": "spark-packages,http://dl.bintray.com/spark-packages/maven,false;",
+    "spark.home": "SPARK_HOME",
+    "zeppelin.R.image.width": "100%",
+    "zeppelin.R.render.options": "out.format \u003d \u0027html\u0027, comment \u003d NA, echo \u003d FALSE, results \u003d \u0027asis\u0027, message \u003d F, warning \u003d F",
+    "zeppelin.R.cmd": "R",
+    "zeppelin.R.knitr": "true"
+  },
+  "dependencies": [],
+  "option": {
+    "remote": true,
+    "isExistingProcess": false,
+    "perNoteSession": false,
+    "perNoteProcess": false
+  },
+  "propertyValue": "",
+  "propertyKey": ""
+}

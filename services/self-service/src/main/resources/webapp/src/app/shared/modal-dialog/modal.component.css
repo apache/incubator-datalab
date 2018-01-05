@@ -197,14 +197,14 @@ limitations under the License.
   font-size: 24px;
   border: 0;
   background: none;
-  color: #2d3b40;
+  color: #577289;
   outline: none;
   cursor: pointer;
   transition: all .45s ease-in-out;
 }
 
 .dialog-header .close:hover {
-  color: #718ba6;
+  color: #36afd5;
 }
 
 .dialog .info-label {
@@ -273,7 +273,7 @@ limitations under the License.
 }
 
 .dialog-content .danger_field {
-  border-color: #d9534f;
+  border-color: #d9534f !important;
 }
 .modal-footer .btn {
   margin-top: 0;

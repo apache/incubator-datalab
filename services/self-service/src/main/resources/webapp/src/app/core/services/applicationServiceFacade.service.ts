@@ -318,7 +318,8 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/exploratory_environment/lib_groups');
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_LIST, '/api/infrastructure_provision/exploratory_environment/search/lib_list');
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_INSTALL, '/api/infrastructure_provision/exploratory_environment/lib_install');
-    this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS_FORMAT, '/api/infrastructure_provision/exploratory_environment/lib_list/formatted');
+    this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS_FORMAT,
+      '/api/infrastructure_provision/exploratory_environment/lib_list/formatted');
     this.requestRegistry.Add(ApplicationServiceFacade.INSTALLED_LIBS, '/api/infrastructure_provision/exploratory_environment/lib_list');
 
     // UnGit credentials

@@ -37,9 +37,9 @@ export class CheckParamsGuard implements CanActivate {
         const search = document.URL.split('?')[1];
 
           if (search && this.checkParamsCoincidence(search)) {
-            this.result = search.split("&").reduce(function(prev, curr, i, arr) {
-                let p = curr.split("=");
-                prev[decodeURIComponent(p[0])] = decodeURIComponent(p[1]);
+            this.result = search.split('&').reduce(function(prev, curr) {
+                const params = curr.split('=');
+                prev[decodeURIComponent(params[0])] = decodeURIComponent(params[1]);
                 return prev;
             }, {});
 
@@ -50,7 +50,7 @@ export class CheckParamsGuard implements CanActivate {
     });
   }
 
-  private checkParamsCoincidence(search):boolean {
+  private checkParamsCoincidence(search): boolean {
     return ['code', 'state', 'error', 'error_description'].some(el => search.indexOf(el));
   }
 }

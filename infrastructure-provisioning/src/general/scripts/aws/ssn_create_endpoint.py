@@ -59,7 +59,6 @@ if __name__ == "__main__":
                     VpcId=args.vpc_id,
                     ServiceName=service_name,
                     RouteTableIds=route_table
-                    #   ClientToken='string'
                 )
                 endpoint = endpoint['VpcEndpoint']['VpcEndpointId']
             else:

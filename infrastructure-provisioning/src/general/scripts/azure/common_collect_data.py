@@ -45,11 +45,6 @@ if __name__ == "__main__":
             statuses['host'] = data_instances
         except:
             print("Hosts JSON wasn't been provided")
-        # try:
-        #     data_clusters = AzureMeta().get_list_cluster_statuses(args.resource_group_name, data.get('cluster'))
-        #     statuses['cluster'] = data_clusters
-        # except:
-        #    print("Clusters JSON wasn't been provided")
         with open('/root/result.json', 'w') as outfile:
             json.dump(statuses, outfile)
     except Exception as err:

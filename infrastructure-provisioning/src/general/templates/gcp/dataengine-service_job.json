@@ -1,0 +1,22 @@
+{
+    "job": {
+        "placement": {
+            "clusterName": "CLUSTER_NAME"
+        },
+        "pysparkJob": {
+            "mainPythonFileUri": "gs://BUCKET_NAME/SCRIPT_NAME",
+            "args": [
+                "--bucket",
+                "BUCKET_NAME",
+                "--user_name",
+                "EDGE_USER_NAME",
+                "--cluster_name",
+                "CLUSTER_NAME",
+                "--dataproc_version",
+                "CLUSTER_VERSION",
+                "--nb_user",
+                "NOTEBOOK_USER"
+            ]
+        }
+    }
+}

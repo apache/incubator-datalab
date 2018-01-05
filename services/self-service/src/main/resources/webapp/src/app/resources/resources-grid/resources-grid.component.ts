@@ -262,7 +262,7 @@ export class ResourcesGridComponent implements OnInit {
 
     if (action === 'deploy') {
       this.notebookName = data.name;
-      this.computationalResourceModal.open({ isFooter: false }, data);
+      this.computationalResourceModal.open({ isFooter: false }, data, this.environments);
     } else if (action === 'run') {
       this.userResourceService
         .runExploratoryEnvironment({ notebook_instance_name: data.name })

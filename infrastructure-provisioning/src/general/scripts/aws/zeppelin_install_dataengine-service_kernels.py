@@ -46,7 +46,6 @@ args = parser.parse_args()
 def configure_notebook(args):
     templates_dir = '/root/templates/'
     scripts_dir = '/root/scripts/'
-    files_dir = '/root/files/'
     if os.environ['notebook_multiple_clusters'] == 'true':
         put(templates_dir + 'dataengine-service_interpreter_livy.json', '/tmp/dataengine-service_interpreter.json')
     else:

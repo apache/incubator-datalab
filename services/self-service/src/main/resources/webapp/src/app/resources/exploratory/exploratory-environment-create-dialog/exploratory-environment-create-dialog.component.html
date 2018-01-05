@@ -36,9 +36,13 @@ limitations under the License.
         <div class="control-group">
           <label class="label">Name</label>
           <div class="control">
-            <input [class.danger_field]="notebookExist || !createExploratoryEnvironmentForm.controls['environment_name'].valid && createExploratoryEnvironmentForm.controls['environment_name'].dirty" type="text" class="form-control" placeholder="Enter Name" formControlName="environment_name">
-            <span class="danger_color" *ngIf="notebookExist">This name already exists.</span>
-            <span class="danger_color" *ngIf="!createExploratoryEnvironmentForm.controls.environment_name.valid && createExploratoryEnvironmentForm.controls['environment_name'].dirty">
+            <input [class.danger_field]="notebookExist || !createExploratoryEnvironmentForm.controls['environment_name'].valid
+                   && createExploratoryEnvironmentForm.controls['environment_name'].dirty
+                   && createExploratoryEnvironmentForm.controls['environment_name'].hasError('duplication')" type="text" class="form-control" placeholder="Enter Name" formControlName="environment_name">
+            <span class="danger_color" *ngIf="createExploratoryEnvironmentForm.controls['environment_name'].hasError('duplication')">This name already exists.</span>
+            <span class="danger_color" *ngIf="!createExploratoryEnvironmentForm.controls.environment_name.valid
+                                       && createExploratoryEnvironmentForm.controls['environment_name'].dirty
+                                       && !createExploratoryEnvironmentForm.controls['environment_name'].hasError('duplication')">
               Name <span *ngIf="DICTIONARY.cloud_provider === 'azure'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_'</span>
           </div>
         </div>

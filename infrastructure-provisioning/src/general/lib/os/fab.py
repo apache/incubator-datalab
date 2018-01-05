@@ -156,8 +156,8 @@ def configure_jupyter(os_user, jupyter_conf_file, templates_dir, jupyter_version
             sudo('mkdir -p /mnt/var')
             sudo('chown {0}:{0} /mnt/var'.format(os_user))
             if os.environ['application'] == 'jupyter':
-                sudo('jupyter-kernelspec remove -f python2')
-                sudo('jupyter-kernelspec remove -f python3')
+                sudo('jupyter-kernelspec remove -f python2 || echo "Such kernel doesnt exists"')
+                sudo('jupyter-kernelspec remove -f python3 || echo "Such kernel doesnt exists"')
             sudo("systemctl daemon-reload")
             sudo("systemctl enable jupyter-notebook")
             sudo("systemctl start jupyter-notebook")
@@ -222,7 +222,6 @@ def pyspark_kernel(kernels_dir, dataengine_service_version, cluster_name, spark_
     get_cluster_python_version(region, bucket, user_name, cluster_name)
     with file('/tmp/python_version') as f:
         python_version = f.read()
-    # python_version = python_version[0:3]
     if python_version != '\n':
         installing_python(region, bucket, user_name, cluster_name, application, pip_mirror)
         local('mkdir -p {0}py3spark_{1}/'.format(kernels_dir, cluster_name))
@@ -450,3 +449,23 @@ def restart_zeppelin(creds=False, os_user='', hostname='', keyfile=''):
         env.host_string = os_user + '@' + hostname
     sudo("systemctl daemon-reload")
     sudo("systemctl restart zeppelin-notebook")
+
+
+def replace_multi_symbols(string, symbol, symbol_cut=False):
+    try:
+        symbol_amount = 0
+        for i in range(len(string)):
+            if string[i] == symbol:
+                symbol_amount = symbol_amount + 1
+        while symbol_amount > 1:
+            string = string.replace(symbol + symbol, symbol)
+            symbol_amount = symbol_amount - 1
+        if symbol_cut and string[-1] == symbol:
+            string = string[:-1]
+        return string
+    except Exception as err:
+        logging.info("Error with replacing multi symbols: " + str(err) + "\n Traceback: " + traceback.print_exc(
+            file=sys.stdout))
+        append_result(str({"error": "Error with replacing multi symbols",
+                           "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+        traceback.print_exc(file=sys.stdout)

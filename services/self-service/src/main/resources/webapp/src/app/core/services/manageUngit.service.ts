@@ -37,7 +37,7 @@ export class ManageUngitService {
         .catch((error: any) => {
             return Observable.throw(
                 new Error(`{"status": "${ error.status }", "statusText": "${ error.statusText }", "message": "${ error._body }"}`)
-            )
+            );
         });
     }
 
