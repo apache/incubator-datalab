@@ -21,7 +21,7 @@ limitations under the License.
     <th *ngFor="let column of filteringColumns"
         ngClass="{{column.className || ''}}">
       {{column.title}}
-      <button md-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
+      <button mat-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
         <i class="material-icons">
           <span *ngIf="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">filter_list</span>
           <span [hidden]="filtering && filterForm[column.name].length > 0 && !collapseFilterRow">more_vert</span>
@@ -46,11 +46,11 @@ limitations under the License.
     <td></td>
     <td>
       <div class="actions">
-        <button md-icon-button class="btn reset" (click)="resetFilterConfigurations()">
+        <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
           <i class="material-icons">close</i>
         </button>
 
-        <button md-icon-button class="btn apply" (click)="applyFilter_btnClick(filterForm)" [disabled]="filteredEnvironments.length == 0 && !filtering">
+        <button mat-icon-button class="btn apply" (click)="applyFilter_btnClick(filterForm)" [disabled]="filteredEnvironments.length == 0 && !filtering">
           <i class="material-icons" [ngClass]="{'not-allowed': filteredEnvironments.length == 0 && !filtering}">done</i>
         </button>
       </div>
