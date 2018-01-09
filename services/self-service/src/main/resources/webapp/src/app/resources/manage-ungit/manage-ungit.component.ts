@@ -28,7 +28,7 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from './../../core/util';
 @Component({
   selector: 'dlab-manage-ungit',
   templateUrl: './manage-ungit.component.html',
-  styleUrls: ['./manage-ungit.component.css',
+  styleUrls: ['./manage-ungit.component.scss',
               '../exploratory/install-libraries/install-libraries.component.scss']
 })
 export class ManageUngitComponent implements OnInit {

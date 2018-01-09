@@ -17,53 +17,53 @@ limitations under the License.
 ****************************************************************************/
 
 .modal-dialog .manage-ungit .modal-body {
-    padding: 0 20px;
-}
-.manage-ungit .scrollingList {
-    overflow-x: hidden;
-    padding: 5px;
+  padding: 0 20px;
 }
 
-.manage-ungit .mail-field,
-.manage-ungit .user-field,
-.manage-ungit .login-field,
-.manage-ungit .hostname-field {
+.manage-ungit {
+  .scrollingList {
+    overflow-x: hidden;
+    padding: 5px;
+  }
+  .mail-field, .user-field, .login-field {
     width: 25%;
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 5px;
-}
-.manage-ungit .hostname-field {
+  }
+  .hostname-field {
+    width: 25%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px;
     width: 30%;
-}
-.manage-ungit .actions {
+  }
+  .actions {
     width: 20%;
-}
-
-.manage-ungit .actions {
     position: relative;
     overflow: visible;
     width: 50px;
-}
-.manage-ungit .actions span {
-    position: absolute;
-    top: -10px;
-    left: 0;
-    zoom: 0.8;
-}
+    span {
+      position: absolute;
+      top: -10px;
+      left: 0;
+      zoom: 0.8;
+      &.git-actions {
+        cursor: pointer;
+        &.remove {
+          left: 35px;
+        }
+      }
+    }
+  }
 
-.git-form .mat-input-container {
-    width: 100%;
-    font-family: 'Open Sans', sans-serif;
-}
-
-.git-form .col {
-    padding: 20px 15px;
-}
-
-.git-actions {
-    cursor: pointer;
-}
-.manage-ungit .actions .remove {
-    left: 35px;
+  .git-form {
+    .mat-input-container {
+      width: 100%;
+      font-family: 'Open Sans', sans-serif;
+    }
+    .col {
+      padding: 20px 15px;
+    }
+  }
 }
