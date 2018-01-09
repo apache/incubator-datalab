@@ -25,33 +25,34 @@ limitations under the License.
   background: #f5f5f5;
   color: #8c8888;
   z-index: -1;
-}
-
-.not-found-page .content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  max-width: 560px;
-  max-height: 360px;
-  margin: auto;
-}
-.not-found-page .logo {
-  display: block;
-}
-
-.not-found-page .logo img {
-  width: 100%;
-}
-
-.not-found-page .message-block {
-  position: absolute;
-  bottom: -20px;
-  width: 300px;
-  font-size: 14px;
-}
-
-.not-found-page .message-block a {
-  text-decoration: none;
+  .content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    max-width: 560px;
+    max-height: 360px;
+    margin: auto;
+  }
+  .logo {
+    display: block;
+    img {
+      width: 100%;
+    }
+  }
+  .message-block {
+    position: absolute;
+    bottom: -20px;
+    width: 300px;
+    font-size: 14px;
+    a {
+      text-decoration: none;
+      color: #36afd5;
+      transition: all .35s ease-in-out;
+      &:hover, &:active {
+        color: #3392b0;
+      }
+    }
+  }
 }
