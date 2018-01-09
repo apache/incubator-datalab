@@ -18,9 +18,9 @@ limitations under the License.
 
 @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
 
-@import './assets/styles/_reset.css';
-@import './assets/styles/_general.css';
-@import './assets/styles/_theme.css';
+@import './assets/styles/_reset.scss';
+@import './assets/styles/_general.scss';
+@import './assets/styles/_theme.scss';
 
 .install-libraries .mat-tab-label,
 .install-libraries .mat-tab-label,

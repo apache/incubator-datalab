@@ -32,7 +32,7 @@ import { ErrorMapUtils, SortUtil, HTTP_STATUS_CODES } from '../../../core/util';
 @Component({
   selector: 'install-libraries',
   templateUrl: './install-libraries.component.html',
-  styleUrls: ['./install-libraries.component.css'],
+  styleUrls: ['./install-libraries.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
 export class InstallLibrariesComponent implements OnInit {

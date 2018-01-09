@@ -29,7 +29,7 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from './../../core/util';
   selector: 'dlab-manage-ungit',
   templateUrl: './manage-ungit.component.html',
   styleUrls: ['./manage-ungit.component.css',
-              '../exploratory/install-libraries/install-libraries.component.css']
+              '../exploratory/install-libraries/install-libraries.component.scss']
 })
 export class ManageUngitComponent implements OnInit {
   model: MangeUngitModel;
