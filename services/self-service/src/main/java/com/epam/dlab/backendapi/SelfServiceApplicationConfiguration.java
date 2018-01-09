@@ -23,6 +23,7 @@ import com.epam.dlab.backendapi.validation.SelfServiceCloudConfigurationSequence
 import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.epam.dlab.validation.AwsValidation;
 import com.epam.dlab.validation.AzureValidation;
+import com.epam.dlab.validation.GcpValidation;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.util.Duration;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -53,11 +54,11 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @JsonProperty
     private int maxEmrSpotInstanceBidPct;
 
-    @Min(value = 2, groups = {AzureValidation.class, AwsValidation.class})
+    @Min(value = 2, groups = {AzureValidation.class, AwsValidation.class, GcpValidation.class})
     @JsonProperty
     private int minSparkInstanceCount;
 
-    @Max(value = 1000, groups = {AzureValidation.class, AwsValidation.class})
+    @Max(value = 1000, groups = {AzureValidation.class, AwsValidation.class, GcpValidation.class})
     @JsonProperty
     private int maxSparkInstanceCount;
 
