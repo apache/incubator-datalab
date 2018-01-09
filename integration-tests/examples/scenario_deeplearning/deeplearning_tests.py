@@ -70,8 +70,6 @@ def run_ipynb(ipynb_name):
 
 def run_tensor():
     interpreters = ['pyspark_local']
-    with lcd('/home/{0}/test_templates'.format(args.os_user)):
-        local('tar -zxf train.tar.gz -C /home/{0} && tar -zxf test.tar.gz -C /home/{0}'.format(args.os_user))
     local('mkdir -p /home/{}/logs'.format(args.os_user))
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_preparation_tensor.ipynb'.format(args.os_user), 'preparation_tensor')
