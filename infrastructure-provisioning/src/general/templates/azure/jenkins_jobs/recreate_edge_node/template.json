@@ -2,5 +2,6 @@
     "request_id":"RID",
     "conf_resource": "edge",
     "edge_user_name":"UN",
-    "azure_edge_instance_size":"EIS"
+    "azure_edge_instance_size":"EIS",
+    "azure_iam_user":"AUI"
 }
