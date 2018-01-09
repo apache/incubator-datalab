@@ -18,16 +18,89 @@
 #
 # ******************************************************************************
 
-from fabric.api import *
+import os, sys, json
 import argparse
+from fabric.api import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--bucket', type=str, default='')
-parser.add_argument('--templates_bucket', type=str, default='')
-parser.add_argument('--region', type=str, default='')
+parser.add_argument('--storage', type=str, default='S3/GCP buckets, Azure Blob container / Datalake folder')
+parser.add_argument('--cloud', type=str, default='aws, azure, gcp')
+parser.add_argument('--azure_storage_account', type=str, default='')
+parser.add_argument('--azure_datalake_account', type=str, default='')
 args = parser.parse_args()
 
-local('aws s3 cp --region {} --recursive s3://{}/ s3://{}/ --sse AES256'.format(args.region, args.templates_bucket, args.bucket))
-local('aws s3 cp --region {} s3://{}/carriers.csv s3://{}/ --sse AES256'.format(args.region, args.templates_bucket, args.bucket))
-local('aws s3 cp --region {} s3://{}/airports.csv s3://{}/ --sse AES256'.format(args.region, args.templates_bucket, args.bucket))
-local('aws s3 cp --region {} s3://{}/2008.csv.bz2 s3://{}/ --sse AES256'.format(args.region, args.templates_bucket, args.bucket))
+dataset_file = ['airports.csv', 'carriers.csv', '2008.csv.bz2']
+
+def download_dataset():
+    try:
+        for f in dataset_file:
+            local('wget http://stat-computing.org/dataexpo/2009/{0} -O /tmp/{0}'.format(f))
+    except:
+        print('Failed to download test dataset')
+        sys.exit(1)
+
+def upload_aws():
+    try:
+        for f in dataset_file:
+            local('aws s3 cp /tmp/{0} s3://{1}/ --sse AES256'.format(f, args.storage))
+    except:
+        print('Failed to upload test dataset to bucket')
+        sys.exit(1)
+
+def upload_azure_datalake():
+    try:
+        from azure.datalake.store import core, lib, multithread
+        sp_creds = json.loads(open(os.environ['AZURE_AUTH_LOCATION']).read())
+        dl_filesystem_creds = lib.auth(tenant_id=json.dumps(sp_creds['tenantId']).replace('"', ''),
+                                       client_secret=json.dumps(sp_creds['clientSecret']).replace('"', ''),
+                                       client_id=json.dumps(sp_creds['clientId']).replace('"', ''),
+                                       resource='https://datalake.azure.net/')
+        datalake_client = core.AzureDLFileSystem(dl_filesystem_creds, store_name=args.azure_datalake_account)
+        for f in dataset_file:
+            multithread.ADLUploader(datalake_client,
+                                    lpath='/tmp/{0}'.format(f),
+                                    rpath='{0}/{1}'.format(args.storage, f))
+    except:
+        print('Failed to upload test dataset to datalake store')
+        sys.exit(1)
+
+def upload_azure_blob():
+    try:
+        from azure.mgmt.storage import StorageManagementClient
+        from azure.storage.blob import BlockBlobService
+        from azure.common.client_factory import get_client_from_auth_file
+        storage_client = get_client_from_auth_file(StorageManagementClient)
+        resource_group_name = args.storage.split('-shared-container')[0]
+        secret_key = storage_client.storage_accounts.list_keys(resource_group_name, args.azure_storage_account).keys[0].value
+        block_blob_service = BlockBlobService(account_name=args.azure_storage_account, account_key=secret_key)
+        for f in dataset_file:
+            block_blob_service.create_blob_from_path(args.storage, f, '/tmp/{0}'.format(f))
+    except:
+        print('Failed to upload test dataset to blob storage')
+        sys.exit(1)
+
+def upload_gcp():
+    try:
+        for f in dataset_file:
+            local('gsutil -m cp /tmp/{0} gs://{1}/'.format(f, args.storage))
+    except:
+        print('Failed to upload test dataset to bucket')
+        sys.exit(1)
+
+if __name__ == "__main__":
+    download_dataset()
+    if args.cloud == 'aws':
+        upload_aws()
+    elif args.cloud == 'azure':
+        os.environ['AZURE_AUTH_LOCATION'] = '/home/dlab-user/keys/azure_auth.json'
+        if args.azure_datalake_account:
+            upload_azure_datalake()
+        else:
+            upload_azure_blob()
+    elif args.cloud == 'gcp':
+        upload_gcp()
+    else:
+        print('Error! Unknown cloud provider.')
+        sys.exit(1)
+
+    sys.exit(0)
