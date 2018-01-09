@@ -1,16 +1,9 @@
 {
     "conf_resource": "notebook",
-    "conf_os_family":"COF",
     "request_id":"RID",
-    "conf_service_base_name":"SBN",
-    "gcp_region":"CREG",
-    "gcp_zone":"ZONE",
-    "gcp_vpc_name":"GVNA",
-    "conf_key_name":"CKN",
     "gcp_notebook_instance_size":"NIT",
     "edge_user_name":"NUN",
     "exploratory_name": "EXN",
     "application":"APP",
-    "gcp_project_id":"GPI",
     "git_creds": GIT
 }

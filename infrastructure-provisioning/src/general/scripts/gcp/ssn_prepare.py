@@ -77,6 +77,7 @@ if __name__ == "__main__":
             params = "--vpc_name {}".format(ssn_conf['vpc_name'])
             try:
                 local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
+                os.environ['gcp_vpc_name'] = ssn_conf['vpc_name']
             except:
                 traceback.print_exc()
                 raise Exception
@@ -105,6 +106,7 @@ if __name__ == "__main__":
                        ssn_conf['vpc_cidr'])
             try:
                 local("~/scripts/{}.py {}".format('common_create_subnet', params))
+                os.environ['gcp_subnet_name'] = ssn_conf['subnet_name']
             except:
                 traceback.print_exc()
                 raise Exception
@@ -165,6 +167,7 @@ if __name__ == "__main__":
             params = "--firewall '{}'".format(json.dumps(firewall_rules))
             try:
                 local("~/scripts/{}.py {}".format('common_create_firewall', params))
+                os.environ['gcp_firewall_name'] = ssn_conf['firewall_name']
             except:
                 traceback.print_exc()
                 raise Exception
