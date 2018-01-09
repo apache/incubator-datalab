@@ -74,9 +74,6 @@ def run_spark():
         prepare_ipynb(i, '/home/{}/test_templates/template_preparation_spark.ipynb'.format(args.os_user),
                       'preparation_spark')
         run_ipynb('preparation_spark')
-        # prepare_ipynb(i, '/home/{}/test_templates/template_visualization_spark.ipynb'.format(args.os_user),
-        #               'visualization_spark')
-        # run_ipynb('visualization_spark')
 
 def run_sparkr():
     interpreters = ['ir', 'r_' + args.cluster_name]
@@ -87,6 +84,7 @@ def run_sparkr():
         prepare_ipynb(i, '/home/{}/test_templates/template_visualization_sparkr.ipynb'.format(args.os_user),
                       'visualization_sparkr')
         run_ipynb('visualization_sparkr')
+
 
 if __name__ == "__main__":
     try:
