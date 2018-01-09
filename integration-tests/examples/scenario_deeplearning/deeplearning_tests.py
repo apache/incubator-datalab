@@ -70,7 +70,6 @@ def run_ipynb(ipynb_name):
 
 def run_tensor():
     interpreters = ['pyspark_local']
-    local('mkdir -p /home/{}/logs'.format(args.os_user))
     for i in interpreters:
         prepare_ipynb(i, '/home/{}/test_templates/template_preparation_tensor.ipynb'.format(args.os_user), 'preparation_tensor')
         run_ipynb('preparation_tensor')
