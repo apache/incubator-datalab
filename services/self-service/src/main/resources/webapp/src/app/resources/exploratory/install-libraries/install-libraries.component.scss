@@ -16,17 +16,16 @@ limitations under the License.
 
 ****************************************************************************/
 
-.install-libraries .mat-list .mat-list-item .mat-list-item-content {
-  height: auto !important;
-  min-height: 54px !important;
-  border-bottom: 1px solid #edf1f5;
-}
+.install-libraries {
+  .mat-list-item {
+    height: auto !important;
 
-/* Tab Installation */
-.upload-libs div {
-  width: 25%;
-  margin: 0 auto;
-  padding-top: 30px;
+    .mat-list-item-content {
+      height: auto !important;
+      min-height: 54px !important;
+      border-bottom: 1px solid #edf1f5;
+    }
+  }
 }
 
 .uploading {
@@ -36,25 +35,17 @@ limitations under the License.
 .tab-content {
   display: flex;
   height: 100%;
-}
-.tab-content .col {
-  width: 50%;
-  height: 100%;
-}
-.tab-content .info {
-  width: 100%;
-  padding-top: 100px;
-}
-
-.search-box {
-  padding: 40px 25px 0;
-}
-.search-box .mat-select,
-.search-box .mat-input-container {
-  width: 100%;
-  margin-top: 10px;
-  margin-bottom: 25px;
-  font-family: 'Open Sans', sans-serif;
+  .col {
+    width: 50%;
+    height: 100%;
+  }
+  .info {
+    width: 100%;
+    padding-top: 100px;
+  }
+  .search-box {
+    padding: 40px 25px 0;
+  }
 }
 
 .list-container {
@@ -63,49 +54,46 @@ limitations under the License.
   overflow-x: hidden;
   position: absolute;
   width: calc(50% - 50px);
-}
-.suggestions {
-  text-decoration: none;
-  list-style: none;
-  padding: 0 10px;
-  font-size: 13px;
-  font-weight: 300;
-  font-family: 'Open Sans', sans-serif;
-}
-.suggestions li {
-  position: relative;
-  padding-top: 4px;
-}
-
-.suggestions a {
-  display: block;
-  cursor: pointer;
-  text-decoration: none;
-  color: #718ba6;
-}
-.suggestions a:hover,
-.suggestions a span:hover {
-  color: #35afd5;
-}
-.suggestions strong {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 48px;
-  text-align: center;
-  font-size: 11px;
-  font-weight: 300;
-  background: rgba(255, 255, 255, 0.8);
-}
-.suggestions strong i {
-  position: absolute;
-  top: -7px;
-  right: -22px;
-  color: #35afd5;
-}
-
-.suggestions span {
-  color: rgba(122, 146, 172, 0.6);
+  .suggestions {
+    text-decoration: none;
+    list-style: none;
+    padding: 0 10px;
+    font-size: 13px;
+    font-weight: 300;
+    font-family: 'Open Sans', sans-serif;
+    li {
+      position: relative;
+      padding-top: 4px;
+    }
+    a {
+      display: block;
+      cursor: pointer;
+      text-decoration: none;
+      color: #718ba6;
+      &:hover, span:hover {
+        color: #35afd5;
+      }
+    }
+    strong {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 48px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 300;
+      background: rgba(255, 255, 255, 0.8);
+      i {
+        position: absolute;
+        top: -7px;
+        right: -22px;
+        color: #35afd5;
+      }
+    }
+    span {
+      color: rgba(122, 146, 172, 0.6);
+    }
+  }
 }
 
 .list-header {
@@ -114,20 +102,21 @@ limitations under the License.
   width: 100%;
   margin-bottom: 5px;
 }
+
 .list-selected {
   padding: 15px;
   font-family: 'Open Sans', sans-serif;
-}
-.list-selected h4 {
-  margin-bottom: 20px;
-  font-size: 14px;
-  text-align: center;
-  font-weight: 400;
-  color: #718ba6;
-}
-.list-selected mat-chip-list .mat-chip-list-wrapper {
-  max-height: 95%;
-  overflow-y: auto;
+  h4 {
+    margin-bottom: 20px;
+    font-size: 14px;
+    text-align: center;
+    font-weight: 400;
+    color: #718ba6;
+  }
+  mat-chip-list .mat-chip-list-wrapper {
+    max-height: 95%;
+    overflow-y: auto;
+  }
 }
 
 .mat-list-item {
@@ -140,64 +129,63 @@ limitations under the License.
 }
 
 /* Tab info */
-.lib-name {
-  width: 30%;
-}
-.lib-name strong {
-  font-weight: 400;
-}
-.lib-group,
-.lib-destination {
-  width: 20%;
-}
-.lib-status {
-  width: 20%;
-  text-align: center;
-}
-.lib-resource-type {
-  width: 12%;
-}
+.libs-info {
+  .lib-name {
+    width: 30%;
+    strong {
+      font-weight: 400;
+    }
+  }
+  .lib-group, .lib-destination {
+    width: 20%;
+  }
+  .lib-status {
+    width: 20%;
+    text-align: center;
+  }
+  .lib-resource-type {
+    width: 12%;
+  }
 
-.st-group {
-  display: flex;
-  flex-direction: column;
-  width: 50%;
-}
-.wrap-col {
-  display: flex;
-  padding: 5px 0px;
-}
-
-.lib-status-col {
-  text-align: center;
-  position: relative;
-  width: 40%;
-  text-align: center;
-}
-.lib-resource-type-col {
-  width: 20%;
-  color: #36afd5;
-}
-.lib-destination-col {
-  width: 40%;
-}
-
-.warn-action {
-  position: absolute;
-  top: 0;
-  right: -10px;
-}
-.warn-action div {
-  display: inline-block;
-  cursor: pointer;
-  width: 25px;
-  pointer-events: auto;
-}
-.warn-action div span {
-  display: block;
-}
-.warn-action .lib-error {
-  color: #35afd5;
+  .st-group {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    .wrap-col {
+      display: flex;
+      padding: 5px 0px;
+      .lib-destination-col {
+        width: 40%;
+      }
+      .lib-resource-type-col {
+        width: 20%;
+        color: #36afd5;
+      }
+      .lib-status-col {
+        text-align: center;
+        position: relative;
+        width: 40%;
+        text-align: center;
+        .warn-action {
+          position: absolute;
+          top: 0;
+          right: -10px;
+          div {
+            display: inline-block;
+            cursor: pointer;
+            width: 25px;
+            pointer-events: auto;
+            span {
+              display: block;
+            }
+          }
+          .lib-error {
+            color: #35afd5;
+          }
+        }
+      }
+    }
+  }
 }
 
 .reinstall-all {
