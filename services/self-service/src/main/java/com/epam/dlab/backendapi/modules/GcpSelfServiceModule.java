@@ -10,9 +10,11 @@ import com.epam.dlab.backendapi.resources.callback.gcp.KeyUploaderCallbackGcp;
 import com.epam.dlab.backendapi.resources.gcp.BillingResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.ComputationalResourceGcp;
 import com.epam.dlab.backendapi.service.BillingService;
-import com.epam.dlab.backendapi.service.GcpBillingService;
-import com.epam.dlab.backendapi.service.GcpInfrastructureInfoService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
+import com.epam.dlab.backendapi.service.InfrastructureTemplatesService;
+import com.epam.dlab.backendapi.service.gcp.GcpBillingService;
+import com.epam.dlab.backendapi.service.gcp.GcpInfrastructureInfoService;
+import com.epam.dlab.backendapi.service.gcp.GcpInfrastructureTemplatesService;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
 import io.dropwizard.setup.Environment;
@@ -37,5 +39,6 @@ public class GcpSelfServiceModule extends CloudModule {
         bind(BillingService.class).to(GcpBillingService.class);
         bind((KeyDAO.class)).to(GcpKeyDao.class);
         bind(InfrastructureInfoService.class).to(GcpInfrastructureInfoService.class);
+        bind(InfrastructureTemplatesService.class).to(GcpInfrastructureTemplatesService.class);
     }
 }

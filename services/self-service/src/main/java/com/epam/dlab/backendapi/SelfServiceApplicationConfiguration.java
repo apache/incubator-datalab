@@ -81,6 +81,19 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @JsonProperty
     private String billingConfFile;
 
+    @Min(value = 1, groups = GcpValidation.class)
+    @JsonProperty
+    private int minDataprocMasterInstanceCount;
+    @Max(value = 1000, groups = GcpValidation.class) //TODO check which value should be
+    @JsonProperty
+    private int maxDataprocMasterInstanceCount;
+    @Min(value = 2, groups = GcpValidation.class)
+    @JsonProperty
+    private int minDataprocSlaveInstanceCount;
+    @Max(value = 95, groups = GcpValidation.class) //TODO check which value should be
+    @JsonProperty
+    private int maxDataprocSlaveInstanceCount;
+
     /**
      * Returns the minimum number of slave EMR instances than could be created.
      */
@@ -152,5 +165,21 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
      */
     public AzureLoginConfiguration getAzureLoginConfiguration() {
         return azureLoginConfiguration;
+    }
+
+    public int getMinDataprocMasterInstanceCount() {
+        return minDataprocMasterInstanceCount;
+    }
+
+    public int getMaxDataprocMasterInstanceCount() {
+        return maxDataprocMasterInstanceCount;
+    }
+
+    public int getMinDataprocSlaveInstanceCount() {
+        return minDataprocSlaveInstanceCount;
+    }
+
+    public int getMaxDataprocSlaveInstanceCount() {
+        return maxDataprocSlaveInstanceCount;
     }
 }

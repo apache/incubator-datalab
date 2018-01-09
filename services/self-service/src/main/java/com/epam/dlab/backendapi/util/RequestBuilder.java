@@ -27,11 +27,11 @@ import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.*;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
+import com.epam.dlab.dto.aws.computational.AwsComputationalTerminateDTO;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.aws.edge.EdgeCreateAws;
 import com.epam.dlab.dto.aws.exploratory.ExploratoryCreateAws;
-import com.epam.dlab.dto.gcp.GcpCloudSettings;
 import com.epam.dlab.dto.aws.keyload.UploadFileAws;
 import com.epam.dlab.dto.azure.AzureCloudSettings;
 import com.epam.dlab.dto.azure.computational.SparkComputationalCreateAzure;
@@ -48,7 +48,11 @@ import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
+import com.epam.dlab.dto.gcp.GcpCloudSettings;
+import com.epam.dlab.dto.gcp.computational.GcpComputationalTerminateDTO;
+import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
+import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
@@ -202,6 +206,11 @@ public class RequestBuilder {
                 ((ExploratoryCreateAzure) exploratoryCreate)
                         .withAzureDataLakeEnabled(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
                 break;
+            case GCP:
+                exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, ExploratoryCreateGcp.class)
+                        .withNotebookInstanceType(formDTO.getShape());
+                break;
+
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
@@ -309,6 +318,7 @@ public class RequestBuilder {
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
+            case GCP:
                 return (T) newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class)
                         .withNotebookInstanceName(userInstance.getExploratoryId())
                         .withNotebookImage(userInstance.getImageName())
@@ -347,6 +357,7 @@ public class RequestBuilder {
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
+            case GCP:
                 return (T) newResourceSysBaseDTO(userInfo, LibListComputationalDTO.class)
                         .withComputationalId(computationalResource.getComputationalId())
                         .withComputationalImage(computationalResource.getImageName())
@@ -418,6 +429,12 @@ public class RequestBuilder {
                         .withAzureDataLakeEnabled(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
 
                 break;
+            case GCP:
+                computationalCreate = (T) newResourceSysBaseDTO(userInfo, SparkComputationalCreateGcp.class)
+                        .withDataEngineInstanceCount(form.getDataEngineInstanceCount())
+                        .withDataEngineMasterSize(form.getDataEngineMaster())
+                        .withDataEngineSlaveSize(form.getDataEngineSlave());
+                break;
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
@@ -441,15 +458,23 @@ public class RequestBuilder {
 
         switch (cloudProvider()) {
             case AWS:
-                ComputationalTerminateDTO terminateDTO = newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class);
+                AwsComputationalTerminateDTO terminateDTO = newResourceSysBaseDTO(userInfo, AwsComputationalTerminateDTO.class);
                 if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
-                    terminateDTO.withClusterName(computationalId);
+                    terminateDTO.setClusterName(computationalId);
                 }
                 computationalTerminate = (T) terminateDTO;
                 break;
             case AZURE:
                 computationalTerminate = (T) newResourceSysBaseDTO(userInfo, ComputationalTerminateDTO.class);
                 break;
+            case GCP:
+                GcpComputationalTerminateDTO gcpTerminateDTO = newResourceSysBaseDTO(userInfo, GcpComputationalTerminateDTO.class);
+                if (dataEngineType == DataEngineType.CLOUD_SERVICE) {
+                    gcpTerminateDTO.setClusterName(computationalId);
+                }
+                computationalTerminate = (T) gcpTerminateDTO;
+                break;
+
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }

@@ -1,7 +1,8 @@
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.service.gcp;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
+import com.epam.dlab.backendapi.service.BillingService;
 import org.bson.Document;
 
 import java.text.ParseException;

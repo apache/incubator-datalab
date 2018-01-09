@@ -27,6 +27,15 @@ minEmrSpotInstanceBidPct: 20
 maxEmrSpotInstanceBidPct: 90
 </#if>
 
+<#if CLOUD_TYPE == "gcp">
+# Minimum and maximum number of master Dataproc instances that could be created
+minDataprocMasterInstanceCount: 2
+maxDataprocMasterInstanceCount: 14
+# Minimum and maximum number of slave Dataproc instances that could be created
+minDataprocSlaveInstanceCount: 20
+maxDataprocSlaveInstanceCount: 90
+</#if>
+
 # Boundaries for Spark cluster creation
 minSparkInstanceCount: 2
 maxSparkInstanceCount: 14

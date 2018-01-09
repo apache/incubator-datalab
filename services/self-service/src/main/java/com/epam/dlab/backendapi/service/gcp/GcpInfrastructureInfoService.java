@@ -1,5 +1,6 @@
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.service.gcp;
 
+import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 
 import java.util.Map;

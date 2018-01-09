@@ -16,6 +16,7 @@
 
 package com.epam.dlab.backendapi.modules;
 
+import com.epam.dlab.backendapi.resources.gcp.ComputationalResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.EdgeResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.ExploratoryResourceGcp;
 import com.epam.dlab.backendapi.resources.gcp.InfrastructureResourceGcp;
@@ -30,5 +31,6 @@ public class GcpProvisioningModule extends CloudModule {
         environment.jersey().register(injector.getInstance(EdgeResourceGcp.class));
         environment.jersey().register(injector.getInstance(InfrastructureResourceGcp.class));
         environment.jersey().register(injector.getInstance(ExploratoryResourceGcp.class));
+        environment.jersey().register(injector.getInstance(ComputationalResourceGcp.class));
     }
 }
