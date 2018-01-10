@@ -300,6 +300,7 @@ public class RequestBuilder {
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
+            case GCP:
                 return newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
                         .withNotebookImage(userInstance.getImageName())
                         .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
@@ -337,6 +338,7 @@ public class RequestBuilder {
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
+            case GCP:
                 return (T) newResourceSysBaseDTO(userInfo, LibraryInstallDTO.class)
                         .withComputationalId(computationalResource.getComputationalId())
                         .withComputationalName(computationalResource.getComputationalName())
