@@ -141,6 +141,9 @@ public class TestDataEngineService {
             	copyFileToNotebook(ssnSession, filename, noteBookIp);
     		}
 
+            LOGGER.info("{}: Copying templates to Notebook {}...", notebookName, noteBookIp);
+            copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName), noteBookIp);
+
             LOGGER.info("{}: Port forwarding from ssn {} to notebook {}...", notebookName, ssnIP, noteBookIp);
             int assignedPort = ssnSession.setPortForwardingL(0, noteBookIp, 22);
             LOGGER.info("{}: Port forwarded localhost:{} -> {}:22", notebookName, assignedPort, noteBookIp);
