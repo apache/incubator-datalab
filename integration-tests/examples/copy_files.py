@@ -70,7 +70,7 @@ def upload_azure_blob():
         from azure.storage.blob import BlockBlobService
         from azure.common.client_factory import get_client_from_auth_file
         storage_client = get_client_from_auth_file(StorageManagementClient)
-        resource_group_name = args.storage.split('-shared-container')[0]
+        resource_group_name = args.storage.split('-container')[0]
         secret_key = storage_client.storage_accounts.list_keys(resource_group_name, args.azure_storage_account).keys[0].value
         block_blob_service = BlockBlobService(account_name=args.azure_storage_account, account_key=secret_key)
         for f in dataset_file:
