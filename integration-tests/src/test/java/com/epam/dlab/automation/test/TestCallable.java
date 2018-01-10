@@ -53,7 +53,7 @@ public class TestCallable implements Callable<Boolean> {
     private final String notebookTemplate;
     private final boolean fullTest;
     private final String token, ssnExpEnvURL, ssnProUserResURL,ssnCompResURL;
-    private final String bucketName;
+    private final String storageName;
     private final String notebookName, clusterName, dataEngineType;
     private final NotebookConfig notebookConfig;
 
@@ -67,7 +67,7 @@ public class TestCallable implements Callable<Boolean> {
         this.token = NamingHelper.getSsnToken();
         this.ssnExpEnvURL = NamingHelper.getSelfServiceURL(ApiPath.EXP_ENVIRONMENT);
         this.ssnProUserResURL = NamingHelper.getSelfServiceURL(ApiPath.PROVISIONED_RES);
-        this.bucketName = NamingHelper.getBucketName();
+        this.storageName = NamingHelper.getStorageName();
 
         final String suffixName = NamingHelper.generateRandomValue(notebookTemplate);
         notebookName = "nb" + suffixName;
@@ -101,14 +101,13 @@ public class TestCallable implements Callable<Boolean> {
 			testLibs();
 
 			final DeployClusterDto deployClusterDto = createClusterDto();
+            final String actualClusterName = NamingHelper.getClusterName(
+                    NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
+                    dataEngineType);
 
-			if (!ConfigPropertyValue.isRunModeLocal() && ConfigPropertyValue.getCloudProvider().equals("aws")) {
+            if (!ConfigPropertyValue.isRunModeLocal()) {
 
-			    final String actualClusterName = NamingHelper.getClusterName(
-                        NamingHelper.getClusterInstanceNameForTestEmr(notebookName, clusterName, dataEngineType),
-                        dataEngineType);
-
-                TestEmr test = new TestEmr();
+			    TestDataEngineService test = new TestDataEngineService();
 				test.run(notebookName, actualClusterName);
 
 				String notebookFilesLocation = PropertiesResolver.getPropertyByName(
@@ -189,8 +188,8 @@ private DeployClusterDto createClusterDto() throws Exception {
         Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
     if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase("aws")){
-        LOGGER.info("{}:   Check bucket {}", notebookName, bucketName);
-        AmazonHelper.printBucketGrants(bucketName);
+        LOGGER.info("{}:   Check bucket {}", notebookName, storageName);
+        AmazonHelper.printBucketGrants(storageName);
     }
 
     return clusterDto;

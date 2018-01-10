@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
+import com.epam.dlab.automation.helper.CloudHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,25 +35,30 @@ import com.epam.dlab.automation.docker.SSHConnect;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.epam.dlab.automation.helper.PropertiesResolver;
 import com.epam.dlab.automation.helper.NamingHelper;
-import com.epam.dlab.automation.helper.WaitForStatus;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
-public class TestEmr {
-    private final static Logger LOGGER = LogManager.getLogger(WaitForStatus.class);
+public class TestDataEngineService {
+    private final static Logger LOGGER = LogManager.getLogger(TestDataEngineService.class);
     
-    private final static String COMMAND_COPY_TO_NOTEBOOK = "scp -i %s -o 'StrictHostKeyChecking no' ~/%s %s@%s:/tmp/";
-    private final static String COMMAND_RUN_PYTHON = "/usr/bin/python %s --region %s --bucket %s --cluster_name %s --os_user %s";
-    private final static String COMMAND_RUN_PYTHON2 = "/usr/bin/python /home/%s/%s --region %s --bucket %s --templates_bucket %s";
+    private final static String COMMAND_COPY_TO_NOTEBOOK;
+    private final static String COMMAND_RUN_PYTHON;
+    private final static String COMMAND_RUN_PYTHON2;
+
+    static {
+        COMMAND_COPY_TO_NOTEBOOK = "scp -i %s -o 'StrictHostKeyChecking no' ~/%s %s@%s:/tmp/";
+        COMMAND_RUN_PYTHON = CloudHelper.getPythonTestingScript();
+        COMMAND_RUN_PYTHON2 = CloudHelper.getPythonTestingScript2();
+    }
     
     
     public void run(String notebookName, String clusterName) throws Exception {
         Session ssnSession = null;
         try {
             LOGGER.info("{}: Copying test data copy scripts {} to SSN {}...",
-            		notebookName, ConfigPropertyValue.getS3TestsTemplateBucketName(), NamingHelper.getSsnIp());
+            		notebookName, NamingHelper.getStorageName(), NamingHelper.getSsnIp());
             ssnSession = SSHConnect.getSession(ConfigPropertyValue.getClusterOsUser(), NamingHelper.getSsnIp(), 22);
             copyFileToSSN(ssnSession, PropertiesResolver.getNotebookTestDataCopyScriptLocation());
             executePythonScript2(ssnSession, clusterName, new File(PropertiesResolver.getNotebookTestDataCopyScriptLocation()).getName(), notebookName);
@@ -69,7 +75,7 @@ public class TestEmr {
         AckStatus status;
 
         command = String.format(COMMAND_RUN_PYTHON2, ConfigPropertyValue.getClusterOsUser(), notebookTestFile,
-        			ConfigPropertyValue.getAwsRegion(), NamingHelper.getBucketName(), ConfigPropertyValue.getS3TestsTemplateBucketName());
+        			NamingHelper.getStorageName());
         LOGGER.info("{}: Executing command {}...", notebookName, command);
 
         ChannelExec runScript = SSHConnect.setCommand(ssnSession, command);
@@ -88,8 +94,7 @@ public class TestEmr {
         try {
             command = String.format(COMMAND_RUN_PYTHON,
                     "/tmp/" +  notebookTestFile,
-                    ConfigPropertyValue.getAwsRegion(),
-                    NamingHelper.getBucketName(),
+                    NamingHelper.getStorageName(),
                     cluster_name,
                     ConfigPropertyValue.getClusterOsUser());
             LOGGER.info(String.format("{}: Executing command %s...", command), notebookName);
@@ -151,7 +156,7 @@ public class TestEmr {
     }
 
     
-    private void copyFileToSSN(Session ssnSession, String filenameWithPath) throws IOException, InterruptedException, JSchException {
+    private void copyFileToSSN(Session ssnSession, String filenameWithPath) throws IOException, JSchException {
         LOGGER.info("Copying {}...", filenameWithPath);
         File file = new File(filenameWithPath);
         assertTrue(file.exists());

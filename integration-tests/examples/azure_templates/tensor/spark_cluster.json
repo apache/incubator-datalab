@@ -4,6 +4,6 @@
   "dataengine_instance_count" : "2",
   "dataengine_slave" : "Standard_NC6",
   "dataengine_master" : "Standard_NC6",
-  "notebook_name" : "set noteboork name",
+  "notebook_name" : "set notebook name",
   "template_name" : "Spark cluster"
 }

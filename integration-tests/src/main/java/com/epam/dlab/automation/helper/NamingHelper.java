@@ -92,19 +92,19 @@ public class NamingHelper {
     
     public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
     	if("dataengine".equals(dataEngineType)) {
-    		return String.join("-", getClusterInstanceNameForTestEmr(notebookName,clusterName,dataEngineType), "m");
+    		return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m");
     	}
     	else {
-    		return getClusterInstanceNameForTestEmr(notebookName,clusterName,dataEngineType);
+    		return getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType);
     	}
     }
     
-    public static String getClusterInstanceNameForTestEmr(String notebookName, String clusterName, String dataEngineType) {
+    public static String getClusterInstanceNameForTestDES(String notebookName, String clusterName, String dataEngineType) {
     	if("dataengine".equals(dataEngineType)) {
     		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
     	}
     	else {
-    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "emr", notebookName, clusterName);
+    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName);
     	}
     }
 
@@ -130,31 +130,19 @@ public class NamingHelper {
         return ssnURL + path;
     }
     
-    public static String getBucketName() {
-    	return String.format("%s-%s-bucket", serviceBaseName, ConfigPropertyValue.getUsernameSimple()).replace('_', '-').toLowerCase();
+    public static String getStorageName() {
+    	return String.format("%s-%s-%s", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
     }
     
     public static String getClusterName(String clusterInstanceName) throws Exception {
-        Instance instance = AmazonHelper.getInstance(clusterInstanceName);
-        for (Tag tag : instance.getTags()) {
-			if (tag.getKey().equals("Name")) {
-		        return tag.getValue();
-			}
-		}
-        throw new Exception("Could not detect cluster name for cluster instance " + clusterInstanceName);
+        return CloudHelper.getInstanceNameByTag(clusterInstanceName);
     }
 
     public static String getClusterName(String clusterInstanceName, String dataEngineType) throws Exception {
         if ("dataengine".equals(dataEngineType)) {
             return clusterInstanceName;
         } else {
-            Instance instance = AmazonHelper.getInstance(clusterInstanceName);
-            for (Tag tag : instance.getTags()) {
-                if (tag.getKey().equals("Name")) {
-                    return tag.getValue();
-                }
-            }
-            throw new Exception("Could not detect cluster name for cluster instance " + clusterInstanceName);
+            return CloudHelper.getInstanceNameByTag(clusterInstanceName);
         }
     }
 }

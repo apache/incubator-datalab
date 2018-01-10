@@ -120,7 +120,7 @@ public class WaitForStatus {
 
     public static String cluster(String url, String token, String notebookName, String computationalName, String status, Duration duration)
             throws InterruptedException {
-        LOGGER.info("{}: Waiting until status {} with URL {} with token {} for computational {} on notebook ", notebookName, status, url, token, computationalName, notebookName);
+        LOGGER.info("{}: Waiting until status {} with URL {} with token {} for computational {} on notebook {}", notebookName, status, url, token, computationalName, notebookName);
         HttpRequest request = new HttpRequest();
         String actualStatus;
         long timeout = duration.toMillis();
