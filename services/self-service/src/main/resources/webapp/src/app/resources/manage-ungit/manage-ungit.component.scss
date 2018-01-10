@@ -25,7 +25,9 @@ limitations under the License.
     overflow-x: hidden;
     padding: 5px;
   }
-  .mail-field, .user-field, .login-field {
+  .mail-field,
+  .user-field,
+  .login-field {
     width: 25%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -58,12 +60,28 @@ limitations under the License.
   }
 
   .git-form {
-    .mat-input-container {
+    .control-group {
       width: 100%;
       font-family: 'Open Sans', sans-serif;
+      padding: 10px 0;
+      input[type='text'],
+      input[type='password'],
+      input[type='email'] {
+        font-size: 14px;
+      }
+      .label {
+        width: 30%;
+        font-size: 14px;
+      }
+      .control {
+        width: 70%;
+      }
     }
     .col {
-      padding: 20px 15px;
+      padding: 30px 10px;
+    }
+    .danger_color {
+      padding-top: 0;
     }
   }
 }
