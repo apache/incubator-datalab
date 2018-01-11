@@ -18,11 +18,8 @@ package com.epam.dlab.dto.gcp.computational;
 
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.ToString;
+import com.google.common.base.MoreObjects;
 
-@Data
-@ToString(callSuper = true)
 public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreateGcp> {
     @JsonProperty("dataproc_master_count")
     private String masterInstanceCount;
@@ -31,9 +28,55 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
     @JsonProperty("dataproc_master_instance_type")
     private String masterInstanceType;
     @JsonProperty("dataproc_slave_instance_type")
-    private Boolean slaveInstanceType;
+    private String slaveInstanceType;
     @JsonProperty("dataproc_preemtible_count")
-    private Integer preemtibleCount;
+    private String preemtibleCount;
     @JsonProperty("dataproc_version")
     private String version;
+
+    public ComputationalCreateGcp withMasterInstanceCount(String masterInstanceCount) {
+        this.masterInstanceCount = masterInstanceCount;
+        return this;
+    }
+
+    public ComputationalCreateGcp withSlaveInstanceCount(String slaveInstanceCount) {
+        this.slaveInstanceCount = slaveInstanceCount;
+        return this;
+    }
+
+    public ComputationalCreateGcp withMasterInstanceType(String masterInstanceType) {
+        this.masterInstanceType = masterInstanceType;
+        return this;
+    }
+
+    public ComputationalCreateGcp withSlaveInstanceType(String slaveInstanceType) {
+        this.slaveInstanceType = slaveInstanceType;
+        return this;
+    }
+
+    public ComputationalCreateGcp withPreemtibleCount(String preemtibleCount) {
+        this.preemtibleCount = preemtibleCount;
+        return this;
+    }
+
+    public ComputationalCreateGcp withVersion(String version) {
+        this.version = version;
+        return this;
+    }
+
+    @Override
+    public MoreObjects.ToStringHelper toStringHelper(Object self) {
+        return super.toStringHelper(self)
+                .add("version", version)
+                .add("masterInstanceType", masterInstanceType)
+                .add("slaveInstanceType", slaveInstanceType)
+                .add("masterInstanceCount", masterInstanceCount)
+                .add("slaveInstanceCount", slaveInstanceCount)
+                .add("preemtibleCount", preemtibleCount);
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this).toString();
+    }
 }

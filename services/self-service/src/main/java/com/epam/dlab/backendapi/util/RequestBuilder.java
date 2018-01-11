@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
+import com.epam.dlab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
 import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.*;
 import com.epam.dlab.dto.aws.AwsCloudSettings;
@@ -49,6 +50,7 @@ import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
 import com.epam.dlab.dto.exploratory.*;
 import com.epam.dlab.dto.gcp.GcpCloudSettings;
+import com.epam.dlab.dto.gcp.computational.ComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.computational.GcpComputationalTerminateDTO;
 import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
@@ -392,6 +394,17 @@ public class RequestBuilder {
                         .withSlaveInstanceSpotPctPrice(awsForm.getSlaveInstanceSpotPctPrice())
                         .withVersion(awsForm.getVersion());
                 break;
+            case GCP:
+                GcpComputationalCreateForm gcpForm = (GcpComputationalCreateForm) form;
+                computationalCreate = (T) newResourceSysBaseDTO(userInfo, ComputationalCreateGcp.class)
+                        .withMasterInstanceCount(gcpForm.getMasterInstanceCount())
+                        .withSlaveInstanceCount(gcpForm.getSlaveInstanceCount())
+                        .withPreemtibleCount(gcpForm.getPreemtibleCount())
+                        .withMasterInstanceType(gcpForm.getMasterInstanceType())
+                        .withSlaveInstanceType(gcpForm.getSlaveInstanceType())
+                        .withVersion(gcpForm.getVersion());
+                break;
+
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
