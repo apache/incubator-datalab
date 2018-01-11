@@ -1,13 +1,8 @@
 {
     "conf_resource": "notebook",
-    "conf_os_family":"COF",
     "request_id":"RID",
-    "conf_service_base_name":"SBN",
-    "aws_region":"CREG",
-    "conf_key_name":"CKN",
     "aws_notebook_instance_type":"NIT",
     "edge_user_name":"NUN",
-    "aws_security_groups_ids":"SGI",
     "application":"APP",
     "git_creds": GIT
 }

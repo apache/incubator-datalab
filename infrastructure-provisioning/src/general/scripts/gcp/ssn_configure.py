@@ -66,16 +66,19 @@ if __name__ == "__main__":
                 raise KeyError
         except KeyError:
             pre_defined_vpc = True
+            os.environ['gcp_vpc_name'] = ssn_conf['vpc_name']
         try:
             if os.environ['gcp_subnet_name'] == '':
                 raise KeyError
         except KeyError:
             pre_defined_subnet = True
+            os.environ['gcp_subnet_name'] = ssn_conf['subnet_name']
         try:
             if os.environ['gcp_firewall_name'] == '':
                 raise KeyError
         except KeyError:
             pre_defined_firewall = True
+            os.environ['gcp_firewall_name'] = ssn_conf['firewall_name']
 
         try:
             if os.environ['aws_account_id'] == '':
