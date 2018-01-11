@@ -285,6 +285,7 @@ public class RequestBuilder {
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
+            case GCP:
                 return newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
                         .withNotebookImage(instanceDTO.getImageName())
                         .withApplicationName(getApplicationNameFromImage(instanceDTO.getImageName()))
