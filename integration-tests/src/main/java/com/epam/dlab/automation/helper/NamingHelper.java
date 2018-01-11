@@ -83,11 +83,13 @@ public class NamingHelper {
     }
     
     public static String getEdgeName() {
-    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge");
+    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge")
+                .replace('_', '-');
     }
     
     public static String getNotebookInstanceName(String notebookName) {
-    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
+    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName)
+                .replace('_', '-');
     }
     
     public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
