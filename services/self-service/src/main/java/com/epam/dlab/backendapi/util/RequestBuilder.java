@@ -227,6 +227,7 @@ public class RequestBuilder {
 
         switch (cloudProvider()) {
             case AWS:
+            case GCP:
                 return (T) newResourceSysBaseDTO(userInfo, ExploratoryGitCredsUpdateDTO.class)
                         .withNotebookInstanceName(userInstance.getExploratoryId())
                         .withGitCreds(exploratoryGitCredsDTO.getGitCreds())
@@ -261,6 +262,7 @@ public class RequestBuilder {
 
         switch (cloudProvider()) {
             case AWS:
+            case GCP:
                 exploratoryStop = (T) newResourceSysBaseDTO(userInfo, ExploratoryActionDTO.class);
                 break;
             case AZURE:
