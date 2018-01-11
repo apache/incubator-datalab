@@ -131,7 +131,10 @@ public class NamingHelper {
     }
     
     public static String getStorageName() {
-    	return String.format("%s-%s-%s", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
+    	return String.format("%s-%s-%s", serviceBaseName,
+                ConfigPropertyValue.getCloudProvider().equalsIgnoreCase("azure") ?
+                        "shared" : ConfigPropertyValue.getUsernameSimple(),
+                CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
     }
     
     public static String getClusterName(String clusterInstanceName) throws Exception {
