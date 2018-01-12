@@ -142,15 +142,15 @@ public class NamingHelper {
                 CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
     }
     
-    public static String getClusterName(String clusterInstanceName) throws Exception {
-        return CloudHelper.getInstanceNameByTag(clusterInstanceName);
+    public static String getClusterName(String clusterInstanceName, boolean restrictionMode) throws Exception {
+        return CloudHelper.getInstanceNameByTag(clusterInstanceName, restrictionMode);
     }
 
-    public static String getClusterName(String clusterInstanceName, String dataEngineType) throws Exception {
+    public static String getClusterName(String clusterInstanceName, String dataEngineType, boolean restrictionMode) throws Exception {
         if ("dataengine".equals(dataEngineType)) {
             return clusterInstanceName;
         } else {
-            return CloudHelper.getInstanceNameByTag(clusterInstanceName);
+            return CloudHelper.getInstanceNameByTag(clusterInstanceName, restrictionMode);
         }
     }
 

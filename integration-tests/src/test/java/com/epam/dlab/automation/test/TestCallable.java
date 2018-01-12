@@ -103,7 +103,7 @@ public class TestCallable implements Callable<Boolean> {
 			final DeployClusterDto deployClusterDto = createClusterDto();
             final String actualClusterName = NamingHelper.getClusterName(
                     NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
-                    dataEngineType);
+                    dataEngineType, true);
 
             if (!ConfigPropertyValue.isRunModeLocal()) {
 
@@ -233,7 +233,7 @@ private String  createNotebook(String notebookName) throws Exception {
 
        LOGGER.info("   Notebook {} status has been verified", notebookName);
        //get notebook IP
-    String notebookIp = CloudHelper.getInstancePrivateIP(NamingHelper.getNotebookInstanceName(notebookName));
+    String notebookIp = CloudHelper.getInstancePrivateIP(NamingHelper.getNotebookInstanceName(notebookName), false);
 
     LOGGER.info("   Notebook {} IP is {}", notebookName, notebookIp);
 

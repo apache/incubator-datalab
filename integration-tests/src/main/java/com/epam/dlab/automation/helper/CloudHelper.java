@@ -7,14 +7,14 @@ import com.epam.dlab.automation.cloud.azure.AzureHelper;
 
 public class CloudHelper {
 
-    public static String getInstancePublicIP(String tagNameValue) throws Exception {
+    public static String getInstancePublicIP(String tagNameValue, boolean restrictionMode) throws Exception {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case "aws":
                 return AmazonHelper.getInstance(tagNameValue)
                         .getPublicIpAddress();
             case "azure":
-                if(AzureHelper.getVirtualMachinesByTag(tagNameValue) != null){
-                    return AzureHelper.getVirtualMachinesByTag(tagNameValue).get(0)
+                if(AzureHelper.getVirtualMachinesByTag(tagNameValue, restrictionMode) != null){
+                    return AzureHelper.getVirtualMachinesByTag(tagNameValue, restrictionMode).get(0)
                             .getPrimaryPublicIPAddress().ipAddress();
                 }
                 else return null;
@@ -23,14 +23,14 @@ public class CloudHelper {
         }
     }
 
-    public static String getInstancePrivateIP(String tagNameValue) throws Exception {
+    public static String getInstancePrivateIP(String tagNameValue, boolean restrictionMode) throws Exception {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case "aws":
                 return AmazonHelper.getInstance(tagNameValue)
                         .getPrivateIpAddress();
             case "azure":
-                if(AzureHelper.getVirtualMachinesByTag(tagNameValue) != null){
-                    return AzureHelper.getVirtualMachinesByTag(tagNameValue).get(0)
+                if(AzureHelper.getVirtualMachinesByTag(tagNameValue, restrictionMode) != null){
+                    return AzureHelper.getVirtualMachinesByTag(tagNameValue, restrictionMode).get(0)
                             .getPrimaryNetworkInterface().primaryPrivateIP();
                 }
                 else return null;
@@ -39,7 +39,7 @@ public class CloudHelper {
         }
     }
 
-    public static String getInstanceNameByTag(String tagNameValue) throws Exception {
+    public static String getInstanceNameByTag(String tagNameValue, boolean restrictionMode) throws Exception {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case "aws":
                 Instance instance = AmazonHelper.getInstance(tagNameValue);
@@ -50,8 +50,8 @@ public class CloudHelper {
                 }
                 throw new Exception("Could not detect name for instance " + tagNameValue);
             case "azure":
-                if(AzureHelper.getVirtualMachinesByTag(tagNameValue) != null){
-                    return AzureHelper.getVirtualMachinesByTag(tagNameValue).get(0)
+                if(AzureHelper.getVirtualMachinesByTag(tagNameValue, restrictionMode) != null){
+                    return AzureHelper.getVirtualMachinesByTag(tagNameValue, restrictionMode).get(0)
                             .name();
                 }
                 else return null;
