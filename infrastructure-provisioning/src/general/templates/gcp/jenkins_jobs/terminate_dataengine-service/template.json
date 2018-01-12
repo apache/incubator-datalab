@@ -1,12 +1,7 @@
 {
     "conf_resource": "dataengine-service",
     "request_id": "RID",
-    "conf_service_base_name": "SBN",
-    "gcp_project_id": "GPI",
-    "gcp_region": "CREG",
-    "gcp_zone": "CZON",
     "edge_user_name": "EUN",
     "dataproc_cluster_name": "DCN",
-    "notebook_instance_name": "NIN",
-    "conf_key_name": "CKN"
+    "notebook_instance_name": "NIN"
 }
