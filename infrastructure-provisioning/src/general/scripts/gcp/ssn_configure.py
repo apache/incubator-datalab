@@ -59,7 +59,7 @@ if __name__ == "__main__":
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name']).replace('_', '-')
         ssn_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
-        ssn_conf['role_name'] = 'dlab_ssn_role'
+        ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-ssn-role'
 
         try:
             if os.environ['gcp_vpc_name'] == '':
@@ -239,14 +239,23 @@ if __name__ == "__main__":
     try:
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
-        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
+        mongo_parameters = {
+            "gcp_region": os.environ['gcp_region'],
+            "gcp_zone": os.environ['gcp_zone'],
+            # "aws_subnet_id": os.environ['aws_subnet_id'],
+            # "conf_service_base_name": os.environ['conf_service_base_name'],
+            # "aws_security_groups_ids": os.environ['aws_security_groups_ids'].replace(" ", ""),
+            "conf_os_family": os.environ['conf_os_family'],
+            # "conf_tag_resource_id": os.environ['conf_tag_resource_id'],
+            "conf_key_dir": os.environ['conf_key_dir'],
+            "ssn_instance_size": os.environ['gcp_ssn_instance_size'],
+            "edge_instance_size": os.environ['gcp_edge_instance_size']
+        }
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} \
+                 --resource {} --service_base_name {} --cloud_provider {} --mongo_parameters '{}'". \
             format(instance_hostname, ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
                    os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'],
-                   ssn_conf['region'], ssn_conf['service_base_name'], ssn_conf['firewall_name'], ssn_conf['vpc_name'],
-                   ssn_conf['subnet_name'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
-                   os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],
-                   billing_enabled)
-
+                   ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],  json.dumps(mongo_parameters))
         try:
             local("~/scripts/{}.py {}".format('configure_ui', params))
         except:
