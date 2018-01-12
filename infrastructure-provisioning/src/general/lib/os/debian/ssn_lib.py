@@ -184,7 +184,7 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
             try:
                 sudo('mkdir -p /var/log/application')
                 run('mkdir -p /tmp/yml_tmp/')
-                for service in ['self-service', 'security-service', 'provisioning-service', 'billing']:
+                for service in ['self-service', 'security-service', 'provisioning-service']:
                     sudo('mkdir -p {0}{1}/'.format(web_path, service))
                     sudo('chown -R {0}:{0} {1}{2}'.format(os_user, web_path, service))
                     local('scp -r -i {0} /root/web_app/{3}/*.jar {1}:{2}{3}/'.format(keyfile, host_string, web_path, service))
