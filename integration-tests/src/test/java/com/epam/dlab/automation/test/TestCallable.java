@@ -213,11 +213,17 @@ private String  createNotebook(String notebookName) throws Exception {
 
        Response responseCreateNotebook = new HttpRequest().webApiPut(ssnExpEnvURL, ContentType.JSON,
                    createNoteBookRequest, token);
+
        LOGGER.info(" {}:  responseCreateNotebook.getBody() is {}", notebookName, responseCreateNotebook.getBody().asString());
 
        LOGGER.info("Inside createNotebook(): responseCreateNotebook.statusCode() is {}", responseCreateNotebook.statusCode());
 
-       Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not created");
+       LOGGER.info("Inside createNotebook(): responseCreateNotebook: headers are {} ", responseCreateNotebook.headers().toString());
+       LOGGER.info("Inside createNotebook(): responseCreateNotebook: value with header 'notebook_name' is {} ",
+               responseCreateNotebook.headers().getValue("notebook_name"));
+
+
+      Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not created");
 
        String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating", getDuration(notebookConfig.getTimeoutNotebookCreate()));
        if (!gettingStatus.contains("running")) {

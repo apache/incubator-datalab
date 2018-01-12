@@ -94,7 +94,8 @@ public class NamingHelper {
     
     public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
     	if("dataengine".equals(dataEngineType)) {
-    		return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m");
+    		return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m")
+                    .replace('_', '-');
     	}
     	else {
     		return getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType);
@@ -103,10 +104,12 @@ public class NamingHelper {
     
     public static String getClusterInstanceNameForTestDES(String notebookName, String clusterName, String dataEngineType) {
     	if("dataengine".equals(dataEngineType)) {
-    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
+    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName)
+                    .replace('_', '-');
     	}
     	else {
-    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName);
+    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName)
+                    .replace('_', '-');
     	}
     }
 
