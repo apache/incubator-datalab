@@ -121,8 +121,8 @@ public class AzureHelper{
 
         for (VirtualMachine  vm : vmsWithTag) {
             LOGGER.info("Azure virtual machine with tag {} state is {}. Virtual machine id {}, private IP {}, public IP {}",
-                    virtualMachineTag, getStatus(vm), vm.vmId(), vm.getPrimaryNetworkInterface().primaryPrivateIP(),
-                    vm.getPrimaryPublicIPAddress().ipAddress());
+                    virtualMachineTag, getStatus(vm), vm.vmId(), vm.getPrimaryNetworkInterface().primaryPrivateIP(), ""); //,
+                    //vm.getPrimaryPublicIPAddress().ipAddress());
         }
         Assert.assertEquals(virtualMachineState, expAzureState, "Azure virtual machine with tag " + virtualMachineTag +
                 " state is not correct. Virtual machine id " +
