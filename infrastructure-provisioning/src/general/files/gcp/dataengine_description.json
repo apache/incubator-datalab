@@ -23,7 +23,5 @@
       {"Size": "M", "Description": "n1-highcpu-8", "Type": "n1-highcpu-8","Ram": "7.20 GB","Cpu": "8"},
       {"Size": "L", "Description": "n1-highcpu-32", "Type": "n1-highcpu-32","Ram": "28.8 GB","Cpu": "32"}
     ]
-  },s":
-  [
-  ]
+  }
 }
