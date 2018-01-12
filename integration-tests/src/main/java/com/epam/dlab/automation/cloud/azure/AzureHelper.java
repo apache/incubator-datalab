@@ -128,7 +128,7 @@ public class AzureHelper{
                 " state is not correct. Virtual machine id " +
                 virtualMachine.vmId() + ", private IP " + virtualMachine.getPrimaryNetworkInterface().primaryPrivateIP() +
                 ", public IP " +
-                virtualMachine.getPrimaryPublicIPAddress() != null ? virtualMachine.getPrimaryPublicIPAddress().ipAddress() : "doesn't exist for this resource type" );
+                (virtualMachine.getPrimaryPublicIPAddress() != null ? virtualMachine.getPrimaryPublicIPAddress().ipAddress() : "doesn't exist for this resource type" ));
     }
 
 }
