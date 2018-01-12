@@ -132,16 +132,16 @@ public class TestServices {
 
 		LOGGER.info("Check status of SSN node on {}: {}", cloudProvider.toUpperCase(), NamingHelper.getSsnName());
 
-		String publicSsnIp = CloudHelper.getInstancePublicIP(NamingHelper.getSsnName());
+		String publicSsnIp = CloudHelper.getInstancePublicIP(NamingHelper.getSsnName(), true);
 		LOGGER.info("Public IP is: {}", publicSsnIp);
-		String privateSsnIp = CloudHelper.getInstancePrivateIP(NamingHelper.getSsnName());
+		String privateSsnIp = CloudHelper.getInstancePrivateIP(NamingHelper.getSsnName(), true);
 		LOGGER.info("Private IP is: {}", privateSsnIp);
 		if(publicSsnIp == null || privateSsnIp == null){
 			Assert.fail("There is not any virtual machine in " + cloudProvider + " with tag " + NamingHelper.getSsnName());
 			return;
 		}
 		NamingHelper.setSsnIp(PropertiesResolver.DEV_MODE ? publicSsnIp : privateSsnIp);
-        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getSsnName());
+        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getSsnName(), true);
 		LOGGER.info("{} instance state is running", cloudProvider.toUpperCase());
 
 		LOGGER.info("2. Waiting for SSN service ...");
@@ -227,7 +227,7 @@ public class TestServices {
 		final String nodePrefix = ConfigPropertyValue.getUsernameSimple();
 		Docker.checkDockerStatus(nodePrefix + "_create_edge_", NamingHelper.getSsnIp());
 
-		VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getEdgeName());
+		VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getEdgeName(), true);
 
 		final String ssnExpEnvURL = NamingHelper.getSelfServiceURL(ApiPath.EXP_ENVIRONMENT);
 		LOGGER.info("   SSN exploratory environment URL is {}", ssnExpEnvURL);
