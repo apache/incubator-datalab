@@ -42,7 +42,7 @@ public class AzureHelper{
         return !azure.virtualMachines().list().isEmpty() ? new ArrayList<>(azure.virtualMachines().list()) : null;
     }
 
-    public static List<VirtualMachine> getVirtualMachinesByTag(String tag){
+    public static List<VirtualMachine> getVirtualMachinesByTag(String tag, boolean restrictionMode){
         if(ConfigPropertyValue.isRunModeLocal()){
 
             List<VirtualMachine> vmLocalModeList = new ArrayList<>();
@@ -63,14 +63,23 @@ public class AzureHelper{
             LOGGER.warn("There is not any virtual machine in Azure");
             return null;
         }
-        vmList.removeIf(vm -> !containsTag(vm, tag));
+        if(restrictionMode){
+            vmList.removeIf(vm -> !containsTag(vm, tag));
+        }
+        else{
+            vmList.removeIf(vm -> !containsSimilarTag(vm, tag));
+        }
         return !vmList.isEmpty() ? vmList : null;
     }
 
     private static boolean containsTag(VirtualMachine vm, String tag){
+        return vm.tags().containsValue(tag);
+    }
+
+    private static boolean containsSimilarTag(VirtualMachine vm, String tag){
         List<String> tags = new ArrayList<>(vm.tags().values());
         for(String tagValue : tags){
-            if(tag.equals(tagValue)){
+            if(tagValue.contains(tag)){
                 return true;
             }
         }
@@ -81,13 +90,13 @@ public class AzureHelper{
         return vm.powerState();
     }
 
-    public static void checkAzureStatus(String virtualMachineTag, PowerState expAzureState) throws Exception {
+    public static void checkAzureStatus(String virtualMachineTag, PowerState expAzureState, boolean restrictionMode) throws Exception {
         LOGGER.info("Check status of virtual machine with tag {} on Azure", virtualMachineTag);
         if (ConfigPropertyValue.isRunModeLocal()) {
             LOGGER.info("Azure virtual machine with tag {} fake state is {}", virtualMachineTag, expAzureState);
             return;
         }
-        List<VirtualMachine> vmsWithTag = getVirtualMachinesByTag(virtualMachineTag);
+        List<VirtualMachine> vmsWithTag = getVirtualMachinesByTag(virtualMachineTag, restrictionMode);
         if(vmsWithTag == null){
             LOGGER.warn("There is not any virtual machine in Azure with tag {}", virtualMachineTag);
             return;

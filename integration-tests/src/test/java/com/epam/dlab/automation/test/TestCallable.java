@@ -172,7 +172,7 @@ private DeployClusterDto createClusterDto() throws Exception {
             throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been deployed. Cluster status is " + gettingStatus);
         LOGGER.info("{}: {} cluster {} has been deployed", notebookName, dataEngineType, clusterName);
 
-        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType));
+        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
 
         Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
@@ -184,7 +184,7 @@ private DeployClusterDto createClusterDto() throws Exception {
     LOGGER.info(" {}: {} cluster {} has been configured", notebookName, dataEngineType , clusterName);
 
     if(!ConfigPropertyValue.isRunModeLocal()) {
-        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType));
+        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
         Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
     if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase("aws")){
@@ -218,12 +218,7 @@ private String  createNotebook(String notebookName) throws Exception {
 
        LOGGER.info("Inside createNotebook(): responseCreateNotebook.statusCode() is {}", responseCreateNotebook.statusCode());
 
-       LOGGER.info("Inside createNotebook(): responseCreateNotebook: headers are {} ", responseCreateNotebook.headers().toString());
-       LOGGER.info("Inside createNotebook(): responseCreateNotebook: value with header 'notebook_name' is {} ",
-               responseCreateNotebook.headers().getValue("notebook_name"));
-
-
-      Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not created");
+       Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not created");
 
        String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating", getDuration(notebookConfig.getTimeoutNotebookCreate()));
        if (!gettingStatus.contains("running")) {
@@ -232,7 +227,7 @@ private String  createNotebook(String notebookName) throws Exception {
        }
        LOGGER.info("   Notebook {} has been created", notebookName);
 
-       VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getNotebookInstanceName(notebookName));
+       VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getNotebookInstanceName(notebookName), false);
 
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "create"), NamingHelper.getSsnIp());
 
@@ -308,7 +303,7 @@ private void restartNotebook() throws Exception {
        }
        LOGGER.info("    Notebook {} has been started", notebookName);
 
-       VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getNotebookInstanceName(notebookName));
+       VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getNotebookInstanceName(notebookName), false);
 
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "start"), NamingHelper.getSsnIp());
    }
@@ -325,7 +320,7 @@ private void restartNotebook() throws Exception {
        if (!gettingStatus.contains("terminated"))
            throw new Exception("Notebook" + notebookName + " has not been terminated. Notebook status is " + gettingStatus);
 
-       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getNotebookInstanceName(notebookName));
+       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getNotebookInstanceName(notebookName), false);
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "terminate"), NamingHelper.getSsnIp());
    }
 
@@ -342,7 +337,7 @@ private void restartNotebook() throws Exception {
            throw new Exception(dataEngineType+" cluster "+ deployCluster.getName() + " has not been terminated for Notebook " + deployCluster.getNotebook_name() + ". Cluster status is " + gettingStatus);
        LOGGER.info("    {} cluster {} has been terminated for Notebook {}",dataEngineType, deployCluster.getName(), deployCluster.getNotebook_name());
 
-       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(deployCluster.getNotebook_name(), deployCluster.getName(), dataEngineType));
+       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(deployCluster.getNotebook_name(), deployCluster.getName(), dataEngineType), true);
 
    }
    
@@ -361,7 +356,7 @@ private void restartNotebook() throws Exception {
            throw new Exception("New "+dataEngineType+" cluster " + clusterNewName + " has not been terminated. Cluster status is " + gettingStatus);
        LOGGER.info("    New {} cluster {} has been terminated for notebook {}",dataEngineType, clusterNewName, notebookName);
 
-       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType));
+       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), true);
 
        Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "terminate"), NamingHelper.getSsnIp());
    }
@@ -389,7 +384,7 @@ private void restartNotebook() throws Exception {
            throw new Exception("Cluster " + clusterNewName + " has not been configured. Cluster status is " + gettingStatus);
        LOGGER.info("   Cluster {} has been configured", clusterNewName);
 
-       VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType));
+       VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), true);
 
        Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "create"), NamingHelper.getSsnIp());
        return clusterNewName;
@@ -420,7 +415,7 @@ private void restartNotebook() throws Exception {
            throw new Exception("Computational resources has not been terminated for Notebook " + notebookName + ". EMR status is " + gettingStatus);
        LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
 
-       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType));
+       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
 
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "stop"), NamingHelper.getSsnIp());
    }

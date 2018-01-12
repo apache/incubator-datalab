@@ -9,14 +9,14 @@ import org.testng.Assert;
 
 public class VirtualMachineStatusChecker {
 
-    public static void checkIfRunning(String tagNameValue) throws Exception {
+    public static void checkIfRunning(String tagNameValue, boolean restrictionMode) throws Exception {
 
         switch (ConfigPropertyValue.getCloudProvider()) {
             case "aws":
                 AmazonHelper.checkAmazonStatus(tagNameValue, AmazonInstanceState.RUNNING);
                 break;
             case "azure":
-                AzureHelper.checkAzureStatus(tagNameValue, PowerState.RUNNING);
+                AzureHelper.checkAzureStatus(tagNameValue, PowerState.RUNNING, restrictionMode);
                 break;
             default:
                 Assert.fail("Unknown cloud provider");
@@ -24,14 +24,14 @@ public class VirtualMachineStatusChecker {
 
     }
 
-    public static void checkIfTerminated(String tagNameValue) throws Exception {
+    public static void checkIfTerminated(String tagNameValue, boolean restrictionMode) throws Exception {
 
         switch (ConfigPropertyValue.getCloudProvider()) {
             case "aws":
                 AmazonHelper.checkAmazonStatus(tagNameValue, AmazonInstanceState.TERMINATED);
                 break;
             case "azure":
-                AzureHelper.checkAzureStatus(tagNameValue, PowerState.STOPPED);
+                AzureHelper.checkAzureStatus(tagNameValue, PowerState.STOPPED, restrictionMode);
                 break;
             default:
                 Assert.fail("Unknown cloud provider");
