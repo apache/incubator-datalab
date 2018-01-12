@@ -48,7 +48,7 @@ public class TestDataEngineService {
     private final static String COMMAND_RUN_PYTHON2;
 
     static {
-        COMMAND_COPY_TO_NOTEBOOK = "scp -i %s -o 'StrictHostKeyChecking no' ~/%s %s@%s:/tmp/";
+        COMMAND_COPY_TO_NOTEBOOK = "scp -r -i %s -o 'StrictHostKeyChecking no' ~/%s %s@%s:/tmp/";
         COMMAND_RUN_PYTHON = CloudHelper.getPythonTestingScript();
         COMMAND_RUN_PYTHON2 = CloudHelper.getPythonTestingScript2();
     }
