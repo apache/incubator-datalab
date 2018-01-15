@@ -170,27 +170,27 @@ public class NamingHelper {
         else if(notebookName.contains("zeppelin")){
             return "test_templates/zeppelin";
         }
-        else return null;
+        else return "";
 
     }
 
     public static String getNotebookType(String notebookName){
         if(notebookName.contains("deeplearning")){
-            return "deeplearning";
+            return "deeplearning/";
         }
         else if(notebookName.contains("jupyter")){
-            return "jupyter";
+            return "jupyter/";
         }
         else if(notebookName.contains("rstudio")){
-            return "rstudio";
+            return "rstudio/";
         }
         else if(notebookName.contains("tensor")){
-            return "tensor";
+            return "tensor/";
         }
         else if(notebookName.contains("zeppelin")){
-            return "zeppelin";
+            return "zeppelin/";
         }
-        else return null;
+        else return "";
 
     }
 

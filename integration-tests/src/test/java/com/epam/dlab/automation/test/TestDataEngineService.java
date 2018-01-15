@@ -138,7 +138,7 @@ public class TestDataEngineService {
         	
         	LOGGER.info("{}: Copying files to Notebook {}...", notebookName, noteBookIp);
             for (String filename : files) {
-            	copyFileToNotebook(ssnSession, filename, noteBookIp, notebookName);
+            	copyFileToNotebook(ssnSession, filename, noteBookIp, "");
     		}
 
             LOGGER.info("{}: Copying templates to SSN {}...", notebookName, ssnIP);
@@ -189,7 +189,7 @@ public class TestDataEngineService {
                 filename,
                 ConfigPropertyValue.getClusterOsUser(),
                 ip,
-                NamingHelper.getNotebookType(notebookName) + "/");
+                NamingHelper.getNotebookType(notebookName));
 
     	LOGGER.info("Copying {}...", filename);
     	LOGGER.info("  Run command: {}", command);
