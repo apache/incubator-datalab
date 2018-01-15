@@ -85,7 +85,7 @@ public class TestServices {
 	@Test(priority = 0)
 	public void runTest() throws Exception {
 		testJenkinsJob();
-//		testLoginSsnService();
+		testLoginSsnService();
 
 		RestAssured.baseURI = NamingHelper.getSsnURL();
 		NamingHelper.setSsnToken(ssnLoginAndKeyUpload());
