@@ -19,7 +19,7 @@
       "testTsconfig": "tsconfig.spec.json",
       "prefix": "dlab",
       "styles": [
-        "styles.css"
+        "styles.scss"
       ],
       "scripts": [
         "../node_modules/hammerjs/hammer.min.js"
@@ -53,7 +53,8 @@
     }
   },
   "defaults": {
-    "styleExt": "css",
-    "component": {}
+    "styleExt": "scss",
+    "component": {
+    }
   }
 }

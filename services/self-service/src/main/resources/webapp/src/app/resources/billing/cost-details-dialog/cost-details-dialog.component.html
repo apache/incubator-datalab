@@ -25,7 +25,7 @@ limitations under the License.
       <div class="detail-header-wrap">
         <table class="detail-header">
           <tr>
-            <td mdTooltip="{{ notebook.name }}" mdTooltipPosition="above">{{ notebook.name }}</td>
+            <td matTooltip="{{ notebook.name }}" matTooltipPosition="above">{{ notebook.name }}</td>
             <td>{{ notebook.template_name }}</td>
             <td class="status" ngClass="{{ notebook.status || ''}}">{{ notebook.status }}</td>
             <td>{{ notebook.shape }}</td>
@@ -33,20 +33,20 @@ limitations under the License.
         </table>
       </div>
       <div class="billing-detail content-box">
-        <md-list>
-            <md-list-item class="list-header">
+        <mat-list>
+            <mat-list-item class="list-header">
               <div class="resource-name" [ngClass]="{ 'wide-name-field' : DICTIONARY.cloud_provider === 'azure' }">Name</div>
               <div class="service">{{ DICTIONARY.service }}</div>
               <div class="resource-type" *ngIf="DICTIONARY.cloud_provider === 'aws'">{{ DICTIONARY.type }}</div>
               <div class="cost-currency">Cost</div>
               <div class="usage-date-start">Start</div>
               <div class="usage-date-end">End</div>
-            </md-list-item>
+            </mat-list-item>
             <div class="scrolling-content" id="scrolling">
-              <md-list-item *ngFor="let item of notebook.billing">
+              <mat-list-item *ngFor="let item of notebook.billing">
                 <div class="resource-name" [ngClass]="{ 'wide-name-field' : DICTIONARY.cloud_provider === 'azure' }"
-                     mdTooltip="{{ item[DICTIONARY.billing.resourceName] }}"
-                     mdTooltipPosition="above">
+                     matTooltip="{{ item[DICTIONARY.billing.resourceName] }}"
+                     matTooltipPosition="above">
                      {{ item[DICTIONARY.billing.resourceName] }}
                 </div>
                 <div class="service">{{ item[DICTIONARY.billing.service] }}</div>
@@ -54,9 +54,9 @@ limitations under the License.
                 <div class="cost-currency">{{ item[DICTIONARY.billing.cost] }} {{ item[DICTIONARY.billing.currencyCode] }}</div>
                 <div class="usage-date-start">{{ item[DICTIONARY.billing.dateFrom] | date }}</div>
                 <div class="usage-date-end">{{ item[DICTIONARY.billing.dateTo] | date }}</div>
-              </md-list-item>
+              </mat-list-item>
             </div>
-        </md-list>
+        </mat-list>
         <div class="total"><strong>Total: </strong>{{ notebook.cost }} {{ notebook.currency_code }}</div>
       </div>
     </div>

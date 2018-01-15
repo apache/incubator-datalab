@@ -183,6 +183,7 @@ limitations under the License.
     color: #35afd5;
     font-size: 18px;
     line-height: 26px;
+    transition: all .45s ease-in-out;
 }
 
 .dropdown-multiselect .list-menu .select_all:hover,

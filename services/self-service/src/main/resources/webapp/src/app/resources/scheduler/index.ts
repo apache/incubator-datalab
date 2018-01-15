@@ -18,17 +18,26 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { ModalModule } from '../index';
-import { ConfirmationDialogComponent } from './confirmation-dialog.component';
-import { MaterialModule } from '../../material.module';
+import { MaterialModule } from '../../shared/material.module';
+import { ModalModule, BubbleModule } from '../../shared';
+import { FormControlsModule } from '../../shared/form-controls';
+import { SchedulerComponent } from './scheduler.component';
 
-export * from './confirmation-dialog.component';
-export * from './confirmation-dialog-type.enum';
+export * from './scheduler.component';
 
 @NgModule({
-  imports: [CommonModule, ModalModule, MaterialModule],
-  declarations: [ConfirmationDialogComponent],
-  exports: [ConfirmationDialogComponent]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ModalModule,
+    FormControlsModule,
+    MaterialModule,
+    BubbleModule
+  ],
+  declarations: [SchedulerComponent],
+  exports: [SchedulerComponent]
 })
-export class ConfirmationDialogModule {}
+export class SchedulerModule {}

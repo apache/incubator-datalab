@@ -18,20 +18,16 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import { ModalModule } from '../index';
 import { UploadKeyDialogComponent } from './key-upload-dialog.component';
-import { MaterialModule } from '@angular/material';
+import { MaterialModule } from '../../material.module';
 
 export * from './key-upload-dialog.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    ModalModule,
-    MaterialModule.forRoot()
-  ],
+  imports: [CommonModule, ModalModule, MaterialModule],
   declarations: [UploadKeyDialogComponent],
   exports: [UploadKeyDialogComponent]
 })
-
-export class UploadKeyDialogModule { }
+export class UploadKeyDialogModule {}
