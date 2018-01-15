@@ -25,8 +25,33 @@ limitations under the License.
       {{ notebook.name }}
 
       <form [formGroup]="schedulerFormGroup">
+
         <div class="control-group">
-          <label class="label" for="options">Options :</label>
+          <!-- <label class="label"></label>
+          <div>
+              <mat-slide-toggle [checked]="timeFormat">
+                <span *ngIf="timeFormat; else format">AM</span>
+                <ng-template #format>PM</ng-template>
+              </mat-slide-toggle>
+          </div>
+          <div>
+              <label class="label">Hour:</label><mat-slider class="hours" [max]="12" [min]="0" [step]="1" ></mat-slider>
+              <label class="label">Minute:</label><mat-slider class="hours" [max]="12" [min]="0" [step]="1"></mat-slider>
+          </div> -->
+
+          <mat-form-field class="example-full-width">
+            <input matInput atp-time-picker value="timeFormat">
+          </mat-form-field>
+
+        </div>
+        <!-- <div>
+          <label class="label"></label>
+          <div class="control">
+            <mat-slider class="hours" [max]="12" [min]="0" [step]="1" [(ngModel)]="value"></mat-slider>
+          </div>
+        </div> -->
+        <div class="control-group">
+          <label class="label" for="options">Repeit on :</label>
 
           <div *ngFor="let day of weekdays; let i = index">
             <mat-checkbox class="example-margin" (change)="onChange($event)" [value]="day" name="{{ day }}">{{ day }}</mat-checkbox>
@@ -35,6 +60,7 @@ limitations under the License.
       </form>
 
       <pre *ngIf="schedulerFormGroup">{{ schedulerFormGroup.value | json }}</pre>
+
 
     </div>
   </modal-content>

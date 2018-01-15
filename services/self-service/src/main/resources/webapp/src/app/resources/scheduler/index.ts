@@ -24,6 +24,7 @@ import { MaterialModule } from '../../shared/material.module';
 import { ModalModule, BubbleModule } from '../../shared';
 import { FormControlsModule } from '../../shared/form-controls';
 import { SchedulerComponent } from './scheduler.component';
+import { AmazingTimePickerModule } from 'amazing-time-picker';
 
 export * from './scheduler.component';
 
@@ -35,7 +36,8 @@ export * from './scheduler.component';
     ModalModule,
     FormControlsModule,
     MaterialModule,
-    BubbleModule
+    BubbleModule,
+    AmazingTimePickerModule
   ],
   declarations: [SchedulerComponent],
   exports: [SchedulerComponent]
