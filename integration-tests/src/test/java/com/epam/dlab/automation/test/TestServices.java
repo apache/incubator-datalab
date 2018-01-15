@@ -87,8 +87,8 @@ public class TestServices {
 //		testJenkinsJob();
 //		testLoginSsnService();
 
-//		RestAssured.baseURI = NamingHelper.getSsnURL();
-//		NamingHelper.setSsnToken(ssnLoginAndKeyUpload());
+		RestAssured.baseURI = NamingHelper.getSsnURL();
+		NamingHelper.setSsnToken(ssnLoginAndKeyUpload());
 		runTestsInNotebooks();
 	}
 
