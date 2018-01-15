@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 public class CommandExecutorMock implements ICommandExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutorMock.class);
+    public static final String DOCKER_DLAB_DATAENGINE = "docker.dlab-dataengine:latest";
+    public static final String DOCKER_DLAB_DATAENGINE_SERVICE = "docker.dlab-dataengine-service:latest";
 
     private CommandExecutorMockAsync execAsync = null;
 	private CompletableFuture<Boolean> future;
@@ -85,11 +87,11 @@ public class CommandExecutorMock implements ICommandExecutor {
     private List<String> getComputationalDockerImage() {
         switch (cloudProvider) {
             case AWS:
-                return Lists.newArrayList("docker.dlab-dataengine-service:latest", "docker.dlab-dataengine:latest");
+                return Lists.newArrayList(DOCKER_DLAB_DATAENGINE_SERVICE, DOCKER_DLAB_DATAENGINE);
             case AZURE:
-                return Lists.newArrayList("docker.dlab-dataengine:latest");
+                return Lists.newArrayList(DOCKER_DLAB_DATAENGINE);
             case GCP:
-                return Lists.newArrayList("docker.dlab-dataengine-service:latest", "docker.dlab-dataengine:latest");
+                return Lists.newArrayList(DOCKER_DLAB_DATAENGINE_SERVICE, DOCKER_DLAB_DATAENGINE);
                 default:
                     throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider);
         }

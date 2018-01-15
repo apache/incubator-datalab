@@ -17,26 +17,18 @@
 
 package com.epam.dlab.backendapi.resources.aws;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.dao.ComputationalDAO;
-import com.epam.dlab.backendapi.dao.ExploratoryDAO;
-import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.roles.RoleType;
 import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.ComputationalService;
-import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.aws.computational.AwsComputationalResource;
 import com.epam.dlab.dto.base.DataEngineType;
-import com.epam.dlab.dto.computational.ComputationalStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
 

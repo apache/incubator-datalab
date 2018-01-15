@@ -48,6 +48,7 @@ import static com.epam.dlab.rest.contracts.ComputationalAPI.COMPUTATIONAL_CREATE
 @Slf4j
 public class ComputationalService {
 
+    public static final String COULD_NOT_UPDATE_THE_STATUS_MSG_FORMAT = "Could not update the status of computational resource {} for user {}";
     @Inject
     private ExploratoryDAO exploratoryDAO;
 
@@ -90,8 +91,7 @@ public class ComputationalService {
                 try {
                     updateComputationalStatus(userInfo.getName(), form.getNotebookName(), form.getName(), FAILED);
                 } catch (DlabException d) {
-                    log.error("Could not update the status of computational resource {} for user {}",
-                            form.getName(), userInfo.getName(), d);
+                    log.error(COULD_NOT_UPDATE_THE_STATUS_MSG_FORMAT, form.getName(), userInfo.getName(), d);
                 }
                 throw e;
             }
@@ -129,8 +129,7 @@ public class ComputationalService {
             try {
                 updateComputationalStatus(userInfo.getName(), exploratoryName, computationalName, FAILED);
             } catch (DlabException e) {
-                log.error("Could not update the status of computational resource {} for user {}",
-                        computationalName, userInfo.getName(), e);
+                log.error(COULD_NOT_UPDATE_THE_STATUS_MSG_FORMAT, computationalName, userInfo.getName(), e);
             }
 
             throw re;
@@ -151,7 +150,7 @@ public class ComputationalService {
                 try {
                     updateComputationalStatus(userInfo.getName(), formDTO.getNotebookName(), formDTO.getName(), FAILED);
                 } catch (DlabException e) {
-                    log.error("Could not update the status of computational resource {} for user {}", formDTO.getName(), userInfo.getName(), e);
+                    log.error(COULD_NOT_UPDATE_THE_STATUS_MSG_FORMAT, formDTO.getName(), userInfo.getName(), e);
                 }
                 throw new DlabException("Could not send request for creation the computational resource " + formDTO.getName() + ": " + t.getLocalizedMessage(), t);
             }

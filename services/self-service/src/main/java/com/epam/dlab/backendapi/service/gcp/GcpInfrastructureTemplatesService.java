@@ -19,7 +19,6 @@ public class GcpInfrastructureTemplatesService extends InfrastructureTemplatesSe
                         .minDataprocMasterInstanceCount(configuration.getMinDataprocMasterInstanceCount())
                         .maxDataprocMasterInstanceCount(configuration.getMaxDataprocMasterInstanceCount())
                         .minDataprocSlaveInstanceCount(configuration.getMinDataprocSlaveInstanceCount())
-                        .maxDataprocSlaveInstanceCount(configuration.getMaxDataprocSlaveInstanceCount())
                         .build());
     }
 

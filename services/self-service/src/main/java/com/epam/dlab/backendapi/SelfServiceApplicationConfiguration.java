@@ -84,15 +84,12 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @Min(value = 1, groups = GcpValidation.class)
     @JsonProperty
     private int minDataprocMasterInstanceCount;
-    @Max(value = 1000, groups = GcpValidation.class) //TODO check which value should be
+    @Max(value = 3, groups = GcpValidation.class)
     @JsonProperty
     private int maxDataprocMasterInstanceCount;
     @Min(value = 2, groups = GcpValidation.class)
     @JsonProperty
     private int minDataprocSlaveInstanceCount;
-    @Max(value = 95, groups = GcpValidation.class) //TODO check which value should be
-    @JsonProperty
-    private int maxDataprocSlaveInstanceCount;
 
     /**
      * Returns the minimum number of slave EMR instances than could be created.
@@ -177,9 +174,5 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
     public int getMinDataprocSlaveInstanceCount() {
         return minDataprocSlaveInstanceCount;
-    }
-
-    public int getMaxDataprocSlaveInstanceCount() {
-        return maxDataprocSlaveInstanceCount;
     }
 }

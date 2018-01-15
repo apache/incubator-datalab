@@ -52,7 +52,6 @@ public class ComputationalResourceGcp extends DockerService implements DockerCom
                 configuration.getResourceStatusPollTimeout(),
                 getFileHandlerCallback(CREATE, uuid, dto));
         try {
-            long timeout = configuration.getResourceStatusPollTimeout().toSeconds();
             commandExecutor.executeAsync(
                     ui.getName(),
                     uuid,

@@ -10,19 +10,3 @@
   "_id": "conf_key_dir",
   "value": "/root/keys"
 }
-{
-  "_id": "gcp_subnet_name",
-  "value": "dev-ssn-subnet"
-}
-{
-  "_id": "gcp_region",
-  "value": "dev-westus2"
-}
-{
-  "_id": "gcp_project_id",
-  "value": "dev"
-}
-{
-  "_id": "gcp_vpc_name",
-  "value": "dev-ssn-vpc"
-}

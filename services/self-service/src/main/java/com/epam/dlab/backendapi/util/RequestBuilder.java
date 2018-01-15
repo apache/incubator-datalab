@@ -92,11 +92,7 @@ public class RequestBuilder {
                         .azureVpcName(settingsDAO.getAzureVpcName())
                         .azureIamUser(userInfo.getName()).build();
             case GCP:
-                return GcpCloudSettings.builder().gcpRegion(settingsDAO.getGcpRegion())
-                        .gcpProjectId(settingsDAO.getGcpProjectId())
-                        .gcpVpcName(settingsDAO.getGcpVpcName())
-                        .gcpSubnetName(settingsDAO.getGcpSubnetName())
-                        .gcpIamUser(userInfo.getName()).build();
+                return GcpCloudSettings.builder().gcpIamUser(userInfo.getName()).build();
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }

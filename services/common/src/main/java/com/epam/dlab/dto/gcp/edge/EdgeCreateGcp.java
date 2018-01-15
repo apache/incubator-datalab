@@ -17,8 +17,6 @@
 package com.epam.dlab.dto.gcp.edge;
 
 import com.epam.dlab.dto.ResourceSysBaseDTO;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.MoreObjects;
 
 public class EdgeCreateGcp extends ResourceSysBaseDTO<EdgeCreateGcp> {
 }

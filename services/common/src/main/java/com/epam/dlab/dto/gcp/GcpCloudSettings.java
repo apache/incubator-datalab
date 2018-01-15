@@ -14,25 +14,9 @@ public class GcpCloudSettings extends CloudSettings {
     @JsonProperty("gcp_iam_user")
     private String gcpIamUser;
 
-    @JsonProperty("gcp_subnet_name")
-    private String gcpSubnetName;
-
-    @JsonProperty("gcp_vpc_name")
-    private String gcpVpcName;
-
-    @JsonProperty("gcp_region")
-    private String gcpRegion;
-
-    @JsonProperty("gcp_project_id")
-    private String gcpProjectId;
-
     @Builder
-    public GcpCloudSettings(String gcpIamUser, String gcpSubnetName, String gcpVpcName, String gcpRegion, String gcpProjectId) {
+    public GcpCloudSettings(String gcpIamUser) {
         this.gcpIamUser = gcpIamUser;
-        this.gcpSubnetName = gcpSubnetName;
-        this.gcpVpcName = gcpVpcName;
-        this.gcpRegion = gcpRegion;
-        this.gcpProjectId = gcpProjectId;
     }
 
     @Override
