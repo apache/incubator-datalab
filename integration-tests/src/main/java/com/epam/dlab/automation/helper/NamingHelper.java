@@ -174,4 +174,25 @@ public class NamingHelper {
 
     }
 
+    public static String getNotebookType(String notebookName){
+        if(notebookName.contains("deeplearning")){
+            return "deeplearning";
+        }
+        else if(notebookName.contains("jupyter")){
+            return "jupyter";
+        }
+        else if(notebookName.contains("rstudio")){
+            return "rstudio";
+        }
+        else if(notebookName.contains("tensor")){
+            return "tensor";
+        }
+        else if(notebookName.contains("zeppelin")){
+            return "zeppelin";
+        }
+        else return null;
+
+    }
+
+
 }

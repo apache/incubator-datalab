@@ -111,7 +111,7 @@ public class TestCallable implements Callable<Boolean> {
 				test.run(notebookName, actualClusterName);
 
 				String notebookFilesLocation = PropertiesResolver.getPropertyByName(
-						String.format(PropertiesResolver.NOTEBOOK_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
+						String.format(PropertiesResolver.NOTEBOOK_SCENARIO_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
 				test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File(notebookFilesLocation),
 						notebookName);
 			}

@@ -48,7 +48,7 @@ public class TestDataEngineService {
     private final static String COMMAND_RUN_PYTHON2;
 
     static {
-        COMMAND_COPY_TO_NOTEBOOK = "scp -r -i %s -o 'StrictHostKeyChecking no' ~/%s %s@%s:/tmp/";
+        COMMAND_COPY_TO_NOTEBOOK = "scp -r -i %s -o 'StrictHostKeyChecking no' ~/%s %s@%s:/tmp/%s";
         COMMAND_RUN_PYTHON = CloudHelper.getPythonTestingScript();
         COMMAND_RUN_PYTHON2 = CloudHelper.getPythonTestingScript2();
     }
@@ -138,11 +138,14 @@ public class TestDataEngineService {
         	
         	LOGGER.info("{}: Copying files to Notebook {}...", notebookName, noteBookIp);
             for (String filename : files) {
-            	copyFileToNotebook(ssnSession, filename, noteBookIp);
+            	copyFileToNotebook(ssnSession, filename, noteBookIp, notebookName);
     		}
 
+            LOGGER.info("{}: Copying templates to SSN {}...", notebookName, ssnIP);
+            copyFileToSSN(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName));
+
             LOGGER.info("{}: Copying templates to Notebook {}...", notebookName, noteBookIp);
-            copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName), noteBookIp);
+            copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName), noteBookIp, notebookName);
 
             LOGGER.info("{}: Port forwarding from ssn {} to notebook {}...", notebookName, ssnIP, noteBookIp);
             int assignedPort = ssnSession.setPortForwardingL(0, noteBookIp, 22);
@@ -180,12 +183,13 @@ public class TestDataEngineService {
 
     }
     
-    private void copyFileToNotebook(Session session, String filename, String ip) throws JSchException, IOException, InterruptedException {
+    private void copyFileToNotebook(Session session, String filename, String ip, String notebookName) throws JSchException, IOException, InterruptedException {
     	String command = String.format(COMMAND_COPY_TO_NOTEBOOK,
     			"keys/"+ Paths.get(ConfigPropertyValue.getAccessKeyPrivFileName()).getFileName().toString(),
                 filename,
                 ConfigPropertyValue.getClusterOsUser(),
-                ip);
+                ip,
+                NamingHelper.getNotebookType(notebookName) + "/");
 
     	LOGGER.info("Copying {}...", filename);
     	LOGGER.info("  Run command: {}", command);
