@@ -1,11 +1,3 @@
 [
-    "dataproc.agents.create",
-    "dataproc.agents.delete",
-    "dataproc.agents.get",
-    "dataproc.agents.list",
-    "dataproc.agents.update",
-    "dataproc.tasks.lease",
-    "dataproc.tasks.listInvalidatedLeases",
-    "dataproc.tasks.reportStatus",
-    "logging.logEntries.create"
+
 ]
