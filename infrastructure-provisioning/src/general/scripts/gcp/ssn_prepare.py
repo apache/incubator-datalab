@@ -40,7 +40,7 @@ if __name__ == "__main__":
     logging.info('[DERIVING NAMES]')
     print('[DERIVING NAMES]')
     ssn_conf = dict()
-    ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] =  replace_multi_symbols(
+    ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
         os.environ['conf_service_base_name'].lower().replace('_', '-')[:12], '-', True)
     ssn_conf['region'] = os.environ['gcp_region']
     ssn_conf['zone'] = os.environ['gcp_zone']
