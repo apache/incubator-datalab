@@ -23,6 +23,7 @@ import com.epam.dlab.backendapi.validation.SelfServiceCloudConfigurationSequence
 import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.epam.dlab.validation.AwsValidation;
 import com.epam.dlab.validation.AzureValidation;
+import com.epam.dlab.validation.GcpValidation;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.util.Duration;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -53,11 +54,11 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @JsonProperty
     private int maxEmrSpotInstanceBidPct;
 
-    @Min(value = 2, groups = {AzureValidation.class, AwsValidation.class})
+    @Min(value = 2, groups = {AzureValidation.class, AwsValidation.class, GcpValidation.class})
     @JsonProperty
     private int minSparkInstanceCount;
 
-    @Max(value = 1000, groups = {AzureValidation.class, AwsValidation.class})
+    @Max(value = 1000, groups = {AzureValidation.class, AwsValidation.class, GcpValidation.class})
     @JsonProperty
     private int maxSparkInstanceCount;
 
@@ -79,6 +80,16 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @NotEmpty(groups = AwsValidation.class)
     @JsonProperty
     private String billingConfFile;
+
+    @Min(value = 1, groups = GcpValidation.class)
+    @JsonProperty
+    private int minDataprocMasterInstanceCount;
+    @Max(value = 3, groups = GcpValidation.class)
+    @JsonProperty
+    private int maxDataprocMasterInstanceCount;
+    @Min(value = 2, groups = GcpValidation.class)
+    @JsonProperty
+    private int minDataprocSlaveInstanceCount;
 
     /**
      * Returns the minimum number of slave EMR instances than could be created.
@@ -151,5 +162,17 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
      */
     public AzureLoginConfiguration getAzureLoginConfiguration() {
         return azureLoginConfiguration;
+    }
+
+    public int getMinDataprocMasterInstanceCount() {
+        return minDataprocMasterInstanceCount;
+    }
+
+    public int getMaxDataprocMasterInstanceCount() {
+        return maxDataprocMasterInstanceCount;
+    }
+
+    public int getMinDataprocSlaveInstanceCount() {
+        return minDataprocSlaveInstanceCount;
     }
 }

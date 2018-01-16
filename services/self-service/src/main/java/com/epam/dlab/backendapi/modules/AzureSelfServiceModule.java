@@ -29,10 +29,12 @@ import com.epam.dlab.backendapi.resources.azure.BillingResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.EdgeCallbackAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.KeyUploaderCallbackAzure;
-import com.epam.dlab.backendapi.service.AzureBillingService;
-import com.epam.dlab.backendapi.service.AzureInfrastructureInfoService;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
+import com.epam.dlab.backendapi.service.InfrastructureTemplatesService;
+import com.epam.dlab.backendapi.service.azure.AzureBillingService;
+import com.epam.dlab.backendapi.service.azure.AzureInfrastructureInfoService;
+import com.epam.dlab.backendapi.service.azure.AzureInfrastructureTemplatesService;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.google.inject.Injector;
@@ -53,6 +55,7 @@ public class AzureSelfServiceModule extends CloudModule {
         bind(BillingService.class).to(AzureBillingService.class);
         bind((KeyDAO.class)).to(AzureKeyDao.class);
         bind(InfrastructureInfoService.class).to(AzureInfrastructureInfoService.class);
+        bind(InfrastructureTemplatesService.class).to(AzureInfrastructureTemplatesService.class);
 
         if (!azureLoginConfiguration.isUseLdap()) {
             bind(AzureLoginUrlBuilder.class).toInstance(new AzureLoginUrlBuilder(azureLoginConfiguration));
