@@ -156,19 +156,19 @@ public class NamingHelper {
 
     public static String getNotebookTestTemplatesPath(String notebookName){
         if(notebookName.contains("deeplearning")){
-            return "test_templates/deeplearning";
+            return "test_templates/deeplearning/";
         }
         else if(notebookName.contains("jupyter")){
-            return "test_templates/jupyter";
+            return "test_templates/jupyter/";
         }
         else if(notebookName.contains("rstudio")){
-            return "test_templates/rstudio";
+            return "test_templates/rstudio/";
         }
         else if(notebookName.contains("tensor")){
-            return "test_templates/tensor";
+            return "test_templates/tensor/";
         }
         else if(notebookName.contains("zeppelin")){
-            return "test_templates/zeppelin";
+            return "test_templates/zeppelin/";
         }
         else return "";
 

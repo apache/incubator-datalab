@@ -110,10 +110,12 @@ public class TestCallable implements Callable<Boolean> {
 			    TestDataEngineService test = new TestDataEngineService();
 				test.run(notebookName, actualClusterName);
 
-				String notebookFilesLocation = PropertiesResolver.getPropertyByName(
+				String notebookScenarioFilesLocation = PropertiesResolver.getPropertyByName(
 						String.format(PropertiesResolver.NOTEBOOK_SCENARIO_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
-				test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File(notebookFilesLocation),
-						notebookName);
+                String notebookTemplatesLocation = PropertiesResolver.getPropertyByName(
+                        String.format(PropertiesResolver.NOTEBOOK_TEST_TEMPLATES_LOCATION, notebookTemplate));
+				test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File(notebookScenarioFilesLocation),
+						new File(notebookTemplatesLocation), notebookName);
 			}
 
 			stopEnvironment();

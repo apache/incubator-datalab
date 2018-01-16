@@ -114,44 +114,53 @@ public class TestDataEngineService {
         }
     }
 
-    public void run2(String ssnIP, String noteBookIp, String clusterName, File notebookDirectory, String notebookName)
+    public void run2(String ssnIP, String noteBookIp, String clusterName, File notebookScenarioDirectory, File notebookTemplatesDirectory, String notebookName)
             throws JSchException, IOException, InterruptedException {
-    	LOGGER.info("Python tests for {} will be started ...", notebookDirectory);
+    	LOGGER.info("Python tests for directories {} and {} will be started ...", notebookScenarioDirectory, notebookTemplatesDirectory);
     	if (ConfigPropertyValue.isRunModeLocal()) {
     		LOGGER.info("  tests are skipped");
     		return;
     	}
 
-        assertTrue(notebookDirectory.exists(), notebookName + ": Checking notebook directory " + notebookDirectory);
-        assertTrue(notebookDirectory.isDirectory());
+        assertTrue(notebookScenarioDirectory.exists(), notebookName + ": Checking notebook scenario directory " + notebookScenarioDirectory);
+        assertTrue(notebookScenarioDirectory.isDirectory());
 
-    	String [] files = notebookDirectory.list();
-    	assertTrue(files.length == 1, "The python script location " + notebookDirectory + " found more more then 1 file, expected 1 *.py file, but found multiple files: " + Arrays.toString(files));
-        assertTrue(files[0].endsWith(".py"), "The python script was not found");
+        assertTrue(notebookTemplatesDirectory.exists(), notebookName + ": Checking notebook templates directory " + notebookTemplatesDirectory);
+        assertTrue(notebookTemplatesDirectory.isDirectory());
+
+        String [] templatesFiles = notebookTemplatesDirectory.list();
+
+    	String [] scenarioFiles = notebookScenarioDirectory.list();
+    	assertTrue(scenarioFiles.length == 1, "The python script location " + notebookScenarioDirectory +
+                " found more more then 1 file, expected 1 *.py file, but found multiple files: " + Arrays.toString(scenarioFiles));
+        assertTrue(scenarioFiles[0].endsWith(".py"), "The python script was not found");
         // it is assumed there should be 1 python file.
-        String notebookTestFile = files[0];
+        String notebookScenarioTestFile = scenarioFiles[0];
 
         Session ssnSession = SSHConnect.getSession(ConfigPropertyValue.getClusterOsUser(), ssnIP, 22);
         try {
-            LOGGER.info("{}: Copying files to SSN {}...", notebookName, ssnIP);
-        	copyFileToSSN(ssnSession, Paths.get(notebookDirectory.getAbsolutePath(), notebookTestFile).toString());
+            LOGGER.info("{}: Copying scenario test file to SSN {}...", notebookName, ssnIP);
+        	copyFileToSSN(ssnSession, Paths.get(notebookScenarioDirectory.getAbsolutePath(), notebookScenarioTestFile).toString());
         	
-        	LOGGER.info("{}: Copying files to Notebook {}...", notebookName, noteBookIp);
-            for (String filename : files) {
-            	copyFileToNotebook(ssnSession, filename, noteBookIp, "");
-    		}
+        	LOGGER.info("{}: Copying scenario test file to Notebook {}...", notebookName, noteBookIp);
+            copyFileToNotebook(ssnSession, notebookScenarioTestFile, noteBookIp, "");
 
             LOGGER.info("{}: Copying templates to SSN {}...", notebookName, ssnIP);
-            copyFileToSSN(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName));
+            for(String filename : templatesFiles){
+                copyFileToSSN(ssnSession, Paths.get(notebookTemplatesDirectory.getAbsolutePath(), filename).toString());
+            }
 
             LOGGER.info("{}: Copying templates to Notebook {}...", notebookName, noteBookIp);
-            copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName), noteBookIp, notebookName);
+            for(String filename : templatesFiles){
+                copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName) + filename,
+                        noteBookIp, notebookName);
+            }
 
             LOGGER.info("{}: Port forwarding from ssn {} to notebook {}...", notebookName, ssnIP, noteBookIp);
             int assignedPort = ssnSession.setPortForwardingL(0, noteBookIp, 22);
             LOGGER.info("{}: Port forwarded localhost:{} -> {}:22", notebookName, assignedPort, noteBookIp);
 
-            executePythonScript(noteBookIp, clusterName, notebookTestFile, assignedPort, notebookName);
+            executePythonScript(noteBookIp, clusterName, notebookScenarioTestFile, assignedPort, notebookName);
         }
         finally {
             if(ssnSession != null && ssnSession.isConnected()) {
