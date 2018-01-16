@@ -60,7 +60,7 @@ public class TestDataEngineService {
             LOGGER.info("{}: Copying test data copy scripts {} to SSN {}...",
             		notebookName, NamingHelper.getStorageName(), NamingHelper.getSsnIp());
             ssnSession = SSHConnect.getSession(ConfigPropertyValue.getClusterOsUser(), NamingHelper.getSsnIp(), 22);
-            copyFileToSSN(ssnSession, PropertiesResolver.getNotebookTestDataCopyScriptLocation());
+            copyFileToSSN(ssnSession, PropertiesResolver.getNotebookTestDataCopyScriptLocation(), "");
             executePythonScript2(ssnSession, clusterName, new File(PropertiesResolver.getNotebookTestDataCopyScriptLocation()).getName(), notebookName);
         } finally {
 	        if(ssnSession != null && !ssnSession.isConnected()) {
@@ -140,14 +140,15 @@ public class TestDataEngineService {
         Session ssnSession = SSHConnect.getSession(ConfigPropertyValue.getClusterOsUser(), ssnIP, 22);
         try {
             LOGGER.info("{}: Copying scenario test file to SSN {}...", notebookName, ssnIP);
-        	copyFileToSSN(ssnSession, Paths.get(notebookScenarioDirectory.getAbsolutePath(), notebookScenarioTestFile).toString());
+        	copyFileToSSN(ssnSession, Paths.get(notebookScenarioDirectory.getAbsolutePath(), notebookScenarioTestFile).toString(), "");
         	
         	LOGGER.info("{}: Copying scenario test file to Notebook {}...", notebookName, noteBookIp);
             copyFileToNotebook(ssnSession, notebookScenarioTestFile, noteBookIp, "");
 
             LOGGER.info("{}: Copying templates to SSN {}...", notebookName, ssnIP);
             for(String filename : templatesFiles){
-                copyFileToSSN(ssnSession, Paths.get(notebookTemplatesDirectory.getAbsolutePath(), filename).toString());
+                copyFileToSSN(ssnSession, Paths.get(notebookTemplatesDirectory.getAbsolutePath(), filename).toString(),
+                        NamingHelper.getNotebookTestTemplatesPath(notebookName));
             }
 
             LOGGER.info("{}: Copying templates to Notebook {}...", notebookName, noteBookIp);
@@ -171,7 +172,7 @@ public class TestDataEngineService {
     }
 
     
-    private void copyFileToSSN(Session ssnSession, String filenameWithPath) throws IOException, JSchException {
+    private void copyFileToSSN(Session ssnSession, String filenameWithPath, String directoryInRootSSN) throws IOException, JSchException {
         LOGGER.info("Copying {}...", filenameWithPath);
         File file = new File(filenameWithPath);
         assertTrue(file.exists());
@@ -180,7 +181,7 @@ public class TestDataEngineService {
         FileInputStream src = new FileInputStream(file);
         try {
         	channelSftp = SSHConnect.getChannelSftp(ssnSession);
-        	channelSftp.put(src, String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), file.getName()));
+        	channelSftp.put(src, String.format("/home/%s/%s%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN, file.getName()));
         } catch (SftpException e) {
             LOGGER.error(e);
             assertTrue(false);
