@@ -243,16 +243,9 @@ if __name__ == "__main__":
         logging.info('[CONFIGURE SSN INSTANCE UI]')
         print('[CONFIGURE SSN INSTANCE UI]')
         mongo_parameters = {
-            #"gcp_region": os.environ['gcp_region'],
-            #"gcp_zone": os.environ['gcp_zone'],
-            # "aws_subnet_id": os.environ['aws_subnet_id'],
             "conf_service_base_name": os.environ['conf_service_base_name'],
-            # "aws_security_groups_ids": os.environ['aws_security_groups_ids'].replace(" ", ""),
             "conf_os_family": os.environ['conf_os_family'],
-            # "conf_tag_resource_id": os.environ['conf_tag_resource_id'],
             "conf_key_dir": os.environ['conf_key_dir']
-            #"ssn_instance_size": os.environ['gcp_ssn_instance_size'],
-            #"edge_instance_size": os.environ['gcp_edge_instance_size']
         }
         params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} \
                  --resource {} --service_base_name {} --cloud_provider {} --mongo_parameters '{}'". \
