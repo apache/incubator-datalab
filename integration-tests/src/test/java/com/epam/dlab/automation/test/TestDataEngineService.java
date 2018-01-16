@@ -148,12 +148,12 @@ public class TestDataEngineService {
             LOGGER.info("{}: Copying templates to SSN {}...", notebookName, ssnIP);
             for(String filename : templatesFiles){
                 copyFileToSSN(ssnSession, Paths.get(notebookTemplatesDirectory.getAbsolutePath(), filename).toString(),
-                        NamingHelper.getNotebookTestTemplatesPath(notebookName));
+                        "test_templates/");
             }
 
             LOGGER.info("{}: Copying templates to Notebook {}...", notebookName, noteBookIp);
             for(String filename : templatesFiles){
-                copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName) + filename,
+                copyFileToNotebook(ssnSession, "test_templates/" + filename,
                         noteBookIp, notebookName);
             }
 
@@ -175,6 +175,7 @@ public class TestDataEngineService {
     private void copyFileToSSN(Session ssnSession, String filenameWithPath, String directoryInRootSSN) throws IOException, JSchException {
         LOGGER.info("Copying {}...", filenameWithPath);
         File file = new File(filenameWithPath);
+        LOGGER.info("File {} exists {}", filenameWithPath, file.exists());
         assertTrue(file.exists());
 
         ChannelSftp channelSftp = null;
