@@ -182,6 +182,9 @@ public class TestDataEngineService {
         FileInputStream src = new FileInputStream(file);
         try {
         	channelSftp = SSHConnect.getChannelSftp(ssnSession);
+        	if(!directoryInRootSSN.equals("")){
+        	    channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN));
+            }
         	channelSftp.put(src, String.format("/home/%s/%s%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN, file.getName()));
         } catch (SftpException e) {
             LOGGER.error(e);
