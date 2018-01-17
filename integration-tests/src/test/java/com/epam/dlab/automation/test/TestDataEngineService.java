@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 import com.epam.dlab.automation.helper.CloudHelper;
+import com.jcraft.jsch.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,11 +36,7 @@ import com.epam.dlab.automation.docker.SSHConnect;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.epam.dlab.automation.helper.PropertiesResolver;
 import com.epam.dlab.automation.helper.NamingHelper;
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.SftpException;
+
 public class TestDataEngineService {
     private final static Logger LOGGER = LogManager.getLogger(TestDataEngineService.class);
     
@@ -191,7 +188,8 @@ public class TestDataEngineService {
         	    StringBuilder sb = new StringBuilder();
         	    for(String partOfPath : partsOfPath){
                     sb.append(partOfPath);
-                    if(!channelSftp.stat(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString())).isDir()){
+                    SftpATTRS attr = channelSftp.lstat(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
+                    if(attr == null){
         	            LOGGER.info("Creating directory {} in SSN ...",
                                 String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
                         channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
@@ -199,7 +197,7 @@ public class TestDataEngineService {
                     sb.append("/");
                 }
             }
-            assertTrue(channelSftp.stat(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN)).isDir(),
+            assertTrue(channelSftp.lstat(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN)).isDir(),
                     "Directory " + String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN) + " doesn't exist in SSN!");
             channelSftp.put(src, String.format("/home/%s/%s%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN, file.getName()));
         } catch (SftpException e) {
