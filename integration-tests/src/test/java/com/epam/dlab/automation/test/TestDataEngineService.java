@@ -148,12 +148,12 @@ public class TestDataEngineService {
             LOGGER.info("{}: Copying templates to SSN {}...", notebookName, ssnIP);
             for(String filename : templatesFiles){
                 copyFileToSSN(ssnSession, Paths.get(notebookTemplatesDirectory.getAbsolutePath(), filename).toString(),
-                        "test_templates/");
+                        NamingHelper.getNotebookTestTemplatesPath(notebookName));
             }
 
             LOGGER.info("{}: Copying templates to Notebook {}...", notebookName, noteBookIp);
             for(String filename : templatesFiles){
-                copyFileToNotebook(ssnSession, "test_templates/" + filename,
+                copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName) + filename,
                         noteBookIp, notebookName);
             }
 
@@ -183,8 +183,19 @@ public class TestDataEngineService {
         try {
         	channelSftp = SSHConnect.getChannelSftp(ssnSession);
         	if(!directoryInRootSSN.equals("")){
-        	    channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN));
+        	    String[] partsOfPath = directoryInRootSSN.split("/");
+        	    StringBuilder sb = new StringBuilder();
+        	    for(String partOfPath : partsOfPath){
+                    sb.append(partOfPath);
+        	        if(!new File(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString())).exists()){
+        	            LOGGER.info("Creating directory {} in SSN ...",
+                                String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
+                        channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
+                    }
+                    sb.append("/");
+                }
             }
+            assertTrue(new File(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN)).exists());
         	channelSftp.put(src, String.format("/home/%s/%s%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN, file.getName()));
         } catch (SftpException e) {
             LOGGER.error(e);
@@ -214,7 +225,5 @@ public class TestDataEngineService {
         LOGGER.info("Copied {}: {}", filename, status.toString());
         assertTrue(status.isOk());
     }
-
-
 
 }
