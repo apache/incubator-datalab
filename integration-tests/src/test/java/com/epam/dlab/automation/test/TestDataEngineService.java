@@ -191,14 +191,11 @@ public class TestDataEngineService {
         	    StringBuilder sb = new StringBuilder();
         	    for(String partOfPath : partsOfPath){
                     sb.append(partOfPath);
-                    LOGGER.info("Creating directory {} in SSN ...",
-                            String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
-                    channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
-//        	        if(!channelSftp.stat(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString())).isDir()){
-//        	            LOGGER.info("Creating directory {} in SSN ...",
-//                                String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
-//                        channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
-//                    }
+                    if(!channelSftp.stat(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString())).isDir()){
+        	            LOGGER.info("Creating directory {} in SSN ...",
+                                String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
+                        channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
+                    }
                     sb.append("/");
                 }
             }
