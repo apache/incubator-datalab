@@ -155,10 +155,12 @@ public class TestDataEngineService {
             }
 
             LOGGER.info("{}: Copying templates to Notebook {}...", notebookName, noteBookIp);
-            for(String filename : templatesFiles){
-                copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName) + filename,
+            copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName),
                         noteBookIp, notebookName);
-            }
+//            for(String filename : templatesFiles){
+//                copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName) + filename,
+//                        noteBookIp, notebookName);
+//            }
 
             LOGGER.info("{}: Port forwarding from ssn {} to notebook {}...", notebookName, ssnIP, noteBookIp);
             int assignedPort = ssnSession.setPortForwardingL(0, noteBookIp, 22);
