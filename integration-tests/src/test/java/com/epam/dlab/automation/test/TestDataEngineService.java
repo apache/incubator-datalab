@@ -145,6 +145,9 @@ public class TestDataEngineService {
             LOGGER.info("In notebook templates directory {} available following template files: {}",
                     notebookTemplatesDirectory, Arrays.toString(templatesFiles));
 
+            LOGGER.info("{}: Creating subfolder in home directory in SSN for copying templates {}...", notebookName, ssnIP);
+            mkDirInSSN(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName));
+
             LOGGER.info("{}: Copying templates to SSN {}...", notebookName, ssnIP);
             for(String filename : templatesFiles){
                 copyFileToSSN(ssnSession, Paths.get(notebookTemplatesDirectory.getAbsolutePath(), filename).toString(),
@@ -182,27 +185,44 @@ public class TestDataEngineService {
         FileInputStream src = new FileInputStream(file);
         try {
         	channelSftp = SSHConnect.getChannelSftp(ssnSession);
-        	LOGGER.info("Connection to SSN: {}", channelSftp != null ? "success" : "failed");
-        	if(!directoryInRootSSN.equals("")){
-        	    String[] partsOfPath = directoryInRootSSN.split("/");
-        	    StringBuilder sb = new StringBuilder();
-        	    for(String partOfPath : partsOfPath){
-                    sb.append(partOfPath);
-                    SftpATTRS attr = channelSftp.lstat(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
-                    if(attr == null){
-        	            LOGGER.info("Creating directory {} in SSN ...",
-                                String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
-                        channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
+        	channelSftp.put(src, String.format("/home/%s/%s%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN, file.getName()));
+        } catch (SftpException e) {
+            LOGGER.error("An error occured during copying file to SSN: {}", e);
+            assertTrue(false, "Copying file " + file.getName() + " to SSN is failed");
+        } finally {
+            if(channelSftp != null && !channelSftp.isConnected()) {
+                channelSftp.disconnect();
+            }
+        }
+
+    }
+
+    private void mkDirInSSN(Session ssnSession, String directoryName) throws JSchException {
+        String newDirectoryAbsolutePath = String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryName);
+        LOGGER.info("Creating directory {} in SSN ...", newDirectoryAbsolutePath);
+
+        ChannelSftp channelSftp = null;
+        try {
+            channelSftp = SSHConnect.getChannelSftp(ssnSession);
+            if(!directoryName.equals("")){
+                String[] partsOfPath = directoryName.split("/");
+                StringBuilder sb = new StringBuilder();
+                for(String partOfPath : partsOfPath){
+                    if(partOfPath.equals("")){
+                        continue;
                     }
+                    sb.append(partOfPath);
+                    LOGGER.info("Creating directory {} in SSN ...",
+                            String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
+                    channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
                     sb.append("/");
                 }
             }
-            assertTrue(channelSftp.lstat(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN)).isDir(),
-                    "Directory " + String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN) + " doesn't exist in SSN!");
-            channelSftp.put(src, String.format("/home/%s/%s%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN, file.getName()));
+            assertTrue(channelSftp.stat(newDirectoryAbsolutePath).isDir(), "Directory " + newDirectoryAbsolutePath +
+                    " wasn't created in SSN!");
         } catch (SftpException e) {
-            LOGGER.error("An error occured: {}", e);
-            assertTrue(false, "Copying file " + file.getName() + " to SSN is failed");
+            LOGGER.error("An error occured during creation directory in SSN: {}", e);
+            assertTrue(false, "Creating directory " + newDirectoryAbsolutePath + " in SSN is failed");
         } finally {
             if(channelSftp != null && !channelSftp.isConnected()) {
                 channelSftp.disconnect();
