@@ -254,7 +254,6 @@ private String  createNotebook(String notebookName) throws Exception {
 
        List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(getTemplateTestLibFile(LibsHelper.getLibListPath(notebookName)),
                LibToSearchData.class);
-       LOGGER.info("Quantity of libs for testing: {}", libToSearchDataList.size());
 
        for (LibToSearchData libToSearchData : libToSearchDataList) {
            TestLibListStep testLibListStep = new TestLibListStep(ApiPath.LIB_LIST, token, notebookName,
