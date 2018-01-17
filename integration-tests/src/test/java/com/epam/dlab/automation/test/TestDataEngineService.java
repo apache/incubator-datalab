@@ -145,6 +145,9 @@ public class TestDataEngineService {
         	LOGGER.info("{}: Copying scenario test file to Notebook {}...", notebookName, noteBookIp);
             copyFileToNotebook(ssnSession, notebookScenarioTestFile, noteBookIp, "");
 
+            LOGGER.info("In notebook templates directory {} available following template files: {}",
+                    notebookTemplatesDirectory, Arrays.toString(templatesFiles));
+
             LOGGER.info("{}: Copying templates to SSN {}...", notebookName, ssnIP);
             for(String filename : templatesFiles){
                 copyFileToSSN(ssnSession, Paths.get(notebookTemplatesDirectory.getAbsolutePath(), filename).toString(),
@@ -199,8 +202,8 @@ public class TestDataEngineService {
                     "Directory " + String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN) + " doesn't exist in SSN!");
             channelSftp.put(src, String.format("/home/%s/%s%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN, file.getName()));
         } catch (SftpException e) {
-            LOGGER.error(e);
-            assertTrue(false);
+            LOGGER.error("An error occured: {}", e);
+            assertTrue(false, "Copying file " + file.getName() + " to SSN isn't finished");
         } finally {
             if(channelSftp != null && !channelSftp.isConnected()) {
                 channelSftp.disconnect();
