@@ -138,6 +138,7 @@ public class TestLibInstallStep extends TestLibStep {
                     if (REALLY_FAILED_ERROR.equals(libStatus.getError())
                             || libStatus.getError() == null
                             || libStatus.getError().isEmpty()) {
+                        LOGGER.error("Library status of {} is {}", libToInstall.getName(), libStatus.getError());
 
                         Assert.fail(String.format("Installing library failed %s", libStatusResponse));
                     }
