@@ -185,12 +185,13 @@ public class TestDataEngineService {
         FileInputStream src = new FileInputStream(file);
         try {
         	channelSftp = SSHConnect.getChannelSftp(ssnSession);
+        	LOGGER.info("Connection to SSN: {}", channelSftp != null ? "success" : "failed");
         	if(!directoryInRootSSN.equals("")){
         	    String[] partsOfPath = directoryInRootSSN.split("/");
         	    StringBuilder sb = new StringBuilder();
         	    for(String partOfPath : partsOfPath){
                     sb.append(partOfPath);
-        	        if(channelSftp.stat(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString())) == null){
+        	        if(!channelSftp.stat(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString())).isDir()){
         	            LOGGER.info("Creating directory {} in SSN ...",
                                 String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
                         channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
@@ -198,12 +199,12 @@ public class TestDataEngineService {
                     sb.append("/");
                 }
             }
-            assertTrue(channelSftp.stat(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN)) != null,
+            assertTrue(channelSftp.stat(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN)).isDir(),
                     "Directory " + String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN) + " doesn't exist in SSN!");
             channelSftp.put(src, String.format("/home/%s/%s%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN, file.getName()));
         } catch (SftpException e) {
             LOGGER.error("An error occured: {}", e);
-            assertTrue(false, "Copying file " + file.getName() + " to SSN isn't finished");
+            assertTrue(false, "Copying file " + file.getName() + " to SSN is failed");
         } finally {
             if(channelSftp != null && !channelSftp.isConnected()) {
                 channelSftp.disconnect();
