@@ -135,12 +135,9 @@ public class TestLibInstallStep extends TestLibStep {
                     LOGGER.info("Library status of {} is {}", libToInstall, libStatusResponse);
                 } else if ("failed".equals(libStatus.getStatus())) {
 
-                    if (REALLY_FAILED_ERROR.equals(libStatus.getError())
-                            || libStatus.getError() == null
+                    if (REALLY_FAILED_ERROR.equals(libStatus.getError()) || libStatus.getError() == null
                             || libStatus.getError().isEmpty()) {
-                        LOGGER.error("Library status of {} is {}", libToInstall.getName(), libStatus.getError());
-
-                        Assert.fail(String.format("Installing library failed %s", libStatusResponse));
+                        LibsHelper.incrementByOneCurrentQuantityOfLibInstallErrorsToFailTest();
                     }
 
                     LOGGER.warn("Failed status with proper error message happend for {}", libStatusResponse);

@@ -255,6 +255,9 @@ private String  createNotebook(String notebookName) throws Exception {
        List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(getTemplateTestLibFile(LibsHelper.getLibListPath(notebookName)),
                LibToSearchData.class);
 
+       LibsHelper.setMaxQuantityOfLibInstallErrorsToFailTest(libToSearchDataList.size());
+       LibsHelper.setCurrentQuantityOfLibInstallErrorsToFailTest(0);
+
        for (LibToSearchData libToSearchData : libToSearchDataList) {
            TestLibListStep testLibListStep = new TestLibListStep(ApiPath.LIB_LIST, token, notebookName,
         		   getDuration(notebookConfig.getTimeoutLibList()).getSeconds(), libToSearchData);
@@ -269,6 +272,9 @@ private String  createNotebook(String notebookName) throws Exception {
 
            testLibInstallStep.init();
            testLibInstallStep.verify();
+           if(LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest() == LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest()) {
+               Assert.fail("Test for library installing is failed: there are not any installed library");
+           }
        }
    }
 

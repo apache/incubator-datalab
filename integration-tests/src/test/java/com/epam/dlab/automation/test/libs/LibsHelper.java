@@ -2,6 +2,30 @@ package com.epam.dlab.automation.test.libs;
 
 public class LibsHelper {
 
+    private static int currentQuantityOfLibInstallErrorsToFailTest;
+    private static int maxQuantityOfLibInstallErrorsToFailTest;
+
+
+    public static int getCurrentQuantityOfLibInstallErrorsToFailTest() {
+        return currentQuantityOfLibInstallErrorsToFailTest;
+    }
+
+    public static void setCurrentQuantityOfLibInstallErrorsToFailTest(int currentQuantityOfLibInstallErrorsToFailTest) {
+        LibsHelper.currentQuantityOfLibInstallErrorsToFailTest = currentQuantityOfLibInstallErrorsToFailTest;
+    }
+
+    public static int getMaxQuantityOfLibInstallErrorsToFailTest() {
+        return maxQuantityOfLibInstallErrorsToFailTest;
+    }
+
+    public static void setMaxQuantityOfLibInstallErrorsToFailTest(int maxQuantityOfLibInstallErrorsToFailTest) {
+        LibsHelper.maxQuantityOfLibInstallErrorsToFailTest = maxQuantityOfLibInstallErrorsToFailTest;
+    }
+
+    public static void incrementByOneCurrentQuantityOfLibInstallErrorsToFailTest(){
+        currentQuantityOfLibInstallErrorsToFailTest++;
+    }
+
     public static String getLibGroupsPath(String notebookName){
         if(notebookName.contains("deeplearning")){
             return "deeplearning/lib_groups.json";
