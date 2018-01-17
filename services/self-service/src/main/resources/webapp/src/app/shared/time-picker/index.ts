@@ -19,17 +19,19 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TimePickerComponent } from './time-picker.component';
+import { MaterialModule } from '../../shared/material.module';
+
+import {
+  TimePickerComponent,
+  TimePickerDialogComponent
+} from './time-picker.component';
 
 export * from './time-picker.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule
-  ],
-  declarations: [TimePickerComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule],
+  declarations: [TimePickerComponent, TimePickerDialogComponent],
+  entryComponents: [TimePickerDialogComponent],
   exports: [TimePickerComponent]
 })
 export class TimePickerModule {}
