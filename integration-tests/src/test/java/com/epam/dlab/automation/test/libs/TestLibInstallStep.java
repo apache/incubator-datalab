@@ -139,6 +139,9 @@ public class TestLibInstallStep extends TestLibStep {
                             || libStatus.getError().isEmpty()) {
                         LibsHelper.incrementByOneCurrentQuantityOfLibInstallErrorsToFailTest();
                     }
+                    if(LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest() == LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest()) {
+                        Assert.fail("Test for library installing is failed: there are not any installed library");
+                    }
 
                     LOGGER.warn("Failed status with proper error message happend for {}", libStatusResponse);
                 } else {

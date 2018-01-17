@@ -100,7 +100,7 @@ public class TestCallable implements Callable<Boolean> {
 			final String notebookIp = createNotebook(notebookName);
 			testLibs();
 
-//			final DeployClusterDto deployClusterDto = createClusterDto();
+			final DeployClusterDto deployClusterDto = createClusterDto();
             final String actualClusterName = NamingHelper.getClusterName(
                     NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
                     dataEngineType, true);
@@ -120,12 +120,12 @@ public class TestCallable implements Callable<Boolean> {
 
 			stopEnvironment();
 
-//			if (fullTest) {
-//				restartNotebookAndRedeployToTerminate(deployClusterDto);
-//			}
-//			if (deployClusterDto != null) {
-//				terminateNotebook(deployClusterDto);
-//			}
+			if (fullTest) {
+				restartNotebookAndRedeployToTerminate(deployClusterDto);
+			}
+			if (deployClusterDto != null) {
+				terminateNotebook(deployClusterDto);
+			}
 
 			// Create notebook from AMI
 			String notebookNewName = "AMI" + notebookName;
@@ -243,7 +243,7 @@ private String  createNotebook(String notebookName) throws Exception {
    }
 
    private void testLibs() throws Exception {
-       LOGGER.info("Install libraries  ...", notebookName);
+       LOGGER.info("{}: install libraries  ...", notebookName);
 
        TestLibGroupStep testLibGroupStep = new TestLibGroupStep(ApiPath.LIB_GROUPS, token, notebookName,
                getDuration(notebookConfig.getTimeoutLibGroups()).getSeconds(),
@@ -272,10 +272,10 @@ private String  createNotebook(String notebookName) throws Exception {
 
            testLibInstallStep.init();
            testLibInstallStep.verify();
-           if(LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest() == LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest()) {
-               Assert.fail("Test for library installing is failed: there are not any installed library");
-           }
        }
+       LOGGER.info("{}: installed {} testing libraries from {}", notebookName,
+               LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest() - LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest(),
+               LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest());
    }
 
    private String getTemplateTestLibFile(String fileName) {

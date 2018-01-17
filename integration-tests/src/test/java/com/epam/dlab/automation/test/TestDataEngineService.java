@@ -203,9 +203,6 @@ public class TestDataEngineService {
         try {
             channelSftp = SSHConnect.getChannelSftp(ssnSession);
             if(!directoryName.equals("")){
-                LOGGER.info("Additional info about path {}: value = {}",
-                        newDirectoryAbsolutePath,
-                        channelSftp.readlink(newDirectoryAbsolutePath));
                 String[] partsOfPath = directoryName.split("/");
                 StringBuilder sb = new StringBuilder();
                 for(String partOfPath : partsOfPath){
@@ -213,9 +210,6 @@ public class TestDataEngineService {
                         continue;
                     }
                     sb.append(partOfPath);
-                    LOGGER.info("Additional info about path {}: value = {}",
-                            String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()),
-                            channelSftp.readlink(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString())));
                     LOGGER.info("Creating directory {} in SSN ...",
                             String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
                     channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
