@@ -25,6 +25,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.epam.dlab.automation.helper.CloudHelper;
 import com.jcraft.jsch.*;
@@ -184,7 +186,7 @@ public class TestDataEngineService {
     // Copies file to subfolder of home directory of SSN. If parameter 'destDirectoryInSSN' is empty string then copies
     // to home directory.
     private void copyFileToSSN(Session ssnSession, String sourceFilenameWithPath, String destDirectoryInSSN) throws IOException, JSchException {
-        LOGGER.info("Copying {}...", sourceFilenameWithPath);
+        LOGGER.info("Copying {} to SSN...", sourceFilenameWithPath);
         File file = new File(sourceFilenameWithPath);
         assertTrue(file.exists(), "Source file " + sourceFilenameWithPath + " doesn't exist!");
         LOGGER.info("Source file {} exists: {}", sourceFilenameWithPath, file.exists());
@@ -208,7 +210,7 @@ public class TestDataEngineService {
     // Creates a folder in home directory of SSN
     private void mkDirInSSN(Session ssnSession, String directoryName) throws JSchException {
         String newDirectoryAbsolutePath = String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryName);
-        LOGGER.info("Creating directory {} in SSN ...", newDirectoryAbsolutePath);
+        LOGGER.info("Creating directory {} in SSN...", newDirectoryAbsolutePath);
 
         ChannelSftp channelSftp = null;
         try {
@@ -221,7 +223,7 @@ public class TestDataEngineService {
                         continue;
                     }
                     sb.append(partOfPath);
-                    LOGGER.info("Creating directory {} in SSN ...",
+                    LOGGER.info("Creating directory {} in SSN...",
                             String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
                     channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
                     sb.append("/");
@@ -243,8 +245,9 @@ public class TestDataEngineService {
     // Checks if file exists in home directory of SSN
     private boolean existsInSSN(Session ssnSession, String fileName) throws JSchException {
         String homeDirectoryAbsolutePath = String.format("/home/%s", ConfigPropertyValue.getClusterOsUser());
-        LOGGER.info("Checking if file {} exists in home directory {} in SSN ...", fileName, homeDirectoryAbsolutePath);
+        LOGGER.info("Checking if file {} exists in home directory {} in SSN...", fileName, homeDirectoryAbsolutePath);
 
+        boolean isFileEmbeddedIntoFolder = fileName.contains("/");
         ChannelSftp channelSftp = null;
         List<String> fileNames = new ArrayList<>();
         try {
@@ -254,8 +257,39 @@ public class TestDataEngineService {
                 ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) fileData;
                 fileNames.add(entry.getFilename());
             }
-            LOGGER.info("In home directory {} in SSN there are following files: {}",
+            if(fileNames.isEmpty()){
+                return false;
+            }
+            LOGGER.info("In home directory {} of SSN there are following files: {}",
                     homeDirectoryAbsolutePath, fileNames);
+            if(!isFileEmbeddedIntoFolder){
+                return fileNames.contains(fileName);
+            }else{
+                List<String> partsOfPath =
+                        Stream.of(fileName.split("/")).filter(e -> !e.equals("")).collect(Collectors.toList());
+                StringBuilder currentPath = new StringBuilder(homeDirectoryAbsolutePath);
+                for(int i = 0; i < partsOfPath.size(); i++){
+                    String partOfPath = partsOfPath.get(i);
+                    if(fileNames.isEmpty() || !fileNames.contains(partOfPath)){
+                        return false;
+                    }else{
+                        if(i == partsOfPath.size() - 1){
+                            return true;
+                        }
+                        currentPath.append("/").append(partOfPath);
+                        fileDataList = channelSftp.ls(currentPath.toString());
+                        fileNames = new ArrayList<>();
+                        for (Object fileData : fileDataList) {
+                            ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) fileData;
+                            fileNames.add(entry.getFilename());
+                        }
+
+                    }
+
+                }
+
+            }
+
         } catch (SftpException e) {
             LOGGER.error("An error occured during obtaining list of files from home directory in SSN: {}", e);
         } finally {
@@ -263,7 +297,7 @@ public class TestDataEngineService {
                 channelSftp.disconnect();
             }
         }
-        return fileNames.contains(fileName);
+        return false;
     }
 
     // Removes file or directory from home directory of SSN
@@ -277,10 +311,10 @@ public class TestDataEngineService {
             boolean isDir = channelSftp.stat(absoluteFilePath).isDir();
             LOGGER.info("Is file {} a directory in SSN: {}", absoluteFilePath, isDir);
             if(isDir){
-                LOGGER.info("Removing directory {} from SSN ...", absoluteFilePath);
+                LOGGER.info("Removing directory {} from SSN...", absoluteFilePath);
                 channelSftp.rmdir(absoluteFilePath);
             }else{
-                LOGGER.info("Removing file {} from SSN ...", absoluteFilePath);
+                LOGGER.info("Removing file {} from SSN...", absoluteFilePath);
                 channelSftp.rm(absoluteFilePath);
             }
         } catch (SftpException e) {
@@ -300,7 +334,7 @@ public class TestDataEngineService {
                 ip,
                 NamingHelper.getNotebookType(notebookName));
 
-    	LOGGER.info("Copying {}...", filename);
+    	LOGGER.info("Copying {} to notebook...", filename);
     	LOGGER.info("  Run command: {}", command);
 
         ChannelExec copyResult = SSHConnect.setCommand(session, command);
