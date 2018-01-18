@@ -59,7 +59,7 @@ if __name__ == "__main__":
         'edge_user_name'] + "-nb-SG"
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
-    notebook_config['shared_ami_enabled'] = os.environ['shared_image_enabled']
+    notebook_config['shared_image_enabled'] = os.environ['shared_image_enabled']
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
