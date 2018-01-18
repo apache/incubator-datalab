@@ -274,7 +274,7 @@ private String  createNotebook(String notebookName) throws Exception {
            testLibInstallStep.verify();
        }
        LOGGER.info("{}: installed {} testing libraries from {}", notebookName,
-               LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest() - LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest(),
+               (LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest() - LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest()),
                LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest());
    }
 
