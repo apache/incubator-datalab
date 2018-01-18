@@ -2,8 +2,8 @@ package com.epam.dlab.backendapi.resources.callback.gcp;
 
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.callback.base.EdgeCallback;
-import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
+import com.epam.dlab.dto.gcp.edge.EdgeInfoGcp;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,7 +32,7 @@ public class EdgeCallbackGcp extends EdgeCallback {
      */
     @POST
     @Path(ApiCallbacks.STATUS_URI)
-    public Response status(UploadFileResult<EdgeInfoAws> dto) {
+    public Response status(UploadFileResult<EdgeInfoGcp> dto) {
         RequestId.checkAndRemove(dto.getRequestId());
         handleEdgeCallback(dto.getUser(), dto.getStatus());
         return Response.ok().build();
