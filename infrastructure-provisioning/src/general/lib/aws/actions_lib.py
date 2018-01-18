@@ -899,7 +899,7 @@ def remove_vpc_endpoints(vpc_id):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_image_from_instance(tag_name='', instance_name='', image_name=''):
+def create_image_from_instance(tag_name='', instance_name='', image_name='', tags=''):
     try:
         ec2 = boto3.resource('ec2')
         instances = ec2.instances.filter(
@@ -914,8 +914,9 @@ def create_image_from_instance(tag_name='', instance_name='', image_name=''):
                 local("echo Waiting for image creation; sleep 20")
                 image.load()
             #image.create_tags(Tags=[{'Key': 'Name', 'Value': os.environ['conf_service_base_name']}])
-            tag = {'Key': 'Name', 'Value': os.environ['conf_service_base_name']}
-            create_tag(image.id, tag)
+            for key in json.loads(tags).keys():
+                tag = {'Key': key, 'Value': tags[key]}
+                create_tag(image.id, tag)
             return image.id
         return ''
     except botocore.exceptions.ClientError as err:
