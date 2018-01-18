@@ -24,7 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.*;
 
 import com.epam.dlab.automation.helper.CloudHelper;
 import com.jcraft.jsch.*;
@@ -137,13 +137,22 @@ public class TestDataEngineService {
         Session ssnSession = SSHConnect.getSession(ConfigPropertyValue.getClusterOsUser(), ssnIP, 22);
         try {
             LOGGER.info("{}: Copying scenario test file to SSN {}...", notebookName, ssnIP);
-        	copyFileToSSN(ssnSession, Paths.get(notebookScenarioDirectory.getAbsolutePath(), notebookScenarioTestFile).toString(), "");
+            if(!existsInSSN(ssnSession, Paths.get(notebookScenarioDirectory.getAbsolutePath(), notebookScenarioTestFile).toString())){
+                copyFileToSSN(ssnSession, Paths.get(notebookScenarioDirectory.getAbsolutePath(), notebookScenarioTestFile).toString(), "");
+            }else{
+                LOGGER.info("{}: Scenario test file already exists in SSN {}", notebookName, ssnIP);
+            }
         	
         	LOGGER.info("{}: Copying scenario test file to Notebook {}...", notebookName, noteBookIp);
             copyFileToNotebook(ssnSession, notebookScenarioTestFile, noteBookIp, "");
 
             LOGGER.info("In notebook templates directory {} available following template files: {}",
                     notebookTemplatesDirectory, Arrays.toString(templatesFiles));
+
+            if(existsInSSN(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName))){
+                LOGGER.info("{}: Corresponding folder for notebook templates already exists in SSN {} and will be removed ...", notebookName, ssnIP);
+                removeFromSSN(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName).split("/")[0]);
+            }
 
             LOGGER.info("{}: Creating subfolder in home directory in SSN for copying templates {}...", notebookName, ssnIP);
             mkDirInSSN(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName));
@@ -172,18 +181,19 @@ public class TestDataEngineService {
         }
     }
 
-    
-    private void copyFileToSSN(Session ssnSession, String filenameWithPath, String directoryInRootSSN) throws IOException, JSchException {
-        LOGGER.info("Copying {}...", filenameWithPath);
-        File file = new File(filenameWithPath);
-        assertTrue(file.exists(), "File " + filenameWithPath + " doesn't exist!");
-        LOGGER.info("File {} exists {}", filenameWithPath, file.exists());
+    // Copies file to subfolder of home directory of SSN. If parameter 'destDirectoryInSSN' is empty string then copies
+    // to home directory.
+    private void copyFileToSSN(Session ssnSession, String sourceFilenameWithPath, String destDirectoryInSSN) throws IOException, JSchException {
+        LOGGER.info("Copying {}...", sourceFilenameWithPath);
+        File file = new File(sourceFilenameWithPath);
+        assertTrue(file.exists(), "Source file " + sourceFilenameWithPath + " doesn't exist!");
+        LOGGER.info("Source file {} exists: {}", sourceFilenameWithPath, file.exists());
 
         ChannelSftp channelSftp = null;
         FileInputStream src = new FileInputStream(file);
         try {
         	channelSftp = SSHConnect.getChannelSftp(ssnSession);
-        	channelSftp.put(src, String.format("/home/%s/%s%s", ConfigPropertyValue.getClusterOsUser(), directoryInRootSSN, file.getName()));
+        	channelSftp.put(src, String.format("/home/%s/%s%s", ConfigPropertyValue.getClusterOsUser(), destDirectoryInSSN, file.getName()));
         } catch (SftpException e) {
             LOGGER.error("An error occured during copying file to SSN: {}", e);
             assertTrue(false, "Copying file " + file.getName() + " to SSN is failed");
@@ -195,6 +205,7 @@ public class TestDataEngineService {
 
     }
 
+    // Creates a folder in home directory of SSN
     private void mkDirInSSN(Session ssnSession, String directoryName) throws JSchException {
         String newDirectoryAbsolutePath = String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), directoryName);
         LOGGER.info("Creating directory {} in SSN ...", newDirectoryAbsolutePath);
@@ -227,6 +238,58 @@ public class TestDataEngineService {
             }
         }
 
+    }
+
+    // Checks if file exists in home directory of SSN
+    private boolean existsInSSN(Session ssnSession, String fileName) throws JSchException {
+        String homeDirectoryAbsolutePath = String.format("/home/%s", ConfigPropertyValue.getClusterOsUser());
+        LOGGER.info("Checking if file {} exists in home directory {} in SSN ...", fileName, homeDirectoryAbsolutePath);
+
+        ChannelSftp channelSftp = null;
+        List<String> fileNames = new ArrayList<>();
+        try {
+            channelSftp = SSHConnect.getChannelSftp(ssnSession);
+            Vector fileDataList = channelSftp.ls(homeDirectoryAbsolutePath);
+            for (Object fileData : fileDataList) {
+                ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) fileData;
+                fileNames.add(entry.getFilename());
+            }
+            LOGGER.info("In home directory {} in SSN there are following files: {}",
+                    homeDirectoryAbsolutePath, fileNames);
+        } catch (SftpException e) {
+            LOGGER.error("An error occured during obtaining list of files from home directory in SSN: {}", e);
+        } finally {
+            if(channelSftp != null && !channelSftp.isConnected()) {
+                channelSftp.disconnect();
+            }
+        }
+        return fileNames.contains(fileName);
+    }
+
+    // Removes file or directory from home directory of SSN
+    private void removeFromSSN(Session ssnSession, String fileNameWithRelativePath) throws JSchException {
+        String absoluteFilePath = String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), fileNameWithRelativePath);
+
+        ChannelSftp channelSftp = null;
+        List<String> fileNames = new ArrayList<>();
+        try {
+            channelSftp = SSHConnect.getChannelSftp(ssnSession);
+            boolean isDir = channelSftp.stat(absoluteFilePath).isDir();
+            LOGGER.info("Is file {} a directory in SSN: {}", absoluteFilePath, isDir);
+            if(isDir){
+                LOGGER.info("Removing directory {} from SSN ...", absoluteFilePath);
+                channelSftp.rmdir(absoluteFilePath);
+            }else{
+                LOGGER.info("Removing file {} from SSN ...", absoluteFilePath);
+                channelSftp.rm(absoluteFilePath);
+            }
+        } catch (SftpException e) {
+            LOGGER.error("An error occured during removing file {} from SSN: {}", absoluteFilePath, e);
+        } finally {
+            if(channelSftp != null && !channelSftp.isConnected()) {
+                channelSftp.disconnect();
+            }
+        }
     }
     
     private void copyFileToNotebook(Session session, String filename, String ip, String notebookName) throws JSchException, IOException, InterruptedException {
