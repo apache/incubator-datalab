@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, FormArray, FormBuilder } from '@angular/forms';
-import { AmazingTimePickerService } from 'amazing-time-picker';
 
 @Component({
   selector: 'dlab-scheduler',
@@ -10,18 +9,22 @@ import { AmazingTimePickerService } from 'amazing-time-picker';
 export class SchedulerComponent implements OnInit {
 
   public notebook: any;
+  private exportTime = {
+    hour: new Date().getHours(),
+    minute: new Date().getMinutes(),
+    meriden: new Date().getHours() < 12 ? 'AM' : 'PM'
+  };
 
   public weekdays: string[] = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ];
   schedulerFormGroup : FormGroup;
 
   @ViewChild('bindDialog') bindDialog;
 
-  constructor(private formBuilder: FormBuilder, private atp: AmazingTimePickerService) { }
+  constructor(private formBuilder: FormBuilder) { }
 
   ngOnInit() {
     this.schedulerFormGroup = this.formBuilder.group({
-      weekdays: this.formBuilder.array([]),
-      timeFormat: 12.00
+      weekdays: this.formBuilder.array([])
     });
   }
 
