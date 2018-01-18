@@ -227,6 +227,7 @@ if __name__ == "__main__":
             res = {"hostname": instance_hostname,
                    "public_ip": edge_conf['static_ip'],
                    "ip": edge_conf['private_ip'],
+                   "instance_id": edge_conf['instance_name'],
                    "key_name": edge_conf['key_name'],
                    "user_own_bucket_name": edge_conf['bucket_name'],
                    "tunnel_port": "22",
