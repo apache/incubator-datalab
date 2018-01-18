@@ -29,8 +29,8 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
     private String masterInstanceType;
     @JsonProperty("dataproc_slave_instance_type")
     private String slaveInstanceType;
-    @JsonProperty("dataproc_preemtible_count")
-    private String preemtibleCount;
+    @JsonProperty("dataproc_preemptible_count")
+    private String preemptibleCount;
     @JsonProperty("dataproc_version")
     private String version;
 
@@ -54,8 +54,8 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
         return this;
     }
 
-    public ComputationalCreateGcp withPreemtibleCount(String preemtibleCount) {
-        this.preemtibleCount = preemtibleCount;
+    public ComputationalCreateGcp withPreemptibleCount(String preemptibleCount) {
+        this.preemptibleCount = preemptibleCount;
         return this;
     }
 
@@ -72,7 +72,7 @@ public class ComputationalCreateGcp extends ComputationalBase<ComputationalCreat
                 .add("slaveInstanceType", slaveInstanceType)
                 .add("masterInstanceCount", masterInstanceCount)
                 .add("slaveInstanceCount", slaveInstanceCount)
-                .add("preemtibleCount", preemtibleCount);
+                .add("preemptibleCount", preemptibleCount);
     }
 
     @Override
