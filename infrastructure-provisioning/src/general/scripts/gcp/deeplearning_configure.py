@@ -187,6 +187,7 @@ if __name__ == "__main__":
     with open("/root/result.json", 'w') as result:
         res = {"hostname": ip_address,
                "ip": ip_address,
+               "instance_id": notebook_config['instance_name'],
                "master_keyname": os.environ['conf_key_name'],
                "tensorboard_log_dir": "/var/log/tensorboard",
                "notebook_name": notebook_config['instance_name'],
