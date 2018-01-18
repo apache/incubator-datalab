@@ -18,8 +18,8 @@ limitations under the License.
 
 // from './{{ aws | gcp | azure }}.dictionary';
 
-import { NAMING_CONVENTION } from './CLOUD_PROVIDER.dictionary';
+import { NAMING_CONVENTION } from './aws.dictionary';
 
-export * from './CLOUD_PROVIDER.dictionary';
+export * from './aws.dictionary';
 
 export const DICTIONARY = Object.freeze(NAMING_CONVENTION);

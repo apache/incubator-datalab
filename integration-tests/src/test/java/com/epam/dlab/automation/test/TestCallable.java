@@ -279,13 +279,7 @@ private String  createNotebook(String notebookName) throws Exception {
    }
 
    private String getTemplateTestLibFile(String fileName) {
-        String absoluteFileName;
-        if (PropertiesResolver.DEV_MODE) {
-            absoluteFileName = Paths.get(PropertiesResolver.getNotebookTestLibLocation(), fileName).toString();
-        } else {
-            absoluteFileName = Paths.get(PropertiesResolver.getNotebookTestLibLocation(), notebookTemplate,
-                    fileName).toString();
-        }
+        String absoluteFileName = Paths.get(PropertiesResolver.getNotebookTestLibLocation(), fileName).toString();
         LOGGER.info("Absolute file name is {}", absoluteFileName);
         return absoluteFileName;
    }
