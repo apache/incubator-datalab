@@ -139,12 +139,8 @@ public class TestDataEngineService {
         Session ssnSession = SSHConnect.getSession(ConfigPropertyValue.getClusterOsUser(), ssnIP, 22);
         try {
             LOGGER.info("{}: Copying scenario test file to SSN {}...", notebookName, ssnIP);
-            if(!existsInSSN(ssnSession, notebookScenarioTestFile)){
-                copyFileToSSN(ssnSession, Paths.get(notebookScenarioDirectory.getAbsolutePath(), notebookScenarioTestFile).toString(), "");
-            }else{
-                LOGGER.info("{}: Scenario test file already exists in SSN {}", notebookName, ssnIP);
-            }
-        	
+            copyFileToSSN(ssnSession, Paths.get(notebookScenarioDirectory.getAbsolutePath(), notebookScenarioTestFile).toString(), "");
+
         	LOGGER.info("{}: Copying scenario test file to Notebook {}...", notebookName, noteBookIp);
             copyFileToNotebook(ssnSession, notebookScenarioTestFile, noteBookIp, "");
 

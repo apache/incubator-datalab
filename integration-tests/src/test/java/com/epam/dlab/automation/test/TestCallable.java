@@ -100,7 +100,7 @@ public class TestCallable implements Callable<Boolean> {
 			final String notebookIp = createNotebook(notebookName);
 			testLibs();
 
-			//final DeployClusterDto deployClusterDto = createClusterDto();
+			final DeployClusterDto deployClusterDto = createClusterDto();
             final String actualClusterName = NamingHelper.getClusterName(
                     NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
                     dataEngineType, true);
@@ -120,12 +120,12 @@ public class TestCallable implements Callable<Boolean> {
 
 			stopEnvironment();
 
-//			if (fullTest) {
-//				restartNotebookAndRedeployToTerminate(deployClusterDto);
-//			}
-//			if (deployClusterDto != null) {
-//				terminateNotebook(deployClusterDto);
-//			}
+			if (fullTest) {
+				restartNotebookAndRedeployToTerminate(deployClusterDto);
+			}
+			if (deployClusterDto != null) {
+				terminateNotebook(deployClusterDto);
+			}
 
 			// Create notebook from AMI
 			String notebookNewName = "AMI" + notebookName;
