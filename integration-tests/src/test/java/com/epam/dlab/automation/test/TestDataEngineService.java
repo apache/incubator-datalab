@@ -348,7 +348,8 @@ public class TestDataEngineService {
                     ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) fileData;
                     if(!(entry.getFilename().equals(".") || entry.getFilename().equals(".."))){
                         if(entry.getAttrs().isDir()){
-                            recursiveDirectoryDelete(ssnSession, remoteDir + entry.getFilename() + File.separator);
+                            recursiveDirectoryDelete(ssnSession, remoteDir + File.separator
+                                    + entry.getFilename() + File.separator);
                         }
                         else{
                             channelSftp.rm(remoteDir + entry.getFilename());
