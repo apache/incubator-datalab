@@ -27,12 +27,15 @@ import json
 
 if __name__ == "__main__":
     try:
+        create_aws_config_files()
         image_conf = dict()
         image_conf['full_image_name'] = os.environ['image_name']
 
         image_id = get_ami_id_by_name(image_conf['full_image_name'])
         if image_id != '':
-            deregister_image(image_id)
+            deregister_image(image_conf['full_image_name'])
+        else:
+            print('Could not find image by name.')
 
         with open("/root/result.json", 'w') as result:
             res = {"image_name": image_conf['full_image_name'],

@@ -29,6 +29,7 @@ import uuid
 if __name__ == "__main__":
     try:
         image_id = ''
+        create_aws_config_files()
         image_conf = dict()
         image_conf['uuid'] = str(uuid.uuid4())[:5]
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
@@ -46,6 +47,7 @@ if __name__ == "__main__":
                               "SBN": image_conf['service_base_name'],
                               "User": image_conf['user_name'],
                               "Image": image_conf['full_image_name']}
+        print(image_conf)
 
         ami_id = get_ami_id_by_name(image_conf['full_image_name'])
         if ami_id == '':

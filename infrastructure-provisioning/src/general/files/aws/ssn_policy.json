@@ -56,6 +56,7 @@
                 "ec2:DeleteSubnet",
                 "ec2:DeleteTags",
                 "ec2:DeleteSecurityGroup",
+                "ec2:DeleteSnapshot",
                 "ec2:DescribeRouteTables",
                 "ec2:DescribeSpotInstanceRequests",
                 "ec2:ModifyVpcEndpoint",

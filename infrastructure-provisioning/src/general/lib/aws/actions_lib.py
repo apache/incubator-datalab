@@ -739,21 +739,19 @@ def add_outbound_sg_rule(sg_id, rule):
             traceback.print_exc(file=sys.stdout)
 
 
-def deregister_image(image_id=''):
+def deregister_image(image_name='*'):
     try:
         resource = boto3.resource('ec2')
         client = boto3.client('ec2')
-        if image_id == '':
-            for image in resource.images.filter(
-                    Filters=[{'Name': 'name', 'Values': ['{}-*'.format(os.environ['conf_service_base_name'])]},
-                            {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]}]):
-                client.deregister_image(ImageId=image.id)
-                for device in image.block_device_mappings:
-                    if device.get('Ebs'):
-                        client.delete_snapshot(SnapshotId=device.get('Ebs').get('SnapshotId'))
-                print("Notebook AMI {} has been deregistered successfully".format(image.id))
-        else:
-            client.deregister_image(ImageId=image_id)
+        for image in resource.images.filter(
+                Filters=[{'Name': 'name', 'Values': ['{}-*'.format(os.environ['conf_service_base_name'])]},
+                        {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]},
+                        {'Name': 'tag-value', 'Values': [image_name]}]):
+            client.deregister_image(ImageId=image.id)
+            for device in image.block_device_mappings:
+                if device.get('Ebs'):
+                    client.delete_snapshot(SnapshotId=device.get('Ebs').get('SnapshotId'))
+            print("Notebook AMI {} has been deregistered successfully".format(image.id))
     except Exception as err:
         logging.info("Unable to de-register image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to de-register image", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
@@ -917,8 +915,9 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
                 local("echo Waiting for image creation; sleep 20")
                 image.load()
             #image.create_tags(Tags=[{'Key': 'Name', 'Value': os.environ['conf_service_base_name']}])
-            for key in json.loads(tags).keys():
-                tag = {'Key': key, 'Value': tags[key]}
+            all_tags = json.loads(tags)
+            for key in all_tags.keys():
+                tag = {'Key': key, 'Value': all_tags[key]}
                 create_tag(image.id, tag)
             return image.id
         return ''
