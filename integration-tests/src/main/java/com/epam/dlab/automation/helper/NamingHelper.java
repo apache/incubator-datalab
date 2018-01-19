@@ -173,7 +173,7 @@ public class NamingHelper {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case "aws":
                 return String.format("%s-%s-%s", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
-                        CloudHelper.getStorageNameAppendix()).toLowerCase();
+                        CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
             case "azure":
                 return String.format("%s-%s-%s", serviceBaseName, "shared",
                         CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();

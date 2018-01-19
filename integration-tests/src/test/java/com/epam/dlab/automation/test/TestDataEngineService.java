@@ -139,7 +139,7 @@ public class TestDataEngineService {
         Session ssnSession = SSHConnect.getSession(ConfigPropertyValue.getClusterOsUser(), ssnIP, 22);
         try {
             LOGGER.info("{}: Copying scenario test file to SSN {}...", notebookName, ssnIP);
-            if(!existsInSSN(ssnSession, Paths.get(notebookScenarioDirectory.getAbsolutePath(), notebookScenarioTestFile).toString())){
+            if(!existsInSSN(ssnSession, notebookScenarioTestFile)){
                 copyFileToSSN(ssnSession, Paths.get(notebookScenarioDirectory.getAbsolutePath(), notebookScenarioTestFile).toString(), "");
             }else{
                 LOGGER.info("{}: Scenario test file already exists in SSN {}", notebookName, ssnIP);
@@ -247,7 +247,7 @@ public class TestDataEngineService {
     // Checks if file exists in home directory of SSN
     private boolean existsInSSN(Session ssnSession, String fileName) throws JSchException {
         String homeDirectoryAbsolutePath = String.format("/home/%s", ConfigPropertyValue.getClusterOsUser());
-        LOGGER.info("Checking if file {} exists in home directory {} in SSN...", fileName, homeDirectoryAbsolutePath);
+        LOGGER.info("Checking if file/directory {} exists in home directory {} of SSN...", fileName, homeDirectoryAbsolutePath);
 
         boolean isFileEmbeddedIntoFolder = fileName.contains("/");
         ChannelSftp channelSftp = null;
@@ -260,11 +260,15 @@ public class TestDataEngineService {
                 fileNames.add(entry.getFilename());
             }
             if(fileNames.isEmpty()){
+                LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+                        fileName, homeDirectoryAbsolutePath, "false");
                 return false;
             }
             LOGGER.info("In home directory {} of SSN there are following files: {}",
                     homeDirectoryAbsolutePath, fileNames);
             if(!isFileEmbeddedIntoFolder){
+                LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+                        fileName, homeDirectoryAbsolutePath, fileNames.contains(fileName));
                 return fileNames.contains(fileName);
             }else{
                 List<String> partsOfPath =
@@ -273,9 +277,13 @@ public class TestDataEngineService {
                 for(int i = 0; i < partsOfPath.size(); i++){
                     String partOfPath = partsOfPath.get(i);
                     if(fileNames.isEmpty() || !fileNames.contains(partOfPath)){
+                        LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+                                fileName, homeDirectoryAbsolutePath, "false");
                         return false;
                     }else{
                         if(i == partsOfPath.size() - 1){
+                            LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+                                    fileName, homeDirectoryAbsolutePath, "true");
                             return true;
                         }
                         currentPath.append("/").append(partOfPath);
@@ -299,6 +307,8 @@ public class TestDataEngineService {
                 channelSftp.disconnect();
             }
         }
+        LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+                fileName, homeDirectoryAbsolutePath, "false");
         return false;
     }
 
@@ -307,14 +317,13 @@ public class TestDataEngineService {
         String absoluteFilePath = String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), fileNameWithRelativePath);
 
         ChannelSftp channelSftp = null;
-        List<String> fileNames = new ArrayList<>();
         try {
             channelSftp = SSHConnect.getChannelSftp(ssnSession);
             boolean isDir = channelSftp.stat(absoluteFilePath).isDir();
             LOGGER.info("Is file {} a directory in SSN: {}", absoluteFilePath, isDir);
             if(isDir){
                 LOGGER.info("Removing directory {} from SSN...", absoluteFilePath);
-                channelSftp.rmdir(absoluteFilePath);
+                recursiveDirectoryDelete(ssnSession, absoluteFilePath);
             }else{
                 LOGGER.info("Removing file {} from SSN...", absoluteFilePath);
                 channelSftp.rm(absoluteFilePath);
@@ -327,7 +336,39 @@ public class TestDataEngineService {
             }
         }
     }
-    
+
+    private void recursiveDirectoryDelete(Session ssnSession, String remoteDir) throws JSchException{
+        ChannelSftp channelSftp = null;
+        try{
+            channelSftp = SSHConnect.getChannelSftp(ssnSession);
+            boolean isDir = channelSftp.stat(remoteDir).isDir();
+            if(isDir){
+                Vector dirList = channelSftp.ls(remoteDir);
+                for(Object fileData : dirList){
+                    ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) fileData;
+                    if(!(entry.getFilename().equals(".") || entry.getFilename().equals(".."))){
+                        if(entry.getAttrs().isDir()){
+                            recursiveDirectoryDelete(ssnSession, remoteDir + entry.getFilename() + File.separator);
+                        }
+                        else{
+                            channelSftp.rm(remoteDir + entry.getFilename());
+                        }
+                    }
+                }
+                channelSftp.cd("..");
+                channelSftp.rmdir(remoteDir);
+            }
+        }
+        catch (SftpException e){
+            LOGGER.error("An error occured while deleting directory {}: {}", remoteDir, e.getMessage());
+        }
+        finally {
+            if(channelSftp != null && !channelSftp.isConnected()) {
+                channelSftp.disconnect();
+            }
+        }
+    }
+
     private void copyFileToNotebook(Session session, String filename, String ip, String notebookName) throws JSchException, IOException, InterruptedException {
     	String command = String.format(COMMAND_COPY_TO_NOTEBOOK,
     			"keys/"+ Paths.get(ConfigPropertyValue.getAccessKeyPrivFileName()).getFileName().toString(),
