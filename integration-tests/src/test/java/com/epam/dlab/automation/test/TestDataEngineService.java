@@ -203,6 +203,11 @@ public class TestDataEngineService {
             if(channelSftp != null && !channelSftp.isConnected()) {
                 channelSftp.disconnect();
             }
+            if(channelSftp != null){
+                LOGGER.info("Inside 'copyFileToSSN' channelSftp is connected {}", channelSftp.isConnected());
+            }else{
+                LOGGER.info("Inside 'copyFileToSSN' channelSftp is null");
+            }
         }
 
     }
@@ -239,6 +244,11 @@ public class TestDataEngineService {
         } finally {
             if(channelSftp != null && !channelSftp.isConnected()) {
                 channelSftp.disconnect();
+            }
+            if(channelSftp != null){
+                LOGGER.info("Inside 'mkDirInSSN' channelSftp is connected {}", channelSftp.isConnected());
+            }else{
+                LOGGER.info("Inside 'mkDirInSSN' channelSftp is null");
             }
         }
 
@@ -306,6 +316,11 @@ public class TestDataEngineService {
             if(channelSftp != null && !channelSftp.isConnected()) {
                 channelSftp.disconnect();
             }
+            if(channelSftp != null){
+                LOGGER.info("Inside 'existsInSSN' channelSftp is connected {}", channelSftp.isConnected());
+            }else{
+                LOGGER.info("Inside 'existsInSSN' channelSftp is null");
+            }
         }
         LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
                 fileName, homeDirectoryAbsolutePath, "false");
@@ -333,6 +348,11 @@ public class TestDataEngineService {
         } finally {
             if(channelSftp != null && !channelSftp.isConnected()) {
                 channelSftp.disconnect();
+            }
+            if(channelSftp != null){
+                LOGGER.info("Inside 'removeFromSSN' channelSftp is connected {}", channelSftp.isConnected());
+            }else{
+                LOGGER.info("Inside 'removeFromSSN' channelSftp is null");
             }
         }
     }
@@ -366,6 +386,11 @@ public class TestDataEngineService {
         finally {
             if(channelSftp != null && !channelSftp.isConnected()) {
                 channelSftp.disconnect();
+            }
+            if(channelSftp != null){
+                LOGGER.info("Inside 'recursiveDirectoryDelete' channelSftp is connected {}", channelSftp.isConnected());
+            }else{
+                LOGGER.info("Inside 'recursiveDirectoryDelete' channelSftp is null");
             }
         }
     }

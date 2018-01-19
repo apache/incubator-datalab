@@ -59,7 +59,7 @@ public class TestServices {
 	// computation resources in parallel
 	// looks like running test in 1 thread mostly succeeds, running in 2 and more
 	// threads - usually fails.
-	private static final int N_THREADS = 20;
+	private static final int N_THREADS = 10;
 
 	private long testTimeMillis;
 	private List<NotebookConfig> notebookConfigs;
