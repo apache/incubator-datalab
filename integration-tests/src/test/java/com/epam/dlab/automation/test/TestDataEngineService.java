@@ -163,7 +163,6 @@ public class TestDataEngineService {
             for(String filename : templatesFiles){
                 copyFileToSSN(ssnSession, Paths.get(notebookTemplatesDirectory.getAbsolutePath(), filename).toString(),
                         NamingHelper.getNotebookTestTemplatesPath(notebookName));
-                Thread.sleep(100);
             }
 
             LOGGER.info("{}: Copying templates to Notebook {}...", notebookName, noteBookIp);
