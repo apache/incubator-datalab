@@ -200,13 +200,8 @@ public class TestDataEngineService {
             LOGGER.error("An error occured during copying file to SSN: {}", e);
             assertTrue(false, "Copying file " + file.getName() + " to SSN is failed");
         } finally {
-            if(channelSftp != null && !channelSftp.isConnected()) {
+            if(channelSftp != null && channelSftp.isConnected()) {
                 channelSftp.disconnect();
-            }
-            if(channelSftp != null){
-                LOGGER.info("Inside 'copyFileToSSN' channelSftp is connected {}", channelSftp.isConnected());
-            }else{
-                LOGGER.info("Inside 'copyFileToSSN' channelSftp is null");
             }
         }
 
@@ -242,13 +237,8 @@ public class TestDataEngineService {
             LOGGER.error("An error occured during creation directory in SSN: {}", e);
             assertTrue(false, "Creating directory " + newDirectoryAbsolutePath + " in SSN is failed");
         } finally {
-            if(channelSftp != null && !channelSftp.isConnected()) {
+            if(channelSftp != null && channelSftp.isConnected()) {
                 channelSftp.disconnect();
-            }
-            if(channelSftp != null){
-                LOGGER.info("Inside 'mkDirInSSN' channelSftp is connected {}", channelSftp.isConnected());
-            }else{
-                LOGGER.info("Inside 'mkDirInSSN' channelSftp is null");
             }
         }
 
@@ -313,13 +303,8 @@ public class TestDataEngineService {
         } catch (SftpException e) {
             LOGGER.error("An error occured during obtaining list of files from home directory in SSN: {}", e);
         } finally {
-            if(channelSftp != null && !channelSftp.isConnected()) {
+            if(channelSftp != null && channelSftp.isConnected()) {
                 channelSftp.disconnect();
-            }
-            if(channelSftp != null){
-                LOGGER.info("Inside 'existsInSSN' channelSftp is connected {}", channelSftp.isConnected());
-            }else{
-                LOGGER.info("Inside 'existsInSSN' channelSftp is null");
             }
         }
         LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
@@ -346,13 +331,8 @@ public class TestDataEngineService {
         } catch (SftpException e) {
             LOGGER.error("An error occured during removing file {} from SSN: {}", absoluteFilePath, e);
         } finally {
-            if(channelSftp != null && !channelSftp.isConnected()) {
+            if(channelSftp != null && channelSftp.isConnected()) {
                 channelSftp.disconnect();
-            }
-            if(channelSftp != null){
-                LOGGER.info("Inside 'removeFromSSN' channelSftp is connected {}", channelSftp.isConnected());
-            }else{
-                LOGGER.info("Inside 'removeFromSSN' channelSftp is null");
             }
         }
     }
@@ -384,13 +364,8 @@ public class TestDataEngineService {
             LOGGER.error("An error occured while deleting directory {}: {}", remoteDir, e.getMessage());
         }
         finally {
-            if(channelSftp != null && !channelSftp.isConnected()) {
+            if(channelSftp != null && channelSftp.isConnected()) {
                 channelSftp.disconnect();
-            }
-            if(channelSftp != null){
-                LOGGER.info("Inside 'recursiveDirectoryDelete' channelSftp is connected {}", channelSftp.isConnected());
-            }else{
-                LOGGER.info("Inside 'recursiveDirectoryDelete' channelSftp is null");
             }
         }
     }
