@@ -739,18 +739,21 @@ def add_outbound_sg_rule(sg_id, rule):
             traceback.print_exc(file=sys.stdout)
 
 
-def deregister_image():
+def deregister_image(image_id=''):
     try:
         resource = boto3.resource('ec2')
         client = boto3.client('ec2')
-        for image in resource.images.filter(
-                Filters=[{'Name': 'name', 'Values': ['{}-*'.format(os.environ['conf_service_base_name'])]},
-                         {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]}]):
-            client.deregister_image(ImageId=image.id)
-            for device in image.block_device_mappings:
-                if device.get('Ebs'):
-                    client.delete_snapshot(SnapshotId=device.get('Ebs').get('SnapshotId'))
-            print("Notebook AMI {} has been deregistered successfully".format(image.id))
+        if image_id == '':
+            for image in resource.images.filter(
+                    Filters=[{'Name': 'name', 'Values': ['{}-*'.format(os.environ['conf_service_base_name'])]},
+                            {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]}]):
+                client.deregister_image(ImageId=image.id)
+                for device in image.block_device_mappings:
+                    if device.get('Ebs'):
+                        client.delete_snapshot(SnapshotId=device.get('Ebs').get('SnapshotId'))
+                print("Notebook AMI {} has been deregistered successfully".format(image.id))
+        else:
+            client.deregister_image(ImageId=image_id)
     except Exception as err:
         logging.info("Unable to de-register image: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to de-register image", "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
