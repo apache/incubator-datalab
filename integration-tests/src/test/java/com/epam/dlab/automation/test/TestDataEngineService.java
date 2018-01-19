@@ -223,9 +223,11 @@ public class TestDataEngineService {
                         continue;
                     }
                     sb.append(partOfPath);
-                    LOGGER.info("Creating directory {} in SSN...",
-                            String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
-                    channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
+                    if(!existsInSSN(ssnSession, sb.toString())){
+                        LOGGER.info("Creating directory {} in SSN...",
+                                String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
+                        channelSftp.mkdir(String.format("/home/%s/%s", ConfigPropertyValue.getClusterOsUser(), sb.toString()));
+                    }
                     sb.append("/");
                 }
             }
