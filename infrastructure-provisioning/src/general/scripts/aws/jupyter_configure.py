@@ -59,7 +59,7 @@ if __name__ == "__main__":
         'edge_user_name'] + "-nb-SG"
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
-    notebook_config['shared_image_enabled'] = os.environ['shared_image_enabled']
+    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     if notebook_config['shared_image_enabled'] == 'true':
         try:
             print('[CREATING AMI]')
-            logging.info('[CREATING AMI]')
+            append_result('[CREATING AMI]')
             ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
             if ami_id == '':
                 print("Looks like it's first time we configure notebook server. Creating image.")
@@ -226,6 +226,7 @@ if __name__ == "__main__":
                "instance_id": get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name']),
                "master_keyname": os.environ['conf_key_name'],
                "notebook_name": notebook_config['instance_name'],
+               "image_notebook_name": notebook_config['expected_ami_name'],
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Jupyter",
