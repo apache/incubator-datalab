@@ -134,11 +134,12 @@ public class TestLibInstallStep extends TestLibStep {
             	if ("installed".equals(libStatus.getStatus())) {
                     LOGGER.info("Library status of {} is {}", libToInstall, libStatusResponse);
                 } else if ("failed".equals(libStatus.getStatus())) {
+                    LibsHelper.incrementByOneCurrentQuantityOfLibInstallErrorsToFailTest();
 
-                    if (REALLY_FAILED_ERROR.equals(libStatus.getError()) || libStatus.getError() == null
-                            || libStatus.getError().isEmpty()) {
-                        LibsHelper.incrementByOneCurrentQuantityOfLibInstallErrorsToFailTest();
-                    }
+//                    if (REALLY_FAILED_ERROR.equals(libStatus.getError()) || libStatus.getError() == null
+//                            || libStatus.getError().isEmpty()) {
+//                        LibsHelper.incrementByOneCurrentQuantityOfLibInstallErrorsToFailTest();
+//                    }
                     if(LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest() == LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest()) {
                         Assert.fail("Test for library installing is failed: there are not any installed library");
                     }
