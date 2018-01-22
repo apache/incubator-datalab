@@ -106,5 +106,10 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 
         jersey.register(injector.getInstance(GitCredsResource.class));
         jersey.register(injector.getInstance(GitCredsCallback.class));
+        jersey.register(injector.getInstance(ImageExploratoryResource.class));
+        jersey.register(injector.getInstance(LibraryCallback.class));
     }
+
+
+
 }

@@ -92,8 +92,8 @@ public class CommandExecutorMock implements ICommandExecutor {
                 return Lists.newArrayList(DOCKER_DLAB_DATAENGINE);
             case GCP:
                 return Lists.newArrayList(DOCKER_DLAB_DATAENGINE_SERVICE, DOCKER_DLAB_DATAENGINE);
-                default:
-                    throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider);
+            default:
+                throw new IllegalArgumentException("Unsupported cloud provider " + cloudProvider);
         }
     }
 

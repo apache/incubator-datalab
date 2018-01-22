@@ -76,6 +76,10 @@ public class ExploratoryDAO extends BaseDAO {
                 eq(COMPUTATIONAL_RESOURCES + "." + STATUS, "running")));
     }
 
+    static Bson exploratoryRunningCondition(String user, String exploratoryName) {
+        return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, UserInstanceStatus.RUNNING.toString()));
+    }
+
     /**
      * Finds and returns the list of user resources.
      *
@@ -152,6 +156,20 @@ public class ExploratoryDAO extends BaseDAO {
             return opt.get();
         }
         throw new DlabException("Exploratory instance for user " + user + " with name " + exploratoryName + " not found.");
+    }
+
+    /**
+     * Finds and returns the info of running exploratory.
+     *
+     * @param user            user name.
+     * @param exploratoryName the name of exploratory.
+     */
+    public UserInstanceDTO fetchRunningExploratoryFields(String user, String exploratoryName) {
+        return findOne(USER_INSTANCES,
+                exploratoryRunningCondition(user, exploratoryName),
+                fields(exclude(COMPUTATIONAL_RESOURCES)),
+                UserInstanceDTO.class).orElseThrow(() ->
+                new DlabException(String.format("Running exploratory instance for user %s with name %s not found.", user, exploratoryName)));
     }
 
     /**

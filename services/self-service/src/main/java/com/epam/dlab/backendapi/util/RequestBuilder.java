@@ -22,6 +22,7 @@ import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
@@ -497,6 +498,22 @@ public class RequestBuilder {
                 .withExploratoryName(exploratoryName)
                 .withComputationalName(computationalName)
                 .withNotebookInstanceName(exploratoryId);
+    }
+
+    public static ExploratoryImage newImageCreate(UserInfo userInfo, ExploratoryImageCreateFormDTO form) {
+
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+            case GCP:
+                ExploratoryImage exploratoryImage = newResourceSysBaseDTO(userInfo, ExploratoryImage.class);
+                exploratoryImage.setName(form.getName());
+                exploratoryImage.setDescription(form.getDescription());
+                return exploratoryImage;
+
+            default:
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
+        }
     }
 
     private static CloudProvider cloudProvider() {
