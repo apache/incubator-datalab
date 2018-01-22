@@ -19,16 +19,18 @@ package com.epam.dlab.backendapi.resources.aws;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.commands.*;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.backendapi.core.commands.DockerCommands;
+import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
 import com.epam.dlab.backendapi.service.DockerService;
 import com.epam.dlab.backendapi.service.SparkClusterService;
+import com.epam.dlab.dto.aws.computational.AwsComputationalTerminateDTO;
 import com.epam.dlab.dto.aws.computational.ComputationalCreateAws;
 import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.contracts.ComputationalAPI;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -96,7 +98,7 @@ public class ComputationalResourceAws extends DockerService implements DockerCom
 
     @POST
     @Path(ComputationalAPI.COMPUTATIONAL_TERMINATE_CLOUD_SPECIFIC)
-    public String terminate(@Auth UserInfo ui, ComputationalTerminateDTO dto) {
+    public String terminate(@Auth UserInfo ui, AwsComputationalTerminateDTO dto) {
 
         log.debug("Terminate computational resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
         String uuid = DockerCommands.generateUUID();
@@ -139,7 +141,7 @@ public class ComputationalResourceAws extends DockerService implements DockerCom
 
     @POST
     @Path(ComputationalAPI.COMPUTATIONAL_TERMINATE_SPARK)
-    public String terminateSparkCluster(@Auth UserInfo ui, ComputationalTerminateDTO dto) {
+    public String terminateSparkCluster(@Auth UserInfo ui, AwsComputationalTerminateDTO dto) {
         log.debug("Terminate computational Spark resources {} for user {}: {}", dto.getComputationalName(), ui.getName(), dto);
 
         return sparkClusterService.terminate(ui, dto);

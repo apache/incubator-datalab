@@ -17,34 +17,6 @@
 package com.epam.dlab.dto.computational;
 
 import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.MoreObjects.ToStringHelper;
 
 public class ComputationalTerminateDTO extends ComputationalBase<ComputationalTerminateDTO> {
-    @JsonProperty("emr_cluster_name")
-    private String clusterName;
-
-    public String getClusterName() {
-        return clusterName;
-    }
-
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
-    }
-
-    public ComputationalTerminateDTO withClusterName(String clusterName) {
-        setClusterName(clusterName);
-        return this;
-    }
-
-    @Override
-    public ToStringHelper toStringHelper(Object self) {
-        return super.toStringHelper(self)
-                .add("clusterName", clusterName);
-    }
-
-    @Override
-    public String toString() {
-        return toStringHelper(this).toString();
-    }
 }

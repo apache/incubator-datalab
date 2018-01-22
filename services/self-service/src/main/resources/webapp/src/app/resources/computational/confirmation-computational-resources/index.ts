@@ -18,18 +18,17 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
 
 import { ModalModule } from '../../../shared';
+import { MaterialModule } from '../../../shared/material.module';
 import { ConfirmationComputationalResourcesComponent } from './confirmation-computational-resources.component';
 
 export * from './confirmation-computational-resources.component';
 export * from './confirmation-computational-resources.model';
 
 @NgModule({
-  imports: [ModalModule, CommonModule, MaterialModule.forRoot()],
+  imports: [CommonModule, ModalModule, MaterialModule],
   declarations: [ConfirmationComputationalResourcesComponent],
-  exports: [ConfirmationComputationalResourcesComponent],
+  exports: [ConfirmationComputationalResourcesComponent]
 })
-
-export class ConfirmationComputationalResourcesModule { }
+export class ConfirmationComputationalResourcesModule {}

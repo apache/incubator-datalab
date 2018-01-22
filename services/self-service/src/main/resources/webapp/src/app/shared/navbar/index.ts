@@ -19,21 +19,15 @@ limitations under the License.
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+
 import { NavbarComponent } from './navbar.component';
-import { MaterialModule } from '@angular/material';
+import { MaterialModule } from '../material.module';
 
 export * from './navbar.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    RouterModule,
-    MaterialModule.forRoot()
-  ],
+  imports: [CommonModule, RouterModule, MaterialModule],
   declarations: [NavbarComponent],
-  exports: [
-    NavbarComponent,
-    RouterModule
-  ],
+  exports: [NavbarComponent, RouterModule]
 })
-export class NavbarModule { }
+export class NavbarModule {}

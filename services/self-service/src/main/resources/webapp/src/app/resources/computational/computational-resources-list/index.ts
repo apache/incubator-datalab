@@ -18,8 +18,8 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
 
+import { MaterialModule } from '../../../shared/material.module';
 import { ModalModule } from '../../../shared';
 import { ComputationalResourcesListComponent } from './computational-resources-list.component';
 import { ConfirmationComputationalResourcesModule } from './../confirmation-computational-resources';
@@ -33,10 +33,9 @@ export * from './computational-resources-list.component';
     ModalModule,
     ConfirmationComputationalResourcesModule,
     DetailComputationalResourcesModule,
-    MaterialModule.forRoot()
+    MaterialModule
   ],
   declarations: [ComputationalResourcesListComponent],
-  exports: [ComputationalResourcesListComponent],
+  exports: [ComputationalResourcesListComponent]
 })
-
-export class ComputationalResourcesModule { }
+export class ComputationalResourcesModule {}

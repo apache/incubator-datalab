@@ -18,15 +18,20 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { MaterialModule } from './../shared/material.module';
 import { ResourcesComponent } from './resources.component';
 import { ResourcesGridModule } from './resources-grid';
-import { NavbarModule, ModalModule, ProgressDialogModule, UploadKeyDialogModule } from './../shared';
 import { ExploratoryEnvironmentCreateDialogModule } from './exploratory/exploratory-environment-create-dialog';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
-import { DialogResultExampleDialog } from './manage-ungit/manage-ungit.component';
+import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.component';
+import {
+  NavbarModule,
+  ModalModule,
+  ProgressDialogModule,
+  UploadKeyDialogModule
+} from './../shared';
 
 @NgModule({
   imports: [
@@ -39,10 +44,14 @@ import { DialogResultExampleDialog } from './manage-ungit/manage-ungit.component
     UploadKeyDialogModule,
     ExploratoryEnvironmentCreateDialogModule,
     NavbarModule,
-    MaterialModule.forRoot()
+    MaterialModule
   ],
-  declarations: [ResourcesComponent, ManageUngitComponent, DialogResultExampleDialog],
-  entryComponents: [DialogResultExampleDialog],
+  declarations: [
+    ResourcesComponent,
+    ManageUngitComponent,
+    ConfirmDeleteAccountDialog
+  ],
+  entryComponents: [ConfirmDeleteAccountDialog],
   exports: [ResourcesComponent]
 })
-export class ResourcesModule { }
+export class ResourcesModule {}

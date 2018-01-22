@@ -1,0 +1,41 @@
+<!--
+
+Copyright (c) 2018, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+
+<modal-dialog #bindDialog modalClass="scheduler-dialog modal-sm">
+  <modal-header>
+    <h4 class="modal-title">Scheduler</h4>
+  </modal-header>
+  <modal-content>
+    <div *ngIf="notebook" class="content-box">
+      {{ notebook.name }}
+
+      <form [formGroup]="schedulerFormGroup">
+        <div class="control-group">
+          <label class="label" for="options">Options :</label>
+
+          <div *ngFor="let day of weekdays; let i = index">
+            <mat-checkbox class="example-margin" (change)="onChange($event)" [value]="day" name="{{ day }}">{{ day }}</mat-checkbox>
+          </div>
+        </div>
+      </form>
+
+      <pre *ngIf="schedulerFormGroup">{{ schedulerFormGroup.value | json }}</pre>
+
+    </div>
+  </modal-content>
+</modal-dialog>

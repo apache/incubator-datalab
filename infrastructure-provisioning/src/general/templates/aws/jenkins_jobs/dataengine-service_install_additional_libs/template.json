@@ -3,7 +3,5 @@
     "request_id": "RID",
     "computational_id":"ECN",
     "edge_user_name":"EUN",
-    "aws_region":"CREG",
-    "conf_key_name": "CKN",
     "application": "APP"
 }

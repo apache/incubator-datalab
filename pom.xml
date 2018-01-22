@@ -39,6 +39,9 @@ limitations under the License.
         <profile>
             <id>azure</id>
         </profile>
+        <profile>
+            <id>gcp</id>
+        </profile>
     </profiles>
 
     <modules>
@@ -48,6 +51,7 @@ limitations under the License.
         <module>services/provisioning-service</module>
         <module>services/self-service</module>
         <module>services/billing-azure</module>
+        <module>services/billing-gcp</module>
         <module>services/security-azure</module>
     </modules>
 

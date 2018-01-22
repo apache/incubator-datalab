@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.service.aws;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.aws.AwsBillingDAO;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsBillingFilter;
+import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.util.CSVFormatter;
 import com.epam.dlab.core.parser.ReportLine;
 import com.epam.dlab.exceptions.DlabException;

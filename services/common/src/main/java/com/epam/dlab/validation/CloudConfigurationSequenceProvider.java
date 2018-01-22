@@ -41,6 +41,8 @@ public class CloudConfigurationSequenceProvider<T extends ServiceConfiguration> 
                     sequence.add(AzureValidation.class);
                     break;
                 case GCP:
+                    sequence.add(GcpValidation.class);
+                    break;
                 default:
                     throw new IllegalArgumentException("Cloud provider is not supported" + c.getCloudProvider());
             }

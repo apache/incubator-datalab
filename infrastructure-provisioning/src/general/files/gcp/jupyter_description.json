@@ -24,10 +24,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Jupyter notebook 5.0.0",
+      "template_name": "Jupyter notebook 5.2.0",
       "description": "Base image with jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "jupyter_notebook-5.0.0",
+      "version": "jupyter_notebook-5.2.0",
       "vendor": "GCP"
     }
   ]

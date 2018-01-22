@@ -1,12 +1,8 @@
 {
     "request_id":"RID",
     "conf_resource": "dataengine",
-    "conf_service_base_name":"SBN",
-    "conf_os_family":"COF",
     "edge_user_name":"EUN",
     "dataengine_instance_count":"EIC",
-    "conf_key_name":"KN",
-    "aws_region":"CREG",
     "notebook_instance_name":"NNM",
     "computational_name": "CNAM",
     "application": "APP"

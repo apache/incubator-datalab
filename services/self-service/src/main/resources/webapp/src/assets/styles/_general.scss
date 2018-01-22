@@ -16,8 +16,6 @@ limitations under the License.
 
 ****************************************************************************/
 
-@import 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800';
-
 body {
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
@@ -40,6 +38,7 @@ body.modal-open {
 
 input[type='text']:not(.mat-input-element),
 input[type='number']:not(.mat-input-element),
+input[type='email']:not(.mat-input-element),
 input[type='password']:not(.mat-input-element) {
   width: 100%;
   height: 36px;
@@ -56,6 +55,7 @@ input[type='password']:not(.mat-input-element) {
 
 input[type='text']:not(.mat-input-element):focus,
 input[type='number']:not(.mat-input-element):focus,
+input[type='email']:not(.mat-input-element):focus,
 input[type='password']:not(.mat-input-element):focus {
   border: none;
   background: #fff;
@@ -71,6 +71,7 @@ input[type='text']:disabled {
 
 input[type='text']:not(.mat-input-element)::placeholder,
 input[type='number']:not(.mat-input-element)::placeholder,
+input[type='email']:not(.mat-input-element)::placeholder,
 input[type='password']:not(.mat-input-element)::placeholder {
   color: #718ba6;
 }

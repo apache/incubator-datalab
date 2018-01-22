@@ -1,13 +1,7 @@
 {
     "request_id":"RID",
     "conf_resource": "edge",
-    "conf_os_family":"COF",
-    "conf_service_base_name":"SBN",
     "edge_user_name":"UN",
-    "conf_key_name":"KN",
-    "azure_region":"CREG",
-    "azure_subnet_name":"CSI",
-    "azure_vpc_name":"EVI",
     "azure_edge_instance_size":"EIS",
-    "azure_resource_group_name": "ARGN"
+    "azure_iam_user":"AUI"
 }
