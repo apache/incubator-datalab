@@ -82,6 +82,7 @@ if __name__ == "__main__":
         ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
+        notebook_config['image_notebook_name'] = os.environ['image_notebook_id']
         if os.environ['application'] == 'deeplearning':
             notebook_config['primary_disk_size'] = '30'
         else:
@@ -101,24 +102,18 @@ if __name__ == "__main__":
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
         notebook_config['ami_type'] = 'default'
-        if os.environ['application'] == 'zeppelin':
-            if os.environ['notebook_multiple_clusters'] == 'true':
-                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + \
-                                                       '-' + os.environ['application'] + '-livy-notebook-image'
-            else:
-                notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
-                                                       os.environ['application'] + '-spark-notebook-image'
-        else:
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
+        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
                                                    os.environ['application'] + '-notebook-image'
         print('Searching preconfigured images')
-        if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name']):
-            print('Preconfigured image found. Using: {}'.format(notebook_config['expected_ami_name']))
-            notebook_config['ami_name'] = notebook_config['expected_ami_name']
-            notebook_config['ami_type'] = 'pre-configured'
-        else:
+        if notebook_config['image_notebook_name'] == 'default':
             notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-            print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_name']))
+            if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['image_notebook_name']]):
+                print('Preconfigured image found. Using: {}'.format(notebook_config['image_notebook_name']))
+                notebook_config['ami_name'] = notebook_config['image_notebook_name']
+                notebook_config['ami_type'] = 'pre-configured'
+            else:
+                notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
+                print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_name']))
     except Exception as err:
         print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary.", str(err))
