@@ -415,7 +415,8 @@ private void restartNotebook() throws Exception {
                notebookName, clusterName);
 
        if (!gettingStatus.contains("terminated"))
-           throw new Exception("Computational resources has not been terminated for Notebook " + notebookName + ". EMR status is " + gettingStatus);
+           throw new Exception("Computational resources has not been terminated for Notebook " + notebookName +
+                   ". Data engine service status is " + gettingStatus);
        LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
 
        VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);

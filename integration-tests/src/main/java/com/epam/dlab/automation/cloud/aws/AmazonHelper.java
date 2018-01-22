@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.automation.cloud.aws;
 
+import com.epam.dlab.automation.cloud.CloudException;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.epam.dlab.automation.helper.NamingHelper;
 import com.amazonaws.auth.AWSCredentials;
@@ -41,9 +42,11 @@ import java.util.List;
 
 public class AmazonHelper {
 
-    private final static Logger LOGGER = LogManager.getLogger(AmazonHelper.class);
-	
+    private static final Logger LOGGER = LogManager.getLogger(AmazonHelper.class);
 	private static final Duration CHECK_TIMEOUT = Duration.parse("PT10m");
+	private static final String LOCALHOST_IP = ConfigPropertyValue.get("LOCALHOST_IP");
+
+	private AmazonHelper(){}
 	
 	private static AWSCredentials getCredentials() {
 		return new BasicAWSCredentials(ConfigPropertyValue.getAwsAccessKeyId(), ConfigPropertyValue.getAwsSecretAccessKey());
@@ -53,7 +56,7 @@ public class AmazonHelper {
 		return Region.getRegion(Regions.fromName(ConfigPropertyValue.getAwsRegion()));
 	}
 	
-	private static List<Instance> getInstances(String instanceName) throws Exception {
+	private static List<Instance> getInstances(String instanceName) throws CloudException {
 		AWSCredentials credentials = getCredentials();
 		AmazonEC2 ec2 = new AmazonEC2Client(credentials);
 		ec2.setRegion(getRegion());
@@ -67,32 +70,32 @@ public class AmazonHelper {
 
 		List<Reservation> reservations = describeInstanceResult.getReservations();
 
-		if (reservations.size() == 0) {
-			throw new Exception("Instance " + instanceName + " in Amazon not found");
+		if (reservations.isEmpty()) {
+			throw new CloudException("Instance " + instanceName + " in Amazon not found");
 		}
 
 		List<Instance> instances = reservations.get(0).getInstances();
-		if (instances.size() == 0) {
-			throw new Exception("Instance " + instanceName + " in Amazon not found");
+		if (instances.isEmpty()) {
+			throw new CloudException("Instance " + instanceName + " in Amazon not found");
 		}
 
 		return instances;
 	}
 
-    public static Instance getInstance(String instanceName) throws Exception {
+    public static Instance getInstance(String instanceName) throws CloudException {
     	return (ConfigPropertyValue.isRunModeLocal() ?
     			new Instance()
             		.withPrivateDnsName("localhost")
-            		.withPrivateIpAddress("127.0.0.1")
+            		.withPrivateIpAddress(LOCALHOST_IP)
             		.withPublicDnsName("localhost")
-            		.withPublicIpAddress("127.0.0.1")
+            		.withPublicIpAddress(LOCALHOST_IP)
             		.withTags(new Tag()
             					.withKey("Name")
             					.withValue(instanceName)) :
             	getInstances(instanceName).get(0));
     }
 
-    public static void checkAmazonStatus(String instanceName, AmazonInstanceState expAmazonState) throws Exception {
+    public static void checkAmazonStatus(String instanceName, AmazonInstanceState expAmazonState) throws CloudException, InterruptedException {
         LOGGER.info("Check status of instance {} on Amazon: {}", instanceName);
         if (ConfigPropertyValue.isRunModeLocal()) {
         	LOGGER.info("Amazon instance {} fake state is {}", instanceName, expAmazonState);
@@ -112,7 +115,7 @@ public class AmazonHelper {
         	}
         	if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
                 LOGGER.info("Amazon instance {} state is {}", instanceName, instanceState);
-        		throw new Exception("Timeout has been expired for check amazon instance " + instanceState);
+        		throw new CloudException("Timeout has been expired for check amazon instance " + instanceState);
             }
             Thread.sleep(requestTimeout);
         }
@@ -125,7 +128,7 @@ public class AmazonHelper {
         		instance.getInstanceId() + ", private IP " + instance.getPrivateIpAddress() + ", public IP " + instance.getPublicIpAddress());
     }
 
-    public static void printBucketGrants(String bucketName) throws Exception {
+    public static void printBucketGrants(String bucketName){
         LOGGER.info("Print grants for bucket {} on Amazon: " , bucketName);
         if (ConfigPropertyValue.isRunModeLocal()) {
         	LOGGER.info("  action skipped for run in local mode");

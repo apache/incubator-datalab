@@ -86,6 +86,8 @@ public class TestLibGroupStep extends TestLibStep {
         if (response.getStatusCode() == HttpStatusCode.OK) {
             List<String> availableGroups = response.getBody().jsonPath().getList("", String.class);
 
+            LOGGER.info("Expected groups {}", expectedGroups);
+
             LOGGER.info("Available groups {}", availableGroups);
 
             for (String lib : expectedGroups) {
