@@ -1,5 +1,6 @@
 package com.epam.dlab.automation.cloud.azure;
 
+import com.epam.dlab.automation.cloud.CloudException;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.microsoft.azure.management.Azure;
 import com.microsoft.azure.management.compute.PowerState;
@@ -22,14 +23,13 @@ import static org.mockito.Mockito.when;
 
 public class AzureHelper{
 
-    private static final Logger LOGGER;
-
+    private static final Logger LOGGER = LogManager.getLogger(AzureHelper.class);
     private static final Duration CHECK_TIMEOUT = Duration.parse("PT10m");
+    private static final String LOCALHOST_IP = ConfigPropertyValue.get("LOCALHOST_IP");
 
     private static Azure azure;
 
     static {
-        LOGGER = LogManager.getLogger(AzureHelper.class);
         try {
             azure = Azure.configure().authenticate(new File(ConfigPropertyValue.getAzureAuthFileName())).withDefaultSubscription();
         } catch (IOException e) {
@@ -37,6 +37,7 @@ public class AzureHelper{
         }
     }
 
+    private AzureHelper(){}
 
     private static List<VirtualMachine> getVirtualMachines(){
         return !azure.virtualMachines().list().isEmpty() ? new ArrayList<>(azure.virtualMachines().list()) : null;
@@ -50,9 +51,9 @@ public class AzureHelper{
             PublicIPAddress mockedIPAddress = mock(PublicIPAddress.class);
             NetworkInterface mockedNetworkInterface = mock(NetworkInterface.class);
             when(mockedVM.getPrimaryPublicIPAddress()).thenReturn(mockedIPAddress);
-            when(mockedIPAddress.ipAddress()).thenReturn("127.0.0.1");
+            when(mockedIPAddress.ipAddress()).thenReturn(LOCALHOST_IP);
             when(mockedVM.getPrimaryNetworkInterface()).thenReturn(mockedNetworkInterface);
-            when(mockedNetworkInterface.primaryPrivateIP()).thenReturn("127.0.0.1");
+            when(mockedNetworkInterface.primaryPrivateIP()).thenReturn(LOCALHOST_IP);
             vmLocalModeList.add(mockedVM);
 
             return vmLocalModeList;
@@ -61,7 +62,7 @@ public class AzureHelper{
         List<VirtualMachine> vmList = getVirtualMachines();
         if(vmList == null){
             LOGGER.warn("There is not any virtual machine in Azure");
-            return null;
+            return vmList;
         }
         if(restrictionMode){
             vmList.removeIf(vm -> !containsTag(vm, tag));
@@ -90,7 +91,7 @@ public class AzureHelper{
         return vm.powerState();
     }
 
-    public static void checkAzureStatus(String virtualMachineTag, PowerState expAzureState, boolean restrictionMode) throws Exception {
+    public static void checkAzureStatus(String virtualMachineTag, PowerState expAzureState, boolean restrictionMode) throws CloudException, InterruptedException {
         LOGGER.info("Check status of virtual machine with tag {} on Azure", virtualMachineTag);
         if (ConfigPropertyValue.isRunModeLocal()) {
             LOGGER.info("Azure virtual machine with tag {} fake state is {}", virtualMachineTag, expAzureState);
@@ -114,7 +115,7 @@ public class AzureHelper{
             }
             if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
                 LOGGER.info("Azure virtual machine with tag {} state is {}", virtualMachineTag, getStatus(virtualMachine));
-                throw new Exception("Timeout has been expired for check state of azure virtual machine with tag " + virtualMachineTag);
+                throw new CloudException("Timeout has been expired for check state of azure virtual machine with tag " + virtualMachineTag);
             }
             Thread.sleep(requestTimeout);
         }

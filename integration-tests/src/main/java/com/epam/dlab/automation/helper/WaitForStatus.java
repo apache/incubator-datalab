@@ -90,22 +90,24 @@ public class WaitForStatus {
 
     public static String notebook(String url, String token, String notebookName, String status, Duration duration)
             throws InterruptedException {
-        LOGGER.info("Waiting until status {} with URL {} with token {} for notebook {}", status, url, token, notebookName);
+        LOGGER.info("Waiting for status {} with URL {} with token {} for notebook {}", status, url, token, notebookName);
         HttpRequest request = new HttpRequest();
         String actualStatus;
         long timeout = duration.toMillis();
         long expiredTime = System.currentTimeMillis() + timeout;
 
-        while ((actualStatus = getNotebookStatus(request.webApiGet(url, token)
-                .getBody()
-                .jsonPath(), notebookName)).equals(status)) {
+        do{
+            actualStatus = getNotebookStatus(request.webApiGet(url, token)
+                    .getBody()
+                    .jsonPath(), notebookName);
             if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
                 break;
             }
             Thread.sleep(getSsnRequestTimeout());
         }
+        while(status.contains(actualStatus));
 
-        if (actualStatus.contains(status)) {
+        if (status.contains(actualStatus)) {
             LOGGER.info("ERROR: {}: Timeout has been expired for request.", notebookName);
             LOGGER.info("  {}: URL is {}", notebookName, url);
             LOGGER.info("  {}: token is {}", notebookName, token);

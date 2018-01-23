@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.automation.test;
 
+import com.epam.dlab.automation.helper.CloudHelper;
 import com.epam.dlab.automation.cloud.VirtualMachineStatusChecker;
 import com.epam.dlab.automation.cloud.aws.AmazonHelper;
 import com.epam.dlab.automation.docker.Docker;
@@ -120,12 +121,14 @@ public class TestCallable implements Callable<Boolean> {
 
 			stopEnvironment();
 
-			if (fullTest) {
+			if (fullTest && deployClusterDto != null) {
 				restartNotebookAndRedeployToTerminate(deployClusterDto);
 			}
 			if (deployClusterDto != null) {
 				terminateNotebook(deployClusterDto);
-			}
+			}else{
+			    terminateNotebook(notebookName);
+            }
 
 			// Create notebook from AMI
 			String notebookNewName = "AMI" + notebookName;
@@ -142,6 +145,9 @@ public class TestCallable implements Callable<Boolean> {
    }
 
 private DeployClusterDto createClusterDto() throws Exception {
+    if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase("azure") && "dataengine-service".equals(dataEngineType)){
+        return null;
+    }
 	String gettingStatus;
     LOGGER.info("7. {} cluster {} will be deployed for {} ...",dataEngineType, clusterName, notebookName);
     LOGGER.info("  {} : SSN computational resources URL is {}", notebookName, ssnCompResURL);
@@ -299,9 +305,9 @@ private void restartNotebook() throws Exception {
        LOGGER.info("    respStartNotebook.getBody() is {}", respStartNotebook.getBody().asString());
        Assert.assertEquals(respStartNotebook.statusCode(), HttpStatusCode.OK);
 
-       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "starting", getDuration(notebookConfig.getTimeoutNotebookStartup()));
+       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, VirtualMachineStatusChecker.getStartingStatus(), getDuration(notebookConfig.getTimeoutNotebookStartup()));
        String status = VirtualMachineStatusChecker.getRunningStatus();
-       if (!gettingStatus.contains(status)){
+       if (!status.contains(gettingStatus)){
            throw new Exception("Notebook " + notebookName + " has not been started. Notebook status is " + gettingStatus);
        }
        LOGGER.info("    Notebook {} has been started", notebookName);
@@ -414,10 +420,13 @@ private void restartNotebook() throws Exception {
                        .jsonPath(),
                notebookName, clusterName);
 
-       if (!gettingStatus.contains("terminated"))
+       if (!gettingStatus.contains("terminated") && !ConfigPropertyValue.getCloudProvider().equalsIgnoreCase("azure")
+               && !"dataengine-service".equals(dataEngineType))
            throw new Exception("Computational resources has not been terminated for Notebook " + notebookName +
                    ". Data engine service status is " + gettingStatus);
-       LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
+       if(gettingStatus.contains("terminated")){
+           LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
+       }
 
        VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
 

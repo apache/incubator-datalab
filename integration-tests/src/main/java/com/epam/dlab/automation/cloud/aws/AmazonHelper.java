@@ -106,7 +106,7 @@ public class AmazonHelper {
         long requestTimeout = ConfigPropertyValue.getAwsRequestTimeout().toMillis();
     	long timeout = CHECK_TIMEOUT.toMillis();
         long expiredTime = System.currentTimeMillis() + timeout;
-        Instance instance = AmazonHelper.getInstance(instanceName);
+        Instance instance;
         while (true) {
         	instance = AmazonHelper.getInstance(instanceName);
         	instanceState = instance.getState().getName();
