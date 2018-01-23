@@ -3,11 +3,12 @@ package com.epam.dlab.backendapi.service;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryImage;
+import com.epam.dlab.dto.exploratory.ExploratoryImageDTO;
 import com.epam.dlab.dto.exploratory.ImageStatus;
-import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.exceptions.ResourceAlreadyExistException;
 import com.epam.dlab.model.exloratory.Image;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
@@ -34,25 +35,32 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     private RESTService provisioningService;
 
     @Override
-    public String createImage(UserInfo user, String exploratoryName, ExploratoryImage image) {
+    public String createImage(UserInfo user, String exploratoryName, String imageName, String imageDescription) {
 
         UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), exploratoryName);
 
-        if (imageExploratotyDao.exist(image.getName())) {
-            log.error(String.format(IMAGE_EXISTS_MSG, image.getName()));
-            throw new DlabException(String.format(IMAGE_EXISTS_MSG, image.getName()));
+        if (imageExploratotyDao.exist(imageName)) {
+            log.error(String.format(IMAGE_EXISTS_MSG, imageName));
+            throw new ResourceAlreadyExistException(String.format(IMAGE_EXISTS_MSG, imageName));
         }
         imageExploratotyDao.save(Image.builder()
-                .name(image.getName())
-                .description(image.getDescription())
+                .name(imageName)
+                .description(imageDescription)
                 .status(ImageStatus.CREATING)
+                .user(user.getName())
                 .exploratoryId(userInstance.getId()).build());
 
-        return provisioningService.post(ExploratoryAPI.EXPLORATORY_IMAGE, user.getAccessToken(), image, String.class);
+        return provisioningService.post(ExploratoryAPI.EXPLORATORY_IMAGE, user.getAccessToken(),
+                RequestBuilder.newExploratoryImageCreate(user, userInstance, imageName), String.class);
     }
 
     @Override
-    public List<ExploratoryImage> getImages(String user) {
+    public void updateImage(Image image) {
+        imageExploratotyDao.updateImageFields(image);
+    }
+
+    @Override
+    public List<ExploratoryImageDTO> getImages(String user) {
         return null;
     }
 }

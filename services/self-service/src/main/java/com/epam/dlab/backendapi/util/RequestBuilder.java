@@ -22,7 +22,6 @@ import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
-import com.epam.dlab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
@@ -500,17 +499,20 @@ public class RequestBuilder {
                 .withNotebookInstanceName(exploratoryId);
     }
 
-    public static ExploratoryImage newImageCreate(UserInfo userInfo, ExploratoryImageCreateFormDTO form) {
+    @SuppressWarnings("unchecked")
+    public static <T extends ExploratoryImageDTO> T newExploratoryImageCreate(UserInfo userInfo, UserInstanceDTO userInstance,
+                                                                              String imageName) {
 
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
             case GCP:
-                ExploratoryImage exploratoryImage = newResourceSysBaseDTO(userInfo, ExploratoryImage.class);
-                exploratoryImage.setName(form.getName());
-                exploratoryImage.setDescription(form.getDescription());
-                return exploratoryImage;
-
+                return (T) newResourceSysBaseDTO(userInfo, ExploratoryImageDTO.class)
+                        .withNotebookInstanceName(userInstance.getExploratoryId())
+                        .withExploratoryName(userInstance.getExploratoryName())
+                        .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+                        .withNotebookImage(userInstance.getImageName())
+                        .withImageName(imageName);
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }

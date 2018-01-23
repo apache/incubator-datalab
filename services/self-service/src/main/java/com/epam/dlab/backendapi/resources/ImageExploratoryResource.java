@@ -3,7 +3,6 @@ package com.epam.dlab.backendapi.resources;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
-import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +27,8 @@ public class ImageExploratoryResource {
 
     @POST
     public Response createImage(@Auth UserInfo ui, @Valid @NotNull ExploratoryImageCreateFormDTO formDTO) {
-        log.info("Create image request: " + formDTO);
-        String uuid = imageExploratoryService.createImage(ui, formDTO.getNotebookName(), RequestBuilder.newImageCreate(ui, formDTO));
+        log.debug("Creating an image {} for user {}", formDTO, ui.getName());
+        String uuid = imageExploratoryService.createImage(ui, formDTO.getNotebookName(), formDTO.getName(), formDTO.getDescription());
         return Response.accepted(uuid).build();
     }
 

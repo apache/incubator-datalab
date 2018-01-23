@@ -7,4 +7,6 @@ public interface ImageExploratoryDao {
     boolean exist(String name);
 
     void save(Image image);
+
+    void updateImageFields(Image image);
 }
