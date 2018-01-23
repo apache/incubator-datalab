@@ -107,7 +107,7 @@ if __name__ == "__main__":
         print('Searching preconfigured images')
         if notebook_config['image_notebook_name'] == 'default':
             notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-            if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['image_notebook_name']]):
+            if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['image_notebook_name']):
                 print('Preconfigured image found. Using: {}'.format(notebook_config['image_notebook_name']))
                 notebook_config['ami_name'] = notebook_config['image_notebook_name']
                 notebook_config['ami_type'] = 'pre-configured'
