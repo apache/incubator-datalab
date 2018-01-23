@@ -146,6 +146,7 @@ public class TestCallable implements Callable<Boolean> {
 
 private DeployClusterDto createClusterDto() throws Exception {
     if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase("azure") && "dataengine-service".equals(dataEngineType)){
+        LOGGER.info("There are no available dataengine services for Azure. Cluster creation is skipped.");
         return null;
     }
 	String gettingStatus;
@@ -180,7 +181,7 @@ private DeployClusterDto createClusterDto() throws Exception {
             throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been deployed. Cluster status is " + gettingStatus);
         LOGGER.info("{}: {} cluster {} has been deployed", notebookName, dataEngineType, clusterName);
 
-        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
+        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), false);
 
         Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
@@ -192,7 +193,7 @@ private DeployClusterDto createClusterDto() throws Exception {
     LOGGER.info(" {}: {} cluster {} has been configured", notebookName, dataEngineType , clusterName);
 
     if(!ConfigPropertyValue.isRunModeLocal()) {
-        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
+        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), false);
         Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
     if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase("aws")){
