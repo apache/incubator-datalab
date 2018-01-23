@@ -18,6 +18,8 @@ limitations under the License.
 
 package com.epam.dlab.automation.helper;
 
+import com.epam.dlab.automation.cloud.CloudException;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,6 +31,8 @@ public class NamingHelper {
     private static String ssnURL;
     private static String ssnIp;
     private static String ssnToken;
+
+    private NamingHelper(){}
     
     public static String getServiceBaseName() {
     	return serviceBaseName;
@@ -80,9 +84,9 @@ public class NamingHelper {
     
     public static String getEdgeName() {
         switch (ConfigPropertyValue.getCloudProvider()) {
-            case "aws":
+            case CloudProvider.AWS_PROVIDER:
                 return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge");
-            case "azure":
+            case CloudProvider.AZURE_PROVIDER:
                 return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge")
                         .replace('_', '-');
             default:
@@ -92,9 +96,9 @@ public class NamingHelper {
     
     public static String getNotebookInstanceName(String notebookName) {
         switch (ConfigPropertyValue.getCloudProvider()) {
-            case "aws":
+            case CloudProvider.AWS_PROVIDER:
                 return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
-            case "azure":
+            case CloudProvider.AZURE_PROVIDER:
                 return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName)
                         .replace('_', '-');
             default:
@@ -105,9 +109,9 @@ public class NamingHelper {
     public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
         if("dataengine".equals(dataEngineType)) {
             switch (ConfigPropertyValue.getCloudProvider()) {
-                case "aws":
+                case CloudProvider.AWS_PROVIDER:
                     return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m");
-                case "azure":
+                case CloudProvider.AZURE_PROVIDER:
                     return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m")
                             .replace('_', '-');
                 default:
@@ -121,14 +125,14 @@ public class NamingHelper {
     
     public static String getClusterInstanceNameForTestDES(String notebookName, String clusterName, String dataEngineType) {
         switch (ConfigPropertyValue.getCloudProvider()) {
-            case "aws":
+            case CloudProvider.AWS_PROVIDER:
                 if("dataengine".equals(dataEngineType)) {
                     return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
                 }
                 else {
                     return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName);
                 }
-            case "azure":
+            case CloudProvider.AZURE_PROVIDER:
                 if("dataengine".equals(dataEngineType)) {
                     return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName)
                             .replace('_', '-');
@@ -167,10 +171,10 @@ public class NamingHelper {
     
     public static String getStorageName() {
         switch (ConfigPropertyValue.getCloudProvider()) {
-            case "aws":
+            case CloudProvider.AWS_PROVIDER:
                 return String.format("%s-%s-%s", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
                         CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
-            case "azure":
+            case CloudProvider.AZURE_PROVIDER:
                 return String.format("%s-%s-%s", serviceBaseName, "shared",
                         CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
             default:
@@ -178,15 +182,15 @@ public class NamingHelper {
         }
     }
     
-    public static String getClusterName(String clusterInstanceName, boolean restrictionMode) throws Exception {
-        return CloudHelper.getInstanceNameByTag(clusterInstanceName, restrictionMode);
+    public static String getClusterName(String clusterInstanceName, boolean restrictionMode) throws CloudException {
+        return CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
     }
 
-    public static String getClusterName(String clusterInstanceName, String dataEngineType, boolean restrictionMode) throws Exception {
+    public static String getClusterName(String clusterInstanceName, String dataEngineType, boolean restrictionMode) throws CloudException {
         if ("dataengine".equals(dataEngineType)) {
             return clusterInstanceName;
         } else {
-            return CloudHelper.getInstanceNameByTag(clusterInstanceName, restrictionMode);
+            return CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
         }
     }
 

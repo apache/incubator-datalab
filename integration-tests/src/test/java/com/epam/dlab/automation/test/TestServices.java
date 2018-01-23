@@ -83,7 +83,7 @@ public class TestServices {
 		LOGGER.info("Test time {} ms", testTimeMillis);
 	}
 
-	@Test(priority = 0)
+	@Test
 	public void runTest() throws Exception {
 		testJenkinsJob();
 		testLoginSsnService();
@@ -138,7 +138,7 @@ public class TestServices {
 		String privateSsnIp = CloudHelper.getInstancePrivateIP(NamingHelper.getSsnName(), true);
 		LOGGER.info("Private IP is: {}", privateSsnIp);
 		if(publicSsnIp == null || privateSsnIp == null){
-			Assert.fail("There is not any virtual machine in " + cloudProvider + " with tag " + NamingHelper.getSsnName());
+			Assert.fail("There is not any virtual machine in " + cloudProvider + " with name " + NamingHelper.getSsnName());
 			return;
 		}
 		NamingHelper.setSsnIp(PropertiesResolver.DEV_MODE ? publicSsnIp : privateSsnIp);

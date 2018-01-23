@@ -104,7 +104,7 @@ public class PropertiesResolver {
 	}
 
 
-    public static String getConfRootPath() {
+    private static String getConfRootPath() {
     	return getProperty("conf.root.path", false);
     }
 

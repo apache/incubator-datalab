@@ -1,20 +1,20 @@
-/***************************************************************************
+/************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
-****************************************************************************/
+ */
 
 package com.epam.dlab.automation.test;
 
@@ -43,6 +43,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
@@ -58,7 +59,7 @@ public class TestCallable implements Callable<Boolean> {
     private final String notebookName, clusterName, dataEngineType;
     private final NotebookConfig notebookConfig;
 
-    public TestCallable(NotebookConfig notebookConfig) {
+    TestCallable(NotebookConfig notebookConfig) {
     	this.notebookTemplate = notebookConfig.getNotebookTemplate();
     	this.dataEngineType = notebookConfig.getDataEngineType();
         this.fullTest = notebookConfig.isFullTest();
@@ -145,7 +146,7 @@ public class TestCallable implements Callable<Boolean> {
    }
 
 private DeployClusterDto createClusterDto() throws Exception {
-    if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase("azure") && "dataengine-service".equals(dataEngineType)){
+    if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER) && "dataengine-service".equals(dataEngineType)){
         LOGGER.info("There are no available dataengine services for Azure. Cluster creation is skipped.");
         return null;
     }
@@ -196,7 +197,7 @@ private DeployClusterDto createClusterDto() throws Exception {
         VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), false);
         Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
-    if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase("aws")){
+    if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AWS_PROVIDER)){
         LOGGER.info("{}:   Check bucket {}", notebookName, storageName);
         AmazonHelper.printBucketGrants(storageName);
     }
@@ -211,7 +212,7 @@ private String  createNotebook(String notebookName) throws Exception {
 
        CreateNotebookDto createNoteBookRequest =
                JsonMapperDto.readNode(
-                       Paths.get(CloudHelper.getClusterConfFileLocation(), notebookConfigurationFile).toString(),
+                       Paths.get(Objects.requireNonNull(CloudHelper.getClusterConfFileLocation()), notebookConfigurationFile).toString(),
                        CreateNotebookDto.class);
 
        createNoteBookRequest.setName(notebookName);
@@ -308,7 +309,7 @@ private void restartNotebook() throws Exception {
 
        String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, VirtualMachineStatusChecker.getStartingStatus(), getDuration(notebookConfig.getTimeoutNotebookStartup()));
        String status = VirtualMachineStatusChecker.getRunningStatus();
-       if (!status.contains(gettingStatus)){
+       if (!Objects.requireNonNull(status).contains(gettingStatus)){
            throw new Exception("Notebook " + notebookName + " has not been started. Notebook status is " + gettingStatus);
        }
        LOGGER.info("    Notebook {} has been started", notebookName);
@@ -421,7 +422,7 @@ private void restartNotebook() throws Exception {
                        .jsonPath(),
                notebookName, clusterName);
 
-       if (!gettingStatus.contains("terminated") && !ConfigPropertyValue.getCloudProvider().equalsIgnoreCase("azure")
+       if (!gettingStatus.contains("terminated") && !ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER)
                && !"dataengine-service".equals(dataEngineType))
            throw new Exception("Computational resources has not been terminated for Notebook " + notebookName +
                    ". Data engine service status is " + gettingStatus);

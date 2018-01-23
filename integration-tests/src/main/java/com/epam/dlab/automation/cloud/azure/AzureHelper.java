@@ -1,3 +1,21 @@
+/***************************************************************************
+
+ Copyright (c) 2018, EPAM SYSTEMS INC
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+
+ ****************************************************************************/
+
 package com.epam.dlab.automation.cloud.azure;
 
 import com.epam.dlab.automation.cloud.CloudException;
@@ -43,7 +61,7 @@ public class AzureHelper{
         return !azure.virtualMachines().list().isEmpty() ? new ArrayList<>(azure.virtualMachines().list()) : null;
     }
 
-    public static List<VirtualMachine> getVirtualMachinesByTag(String tag, boolean restrictionMode){
+    public static List<VirtualMachine> getVirtualMachinesByName(String name, boolean restrictionMode){
         if(ConfigPropertyValue.isRunModeLocal()){
 
             List<VirtualMachine> vmLocalModeList = new ArrayList<>();
@@ -65,41 +83,35 @@ public class AzureHelper{
             return vmList;
         }
         if(restrictionMode){
-            vmList.removeIf(vm -> !containsTag(vm, tag));
+            vmList.removeIf(vm -> !hasName(vm, name));
         }
         else{
-            vmList.removeIf(vm -> !containsSimilarTag(vm, tag));
+            vmList.removeIf(vm -> !containsName(vm, name));
         }
         return !vmList.isEmpty() ? vmList : null;
     }
 
-    private static boolean containsTag(VirtualMachine vm, String tag){
-        return vm.tags().containsValue(tag);
+    private static boolean hasName(VirtualMachine vm, String name){
+        return vm.name().equals(name);
     }
 
-    private static boolean containsSimilarTag(VirtualMachine vm, String tag){
-        List<String> tags = new ArrayList<>(vm.tags().values());
-        for(String tagValue : tags){
-            if(tagValue.contains(tag)){
-                return true;
-            }
-        }
-        return false;
+    private static boolean containsName(VirtualMachine vm, String name){
+        return vm.name().contains(name);
     }
 
     private static PowerState getStatus(VirtualMachine vm){
         return vm.powerState();
     }
 
-    public static void checkAzureStatus(String virtualMachineTag, PowerState expAzureState, boolean restrictionMode) throws CloudException, InterruptedException {
-        LOGGER.info("Check status of virtual machine with tag {} on Azure", virtualMachineTag);
+    public static void checkAzureStatus(String virtualMachineName, PowerState expAzureState, boolean restrictionMode) throws CloudException, InterruptedException {
+        LOGGER.info("Check status of virtual machine with name {} on Azure", virtualMachineName);
         if (ConfigPropertyValue.isRunModeLocal()) {
-            LOGGER.info("Azure virtual machine with tag {} fake state is {}", virtualMachineTag, expAzureState);
+            LOGGER.info("Azure virtual machine with name {} fake state is {}", virtualMachineName, expAzureState);
             return;
         }
-        List<VirtualMachine> vmsWithTag = getVirtualMachinesByTag(virtualMachineTag, restrictionMode);
-        if(vmsWithTag == null){
-            LOGGER.warn("There is not any virtual machine in Azure with tag {}", virtualMachineTag);
+        List<VirtualMachine> vmsWithName = getVirtualMachinesByName(virtualMachineName, restrictionMode);
+        if(vmsWithName == null){
+            LOGGER.warn("There is not any virtual machine in Azure with name {}", virtualMachineName);
             return;
         }
 
@@ -107,25 +119,25 @@ public class AzureHelper{
         long requestTimeout = ConfigPropertyValue.getAzureRequestTimeout().toMillis();
         long timeout = CHECK_TIMEOUT.toMillis();
         long expiredTime = System.currentTimeMillis() + timeout;
-        VirtualMachine virtualMachine = vmsWithTag.get(0);
+        VirtualMachine virtualMachine = vmsWithName.get(0);
         while (true) {
             virtualMachineState = getStatus(virtualMachine);
             if (virtualMachineState == expAzureState) {
                 break;
             }
             if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
-                LOGGER.info("Azure virtual machine with tag {} state is {}", virtualMachineTag, getStatus(virtualMachine));
-                throw new CloudException("Timeout has been expired for check state of azure virtual machine with tag " + virtualMachineTag);
+                LOGGER.info("Azure virtual machine with name {} state is {}", virtualMachineName, getStatus(virtualMachine));
+                throw new CloudException("Timeout has been expired for check state of azure virtual machine with name " + virtualMachineName);
             }
             Thread.sleep(requestTimeout);
         }
 
-        for (VirtualMachine  vm : vmsWithTag) {
-            LOGGER.info("Azure virtual machine with tag {} state is {}. Virtual machine id {}, private IP {}, public IP {}",
-                    virtualMachineTag, getStatus(vm), vm.vmId(), vm.getPrimaryNetworkInterface().primaryPrivateIP(),
+        for (VirtualMachine  vm : vmsWithName) {
+            LOGGER.info("Azure virtual machine with name {} state is {}. Virtual machine id {}, private IP {}, public IP {}",
+                    virtualMachineName, getStatus(vm), vm.vmId(), vm.getPrimaryNetworkInterface().primaryPrivateIP(),
                     vm.getPrimaryPublicIPAddress() != null ? vm.getPrimaryPublicIPAddress().ipAddress() : "doesn't exist for this resource type");
         }
-        Assert.assertEquals(virtualMachineState, expAzureState, "Azure virtual machine with tag " + virtualMachineTag +
+        Assert.assertEquals(virtualMachineState, expAzureState, "Azure virtual machine with name " + virtualMachineName +
                 " state is not correct. Virtual machine id " +
                 virtualMachine.vmId() + ", private IP " + virtualMachine.getPrimaryNetworkInterface().primaryPrivateIP() +
                 ", public IP " +

@@ -20,7 +20,6 @@ package com.epam.dlab.automation.test.libs;
 
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.epam.dlab.automation.helper.NamingHelper;
-import com.epam.dlab.automation.http.ContentType;
 import com.epam.dlab.automation.http.HttpRequest;
 import com.epam.dlab.automation.http.HttpStatusCode;
 import com.epam.dlab.automation.model.JsonMapperDto;

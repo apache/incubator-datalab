@@ -21,24 +21,22 @@ package com.epam.dlab.automation.cloud;
 import com.epam.dlab.automation.cloud.aws.AmazonHelper;
 import com.epam.dlab.automation.cloud.aws.AmazonInstanceState;
 import com.epam.dlab.automation.cloud.azure.AzureHelper;
+import com.epam.dlab.automation.helper.CloudProvider;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.microsoft.azure.management.compute.PowerState;
 import org.testng.Assert;
 
 public class VirtualMachineStatusChecker {
 
-    private static final String AWS_PROVIDER = "aws";
-    private static final String AZURE_PROVIDER = "azure";
-
     private VirtualMachineStatusChecker(){}
 
-    public static void checkIfRunning(String tagNameValue, boolean restrictionMode) throws Exception {
+    public static void checkIfRunning(String tagNameValue, boolean restrictionMode) throws CloudException, InterruptedException {
 
         switch (ConfigPropertyValue.getCloudProvider()) {
-            case AWS_PROVIDER:
+            case CloudProvider.AWS_PROVIDER:
                 AmazonHelper.checkAmazonStatus(tagNameValue, AmazonInstanceState.RUNNING);
                 break;
-            case AZURE_PROVIDER:
+            case CloudProvider.AZURE_PROVIDER:
                 AzureHelper.checkAzureStatus(tagNameValue, PowerState.RUNNING, restrictionMode);
                 break;
             default:
@@ -47,13 +45,13 @@ public class VirtualMachineStatusChecker {
 
     }
 
-    public static void checkIfTerminated(String tagNameValue, boolean restrictionMode) throws Exception {
+    public static void checkIfTerminated(String tagNameValue, boolean restrictionMode) throws CloudException, InterruptedException {
 
         switch (ConfigPropertyValue.getCloudProvider()) {
-            case AWS_PROVIDER:
+            case CloudProvider.AWS_PROVIDER:
                 AmazonHelper.checkAmazonStatus(tagNameValue, AmazonInstanceState.TERMINATED);
                 break;
-            case AZURE_PROVIDER:
+            case CloudProvider.AZURE_PROVIDER:
                 AzureHelper.checkAzureStatus(tagNameValue, PowerState.STOPPED, restrictionMode);
                 break;
             default:
@@ -65,9 +63,9 @@ public class VirtualMachineStatusChecker {
     public static String getStartingStatus() {
 
         switch (ConfigPropertyValue.getCloudProvider()) {
-            case AWS_PROVIDER:
+            case CloudProvider.AWS_PROVIDER:
                 return AmazonInstanceState.STARTING.toString();
-            case AZURE_PROVIDER:
+            case CloudProvider.AZURE_PROVIDER:
                 return PowerState.STARTING.toString();
             default:
                 return "";
@@ -77,9 +75,9 @@ public class VirtualMachineStatusChecker {
 
     public static String getRunningStatus(){
         switch (ConfigPropertyValue.getCloudProvider()) {
-            case AWS_PROVIDER:
+            case CloudProvider.AWS_PROVIDER:
                 return AmazonInstanceState.RUNNING.toString();
-            case AZURE_PROVIDER:
+            case CloudProvider.AZURE_PROVIDER:
                 return PowerState.RUNNING.toString();
             default:
                 return null;

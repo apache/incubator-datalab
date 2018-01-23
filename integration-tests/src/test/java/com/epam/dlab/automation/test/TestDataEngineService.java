@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.automation.test;
 
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import java.io.File;
@@ -128,9 +129,12 @@ public class TestDataEngineService {
         assertTrue(notebookTemplatesDirectory.isDirectory());
 
         String [] templatesFiles = notebookTemplatesDirectory.list();
+        assertNotNull(templatesFiles, "Notebook " + notebookName + " templates directory is empty!");
 
     	String [] scenarioFiles = notebookScenarioDirectory.list();
-    	assertTrue(scenarioFiles.length == 1, "The python script location " + notebookScenarioDirectory +
+        assertNotNull(scenarioFiles, "Notebook " + notebookName + " scenario directory is empty!");
+
+        assertTrue(scenarioFiles.length == 1, "The python script location " + notebookScenarioDirectory +
                 " found more more then 1 file, expected 1 *.py file, but found multiple files: " + Arrays.toString(scenarioFiles));
         assertTrue(scenarioFiles[0].endsWith(".py"), "The python script was not found");
         // it is assumed there should be 1 python file.
