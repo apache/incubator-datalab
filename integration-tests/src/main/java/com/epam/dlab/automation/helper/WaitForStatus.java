@@ -128,20 +128,10 @@ public class WaitForStatus {
         long timeout = duration.toMillis();
         long expiredTime = System.currentTimeMillis() + timeout;
 
-//        while ((actualStatus = getClusterStatus(request.webApiGet(url, token)
-//                .getBody()
-//                .jsonPath(), notebookName, computationalName)).equals(status)) {
-//            if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
-//                break;
-//            }
-//            Thread.sleep(getSsnRequestTimeout());
-//        }
-        int i = 1;
         do{
             actualStatus = getClusterStatus(request.webApiGet(url, token)
                     .getBody()
                     .jsonPath(), notebookName, computationalName);
-            LOGGER.info("Loop entrance {}: Current status for computational resource {} is: {}", i++, computationalName, actualStatus);
             if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
                 break;
             }
