@@ -43,10 +43,11 @@ if __name__ == "__main__":
                                                                 image_conf['application'],
                                                                 image_conf['image_name'],
                                                                 image_conf['uuid']).lower()
-        image_conf['tags'] = {"Name": image_conf['image_name'],
+        image_conf['tags'] = {"Name": image_conf['service_base_name'],
                               "SBN": image_conf['service_base_name'],
                               "User": image_conf['user_name'],
-                              "Image": image_conf['full_image_name']}
+                              "Image": image_conf['image_name'],
+                              "FIN": image_conf['full_image_name']}
         print(image_conf)
 
         ami_id = get_ami_id_by_name(image_conf['full_image_name'])

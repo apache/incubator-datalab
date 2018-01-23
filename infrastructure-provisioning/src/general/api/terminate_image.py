@@ -27,7 +27,7 @@ from fabric.api import local
 if __name__ == "__main__":
     success = True
     try:
-        local('cd /root; fab delete_image')
+        local('cd /root; fab terminate_image')
     except:
         success = False
 

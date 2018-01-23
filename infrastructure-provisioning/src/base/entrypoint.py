@@ -162,6 +162,6 @@ if __name__ == "__main__":
         with hide('running'):
             local("/bin/create_image.py")
 
-    elif args.action == 'delete_image':
+    elif args.action == 'terminate_image':
         with hide('running'):
-            local("/bin/delete_image.py")
+            local("/bin/terminate_image.py")

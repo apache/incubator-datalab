@@ -914,7 +914,6 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
             while image.state != 'available':
                 local("echo Waiting for image creation; sleep 20")
                 image.load()
-            #image.create_tags(Tags=[{'Key': 'Name', 'Value': os.environ['conf_service_base_name']}])
             all_tags = json.loads(tags)
             for key in all_tags.keys():
                 tag = {'Key': key, 'Value': all_tags[key]}
