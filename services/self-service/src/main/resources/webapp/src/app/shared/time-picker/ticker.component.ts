@@ -20,7 +20,7 @@ import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core
 
 export enum CLOCK_TYPE { HOURS = 1, MINUTES = 2 }
 
-export interface TIME_FORMAT {
+export interface TimeFormat {
   hour: number;
   minute: number;
   meridiem: 'PM' | 'AM';
@@ -46,8 +46,8 @@ export interface TIME_FORMAT {
   styleUrls: ['./time-picker.component.scss']
 })
 export class TickerComponent implements OnChanges {
-  @Input() public pickTime: TIME_FORMAT;
-  @Output() public pickTimeChange: EventEmitter<TIME_FORMAT> = new EventEmitter();
+  @Input() public pickTime: TimeFormat;
+  @Output() public pickTimeChange: EventEmitter<TimeFormat> = new EventEmitter();
 
   @Input() public currentTemplate: CLOCK_TYPE;
   @Output() public viewChange = new EventEmitter<CLOCK_TYPE>();

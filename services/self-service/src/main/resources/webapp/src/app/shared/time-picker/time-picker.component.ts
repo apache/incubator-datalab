@@ -19,7 +19,8 @@ limitations under the License.
 import { Component, OnInit, Inject, Input, Output, EventEmitter } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
-import { CLOCK_TYPE, TIME_FORMAT } from './ticker.component';
+import { CLOCK_TYPE, TimeFormat } from './ticker.component';
+type TimeFormatAlias = TimeFormat;
 
 @Component({
   selector: 'dlab-time-picker',
@@ -35,8 +36,8 @@ import { CLOCK_TYPE, TIME_FORMAT } from './ticker.component';
   styleUrls: ['./time-picker.component.scss']
 })
 export class TimePickerComponent implements OnInit {
-  @Input() pickTime: TIME_FORMAT;
-  @Output() pickTimeChange: EventEmitter<TIME_FORMAT> = new EventEmitter();
+  @Input() pickTime: TimeFormatAlias;
+  @Output() pickTimeChange: EventEmitter<TimeFormatAlias> = new EventEmitter();
 
   constructor(private dialog: MatDialog) {}
 
@@ -61,7 +62,7 @@ export class TimePickerComponent implements OnInit {
       }
     });
 
-    dialogRef.afterClosed().subscribe((result: TIME_FORMAT | -1) => {
+    dialogRef.afterClosed().subscribe((result: TimeFormatAlias | -1) => {
       if (result === undefined) return;
       if (result !== -1) {
         this.pickTime = result;
@@ -87,13 +88,13 @@ export class TimePickerComponent implements OnInit {
   ]
 })
 export class TimePickerDialogComponent {
-  public pickTime: TIME_FORMAT;
+  public pickTime: TimeFormatAlias;
   private VIEW_HOURS = CLOCK_TYPE.HOURS;
   private VIEW_MINUTES = CLOCK_TYPE.MINUTES;
   private currentView: CLOCK_TYPE = this.VIEW_HOURS;
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) private data: { time: TIME_FORMAT; color: string },
+    @Inject(MAT_DIALOG_DATA) private data: { time: TimeFormatAlias; color: string },
     @Inject(MAT_DIALOG_DATA) public color: string,
     private dialogRef: MatDialogRef<TimePickerDialogComponent>
   ) {

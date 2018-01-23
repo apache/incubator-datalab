@@ -18,7 +18,8 @@ limitations under the License.
 
 import { Component, Input, Output, OnInit, Inject, EventEmitter  } from '@angular/core';
 
-import { CLOCK_TYPE, TIME_FORMAT } from './ticker.component';
+import { CLOCK_TYPE, TimeFormat } from './ticker.component';
+type TimeFormatAlias = TimeFormat;
 
 @Component({
   selector: 'time-cover',
@@ -48,11 +49,11 @@ import { CLOCK_TYPE, TIME_FORMAT } from './ticker.component';
 })
 export class TimeCoverComponent implements OnInit {
 
-  @Input() pickTime: TIME_FORMAT;
-  @Output() pickTimeChange: EventEmitter<TIME_FORMAT> = new EventEmitter();
+  @Input() pickTime: TimeFormatAlias;
+  @Output() pickTimeChange: EventEmitter<TimeFormatAlias> = new EventEmitter();
 
   @Output() onReset: EventEmitter<null> = new EventEmitter();
-  @Output() onConfirm: EventEmitter<TIME_FORMAT> = new EventEmitter();
+  @Output() onConfirm: EventEmitter<TimeFormatAlias> = new EventEmitter();
 
   public VIEW_HOURS = CLOCK_TYPE.HOURS;
   public VIEW_MINUTES = CLOCK_TYPE.MINUTES;
