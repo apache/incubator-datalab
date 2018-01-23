@@ -21,6 +21,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../shared/material.module';
 
+import { TimeCoverComponent } from './time-cover.component';
+import { TickerComponent } from './ticker.component';
 import {
   TimePickerComponent,
   TimePickerDialogComponent
@@ -30,7 +32,7 @@ export * from './time-picker.component';
 
 @NgModule({
   imports: [CommonModule, FormsModule, ReactiveFormsModule, MaterialModule],
-  declarations: [TimePickerComponent, TimePickerDialogComponent],
+  declarations: [TimePickerComponent, TimePickerDialogComponent, TimeCoverComponent, TickerComponent],
   entryComponents: [TimePickerDialogComponent],
   exports: [TimePickerComponent]
 })

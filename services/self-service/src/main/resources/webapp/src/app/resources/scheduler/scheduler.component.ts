@@ -12,7 +12,7 @@ export class SchedulerComponent implements OnInit {
   private exportTime = {
     hour: new Date().getHours(),
     minute: new Date().getMinutes(),
-    meriden: new Date().getHours() < 12 ? 'AM' : 'PM'
+    meridiem: new Date().getHours() < 12 ? 'AM' : 'PM'
   };
 
   public weekdays: string[] = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ];
