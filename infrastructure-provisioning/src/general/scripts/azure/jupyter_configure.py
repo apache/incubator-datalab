@@ -221,13 +221,13 @@ if __name__ == "__main__":
                             json.dumps(additional_config),
                             notebook_config['dlab_ssh_user'])
                 local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+
+        except Exception as err:
+            append_result("Failed creating image.", str(err))
+            AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
+            sys.exit(1)
     else:
         append_result("Image will be created by USER")
-
-    except Exception as err:
-        append_result("Failed creating image.", str(err))
-        AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
-        sys.exit(1)
 
     # generating output information
     try:
