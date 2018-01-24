@@ -48,7 +48,6 @@ if __name__ == "__main__":
                               "User": image_conf['user_name'],
                               "Image": image_conf['image_name'],
                               "FIN": image_conf['full_image_name']}
-        print(image_conf)
 
         ami_id = get_ami_id_by_name(image_conf['full_image_name'])
         if ami_id == '':
@@ -67,6 +66,7 @@ if __name__ == "__main__":
                    "user_name": image_conf['user_name'],
                    "application": image_conf['application'],
                    "image_id": image_id,
+                   "status": "created",
                    "Action": "Create image from notebook"}
             result.write(json.dumps(res))
     except Exception as err:

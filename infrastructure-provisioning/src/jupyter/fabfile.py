@@ -182,7 +182,7 @@ def create_image():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('common_create_image'))
+        local("~/scripts/{}.py".format('common_create_notebook_image'))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to create image from notebook node.", str(err))
@@ -190,7 +190,7 @@ def create_image():
 
 
 # Main function for deleting existing notebook image
-def delete_image():
+def terminate_image():
     local_log_filename = "{}_{}_{}.log".format(os.environ['conf_resource'], os.environ['edge_user_name'],
                                                os.environ['request_id'])
     local_log_filepath = "/logs/" + os.environ['conf_resource'] + "/" + local_log_filename
@@ -199,7 +199,7 @@ def delete_image():
                         filename=local_log_filepath)
 
     try:
-        local("~/scripts/{}.py".format('common_delete_image'))
+        local("~/scripts/{}.py".format('common_terminate_notebook_image'))
     except Exception as err:
         traceback.print_exc()
         append_result("Failed to create image from notebook node.", str(err))

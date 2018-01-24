@@ -914,10 +914,13 @@ def create_image_from_instance(tag_name='', instance_name='', image_name='', tag
             while image.state != 'available':
                 local("echo Waiting for image creation; sleep 20")
                 image.load()
-            all_tags = json.loads(tags)
-            for key in all_tags.keys():
-                tag = {'Key': key, 'Value': all_tags[key]}
-                create_tag(image.id, tag)
+            tag = {'Key': 'Name', 'Value': os.environ['conf_service_base_name']}
+            create_tag(image.id, tag)
+            if tags:
+                all_tags = json.loads(tags)
+                for key in all_tags.keys():
+                    tag = {'Key': key, 'Value': all_tags[key]}
+                    create_tag(image.id, tag)
             return image.id
         return ''
     except botocore.exceptions.ClientError as err:
