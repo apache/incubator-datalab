@@ -1,7 +1,0 @@
-{
-  "image" : "docker.dlab-tensor",
-  "name" : "set the name",
-  "shape" : "Standard_NC6",
-  "version" : "tensorflow_gpu-1.3.0",
-  "template_name" : "TensorFlow 1.3.0"
-}

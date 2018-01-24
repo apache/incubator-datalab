@@ -36,22 +36,20 @@ public class ApiPath {
     public static final String LIB_INSTALL = "/api/infrastructure_provision/exploratory_environment/lib_install";
     public static final String LIB_LIST_EXPLORATORY_FORMATTED = "/api/infrastructure_provision/exploratory_environment/lib_list/formatted";
 
-    private ApiPath(){}
-
           
-    public static String configureURL(String url, Object... args) {
+    public static String ConfigureURL(String url, Object... args) {        
         return String.format(url, args);        
     }
     
     public static String getStopNotebookUrl(String serviceBaseName) {
-        return configureURL(STOP_NOTEBOOK, serviceBaseName);
+        return ConfigureURL(STOP_NOTEBOOK, serviceBaseName);
     }
     
-    public static String getTerminateClusterUrl(String notebookName, String desName) {
-        return configureURL(TERMINATE_CLUSTER, notebookName, desName);
+    public static String getTerminateClusterUrl(String notebookName, String emrName) {
+        return ConfigureURL(TERMINATE_CLUSTER, notebookName, emrName);
     }
     
     public static String getTerminateNotebookUrl(String serviceBaseName) {
-        return configureURL(TERMINATE_NOTEBOOK, serviceBaseName);
+        return ConfigureURL(TERMINATE_NOTEBOOK, serviceBaseName);
     }
 }

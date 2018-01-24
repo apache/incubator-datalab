@@ -27,7 +27,7 @@ abstract class TestLibStep {
     final String notebookName;
     final long initTimeoutSec; //seconds
 
-    TestLibStep(String url, String token, String notebookName, long initTimeoutSec) {
+    public TestLibStep(String url, String token, String notebookName, long initTimeoutSec) {
         this.url = url;
         this.token = token;
         this.notebookName = notebookName;
