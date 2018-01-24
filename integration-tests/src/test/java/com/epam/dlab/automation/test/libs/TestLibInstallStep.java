@@ -32,7 +32,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @TestDescription("Test \"Install libraries\" ")
@@ -52,7 +55,7 @@ public class TestLibInstallStep extends TestLibStep {
 
     @Override
     public void init() throws InterruptedException {
-        LibInstallRequest request = new LibInstallRequest(Collections.singletonList(libToInstall), notebookName);
+        LibInstallRequest request = new LibInstallRequest(Arrays.asList(libToInstall), notebookName);
 
         LOGGER.info("Install lib {}", request);
 
@@ -131,10 +134,14 @@ public class TestLibInstallStep extends TestLibStep {
             	if ("installed".equals(libStatus.getStatus())) {
                     LOGGER.info("Library status of {} is {}", libToInstall, libStatusResponse);
                 } else if ("failed".equals(libStatus.getStatus())) {
-                    LibsHelper.incrementByOneCurrentQuantityOfLibInstallErrorsToFailTest();
-                    if(LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest() == LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest()) {
-                        Assert.fail("Test for library installing is failed: there are not any installed library");
+
+                    if (REALLY_FAILED_ERROR.equals(libStatus.getError())
+                            || libStatus.getError() == null
+                            || libStatus.getError().isEmpty()) {
+
+                        Assert.fail(String.format("Installing library failed %s", libStatusResponse));
                     }
+
                     LOGGER.warn("Failed status with proper error message happend for {}", libStatusResponse);
                 } else {
                     Assert.assertTrue(libStatus.getStatus().equals("installed"),

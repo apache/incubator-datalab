@@ -32,8 +32,7 @@ public class PropertiesResolver {
     private static final Logger LOGGER = LogManager.getLogger(PropertiesResolver.class);
     public static final boolean DEV_MODE;
     public static final String CONFIG_FILE_NAME = "application.properties";
-    public static String NOTEBOOK_SCENARIO_FILES_LOCATION_PROPERTY_TEMPLATE = "scenario.%s.files.location";
-    public static String NOTEBOOK_TEST_TEMPLATES_LOCATION = "%s.test.templates.location";
+    public static String NOTEBOOK_FILES_LOCATION_PROPERTY_TEMPLATE = "scenario.%s.files.location";
     public static String NOTEBOOK_CONFIGURATION_FILE_TEMPLATE = "%s/%s-notebook.json";
 
     //keys from application.properties(dev-application.properties)
@@ -41,41 +40,10 @@ public class PropertiesResolver {
     private static String KEYS_DIRECTORY_LOCATION_PROPERTY = "keys.directory.location";
     private static String NOTEBOOK_TEST_DATA_COPY_SCRIPT = "notebook.test.data.copy.script";
     private static String NOTEBOOK_TEST_LIB_LOCATION = "notebook.test.lib.location";
-
-    private static String SCENARIO_JUPYTER_FILES_LOCATION_PROPERTY = "scenario.jupyter.files.location";
-    private static String SCENARIO_RSTUDIO_FILES_LOCATION_PROPERTY = "scenario.rstudio.files.location";
-    private static String SCENARIO_ZEPPELIN_FILES_LOCATION_PROPERTY = "scenario.zeppelin.files.location";
-    private static String SCENARIO_TENSOR_FILES_LOCATION_PROPERTY = "scenario.tensor.files.location";
-    private static String SCENARIO_DEEPLEARNING_FILES_LOCATION_PROPERTY = "scenario.deeplearning.files.location";
-
-    private static String JUPYTER_TEST_TEMPLATES_LOCATION_PROPERTY = "jupyter.test.templates.location";
-    private static String RSTUDIO_TEST_TEMPLATES_LOCATION_PROPERTY = "rstudio.test.templates.location";
-    private static String ZEPPELIN_TEST_TEMPLATES_LOCATION_PROPERTY = "zeppelin.test.templates.location";
-    private static String TENSOR_TEST_TEMPLATES_LOCATION_PROPERTY = "tensor.test.templates.location";
-    private static String DEEPLEARNING_TEST_TEMPLATES_LOCATION_PROPERTY = "deeplearning.test.templates.location";
-
+    private static String JUPYTER_FILES_LOCATION_PROPERTY = "scenario.jupyter.files.location";
+    private static String RSTUDIO_FILES_LOCATION_PROPERTY = "scenario.rstudio.files.location";
+    private static String ZEPPELIN_FILES_LOCATION_PROPERTY = "scenario.zeppelin.files.location";
     private static String CLUSTER_CONFIG_FILE_LOCATION_PROPERTY = "ec2.config.files.location";
-    private static String AZURE_CONFIG_FILE_LOCATION_PROPERTY = "azure.config.files.location";
-
-    public static String getJupyterTestTemplatesLocationProperty() {
-        return JUPYTER_TEST_TEMPLATES_LOCATION_PROPERTY;
-    }
-
-    public static String getRstudioTestTemplatesLocationProperty() {
-        return RSTUDIO_TEST_TEMPLATES_LOCATION_PROPERTY;
-    }
-
-    public static String getZeppelinTestTemplatesLocationProperty() {
-        return ZEPPELIN_TEST_TEMPLATES_LOCATION_PROPERTY;
-    }
-
-    public static String getTensorTestTemplatesLocationProperty() {
-        return TENSOR_TEST_TEMPLATES_LOCATION_PROPERTY;
-    }
-
-    public static String getDeeplearningTestTemplatesLocationProperty() {
-        return DEEPLEARNING_TEST_TEMPLATES_LOCATION_PROPERTY;
-    }
 
     private static Properties properties = new Properties();
 
@@ -104,7 +72,7 @@ public class PropertiesResolver {
 	}
 
 
-    private static String getConfRootPath() {
+    public static String getConfRootPath() {
     	return getProperty("conf.root.path", false);
     }
 
@@ -129,16 +97,9 @@ public class PropertiesResolver {
             LOGGER.info(properties.getProperty(KEYS_DIRECTORY_LOCATION_PROPERTY));
             LOGGER.info(properties.getProperty(NOTEBOOK_TEST_DATA_COPY_SCRIPT));
             LOGGER.info(properties.getProperty(NOTEBOOK_TEST_LIB_LOCATION));
-            LOGGER.info(properties.getProperty(SCENARIO_JUPYTER_FILES_LOCATION_PROPERTY));
-            LOGGER.info(properties.getProperty(SCENARIO_RSTUDIO_FILES_LOCATION_PROPERTY));
-            LOGGER.info(properties.getProperty(SCENARIO_ZEPPELIN_FILES_LOCATION_PROPERTY));
-            LOGGER.info(properties.getProperty(SCENARIO_TENSOR_FILES_LOCATION_PROPERTY));
-            LOGGER.info(properties.getProperty(SCENARIO_DEEPLEARNING_FILES_LOCATION_PROPERTY));
-            LOGGER.info(properties.getProperty(JUPYTER_TEST_TEMPLATES_LOCATION_PROPERTY));
-            LOGGER.info(properties.getProperty(RSTUDIO_TEST_TEMPLATES_LOCATION_PROPERTY));
-            LOGGER.info(properties.getProperty(ZEPPELIN_TEST_TEMPLATES_LOCATION_PROPERTY));
-            LOGGER.info(properties.getProperty(TENSOR_TEST_TEMPLATES_LOCATION_PROPERTY));
-            LOGGER.info(properties.getProperty(DEEPLEARNING_TEST_TEMPLATES_LOCATION_PROPERTY));
+            LOGGER.info(properties.getProperty(JUPYTER_FILES_LOCATION_PROPERTY));
+            LOGGER.info(properties.getProperty(RSTUDIO_FILES_LOCATION_PROPERTY));
+            LOGGER.info(properties.getProperty(ZEPPELIN_FILES_LOCATION_PROPERTY));
             LOGGER.info(properties.getProperty(CLUSTER_CONFIG_FILE_LOCATION_PROPERTY));
 
         } catch (IOException ex) {
@@ -174,32 +135,20 @@ public class PropertiesResolver {
         return properties.getProperty(NOTEBOOK_TEST_LIB_LOCATION);
     }
 
-    public static String getScenarioJupyterFilesLocation() {
-        return properties.getProperty(SCENARIO_JUPYTER_FILES_LOCATION_PROPERTY);
+    public static String getJupyterFilesLocation() {
+        return properties.getProperty(JUPYTER_FILES_LOCATION_PROPERTY);
     }
 
-    public static String getScenarioRstudioFilesLocation() {
-        return properties.getProperty(SCENARIO_RSTUDIO_FILES_LOCATION_PROPERTY);
+    public static String getRstudioFilesLocation() {
+        return properties.getProperty(RSTUDIO_FILES_LOCATION_PROPERTY);
     }
 
-    public static String getScenarioZeppelinFilesLocation() {
-        return properties.getProperty(SCENARIO_ZEPPELIN_FILES_LOCATION_PROPERTY);
+    public static String getZeppelinFilesLocation() {
+        return properties.getProperty(ZEPPELIN_FILES_LOCATION_PROPERTY);
     }
 
-    public static String getScenarioTensorFilesLocation() {
-        return properties.getProperty(SCENARIO_TENSOR_FILES_LOCATION_PROPERTY);
-    }
-
-    public static String getScenarioDeeplearningFilesLocation() {
-        return properties.getProperty(SCENARIO_DEEPLEARNING_FILES_LOCATION_PROPERTY);
-    }
-
-    public static String getClusterEC2ConfFileLocation() {
+    public static String getClusterConfFileLocation() {
         return properties.getProperty(CLUSTER_CONFIG_FILE_LOCATION_PROPERTY );
-    }
-
-    public static String getClusterAzureConfFileLocation() {
-        return properties.getProperty(AZURE_CONFIG_FILE_LOCATION_PROPERTY );
     }
 
     public static String getPropertyByName(String propertyName) {

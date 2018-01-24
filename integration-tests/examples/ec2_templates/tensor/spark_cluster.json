@@ -4,6 +4,6 @@
   "dataengine_instance_count" : "2",
   "dataengine_slave" : "p2.xlarge",
   "dataengine_master" : "p2.xlarge",
-  "notebook_name" : "set notebook name",
+  "notebook_name" : "set noteboork name",
   "template_name" : "Spark cluster"
 }

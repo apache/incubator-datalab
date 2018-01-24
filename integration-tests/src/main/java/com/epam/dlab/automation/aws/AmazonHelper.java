@@ -16,9 +16,8 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.automation.cloud.aws;
+package com.epam.dlab.automation.aws;
 
-import com.epam.dlab.automation.cloud.CloudException;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.epam.dlab.automation.helper.NamingHelper;
 import com.amazonaws.auth.AWSCredentials;
@@ -42,11 +41,9 @@ import java.util.List;
 
 public class AmazonHelper {
 
-    private static final Logger LOGGER = LogManager.getLogger(AmazonHelper.class);
+    private final static Logger LOGGER = LogManager.getLogger(AmazonHelper.class);
+	
 	private static final Duration CHECK_TIMEOUT = Duration.parse("PT10m");
-	private static final String LOCALHOST_IP = ConfigPropertyValue.get("LOCALHOST_IP");
-
-	private AmazonHelper(){}
 	
 	private static AWSCredentials getCredentials() {
 		return new BasicAWSCredentials(ConfigPropertyValue.getAwsAccessKeyId(), ConfigPropertyValue.getAwsSecretAccessKey());
@@ -56,7 +53,7 @@ public class AmazonHelper {
 		return Region.getRegion(Regions.fromName(ConfigPropertyValue.getAwsRegion()));
 	}
 	
-	private static List<Instance> getInstances(String instanceName) throws CloudException {
+	private static List<Instance> getInstances(String instanceName) throws Exception {
 		AWSCredentials credentials = getCredentials();
 		AmazonEC2 ec2 = new AmazonEC2Client(credentials);
 		ec2.setRegion(getRegion());
@@ -70,32 +67,32 @@ public class AmazonHelper {
 
 		List<Reservation> reservations = describeInstanceResult.getReservations();
 
-		if (reservations.isEmpty()) {
-			throw new CloudException("Instance " + instanceName + " in Amazon not found");
+		if (reservations.size() == 0) {
+			throw new Exception("Instance " + instanceName + " in Amazon not found");
 		}
 
 		List<Instance> instances = reservations.get(0).getInstances();
-		if (instances.isEmpty()) {
-			throw new CloudException("Instance " + instanceName + " in Amazon not found");
+		if (instances.size() == 0) {
+			throw new Exception("Instance " + instanceName + " in Amazon not found");
 		}
 
 		return instances;
 	}
 
-    public static Instance getInstance(String instanceName) throws CloudException {
+    public static Instance getInstance(String instanceName) throws Exception {
     	return (ConfigPropertyValue.isRunModeLocal() ?
     			new Instance()
             		.withPrivateDnsName("localhost")
-            		.withPrivateIpAddress(LOCALHOST_IP)
+            		.withPrivateIpAddress("127.0.0.1")
             		.withPublicDnsName("localhost")
-            		.withPublicIpAddress(LOCALHOST_IP)
+            		.withPublicIpAddress("127.0.0.1")
             		.withTags(new Tag()
             					.withKey("Name")
             					.withValue(instanceName)) :
             	getInstances(instanceName).get(0));
     }
 
-    public static void checkAmazonStatus(String instanceName, AmazonInstanceState expAmazonState) throws CloudException, InterruptedException {
+    public static void checkAmazonStatus(String instanceName, AmazonInstanceState expAmazonState) throws Exception {
         LOGGER.info("Check status of instance {} on Amazon: {}", instanceName);
         if (ConfigPropertyValue.isRunModeLocal()) {
         	LOGGER.info("Amazon instance {} fake state is {}", instanceName, expAmazonState);
@@ -106,7 +103,7 @@ public class AmazonHelper {
         long requestTimeout = ConfigPropertyValue.getAwsRequestTimeout().toMillis();
     	long timeout = CHECK_TIMEOUT.toMillis();
         long expiredTime = System.currentTimeMillis() + timeout;
-        Instance instance;
+        Instance instance = AmazonHelper.getInstance(instanceName);
         while (true) {
         	instance = AmazonHelper.getInstance(instanceName);
         	instanceState = instance.getState().getName();
@@ -115,7 +112,7 @@ public class AmazonHelper {
         	}
         	if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
                 LOGGER.info("Amazon instance {} state is {}", instanceName, instanceState);
-        		throw new CloudException("Timeout has been expired for check amazon instance " + instanceState);
+        		throw new Exception("Timeout has been expired for check amazon instance " + instanceState);
             }
             Thread.sleep(requestTimeout);
         }
@@ -128,7 +125,7 @@ public class AmazonHelper {
         		instance.getInstanceId() + ", private IP " + instance.getPrivateIpAddress() + ", public IP " + instance.getPublicIpAddress());
     }
 
-    public static void printBucketGrants(String bucketName){
+    public static void printBucketGrants(String bucketName) throws Exception {
         LOGGER.info("Print grants for bucket {} on Amazon: " , bucketName);
         if (ConfigPropertyValue.isRunModeLocal()) {
         	LOGGER.info("  action skipped for run in local mode");
