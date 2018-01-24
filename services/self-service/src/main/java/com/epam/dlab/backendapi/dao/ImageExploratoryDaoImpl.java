@@ -1,9 +1,13 @@
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.model.exloratory.Image;
 import com.google.inject.Singleton;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -30,6 +34,11 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
         final Bson condition = imageCondition(image.getUser(), image.getName());
         final Document updatedFields = getUpdatedFields(image);
         updateOne(MongoCollections.IMAGES, condition, new Document(SET, updatedFields));
+    }
+
+    @Override
+    public List<ImageInfoRecord> getImages(String user) {
+        return find(MongoCollections.IMAGES, eq(USER, user), ImageInfoRecord.class).into(new ArrayList<>());
     }
 
     private Bson imageCondition(String user, String imageName) {

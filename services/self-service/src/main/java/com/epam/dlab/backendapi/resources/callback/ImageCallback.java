@@ -35,6 +35,7 @@ public class ImageCallback {
                 .status(imageDTO.getStatus())
                 .externalId(imageDTO.getId())
                 .user(dto.getUser())
+                .application(imageDTO.getApplication())
                 .build();
         imageExploratoryService.updateImage(image);
         return Response.status(Response.Status.CREATED).build();

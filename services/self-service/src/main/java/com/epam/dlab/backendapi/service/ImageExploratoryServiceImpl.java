@@ -3,10 +3,10 @@ package com.epam.dlab.backendapi.service;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
-import com.epam.dlab.dto.exploratory.ExploratoryImageDTO;
 import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.exceptions.ResourceAlreadyExistException;
 import com.epam.dlab.model.exloratory.Image;
@@ -60,7 +60,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     }
 
     @Override
-    public List<ExploratoryImageDTO> getImages(String user) {
-        return null;
+    public List<ImageInfoRecord> getImages(String user) {
+        return imageExploratotyDao.getImages(user);
     }
 }

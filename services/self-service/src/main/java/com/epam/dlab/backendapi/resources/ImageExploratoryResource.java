@@ -2,6 +2,7 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Manages images for exploratory and computational environment
@@ -36,6 +38,7 @@ public class ImageExploratoryResource {
     @GET
     public Response getImages(@Auth UserInfo ui) {
         log.info("Getting images for user " + ui.getName());
-        return Response.ok().build();
+        final List<ImageInfoRecord> images = imageExploratoryService.getImages(ui.getName());
+        return Response.ok(images).build();
     }
 }
