@@ -39,6 +39,7 @@ if __name__ == "__main__":
 
         with open("/root/result.json", 'w') as result:
             res = {"image_name": image_conf['full_image_name'],
+                   "status": "terminated",
                    "Action": "Delete existing notebook image"}
             result.write(json.dumps(res))
     except Exception as err:
