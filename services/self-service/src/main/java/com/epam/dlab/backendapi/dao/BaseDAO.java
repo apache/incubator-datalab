@@ -201,15 +201,6 @@ public class BaseDAO implements MongoCollections {
         		.find(condition);
     }
 
-    /** Finds and returns documents from the collection by condition.
-     * @param collection collection name.
-     * @param condition condition for search documents in collection.
-     */
-    protected <T> FindIterable<T> find(String collection, Bson condition, Class<T> resultClass) {
-        return mongoService.getCollection(collection)
-                .find(condition, resultClass);
-    }
-
     /** Finds and returns documents with the specified fields from the collection by condition.
      * @param collection collection name.
      * @param condition condition for search documents in collection.
