@@ -2,8 +2,8 @@ package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
+import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
-import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Manages images for exploratory and computational environment
@@ -28,8 +29,8 @@ public class ImageExploratoryResource {
 
     @POST
     public Response createImage(@Auth UserInfo ui, @Valid @NotNull ExploratoryImageCreateFormDTO formDTO) {
-        log.info("Create image request: " + formDTO);
-        String uuid = imageExploratoryService.createImage(ui, formDTO.getNotebookName(), RequestBuilder.newImageCreate(ui, formDTO));
+        log.debug("Creating an image {} for user {}", formDTO, ui.getName());
+        String uuid = imageExploratoryService.createImage(ui, formDTO.getNotebookName(), formDTO.getName(), formDTO.getDescription());
         return Response.accepted(uuid).build();
     }
 
@@ -37,6 +38,7 @@ public class ImageExploratoryResource {
     @GET
     public Response getImages(@Auth UserInfo ui) {
         log.info("Getting images for user " + ui.getName());
-        return Response.ok().build();
+        final List<ImageInfoRecord> images = imageExploratoryService.getImages(ui.getName());
+        return Response.ok(images).build();
     }
 }

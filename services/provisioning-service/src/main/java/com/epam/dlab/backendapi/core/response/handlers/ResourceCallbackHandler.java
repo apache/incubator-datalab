@@ -158,11 +158,10 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
             	case GIT_CREDS:
                 case LIB_LIST:
                 case LIB_INSTALL:
+                case CREATE_IMAGE:
             		return UserInstanceStatus.CREATED; // Any status besides failed
                 case CREATE:
-                    return UserInstanceStatus.RUNNING;
                 case CONFIGURE:
-                	return UserInstanceStatus.RUNNING;
                 case START:
                     return UserInstanceStatus.RUNNING;
                 case STOP:

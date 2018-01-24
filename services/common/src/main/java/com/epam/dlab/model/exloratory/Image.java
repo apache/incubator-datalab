@@ -12,4 +12,7 @@ public class Image {
     private final ImageStatus status;
     private final String exploratoryId;
     private final String user;
+    private final String fullName;
+    private final String externalId;
+    private final String application;
 }
