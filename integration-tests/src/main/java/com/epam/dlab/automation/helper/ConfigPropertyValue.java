@@ -45,23 +45,13 @@ public class ConfigPropertyValue {
 	private static final String PASSWORD_FOR_ACTIVATE_KEY="PASSWORD_FOR_ACTIVATE_KEY";
 	private static final String ACCESS_KEY_PRIV_FILE_NAME="ACCESS_KEY_PRIV_FILE_NAME";
 	private static final String ACCESS_KEY_PUB_FILE_NAME="ACCESS_KEY_PUB_FILE_NAME";
-
-	private static final  String CLOUD_PROVIDER="CLOUD_PROVIDER";
-	private static final String AZURE_AUTHENTICATION_FILE="AZURE_AUTHENTICATION_FILE";
     
     private static final String AWS_ACCESS_KEY_ID="AWS_ACCESS_KEY_ID";
     private static final String AWS_SECRET_ACCESS_KEY="AWS_SECRET_ACCESS_KEY";
     private static final String AWS_REGION="AWS_REGION";
     private static final String AWS_REQUEST_TIMEOUT="AWS_REQUEST_TIMEOUT";
-
-    private static final String AZURE_REGION="AZURE_REGION";
-    private static final String AZURE_REQUEST_TIMEOUT="AZURE_REQUEST_TIMEOUT";
-    private static final String AZURE_DATALAKE_ENABLED="AZURE_DATALAKE_ENABLED";
-    private static final String AZURE_DATALAKE_SHARED_ACCOUNT="AZURE_DATALAKE_SHARED_ACCOUNT";
-    private static final String AZURE_STORAGE_SHARED_ACCOUNT="AZURE_STORAGE_SHARED_ACCOUNT";
-
-    private static final String GCP_REGION="GCP_REGION";
-
+    private static final String S3_TESTS_TEMPLATE_BUCKET_NAME="S3_TESTS_TEMPLATE_BUCKET_NAME";
+    
     private static final String TIMEOUT_JENKINS_AUTOTEST="TIMEOUT_JENKINS_AUTOTEST";
     private static final String TIMEOUT_UPLOAD_KEY="TIMEOUT_UPLOAD_KEY";
     private static final String TIMEOUT_SSN_STARTUP="TIMEOUT_SSN_STARTUP";
@@ -78,7 +68,6 @@ public class ConfigPropertyValue {
     private static final String SSN_URL = "SSN_URL";
     private static final String SERVICE_BASE_NAME = "SERVICE_BASE_NAME";
     private static final String RUN_MODE_LOCAL = "RUN_MODE_LOCAL";
-    private static final String LOCALHOST_IP = "LOCALHOST_IP";
 
     private static String jenkinsBuildNumber;
 
@@ -142,8 +131,6 @@ public class ConfigPropertyValue {
             PropertiesResolver.overlapProperty(props, CLUSTER_OS_USERNAME, true);
             PropertiesResolver.overlapProperty(props, CLUSTER_OS_FAMILY, true);
             PropertiesResolver.overlapProperty(props, AWS_REGION, true);
-            PropertiesResolver.overlapProperty(props, AZURE_REGION, true);
-            PropertiesResolver.overlapProperty(props, GCP_REGION, true);
             PropertiesResolver.overlapProperty(props, NOTEBOOKS_TO_TEST, false);
             PropertiesResolver.overlapProperty(props, USE_JENKINS, true);
             PropertiesResolver.overlapProperty(props, JENKINS_JOB_URL, !isUseJenkins());
@@ -177,11 +164,7 @@ public class ConfigPropertyValue {
         printProperty(TIMEOUT_SSN_STARTUP);
 
         printProperty(JUPYTER_SCENARIO_FILES);
-        printProperty(CLOUD_PROVIDER);
-
-        printProperty(AZURE_DATALAKE_ENABLED);
-        printProperty(AZURE_DATALAKE_SHARED_ACCOUNT);
-        printProperty(AZURE_STORAGE_SHARED_ACCOUNT);
+        printProperty(S3_TESTS_TEMPLATE_BUCKET_NAME);
         printProperty(NOTEBOOKS_TO_TEST);
         printProperty(CLUSTER_OS_USERNAME);
         printProperty(CLUSTER_OS_FAMILY);
@@ -189,7 +172,6 @@ public class ConfigPropertyValue {
 
         printProperty(USE_JENKINS);
         printProperty(RUN_MODE_LOCAL);
-        printProperty(LOCALHOST_IP);
 	}
     
     
@@ -252,6 +234,10 @@ public class ConfigPropertyValue {
     }
 
 
+    public static String getS3TestsTemplateBucketName() {
+        return get(S3_TESTS_TEMPLATE_BUCKET_NAME);
+    }
+
     public static String getAccessKeyPrivFileName() {
     	File file = new File(get(ACCESS_KEY_PRIV_FILE_NAME));
         return file.getAbsolutePath();
@@ -259,15 +245,6 @@ public class ConfigPropertyValue {
 
     public static String getAccessKeyPubFileName() {
     	File file = new File(get(ACCESS_KEY_PUB_FILE_NAME));
-        return file.getAbsolutePath();
-    }
-
-    public static String getCloudProvider(){
-        return get(CLOUD_PROVIDER);
-    }
-
-    public static String getAzureAuthFileName(){
-        File file = new File(get(AZURE_AUTHENTICATION_FILE));
         return file.getAbsolutePath();
     }
 
@@ -285,30 +262,6 @@ public class ConfigPropertyValue {
 
 	public static Duration getAwsRequestTimeout() {
     	return getDuration(get(AWS_REQUEST_TIMEOUT, "10s"));
-    }
-
-    public static String getAzureRegion() {
-        return get(AZURE_REGION);
-    }
-
-    public static String getAzureDatalakeEnabled() {
-        return get(AZURE_DATALAKE_ENABLED);
-    }
-
-    public static String getAzureDatalakeSharedAccount() {
-        return get(AZURE_DATALAKE_SHARED_ACCOUNT);
-    }
-
-    public static String getAzureStorageSharedAccount() {
-        return get(AZURE_STORAGE_SHARED_ACCOUNT);
-    }
-
-    public static String getGcpRegion() {
-        return get(GCP_REGION);
-    }
-
-    public static Duration getAzureRequestTimeout() {
-        return getDuration(get(AZURE_REQUEST_TIMEOUT, "10s"));
     }
 
     public static Duration getTimeoutJenkinsAutotest() {
