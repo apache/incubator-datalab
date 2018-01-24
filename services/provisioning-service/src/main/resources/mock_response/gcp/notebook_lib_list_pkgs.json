@@ -7,12 +7,19 @@
   	},
   "pip2": {
   	"requests": "N/A",
-  	"configparser": "N/A"
+  	"configparser": "N/A",
+	  "SparseAce": "N/A"
   	},
   "pip3": {
-  	"configparser": "N/A"
+  	"configparser": "N/A",
+	  "sparkL": "N/A"
   	},
   "r_pkg": {
-  	"rmarkdown": "1.5"
-  	}
+  	"rmarkdown": "1.5",
+	  "specialT": "N/A"
+  	},
+	"others": {
+		"ghostscript": "N/A",
+		"gherkin-official": "N/A"
+	}
 }
