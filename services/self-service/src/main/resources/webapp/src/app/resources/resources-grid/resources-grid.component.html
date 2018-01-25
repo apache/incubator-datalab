@@ -19,7 +19,7 @@ limitations under the License.
 <table class="dashboard_table">
   <tr>
     <th *ngFor="let column of filteringColumns"
-        ngClass="{{column.className || ''}}">
+        ngClass="{{column.className || ''}}" [hidden]="column.name === 'cost' && DICTIONARY.cloud_provider === 'gcp'">
       {{column.title}}
       <button mat-icon-button *ngIf="column.filtering" aria-label="More" class="ar" (click)="toggleFilterRow()">
         <i class="material-icons">
@@ -74,7 +74,7 @@ limitations under the License.
     <td>
       <computational-resources-list [resources]="env.resources" [environment]="env" (buildGrid)="buildGrid($event)"></computational-resources-list>
     </td>
-    <td>
+    <td *ngIf="DICTIONARY.cloud_provider !== 'gcp'">
       <span class="total_cost">{{ env.cost || 'N/A' }} {{env.currency_code || ''}}</span>
       <span (click)="env.billing && printCostDetails(env)" class="currency_details" [ngClass]="{'not-allowed' : !env.billing}">
         <i class="material-icons">help_outline</i>
