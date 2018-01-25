@@ -216,7 +216,8 @@ public class RequestBuilder {
         return exploratoryCreate.withExploratoryName(formDTO.getName())
                 .withNotebookImage(formDTO.getImage())
                 .withApplicationName(getApplicationNameFromImage(formDTO.getImage()))
-                .withGitCreds(exploratoryGitCredsDTO.getGitCreds());
+                .withGitCreds(exploratoryGitCredsDTO.getGitCreds())
+                .withImageName(formDTO.getImageName());
     }
 
     @SuppressWarnings("unchecked")
