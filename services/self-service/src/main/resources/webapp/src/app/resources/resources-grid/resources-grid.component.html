@@ -93,20 +93,37 @@ limitations under the License.
             <li (click)="exploratoryAction(env, 'stop')"
                 *ngIf="env.status.toLowerCase() !== 'stopped'
                 && env.status.toLowerCase() !== 'stopping'
-                && env.status.toLowerCase() !== 'starting'">Stop</li>
+                && env.status.toLowerCase() !== 'starting'">
+              <i class="material-icons">pause_circle_outline</i>
+              <span>Stop</span>
+            </li>
             <li (click)="exploratoryAction(env, 'run')"
-                *ngIf="env.status.toLowerCase() === 'stopped'">Run</li>
+                *ngIf="env.status.toLowerCase() === 'stopped'">
+              <i class="material-icons">play_circle_outline</i>
+              <span>Run</span>
+            </li>
             <li (click)="exploratoryAction(env, 'terminate')"
                 *ngIf="env.status.toLowerCase() === 'running'
-                || env.status.toLowerCase() === 'stopped'">Terminate</li>
+                || env.status.toLowerCase() === 'stopped'">
+              <i class="material-icons">phonelink_off</i>
+              <span>Terminate</span>
+            </li>
             <li (click)="exploratoryAction(env, 'deploy')"
                 *ngIf="env.status != 'stopping'
                 && env.status != 'stopped'
-                && env.status != 'starting'">Add computational resources
+                && env.status != 'starting'">
+              <i class="material-icons">memory</i>
+              <span>Add compute</span>
             </li>
-            <!-- <li (click)="exploratoryAction(env, 'schedule')">Scheduler</li> -->
+            <!-- <li (click)="exploratoryAction(env, 'schedule')">
+                <i class="material-icons">schedule</i>
+              <span>Scheduler</span>
+            </li> -->
           </div>
-          <li (click)="exploratoryAction(env, 'install')">Manage libraries</li>
+          <li (click)="exploratoryAction(env, 'install')">
+            <i class="material-icons">developer_board</i>
+            <span>Manage libraries</span>
+          </li>
         </ul>
       </bubble-up>
     </td>
