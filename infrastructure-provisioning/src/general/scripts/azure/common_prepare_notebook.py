@@ -82,7 +82,6 @@ if __name__ == "__main__":
         ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
-        notebook_config['image_notebook_name'] = os.environ['image_notebook_id']
         if os.environ['application'] == 'deeplearning':
             notebook_config['primary_disk_size'] = '30'
         else:
@@ -104,6 +103,9 @@ if __name__ == "__main__":
         notebook_config['ami_type'] = 'default'
         notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
                                                    os.environ['application'] + '-notebook-image'
+        notebook_config['image_notebook_name'] = (lambda x: os.environ['image_notebook_id'] if x != 'None'
+                                                else notebook_config['expected_ami_name']) \
+                                                (str(os.environ.get('image_notebook_id')))
         print('Searching preconfigured images')
         if notebook_config['image_notebook_name'] == 'default':
             if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name']):
