@@ -23,8 +23,4 @@ public class GcpDataprocConfiguration {
     @NotBlank
     @JsonProperty("min_dataproc_slave_instance_count")
     private int minDataprocSlaveInstanceCount;
-
-    @NotBlank
-    @JsonProperty("max_dataproc_slave_instance_count")
-    private int maxDataprocSlaveInstanceCount;
 }

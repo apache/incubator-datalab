@@ -19,6 +19,7 @@ public class GcpInfrastructureInfoService implements InfrastructureInfoService {
         Map<String, String> shared = new HashMap<>();
         shared.put("edge_node_ip", edgeInfo.getPublicIp());
         shared.put("user_own_bucket_name", edgeInfo.getUserOwnBucketName());
+        shared.put("shared_bucket_name", edgeInfo.getSharedBucketName());
 
         return shared;
     }

@@ -1,59 +1,53 @@
-/***************************************************************************
+/************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
-****************************************************************************/
+ */
 
 package com.epam.dlab.automation.test;
 
-import static org.testng.Assert.fail;
-
-import java.io.File;
-import java.nio.file.Paths;
-import java.time.Duration;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Callable;
-
+import com.epam.dlab.automation.helper.CloudHelper;
+import com.epam.dlab.automation.cloud.VirtualMachineStatusChecker;
+import com.epam.dlab.automation.cloud.aws.AmazonHelper;
+import com.epam.dlab.automation.docker.Docker;
+import com.epam.dlab.automation.helper.*;
+import com.epam.dlab.automation.http.ApiPath;
+import com.epam.dlab.automation.http.ContentType;
+import com.epam.dlab.automation.http.HttpRequest;
+import com.epam.dlab.automation.http.HttpStatusCode;
+import com.epam.dlab.automation.model.*;
+import com.epam.dlab.automation.test.libs.LibsHelper;
 import com.epam.dlab.automation.test.libs.TestLibGroupStep;
 import com.epam.dlab.automation.test.libs.TestLibInstallStep;
 import com.epam.dlab.automation.test.libs.TestLibListStep;
 import com.epam.dlab.automation.test.libs.models.Lib;
 import com.epam.dlab.automation.test.libs.models.LibToSearchData;
+import com.jayway.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 
-import com.epam.dlab.automation.aws.AmazonHelper;
-import com.epam.dlab.automation.aws.AmazonInstanceState;
-import com.epam.dlab.automation.docker.Docker;
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
-import com.epam.dlab.automation.helper.PropertiesResolver;
-import com.epam.dlab.automation.helper.NamingHelper;
-import com.epam.dlab.automation.helper.WaitForStatus;
-import com.epam.dlab.automation.http.ApiPath;
-import com.epam.dlab.automation.http.ContentType;
-import com.epam.dlab.automation.http.HttpRequest;
-import com.epam.dlab.automation.http.HttpStatusCode;
-import com.epam.dlab.automation.model.CreateNotebookDto;
-import com.epam.dlab.automation.model.DeployClusterDto;
-import com.epam.dlab.automation.model.DeployEMRDto;
-import com.epam.dlab.automation.model.DeploySparkDto;
-import com.epam.dlab.automation.model.JsonMapperDto;
-import com.epam.dlab.automation.model.NotebookConfig;
-import com.jayway.restassured.response.Response;
+import java.io.File;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.Callable;
+
+import static org.testng.Assert.fail;
 
 public class TestCallable implements Callable<Boolean> {
     private final static Logger LOGGER = LogManager.getLogger(TestCallable.class);
@@ -61,11 +55,11 @@ public class TestCallable implements Callable<Boolean> {
     private final String notebookTemplate;
     private final boolean fullTest;
     private final String token, ssnExpEnvURL, ssnProUserResURL,ssnCompResURL;
-    private final String bucketName;
+    private final String storageName;
     private final String notebookName, clusterName, dataEngineType;
     private final NotebookConfig notebookConfig;
 
-    public TestCallable(NotebookConfig notebookConfig) {
+    TestCallable(NotebookConfig notebookConfig) {
     	this.notebookTemplate = notebookConfig.getNotebookTemplate();
     	this.dataEngineType = notebookConfig.getDataEngineType();
         this.fullTest = notebookConfig.isFullTest();
@@ -75,7 +69,7 @@ public class TestCallable implements Callable<Boolean> {
         this.token = NamingHelper.getSsnToken();
         this.ssnExpEnvURL = NamingHelper.getSelfServiceURL(ApiPath.EXP_ENVIRONMENT);
         this.ssnProUserResURL = NamingHelper.getSelfServiceURL(ApiPath.PROVISIONED_RES);
-        this.bucketName = NamingHelper.getBucketName();
+        this.storageName = NamingHelper.getStorageName();
 
         final String suffixName = NamingHelper.generateRandomValue(notebookTemplate);
         notebookName = "nb" + suffixName;
@@ -109,29 +103,33 @@ public class TestCallable implements Callable<Boolean> {
 			testLibs();
 
 			final DeployClusterDto deployClusterDto = createClusterDto();
+            final String actualClusterName = NamingHelper.getClusterName(
+                    NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
+                    dataEngineType, true);
 
-			final String actualClusterName = NamingHelper.getClusterName(
-					NamingHelper.getClusterInstanceNameForTestEmr(notebookName, clusterName, dataEngineType),
-					dataEngineType);
+            if (!ConfigPropertyValue.isRunModeLocal()) {
 
-			if (!ConfigPropertyValue.isRunModeLocal()) {
-				TestEmr test = new TestEmr();
+			    TestDataEngineService test = new TestDataEngineService();
 				test.run(notebookName, actualClusterName);
 
-				String notebookFilesLocation = PropertiesResolver.getPropertyByName(
-						String.format(PropertiesResolver.NOTEBOOK_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
-				test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File(notebookFilesLocation),
-						notebookName);
+				String notebookScenarioFilesLocation = PropertiesResolver.getPropertyByName(
+						String.format(PropertiesResolver.NOTEBOOK_SCENARIO_FILES_LOCATION_PROPERTY_TEMPLATE, notebookTemplate));
+                String notebookTemplatesLocation = PropertiesResolver.getPropertyByName(
+                        String.format(PropertiesResolver.NOTEBOOK_TEST_TEMPLATES_LOCATION, notebookTemplate));
+				test.run2(NamingHelper.getSsnIp(), notebookIp, actualClusterName, new File(notebookScenarioFilesLocation),
+						new File(notebookTemplatesLocation), notebookName);
 			}
 
 			stopEnvironment();
 
-			if (fullTest) {
+			if (fullTest && deployClusterDto != null) {
 				restartNotebookAndRedeployToTerminate(deployClusterDto);
 			}
 			if (deployClusterDto != null) {
 				terminateNotebook(deployClusterDto);
-			}
+			}else{
+			    terminateNotebook(notebookName);
+            }
 
 			// Create notebook from AMI
 			String notebookNewName = "AMI" + notebookName;
@@ -146,11 +144,12 @@ public class TestCallable implements Callable<Boolean> {
 			throw e;
 		}
    }
-    
-
-  
 
 private DeployClusterDto createClusterDto() throws Exception {
+    if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER) && "dataengine-service".equals(dataEngineType)){
+        LOGGER.info("There are no available dataengine services for Azure. Cluster creation is skipped.");
+        return null;
+    }
 	String gettingStatus;
     LOGGER.info("7. {} cluster {} will be deployed for {} ...",dataEngineType, clusterName, notebookName);
     LOGGER.info("  {} : SSN computational resources URL is {}", notebookName, ssnCompResURL);
@@ -158,11 +157,11 @@ private DeployClusterDto createClusterDto() throws Exception {
     DeployClusterDto clusterDto = null;
     if ("dataengine".equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
-					Paths.get(String.format("%s/%s", PropertiesResolver.getClusterConfFileLocation(), notebookTemplate), "spark_cluster.json").toString(),
+					Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate), "spark_cluster.json").toString(),
 					DeploySparkDto.class);
     } else if ("dataengine-service".equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
-					Paths.get(String.format("%s/%s", PropertiesResolver.getClusterConfFileLocation(), notebookTemplate), "EMR.json").toString(),
+					Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate), "EMR.json").toString(),
 					DeployEMRDto.class);
     } else {
 		LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
@@ -183,7 +182,8 @@ private DeployClusterDto createClusterDto() throws Exception {
             throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been deployed. Cluster status is " + gettingStatus);
         LOGGER.info("{}: {} cluster {} has been deployed", notebookName, dataEngineType, clusterName);
 
-        AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), AmazonInstanceState.RUNNING);
+        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), false);
+
         Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
     LOGGER.info("{}:   Waiting until {} cluster {} has been configured ...", notebookName,dataEngineType,clusterName);
@@ -194,12 +194,13 @@ private DeployClusterDto createClusterDto() throws Exception {
     LOGGER.info(" {}: {} cluster {} has been configured", notebookName, dataEngineType , clusterName);
 
     if(!ConfigPropertyValue.isRunModeLocal()) {
-        AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), AmazonInstanceState.RUNNING);
+        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), false);
         Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
-
-    LOGGER.info("{}:   Check bucket {}", notebookName, bucketName);
-    AmazonHelper.printBucketGrants(bucketName);
+    if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AWS_PROVIDER)){
+        LOGGER.info("{}:   Check bucket {}", notebookName, storageName);
+        AmazonHelper.printBucketGrants(storageName);
+    }
 
     return clusterDto;
 }
@@ -211,14 +212,22 @@ private String  createNotebook(String notebookName) throws Exception {
 
        CreateNotebookDto createNoteBookRequest =
                JsonMapperDto.readNode(
-                       Paths.get(PropertiesResolver.getClusterConfFileLocation(), notebookConfigurationFile).toString(),
+                       Paths.get(Objects.requireNonNull(CloudHelper.getClusterConfFileLocation()), notebookConfigurationFile).toString(),
                        CreateNotebookDto.class);
 
        createNoteBookRequest.setName(notebookName);
 
+       LOGGER.info("Inside createNotebook(): createNotebookRequest: image is {}, templateName is {}, shape is {}, " +
+               "version is {}", createNoteBookRequest.getImage(), createNoteBookRequest.getTemplateName(),
+               createNoteBookRequest.getShape(), createNoteBookRequest.getVersion());
+
        Response responseCreateNotebook = new HttpRequest().webApiPut(ssnExpEnvURL, ContentType.JSON,
                    createNoteBookRequest, token);
+
        LOGGER.info(" {}:  responseCreateNotebook.getBody() is {}", notebookName, responseCreateNotebook.getBody().asString());
+
+       LOGGER.info("Inside createNotebook(): responseCreateNotebook.statusCode() is {}", responseCreateNotebook.statusCode());
+
        Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not created");
 
        String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating", getDuration(notebookConfig.getTimeoutNotebookCreate()));
@@ -228,30 +237,34 @@ private String  createNotebook(String notebookName) throws Exception {
        }
        LOGGER.info("   Notebook {} has been created", notebookName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getNotebookInstanceName(notebookName), AmazonInstanceState.RUNNING);
+       VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getNotebookInstanceName(notebookName), false);
+
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "create"), NamingHelper.getSsnIp());
 
        LOGGER.info("   Notebook {} status has been verified", notebookName);
        //get notebook IP
-       String notebookIp = AmazonHelper.getInstance(NamingHelper.getNotebookInstanceName(notebookName))
-    		   .getPrivateIpAddress();
-       LOGGER.info("   Notebook {} IP is {}", notebookName, notebookIp);
+    String notebookIp = CloudHelper.getInstancePrivateIP(NamingHelper.getNotebookInstanceName(notebookName), false);
+
+    LOGGER.info("   Notebook {} IP is {}", notebookName, notebookIp);
 
        return notebookIp;
    }
 
    private void testLibs() throws Exception {
-       LOGGER.info("Install libraries  ...", notebookName);
+       LOGGER.info("{}: install libraries  ...", notebookName);
 
        TestLibGroupStep testLibGroupStep = new TestLibGroupStep(ApiPath.LIB_GROUPS, token, notebookName,
                getDuration(notebookConfig.getTimeoutLibGroups()).getSeconds(),
-               getTemplateTestLibFile("lib_groups.json"));
+               getTemplateTestLibFile(LibsHelper.getLibGroupsPath(notebookName)));
 
        testLibGroupStep.init();
        testLibGroupStep.verify();
 
-       List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(getTemplateTestLibFile("lib_list.json"),
+       List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(getTemplateTestLibFile(LibsHelper.getLibListPath(notebookName)),
                LibToSearchData.class);
+
+       LibsHelper.setMaxQuantityOfLibInstallErrorsToFailTest(libToSearchDataList.size());
+       LibsHelper.setCurrentQuantityOfLibInstallErrorsToFailTest(0);
 
        for (LibToSearchData libToSearchData : libToSearchDataList) {
            TestLibListStep testLibListStep = new TestLibListStep(ApiPath.LIB_LIST, token, notebookName,
@@ -267,17 +280,15 @@ private String  createNotebook(String notebookName) throws Exception {
 
            testLibInstallStep.init();
            testLibInstallStep.verify();
+           LOGGER.info("{}: current quantity of failed libs to install: {}", notebookName, LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest());
        }
+       LOGGER.info("{}: installed {} testing libraries from {}", notebookName,
+               (LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest() - LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest()),
+               LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest());
    }
 
    private String getTemplateTestLibFile(String fileName) {
-        String absoluteFileName;
-        if (PropertiesResolver.DEV_MODE) {
-            absoluteFileName = Paths.get(PropertiesResolver.getNotebookTestLibLocation(), fileName).toString();
-        } else {
-            absoluteFileName = Paths.get(PropertiesResolver.getNotebookTestLibLocation(), notebookTemplate,
-                    fileName).toString();
-        }
+        String absoluteFileName = Paths.get(PropertiesResolver.getNotebookTestLibLocation(), fileName).toString();
         LOGGER.info("Absolute file name is {}", absoluteFileName);
         return absoluteFileName;
    }
@@ -296,13 +307,15 @@ private void restartNotebook() throws Exception {
        LOGGER.info("    respStartNotebook.getBody() is {}", respStartNotebook.getBody().asString());
        Assert.assertEquals(respStartNotebook.statusCode(), HttpStatusCode.OK);
 
-       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "starting", getDuration(notebookConfig.getTimeoutNotebookStartup()));
-       if (!gettingStatus.contains(AmazonInstanceState.RUNNING.toString())){
+       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, VirtualMachineStatusChecker.getStartingStatus(), getDuration(notebookConfig.getTimeoutNotebookStartup()));
+       String status = VirtualMachineStatusChecker.getRunningStatus();
+       if (!Objects.requireNonNull(status).contains(gettingStatus)){
            throw new Exception("Notebook " + notebookName + " has not been started. Notebook status is " + gettingStatus);
        }
        LOGGER.info("    Notebook {} has been started", notebookName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getNotebookInstanceName(notebookName), AmazonInstanceState.RUNNING);
+       VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getNotebookInstanceName(notebookName), false);
+
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "start"), NamingHelper.getSsnIp());
    }
 
@@ -317,7 +330,8 @@ private void restartNotebook() throws Exception {
        gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "terminating", getDuration(notebookConfig.getTimeoutClusterTerminate()));
        if (!gettingStatus.contains("terminated"))
            throw new Exception("Notebook" + notebookName + " has not been terminated. Notebook status is " + gettingStatus);
-       AmazonHelper.checkAmazonStatus(NamingHelper.getNotebookInstanceName(notebookName), AmazonInstanceState.TERMINATED);
+
+       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getNotebookInstanceName(notebookName), false);
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "terminate"), NamingHelper.getSsnIp());
    }
 
@@ -334,7 +348,8 @@ private void restartNotebook() throws Exception {
            throw new Exception(dataEngineType+" cluster "+ deployCluster.getName() + " has not been terminated for Notebook " + deployCluster.getNotebook_name() + ". Cluster status is " + gettingStatus);
        LOGGER.info("    {} cluster {} has been terminated for Notebook {}",dataEngineType, deployCluster.getName(), deployCluster.getNotebook_name());
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(deployCluster.getNotebook_name(), deployCluster.getName(), dataEngineType), AmazonInstanceState.TERMINATED);
+       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(deployCluster.getNotebook_name(), deployCluster.getName(), dataEngineType), true);
+
    }
    
    private void terminateCluster(String clusterNewName) throws Exception {
@@ -352,7 +367,8 @@ private void restartNotebook() throws Exception {
            throw new Exception("New "+dataEngineType+" cluster " + clusterNewName + " has not been terminated. Cluster status is " + gettingStatus);
        LOGGER.info("    New {} cluster {} has been terminated for notebook {}",dataEngineType, clusterNewName, notebookName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), AmazonInstanceState.TERMINATED);
+       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), true);
+
        Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "terminate"), NamingHelper.getSsnIp());
    }
 
@@ -375,11 +391,12 @@ private void restartNotebook() throws Exception {
 
        LOGGER.info("   Waiting until cluster {} has been configured ...", clusterNewName);
        gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "configuring", getDuration(notebookConfig.getTimeoutClusterCreate()));
-       if (!gettingStatus.contains(AmazonInstanceState.RUNNING.toString()))
+       if (!gettingStatus.contains("running"))
            throw new Exception("Cluster " + clusterNewName + " has not been configured. Cluster status is " + gettingStatus);
        LOGGER.info("   Cluster {} has been configured", clusterNewName);
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), AmazonInstanceState.RUNNING);
+       VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), true);
+
        Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "create"), NamingHelper.getSsnIp());
        return clusterNewName;
    }
@@ -405,11 +422,16 @@ private void restartNotebook() throws Exception {
                        .jsonPath(),
                notebookName, clusterName);
 
-       if (!gettingStatus.contains("terminated"))
-           throw new Exception("Computational resources has not been terminated for Notebook " + notebookName + ". EMR status is " + gettingStatus);
-       LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
+       if (!gettingStatus.contains("terminated") && !ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER)
+               && !"dataengine-service".equals(dataEngineType))
+           throw new Exception("Computational resources has not been terminated for Notebook " + notebookName +
+                   ". Data engine service status is " + gettingStatus);
+       if(gettingStatus.contains("terminated")){
+           LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
+       }
 
-       AmazonHelper.checkAmazonStatus(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), AmazonInstanceState.TERMINATED);
+       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
+
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "stop"), NamingHelper.getSsnIp());
    }
 }
