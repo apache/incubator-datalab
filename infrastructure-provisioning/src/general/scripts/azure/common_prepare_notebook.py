@@ -25,12 +25,8 @@ from dlab.fab import *
 from dlab.meta_lib import *
 from dlab.actions_lib import *
 import os
-import argparse
 from Crypto.PublicKey import RSA
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--uuid', type=str, default='')
-args = parser.parse_args()
 
 if __name__ == "__main__":
     instance_class = 'notebook'
@@ -69,8 +65,9 @@ if __name__ == "__main__":
         notebook_config['vpc_name'] = os.environ['azure_vpc_name']
         notebook_config['instance_size'] = os.environ['azure_notebook_instance_size']
         notebook_config['key_name'] = os.environ['conf_key_name']
-        notebook_config['instance_name'] = notebook_config['service_base_name'] + "-" + notebook_config['user_name'] +\
-                                           "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
+        notebook_config['instance_name'] = '{}-{}-nb-{}'.format(notebook_config['service_base_name'],
+                                                                notebook_config['user_name'],
+                                                                notebook_config['exploratory_name'])
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],
                                    "User": notebook_config['user_name']}
