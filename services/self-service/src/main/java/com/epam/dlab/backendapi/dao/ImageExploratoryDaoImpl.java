@@ -21,6 +21,7 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
     private static final String IMAGE_DESCRIPTION = "description";
     private static final String FULL_NAME = "fullName";
     private static final String EXTERNAL_IMAGE_ID = "externalId";
+    private static final String EXTERNAL_NAME = "externalName";
 
     @Override
     public boolean exist(String name) {
@@ -62,6 +63,7 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
         return new Document(STATUS, image.getStatus().toString())
                 .append(FULL_NAME, image.getFullName())
                 .append(EXTERNAL_IMAGE_ID, image.getExternalId())
-                .append(IMAGE_APPLICATION, image.getApplication());
+                .append(IMAGE_APPLICATION, image.getApplication())
+                .append(EXTERNAL_NAME, image.getExternalName());
     }
 }

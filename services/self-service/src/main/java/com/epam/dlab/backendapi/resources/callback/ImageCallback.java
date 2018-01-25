@@ -27,14 +27,15 @@ public class ImageCallback {
     @POST
     @Path("/image_status")
     public Response imageCreateStatus(ImageCreateStatusDTO dto) {
-        log.debug("Updating status of image {} for user {} to {}", dto.getImageCreateDTO().getName(), dto.getUser(), dto);
+        log.debug("Updating status of image {} for user {} to {}", dto.getName(), dto.getUser(), dto);
         RequestId.remove(dto.getRequestId());
         final ImageCreateStatusDTO.ImageCreateDTO imageDTO = dto.getImageCreateDTO();
         final Image image = Image.builder()
-                .name(imageDTO.getName())
+                .name(dto.getName())
+                .externalName(imageDTO.getExternalName())
                 .fullName(imageDTO.getFullName())
                 .status(imageDTO.getStatus())
-                .externalId(imageDTO.getId())
+                .externalId(imageDTO.getExternalId())
                 .user(dto.getUser())
                 .application(imageDTO.getApplication())
                 .build();

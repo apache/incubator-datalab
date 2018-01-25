@@ -11,35 +11,36 @@ import lombok.ToString;
 public class ImageCreateStatusDTO extends StatusBaseDTO<ImageCreateStatusDTO> {
 
     private ImageCreateDTO imageCreateDTO;
+    private String name;
 
     @Data
     @ToString
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ImageCreateDTO {
-        private final String name;
+        private final String externalName;
         private final String fullName;
-        private final String id;
+        private final String externalId;
         private final String user;
         private final String application;
         private final ImageStatus status;
         private final String errorMessage;
 
         @JsonCreator
-        public ImageCreateDTO(@JsonProperty("image_name") String name, @JsonProperty("full_image_name") String fullName,
-                              @JsonProperty("image_id") String id, @JsonProperty("user_name") String user,
+        public ImageCreateDTO(@JsonProperty("image_name") String externalName, @JsonProperty("full_image_name") String fullName,
+                              @JsonProperty("image_id") String externalId, @JsonProperty("user_name") String user,
                               @JsonProperty("application") String application, @JsonProperty("status") ImageStatus status,
                               @JsonProperty("errorMessage") String errorMessage) {
-            this.name = name;
+            this.externalName = externalName;
             this.fullName = fullName;
-            this.id = id;
+            this.externalId = externalId;
             this.user = user;
             this.application = application;
             this.status = status;
             this.errorMessage = errorMessage;
         }
 
-        public ImageCreateDTO(String name, String user, ImageStatus status, String errorMessage) {
-            this(name, null, null, user, null, status, errorMessage);
+        public ImageCreateDTO(String user, ImageStatus status, String errorMessage) {
+            this(null, null, null, user, null, status, errorMessage);
         }
     }
 }
