@@ -68,9 +68,9 @@ limitations under the License.
         <div class="control-group" *ngIf="DICTIONARY.cloud_provider === 'gcp'" [hidden]="!model.templates.length">
           <label class="label">{{ DICTIONARY[model.selectedImage.image].slave_instance_number }}</label>
           <div class="control">
-            <input #slaveInstanceNumber type="number" class="form-control" min="" max="" formControlName="instance_number" (keypress)="isNumberKey($event)" />
-            <span class="danger_color" *ngIf="!resourceForm.controls.instance_number.valid">
-              Only integer values greater than or equal to {{minInstanceNumber}} and less than {{maxInstanceNumber}} are allowed
+            <input #slaveInstanceNumber type="number" class="form-control" min="{{minSlaveInstanceNumber}}" max="{{maxSlaveInstanceNumber}}" formControlName="slave_instance_number" (keypress)="isNumberKey($event)" />
+            <span class="danger_color" *ngIf="!resourceForm.controls.slave_instance_number.valid">
+              Only integer values greater than or equal to {{ minSlaveInstanceNumber }} and less than {{ maxSlaveInstanceNumber }} are allowed
             </span>
           </div>
         </div>
