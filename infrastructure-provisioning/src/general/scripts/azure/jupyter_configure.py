@@ -190,7 +190,6 @@ if __name__ == "__main__":
     if notebook_config['shared_image_enabled'] == 'true':
         try:
             print('[CREATING AMI]')
-            logging.info('[CREATING AMI]')
             ami = AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name'])
             if ami == '':
                 print("Looks like it's first time we configure notebook server. Creating image.")
@@ -226,9 +225,6 @@ if __name__ == "__main__":
             append_result("Failed creating image.", str(err))
             AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
             sys.exit(1)
-    else:
-        append_result("Image will be created by USER")
-
     # generating output information
     try:
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],

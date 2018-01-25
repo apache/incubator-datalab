@@ -195,7 +195,6 @@ if __name__ == "__main__":
     if notebook_config['shared_image_enabled'] == 'true':
         try:
             print('[CREATING AMI]')
-            append_result('[CREATING AMI]')
             ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
             if ami_id == '':
                 print("Looks like it's first time we configure notebook server. Creating image.")
@@ -208,8 +207,6 @@ if __name__ == "__main__":
             append_result("Failed creating image.", str(err))
             remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
             sys.exit(1)
-    else:
-        append_result("Image will be created by USER")
 
     # generating output information
     ip_address = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
@@ -243,6 +240,7 @@ if __name__ == "__main__":
                "instance_id": get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name']),
                "master_keyname": os.environ['conf_key_name'],
                "notebook_name": notebook_config['instance_name'],
+               "image_notebook_name": notebook_config['expected_ami_name'],
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "Zeppelin",
