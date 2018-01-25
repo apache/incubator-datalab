@@ -32,4 +32,6 @@ import lombok.ToString;
 public class EdgeInfoGcp extends EdgeInfo {
     @JsonProperty("user_own_bucket_name")
     private String userOwnBucketName;
+    @JsonProperty("shared_bucket_name")
+    private String sharedBucketName;
 }
