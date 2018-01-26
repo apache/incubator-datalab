@@ -4,5 +4,6 @@
     "aws_notebook_instance_type":"NIT",
     "edge_user_name":"NUN",
     "application":"APP",
+    "notebook_image_name":"IMAGE",
     "git_creds": GIT
 }
