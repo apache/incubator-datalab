@@ -241,11 +241,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validInstanceNumberRange(control) {
-    return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
+    if (control && control.value) return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
   }
 
   private validSlaveInstanceNumberRange(control) {
-    return control.value >= this.minSlaveInstanceNumber ? null : { valid: false };
+    if (control && control.value) return control.value >= this.minSlaveInstanceNumber ? null : { valid: false };
   }
 
   private validInstanceSpotRange(control) {
