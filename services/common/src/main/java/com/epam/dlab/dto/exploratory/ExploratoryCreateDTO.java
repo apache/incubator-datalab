@@ -30,7 +30,7 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 
     @JsonProperty("git_creds")
     private List<ExploratoryGitCreds> gitCreds;
-    @JsonProperty("image_name")
+    @JsonProperty("notebook_image_name")
     private String imageName;
 
     /**

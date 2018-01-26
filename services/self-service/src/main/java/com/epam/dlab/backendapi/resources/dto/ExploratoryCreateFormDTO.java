@@ -46,7 +46,7 @@ public class ExploratoryCreateFormDTO {
     @JsonProperty
     private String version;
 
-    @JsonProperty("image_name")
+    @JsonProperty("notebook_image_name")
     private String imageName;
 
     /** Returns the image name of notebook. */
