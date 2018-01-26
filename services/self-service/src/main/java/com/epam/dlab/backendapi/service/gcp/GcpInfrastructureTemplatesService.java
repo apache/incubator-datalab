@@ -16,9 +16,10 @@ public class GcpInfrastructureTemplatesService extends InfrastructureTemplatesSe
     protected FullComputationalTemplate getCloudFullComputationalTemplate(ComputationalMetadataDTO metadataDTO) {
         return new GcpFullComputationalTemplate(metadataDTO,
                 GcpDataprocConfiguration.builder()
-                        .minDataprocMasterInstanceCount(configuration.getMinDataprocMasterInstanceCount())
-                        .maxDataprocMasterInstanceCount(configuration.getMaxDataprocMasterInstanceCount())
+                        .dataprocAvailableMasterInstanceCount(configuration.getDataprocAvailableMasterInstanceCount())
                         .minDataprocSlaveInstanceCount(configuration.getMinDataprocSlaveInstanceCount())
+                        .maxDataprocSlaveInstanceCount(configuration.getMaxDataprocSlaveInstanceCount())
+                        .minDataprocPreemptibleInstanceCount(configuration.getMinDataprocPreemptibleCount())
                         .build());
     }
 
