@@ -149,7 +149,7 @@ private DeployClusterDto createClusterDto() throws Exception {
         LOGGER.info("There are no available dataengine services for Azure. Cluster creation is skipped.");
         return null;
     }
-    if(dataEngineType == null){
+    if(!"dataengine-service".equals(dataEngineType) && !"dataengine".equals(dataEngineType)){
         LOGGER.info("Parameter 'dataEngineType' is unspecified. Cluster creation is skipped.");
         return null;
     }
