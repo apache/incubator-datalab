@@ -53,7 +53,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public minInstanceNumber: number;
   public maxInstanceNumber: number;
   public minSlaveInstanceNumber: number;
-  public maxSlaveInstanceNumber: number;
   public minSpotPrice: number = 0;
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
@@ -234,7 +233,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       }
       if (this.model.selectedImage.template_name === 'Dataproc cluster') {
         this.minSlaveInstanceNumber = this.model.selectedImage.limits[activeImage.total_slave_instance_number_min];
-        this.maxSlaveInstanceNumber = this.model.selectedImage.limits[activeImage.total_slave_instance_number_max];
       }
 
       this.resourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
@@ -247,7 +245,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validSlaveInstanceNumberRange(control) {
-    return control.value >= this.minSlaveInstanceNumber && control.value <= this.maxSlaveInstanceNumber ? null : { valid: false };
+    return control.value >= this.minSlaveInstanceNumber ? null : { valid: false };
   }
 
   private validInstanceSpotRange(control) {
