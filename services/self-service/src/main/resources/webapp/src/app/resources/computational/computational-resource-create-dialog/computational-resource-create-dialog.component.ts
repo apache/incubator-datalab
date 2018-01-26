@@ -227,12 +227,16 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     if (this.model.selectedImage) {
       this.minInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_min];
       this.maxInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_max];
+
+      if (DICTIONARY.cloud_provider === 'gcp'&& this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
+        this.minInstanceNumber = this.model.selectedImage.limits.dataproc_available_master_instance_count[0];
+        this.maxInstanceNumber = this.model.selectedImage.limits.dataproc_available_master_instance_count[1];
+        this.minSlaveInstanceNumber = this.model.selectedImage.limits[activeImage.total_slave_instance_number_min];
+      }
+
       if (this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
         this.minSpotPrice = this.model.selectedImage.limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = this.model.selectedImage.limits.max_emr_spot_instance_bid_pct;
-      }
-      if (this.model.selectedImage.template_name === 'Dataproc cluster') {
-        this.minSlaveInstanceNumber = this.model.selectedImage.limits[activeImage.total_slave_instance_number_min];
       }
 
       this.resourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
