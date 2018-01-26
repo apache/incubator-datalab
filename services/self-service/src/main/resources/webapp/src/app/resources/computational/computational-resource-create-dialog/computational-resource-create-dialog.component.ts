@@ -53,6 +53,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public minInstanceNumber: number;
   public maxInstanceNumber: number;
   public minSlaveInstanceNumber: number;
+  public maxSlaveInstanceNumber: number;
   public minSpotPrice: number = 0;
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
@@ -232,6 +233,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.minInstanceNumber = this.model.selectedImage.limits.dataproc_available_master_instance_count[0];
         this.maxInstanceNumber = this.model.selectedImage.limits.dataproc_available_master_instance_count[1];
         this.minSlaveInstanceNumber = this.model.selectedImage.limits[activeImage.total_slave_instance_number_min];
+        this.maxSlaveInstanceNumber = this.model.selectedImage.limits[activeImage.total_slave_instance_number_max];
       }
 
       if (this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
@@ -245,7 +247,12 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validInstanceNumberRange(control) {
-    if (control && control.value) return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
+    if (control && control.value)
+      if (DICTIONARY.cloud_provider === 'gcp'&& this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
+        return control.value === this.minInstanceNumber || control.value === this.maxInstanceNumber ? null : { valid: false };
+      } else {
+        return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
+      }
   }
 
   private validSlaveInstanceNumberRange(control) {
