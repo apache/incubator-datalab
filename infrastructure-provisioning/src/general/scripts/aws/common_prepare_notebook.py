@@ -74,9 +74,9 @@ if __name__ == "__main__":
     notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-SG"
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-    notebook_config['image_notebook_name'] = (lambda x: os.environ['image_notebook_id'] if x != 'None'
+    notebook_config['image_notebook_name'] = (lambda x: os.environ['image_notebook_name'] if x != 'None'
                                             else notebook_config['expected_ami_name']) \
-                                            (str(os.environ.get('image_notebook_id')))
+                                            (str(os.environ.get('image_notebook_name')))
     print('Searching preconfigured images')
     if notebook_config['image_notebook_name'] == 'default':
         notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
