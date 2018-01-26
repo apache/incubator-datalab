@@ -25,10 +25,12 @@ import requests
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--bucket', type=str, default='')
-parser.add_argument('--cluster_name', type=str, default='')
+parser.add_argument('--storage', type=str, default='')
+parser.add_argument('--cloud', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
-parser.add_argument('--region', type=str, default='')
+parser.add_argument('--cluster_name', type=str, default='')
+parser.add_argument('--azure_storage_account', type=str, default='')
+parser.add_argument('--azure_datalake_account', type=str, default='')
 args = parser.parse_args()
 
 
@@ -52,8 +54,10 @@ def get_note_status(note_id, notebook_ip):
     status = json.loads(response.content)
     for i in status.get('body'):
         if i.get('status') == "RUNNING" or i.get('status') == "PENDING":
+            print('Notebook status: {}'.format(i.get('status')))
             running = True
         elif i.get('status') == "ERROR":
+            print('Error in notebook')
             sys.exit(1)
     if running:
         local('sleep 5')
@@ -69,6 +73,7 @@ def import_note(note_path, notebook_ip):
         print('Imported notebook: {}'.format(note_path))
         return status.get('body')
     else:
+        print('Failed to import notebook')
         sys.exit(1)
 
 def prepare_note(interpreter_name, template_path, note_name):
@@ -86,8 +91,8 @@ def run_note(note_id, notebook_ip):
     if status.get('status') == 'OK':
         get_note_status(note_id, notebook_ip)
     else:
+        print('Failed to run notebook')
         sys.exit(1)
-
 
 def remove_note(note_id, notebook_ip):
     response = requests.delete('http://{0}:8080/api/notebook/{1}'.format(notebook_ip, note_id))
