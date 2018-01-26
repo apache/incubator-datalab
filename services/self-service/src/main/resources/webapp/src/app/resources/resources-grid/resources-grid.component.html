@@ -43,7 +43,7 @@ limitations under the License.
     <td>
       <multi-select-dropdown (selectionChange)="onUpdate($event)" [type]="'resources'" [items]="filterConfiguration.resources" [model]="filterForm.resources"></multi-select-dropdown>
     </td>
-    <td></td>
+    <td *ngIf="DICTIONARY.cloud_provider !== 'gcp'"></td>
     <td>
       <div class="actions">
         <button mat-icon-button class="btn reset" (click)="resetFilterConfigurations()">
