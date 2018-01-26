@@ -30,6 +30,8 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
 
     @JsonProperty("git_creds")
     private List<ExploratoryGitCreds> gitCreds;
+    @JsonProperty("image_name")
+    private String imageName;
 
     /**
      * Return the list of GIT credentials.
@@ -53,10 +55,26 @@ public class ExploratoryCreateDTO<T extends ExploratoryCreateDTO<?>> extends Exp
         return self;
     }
 
+    /**
+     * Set the image name and return this object.
+     */
+    public T withImageName(String imageName) {
+        setImageName(imageName);
+        return self;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
 
     @Override
     public ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self)
-                .add("gitCreds", gitCreds);
+                .add("gitCreds", gitCreds)
+                .add("imageName", imageName);
     }
 }
