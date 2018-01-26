@@ -23,7 +23,7 @@ import java.util.List;
 @Slf4j
 public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
-    public static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist";
+    private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist";
     @Inject
     private ExploratoryDAO exploratoryDAO;
 
@@ -61,6 +61,6 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     @Override
     public List<ImageInfoRecord> getImages(String user) {
-        return imageExploratotyDao.getImages(user);
+        return imageExploratotyDao.getCreatedImages(user);
     }
 }
