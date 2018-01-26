@@ -102,9 +102,9 @@ public class TestCallable implements Callable<Boolean> {
 			testLibs();
 
 			final DeployClusterDto deployClusterDto = createClusterDto();
-            final String actualClusterName = NamingHelper.getClusterName(
+            final String actualClusterName = deployClusterDto != null ? NamingHelper.getClusterName(
                     NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
-                    dataEngineType, true);
+                    dataEngineType, true) : "cluster_absent";
 
             if (!ConfigPropertyValue.isRunModeLocal()) {
 
@@ -150,7 +150,7 @@ private DeployClusterDto createClusterDto() throws Exception {
         return null;
     }
     if(!"dataengine-service".equals(dataEngineType) && !"dataengine".equals(dataEngineType)){
-        LOGGER.info("Parameter 'dataEngineType' is unspecified. Cluster creation is skipped.");
+        LOGGER.info("Parameter 'dataEngineType' is unspecified or isn't valid. Cluster creation is skipped.");
         return null;
     }
 	String gettingStatus;
