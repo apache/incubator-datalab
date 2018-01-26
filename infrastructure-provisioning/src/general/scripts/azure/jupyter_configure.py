@@ -250,7 +250,7 @@ if __name__ == "__main__":
                    "notebook_name": notebook_config['instance_name'],
                    "instance_id": notebook_config['instance_name'],
                    "Action": "Create new notebook server",
-                   "image_notebook_name": notebook_config['expected_ami_name'],
+                   "notebook_image_name": notebook_config['expected_ami_name'],
                    "exploratory_url": [
                        {"description": "Jupyter",
                         "url": jupyter_ip_url},

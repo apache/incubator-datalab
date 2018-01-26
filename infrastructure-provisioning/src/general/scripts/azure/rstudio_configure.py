@@ -254,7 +254,7 @@ if __name__ == "__main__":
                    "master_keyname": os.environ['conf_key_name'],
                    "notebook_name": notebook_config['instance_name'],
                    "instance_id": notebook_config['instance_name'],
-                   "image_notebook_name": notebook_config['expected_ami_name'],
+                   "notebook_image_name": notebook_config['expected_ami_name'],
                    "Action": "Create new notebook server",
                    "exploratory_url": [
                        {"description": "RStudio",

@@ -103,20 +103,20 @@ if __name__ == "__main__":
         notebook_config['ami_type'] = 'default'
         notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
                                                    os.environ['application'] + '-notebook-image'
-        notebook_config['image_notebook_name'] = (lambda x: os.environ['image_notebook_name'] if x != 'None'
+        notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
                                                 else notebook_config['expected_ami_name']) \
-                                                (str(os.environ.get('image_notebook_name')))
+                                                (str(os.environ.get('notebook_image_name')))
         print('Searching preconfigured images')
-        if notebook_config['image_notebook_name'] == 'default':
+        if notebook_config['notebook_image_name'] == 'default':
             if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name']):
                 print('Preconfigured image found. Using: {}'.format(notebook_config['expected_ami_name']))
                 notebook_config['ami_name'] = notebook_config['expected_ami_name']
                 notebook_config['ami_type'] = 'pre-configured'
             else:
                 notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-        elif AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['image_notebook_name']):
-            print('Preconfigured image found. Using: {}'.format(notebook_config['image_notebook_name']))
-            notebook_config['ami_name'] = notebook_config['image_notebook_name']
+        elif AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['notebook_image_name']):
+            print('Preconfigured image found. Using: {}'.format(notebook_config['notebook_image_name']))
+            notebook_config['ami_name'] = notebook_config['notebook_image_name']
             notebook_config['ami_type'] = 'pre-configured'
         else:
             notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
