@@ -29,9 +29,10 @@ public class ImageCreateCallbackHandler extends ResourceCallbackHandler<ImageCre
 
     @Override
     protected ImageCreateStatusDTO parseOutResponse(JsonNode document, ImageCreateStatusDTO statusDTO) {
+        statusDTO.setName(imageName);
         if (UserInstanceStatus.FAILED == UserInstanceStatus.of(statusDTO.getStatus())) {
             final ImageCreateStatusDTO.ImageCreateDTO imageCreateDTO =
-                    new ImageCreateStatusDTO.ImageCreateDTO(imageName, getUser(), ImageStatus.valueOf(statusDTO.getStatus()), statusDTO.getErrorMessage());
+                    new ImageCreateStatusDTO.ImageCreateDTO(getUser(), ImageStatus.valueOf(statusDTO.getStatus()), statusDTO.getErrorMessage());
             statusDTO.setImageCreateDTO(imageCreateDTO);
         } else {
             final String content = document.toString();

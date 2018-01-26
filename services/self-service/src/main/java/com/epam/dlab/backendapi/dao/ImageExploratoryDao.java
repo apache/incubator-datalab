@@ -13,5 +13,5 @@ public interface ImageExploratoryDao {
 
     void updateImageFields(Image image);
 
-    List<ImageInfoRecord> getImages(String user);
+    List<ImageInfoRecord> getCreatedImages(String user);
 }
