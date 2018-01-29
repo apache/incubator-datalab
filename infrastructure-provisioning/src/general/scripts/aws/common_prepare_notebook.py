@@ -66,31 +66,28 @@ if __name__ == "__main__":
         notebook_config['primary_disk_size'] = '30'
     else:
         notebook_config['primary_disk_size'] = '12'
-    if os.environ['application'] == 'zeppelin':
-        if os.environ['notebook_multiple_clusters'] == 'true':
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
-                                                   os.environ['application'] + '-livy-notebook-image'
-        else:
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
-                                                   os.environ['application'] + '-spark-notebook-image'
-    else:
-        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + os.environ['application'] \
+    
+    notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + os.environ['application'] \
                                                + '-notebook-image'
     notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
                                            os.environ['edge_user_name'] + "-nb-de-Profile"
     notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
         'edge_user_name'] + "-nb-SG"
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
-
+    notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
+                                            else notebook_config['expected_ami_name']) \
+                                            (str(os.environ.get('notebook_image_name')))
     print('Searching preconfigured images')
-    ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'], 'available')
-    if ami_id != '':
-        print('Preconfigured image found. Using: {}'.format(ami_id))
-        notebook_config['ami_id'] = ami_id
-    else:
+    if notebook_config['notebook_image_name'] == 'default':
         notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
-        print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_id']))
-
+    else:
+        ami_id = get_ami_id_by_name(notebook_config['notebook_image_name'], 'available')
+        if ami_id != '':
+            notebook_config['ami_id'] = ami_id
+        else:
+            notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
+            print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_id']))
+    
     tag = {"Key": notebook_config['tag_name'],
            "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
     notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)

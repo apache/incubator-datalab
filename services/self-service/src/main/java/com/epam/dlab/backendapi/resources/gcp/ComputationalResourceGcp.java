@@ -121,18 +121,29 @@ public class ComputationalResourceGcp implements ComputationalAPI {
         }
 
         int slaveInstanceCount = Integer.parseInt(formDTO.getSlaveInstanceCount());
-        if (slaveInstanceCount < configuration.getMinDataprocSlaveInstanceCount()) {
-            log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation slave instances. Minimum is {}",
-                    formDTO.getName(), userInfo.getName(), configuration.getMinDataprocSlaveInstanceCount());
-            throw new DlabException("Limit exceeded to creation slave instances. Minimum is " + configuration.getMinDataprocSlaveInstanceCount() + ".");
+        if (slaveInstanceCount < configuration.getMinDataprocSlaveInstanceCount()
+                || slaveInstanceCount > configuration.getMaxDataprocSlaveInstanceCount()) {
+            log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation slave instances. Minimum is {}, maximum is {}",
+                    formDTO.getName(), userInfo.getName(), configuration.getMinDataprocSlaveInstanceCount(), configuration.getMaxDataprocSlaveInstanceCount());
+            throw new DlabException("Limit exceeded to creation slave instances. " +
+                    "Minimum is " + configuration.getMinDataprocSlaveInstanceCount() +
+                    ", maximum is " + configuration.getMaxDataprocSlaveInstanceCount());
         }
 
         int masterInstanceCount = Integer.parseInt(formDTO.getMasterInstanceCount());
-        if (masterInstanceCount < configuration.getMinDataprocMasterInstanceCount() || masterInstanceCount > configuration.getMaxDataprocMasterInstanceCount()) {
-            log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation master instances. Minimum is {}",
-                    formDTO.getName(), userInfo.getName(), configuration.getMinDataprocSlaveInstanceCount());
-            throw new DlabException("Limit exceeded to creation master instances. Minimum is " + configuration.getMinDataprocMasterInstanceCount() +
-                    ", maximum is " + configuration.getMaxDataprocMasterInstanceCount() + ".");
+        if (!configuration.getDataprocAvailableMasterInstanceCount().contains(masterInstanceCount)) {
+            log.debug("Creating computational resource {} for user {} fail: Not valid value for master instance count. Valid is {}",
+                    formDTO.getName(), userInfo.getName(), configuration.getDataprocAvailableMasterInstanceCount());
+            throw new DlabException("Not valid value for master instance count. Valid is " + configuration.getDataprocAvailableMasterInstanceCount() + ".");
+        }
+
+        final int preemptibleInstanceCount = Integer.parseInt(formDTO.getPreemptibleCount());
+        if (preemptibleInstanceCount < configuration.getMinDataprocPreemptibleCount()) {
+            log.debug("Creating computational resource {} for user {} fail: Limit exceeded to creation preemptible instances. Minimum is {}",
+                    formDTO.getName(), userInfo.getName(), configuration.getMinDataprocPreemptibleCount());
+            throw new DlabException("Limit exceeded to creation preemptible instances. " +
+                    "Minimum is " + configuration.getMinDataprocPreemptibleCount());
+
         }
     }
 }
