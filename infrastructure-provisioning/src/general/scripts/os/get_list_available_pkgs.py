@@ -36,13 +36,18 @@ args = parser.parse_args()
 
 def get_available_pip_pkgs(version):
     try:
-        pip_pkgs = dict()
-        client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
-        raw_pkgs = client.browse(["Programming Language :: Python :: " + version + ""])
-        all_pkgs = [i[0] for i in raw_pkgs]
-        for pkg in all_pkgs:
-            pip_pkgs[pkg] = "N/A"
-        return pip_pkgs
+        for _ in range(20):
+            pip_pkgs = dict()
+            client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
+            raw_pkgs = client.browse(["Programming Language :: Python :: " + version + ""])
+            all_pkgs = [i[0] for i in raw_pkgs]
+            if len(all_pkgs) != 0:
+                for pkg in all_pkgs:
+                    pip_pkgs[pkg] = "N/A"
+                return pip_pkgs
+            else:
+                local('sleep 5')
+                continue
     except:
         sys.exit(1)
 
