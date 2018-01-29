@@ -39,6 +39,7 @@ export class ComputationalResourceCreateModel {
   emr_slave_instance_spot: boolean;
   emr_slave_instance_price: number;
   slave_instance_count: number;
+  preemptible_inst: number;
 
   selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({},
     new ResourceShapeTypesModel({}), '', '', '');
@@ -77,7 +78,16 @@ export class ComputationalResourceCreateModel {
     this.selectedItem = item;
   }
 
-  public setCreatingParams(name: string, count: number, shape_master: string, shape_slave: string, spot: boolean, price: number, slave_inst?: number): void {
+  public setCreatingParams(
+    name: string,
+    count: number,
+    shape_master: string,
+    shape_slave: string,
+    spot: boolean,
+    price: number,
+    slave_inst?: number,
+    preemptible_inst?: number
+  ): void {
     this.computational_resource_alias = name;
     this.computational_resource_count = count;
     this.computational_resource_master_shape = shape_master;
@@ -85,6 +95,7 @@ export class ComputationalResourceCreateModel {
     this.emr_slave_instance_spot = spot;
     this.emr_slave_instance_price = price;
     this.slave_instance_count = slave_inst | 0;
+    this.preemptible_inst = preemptible_inst | 0;
   }
 
   public loadTemplates(): void {
@@ -165,13 +176,12 @@ export class ComputationalResourceCreateModel {
         template_name: this.selectedItem.template_name,
         notebook_name: this.notebook_name,
         image: this.selectedItem.image,
-        dataproc_master_instance_type :  this.computational_resource_master_shape,
-        dataproc_slave_instance_type :this.computational_resource_slave_shape,
-        dataproc_version : this.selectedItem.version,
-        dataproc_master_count : this.computational_resource_count,
-        dataproc_slave_count : this.slave_instance_count,
-
-        dataproc_preemptible_count : "0",
+        dataproc_master_instance_type:  this.computational_resource_master_shape,
+        dataproc_slave_instance_type: this.computational_resource_slave_shape,
+        dataproc_version: this.selectedItem.version,
+        dataproc_master_count: this.computational_resource_count,
+        dataproc_slave_count: this.slave_instance_count,
+        dataproc_preemptible_count: this.preemptible_inst,
       });
     } else {
       return this.userResourceService.createComputationalResource_Dataengine({
