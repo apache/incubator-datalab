@@ -31,6 +31,7 @@ import org.hibernate.validator.group.GroupSequenceProvider;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.List;
 
 /**
  * Configuration for Self Service.
@@ -81,15 +82,14 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @JsonProperty
     private String billingConfFile;
 
-    @Min(value = 1, groups = GcpValidation.class)
     @JsonProperty
-    private int minDataprocMasterInstanceCount;
-    @Max(value = 3, groups = GcpValidation.class)
-    @JsonProperty
-    private int maxDataprocMasterInstanceCount;
-    @Min(value = 2, groups = GcpValidation.class)
+    private List<Integer> dataprocAvailableMasterInstanceCount;
     @JsonProperty
     private int minDataprocSlaveInstanceCount;
+    @JsonProperty
+    private int maxDataprocSlaveInstanceCount;
+    @JsonProperty
+    private int minDataprocPreemptibleCount;
 
     /**
      * Returns the minimum number of slave EMR instances than could be created.
@@ -164,15 +164,20 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
         return azureLoginConfiguration;
     }
 
-    public int getMinDataprocMasterInstanceCount() {
-        return minDataprocMasterInstanceCount;
-    }
-
-    public int getMaxDataprocMasterInstanceCount() {
-        return maxDataprocMasterInstanceCount;
-    }
 
     public int getMinDataprocSlaveInstanceCount() {
         return minDataprocSlaveInstanceCount;
+    }
+
+    public List<Integer> getDataprocAvailableMasterInstanceCount() {
+        return dataprocAvailableMasterInstanceCount;
+    }
+
+    public int getMaxDataprocSlaveInstanceCount() {
+        return maxDataprocSlaveInstanceCount;
+    }
+
+    public int getMinDataprocPreemptibleCount() {
+        return minDataprocPreemptibleCount;
     }
 }

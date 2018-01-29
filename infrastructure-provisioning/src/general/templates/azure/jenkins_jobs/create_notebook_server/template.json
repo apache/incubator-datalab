@@ -6,5 +6,7 @@
     "azure_notebook_instance_size":"NIT",
     "edge_user_name":"NUN",
     "application":"APP",
+    "notebook_image_name":"IMAGE",
+    "vpc_name":"VPC",
     "git_creds": GIT
 }
