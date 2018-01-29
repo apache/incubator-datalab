@@ -79,7 +79,7 @@ limitations under the License.
         </div>
 
         <div class="control-group" *ngIf="DICTIONARY.cloud_provider === 'gcp' && model.selectedImage.image === 'docker.dlab-dataengine-service'">
-          <label class="label">Preemptible instance number</label>
+          <label class="label">Preemptible node count</label>
           <div class="control">
             <input type="number" class="form-control" min="{{minPreemptibleInstanceNumber}}" max="{{maxPreemptibleInstanceNumber}}" formControlName="preemptible_instance_number" (keypress)="isNumberKey($event)" />
             <span class="danger_color" *ngIf="!resourceForm.controls.preemptible_instance_number.valid">
