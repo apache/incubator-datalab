@@ -54,6 +54,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public maxInstanceNumber: number;
   public minSlaveInstanceNumber: number;
   public maxSlaveInstanceNumber: number;
+  public minPreemptibleInstanceNumber: number;
+  public maxPreemptibleInstanceNumber: number;
   public minSpotPrice: number = 0;
   public maxSpotPrice: number = 0;
   public resourceForm: FormGroup;
@@ -214,6 +216,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       slave_instance_number: [0, [Validators.pattern(this.nodeCountPattern), this.validSlaveInstanceNumberRange.bind(this)]],
+      preemptible_instance_number: [0, [Validators.pattern(this.nodeCountPattern), this.validPreemptibleNumberRange.bind(this)]],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]]
     });
   }
@@ -234,6 +237,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.maxInstanceNumber = this.model.selectedImage.limits.dataproc_available_master_instance_count[1];
         this.minSlaveInstanceNumber = this.model.selectedImage.limits[activeImage.total_slave_instance_number_min];
         this.maxSlaveInstanceNumber = this.model.selectedImage.limits[activeImage.total_slave_instance_number_max];
+        this.minPreemptibleInstanceNumber = this.model.selectedImage.limits.min_dataproc_preemptible_instance_count;
       }
 
       if (this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
@@ -243,12 +247,14 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
       this.resourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
       this.resourceForm.controls['slave_instance_number'].setValue(this.minSlaveInstanceNumber);
+      this.resourceForm.controls['preemptible_instance_number'].setValue(this.minPreemptibleInstanceNumber);
     }
   }
 
   private validInstanceNumberRange(control) {
     if (control && control.value)
       if (DICTIONARY.cloud_provider === 'gcp'&& this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
+        this.validPreemptibleNumberRange(null);
         return control.value === this.minInstanceNumber || control.value === this.maxInstanceNumber ? null : { valid: false };
       } else {
         return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
@@ -256,8 +262,31 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validSlaveInstanceNumberRange(control) {
-    if (control && control.value) return control.value && control.value >= this.minSlaveInstanceNumber
-      && control.value && control.value <= this.maxSlaveInstanceNumber ? null : { valid: false };
+    if (control && control.value) {
+      this.validPreemptibleNumberRange(null);
+      this.resourceForm.controls['preemptible_instance_number'].setValidators(Validators.required);
+
+      return control.value >= this.minSlaveInstanceNumber && control.value <= this.maxSlaveInstanceNumber ? null : { valid: false };
+    }
+  }
+
+  private validPreemptibleNumberRange(control) {
+    if (this.resourceForm) {
+      let masterInst = this.resourceForm.controls['instance_number'].value;
+      let slaveInst = this.resourceForm.controls['slave_instance_number'].value;
+
+      this.maxPreemptibleInstanceNumber = (this.maxSlaveInstanceNumber - masterInst - slaveInst);
+
+      if (control && control.value)
+        return control.value >= this.minPreemptibleInstanceNumber && control.value <= this.maxPreemptibleInstanceNumber ? null : { valid: false };
+
+      if (control === null) {
+        this.resourceForm.controls['preemptible_instance_number'].setValidators(
+           [Validators.required, Validators.min(this.minPreemptibleInstanceNumber), Validators.max(this.maxPreemptibleInstanceNumber)]);
+
+        this.resourceForm.get('preemptible_instance_number').updateValueAndValidity();
+      }
+    }
   }
 
   private validInstanceSpotRange(control) {

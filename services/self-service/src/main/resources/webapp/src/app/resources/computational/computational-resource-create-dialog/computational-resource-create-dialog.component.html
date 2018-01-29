@@ -71,9 +71,19 @@ limitations under the License.
         <div class="control-group" *ngIf="DICTIONARY.cloud_provider === 'gcp'" [hidden]="!model.templates.length">
           <label class="label">{{ DICTIONARY[model.selectedImage.image].slave_instance_number }}</label>
           <div class="control">
-            <input #slaveInstanceNumber type="number" class="form-control" min="{{minSlaveInstanceNumber}}" max="{{maxSlaveInstanceNumber}}" formControlName="slave_instance_number" (keypress)="isNumberKey($event)" />
+            <input type="number" class="form-control" min="{{minSlaveInstanceNumber}}" max="{{maxSlaveInstanceNumber}}" formControlName="slave_instance_number" (keypress)="isNumberKey($event)" />
             <span class="danger_color" *ngIf="!resourceForm.controls.slave_instance_number.valid">
               Only integer values greater than or equal to {{ minSlaveInstanceNumber }} and less than {{ maxSlaveInstanceNumber }} are allowed
+            </span>
+          </div>
+        </div>
+
+        <div class="control-group" *ngIf="DICTIONARY.cloud_provider === 'gcp' && model.selectedImage.image === 'docker.dlab-dataengine-service'">
+          <label class="label">Preemptible instance number</label>
+          <div class="control">
+            <input type="number" class="form-control" min="{{minPreemptibleInstanceNumber}}" max="{{maxPreemptibleInstanceNumber}}" formControlName="preemptible_instance_number" (keypress)="isNumberKey($event)" />
+            <span class="danger_color" *ngIf="!resourceForm.controls.preemptible_instance_number.valid">
+              Only integer values greater than {{ minPreemptibleInstanceNumber }} or {{ maxPreemptibleInstanceNumber }} are allowed
             </span>
           </div>
         </div>
