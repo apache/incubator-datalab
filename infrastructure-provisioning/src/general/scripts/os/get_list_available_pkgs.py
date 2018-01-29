@@ -36,7 +36,7 @@ args = parser.parse_args()
 
 def get_available_pip_pkgs(version):
     try:
-        for _ in range(20):
+        for _ in range(100):
             pip_pkgs = dict()
             client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
             raw_pkgs = client.browse(["Programming Language :: Python :: " + version + ""])
