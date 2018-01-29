@@ -31,10 +31,11 @@ if __name__ == "__main__":
         image_id = ''
         image_conf = dict()
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
+        image_conf['resource_group_name'] = os.environ['conf_resource_group_name']
         image_conf['user_name'] = os.environ['edge_user_name']
         image_conf['instance_name'] = os.environ['notebook_instance_name']
-        image_conf['instance_tag'] = '{}-Tag'.format(image_conf['service_base_name'])
         image_conf['application'] = os.environ['application']
+        image_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         image_conf['image_name'] = os.environ['notebook_image_name'].lower().replace('_', '-')
         image_conf['full_image_name'] = '{}-{}-{}-{}'.format(image_conf['service_base_name'],
                                                              image_conf['user_name'],
@@ -46,16 +47,40 @@ if __name__ == "__main__":
                               "Image": image_conf['image_name'],
                               "FIN": image_conf['full_image_name']}
 
-        ami_id = get_ami_id_by_name(image_conf['full_image_name'])
-        if ami_id == '':
-            image_id = create_image_from_instance(tag_name=image_conf['instance_tag'],
-                                                  instance_name=image_conf['instance_name'],
-                                                  image_name=image_conf['full_image_name'],
-                                                  tags=json.dumps(image_conf['tags']))
-            if image_id != '':
-                print("Image was successfully created. It's ID is {}".format(image_id))
-        else:
-            print("Couldn't find Image ID by name")
+        instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
+                                                               image_conf['instance_name'])
+        edge_instance_name = '{}-{}-edge'.format(image_conf['service_base_name'], image_conf['user_name'])
+        edge_instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
+                                                                    edge_instance_name)
+        keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+
+        image = AzureMeta().get_image(image_conf['resource_group_name'], image_conf['full_image_name'])
+        if image == '':
+            print("Looks like it's first time we configure notebook server. Creating image.")
+            prepare_vm_for_image(True, image_conf['dlab_ssh_user'], instance_hostname, keyfile_name)
+            AzureActions().create_image_from_instance(image_conf['resource_group_name'],
+                                                      image_conf['instance_name'],
+                                                      os.environ['azure_region'],
+                                                      image_conf['full_image_name'],
+                                                      json.dumps(image_conf['tags']))
+            print("Image was successfully created.")
+            local("~/scripts/{}.py".format('common_prepare_notebook'))
+            instance_running = False
+            while not instance_running:
+                if AzureMeta().get_instance_status(image_conf['resource_group_name'],
+                                                   image_conf['instance_name']) == 'running':
+                    instance_running = True
+            instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
+                                                                   image_conf['instance_name'])
+            remount_azure_disk(True, image_conf['dlab_ssh_user'], instance_hostname, keyfile_name)
+            set_git_proxy(image_conf['dlab_ssh_user'], instance_hostname, keyfile_name,
+                          'http://{}:3128'.format(edge_instance_hostname))
+            additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+            params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
+                .format(instance_hostname, image_conf['instance_name'], keyfile_name,
+                        json.dumps(additional_config), image_conf['dlab_ssh_user'])
+            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
+            print("Image was successfully created. It's name is {}".format(image_conf['full_image_name']))
 
         with open("/root/result.json", 'w') as result:
             res = {"notebook_image_name": image_conf['image_name'],

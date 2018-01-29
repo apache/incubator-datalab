@@ -55,8 +55,6 @@ if __name__ == "__main__":
                                                   tags=json.dumps(image_conf['tags']))
             if image_id != '':
                 print("Image was successfully created. It's ID is {}".format(image_id))
-        else:
-            print("Couldn't find Image ID by name")
 
         with open("/root/result.json", 'w') as result:
             res = {"notebook_image_name": image_conf['image_name'],

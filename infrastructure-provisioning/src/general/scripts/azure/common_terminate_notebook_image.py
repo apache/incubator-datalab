@@ -27,18 +27,17 @@ import json
 
 if __name__ == "__main__":
     try:
-        create_aws_config_files()
         image_conf = dict()
-        image_conf['full_image_name'] = os.environ['image_name']
+        image_conf['service_base_name'] = os.environ['conf_service_base_name']
+        image_conf['resource_group_name'] = os.environ['conf_resource_group_name']
+        image_conf['full_image_name'] = os.environ['notebook_image_name']
 
-        image_id = get_ami_id_by_name(image_conf['full_image_name'], 'available')
-        if image_id != '':
-            deregister_image(image_conf['full_image_name'])
-        else:
-            print('Could not find image by name.')
+        image = AzureMeta().get_image(image_conf['resource_group_name'], image_conf['full_image_name'])
+        if image != '':
+            AzureActions().remove_image(image_conf['resource_group_name'], image_conf['full_image_name'])
 
         with open("/root/result.json", 'w') as result:
-            res = {"image_name": image_conf['full_image_name'],
+            res = {"notebook_image_name": image_conf['full_image_name'],
                    "status": "terminated",
                    "Action": "Delete existing notebook image"}
             result.write(json.dumps(res))
