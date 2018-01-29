@@ -29,20 +29,18 @@ import uuid
 if __name__ == "__main__":
     try:
         image_id = ''
-        create_aws_config_files()
         image_conf = dict()
-        image_conf['uuid'] = str(uuid.uuid4())[:5]
+        create_aws_config_files()
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
         image_conf['user_name'] = os.environ['edge_user_name']
         image_conf['instance_name'] = os.environ['notebook_instance_name']
         image_conf['instance_tag'] = '{}-Tag'.format(image_conf['service_base_name'])
         image_conf['application'] = os.environ['application']
-        image_conf['image_name'] = os.environ['image_name'].lower().replace('_', '-')
-        image_conf['full_image_name'] = '{}-{}-{}-{}-{}'.format(image_conf['service_base_name'],
-                                                                image_conf['user_name'],
-                                                                image_conf['application'],
-                                                                image_conf['image_name'],
-                                                                image_conf['uuid']).lower()
+        image_conf['image_name'] = os.environ['notebook_image_name'].lower().replace('_', '-')
+        image_conf['full_image_name'] = '{}-{}-{}-{}'.format(image_conf['service_base_name'],
+                                                             image_conf['user_name'],
+                                                             image_conf['application'],
+                                                             image_conf['image_name']).lower()
         image_conf['tags'] = {"Name": image_conf['service_base_name'],
                               "SBN": image_conf['service_base_name'],
                               "User": image_conf['user_name'],
@@ -61,7 +59,7 @@ if __name__ == "__main__":
             print("Couldn't find Image ID by name")
 
         with open("/root/result.json", 'w') as result:
-            res = {"image_name": image_conf['image_name'],
+            res = {"notebook_image_name": image_conf['image_name'],
                    "full_image_name": image_conf['full_image_name'],
                    "user_name": image_conf['user_name'],
                    "application": image_conf['application'],

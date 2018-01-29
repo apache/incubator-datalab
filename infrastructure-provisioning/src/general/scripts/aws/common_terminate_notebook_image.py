@@ -29,7 +29,7 @@ if __name__ == "__main__":
     try:
         create_aws_config_files()
         image_conf = dict()
-        image_conf['full_image_name'] = os.environ['image_name']
+        image_conf['full_image_name'] = os.environ['notebook_image_name']
 
         image_id = get_ami_id_by_name(image_conf['full_image_name'], 'available')
         if image_id != '':
@@ -38,7 +38,7 @@ if __name__ == "__main__":
             print('Could not find image by name.')
 
         with open("/root/result.json", 'w') as result:
-            res = {"image_name": image_conf['full_image_name'],
+            res = {"notebook_image_name": image_conf['full_image_name'],
                    "status": "terminated",
                    "Action": "Delete existing notebook image"}
             result.write(json.dumps(res))
