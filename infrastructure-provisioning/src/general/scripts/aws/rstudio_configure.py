@@ -61,6 +61,7 @@ if __name__ == "__main__":
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
     notebook_config['rstudio_pass'] = id_generator()
     notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
+    notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
 
     # generating variables regarding EDGE proxy on Notebook instance
     instance_hostname = get_instance_hostname(notebook_config['tag_name'], notebook_config['instance_name'])
@@ -175,21 +176,21 @@ if __name__ == "__main__":
         remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
-    try:
-        print('[CREATING AMI]')
-        logging.info('[CREATING AMI]')
-        ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
-        if ami_id == '':
-            print("Looks like it's first time we configure notebook server. Creating image.")
-            image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
-                                                  instance_name=notebook_config['instance_name'],
-                                                  image_name=notebook_config['expected_ami_name'])
-            if image_id != '':
-                print("Image was successfully created. It's ID is {}".format(image_id))
-    except Exception as err:
-        append_result("Failed installing users key.", str(err))
-        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
-        sys.exit(1)
+    if notebook_config['shared_image_enabled'] == 'true':
+        try:
+            print('[CREATING AMI]')
+            ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])
+            if ami_id == '':
+                print("Looks like it's first time we configure notebook server. Creating image.")
+                image_id = create_image_from_instance(tag_name=notebook_config['tag_name'],
+                                                      instance_name=notebook_config['instance_name'],
+                                                      image_name=notebook_config['expected_ami_name'])
+                if image_id != '':
+                    print("Image was successfully created. It's ID is {}".format(image_id))
+        except Exception as err:
+            append_result("Failed creating image.", str(err))
+            remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+            sys.exit(1)
 
     # generating output information
     ip_address = get_instance_ip_address(notebook_config['tag_name'], notebook_config['instance_name']).get('Private')
@@ -225,6 +226,7 @@ if __name__ == "__main__":
                "instance_id": get_instance_by_name(notebook_config['tag_name'], notebook_config['instance_name']),
                "master_keyname": os.environ['conf_key_name'],
                "notebook_name": notebook_config['instance_name'],
+               "notebook_image_name": notebook_config['expected_ami_name'],
                "Action": "Create new notebook server",
                "exploratory_url": [
                    {"description": "RStudio",

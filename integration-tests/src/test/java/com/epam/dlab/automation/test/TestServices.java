@@ -18,31 +18,10 @@ limitations under the License.
 
 package com.epam.dlab.automation.test;
 
-import static org.testng.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
-import com.amazonaws.services.ec2.model.Instance;
-import com.epam.dlab.automation.aws.AmazonHelper;
-import com.epam.dlab.automation.aws.AmazonInstanceState;
+import com.epam.dlab.automation.helper.CloudHelper;
+import com.epam.dlab.automation.cloud.VirtualMachineStatusChecker;
 import com.epam.dlab.automation.docker.Docker;
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
-import com.epam.dlab.automation.helper.PropertiesResolver;
-import com.epam.dlab.automation.helper.NamingHelper;
-import com.epam.dlab.automation.helper.WaitForStatus;
+import com.epam.dlab.automation.helper.*;
 import com.epam.dlab.automation.http.ApiPath;
 import com.epam.dlab.automation.http.ContentType;
 import com.epam.dlab.automation.http.HttpRequest;
@@ -55,6 +34,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.response.ResponseBody;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+
+import static org.testng.Assert.assertTrue;
 
 @Test(singleThreaded = true)
 public class TestServices {
@@ -66,7 +60,7 @@ public class TestServices {
 	// computation resources in parallel
 	// looks like running test in 1 thread mostly succeeds, running in 2 and more
 	// threads - usually fails.
-	public static final int N_THREADS = 10;
+	private static final int N_THREADS = 10;
 
 	private long testTimeMillis;
 	private List<NotebookConfig> notebookConfigs;
@@ -89,7 +83,7 @@ public class TestServices {
 		LOGGER.info("Test time {} ms", testTimeMillis);
 	}
 
-	@Test(priority = 0)
+	@Test
 	public void runTest() throws Exception {
 		testJenkinsJob();
 		testLoginSsnService();
@@ -135,16 +129,21 @@ public class TestServices {
 
 	private void testLoginSsnService() throws Exception {
 		// ssnURL = "http://ec2-35-162-89-115.us-west-2.compute.amazonaws.com";
+		String cloudProvider = ConfigPropertyValue.getCloudProvider();
 
-		LOGGER.info("Check status of SSN node on Amazon: {}", NamingHelper.getSsnName());
-		Instance ssnInstance = AmazonHelper.getInstance(NamingHelper.getSsnName());
-		String publicSsnIp = ssnInstance.getPublicIpAddress();
+		LOGGER.info("Check status of SSN node on {}: {}", cloudProvider.toUpperCase(), NamingHelper.getSsnName());
+
+		String publicSsnIp = CloudHelper.getInstancePublicIP(NamingHelper.getSsnName(), true);
 		LOGGER.info("Public IP is: {}", publicSsnIp);
-		String privateSsnIp = ssnInstance.getPrivateIpAddress();
+		String privateSsnIp = CloudHelper.getInstancePrivateIP(NamingHelper.getSsnName(), true);
 		LOGGER.info("Private IP is: {}", privateSsnIp);
+		if(publicSsnIp == null || privateSsnIp == null){
+			Assert.fail("There is not any virtual machine in " + cloudProvider + " with name " + NamingHelper.getSsnName());
+			return;
+		}
 		NamingHelper.setSsnIp(PropertiesResolver.DEV_MODE ? publicSsnIp : privateSsnIp);
-		AmazonHelper.checkAmazonStatus(NamingHelper.getSsnName(), AmazonInstanceState.RUNNING);
-		LOGGER.info("Amazon instance state is running");
+        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getSsnName(), true);
+		LOGGER.info("{} instance state is running", cloudProvider.toUpperCase());
 
 		LOGGER.info("2. Waiting for SSN service ...");
 		Assert.assertEquals(WaitForStatus.selfService(ConfigPropertyValue.getTimeoutSSNStartup()), true,
@@ -228,7 +227,8 @@ public class TestServices {
 
 		final String nodePrefix = ConfigPropertyValue.getUsernameSimple();
 		Docker.checkDockerStatus(nodePrefix + "_create_edge_", NamingHelper.getSsnIp());
-		AmazonHelper.checkAmazonStatus(NamingHelper.getEdgeName(), AmazonInstanceState.RUNNING);
+
+		VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getEdgeName(), true);
 
 		final String ssnExpEnvURL = NamingHelper.getSelfServiceURL(ApiPath.EXP_ENVIRONMENT);
 		LOGGER.info("   SSN exploratory environment URL is {}", ssnExpEnvURL);
@@ -252,8 +252,7 @@ public class TestServices {
 		}
 		final long checkThreadTimeout = ConfigPropertyValue.isRunModeLocal() ? 1000 : 5000;
 		while (true) {
-			boolean done = true;
-			done = allScenariosDone(futureTasks);
+			boolean done = allScenariosDone(futureTasks);
 			if (done) {
 				verifyResults(futureTasks);
 				executor.shutdown();
@@ -264,7 +263,7 @@ public class TestServices {
 		}
 	}
 
-	private void verifyResults(List<FutureTask<Boolean>> futureTasks) throws InterruptedException, ExecutionException {
+	private void verifyResults(List<FutureTask<Boolean>> futureTasks) {
 		List<Exception> resExceptions = new ArrayList<>();
 		for (FutureTask<Boolean> ft : futureTasks) {
 			try {

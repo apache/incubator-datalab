@@ -216,7 +216,8 @@ public class RequestBuilder {
         return exploratoryCreate.withExploratoryName(formDTO.getName())
                 .withNotebookImage(formDTO.getImage())
                 .withApplicationName(getApplicationNameFromImage(formDTO.getImage()))
-                .withGitCreds(exploratoryGitCredsDTO.getGitCreds());
+                .withGitCreds(exploratoryGitCredsDTO.getGitCreds())
+                .withImageName(formDTO.getImageName());
     }
 
     @SuppressWarnings("unchecked")
@@ -395,7 +396,7 @@ public class RequestBuilder {
                 computationalCreate = (T) newResourceSysBaseDTO(userInfo, ComputationalCreateGcp.class)
                         .withMasterInstanceCount(gcpForm.getMasterInstanceCount())
                         .withSlaveInstanceCount(gcpForm.getSlaveInstanceCount())
-                        .withPreemtibleCount(gcpForm.getPreemtibleCount())
+                        .withPreemptibleCount(gcpForm.getPreemptibleCount())
                         .withMasterInstanceType(gcpForm.getMasterInstanceType())
                         .withSlaveInstanceType(gcpForm.getSlaveInstanceType())
                         .withVersion(gcpForm.getVersion());

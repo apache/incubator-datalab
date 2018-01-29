@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
+import java.util.List;
+
 /**
  * Stores limits for creation of the computational resources for Dataproc cluster
  */
@@ -13,12 +15,8 @@ import org.hibernate.validator.constraints.NotBlank;
 public class GcpDataprocConfiguration {
 
     @NotBlank
-    @JsonProperty("min_dataproc_master_instance_count")
-    private int minDataprocMasterInstanceCount;
-
-    @NotBlank
-    @JsonProperty("max_dataproc_master_instance_count")
-    private int maxDataprocMasterInstanceCount;
+    @JsonProperty("dataproc_available_master_instance_count")
+    private List<Integer> dataprocAvailableMasterInstanceCount;
 
     @NotBlank
     @JsonProperty("min_dataproc_slave_instance_count")
@@ -27,4 +25,7 @@ public class GcpDataprocConfiguration {
     @NotBlank
     @JsonProperty("max_dataproc_slave_instance_count")
     private int maxDataprocSlaveInstanceCount;
+    @NotBlank
+    @JsonProperty("min_dataproc_preemptible_instance_count")
+    private int minDataprocPreemptibleInstanceCount;
 }

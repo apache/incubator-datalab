@@ -19,8 +19,8 @@ public class GcpComputationalCreateForm extends ComputationalCreateFormDTO {
     private String slaveInstanceCount;
 
     @NotBlank
-    @JsonProperty("dataproc_preemtible_count")
-    private String preemtibleCount;
+    @JsonProperty("dataproc_preemptible_count")
+    private String preemptibleCount;
 
     @JsonProperty("dataproc_master_instance_type")
     private String masterInstanceType;
