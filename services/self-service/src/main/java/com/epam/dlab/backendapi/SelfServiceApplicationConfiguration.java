@@ -90,6 +90,8 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     private int maxDataprocSlaveInstanceCount;
     @JsonProperty
     private int minDataprocPreemptibleCount;
+    @JsonProperty
+    private int maxUserNameLength;
 
     /**
      * Returns the minimum number of slave EMR instances than could be created.
@@ -179,5 +181,9 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
     public int getMinDataprocPreemptibleCount() {
         return minDataprocPreemptibleCount;
+    }
+
+    public int getMaxUserNameLength() {
+        return maxUserNameLength;
     }
 }
