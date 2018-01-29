@@ -67,6 +67,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   @ViewChild('masterShapesList') master_shapes_list;
   @ViewChild('shapesSlaveList') slave_shapes_list;
   @ViewChild('spotInstancesCheck') spotInstancesSelect;
+  @ViewChild('preemptibleNode') preemptible;
 
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
@@ -120,7 +121,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public createComputationalResource($event, data, shape_master: string, shape_slave: string) {
     this.model.setCreatingParams(data.cluster_alias_name, data.instance_number, shape_master, shape_slave,
-      this.spotInstance, data.instance_price, data.slave_instance_number, data.this.preemptible_inst);
+      this.spotInstance, data.instance_price, data.slave_instance_number, data.preemptible_instance_number);
     this.model.confirmAction();
     $event.preventDefault();
     return false;
@@ -158,6 +159,11 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.spotInstance = false;
       this.resourceForm.controls['instance_price'].setValue(0);
     }
+  }
+
+  public selectPreemptibleNodes($event) {
+    if ($event.target.checked)
+      this.resourceForm.controls['preemptible_instance_number'].setValue(this.minPreemptibleInstanceNumber);
   }
 
   private filterAvailableSpots() {
@@ -216,7 +222,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
       slave_instance_number: [0, [Validators.pattern(this.nodeCountPattern), this.validSlaveInstanceNumberRange.bind(this)]],
-      preemptible_instance_number: [0, [Validators.pattern(this.nodeCountPattern), this.validPreemptibleNumberRange.bind(this)]],
+      preemptible_instance_number: [0, [this.validPreemptibleRange.bind(this)]],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]]
     });
   }
@@ -240,7 +246,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         this.minPreemptibleInstanceNumber = this.model.selectedImage.limits.min_dataproc_preemptible_instance_count;
       }
 
-      if (this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
+      if (DICTIONARY.cloud_provider === 'aws' && this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
         this.minSpotPrice = this.model.selectedImage.limits.min_emr_spot_instance_bid_pct;
         this.maxSpotPrice = this.model.selectedImage.limits.max_emr_spot_instance_bid_pct;
       }
@@ -254,7 +260,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   private validInstanceNumberRange(control) {
     if (control && control.value)
       if (DICTIONARY.cloud_provider === 'gcp'&& this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
-        this.validPreemptibleNumberRange(null);
+        this.validPreemptibleNumberRange();
         return control.value === this.minInstanceNumber || control.value === this.maxInstanceNumber ? null : { valid: false };
       } else {
         return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
@@ -263,30 +269,26 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private validSlaveInstanceNumberRange(control) {
     if (control && control.value) {
-      this.validPreemptibleNumberRange(null);
-      this.resourceForm.controls['preemptible_instance_number'].setValidators(Validators.required);
+      this.validPreemptibleNumberRange();
+      this.resourceForm.controls['preemptible_instance_number'].setValidators(Validators.compose([Validators.required, this.validPreemptibleRange.bind(this)]));
+      this.resourceForm.controls['preemptible_instance_number'].updateValueAndValidity();
 
       return control.value >= this.minSlaveInstanceNumber && control.value <= this.maxSlaveInstanceNumber ? null : { valid: false };
     }
   }
 
-  private validPreemptibleNumberRange(control) {
-    if (this.resourceForm) {
-      let masterInst = this.resourceForm.controls['instance_number'].value;
-      let slaveInst = this.resourceForm.controls['slave_instance_number'].value;
+  private validPreemptibleRange(control) {
+    if (this.preemptible)
+      return this.preemptible.nativeElement['checked']
+        ? (control.value >= this.minPreemptibleInstanceNumber && control.value <= this.maxPreemptibleInstanceNumber ? null : { valid: false })
+        : control.value;
+  }
 
-      this.maxPreemptibleInstanceNumber = (this.maxSlaveInstanceNumber - masterInst - slaveInst);
+  private validPreemptibleNumberRange() {
+    let masterInst = this.resourceForm.controls['instance_number'].value;
+    let slaveInst = this.resourceForm.controls['slave_instance_number'].value;
 
-      if (control && control.value)
-        return control.value >= this.minPreemptibleInstanceNumber && control.value <= this.maxPreemptibleInstanceNumber ? null : { valid: false };
-
-      if (control === null) {
-        this.resourceForm.controls['preemptible_instance_number'].setValidators(
-           [Validators.required, Validators.min(this.minPreemptibleInstanceNumber), Validators.max(this.maxPreemptibleInstanceNumber)]);
-
-        this.resourceForm.get('preemptible_instance_number').updateValueAndValidity();
-      }
-    }
+    this.maxPreemptibleInstanceNumber = Math.max((this.maxSlaveInstanceNumber - masterInst - slaveInst), 0);
   }
 
   private validInstanceSpotRange(control) {
@@ -355,5 +357,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
     if (this.PROVIDER === 'aws')
       this.spotInstancesSelect.nativeElement['checked'] = false;
+
+    if (this.PROVIDER === 'gcp' && this.preemptible)
+      this.preemptible.nativeElement['checked'] = false;
   }
 }
