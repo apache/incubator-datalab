@@ -43,7 +43,7 @@ if __name__ == "__main__":
         # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
         ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
-        ssn_conf['vpc_name'] = os.environ['azure_vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
+        ssn_conf['vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
         ssn_conf['region'] = os.environ['azure_region']
         ssn_conf['vpc_cidr'] = '10.10.0.0/16'
@@ -86,7 +86,6 @@ if __name__ == "__main__":
         try:
             params = "--resource_group_name {} --region {}".format(ssn_conf['service_base_name'], ssn_conf['region'])
             try:
-                print('CREATE RG:', params)
                 local("~/scripts/{}.py {}".format('ssn_create_resource_group', params))
             except:
                 traceback.print_exc()
@@ -111,7 +110,6 @@ if __name__ == "__main__":
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {}".format(
                 os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'])
             try:
-                print('CREATE VPC:', params)
                 local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
             except:
                 traceback.print_exc()
@@ -139,7 +137,6 @@ if __name__ == "__main__":
                 format(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'],
                        ssn_conf['vpc_cidr'], ssn_conf['subnet_name'], ssn_conf['subnet_prefix'])
             try:
-                print('CREATE SN:', params)
                 local("~/scripts/{}.py {}".format('common_create_subnet', params))
             except:
                 traceback.print_exc()
