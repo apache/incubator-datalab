@@ -58,11 +58,11 @@ limitations under the License.
   </tr>
 
   <tr *ngIf="(!filteredEnvironments) && !filtering || (filteredEnvironments.length == 0) && !filtering" class="message_block">
-    <td [colSpan]="filteringColumns.length">To start working, please, create new environment</td>
+    <td [colSpan]="DICTIONARY.cloud_provider === 'gcp' ? filteringColumns.length -1 : filteringColumns.length">To start working, please, create new environment</td>
   </tr>
 
   <tr *ngIf="(filteredEnvironments.length == 0) && filtering" class="message_block">
-    <td [colSpan]="filteringColumns.length">No matches found</td>
+    <td [colSpan]="DICTIONARY.cloud_provider === 'gcp' ? filteringColumns.length -1 : filteringColumns.length">No matches found</td>
   </tr>
 
   <tr *ngFor="let env of filteredEnvironments;" class="dashboard_table_body" [ngClass]="{'dropdown-outscreen': isOutscreenDropdown}">
