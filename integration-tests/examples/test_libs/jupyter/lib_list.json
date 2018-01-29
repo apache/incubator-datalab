@@ -13,7 +13,7 @@
   },
   {
     "group": "pip2",
-    "start_with": "SparseA"
+    "start_with": "sp"
   },
   {
     "group": "pip3",
