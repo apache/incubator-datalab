@@ -234,5 +234,24 @@ public class NamingHelper {
 
     }
 
+    public static boolean isClusterRequired(String notebookName){
+        if(notebookName.contains("deeplearning")){
+            return false;
+        }
+        else if(notebookName.contains("jupyter")){
+            return true;
+        }
+        else if(notebookName.contains("rstudio")){
+            return true;
+        }
+        else if(notebookName.contains("tensor")){
+            return false;
+        }
+        else if(notebookName.contains("zeppelin")){
+            return true;
+        }
+        else return true;
+    }
+
 
 }

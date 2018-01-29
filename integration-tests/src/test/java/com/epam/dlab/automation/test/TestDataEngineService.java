@@ -169,7 +169,7 @@ public class TestDataEngineService {
             copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName),
                         noteBookIp, notebookName);
 
-            if(!clusterName.equalsIgnoreCase("cluster_absent")){
+            if(!clusterName.equalsIgnoreCase("cluster_absent") || !NamingHelper.isClusterRequired(notebookName)) {
                 LOGGER.info("{}: Port forwarding from ssn {} to notebook {}...", notebookName, ssnIP, noteBookIp);
                 int assignedPort = ssnSession.setPortForwardingL(0, noteBookIp, 22);
                 LOGGER.info("{}: Port forwarded localhost:{} -> {}:22", notebookName, assignedPort, noteBookIp);
