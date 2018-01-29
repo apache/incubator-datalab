@@ -67,7 +67,7 @@ export const NAMING_CONVENTION = {
       'max_emr_spot_instance_bid_pct': 'max_emr_spot_instance_bid_pct',
       'data_engine_master_instance_size': 'Master machine type',
       'data_engine_slave_instance_size': 'Slave machine type',
-      'instance_number': 'Total master machine number',
+      'instance_number': 'Master node count',
       'master_instance_number': 'Master node count',
       'slave_instance_number': 'Worker node count',
       'master_node_shape': 'master_node_shape',
