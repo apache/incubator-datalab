@@ -86,6 +86,7 @@ if __name__ == "__main__":
         try:
             params = "--resource_group_name {} --region {}".format(ssn_conf['service_base_name'], ssn_conf['region'])
             try:
+                print('CREATE RG:', params)
                 local("~/scripts/{}.py {}".format('ssn_create_resource_group', params))
             except:
                 traceback.print_exc()
@@ -110,6 +111,7 @@ if __name__ == "__main__":
             params = "--resource_group_name {} --vpc_name {} --region {} --vpc_cidr {}".format(
                 os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'], ssn_conf['vpc_cidr'])
             try:
+                print('CREATE VPC:', params)
                 local("~/scripts/{}.py {}".format('ssn_create_vpc', params))
             except:
                 traceback.print_exc()
@@ -137,6 +139,7 @@ if __name__ == "__main__":
                 format(os.environ['azure_resource_group_name'], ssn_conf['vpc_name'], ssn_conf['region'],
                        ssn_conf['vpc_cidr'], ssn_conf['subnet_name'], ssn_conf['subnet_prefix'])
             try:
+                print('CREATE SN:', params)
                 local("~/scripts/{}.py {}".format('common_create_subnet', params))
             except:
                 traceback.print_exc()
