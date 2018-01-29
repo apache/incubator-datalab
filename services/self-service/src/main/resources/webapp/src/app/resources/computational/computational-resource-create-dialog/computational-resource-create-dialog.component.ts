@@ -256,7 +256,9 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   }
 
   private validSlaveInstanceNumberRange(control) {
-    if (control && control.value) return control.value >= this.minSlaveInstanceNumber ? null : { valid: false };
+    if (control && control.value) return control.value && control.value >= this.minSlaveInstanceNumber
+      && control.value && con
+      trol.value <= this.maxSlaveInstanceNumber ? null : { valid: false };
   }
 
   private validInstanceSpotRange(control) {
@@ -286,8 +288,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.cluster_type.setDefaultOptions(this.model.resourceImages,
         this.model.selectedImage.template_name, 'cluster_type', 'template_name', 'array');
         if (this.model.selectedImage.image === 'docker.dlab-dataengine-service')
-        this.templates_list.setDefaultOptions(this.model.templates,
-          this.model.selectedItem.version, 'template', 'version', 'array');
+          this.templates_list.setDefaultOptions(this.model.templates,
+            this.model.selectedItem.version, 'template', 'version', 'array');
     }
     this.master_shapes_list.setDefaultOptions(this.model.selectedImage.shapes.resourcesShapeTypes,
       this.shapePlaceholder(this.model.selectedImage.shapes.resourcesShapeTypes, 'description'), 'master_shape', 'description', 'json');
