@@ -84,6 +84,7 @@ if __name__ == "__main__":
 
         with open("/root/result.json", 'w') as result:
             res = {"notebook_image_name": image_conf['image_name'],
+                   "ip": instance_hostname,
                    "full_image_name": image_conf['full_image_name'],
                    "user_name": image_conf['user_name'],
                    "application": image_conf['application'],

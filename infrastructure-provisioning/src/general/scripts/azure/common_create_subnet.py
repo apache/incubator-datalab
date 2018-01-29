@@ -42,7 +42,6 @@ if __name__ == "__main__":
     first_vpc_ip = int(ipaddress.IPv4Address(args.vpc_cidr.split('/')[0].decode("utf-8")))
     subnets_cidr = []
     subnets = AzureMeta().list_subnets(args.resource_group_name, args.vpc_name)
-    print('SUBNETS:', subnets)
     for subnet in subnets:
         subnets_cidr.append(subnet.address_prefix)
     sorted_subnets_cidr = sorted(subnets_cidr)

@@ -121,7 +121,8 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --user {} --region {}".\
             format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['azure_region'])
         try:
-            local("~/scripts/{}.py {}".format('install_prerequisites', params))
+            print('SCKIPPED')
+            # local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
             traceback.print_exc()
             raise Exception
@@ -139,7 +140,8 @@ if __name__ == "__main__":
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'])
         try:
-            local("~/scripts/{}.py {}".format('configure_jupyter_node', params))
+            print('SCKIPPED')
+            # local("~/scripts/{}.py {}".format('configure_jupyter_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
                                os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
         except:
@@ -197,7 +199,7 @@ if __name__ == "__main__":
                                                           notebook_config['expected_ami_name'],
                                                           json.dumps(notebook_config['tags']))
                 print("Image was successfully created.")
-                local("~/scripts/{}.py --uuid {}".format('common_prepare_notebook', args.uuid))
+                local("~/scripts/{}.py".format('common_prepare_notebook'))
                 instance_running = False
                 while not instance_running:
                     if AzureMeta().get_instance_status(notebook_config['resource_group_name'],
