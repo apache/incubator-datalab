@@ -35,7 +35,7 @@ args = parser.parse_args()
 
 def prepare_templates():
     try:
-        local('source /etc/profile && wget http://files.fast.ai/data/dogscats.zip -O /tmp/dogscats.zip')
+        local('/bin/bash -c "source /etc/profile && wget http://files.fast.ai/data/dogscats.zip -O /tmp/dogscats.zip"')
         local('unzip -q /tmp/dogscats -d /tmp')
         local('/bin/bash -c "mkdir -p /home/{0}/{1}"'.format(args.os_user, "{test,train}"))
         local('mv /tmp/dogscats/test1/* /home/{0}/test'.format(args.os_user))
