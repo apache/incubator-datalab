@@ -60,6 +60,12 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     }
 
     @Override
+    public void updateImage(Image image, String newNotebookIp, String exploratoryName) {
+        updateImage(image);
+        exploratoryDAO.updateExploratoryIp(image.getUser(), newNotebookIp, exploratoryName);
+    }
+
+    @Override
     public List<ImageInfoRecord> getImages(String user) {
         return imageExploratotyDao.getCreatedImages(user);
     }

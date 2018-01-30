@@ -10,5 +10,6 @@ public interface ImageExploratoryService {
 
     String createImage(UserInfo user, String exploratoryName, String imageName, String imageDescription);
     void updateImage(Image image);
+    void updateImage(Image image, String newNotebookIp, String exploratoryName);
     List<ImageInfoRecord> getImages(String user);
 }
