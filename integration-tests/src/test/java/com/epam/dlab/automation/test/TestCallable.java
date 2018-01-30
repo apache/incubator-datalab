@@ -418,23 +418,23 @@ private void restartNotebook() throws Exception {
        if (!gettingStatus.contains("stopped"))
            throw new Exception("Notebook " + notebookName + " has not been stopped. Notebook status is " + gettingStatus);
        LOGGER.info("   Notebook {} has been stopped", notebookName);
-       gettingStatus = WaitForStatus.getClusterStatus(
-               new HttpRequest()
-                       .webApiGet(ssnProUserResURL, token)
-                       .getBody()
-                       .jsonPath(),
-               notebookName, clusterName);
+       if(!clusterName.equalsIgnoreCase("cluster_absent")){
+           gettingStatus = WaitForStatus.getClusterStatus(
+                   new HttpRequest()
+                           .webApiGet(ssnProUserResURL, token)
+                           .getBody()
+                           .jsonPath(),
+                   notebookName, clusterName);
+           if (!gettingStatus.contains("terminated") && !ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER)
+                   && !"dataengine-service".equals(dataEngineType))
+               throw new Exception("Computational resources has not been terminated for Notebook " + notebookName +
+                       ". Data engine service status is " + gettingStatus);
+           if(gettingStatus.contains("terminated")){
+               LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
+           }
+           VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
 
-       if (!gettingStatus.contains("terminated") && !ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER)
-               && !"dataengine-service".equals(dataEngineType))
-           throw new Exception("Computational resources has not been terminated for Notebook " + notebookName +
-                   ". Data engine service status is " + gettingStatus);
-       if(gettingStatus.contains("terminated")){
-           LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
        }
-
-       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
-
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "stop"), NamingHelper.getSsnIp());
    }
 }
