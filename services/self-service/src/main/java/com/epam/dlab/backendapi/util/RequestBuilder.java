@@ -60,6 +60,7 @@ import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class RequestBuilder {
     private static final String UNSUPPORTED_CLOUD_PROVIDER_MESSAGE = "Unsupported cloud provider ";
@@ -103,9 +104,12 @@ public class RequestBuilder {
         try {
             T resource = resourceClass.newInstance();
             switch (cloudProvider()) {
+                case GCP:
+                    return (T) resource
+                            .withEdgeUserName(adjustUserName(configuration.getMaxUserNameLength(), userInfo.getSimpleName()))
+                            .withCloudSettings(cloudSettings(userInfo));
                 case AWS:
                 case AZURE:
-                case GCP:
                     return (T) resource
                             .withEdgeUserName(userInfo.getSimpleName())
                             .withCloudSettings(cloudSettings(userInfo));
@@ -116,6 +120,12 @@ public class RequestBuilder {
             throw new DlabException("Cannot create instance of resource class " + resourceClass.getName() + ". " +
                     e.getLocalizedMessage(), e);
         }
+    }
+
+    private static String adjustUserName(int maxLength, String userName) {
+
+        return userName.length() > maxLength ? UUID.nameUUIDFromBytes(userName
+                .getBytes()).toString().substring(0, maxLength) : userName;
     }
 
     @SuppressWarnings("unchecked")
