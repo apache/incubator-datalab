@@ -425,27 +425,15 @@ private void restartNotebook() throws Exception {
                            .getBody()
                            .jsonPath(),
                    notebookName, clusterName);
-       }else{
-           gettingStatus = WaitForStatus.getNotebookStatus(
-                   new HttpRequest()
-                           .webApiGet(ssnProUserResURL, token)
-                           .getBody()
-                           .jsonPath(),
-                   notebookName);
-       }
-
-       if (!gettingStatus.contains("terminated") && !ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER)
-               && !"dataengine-service".equals(dataEngineType))
-           throw new Exception("Computational resources has not been terminated for Notebook " + notebookName +
-                   ". Data engine service status is " + gettingStatus);
-       if(gettingStatus.contains("terminated")){
-           LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
-       }
-
-       if(!clusterName.equalsIgnoreCase("cluster_absent")){
+           if (!gettingStatus.contains("terminated") && !ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER)
+                   && !"dataengine-service".equals(dataEngineType))
+               throw new Exception("Computational resources has not been terminated for Notebook " + notebookName +
+                       ". Data engine service status is " + gettingStatus);
+           if(gettingStatus.contains("terminated")){
+               LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
+           }
            VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
-       }else{
-           VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getNotebookInstanceName(notebookName), false);
+
        }
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "stop"), NamingHelper.getSsnIp());
    }
