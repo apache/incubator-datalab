@@ -70,23 +70,20 @@ if __name__ == "__main__":
                                                                 notebook_config['exploratory_name'])
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],
-                                   "User": notebook_config['user_name']}
+                                   "User": notebook_config['user_name'],
+                                   "Exploratory": notebook_config['exploratory_name']}
         notebook_config['network_interface_name'] = notebook_config['instance_name'] + "-nif"
-        notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + \
-            notebook_config['user_name'] + '-nb-sg'
-        notebook_config['private_subnet_name'] = notebook_config['service_base_name'] + '-' + \
-            notebook_config['user_name'] + '-subnet'
-        ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
+        notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
+                                                                      notebook_config['user_name'])
+        notebook_config['private_subnet_name'] = '{}-{}-subnet'.format(notebook_config['service_base_name'],
+                                                                       notebook_config['user_name'])
+        ssh_key_path = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         if os.environ['application'] == 'deeplearning':
             notebook_config['primary_disk_size'] = '30'
         else:
             notebook_config['primary_disk_size'] = '12'
-        notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
-            notebook_config['user_name'] + "-nb-Profile"
-        notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + \
-            notebook_config['user_name'] + "-nb-sg"
         if os.environ['application'] == 'deeplearning' or os.environ['application'] == 'tensor':
             notebook_config['instance_storage_account_type'] = 'Standard_LRS'
         else:
@@ -98,16 +95,16 @@ if __name__ == "__main__":
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
         notebook_config['ami_type'] = 'default'
-        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
-                                                   os.environ['application'] + '-notebook-image'
-        notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
-                                                else notebook_config['expected_ami_name']) \
+        notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
+                                                                               os.environ['application'])
+        notebook_config['notebook_image_name'] = (lambda x: x if x != 'None'
+                                                else notebook_config['expected_image_name']) \
                                                 (str(os.environ.get('notebook_image_name')))
         print('Searching preconfigured images')
         if notebook_config['notebook_image_name'] == 'default':
-            if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name']):
-                print('Preconfigured image found. Using: {}'.format(notebook_config['expected_ami_name']))
-                notebook_config['ami_name'] = notebook_config['expected_ami_name']
+            if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_image_name']):
+                print('Preconfigured image found. Using: {}'.format(notebook_config['expected_image_name']))
+                notebook_config['ami_name'] = notebook_config['expected_image_name']
                 notebook_config['ami_type'] = 'pre-configured'
             else:
                 notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']

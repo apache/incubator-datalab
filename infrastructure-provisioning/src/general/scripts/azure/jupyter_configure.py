@@ -49,23 +49,23 @@ if __name__ == "__main__":
         notebook_config['instance_name'] = '{}-{}-nb-{}'.format(notebook_config['service_base_name'],
                                                                 notebook_config['user_name'],
                                                                 notebook_config['exploratory_name'])
-        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + os.environ['application'] \
-                                               + '-notebook-image'
-        notebook_config['security_group_name'] = notebook_config['service_base_name'] + "-" + \
-            notebook_config['user_name'] + '-nb-sg'
-        notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
+        notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
+                                                                               os.environ['application'])
+        notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
+                                                                      notebook_config['user_name'])
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
         notebook_config['tags'] = {"Name": notebook_config['instance_name'],
                                    "SBN": notebook_config['service_base_name'],
-                                   "User": notebook_config['user_name']}
+                                   "User": notebook_config['user_name'],
+                                   "Exploratory": notebook_config['exploratory_name']}
         notebook_config['shared_image_enabled'] = os.environ['conf_shared_image_enabled']
 
         # generating variables regarding EDGE proxy on Notebook instance
         instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                        notebook_config['instance_name'])
-        edge_instance_name = os.environ['conf_service_base_name'] + "-" + notebook_config['user_name'] + '-edge'
+                                                               notebook_config['instance_name'])
+        edge_instance_name = '{}-{}-edge'.format(notebook_config['service_base_name'], notebook_config['user_name'])
         edge_instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                             edge_instance_name)
+                                                                    edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
         if os.environ['conf_os_family'] == 'debian':
@@ -92,7 +92,7 @@ if __name__ == "__main__":
             traceback.print_exc()
             raise Exception
     except Exception as err:
-        append_result("Failed creating ssh user 'dlab'.", str(err))
+        append_result("Failed creating ssh user 'dlab-user'.", str(err))
         AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
         sys.exit(1)
 
@@ -121,8 +121,7 @@ if __name__ == "__main__":
         params = "--hostname {} --keyfile {} --user {} --region {}".\
             format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'], os.environ['azure_region'])
         try:
-            print('SCKIPPED')
-            # local("~/scripts/{}.py {}".format('install_prerequisites', params))
+            local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
             traceback.print_exc()
             raise Exception
@@ -140,8 +139,7 @@ if __name__ == "__main__":
                    os.environ['notebook_hadoop_version'], notebook_config['dlab_ssh_user'],
                    os.environ['notebook_scala_version'], os.environ['notebook_r_mirror'])
         try:
-            print('SCKIPPED')
-            # local("~/scripts/{}.py {}".format('configure_jupyter_node', params))
+            local("~/scripts/{}.py {}".format('configure_jupyter_node', params))
             remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
                                os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
         except:
@@ -187,16 +185,15 @@ if __name__ == "__main__":
 
     if notebook_config['shared_image_enabled'] == 'true':
         try:
-            print('[CREATING AMI]')
-            ami = AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_ami_name'])
-            if ami == '':
+            print('[CREATING IMAGE]')
+            image = AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_image_name'])
+            if image == '':
                 print("Looks like it's first time we configure notebook server. Creating image.")
-                prepare_vm_for_image(True, notebook_config['dlab_ssh_user'], instance_hostname,
-                                     os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
+                prepare_vm_for_image(True, notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
                 AzureActions().create_image_from_instance(notebook_config['resource_group_name'],
                                                           notebook_config['instance_name'],
                                                           os.environ['azure_region'],
-                                                          notebook_config['expected_ami_name'],
+                                                          notebook_config['expected_image_name'],
                                                           json.dumps(notebook_config['tags']))
                 print("Image was successfully created.")
                 local("~/scripts/{}.py".format('common_prepare_notebook'))
@@ -207,26 +204,22 @@ if __name__ == "__main__":
                         instance_running = True
                 instance_hostname = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
                                                                        notebook_config['instance_name'])
-                remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname,
-                                   os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem")
-                set_git_proxy(notebook_config['dlab_ssh_user'], instance_hostname,
-                              os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem",
-                              "http://" + edge_instance_hostname + ":3128")
+                remount_azure_disk(True, notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
+                set_git_proxy(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name,
+                              'http://{}:3128'.format(edge_instance_hostname))
                 additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
                 params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
                     .format(instance_hostname, notebook_config['instance_name'], keyfile_name,
-                            json.dumps(additional_config),
-                            notebook_config['dlab_ssh_user'])
+                            json.dumps(additional_config), notebook_config['dlab_ssh_user'])
                 local("~/scripts/{}.py {}".format('common_configure_proxy', params))
-
         except Exception as err:
-            append_result("Failed creating image.", str(err))
+            append_result("Failed creating image from notebook.", str(err))
             AzureActions().remove_instance(notebook_config['resource_group_name'], notebook_config['instance_name'])
             sys.exit(1)
     # generating output information
     try:
         ip_address = AzureMeta().get_private_ip_address(notebook_config['resource_group_name'],
-                                                                 notebook_config['instance_name'])
+                                                        notebook_config['instance_name'])
         jupyter_ip_url = "http://" + ip_address + ":8888/"
         ungit_ip_url = "http://" + ip_address + ":8085/"
         print('[SUMMARY]')
@@ -248,7 +241,7 @@ if __name__ == "__main__":
                    "notebook_name": notebook_config['instance_name'],
                    "instance_id": notebook_config['instance_name'],
                    "Action": "Create new notebook server",
-                   "notebook_image_name": notebook_config['expected_ami_name'],
+                   "notebook_image_name": notebook_config['expected_image_name'],
                    "exploratory_url": [
                        {"description": "Jupyter",
                         "url": jupyter_ip_url},

@@ -23,16 +23,14 @@ from dlab.meta_lib import *
 from dlab.fab import *
 import sys
 import json
-import uuid
 
 
 if __name__ == "__main__":
     try:
-        image_id = ''
         image_conf = dict()
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
-        image_conf['resource_group_name'] = os.environ['conf_resource_group_name']
-        image_conf['user_name'] = os.environ['edge_user_name']
+        image_conf['resource_group_name'] = os.environ['azure_resource_group_name']
+        image_conf['user_name'] = os.environ['edge_user_name'].replace('_', '-')
         image_conf['instance_name'] = os.environ['notebook_instance_name']
         image_conf['application'] = os.environ['application']
         image_conf['dlab_ssh_user'] = os.environ['conf_os_user']
@@ -46,6 +44,7 @@ if __name__ == "__main__":
                               "User": image_conf['user_name'],
                               "Image": image_conf['image_name'],
                               "FIN": image_conf['full_image_name']}
+        image_conf['rstudio_pass'] = (lambda x: id_generator() if x == 'rstudio' else '')(image_conf['application'])
 
         instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
                                                                image_conf['instance_name'])
@@ -54,9 +53,14 @@ if __name__ == "__main__":
                                                                     edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
+        instance = AzureMeta().get_instance(image_conf['resource_group_name'], image_conf['instance_name'])
+        os.environ['azure_notebook_instance_size'] = instance.hardware_profile.vm_size
+        os.environ['exploratory_name'] = instance.tags['Exploratory']
+        os.environ['notebook_image_name'] = image_conf['full_image_name']
+
         image = AzureMeta().get_image(image_conf['resource_group_name'], image_conf['full_image_name'])
         if image == '':
-            print("Looks like it's first time we configure notebook server. Creating image.")
+            print('Creating image from existing notebook.')
             prepare_vm_for_image(True, image_conf['dlab_ssh_user'], instance_hostname, keyfile_name)
             AzureActions().create_image_from_instance(image_conf['resource_group_name'],
                                                       image_conf['instance_name'],
@@ -64,34 +68,45 @@ if __name__ == "__main__":
                                                       image_conf['full_image_name'],
                                                       json.dumps(image_conf['tags']))
             print("Image was successfully created.")
-            local("~/scripts/{}.py".format('common_prepare_notebook'))
-            instance_running = False
-            while not instance_running:
-                if AzureMeta().get_instance_status(image_conf['resource_group_name'],
-                                                   image_conf['instance_name']) == 'running':
-                    instance_running = True
-            instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
-                                                                   image_conf['instance_name'])
-            remount_azure_disk(True, image_conf['dlab_ssh_user'], instance_hostname, keyfile_name)
-            set_git_proxy(image_conf['dlab_ssh_user'], instance_hostname, keyfile_name,
-                          'http://{}:3128'.format(edge_instance_hostname))
-            additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
-            params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
-                .format(instance_hostname, image_conf['instance_name'], keyfile_name,
-                        json.dumps(additional_config), image_conf['dlab_ssh_user'])
-            local("~/scripts/{}.py {}".format('common_configure_proxy', params))
-            print("Image was successfully created. It's name is {}".format(image_conf['full_image_name']))
+            try:
+                local("~/scripts/{}.py".format('common_prepare_notebook'))
+                instance_running = False
+                while not instance_running:
+                    if AzureMeta().get_instance_status(image_conf['resource_group_name'],
+                                                       image_conf['instance_name']) == 'running':
+                        instance_running = True
+                instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
+                                                                       image_conf['instance_name'])
+                remount_azure_disk(True, image_conf['dlab_ssh_user'], instance_hostname, keyfile_name)
+                set_git_proxy(image_conf['dlab_ssh_user'], instance_hostname, keyfile_name,
+                              'http://{}:3128'.format(edge_instance_hostname))
+                additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
+                params = "--hostname {} --instance_name {} --keyfile {} --additional_config '{}' --os_user {}" \
+                    .format(instance_hostname, image_conf['instance_name'], keyfile_name,
+                            json.dumps(additional_config), image_conf['dlab_ssh_user'])
+                local("~/scripts/{}.py {}".format('common_configure_proxy', params))
 
-        with open("/root/result.json", 'w') as result:
-            res = {"notebook_image_name": image_conf['image_name'],
-                   "ip": instance_hostname,
-                   "full_image_name": image_conf['full_image_name'],
-                   "user_name": image_conf['user_name'],
-                   "application": image_conf['application'],
-                   "image_id": image_id,
-                   "status": "created",
-                   "Action": "Create image from notebook"}
-            result.write(json.dumps(res))
+                if image_conf['application'] == 'rstudio':
+                    params = "--hostname {} --keyfile {} --os_user {} --rstudio_pass {}" \
+                        .format(instance_hostname, keyfile_name, image_conf['dlab_ssh_user'], image_conf['rstudio_pass'])
+                    local("~/scripts/{}.py {}".format('rstudio_change_pass', params))
+
+                print("Image was successfully created. It's name is {}".format(image_conf['full_image_name']))
+            except Exception as err:
+                AzureActions().remove_instance(image_conf['resource_group_name'], image_conf['instance_name'])
+                append_result("Failed to create instance from image.", str(err))
+                sys.exit(1)
+
+            with open("/root/result.json", 'w') as result:
+                res = {"notebook_image_name": image_conf['image_name'],
+                       "ip": instance_hostname,
+                       "full_image_name": image_conf['full_image_name'],
+                       "user_name": image_conf['user_name'],
+                       "application": image_conf['application'],
+                       "exploratory_pass": image_conf['rstudio_pass'],
+                       "status": "created",
+                       "Action": "Create image from notebook"}
+                result.write(json.dumps(res))
     except Exception as err:
         append_result("Failed to create image from notebook", str(err))
         sys.exit(1)
