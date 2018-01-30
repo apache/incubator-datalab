@@ -419,6 +419,7 @@ private void restartNotebook() throws Exception {
            throw new Exception("Notebook " + notebookName + " has not been stopped. Notebook status is " + gettingStatus);
        LOGGER.info("   Notebook {} has been stopped", notebookName);
        if(!clusterName.equalsIgnoreCase(NamingHelper.CLUSTER_ABSENT)){
+           LOGGER.info("Inside special block of code: clusterName is {}", clusterName);
            gettingStatus = WaitForStatus.getClusterStatus(
                    new HttpRequest()
                            .webApiGet(ssnProUserResURL, token)
