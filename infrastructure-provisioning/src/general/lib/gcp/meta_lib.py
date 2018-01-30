@@ -456,18 +456,18 @@ class GCPMeta:
 
     def get_list_instance_statuses(self, instance_name_list):
         data = []
-        for instance_name in instance_name_list:
+        for instance in instance_name_list:
             host = {}
             try:
                 request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
-                                                       instance=instance_name)
+                                                       instance=instance['id'])
                 result = request.execute()
-                host['id'] = instance_name
+                host['id'] = instance['id']
                 host['status'] = result.get('status').lower().replace("terminated", "stopped")
                 data.append(host)
             except:
                 host['resource_type'] = 'host'
-                host['id'] = instance_name
+                host['id'] = instance['id']
                 host['status'] = 'terminated'
                 data.append(host)
         return data
