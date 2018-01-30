@@ -9,6 +9,7 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.exceptions.ResourceAlreadyExistException;
+import com.epam.dlab.exceptions.ResourceNotFoundException;
 import com.epam.dlab.model.exloratory.Image;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ExploratoryAPI;
@@ -24,6 +25,7 @@ import java.util.List;
 public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
     private static final String IMAGE_EXISTS_MSG = "Image with name %s is already exist";
+    private static final String IMAGE_NOT_FOUND_MSG = "Image with name %s was not found for user %s";
     @Inject
     private ExploratoryDAO exploratoryDAO;
 
@@ -60,7 +62,19 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
     }
 
     @Override
-    public List<ImageInfoRecord> getImages(String user) {
+    public void updateImage(Image image, String newNotebookIp, String exploratoryName) {
+        updateImage(image);
+        exploratoryDAO.updateExploratoryIp(image.getUser(), newNotebookIp, exploratoryName);
+    }
+
+    @Override
+    public List<ImageInfoRecord> getCreatedImages(String user) {
         return imageExploratotyDao.getCreatedImages(user);
+    }
+
+    @Override
+    public ImageInfoRecord getImage(String user, String name) {
+        return imageExploratotyDao.getImage(user, name).orElseThrow(() ->
+                new ResourceNotFoundException(String.format(IMAGE_NOT_FOUND_MSG, name, user)));
     }
 }

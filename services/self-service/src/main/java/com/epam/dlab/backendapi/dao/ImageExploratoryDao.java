@@ -4,6 +4,7 @@ import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.model.exloratory.Image;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ImageExploratoryDao {
 
@@ -14,4 +15,6 @@ public interface ImageExploratoryDao {
     void updateImageFields(Image image);
 
     List<ImageInfoRecord> getCreatedImages(String user);
+
+    Optional<ImageInfoRecord> getImage(String user, String name);
 }

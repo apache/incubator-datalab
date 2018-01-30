@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -77,7 +78,7 @@ public class BaseDAO implements MongoCollections {
     public boolean collectionExists(String name) {
         return mongoService.collectionExists(name);
     }
-    
+
     /** Return Mongo collection.
      * @param collection collection name.
      */
@@ -201,10 +202,23 @@ public class BaseDAO implements MongoCollections {
         		.find(condition);
     }
 
+    /** Finds and returns documents from the collection by condition.
+     * @param collection collection name.
+     * @param condition condition for search documents in collection.
+     */
+    protected<T> List<T> find(String collection, Bson condition, Class<T> resultedClass) {
+        return mongoService.getCollection(collection)
+                .find(condition)
+                .into(new ArrayList<>())
+                .stream()
+                .map(d -> convertFromDocument(d, resultedClass))
+                .collect(Collectors.toList());
+    }
+
     /** Finds and returns documents with the specified fields from the collection by condition.
      * @param collection collection name.
      * @param condition condition for search documents in collection.
-     * @param projection document describing the fields in the collection to return. 
+     * @param projection document describing the fields in the collection to return.
      */
     protected FindIterable<Document> find(String collection, Bson condition, Bson projection) {
         return mongoService.getCollection(collection)
@@ -248,11 +262,11 @@ public class BaseDAO implements MongoCollections {
         FindIterable<Document> found = find(collection, condition);
         return limitOne(found);
     }
-    
+
     /** Finds and returns one document with the specified fields from the collection by condition.
      * @param collection collection name.
      * @param condition condition for search documents in collection.
-     * @param projection document describing the fields in the collection to return. 
+     * @param projection document describing the fields in the collection to return.
      * @exception DlabException if documents iterator have more than one document.
      */
     protected Optional<Document> findOne(String collection,
@@ -277,7 +291,7 @@ public class BaseDAO implements MongoCollections {
     /** Finds and returns one object as given class from the collection by condition.
      * @param collection collection name.
      * @param condition condition for search documents in collection.
-     * @param clazz type of class for deserialization. 
+     * @param clazz type of class for deserialization.
      * @exception DlabException if documents iterator have more than one document.
      */
     protected <T> Optional<T> findOne(String collection, Bson condition, Class<T> clazz) throws DlabException {
@@ -288,8 +302,8 @@ public class BaseDAO implements MongoCollections {
     /** Finds and returns one object as given class and with the specified fields from the collection by condition.
      * @param collection collection name.
      * @param condition condition for search documents in collection.
-     * @param projection document describing the fields in the collection to return. 
-     * @param clazz type of class for deserialization. 
+     * @param projection document describing the fields in the collection to return.
+     * @param clazz type of class for deserialization.
      * @exception DlabException if documents iterator have more than one document.
      */
     protected <T> Optional<T> findOne(String collection, Bson condition, Bson projection, Class<T> clazz) throws DlabException {
