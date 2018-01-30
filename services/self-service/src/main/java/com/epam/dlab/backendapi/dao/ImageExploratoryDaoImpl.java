@@ -8,6 +8,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -43,6 +44,11 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
         return find(MongoCollections.IMAGES,
                 userCreatedImagesCondition(user),
                 ImageInfoRecord.class);
+    }
+
+    @Override
+    public Optional<ImageInfoRecord> getImage(String user, String name) {
+        return findOne(MongoCollections.IMAGES, userImageCondition(user, name), ImageInfoRecord.class);
     }
 
     private Bson userCreatedImagesCondition(String user) {
