@@ -418,12 +418,21 @@ private void restartNotebook() throws Exception {
        if (!gettingStatus.contains("stopped"))
            throw new Exception("Notebook " + notebookName + " has not been stopped. Notebook status is " + gettingStatus);
        LOGGER.info("   Notebook {} has been stopped", notebookName);
-       gettingStatus = WaitForStatus.getClusterStatus(
-               new HttpRequest()
-                       .webApiGet(ssnProUserResURL, token)
-                       .getBody()
-                       .jsonPath(),
-               notebookName, clusterName);
+       if(!clusterName.equalsIgnoreCase("cluster_absent")){
+           gettingStatus = WaitForStatus.getClusterStatus(
+                   new HttpRequest()
+                           .webApiGet(ssnProUserResURL, token)
+                           .getBody()
+                           .jsonPath(),
+                   notebookName, clusterName);
+       }else{
+           gettingStatus = WaitForStatus.getNotebookStatus(
+                   new HttpRequest()
+                           .webApiGet(ssnProUserResURL, token)
+                           .getBody()
+                           .jsonPath(),
+                   notebookName);
+       }
 
        if (!gettingStatus.contains("terminated") && !ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER)
                && !"dataengine-service".equals(dataEngineType))
@@ -433,8 +442,11 @@ private void restartNotebook() throws Exception {
            LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
        }
 
-       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
-
+       if(!clusterName.equalsIgnoreCase("cluster_absent")){
+           VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
+       }else{
+           VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getNotebookInstanceName(notebookName), false);
+       }
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "stop"), NamingHelper.getSsnIp());
    }
 }
