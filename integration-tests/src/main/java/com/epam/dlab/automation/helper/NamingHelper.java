@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NamingHelper {
+    public static final String CLUSTER_ABSENT = "cluster_absent";
     private static AtomicInteger idCounter = new AtomicInteger(0);
     
     private static String serviceBaseName;

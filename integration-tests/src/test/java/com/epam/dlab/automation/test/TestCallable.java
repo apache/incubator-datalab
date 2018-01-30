@@ -81,8 +81,8 @@ public class TestCallable implements Callable<Boolean> {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
 			clusterName = "eimr" + suffixName;
         } else {
-        	ssnCompResURL="";
-			clusterName="";
+        	ssnCompResURL = "";
+			clusterName = NamingHelper.CLUSTER_ABSENT;
         	LOGGER.info("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
         }
 
@@ -104,7 +104,7 @@ public class TestCallable implements Callable<Boolean> {
 			final DeployClusterDto deployClusterDto = createClusterDto();
             final String actualClusterName = deployClusterDto != null ? NamingHelper.getClusterName(
                     NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
-                    dataEngineType, true) : "cluster_absent";
+                    dataEngineType, true) : NamingHelper.CLUSTER_ABSENT;
 
             if (!ConfigPropertyValue.isRunModeLocal()) {
 
@@ -418,7 +418,7 @@ private void restartNotebook() throws Exception {
        if (!gettingStatus.contains("stopped"))
            throw new Exception("Notebook " + notebookName + " has not been stopped. Notebook status is " + gettingStatus);
        LOGGER.info("   Notebook {} has been stopped", notebookName);
-       if(!clusterName.equalsIgnoreCase("cluster_absent")){
+       if(!clusterName.equalsIgnoreCase(NamingHelper.CLUSTER_ABSENT)){
            gettingStatus = WaitForStatus.getClusterStatus(
                    new HttpRequest()
                            .webApiGet(ssnProUserResURL, token)
