@@ -19,7 +19,6 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
     private static final String IMAGE_NAME = "name";
     private static final String IMAGE_APPLICATION = "application";
     private static final String IMAGE_FULL_NAME = "fullName";
-    private static final String EXTERNAL_IMAGE_ID = "externalId";
     private static final String EXTERNAL_NAME = "externalName";
 
     @Override
@@ -63,7 +62,6 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
     private Document getUpdatedFields(Image image) {
         return new Document(STATUS, image.getStatus().toString())
                 .append(IMAGE_FULL_NAME, image.getFullName())
-                .append(EXTERNAL_IMAGE_ID, image.getExternalId())
                 .append(IMAGE_APPLICATION, image.getApplication())
                 .append(EXTERNAL_NAME, image.getExternalName());
     }

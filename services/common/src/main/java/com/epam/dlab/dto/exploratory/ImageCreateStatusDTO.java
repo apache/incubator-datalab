@@ -33,20 +33,18 @@ public class ImageCreateStatusDTO extends StatusBaseDTO<ImageCreateStatusDTO> {
     public static class ImageCreateDTO {
         private String externalName;
         private String fullName;
-        private String externalId;
         private String user;
         private String application;
         private ImageStatus status;
         private String ip;
 
         @JsonCreator
-        public ImageCreateDTO(@JsonProperty("notebook_image_name") String externalName, @JsonProperty("full_image_name") String fullName,
-                              @JsonProperty("image_id") String externalId, @JsonProperty("user_name") String user,
-                              @JsonProperty("application") String application, @JsonProperty("status") ImageStatus status,
-                              @JsonProperty("ip") String ip) {
+        public ImageCreateDTO(@JsonProperty("notebook_image_name") String externalName,
+                              @JsonProperty("full_image_name") String fullName,
+                              @JsonProperty("user_name") String user, @JsonProperty("application") String application,
+                              @JsonProperty("status") ImageStatus status, @JsonProperty("ip") String ip) {
             this.externalName = externalName;
             this.fullName = fullName;
-            this.externalId = externalId;
             this.user = user;
             this.application = application;
             this.status = status;

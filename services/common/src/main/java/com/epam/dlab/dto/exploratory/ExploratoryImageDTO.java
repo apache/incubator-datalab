@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class ExploratoryImageDTO extends ExploratoryActionDTO<ExploratoryImageDTO> {
 
-    @JsonProperty("image_name")
+    @JsonProperty("notebook_image_name")
     private String imageName;
 
     public ExploratoryImageDTO withImageName(String imageName) {

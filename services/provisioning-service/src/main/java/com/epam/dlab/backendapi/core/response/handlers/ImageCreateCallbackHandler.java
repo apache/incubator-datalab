@@ -1,13 +1,12 @@
 package com.epam.dlab.backendapi.core.response.handlers;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.exploratory.ExploratoryImageDTO;
 import com.epam.dlab.dto.exploratory.ImageCreateStatusDTO;
-import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,12 +30,19 @@ public class ImageCreateCallbackHandler extends ResourceCallbackHandler<ImageCre
 
     @Override
     protected ImageCreateStatusDTO parseOutResponse(JsonNode document, ImageCreateStatusDTO statusDTO) {
-        statusDTO.setName(imageName);
+        if (document != null) {
+            statusDTO.withImageCreateDto(toImageCreateDto(document.toString()));
+        }
+        return statusDTO;
+    }
+
+    @Override
+    protected ImageCreateStatusDTO getBaseStatusDTO(UserInstanceStatus status) {
+        final ImageCreateStatusDTO statusDTO = super.getBaseStatusDTO(status);
         statusDTO.setExploratoryName(exploratoryName);
-        statusDTO.setImageCreateDTO(new ImageCreateStatusDTO.ImageCreateDTO());
-        final ImageStatus imageStatus = ImageStatus.fromValue(statusDTO.getStatus());
-        return imageStatus != ImageStatus.FAILED ?
-                statusDTO.withImageCreateDto(toImageCreateDto(document.toString())) : statusDTO.withoutImageCreateDto();
+        statusDTO.setName(imageName);
+        statusDTO.withoutImageCreateDto();
+        return statusDTO;
     }
 
     private ImageCreateStatusDTO.ImageCreateDTO toImageCreateDto(String content) {

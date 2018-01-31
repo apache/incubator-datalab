@@ -13,7 +13,6 @@ public class Image {
     private final String exploratoryId;
     private final String user;
     private final String fullName;
-    private final String externalId;
     private final String externalName;
     private final String application;
 }
