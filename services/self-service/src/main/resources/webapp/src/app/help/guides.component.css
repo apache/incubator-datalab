@@ -26,7 +26,8 @@ limitations under the License.
   margin-bottom: 30px;
 }
 
-.guide-wrapper h3 {
+.guide-wrapper h3,
+.guide-wrapper h2 {
   margin-top: 50px;
   margin-bottom: 25px;
 }
@@ -54,6 +55,11 @@ limitations under the License.
   top: 10px;
   background: #31708f;
   border-radius: 30%;
+}
+
+.guide-wrapper img {
+  display: block;
+  margin: 50px auto;
 }
 
 .code-block {
