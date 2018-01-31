@@ -28,7 +28,6 @@ import uuid
 
 if __name__ == "__main__":
     try:
-        image_id = ''
         image_conf = dict()
         create_aws_config_files()
         image_conf['service_base_name'] = os.environ['conf_service_base_name']
@@ -53,17 +52,16 @@ if __name__ == "__main__":
                                                   instance_name=image_conf['instance_name'],
                                                   image_name=image_conf['full_image_name'],
                                                   tags=json.dumps(image_conf['tags']))
-            if image_id != '':
-                print("Image was successfully created. It's ID is {}".format(image_id))
+            print("Image was successfully created. It's name is {}".format(image_conf['full_image_name']))
 
-        with open("/root/result.json", 'w') as result:
-            res = {"notebook_image_name": image_conf['image_name'],
-                   "full_image_name": image_conf['full_image_name'],
-                   "user_name": image_conf['user_name'],
-                   "application": image_conf['application'],
-                   "status": "created",
-                   "Action": "Create image from notebook"}
-            result.write(json.dumps(res))
+            with open("/root/result.json", 'w') as result:
+                res = {"notebook_image_name": image_conf['image_name'],
+                       "full_image_name": image_conf['full_image_name'],
+                       "user_name": image_conf['user_name'],
+                       "application": image_conf['application'],
+                       "status": "created",
+                       "Action": "Create image from notebook"}
+                result.write(json.dumps(res))
     except Exception as err:
         append_result("Failed to create image from notebook", str(err))
         sys.exit(1)
