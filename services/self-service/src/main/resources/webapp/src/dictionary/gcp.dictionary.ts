@@ -53,7 +53,7 @@ export const NAMING_CONVENTION = {
   'computational_resource': 'Computational resources',
   'user_storage_account_name': '',
   'shared_storage_account_name': '',
-  'bucket_name': 'user_own_bicket_name',
+  'bucket_name': 'user_own_bucket_name',
   'shared_bucket_name': 'shared_bucket_name',
   'datalake_name': '',
   'datalake_user_directory_name': '',
