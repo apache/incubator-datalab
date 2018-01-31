@@ -139,7 +139,7 @@ public class NamingHelper {
                     return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
                 }
                 else {
-                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "emr", notebookName, clusterName);
+                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName);
                 }
             case CloudProvider.AZURE_PROVIDER:
                 if(DATA_ENGINE.equals(dataEngineType)) {
