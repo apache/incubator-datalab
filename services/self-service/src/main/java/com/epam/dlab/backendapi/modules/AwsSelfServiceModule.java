@@ -24,7 +24,6 @@ import com.epam.dlab.backendapi.domain.aws.BillingSchedulerManagerAws;
 import com.epam.dlab.backendapi.resources.aws.BillingResourceAws;
 import com.epam.dlab.backendapi.resources.aws.ComputationalResourceAws;
 import com.epam.dlab.backendapi.resources.callback.aws.EdgeCallbackAws;
-import com.epam.dlab.backendapi.resources.callback.aws.ImageCallbackAws;
 import com.epam.dlab.backendapi.resources.callback.aws.KeyUploaderCallbackAws;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
@@ -52,7 +51,6 @@ public class AwsSelfServiceModule extends CloudModule {
         environment.jersey().register(injector.getInstance(KeyUploaderCallbackAws.class));
         environment.jersey().register(injector.getInstance(ComputationalResourceAws.class));
         environment.jersey().register(injector.getInstance(BillingResourceAws.class));
-        environment.jersey().register(injector.getInstance(ImageCallbackAws.class));
         environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAws.class));
 
         injector.getInstance(SecurityFactory.class).configure(injector, environment,

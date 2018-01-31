@@ -28,7 +28,6 @@ import com.epam.dlab.backendapi.resources.SecurityResource;
 import com.epam.dlab.backendapi.resources.azure.BillingResourceAzure;
 import com.epam.dlab.backendapi.resources.azure.ComputationalResourceAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.EdgeCallbackAzure;
-import com.epam.dlab.backendapi.resources.callback.azure.ImageCallbackAzure;
 import com.epam.dlab.backendapi.resources.callback.azure.KeyUploaderCallbackAzure;
 import com.epam.dlab.backendapi.service.BillingService;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
@@ -69,7 +68,6 @@ public class AzureSelfServiceModule extends CloudModule {
         environment.jersey().register(injector.getInstance(KeyUploaderCallbackAzure.class));
         environment.jersey().register(injector.getInstance(ComputationalResourceAzure.class));
         environment.jersey().register(injector.getInstance(BillingResourceAzure.class));
-        environment.jersey().register(injector.getInstance(ImageCallbackAzure.class));
 
         if (!azureLoginConfiguration.isUseLdap()) {
             environment.jersey().register(injector.getInstance(AzureSecurityResource.class));

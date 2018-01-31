@@ -266,19 +266,21 @@ public class ExploratoryDAO extends BaseDAO {
 
     public void updateExploratoryIp(String user, String ip, String exploratoryName) {
 
-        Document values = new Document();
         UserInstanceDTO inst = fetchExploratoryFields(user, exploratoryName);
         if (!inst.getPrivateIp().equals(ip)) {
+            Document values = new Document();
             values.append(EXPLORATORY_PRIVATE_IP, ip);
             if (inst.getExploratoryUrl() != null) {
                 values.append(EXPLORATORY_URL, inst.getExploratoryUrl().stream()
                         .map(url -> replaceIp(ip, inst, url)
                         ).collect(Collectors.toList()));
             }
+
+            updateOne(USER_INSTANCES,
+                    exploratoryCondition(user, exploratoryName),
+                    new Document(SET, values));
         }
-        updateOne(USER_INSTANCES,
-                exploratoryCondition(user, exploratoryName),
-                new Document(SET, values));
+
     }
 
     private Map<String, String> replaceIp(String ip, UserInstanceDTO inst, ExploratoryURL url) {

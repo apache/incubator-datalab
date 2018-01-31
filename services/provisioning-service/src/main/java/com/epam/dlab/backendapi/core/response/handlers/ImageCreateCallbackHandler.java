@@ -1,6 +1,5 @@
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.exploratory.ExploratoryImageDTO;
 import com.epam.dlab.dto.exploratory.ImageCreateStatusDTO;
@@ -34,21 +33,21 @@ public class ImageCreateCallbackHandler extends ResourceCallbackHandler<ImageCre
     protected ImageCreateStatusDTO parseOutResponse(JsonNode document, ImageCreateStatusDTO statusDTO) {
         statusDTO.setName(imageName);
         statusDTO.setExploratoryName(exploratoryName);
-        if (UserInstanceStatus.FAILED == UserInstanceStatus.of(statusDTO.getStatus())) {
-            final ImageCreateStatusDTO.ImageCreateDTO imageCreateDTO =
-                    new ImageCreateStatusDTO.ImageCreateDTO(getUser(), ImageStatus.valueOf(statusDTO.getStatus()), statusDTO.getErrorMessage());
-            statusDTO.setImageCreateDTO(imageCreateDTO);
-        } else {
+        statusDTO.setImageCreateDTO(new ImageCreateStatusDTO.ImageCreateDTO());
+        if (ImageStatus.FAILED != ImageStatus.fromValue(statusDTO.getStatus())) {
             final String content = document.toString();
             try {
-                statusDTO.setImageCreateDTO(mapper.readValue(content, new TypeReference<ImageCreateStatusDTO.ImageCreateDTO>() {
-                }));
+                final ImageCreateStatusDTO.ImageCreateDTO imageCreateDTO = mapper.readValue(content, new TypeReference<ImageCreateStatusDTO.ImageCreateDTO>() {
+                });
+                statusDTO.setImageCreateDTO(imageCreateDTO);
+                return statusDTO;
+
             } catch (IOException e) {
                 log.error("Can't parse create image response  with content {} for uuid {}", content, getUUID());
                 throw new DlabException(String.format("Can't parse create image response  with content %s for uuid %s", content, getUUID()), e);
             }
+        } else {
+            return statusDTO;
         }
-
-        return statusDTO;
     }
 }

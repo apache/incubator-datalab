@@ -1,5 +1,6 @@
 package com.epam.dlab.backendapi.service;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
@@ -7,6 +8,7 @@ import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.dto.exploratory.ImageStatus;
 import com.epam.dlab.exceptions.ResourceAlreadyExistException;
 import com.epam.dlab.exceptions.ResourceNotFoundException;
@@ -52,19 +54,24 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .user(user.getName())
                 .exploratoryId(userInstance.getId()).build());
 
+        exploratoryDAO.updateExploratoryStatus(new ExploratoryStatusDTO()
+                .withUser(user.getName())
+                .withExploratoryName(exploratoryName)
+                .withStatus(UserInstanceStatus.CREATING_IMAGE));
+
         return provisioningService.post(ExploratoryAPI.EXPLORATORY_IMAGE, user.getAccessToken(),
                 RequestBuilder.newExploratoryImageCreate(user, userInstance, imageName), String.class);
     }
 
     @Override
-    public void updateImage(Image image) {
+    public void finishImageCreate(Image image, String exploratoryName, String newNotebookIp) {
+        exploratoryDAO.updateExploratoryStatus(new ExploratoryStatusDTO()
+                .withUser(image.getUser())
+                .withExploratoryName(exploratoryName)
+                .withStatus(UserInstanceStatus.RUNNING));
         imageExploratotyDao.updateImageFields(image);
-    }
-
-    @Override
-    public void updateImage(Image image, String newNotebookIp, String exploratoryName) {
-        updateImage(image);
         exploratoryDAO.updateExploratoryIp(image.getUser(), newNotebookIp, exploratoryName);
+
     }
 
     @Override
