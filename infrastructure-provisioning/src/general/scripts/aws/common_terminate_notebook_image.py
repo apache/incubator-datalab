@@ -34,14 +34,12 @@ if __name__ == "__main__":
         image_id = get_ami_id_by_name(image_conf['full_image_name'], 'available')
         if image_id != '':
             deregister_image(image_conf['full_image_name'])
-        else:
-            print('Could not find image by name.')
 
-        with open("/root/result.json", 'w') as result:
-            res = {"notebook_image_name": image_conf['full_image_name'],
-                   "status": "terminated",
-                   "Action": "Delete existing notebook image"}
-            result.write(json.dumps(res))
+            with open("/root/result.json", 'w') as result:
+                res = {"notebook_image_name": image_conf['full_image_name'],
+                       "status": "terminated",
+                       "Action": "Delete existing notebook image"}
+                result.write(json.dumps(res))
     except Exception as err:
         append_result("Failed to delete existing notebook image", str(err))
         sys.exit(1)
