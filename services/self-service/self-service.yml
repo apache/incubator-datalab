@@ -62,15 +62,15 @@ billingConfFile: ${DLAB_CONF_DIR}/billing.yml
 # Azure login configuration
 azureLoginConfiguration:
     # defines of LDAP server is used as authentication point, if false Azure OAuth authentication should be configured
-    useLdap: <LOGIN_USE_LDAP>
+    useLdap: false
     # Tenant id in Azure
-    tenant: <LOGIN_TENANT_ID>
+    tenant: xxxx-xxxx-xxxx-xxxx
     # Authority url
     authority: https://login.microsoftonline.com/
     # Id of the application that logs in users
-    clientId: <LOGIN_APPLICATION_ID>
+    clientId: xxxx-xxxx-xxxx-xxxx
     # Redirect url for OAuth2 Authorization code flow
-    redirectUrl: https://<LOGIN_APPLICATION_REDIRECT_URL>/
+    redirectUrl: https://dlab.azure.cloudapp.azure.com/
     # defines how authorization code is sent to DLab
     responseMode: query
     # Type of consent that requires interaction with user(consent,login are allowed)
@@ -78,7 +78,7 @@ azureLoginConfiguration:
     # Defines if try to log in user silently without user interaction (with "none" prompt). if false start with configured prompt
     silent: true
     # login page of DLab
-    loginPage: https://<LOGIN_PAGE>/
+    loginPage: https://dlab.azure.cloudapp.azure.com/
     # Max duration of user session if he/she is logged in with Azure OAuth.
     # After maxSessionDurabilityMilliseconds and before creation or start of notebook/cluster user will be asked to log in
     maxSessionDurabilityMilliseconds: 288000000
