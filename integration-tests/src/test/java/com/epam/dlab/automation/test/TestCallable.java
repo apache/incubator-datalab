@@ -74,10 +74,10 @@ public class TestCallable implements Callable<Boolean> {
         final String suffixName = NamingHelper.generateRandomValue(notebookTemplate);
         notebookName = "nb" + suffixName;
         
-        if ("dataengine".equals(dataEngineType)) {
+        if (NamingHelper.DATA_ENGINE.equals(dataEngineType)) {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES_SPARK);
 			clusterName = "spark" + suffixName;
-        } else if ("dataengine-service".equals(dataEngineType)) {
+        } else if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
 			clusterName = "eimr" + suffixName;
         } else {
@@ -145,11 +145,11 @@ public class TestCallable implements Callable<Boolean> {
    }
 
 private DeployClusterDto createClusterDto() throws Exception {
-    if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER) && "dataengine-service".equals(dataEngineType)){
+    if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER) && NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)){
         LOGGER.info("There are no available dataengine services for Azure. Cluster creation is skipped.");
         return null;
     }
-    if(!"dataengine-service".equals(dataEngineType) && !"dataengine".equals(dataEngineType)){
+    if(!NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType) && !NamingHelper.DATA_ENGINE.equals(dataEngineType)){
         LOGGER.info("Parameter 'dataEngineType' is unspecified or isn't valid. Cluster creation is skipped.");
         return null;
     }
@@ -158,17 +158,17 @@ private DeployClusterDto createClusterDto() throws Exception {
     LOGGER.info("  {} : SSN computational resources URL is {}", notebookName, ssnCompResURL);
 
     DeployClusterDto clusterDto = null;
-    if ("dataengine".equals(dataEngineType)) {
+    if (NamingHelper.DATA_ENGINE.equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
 					Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate), "spark_cluster.json").toString(),
 					DeploySparkDto.class);
-    } else if ("dataengine-service".equals(dataEngineType)) {
+    } else if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
 					Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate), "EMR.json").toString(),
 					DeployEMRDto.class);
     } else {
 		LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
-		fail("illegal argument dataEngineType "+dataEngineType +" , should be dataengine or dataengine-service");
+		fail("illegal argument dataEngineType " + dataEngineType + ", should be dataengine or dataengine-service");
 	}
 
     clusterDto.setName(clusterName);
@@ -246,9 +246,9 @@ private String  createNotebook(String notebookName) throws Exception {
 
        LOGGER.info("   Notebook {} status has been verified", notebookName);
        //get notebook IP
-    String notebookIp = CloudHelper.getInstancePrivateIP(NamingHelper.getNotebookInstanceName(notebookName), false);
+       String notebookIp = CloudHelper.getInstancePrivateIP(NamingHelper.getNotebookInstanceName(notebookName), false);
 
-    LOGGER.info("   Notebook {} IP is {}", notebookName, notebookIp);
+       LOGGER.info("   Notebook {} IP is {}", notebookName, notebookIp);
 
        return notebookIp;
    }
@@ -426,7 +426,7 @@ private void restartNotebook() throws Exception {
                            .jsonPath(),
                    notebookName, clusterName);
            if (!gettingStatus.contains("terminated") && !ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER)
-                   && !"dataengine-service".equals(dataEngineType))
+                   && !NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType))
                throw new Exception("Computational resources has not been terminated for Notebook " + notebookName +
                        ". Data engine service status is " + gettingStatus);
            if(gettingStatus.contains("terminated")){
