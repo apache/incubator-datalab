@@ -61,7 +61,6 @@ if __name__ == "__main__":
                    "full_image_name": image_conf['full_image_name'],
                    "user_name": image_conf['user_name'],
                    "application": image_conf['application'],
-                   "image_id": image_id,
                    "status": "created",
                    "Action": "Create image from notebook"}
             result.write(json.dumps(res))

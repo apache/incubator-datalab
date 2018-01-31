@@ -44,7 +44,7 @@ if __name__ == "__main__":
                               "User": image_conf['user_name'],
                               "Image": image_conf['image_name'],
                               "FIN": image_conf['full_image_name']}
-        image_conf['rstudio_pass'] = (lambda x: id_generator() if x == 'rstudio' else '')(image_conf['application'])
+        # image_conf['rstudio_pass'] = (lambda x: id_generator() if x == 'rstudio' else '')(image_conf['application'])
 
         instance_hostname = AzureMeta().get_private_ip_address(image_conf['resource_group_name'],
                                                                image_conf['instance_name'])
@@ -86,10 +86,10 @@ if __name__ == "__main__":
                             json.dumps(additional_config), image_conf['dlab_ssh_user'])
                 local("~/scripts/{}.py {}".format('common_configure_proxy', params))
 
-                if image_conf['application'] == 'rstudio':
-                    params = "--hostname {} --keyfile {} --os_user {} --rstudio_pass {}" \
-                        .format(instance_hostname, keyfile_name, image_conf['dlab_ssh_user'], image_conf['rstudio_pass'])
-                    local("~/scripts/{}.py {}".format('rstudio_change_pass', params))
+                # if image_conf['application'] == 'rstudio':
+                #     params = "--hostname {} --keyfile {} --os_user {} --rstudio_pass {}" \
+                #         .format(instance_hostname, keyfile_name, image_conf['dlab_ssh_user'], image_conf['rstudio_pass'])
+                #     local("~/scripts/{}.py {}".format('rstudio_change_pass', params))
 
                 print("Image was successfully created. It's name is {}".format(image_conf['full_image_name']))
             except Exception as err:
@@ -103,7 +103,6 @@ if __name__ == "__main__":
                        "full_image_name": image_conf['full_image_name'],
                        "user_name": image_conf['user_name'],
                        "application": image_conf['application'],
-                       "exploratory_pass": image_conf['rstudio_pass'],
                        "status": "created",
                        "Action": "Create image from notebook"}
                 result.write(json.dumps(res))
