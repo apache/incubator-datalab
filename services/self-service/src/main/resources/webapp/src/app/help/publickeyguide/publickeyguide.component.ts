@@ -22,7 +22,7 @@ import { Component } from '@angular/core';
   moduleId: module.id,
   selector: 'public-key-guide',
   templateUrl: 'publickeyguide.component.html',
-  styleUrls: ['./publickeyguide.component.css']
+  styleUrls: ['../guides.component.css']
 })
 
 export class PublicKeyGuideComponent { }

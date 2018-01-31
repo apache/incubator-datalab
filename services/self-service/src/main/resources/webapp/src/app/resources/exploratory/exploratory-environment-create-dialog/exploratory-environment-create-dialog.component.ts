@@ -71,7 +71,7 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
   }
 
   providerMaxLength(control) {
-    if (DICTIONARY.cloud_provider === 'azure')
+    if (DICTIONARY.cloud_provider !== 'aws')
       return control.value.length <=10 ? null : { valid: false };
   }
 

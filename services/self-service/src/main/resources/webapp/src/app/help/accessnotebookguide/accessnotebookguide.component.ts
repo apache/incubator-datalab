@@ -22,7 +22,7 @@ import { Component } from '@angular/core';
   moduleId: module.id,
   selector: 'access-notebook-guide',
   templateUrl: 'accessnotebookguide.component.html',
-  styleUrls: ['./accessnotebookguide.component.css']
+  styleUrls: ['../guides.component.css']
 })
 
 export class AccessNotebookGuideComponent { }
