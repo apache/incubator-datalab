@@ -15,6 +15,17 @@ public class ImageCreateStatusDTO extends StatusBaseDTO<ImageCreateStatusDTO> {
     private String name;
     private String exploratoryName;
 
+
+    public ImageCreateStatusDTO withImageCreateDto(ImageCreateDTO imageCreateDto) {
+        setImageCreateDTO(imageCreateDto);
+        return this;
+    }
+
+    public ImageCreateStatusDTO withoutImageCreateDto() {
+        setImageCreateDTO(new ImageCreateDTO());
+        return this;
+    }
+
     @Data
     @ToString
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -34,20 +34,17 @@ public class ImageCreateCallbackHandler extends ResourceCallbackHandler<ImageCre
         statusDTO.setName(imageName);
         statusDTO.setExploratoryName(exploratoryName);
         statusDTO.setImageCreateDTO(new ImageCreateStatusDTO.ImageCreateDTO());
-        if (ImageStatus.FAILED != ImageStatus.fromValue(statusDTO.getStatus())) {
-            final String content = document.toString();
-            try {
-                final ImageCreateStatusDTO.ImageCreateDTO imageCreateDTO = mapper.readValue(content, new TypeReference<ImageCreateStatusDTO.ImageCreateDTO>() {
-                });
-                statusDTO.setImageCreateDTO(imageCreateDTO);
-                return statusDTO;
+        final ImageStatus imageStatus = ImageStatus.fromValue(statusDTO.getStatus());
+        return imageStatus != ImageStatus.FAILED ?
+                statusDTO.withImageCreateDto(toImageCreateDto(document.toString())) : statusDTO.withoutImageCreateDto();
+    }
 
-            } catch (IOException e) {
-                log.error("Can't parse create image response  with content {} for uuid {}", content, getUUID());
-                throw new DlabException(String.format("Can't parse create image response  with content %s for uuid %s", content, getUUID()), e);
-            }
-        } else {
-            return statusDTO;
+    private ImageCreateStatusDTO.ImageCreateDTO toImageCreateDto(String content) {
+        try {
+            return mapper.readValue(content, ImageCreateStatusDTO.ImageCreateDTO.class);
+        } catch (IOException e) {
+            log.error("Can't parse create image response with content {} for uuid {}", content, getUUID());
+            throw new DlabException(String.format("Can't parse create image response with content %s for uuid %s", content, getUUID()), e);
         }
     }
 }

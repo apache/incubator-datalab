@@ -70,7 +70,9 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
                 .withExploratoryName(exploratoryName)
                 .withStatus(UserInstanceStatus.RUNNING));
         imageExploratotyDao.updateImageFields(image);
-        exploratoryDAO.updateExploratoryIp(image.getUser(), newNotebookIp, exploratoryName);
+        if (newNotebookIp != null) {
+            exploratoryDAO.updateExploratoryIp(image.getUser(), newNotebookIp, exploratoryName);
+        }
 
     }
 
