@@ -43,6 +43,7 @@ if __name__ == "__main__":
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['notebook_name'] = os.environ['notebook_instance_name']
     notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
+    notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
     try:
         logging.info('[START NOTEBOOK]')
@@ -63,7 +64,6 @@ if __name__ == "__main__":
         print('[SETUP USER GIT CREDENTIALS]')
         notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['tag_name'],
                                                                  notebook_config['notebook_name']).get('Private')
-        notebook_config['keyfile'] = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
             .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
         try:
@@ -71,6 +71,21 @@ if __name__ == "__main__":
         except Exception as err:
             traceback.print_exc()
             append_result("Failed to setup git credentials.", str(err))
+            raise Exception
+    except:
+        sys.exit(1)
+
+    try:
+        print('[SETUP CUSTOM JAR FILES]')
+        logging.info('[SETUP CUSTOM JAR FILES]')
+        notebook_config['notebook_ip'] = get_instance_ip_address(notebook_config['tag_name'],
+                                                                 notebook_config['notebook_name']).get('Private')
+        params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
+            .format(os.environ['conf_os_user'], notebook_config['notebook_ip'], notebook_config['keyfile'])
+        try:
+            local("~/scripts/{}.py {}".format('common_download_custom_jars', params))
+        except:
+            append_result("Failed to setup custom jar files.")
             raise Exception
     except:
         sys.exit(1)

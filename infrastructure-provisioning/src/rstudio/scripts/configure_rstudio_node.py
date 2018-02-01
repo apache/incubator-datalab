@@ -49,6 +49,7 @@ else:
                  "-bin-hadoop" + hadoop_version + ".tgz"
 local_spark_path = '/opt/spark/'
 jars_dir = '/opt/jars/'
+custom_jars_dir = os.environ['conf_custom_jars_dir']
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2', 'evaluate', 'formatR', 'yaml',
@@ -93,7 +94,7 @@ if __name__ == "__main__":
     print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path)
     print("Install storage jars")
-    ensure_local_jars(args.os_user, jars_dir)
+    ensure_local_jars(args.os_user, jars_dir, custom_jars_dir)
     print("Configure local Spark")
     configure_local_spark(args.os_user, jars_dir, args.region, templates_dir)
 

@@ -988,12 +988,12 @@ class AzureActions:
             traceback.print_exc(file=sys.stdout)
 
 
-def ensure_local_jars(os_user, jars_dir):
+def ensure_local_jars(os_user, jars_dir, custom_jars_dir=''):
     if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
             hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
             print("Downloading local jars for Azure")
-            sudo('mkdir -p ' + jars_dir)
+            sudo('echo {0} {1} | xargs mkdir -p'.format(jars_dir, custom_jars_dir))
             if os.environ['azure_datalake_enable'] == 'false':
                 sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                                  {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
@@ -1021,7 +1021,7 @@ def ensure_local_jars(os_user, jars_dir):
             traceback.print_exc(file=sys.stdout)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir):
+def configure_local_spark(os_user, jars_dir, region, templates_dir, custom_jars_dir=''):
     try:
         user_storage_account_tag = os.environ['conf_service_base_name'] + '-' + (os.environ['edge_user_name']).\
             replace('_', '-') + '-storage'

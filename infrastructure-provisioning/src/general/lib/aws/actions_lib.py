@@ -981,10 +981,11 @@ def get_files(s3client, s3resource, dist, bucket, local):
             for subdir in result.get('CommonPrefixes'):
                 get_files(s3client, s3resource, subdir.get('Prefix'), bucket, local)
         if result.get('Contents') is not None:
-            for file in result.get('Contents'):
-                if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
-                    os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
-                s3resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
+            for f in result.get('Contents'):
+                if not os.path.exists(os.path.dirname(local + os.sep + f.get('Key'))):
+                    os.makedirs(os.path.dirname(local + os.sep + f.get('Key')))
+                    if f.get('Key').endswith('/'): continue
+                s3resource.meta.client.download_file(bucket, f.get('Key'), local + os.sep + f.get('Key'))
 
 
 def get_cluster_python_version(region, bucket, user_name, cluster_name):
@@ -1121,10 +1122,10 @@ def spark_defaults(args):
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> {}'.format(spark_def_path))
 
 
-def ensure_local_jars(os_user, jars_dir):
+def ensure_local_jars(os_user, jars_dir, custom_jars_dir=''):
     if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            sudo('mkdir -p ' + jars_dir)
+            sudo('echo {0} {1} | xargs mkdir -p'.format(jars_dir, custom_jars_dir))
             sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.4/hadoop-aws-2.7.4.jar -O ' +
                  jars_dir + 'hadoop-aws-2.7.4.jar')
             sudo('wget http://central.maven.org/maven2/com/amazonaws/aws-java-sdk/1.7.4/aws-java-sdk-1.7.4.jar -O ' +
@@ -1136,7 +1137,7 @@ def ensure_local_jars(os_user, jars_dir):
             sys.exit(1)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir):
+def configure_local_spark(os_user, jars_dir, region, templates_dir, custom_jars_dir=''):
     if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
         try:
             if region == 'us-east-1':

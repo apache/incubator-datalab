@@ -53,6 +53,7 @@ pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernel
 py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/py3spark_local/'
 local_spark_path = '/opt/spark/'
 jars_dir = '/opt/jars/'
+custom_jars_dir = os.environ['conf_custom_jars_dir']
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 jupyter_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_notebook_config.py'
@@ -102,9 +103,9 @@ if __name__ == "__main__":
     print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, spark_version, hadoop_version, local_spark_path )
     print("Install storage jars")
-    ensure_local_jars(args.os_user, jars_dir)
+    ensure_local_jars(args.os_user, jars_dir, custom_jars_dir)
     print("Configure local Spark")
-    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir)
+    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir, custom_jars_dir)
 
     # INSTALL JUPYTER KERNELS
     print("Install pyspark local kernel for Jupyter")
