@@ -42,6 +42,4 @@ public class UserComputationalResource {
     private String status;
     @JsonProperty("up_time")
     private Date uptime;
-    @JsonProperty("scheduler_data")
-    private SchedulerJob schedulerData;
 }

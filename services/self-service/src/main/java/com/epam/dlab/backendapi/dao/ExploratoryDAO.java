@@ -51,8 +51,11 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 public class ExploratoryDAO extends BaseDAO {
     public static final String EXPLORATORY_ID = "exploratory_id";
     public static final String COMPUTATIONAL_RESOURCES = "computational_resources";
+    public static final String STATUS_RUNNING = "running";
+
     static final String EXPLORATORY_NAME = "exploratory_name";
     static final String UPTIME = "up_time";
+
     private static final String COMPUTATIONAL_NAME = "computational_name";
     private static final String EXPLORATORY_URL = "exploratory_url";
     private static final String EXPLORATORY_URL_DESC = "description";
@@ -69,11 +72,16 @@ public class ExploratoryDAO extends BaseDAO {
         return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));
     }
 
+    static Bson runningExploratoryCondition(String user, String exploratoryName) {
+        return and(eq(USER, user),
+                and(eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, STATUS_RUNNING)));
+    }
+
     static Bson runningExploratoryAndComputationalCondition(String user, String exploratoryName, String computationalName) {
-        return and(eq(USER, user), and(eq(EXPLORATORY_NAME, exploratoryName),
-                eq(STATUS, "running"),
-                eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, computationalName),
-                eq(COMPUTATIONAL_RESOURCES + "." + STATUS, "running")));
+        return and(eq(USER, user),
+                    and(eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, STATUS_RUNNING),
+                        eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, computationalName),
+                        eq(COMPUTATIONAL_RESOURCES + "." + STATUS, STATUS_RUNNING)));
     }
 
     /**
@@ -85,7 +93,8 @@ public class ExploratoryDAO extends BaseDAO {
     public Iterable<Document> findExploratory(String user) {
         return find(USER_INSTANCES, eq(USER, user),
                 fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS,
-                        ExploratoryLibDAO.COMPUTATIONAL_LIBS)));
+                        ExploratoryLibDAO.COMPUTATIONAL_LIBS,
+                        SchedulerJobsDAO.SCHEDULER_DATA)));
     }
 
     /**
@@ -155,7 +164,7 @@ public class ExploratoryDAO extends BaseDAO {
     }
 
     /**
-     * Finds and returns the info of exploratory.
+     * Finds and returns the info of running exploratory with running cluster.
      *
      * @param user              user name.
      * @param exploratoryName   name of exploratory.
@@ -171,6 +180,24 @@ public class ExploratoryDAO extends BaseDAO {
         }
         throw new DlabException(String.format("Running notebook %s with running cluster %s not found for user %s",
                 exploratoryName, computationalName, user));
+    }
+
+    /**
+     * Finds and returns the info of running exploratory.
+     *
+     * @param user              user name.
+     * @param exploratoryName   name of exploratory.
+     */
+    public UserInstanceDTO fetchRunningExploratoryFields(String user, String exploratoryName) {
+        Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
+                runningExploratoryCondition(user, exploratoryName),
+                UserInstanceDTO.class);
+
+        if (opt.isPresent()) {
+            return opt.get();
+        }
+        throw new DlabException(String.format("Running notebook %s not found for user %s",
+                exploratoryName, user));
     }
 
     /**

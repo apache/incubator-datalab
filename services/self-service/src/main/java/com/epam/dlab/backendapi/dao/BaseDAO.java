@@ -309,7 +309,7 @@ public class BaseDAO implements MongoCollections {
     }
 
     /** Deserializes given document to object and returns it.
-     * @param object object
+     * @param document element from database
      * @throws DlabException
      */
     public <T> T convertFromDocument(Document document, Class<T> clazz) throws DlabException {
