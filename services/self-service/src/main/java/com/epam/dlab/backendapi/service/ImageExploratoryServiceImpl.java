@@ -43,7 +43,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
         UserInstanceDTO userInstance = exploratoryDAO.fetchRunningExploratoryFields(user.getName(), exploratoryName);
 
-        if (imageExploratotyDao.exist(imageName)) {
+        if (imageExploratotyDao.exist(user.getName(), imageName)) {
             log.error(String.format(IMAGE_EXISTS_MSG, imageName));
             throw new ResourceAlreadyExistException(String.format(IMAGE_EXISTS_MSG, imageName));
         }

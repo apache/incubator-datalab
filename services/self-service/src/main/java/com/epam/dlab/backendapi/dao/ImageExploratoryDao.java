@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface ImageExploratoryDao {
 
-    boolean exist(String name);
+    boolean exist(String user, String name);
 
     void save(Image image);
 

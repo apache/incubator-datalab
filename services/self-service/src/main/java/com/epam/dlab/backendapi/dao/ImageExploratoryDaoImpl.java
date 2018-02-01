@@ -22,8 +22,8 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
     private static final String EXTERNAL_NAME = "externalName";
 
     @Override
-    public boolean exist(String name) {
-        return findOne(MongoCollections.IMAGES, eq(IMAGE_NAME, name)).isPresent();
+    public boolean exist(String user, String name) {
+        return findOne(MongoCollections.IMAGES, userImageCondition(user, name)).isPresent();
     }
 
     @Override
