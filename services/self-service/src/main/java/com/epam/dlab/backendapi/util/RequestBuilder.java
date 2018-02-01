@@ -510,6 +510,25 @@ public class RequestBuilder {
                 .withNotebookInstanceName(exploratoryId);
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T extends ExploratoryImageDTO> T newExploratoryImageCreate(UserInfo userInfo, UserInstanceDTO userInstance,
+                                                                              String imageName) {
+
+        switch (cloudProvider()) {
+            case AWS:
+            case AZURE:
+            case GCP:
+                return (T) newResourceSysBaseDTO(userInfo, ExploratoryImageDTO.class)
+                        .withNotebookInstanceName(userInstance.getExploratoryId())
+                        .withExploratoryName(userInstance.getExploratoryName())
+                        .withApplicationName(getApplicationNameFromImage(userInstance.getImageName()))
+                        .withNotebookImage(userInstance.getImageName())
+                        .withImageName(imageName);
+            default:
+                throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
+        }
+    }
+
     private static CloudProvider cloudProvider() {
         return configuration.getCloudProvider();
     }

@@ -193,6 +193,8 @@ public class EnvStatusDAO extends BaseDAO {
     	}
 
     	switch (oldStatus) {
+			case CREATING_IMAGE:
+				return !status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.TERMINATING) ? status : oldStatus;
 			case CREATING:
 				return (status.in(UserInstanceStatus.TERMINATED, UserInstanceStatus.STOPPED) ? status : oldStatus);
 			case RUNNING:

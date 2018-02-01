@@ -1,0 +1,6 @@
+{
+    "request_id": "RID",
+    "conf_resource": "notebook",
+    "edge_user_name": "UN",
+    "notebook_image_name": "IMN"
+}
