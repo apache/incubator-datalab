@@ -77,6 +77,10 @@ public class ExploratoryDAO extends BaseDAO {
                 and(eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, STATUS_RUNNING)));
     }
 
+    static Bson runningCondition() {
+        return eq(STATUS, STATUS_RUNNING);
+    }
+
     static Bson runningExploratoryAndComputationalCondition(String user, String exploratoryName, String computationalName) {
         return and(eq(USER, user),
                     and(eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, STATUS_RUNNING),
@@ -92,6 +96,19 @@ public class ExploratoryDAO extends BaseDAO {
      */
     public Iterable<Document> findExploratory(String user) {
         return find(USER_INSTANCES, eq(USER, user),
+                fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS,
+                        ExploratoryLibDAO.COMPUTATIONAL_LIBS,
+                        SchedulerJobsDAO.SCHEDULER_DATA)));
+    }
+
+    /**
+     * Finds and returns the list of user running resources.
+     *
+     * @param user name
+     * @return
+     */
+    public Iterable<Document> findRunningExploratories(String user) {
+        return find(USER_INSTANCES, and(eq(USER, user), runningCondition()),
                 fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS,
                         ExploratoryLibDAO.COMPUTATIONAL_LIBS,
                         SchedulerJobsDAO.SCHEDULER_DATA)));

@@ -19,6 +19,7 @@ package com.epam.dlab.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.Date;
 
@@ -26,8 +27,9 @@ import java.util.Date;
  * Stores info about a scheduler job (general duration, days to repeat, time to start and finish).
  */
 @Data
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SchedulerJob {
+public class SchedulerJobDTO {
     @JsonProperty("begin_date")
     private Date beginDate;
     @JsonProperty("finish_date")
@@ -42,7 +44,7 @@ public class SchedulerJob {
     /**
      * Sets the date from which scheduler job will work (general duration).
      */
-    public SchedulerJob withBeginDate(Date date) {
+    public SchedulerJobDTO withBeginDate(Date date) {
         setBeginDate(date);
         return this;
     }
@@ -50,7 +52,7 @@ public class SchedulerJob {
     /**
      * Sets the date to which scheduler job will work (general duration).
      */
-    public SchedulerJob withFinishDate(Date date) {
+    public SchedulerJobDTO withFinishDate(Date date) {
         setFinishDate(date);
         return this;
     }
@@ -58,7 +60,7 @@ public class SchedulerJob {
     /**
      * Sets the time of day from which scheduler job will start (local duration).
      */
-    public SchedulerJob withStartTime(Date time) {
+    public SchedulerJobDTO withStartTime(Date time) {
         setStartTime(time);
         return this;
     }
@@ -66,7 +68,7 @@ public class SchedulerJob {
     /**
      * Sets the time of day to which scheduler job must finish (local duration).
      */
-    public SchedulerJob withEndTime(Date time) {
+    public SchedulerJobDTO withEndTime(Date time) {
         setEndTime(time);
         return this;
     }
@@ -75,7 +77,7 @@ public class SchedulerJob {
     /**
      * Sets the days of week for scheduler repeating.
      */
-    public SchedulerJob withDaysRepeat(String days) {
+    public SchedulerJobDTO withDaysRepeat(String days) {
         setDaysRepeat(days);
         return this;
     }
