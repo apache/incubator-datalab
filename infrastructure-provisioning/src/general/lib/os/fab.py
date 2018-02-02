@@ -470,8 +470,13 @@ def replace_multi_symbols(string, symbol, symbol_cut=False):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
-def update_openssl():
+def post_installation():
     try:
-        sudo('pip2 install -U pyopenssl')
+        print("Updating pyOpenssl lib")
+        if exists('/usr/bin/pip3'):
+            sudo('pip2 install -U pyopenssl')
+            sudo('pip3 install -U pyopenssl')
+        else:
+            sudo('pip2 install -U pyopenssl')
     except:
         sys.exit(1)
