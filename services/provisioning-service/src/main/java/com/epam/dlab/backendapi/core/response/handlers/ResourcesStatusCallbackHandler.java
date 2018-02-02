@@ -17,7 +17,7 @@
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
-import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.command.DockerAction;
 import com.epam.dlab.dto.status.EnvResourceList;
 import com.epam.dlab.dto.status.EnvStatusDTO;
 import com.epam.dlab.exceptions.DlabException;
@@ -45,7 +45,7 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
     }
 
     @Override
-    protected EnvStatusDTO parseOutResponse(JsonNode resultNode, EnvStatusDTO baseStatus) throws DlabException {
+    protected EnvStatusDTO parseOutResponse(JsonNode resultNode, EnvStatusDTO baseStatus) {
         if (resultNode == null) {
             return baseStatus;
         }

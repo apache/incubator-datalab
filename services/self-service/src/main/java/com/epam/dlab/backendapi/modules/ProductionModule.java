@@ -22,9 +22,13 @@ import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDaoImpl;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.BackupService;
+import com.epam.dlab.backendapi.service.BackupServiceImpl;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
 import com.epam.dlab.backendapi.service.ImageExploratoryServiceImpl;
 import com.epam.dlab.backendapi.util.RequestBuilder;
+import com.epam.dlab.command.CommandExecutor;
+import com.epam.dlab.command.ICommandExecutor;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
@@ -57,5 +61,7 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
                 .toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
         bind(ImageExploratoryService.class).to(ImageExploratoryServiceImpl.class);
         bind(ImageExploratoryDao.class).to(ImageExploratoryDaoImpl.class);
+        bind(ICommandExecutor.class).to(CommandExecutor.class);
+        bind(BackupService.class).to(BackupServiceImpl.class);
     }
 }

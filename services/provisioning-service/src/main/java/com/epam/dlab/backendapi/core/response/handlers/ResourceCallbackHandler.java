@@ -1,26 +1,26 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
-****************************************************************************/
+ ****************************************************************************/
 
 package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.command.DockerAction;
 import com.epam.dlab.dto.StatusBaseDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
@@ -34,7 +34,7 @@ import java.lang.reflect.ParameterizedType;
 import java.time.Instant;
 import java.util.Date;
 
-abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implements FileHandlerCallback {
+public abstract class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implements FileHandlerCallback {
     private static final Logger log = LoggerFactory.getLogger(ResourceCallbackHandler.class);
     final ObjectMapper mapper = new ObjectMapper().configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 
@@ -70,7 +70,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
 
     @Override
     public String getUUID() {
-    	return uuid;
+        return uuid;
     }
 
     @Override
@@ -79,28 +79,28 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
     }
 
     public String getUser() {
-    	return user;
+        return user;
     }
 
     public DockerAction getAction() {
-    	return action;
+        return action;
     }
 
-    private void selfServicePost(T object) throws DlabException {
-    	debugMessage("Send post request to self service {} for UUID {}, object is {}",
-        		getCallbackURI(), uuid, object);
+    private void selfServicePost(T object) {
+        debugMessage("Send post request to self service {} for UUID {}, object is {}",
+                getCallbackURI(), uuid, object);
         try {
-        	selfService.post(getCallbackURI(), object, resultType);
+            selfService.post(getCallbackURI(), object, resultType);
         } catch (Exception e) {
-        	log.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
-        	throw new DlabException("Send request or responce error for UUID " + uuid + ": " + e.getLocalizedMessage(), e);
+            log.error("Send request or response error for UUID {}: {}", uuid, e.getLocalizedMessage(), e);
+            throw new DlabException("Send request or responce error for UUID " + uuid + ": " + e.getLocalizedMessage(), e);
         }
     }
 
     @Override
     public boolean handle(String fileName, byte[] content) throws Exception {
-    	debugMessage("Got file {} while waiting for UUID {}, for action {}, docker response: {}",
-        		fileName, uuid, action.name(), new String(content));
+        debugMessage("Got file {} while waiting for UUID {}, for action {}, docker response: {}",
+                fileName, uuid, action.name(), new String(content));
         JsonNode document = mapper.readTree(content);
         boolean success = isSuccess(document);
         UserInstanceStatus status = calcStatus(action, success);
@@ -108,7 +108,7 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
 
         JsonNode resultNode = document.get(RESPONSE_NODE).get(RESULT_NODE);
         if (success) {
-        	debugMessage("Did {} resource for user: {}, UUID: {}", action, user, uuid);
+            debugMessage("Did {} resource for user: {}, UUID: {}", action, user, uuid);
         } else {
             log.error("Could not {} resource for user: {}, UUID: {}", action, user, uuid);
             result.setErrorMessage(getTextValue(resultNode.get(ERROR_NODE)));
@@ -120,28 +120,28 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
     }
 
     @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public void handleError(String errorMessage) {
         try {
-        	selfServicePost((T) getBaseStatusDTO(UserInstanceStatus.FAILED)
-        			.withErrorMessage(errorMessage));
+            selfServicePost((T) getBaseStatusDTO(UserInstanceStatus.FAILED)
+                    .withErrorMessage(errorMessage));
         } catch (Exception t) {
             throw new DlabException("Could not send error message to Self Service for UUID " + uuid + ", user " + user + ": " + errorMessage, t);
         }
     }
 
-    abstract protected String getCallbackURI();
+    protected abstract String getCallbackURI();
 
-    abstract protected T parseOutResponse(JsonNode document, T baseStatus) throws DlabException;
+    protected abstract T parseOutResponse(JsonNode document, T baseStatus);
 
     @SuppressWarnings("unchecked")
     protected T getBaseStatusDTO(UserInstanceStatus status) {
         try {
             return (T) resultType.newInstance()
-            		.withRequestId(uuid)
-            		.withUser(user)
-            		.withStatus(status)
-            		.withUptime(getUptime(status));
+                    .withRequestId(uuid)
+                    .withUser(user)
+                    .withStatus(status)
+                    .withUptime(getUptime(status));
         } catch (Exception t) {
             throw new DlabException("Something went wrong", t);
         }
@@ -154,12 +154,12 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
     private UserInstanceStatus calcStatus(DockerAction action, boolean success) {
         if (success) {
             switch (action) {
-            	case STATUS:
-            	case GIT_CREDS:
+                case STATUS:
+                case GIT_CREDS:
                 case LIB_LIST:
                 case LIB_INSTALL:
                 case CREATE_IMAGE:
-            		return UserInstanceStatus.CREATED; // Any status besides failed
+                    return UserInstanceStatus.CREATED; // Any status besides failed
                 case CREATE:
                 case CONFIGURE:
                 case START:
@@ -168,8 +168,8 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
                     return UserInstanceStatus.STOPPED;
                 case TERMINATE:
                     return UserInstanceStatus.TERMINATED;
-			default:
-				break;
+                default:
+                    break;
             }
         }
         return UserInstanceStatus.FAILED;
@@ -184,11 +184,11 @@ abstract public class ResourceCallbackHandler<T extends StatusBaseDTO<?>> implem
     }
 
     private void debugMessage(String format, Object... arguments) {
-    	if (action == DockerAction.STATUS) {
-    		log.trace(format, arguments);
-    	} else {
-    		log.debug(format, arguments);
-    	}
+        if (action == DockerAction.STATUS) {
+            log.trace(format, arguments);
+        } else {
+            log.debug(format, arguments);
+        }
     }
 
 }

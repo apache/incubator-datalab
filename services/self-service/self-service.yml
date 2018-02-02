@@ -17,7 +17,7 @@
 # ******************************************************************************
 
 <#include "ssn.yml">
-
+backupScriptPath: /opt/dlab/tmp/backup.py
 <#if CLOUD_TYPE == "aws">
 # Minimum and maximum number of slave EMR instances than could be created
 minEmrInstanceCount: 2

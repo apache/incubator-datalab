@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.resources.azure;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.command.DockerAction;
 import com.epam.dlab.backendapi.resources.base.ExploratoryService;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStartAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;

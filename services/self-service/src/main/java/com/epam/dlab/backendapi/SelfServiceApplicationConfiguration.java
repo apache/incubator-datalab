@@ -92,6 +92,8 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     private int minDataprocPreemptibleCount;
     @JsonProperty
     private int maxUserNameLength;
+    @JsonProperty
+    private String backupScriptPath;
 
     /**
      * Returns the minimum number of slave EMR instances than could be created.
@@ -185,5 +187,9 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
     public int getMaxUserNameLength() {
         return maxUserNameLength;
+    }
+
+    public String getBackupScriptPath() {
+        return backupScriptPath;
     }
 }

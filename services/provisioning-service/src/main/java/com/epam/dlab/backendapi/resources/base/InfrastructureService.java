@@ -22,13 +22,15 @@ import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.backendapi.core.response.handlers.ResourcesStatusCallbackHandler;
+import com.epam.dlab.command.DockerAction;
+import com.epam.dlab.command.ICommandExecutor;
 import com.epam.dlab.dto.ResourceBaseDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.epam.dlab.backendapi.core.commands.DockerAction.STATUS;
+import static com.epam.dlab.command.DockerAction.STATUS;
 
 @Slf4j
 public abstract class InfrastructureService implements DockerCommands {

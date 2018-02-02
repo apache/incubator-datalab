@@ -18,11 +18,14 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.commands;
 
+import com.epam.dlab.command.CmdCommand;
+import com.epam.dlab.command.DockerAction;
+
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RunDockerCommand implements DockerCommand {
+public class RunDockerCommand implements CmdCommand {
     private String command = "docker run";
     private List<String> options = new LinkedList<>();
     private String image;

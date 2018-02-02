@@ -24,6 +24,7 @@ import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryGitCredsCallbackHandler;
 import com.epam.dlab.backendapi.service.DockerService;
+import com.epam.dlab.command.DockerAction;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryGitCredsUpdateDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;

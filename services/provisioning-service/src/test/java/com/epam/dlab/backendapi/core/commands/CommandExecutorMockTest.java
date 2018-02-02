@@ -22,6 +22,8 @@ import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandle
 import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ResourceCallbackHandler;
 import com.epam.dlab.cloud.CloudProvider;
+import com.epam.dlab.command.CommandExecutorMock;
+import com.epam.dlab.command.DockerAction;
 import com.epam.dlab.rest.client.RESTServiceMock;
 import org.junit.Ignore;
 import org.junit.Test;

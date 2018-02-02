@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.backendapi.core.commands;
+package com.epam.dlab.command;
 
 import java.io.*;
 import java.net.URL;
@@ -121,6 +121,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
+            LOGGER.error("InterruptedException occurred: {}", e.getMessage());
         }
 
         try {
@@ -140,6 +141,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
+                        LOGGER.error("InterruptedException occurred: {}", e.getMessage());
                     }
                     action(user, action);
                     break;

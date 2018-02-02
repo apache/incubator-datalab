@@ -18,7 +18,7 @@ package com.epam.dlab.backendapi.resources.aws;
 
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.command.DockerAction;
 import com.epam.dlab.backendapi.core.response.handlers.EdgeCallbackHandler;
 import com.epam.dlab.backendapi.resources.base.EdgeService;
 import com.epam.dlab.dto.ResourceSysBaseDTO;

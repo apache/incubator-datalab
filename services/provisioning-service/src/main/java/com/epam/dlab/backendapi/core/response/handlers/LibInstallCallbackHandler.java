@@ -17,7 +17,7 @@
 package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.command.DockerAction;
 import com.epam.dlab.dto.exploratory.LibraryInstallDTO;
 import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
@@ -73,7 +73,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstal
     }
 
     @Override
-    protected LibInstallStatusDTO parseOutResponse(JsonNode resultNode, LibInstallStatusDTO status) throws DlabException {
+    protected LibInstallStatusDTO parseOutResponse(JsonNode resultNode, LibInstallStatusDTO status) {
 
         if (UserInstanceStatus.FAILED == UserInstanceStatus.of(status.getStatus())) {
             for (LibInstallDTO lib : dto.getLibs()) {

@@ -19,7 +19,7 @@
 package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.command.DockerAction;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.exceptions.DlabException;
@@ -45,7 +45,7 @@ public class EdgeCallbackHandler<E extends EdgeInfo, T extends UploadFileResult<
         return callbackURI;
     }
 
-    protected T parseOutResponse(JsonNode resultNode, T baseStatus) throws DlabException {
+    protected T parseOutResponse(JsonNode resultNode, T baseStatus) {
         if (resultNode != null && getAction() == DockerAction.CREATE
                 && UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
             try {

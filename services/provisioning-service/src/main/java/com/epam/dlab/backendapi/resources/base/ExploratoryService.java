@@ -21,6 +21,7 @@ import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.handlers.ExploratoryCallbackHandler;
 import com.epam.dlab.backendapi.service.DockerService;
+import com.epam.dlab.command.DockerAction;
 import com.epam.dlab.dto.exploratory.ExploratoryBaseDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;

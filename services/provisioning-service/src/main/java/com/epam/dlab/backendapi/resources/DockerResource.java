@@ -24,7 +24,7 @@ import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.MetadataHolder;
 import com.epam.dlab.backendapi.core.commands.CommandBuilder;
 import com.epam.dlab.backendapi.core.commands.DockerCommands;
-import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
+import com.epam.dlab.command.ICommandExecutor;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.dto.imagemetadata.ImageMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ImageType;

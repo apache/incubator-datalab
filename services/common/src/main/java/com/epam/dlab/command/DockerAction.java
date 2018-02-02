@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.epam.dlab.backendapi.core.commands;
+package com.epam.dlab.command;
 
 public enum DockerAction {
     DESCRIBE,

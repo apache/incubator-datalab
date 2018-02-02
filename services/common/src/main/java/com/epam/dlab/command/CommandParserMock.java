@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.backendapi.core.commands;
+package com.epam.dlab.command;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,10 +51,10 @@ public class CommandParserMock {
     private String responsePath;
 	private String name;
 	private String json;
-    private Map<String, String> envMap = new HashMap<String, String>();
-    private Map<String, String> varMap = new HashMap<String, String>();
-    private List<String> otherArgs = new ArrayList<String>();
-    private Map<String, String> variables = new HashMap<String, String>();
+    private Map<String, String> envMap = new HashMap<>();
+    private Map<String, String> varMap = new HashMap<>();
+    private List<String> otherArgs = new ArrayList<>();
+    private Map<String, String> variables = new HashMap<>();
 
     public CommandParserMock() { }
     
@@ -139,7 +139,7 @@ public class CommandParserMock {
     private List<String> extractArgs(String cmd) {
     	boolean isQuote = false;
     	boolean isDoubleQuote = false;
-    	List<String> args = new ArrayList<String>();
+    	List<String> args = new ArrayList<>();
     	int pos = 0;
     	
     	for (int i = 0; i < cmd.length(); i++) {
@@ -193,14 +193,14 @@ public class CommandParserMock {
     	if (array.length != 2) {
     		throw new DlabException("Invalid value for \"" + argName + "\": " + value);
     	}
-    	return new ImmutablePair<String, String>(array[0], array[1]);
+    	return new ImmutablePair<>(array[0], array[1]);
     }
     
     /** Return name of docker image.
      * @param args list of arguments.
      * @exception if image name not found.
      */
-    public static String getImageName(List<String> args) throws DlabException {
+    public static String getImageName(List<String> args) {
 		for (String s : args) {
 			if (s.startsWith("docker.dlab-")) {
 				return s;
@@ -214,7 +214,7 @@ public class CommandParserMock {
      * @return
      */
     private Map<String, String> getJsonVariables(String jsonContent) {
-    	Map<String, String> vars = new HashMap<String, String>();
+    	Map<String, String> vars = new HashMap<>();
     	if (jsonContent == null) {
     		return vars;
     	}

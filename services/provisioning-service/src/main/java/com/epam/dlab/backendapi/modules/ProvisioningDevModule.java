@@ -21,8 +21,8 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.DockerWarmuper;
 import com.epam.dlab.backendapi.core.MetadataHolder;
-import com.epam.dlab.backendapi.core.commands.CommandExecutorMock;
-import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
+import com.epam.dlab.command.CommandExecutorMock;
+import com.epam.dlab.command.ICommandExecutor;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
@@ -41,6 +41,8 @@ import static org.mockito.Mockito.when;
  * Mock class for an application configuration of Provisioning Service for tests.
  */
 public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplicationConfiguration> implements SecurityAPI, DockerAPI {
+
+    public static final String TOKEN = "token123";
 
     /**
      * Instantiates an application configuration of Provisioning Service for tests.
@@ -66,9 +68,9 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
      */
     private RESTService createAuthenticationService() {
         RESTService result = mock(RESTService.class);
-        when(result.post(eq(LOGIN), any(), any())).then(invocationOnMock -> Response.ok("token123").build());
-        when(result.post(eq(GET_USER_INFO), eq("token123"), eq(UserInfo.class)))
-                .thenReturn(new UserInfo("test", "token123"));
+        when(result.post(eq(LOGIN), any(), any())).then(invocationOnMock -> Response.ok(TOKEN).build());
+        when(result.post(eq(GET_USER_INFO), eq(TOKEN), eq(UserInfo.class)))
+                .thenReturn(new UserInfo("test", TOKEN));
         return result;
     }
 }

@@ -20,13 +20,14 @@ package com.epam.dlab.backendapi.core;
 
 import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.commands.DockerCommands;
-import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
+import com.epam.dlab.command.ICommandExecutor;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ImageMetadataDTO;
 import com.epam.dlab.dto.imagemetadata.ImageType;
+import com.epam.dlab.process.ProcessInfo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -58,7 +59,8 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
     @Override
     public void start() throws Exception {
         LOGGER.debug("warming up docker");
-        List<String> images = commandExecutor.executeSync("warmup",DockerCommands.generateUUID(),GET_IMAGES);
+        final ProcessInfo processInfo = commandExecutor.executeSync("warmup", DockerCommands.generateUUID(), GET_IMAGES);
+        List<String> images = Arrays.asList(processInfo.getStdOut().split("\n"));
         for (String image : images) {
             String uuid = UUID.randomUUID().toString();
             LOGGER.debug("warming up image: {} with uid {}", image, uuid);
@@ -110,7 +112,7 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
 
         @Override
         public void handleError(String errorMessage) {
-            LOGGER.warn("docker warmupper returned no result: " + errorMessage);
+            LOGGER.warn("docker warmupper returned no result: {}", errorMessage);
         }
     }
     
@@ -136,6 +138,7 @@ public class DockerWarmuper implements Managed, DockerCommands, MetadataHolder {
 
     @Override
     public void stop() throws Exception {
+        //do nothing
     }
 
     public Map<String, String> getUuids() {

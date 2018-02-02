@@ -18,10 +18,12 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.commands;
 
+import com.epam.dlab.command.CmdCommand;
+
 import java.util.LinkedList;
 import java.util.List;
 
-public class ImagesDockerCommand implements DockerCommand {
+public class ImagesDockerCommand implements CmdCommand {
     private String command = "docker images";
 
     private List<UnixCommand> unixCommands;

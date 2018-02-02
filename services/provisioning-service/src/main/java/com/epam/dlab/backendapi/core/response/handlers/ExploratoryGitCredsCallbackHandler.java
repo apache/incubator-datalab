@@ -17,9 +17,8 @@
 package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.command.DockerAction;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.ApiCallbacks;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -41,7 +40,7 @@ public class ExploratoryGitCredsCallbackHandler extends ResourceCallbackHandler<
     }
 
     @Override
-    protected ExploratoryStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryStatusDTO baseStatus) throws DlabException {
+    protected ExploratoryStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryStatusDTO baseStatus) {
         log.trace("Parse GIT Creds: {}", resultNode);
         return baseStatus;
     }

@@ -19,7 +19,7 @@ package com.epam.dlab.backendapi.resources.aws;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
-import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.command.DockerAction;
 import com.epam.dlab.backendapi.core.commands.DockerCommands;
 import com.epam.dlab.backendapi.core.commands.RunDockerCommand;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
@@ -44,8 +44,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import static com.epam.dlab.backendapi.core.commands.DockerAction.CREATE;
-import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
+import static com.epam.dlab.command.DockerAction.CREATE;
+import static com.epam.dlab.command.DockerAction.TERMINATE;
 
 @Path("/")
 @Consumes(MediaType.APPLICATION_JSON)
