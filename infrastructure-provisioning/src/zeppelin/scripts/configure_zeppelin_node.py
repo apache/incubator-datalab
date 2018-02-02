@@ -209,9 +209,9 @@ if __name__ == "__main__":
     print("Install local Spark")
     ensure_local_spark(args.os_user, spark_link, args.spark_version, args.hadoop_version, local_spark_path)
     print("Install storage jars")
-    ensure_local_jars(args.os_user, jars_dir, custom_jars_dir)
+    ensure_local_jars(args.os_user, jars_dir)
     print("Configure local Spark")
-    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir, custom_jars_dir)
+    configure_local_spark(args.os_user, jars_dir, args.region, templates_dir)
 
     # INSTALL ZEPPELIN
     print("Install Zeppelin")

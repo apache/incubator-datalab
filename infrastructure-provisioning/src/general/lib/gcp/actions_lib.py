@@ -1031,11 +1031,11 @@ class GCPActions:
             return ''
 
 
-def ensure_local_jars(os_user, jars_dir, custom_jars_dir=''):
+def ensure_local_jars(os_user, jars_dir):
     if not exists('/home/{}/.ensure_dir/gs_kernel_ensured'.format(os_user)):
         try:
             templates_dir = '/root/templates/'
-            sudo('echo {0} {1} | xargs mkdir -p'.format(jars_dir, custom_jars_dir))
+            sudo('mkdir -p {}'.format(jars_dir))
             sudo('wget https://storage.googleapis.com/hadoop-lib/gcs/{0} -O {1}{0}'
                  .format('gcs-connector-latest-hadoop2.jar', jars_dir))
             sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-yarn-server-web-proxy/2.7.4/{0} -O {1}{0}'
@@ -1091,7 +1091,7 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
             sys.exit(1)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir, custom_jars_dir=''):
+def configure_local_spark(os_user, jars_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
         try:
             put(templates_dir + 'notebook_spark-defaults_local.conf', '/tmp/notebook_spark-defaults_local.conf')

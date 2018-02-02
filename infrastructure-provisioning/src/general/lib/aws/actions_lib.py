@@ -974,18 +974,21 @@ def yarn(args, yarn_dir):
     local('sudo rm -rf ' + yarn_dir + args.user_name + '/')
 
 
-def get_files(s3client, s3resource, dist, bucket, local):
+def get_files(s3client, s3resource, dist, bucket, dest):
     s3list = s3client.get_paginator('list_objects')
     for result in s3list.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
         if result.get('CommonPrefixes') is not None:
             for subdir in result.get('CommonPrefixes'):
-                get_files(s3client, s3resource, subdir.get('Prefix'), bucket, local)
+                get_files(s3client, s3resource, subdir.get('Prefix'), bucket, dest)
         if result.get('Contents') is not None:
             for f in result.get('Contents'):
-                if not os.path.exists(os.path.dirname(local + os.sep + f.get('Key'))):
-                    os.makedirs(os.path.dirname(local + os.sep + f.get('Key')))
-                    if f.get('Key').endswith('/'): continue
-                s3resource.meta.client.download_file(bucket, f.get('Key'), local + os.sep + f.get('Key'))
+                dest_obj = '{0}{1}{2}'.format(dest, os.sep, f.get('Key'))
+                if not os.path.exists(os.path.dirname(dest_obj)):
+                    os.makedirs(os.path.dirname(dest_obj))
+                if f.get('Key').endswith('/'):
+                    continue
+                else:
+                    s3resource.meta.client.download_file(bucket, f.get('Key'), dest_obj)
 
 
 def get_cluster_python_version(region, bucket, user_name, cluster_name):
@@ -1122,10 +1125,10 @@ def spark_defaults(args):
     local('echo "spark.hadoop.fs.s3a.server-side-encryption-algorithm   AES256" >> {}'.format(spark_def_path))
 
 
-def ensure_local_jars(os_user, jars_dir, custom_jars_dir=''):
+def ensure_local_jars(os_user, jars_dir):
     if not exists('/home/{}/.ensure_dir/local_jars_ensured'.format(os_user)):
         try:
-            sudo('echo {0} {1} | xargs mkdir -p'.format(jars_dir, custom_jars_dir))
+            sudo('mkdir -p {}'.format(jars_dir))
             sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.4/hadoop-aws-2.7.4.jar -O ' +
                  jars_dir + 'hadoop-aws-2.7.4.jar')
             sudo('wget http://central.maven.org/maven2/com/amazonaws/aws-java-sdk/1.7.4/aws-java-sdk-1.7.4.jar -O ' +
@@ -1137,7 +1140,7 @@ def ensure_local_jars(os_user, jars_dir, custom_jars_dir=''):
             sys.exit(1)
 
 
-def configure_local_spark(os_user, jars_dir, region, templates_dir, custom_jars_dir=''):
+def configure_local_spark(os_user, jars_dir, region, templates_dir):
     if not exists('/home/{}/.ensure_dir/local_spark_configured'.format(os_user)):
         try:
             if region == 'us-east-1':
