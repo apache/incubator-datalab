@@ -474,9 +474,7 @@ def post_installation():
     try:
         print("Updating pyOpenssl lib")
         if exists('/usr/bin/pip3'):
-            sudo('pip2 install -U pyopenssl')
             sudo('pip3 install -U pyopenssl')
-        else:
-            sudo('pip2 install -U pyopenssl')
+        sudo('pip2 install -U pyopenssl')
     except:
         sys.exit(1)
