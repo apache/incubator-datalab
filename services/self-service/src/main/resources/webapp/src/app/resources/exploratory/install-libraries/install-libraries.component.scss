@@ -116,6 +116,7 @@ limitations under the License.
   mat-chip-list .mat-chip-list-wrapper {
     max-height: 95%;
     overflow-y: auto;
+    padding: 3px;
   }
 }
 
@@ -124,8 +125,9 @@ limitations under the License.
   font-size: 14px;
   font-weight: 300;
 }
-.mat-chip {
-  margin: 3px;
+mat-chip.mat-chip:not(.mat-basic-chip) {
+  margin: 2px !important;
+  background-color: #f8f8f8;
 }
 
 /* Tab info */

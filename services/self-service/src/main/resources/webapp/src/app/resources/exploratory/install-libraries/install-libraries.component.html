@@ -54,13 +54,11 @@ limitations under the License.
                       <div class="lib-status-col" ngClass="{{ item.status.toLowerCase() || '' }}">{{ item.status }}
                         <div class="warn-action" *ngIf="item.status === 'failed' && notebook?.status === 'running'">
                           <div>
-                            <span *ngIf="!installingInProgress" (click)="reinstallLibrary(item, lib)"
-                                  matTooltip="Retry installation" matTooltipPosition="above">
+                            <span *ngIf="!installingInProgress" (click)="reinstallLibrary(item, lib)" matTooltip="Retry installation" matTooltipPosition="above">
                               <i class="material-icons">replay</i>
                             </span>
-                            <span class="not-allowed" *ngIf="installingInProgress"
-                                  matTooltip="You can't reinstall library until previous process will be completed"
-                                  matTooltipPosition="above">
+                            <span class="not-allowed" *ngIf="installingInProgress" matTooltip="You can't reinstall library until previous process will be completed"
+                              matTooltipPosition="above">
                               <i class="material-icons">replay</i>
                             </span>
                           </div>
@@ -93,7 +91,8 @@ limitations under the License.
           </div>
         </div>
         <div class="tab-content" *ngIf="notebook?.status !== 'running'">
-          <p class="info message">Cannot install libraries: Exploratory <strong>{{ notebook?.name }}</strong> is not running</p>
+          <p class="info message">Cannot install libraries: Exploratory
+            <strong>{{ notebook?.name }}</strong> is not running</p>
         </div>
         <div *ngIf="notebook?.status === 'running'" class="tab-content">
           <div class="search-box col" *ngIf="!uploading">
@@ -152,8 +151,8 @@ limitations under the License.
             <mat-chip-list>
               <mat-chip *ngFor="let item of model.selectedLibs">
                 {{ item.name }}
-                <span *ngIf="item.version && item.version !== 'N/A'">{{ item.version }}</span>
-                <strong>({{ groupsListMap[item.group] }})</strong>
+                <span *ngIf="item.version && item.version !== 'N/A'">&nbsp;{{ item.version }}</span>
+                <strong>&nbsp;({{ groupsListMap[item.group] }})&nbsp;</strong>
                 <a class="material-icons" (click)="removeSelectedLibrary(item)">clear</a>
               </mat-chip>
             </mat-chip-list>
