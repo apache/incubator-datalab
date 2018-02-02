@@ -469,3 +469,9 @@ def replace_multi_symbols(string, symbol, symbol_cut=False):
         append_result(str({"error": "Error with replacing multi symbols",
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
+
+def update_openssl():
+    try:
+        sudo('pip2 install -U pyopenssl')
+    except:
+        sys.exit(1)
