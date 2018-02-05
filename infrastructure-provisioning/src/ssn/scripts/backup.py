@@ -22,11 +22,12 @@ from time import gmtime, strftime
 from fabric.api import *
 import argparse
 import yaml
+import json
 import sys
 import os
 
 parser = argparse.ArgumentParser(description="Backup script for DLab configs, keys, certs, jars, database & logs")
-parser.add_argument('--user', type=str, default='dlab-user', help='User name')
+parser.add_argument('--user', type=str, default='dlab-user', help='System username')
 parser.add_argument('--dlab_path', type=str, default='/opt/dlab/', help='Path to DLab. Default: /opt/dlab/')
 parser.add_argument('--configs', type=str, default='all', help='Comma separated names of config files, like "security.yml", etc. Default: all')
 parser.add_argument('--keys', type=str, default='all', help='Comma separated names of keys, like "user_name.pub". Default: all')
@@ -34,6 +35,8 @@ parser.add_argument('--certs', type=str, default='all', help='Comma separated na
 parser.add_argument('--jars', type=str, default='skip', help='Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip')
 parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. Key without arguments. Default: disable')
 parser.add_argument('--logs', action='store_true', default=False, help='All logs (include docker). Key without arguments. Default: disable')
+parser.add_argument('--request_id', type=str, default='', help='Uniq request ID for response and backup')
+parser.add_argument('--result_path', type=str, default='/opt/dlab/tmp/result', help='Path to store backup and response files')
 args = parser.parse_args()
 
 
@@ -50,7 +53,7 @@ def backup_prepare():
             local("mkdir {}logs".format(temp_folder))
             local("mkdir {}logs/docker".format(temp_folder))
     except Exception as err:
-        print("Failed to create temp folder. {}".format(str(err)))
+        append_result(error="Failed to create temp folder. {}".format(str(err)))
         sys.exit(1)
 
 
@@ -63,7 +66,8 @@ def backup_configs():
             for conf_file in args.configs.split(","):
                 local("cp {0}{2}{3} {1}{2}".format(args.dlab_path, temp_folder, conf_folder, conf_file))
     except:
-        print("Backup configs failed.")
+        append_result(error="Backup configs failed.")
+        sys.exit(1)
 
 
 def backup_keys():
@@ -75,7 +79,8 @@ def backup_keys():
             for key_file in args.keys.split(","):
                 local("cp {0}{1} {2}keys".format(keys_folder, key_file, temp_folder))
     except:
-        print("Backup keys failed.")
+        append_result(error="Backup keys failed.")
+        sys.exit(1)
 
 
 def backup_certs():
@@ -92,7 +97,8 @@ def backup_certs():
                 local("cp {0}{1} {2}certs".format(certs_folder, cert, temp_folder))
                 local("sudo chown {0}:{0} {1}certs/{2} ".format(os_user, temp_folder, cert))
     except:
-        print("Backup certs failed.")
+        append_result(error="Backup certs failed.")
+        sys.exit(1)
 
 
 def backup_jars():
@@ -108,7 +114,8 @@ def backup_jars():
             for service in args.jars.split(","):
                 local("cp -RP {0}{1}{2}* {3}jars".format(args.dlab_path, jars_folder, service, temp_folder))
     except:
-        print("Backup jars failed.")
+        append_result(error="Backup jars failed.")
+        sys.exit(1)
 
 
 def backup_database():
@@ -122,7 +129,8 @@ def backup_database():
                     .format(data['mongo']['host'], data['mongo']['port'], data['mongo']['username'],
                             data['mongo']['password'], data['mongo']['database'], temp_folder))
     except:
-        print("Backup db failed.")
+        append_result(error="Backup db failed.")
+        sys.exit(1)
 
 
 def backup_logs():
@@ -135,7 +143,9 @@ def backup_logs():
             local("sudo find {0} -name '*log' -exec cp {2} {1}logs/docker \;".format(docker_logs_folder, temp_folder, "{}"))
             local("sudo chown -R {0}:{0} {1}logs/docker".format(os_user, temp_folder))
     except:
+        append_result(error="Backup logs failed.")
         print("Backup logs failed.")
+        sys.exit(1)
 
 
 def backup_finalize():
@@ -143,14 +153,30 @@ def backup_finalize():
         print("Compressing all files to archive...")
         local("cd {0} && tar -zcf {1} .".format(temp_folder, dest_file))
     except Exception as err:
-        print("Compressing backup failed. {}".format(str(err)))
+        append_result(error="Compressing backup failed. {}".format(str(err)))
+        sys.exit(1)
 
     try:
         print("Clear temp folder...")
         if temp_folder != "/":
             local("rm -rf {}".format(temp_folder))
     except Exception as err:
-        print("Clear temp folder failed. {}".format(str(err)))
+        append_result(error="Clear temp folder failed. {}".format(str(err)))
+        sys.exit(1)
+
+
+def append_result(status='failed', error='', backup_file=''):
+    with open(dest_result, 'w') as result:
+        res = {"status": status,
+               "request_id": args.request_id}
+        if status == 'failed':
+            print(error)
+            res['error_message'] = error
+        elif status == 'created':
+            print("Successfully created backup file: {}".format(backup_file))
+            res['backup_file'] = backup_file
+        print(json.dumps(res))
+        result.write(json.dumps(res))
 
 
 if __name__ == "__main__":
@@ -164,7 +190,8 @@ if __name__ == "__main__":
     jars_folder = "webapp/lib/"
     dlab_logs_folder = "/var/log/dlab/"
     docker_logs_folder = "/var/lib/docker/containers/"
-    dest_file = "{0}tmp/dlab_backup-{1}.tar.gz".format(args.dlab_path, backup_time)
+    dest_result = "{0}/backup-{1}.json".format(args.result_path, args.request_id)
+    dest_file = "{0}/backup-{1}.tar.gz".format(args.result_path, args.request_id)
 
     # Backup file section
     backup_prepare()
@@ -180,4 +207,4 @@ if __name__ == "__main__":
     # Compressing & cleaning tmp folder
     backup_finalize()
 
-    print("Successfully created backup file: {}".format(dest_file))
+    append_result(status='created', error="Backup keys failed.", backup_file=dest_file)
