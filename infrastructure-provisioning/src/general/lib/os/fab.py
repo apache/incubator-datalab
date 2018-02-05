@@ -470,7 +470,7 @@ def replace_multi_symbols(string, symbol, symbol_cut=False):
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
 
-def update_py_ssl_lib():
+def update_pyopenssl_lib():
     try:
         print("Updating pyOpenssl lib")
         if exists('/usr/bin/pip3'):
