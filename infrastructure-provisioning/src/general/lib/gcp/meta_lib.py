@@ -466,7 +466,6 @@ class GCPMeta:
                 host['status'] = result.get('status').lower().replace("terminated", "stopped")
                 data.append(host)
             except:
-                host['resource_type'] = 'host'
                 host['id'] = instance['id']
                 host['status'] = 'terminated'
                 data.append(host)
