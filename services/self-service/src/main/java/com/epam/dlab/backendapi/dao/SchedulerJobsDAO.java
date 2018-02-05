@@ -19,7 +19,7 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import com.epam.dlab.dto.SchedulerJobDTO;
+import com.epam.dlab.dto.CreateSchedulerJobDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Singleton;
@@ -27,7 +27,10 @@ import com.mongodb.client.FindIterable;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -63,7 +66,7 @@ public class SchedulerJobsDAO extends BaseDAO{
      * @param endTime end time of day for scheduler job executing.
      * @param daysRepeat days of week for scheduler repeating.
      */
-    private static Bson schedulerEquivalenceCondition(Date beginDate, Date finishDate, Date startTime, Date endTime, String daysRepeat) {
+    private static Bson schedulerEquivalenceCondition(LocalDate beginDate, LocalDate finishDate, LocalTime startTime, LocalTime endTime, List<DayOfWeek> daysRepeat) {
         return and(eq(BEGIN_DATE, beginDate),
                         eq(FINISH_DATE, finishDate),
                         eq(START_TIME, startTime),
@@ -160,7 +163,7 @@ public class SchedulerJobsDAO extends BaseDAO{
      * @param job scheduler job.
      * @return <b>true</b> if operation was successful, otherwise <b>false</b>.
      */
-    public boolean addSchedulerJob(String user, String exploratoryName, SchedulerJobDTO job) {
+    public boolean addSchedulerJob(String user, String exploratoryName, CreateSchedulerJobDTO job) {
         Optional<Document> opt = findOne(USER_INSTANCES,
                 and(exploratoryCondition(user, exploratoryName), schedulerNotNullCondition()),
                 schedulerEquivalenceCondition(job.getBeginDate(), job.getFinishDate(), job.getStartTime(), job.getEndTime(),
@@ -190,16 +193,16 @@ public class SchedulerJobsDAO extends BaseDAO{
      * @param user user name.
      * @throws DlabException
      */
-    public List<SchedulerJobDTO> fetchSchedulerJobsByUser(String user) throws DlabException {
+    public List<CreateSchedulerJobDTO> fetchSchedulerJobsByUser(String user) throws DlabException {
         FindIterable<Document> docs = getCollection(USER_INSTANCES)
                 .find(and(eq(USER, user), schedulerNotNullCondition()));
         if(docs == null){
             throw new DlabException("Scheduler jobs for user " + user + " not found.");
         }
-        List<SchedulerJobDTO> jobs = new ArrayList<>();
+        List<CreateSchedulerJobDTO> jobs = new ArrayList<>();
         for (Document d : docs) {
             if(d.containsKey(SCHEDULER_DATA)){
-                jobs.add(d.get(SCHEDULER_DATA, SchedulerJobDTO.class));
+                jobs.add(d.get(SCHEDULER_DATA, CreateSchedulerJobDTO.class));
             }
         }
         return jobs;
@@ -211,16 +214,16 @@ public class SchedulerJobsDAO extends BaseDAO{
      * @param exploratoryName the name of exploratory.
      * @throws DlabException
      */
-    public List<SchedulerJobDTO> fetchSchedulerJobsByExploratory(String user, String exploratoryName) throws DlabException{
+    public List<CreateSchedulerJobDTO> fetchSchedulerJobsByExploratory(String user, String exploratoryName) throws DlabException{
         FindIterable<Document> docs = getCollection(USER_INSTANCES)
                 .find(and(exploratoryCondition(user, exploratoryName), schedulerNotNullCondition()));
         if(docs == null){
             throw new DlabException("Scheduler jobs for user " + user + " and exploratory resource " + exploratoryName + " not found.");
         }
-        List<SchedulerJobDTO> jobs = new ArrayList<>();
+        List<CreateSchedulerJobDTO> jobs = new ArrayList<>();
         for (Document d : docs) {
             if(d.containsKey(SCHEDULER_DATA)){
-                jobs.add(d.get(SCHEDULER_DATA, SchedulerJobDTO.class));
+                jobs.add(d.get(SCHEDULER_DATA, CreateSchedulerJobDTO.class));
             }
         }
         return jobs;
@@ -231,16 +234,16 @@ public class SchedulerJobsDAO extends BaseDAO{
      * @param user user name.
      * @throws DlabException
      */
-    public List<SchedulerJobDTO> fetchSchedulerJobsForRunningExploratories(String user) throws DlabException{
+    public List<CreateSchedulerJobDTO> fetchSchedulerJobsForRunningExploratories(String user) throws DlabException{
         FindIterable<Document> docs = getCollection(USER_INSTANCES)
                 .find(and(eq(USER, user), schedulerNotNullCondition()));
         if(docs == null){
             throw new DlabException("Scheduler jobs for user " + user + " not found.");
         }
-        List<SchedulerJobDTO> jobs = new ArrayList<>();
+        List<CreateSchedulerJobDTO> jobs = new ArrayList<>();
         for (Document d : docs) {
             if(d.getString(STATUS).equals(STATUS_RUNNING) && d.containsKey(SCHEDULER_DATA)){
-                jobs.add(d.get(SCHEDULER_DATA, SchedulerJobDTO.class));
+                jobs.add(d.get(SCHEDULER_DATA, CreateSchedulerJobDTO.class));
             }
         }
         return jobs;
@@ -252,7 +255,7 @@ public class SchedulerJobsDAO extends BaseDAO{
      * @param exploratoryName the name of exploratory.
      * @throws DlabException
      */
-    public SchedulerJobDTO fetchSingleSchedulerJobByExploratory(String user, String exploratoryName) throws DlabException{
+    public CreateSchedulerJobDTO fetchSingleSchedulerJobByExploratory(String user, String exploratoryName) throws DlabException{
         Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
                 and(exploratoryCondition(user, exploratoryName), schedulerNotNullCondition()),
                 UserInstanceDTO.class);
@@ -270,7 +273,7 @@ public class SchedulerJobsDAO extends BaseDAO{
      * @param exploratoryName   name of exploratory.
      * @throws DlabException
      */
-    public SchedulerJobDTO fetchSingleSchedulerJobByRunningExploratory(String user, String exploratoryName) throws DlabException{
+    public CreateSchedulerJobDTO fetchSingleSchedulerJobByRunningExploratory(String user, String exploratoryName) throws DlabException{
         Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
                 and(runningExploratoryCondition(user, exploratoryName), schedulerNotNullCondition()),
                 UserInstanceDTO.class);

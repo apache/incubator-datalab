@@ -18,9 +18,13 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.dto.SchedulerJobDTO;
+import com.epam.dlab.backendapi.dao.SchedulerJobsDAO;
+import com.epam.dlab.dto.CreateSchedulerJobDTO;
+import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -38,10 +42,15 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class SchedulerJobsResource {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SchedulerJobsResource.class);
+
+    @Inject
+    private SchedulerJobsDAO schedulerJobsDAO;
+
 
     @POST
-    public Response create(@Auth UserInfo userInfo, SchedulerJobDTO dto) {
-        log.info(dto.toString());
+    public Response create(@Auth UserInfo userInfo, CreateSchedulerJobDTO dto) {
+        LOGGER.info(dto.toString());
         return Response.ok().build();
     }
 
