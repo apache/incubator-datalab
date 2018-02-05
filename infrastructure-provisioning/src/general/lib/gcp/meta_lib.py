@@ -460,13 +460,13 @@ class GCPMeta:
             host = {}
             try:
                 request = self.service.instances().get(project=self.project, zone=os.environ['gcp_zone'],
-                                                       instance=instance['id'])
+                                                       instance=instance)
                 result = request.execute()
-                host['id'] = instance['id']
+                host['id'] = instance
                 host['status'] = result.get('status').lower().replace("terminated", "stopped")
                 data.append(host)
             except:
-                host['id'] = instance['id']
+                host['id'] = instance
                 host['status'] = 'terminated'
                 data.append(host)
         return data
@@ -478,14 +478,14 @@ class GCPMeta:
             try:
                 request = self.dataproc.projects().regions().clusters().get(projectId=self.project,
                                                                             region=os.environ['gcp_region'],
-                                                                            clusterName=cluster['id'])
+                                                                            clusterName=cluster)
                 result = request.execute()
-                host['id'] = cluster['id']
+                host['id'] = cluster
                 host['version'] = result.get('config').get('softwareConfig').get('imageVersion')[:3]
                 host['status'] = result.get('status').get('state').lower()
                 data.append(host)
             except:
-                host['id'] = cluster['id']
+                host['id'] = cluster
                 host['status'] = 'terminated'
                 data.append(host)
         return data
