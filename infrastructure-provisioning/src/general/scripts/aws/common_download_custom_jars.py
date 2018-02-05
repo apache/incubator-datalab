@@ -34,7 +34,29 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--notebook_ip', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--cluster_name', type=str, default='')
 args = parser.parse_args()
+
+
+def find_paths_and_jars(conf_dir):
+    extra_class_path = sudo(
+        '''echo $(find /opt/{} -type d | tr "\\n" ":" ) | sed 's|:|/*:|g' | rev | cut -d ":" -f2- | rev''' \
+            .format(conf_dir))
+    extra_library_path = sudo('''echo $(find /opt/{} -type d | tr "\\n" ":" ) | rev | cut -d ":" -f2- | rev''' \
+                              .format(conf_dir))
+    spark_jars = sudo('''echo $(find /opt/{0} -type f | tr "\\n" ",") | rev | cut -d ',' -f2- | rev''' \
+                      .format(conf_dir))
+    return (extra_class_path, extra_library_path, spark_jars)
+
+
+def find_spark_conf():
+    if os.environ['conf_resource'] == 'dataengine-service':
+        conf_file = '/opt/{0}/{1}/spark/conf/spark-defaults.conf'.format(os.environ['emr_version'], args.cluster_name)
+    elif os.environ['conf_resource'] == 'dataengine':
+        conf_file = '/opt/{0}/spark/conf/spark-defaults.conf'.format(args.cluster_name)
+    else:
+        conf_file = '/opt/spark/conf/spark-defaults.conf'
+    return conf_file
 
 
 if __name__ == "__main__":
@@ -47,10 +69,8 @@ if __name__ == "__main__":
     jars_conf = dict()
     jars_conf['service_base_name'] = os.environ['conf_service_base_name']
     jars_conf['jars_bucket'] = '{}-ssn-bucket'.format(jars_conf['service_base_name'])
-    jars_conf['jars_dir'] = (lambda x: x if x != 'None' else '')(str(os.environ.get('conf_custom_jars_dir')))
+    jars_conf['jars_dir'] = str(os.environ.get('conf_custom_jars_dir'))
     jars_conf['tmp_dir'] = '/tmp/{}/'.format(jars_conf['jars_dir'])
-    jars_conf['application'] = (lambda x: x if x != 'None' else '')(str(os.environ.get('application')))
-    jars_conf['updated'] = False
 
     try:
         if os.environ['aws_region'] == 'cn-north-1':
@@ -77,33 +97,21 @@ if __name__ == "__main__":
             run('tar -zxf {0} -C {1}'.format(archive, jars_conf['tmp_dir']))
             sudo('rm -rf /opt/{}'.format(jars_conf['jars_dir']))
             sudo('mv {0} /opt/{1}'.format(jars_conf['tmp_dir'], jars_conf['jars_dir']))
-            jars_conf['updated'] = True
     except Exception as err:
         append_result("Failed to setup custom jars.", str(err))
         sys.exit(1)
 
     try:
-        if jars_conf['updated']:
-            conf_files = ['/opt/spark/conf/spark-defaults.conf']
-            extra_class_path = sudo(
-                '''echo $(find /opt/{} -type d | tr "\\n" ":" ) | sed 's|:|/*:|g' | rev | cut -d ":" -f2- | rev''' \
-                    .format(jars_conf['jars_dir']))
-            extra_library_path = sudo('''echo $(find /opt/{} -type d | tr "\\n" ":" ) | rev | cut -d ":" -f2- | rev''' \
-                                      .format(jars_conf['jars_dir']))
-            spark_jars = sudo('''echo $(find /opt/{0} -type f | tr "\\n" ",") | rev | cut -d ',' -f2- | rev''' \
-                .format(jars_conf['jars_dir']))
-            # Need to add cluster config if such exists
-            for config_file in conf_files:
-                if jars_conf['jars_dir'] != '':
-                    if not exists('{}.bak'.format(config_file)):
-                        sudo('cp {0} {0}.bak'.format(config_file))
-                    else:
-                        sudo('cp -f {0}.bak {0}'.format(config_file))
-
-                sudo('''sed -i -e "s|spark.driver.extraClassPath.*|&:{0}|" {1}'''.format(extra_class_path, config_file))
-                sudo('''sed -i -e "s|spark.driver.extraLibraryPath.*|&:{0}|" {1}'''.format(extra_library_path, config_file))
-                if jars_conf['application'] == 'zeppelin':
-                    print(spark_jars)
+        if jars_conf['jars_dir'] != 'None' and exists('/opt/{}'.format(jars_conf['jars_dir'])):
+            extra_class_path, extra_library_path, spark_jars = find_paths_and_jars(jars_conf['jars_dir'])
+            config_file = find_spark_conf()
+            if not exists('{}.bak'.format(config_file), use_sudo=True):
+                sudo('cp {0} {0}.bak'.format(config_file))
+            else:
+                sudo('cp -f {0}.bak {0}'.format(config_file))
+            sudo('''sed -i -e "s|spark.driver.extraClassPath.*|&:{0}|" {1}'''.format(extra_class_path, config_file))
+            sudo('''sed -i -e "s|spark.driver.extraLibraryPath.*|&:{0}|" {1}'''.format(extra_library_path, config_file))
+            sudo('''sed -i -e "s|spark.jars.*|&,{0}|" {1}'''.format(spark_jars, config_file))
     except Exception as err:
-        append_result("Failed to setup custom jars into spark-defaults.", str(err))
+        append_result("Failed to setup custom jar files into spark-defaults.conf.", str(err))
         sys.exit(1)

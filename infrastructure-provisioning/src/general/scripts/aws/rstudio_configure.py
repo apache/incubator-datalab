@@ -187,9 +187,9 @@ if __name__ == "__main__":
             raise Exception
     except Exception as err:
         print('Failed setup custom jar files.', str(err))
-        # append_result("Failed setup custom jar files.", str(err))
-        # remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
-        # sys.exit(1)
+        append_result("Failed setup custom jar files.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
 
     try:
         print('[CREATING AMI]')

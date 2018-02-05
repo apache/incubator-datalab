@@ -53,7 +53,6 @@ pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernel
 py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/py3spark_local/'
 local_spark_path = '/opt/spark/'
 jars_dir = '/opt/jars/'
-custom_jars_dir = os.environ['conf_custom_jars_dir']
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 jupyter_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_notebook_config.py'

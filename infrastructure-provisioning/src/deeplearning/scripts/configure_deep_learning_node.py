@@ -61,7 +61,6 @@ else:
                  "-bin-hadoop" + hadoop_version + ".tgz"
 local_spark_path = '/opt/spark/'
 jars_dir = '/opt/jars/'
-custom_jars_dir = os.environ['conf_custom_jars_dir']
 files_dir = '/root/files/'
 pyspark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/pyspark_local/'
 py3spark_local_path_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/py3spark_local/'

@@ -185,6 +185,22 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        print('[SETUP CUSTOM JAR FILES]')
+        logging.info('[SETUP CUSTOM JAR FILES]')
+        params = '--os_user {} --notebook_ip {} --keyfile "{}"' \
+            .format(notebook_config['dlab_ssh_user'], instance_hostname, keyfile_name)
+        try:
+            local("~/scripts/{}.py {}".format('common_download_custom_jars', params))
+        except:
+            append_result("Failed setup custom jar files")
+            raise Exception
+    except Exception as err:
+        print('Failed setup custom jar files.', str(err))
+        append_result("Failed setup custom jar files.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
+        sys.exit(1)
+
+    try:
         print('[CREATING AMI]')
         logging.info('[CREATING AMI]')
         ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'])

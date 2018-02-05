@@ -63,7 +63,6 @@ templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 local_spark_path = '/opt/spark/'
 jars_dir = '/opt/jars/'
-custom_jars_dir = os.environ['conf_custom_jars_dir']
 r_libs = ['R6', 'pbdZMQ', 'RCurl', 'devtools', 'reshape2', 'caTools', 'rJava', 'ggplot2']
 
 

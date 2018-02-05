@@ -54,7 +54,6 @@ jupyter_conf_file = '/home/' + args.os_user + '/.local/share/jupyter/jupyter_not
 scala_kernel_path = '/usr/local/share/jupyter/kernels/apache_toree_scala/'
 r_kernels_dir = '/home/' + args.os_user + '/.local/share/jupyter/kernels/'
 jars_dir = '/opt/jars/'
-custom_jars_dir = os.environ['conf_custom_jars_dir']
 templates_dir = '/root/templates/'
 files_dir = '/root/files/'
 local_spark_path = '/opt/spark/'

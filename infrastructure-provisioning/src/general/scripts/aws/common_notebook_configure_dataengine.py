@@ -100,6 +100,25 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
+        print('[SETUP CUSTOM JAR FILES]')
+        logging.info('[SETUP CUSTOM JAR FILES]')
+        params = '--os_user {} --notebook_ip {} --keyfile "{}" --cluster_name {}' \
+            .format(os.environ['conf_os_user'], notebook_config['notebook_ip'],
+                    notebook_config['key_path'], notebook_config['cluster_name'])
+        try:
+            local("~/scripts/{}.py {}".format('common_download_custom_jars', params))
+        except:
+            append_result("Failed to setup custom jar files.")
+            raise Exception
+    except Exception as err:
+        remove_ec2(notebook_config['tag_name'], notebook_config['master_node_name'])
+        for i in range(notebook_config['instance_count'] - 1):
+            slave_name = notebook_config['slave_node_name'] + '{}'.format(i + 1)
+            remove_ec2(notebook_config['tag_name'], slave_name)
+        append_result("Failed installing custom jar files.", str(err))
+        sys.exit(1)
+
+    try:
         with open("/root/result.json", 'w') as result:
             res = {"notebook_name": notebook_config['notebook_name'],
                    "Action": "Configure notebook server"}
