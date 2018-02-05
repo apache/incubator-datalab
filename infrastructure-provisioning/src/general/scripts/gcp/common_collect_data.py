@@ -35,17 +35,28 @@ parser.add_argument('--list_resources', type=str, default='')
 args = parser.parse_args()
 
 
+def get_id_resourses(id_resourses):
+    data = []
+    for value in id_resourses:
+        host = {}
+        host['id'] = value['id']
+        data.append(host['id'])
+    return data
+
+
 if __name__ == "__main__":
     data = ast.literal_eval(args.list_resources.replace('\'', '"'))
     statuses = {}
     try:
         try:
-            data_instances = GCPMeta().get_list_instance_statuses(data.get('host'))
+            id_hosts = get_id_resourses(data.get('host'))
+            data_instances = GCPMeta().get_list_instance_statuses(id_hosts)
             statuses['host'] = data_instances
         except:
             print("Hosts JSON wasn't been provided")
         try:
-            data_clusters = GCPMeta().get_list_cluster_statuses(data.get('cluster'))
+            id_clusters = get_id_resourses(data.get('cluster'))
+            data_clusters = GCPMeta().get_list_cluster_statuses(id_clusters)
             statuses['cluster'] = data_clusters
         except:
             print("Clusters JSON wasn't been provided")
