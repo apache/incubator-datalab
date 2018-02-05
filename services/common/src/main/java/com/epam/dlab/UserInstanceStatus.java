@@ -28,7 +28,8 @@ public enum UserInstanceStatus {
     STOPPED,
     TERMINATING,
     TERMINATED,
-    FAILED;
+    FAILED,
+    CREATING_IMAGE;
 
     @Override
     public String toString() {
