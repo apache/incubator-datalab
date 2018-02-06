@@ -31,8 +31,8 @@ public class SchedulerJobsService {
     private SchedulerJobsDAO schedulerJobsDAO;
 
     @SuppressWarnings("unchecked")
-    public SchedulerJobDTO fetchSchedulerJobForExploratory(String user, String exploratoryName) {
-        return schedulerJobsDAO.fetchSingleSchedulerJobByExploratory(user, exploratoryName);
+    public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String exploratoryName) {
+        return schedulerJobsDAO.fetchSingleSchedulerJobByUserAndExploratory(user, exploratoryName);
     }
 
 }

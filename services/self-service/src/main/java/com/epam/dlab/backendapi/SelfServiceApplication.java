@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi;
 
 import com.epam.dlab.backendapi.dao.IndexCreator;
+import com.epam.dlab.backendapi.dao.SchedulerJobsDAO;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
@@ -71,7 +72,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         bootstrap.addBundle(new TemplateConfigBundle(
                 new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
         ));
-        Job startExploratorySchedulerJob = new StartExploratoryJob();
+        Job startExploratorySchedulerJob = new StartExploratoryJob(new SchedulerJobsDAO());
         Job stopExploratorySchedulerJob = new StopExploratoryJob();
         bootstrap.addBundle(new JobsBundle(startExploratorySchedulerJob, stopExploratorySchedulerJob));
     }

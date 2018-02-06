@@ -17,15 +17,23 @@
 package com.epam.dlab.backendapi.schedulers;
 
 import de.spinscale.dropwizard.jobs.Job;
+import de.spinscale.dropwizard.jobs.annotations.DelayStart;
 import de.spinscale.dropwizard.jobs.annotations.Every;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+@DelayStart("5s")
 @Every("30s")
 public class StopExploratoryJob extends Job{
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(StopExploratoryJob.class);
+
+
     @Override
     public void doJob(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        LOGGER.info("Stop exploratory job in progress...");
 
     }
 }

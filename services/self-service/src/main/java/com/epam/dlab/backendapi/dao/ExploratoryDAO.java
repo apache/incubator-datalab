@@ -249,7 +249,7 @@ public class ExploratoryDAO extends BaseDAO {
      * @return The result of an update operation.
      * @throws DlabException
      */
-    public UpdateResult updateSchedulerData(String user, String exploratoryName, SchedulerJobDTO dto) throws DlabException {
+    public UpdateResult updateSchedulerDataForUserAndExploratory(String user, String exploratoryName, SchedulerJobDTO dto) throws DlabException {
         Document schedulerData = new Document();
         schedulerData.append(SchedulerJobsDAO.BEGIN_DATE, dto.getBeginDate());
         schedulerData.append(SchedulerJobsDAO.FINISH_DATE, dto.getFinishDate());

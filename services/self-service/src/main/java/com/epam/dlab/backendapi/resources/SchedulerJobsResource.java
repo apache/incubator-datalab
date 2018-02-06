@@ -55,7 +55,7 @@ public class SchedulerJobsResource {
     public Response create(@Auth UserInfo userInfo, @PathParam("exploratoryName") String exploratoryName,
                            SchedulerJobDTO dto) {
         LOGGER.info("Adding {} to Mongo DB ...", dto);
-        exploratoryDAO.updateSchedulerData(userInfo.getName(), exploratoryName, dto);
+        exploratoryDAO.updateSchedulerDataForUserAndExploratory(userInfo.getName(), exploratoryName, dto);
         return Response.ok().build();
     }
 
@@ -68,13 +68,13 @@ public class SchedulerJobsResource {
      */
     @GET
     @Path("/{exploratoryName}")
-    public SchedulerJobDTO fetchSchedulerJobForExploratory(@Auth UserInfo userInfo,
+    public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(@Auth UserInfo userInfo,
                                                              @PathParam("exploratoryName") String exploratoryName) {
 
         LOGGER.debug("Loading scheduler job for user {} and exploratory {}",
                 userInfo.getName(), exploratoryName);
         try {
-            SchedulerJobDTO job = schedulerJobsService.fetchSchedulerJobForExploratory(userInfo.getName(), exploratoryName);
+            SchedulerJobDTO job = schedulerJobsService.fetchSchedulerJobForUserAndExploratory(userInfo.getName(), exploratoryName);
             LOGGER.info("Scheduler job data: {}", job);
             return job;
 
