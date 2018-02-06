@@ -44,7 +44,7 @@ def find_paths_and_jars(conf_dir):
             .format(conf_dir))
     extra_library_path = sudo('''echo $(find /opt/{} -type d | tr "\\n" ":" ) | rev | cut -d ":" -f2- | rev''' \
                               .format(conf_dir))
-    spark_jars = sudo('''echo $(find /opt/{0} -type f | tr "\\n" ",") | rev | cut -d ',' -f2- | rev''' \
+    spark_jars = sudo('''echo $(find /opt/{0} -name "*.jar" | tr "\\n" ",") | rev | cut -d ',' -f2- | rev''' \
                       .format(conf_dir))
     return (extra_class_path, extra_library_path, spark_jars)
 
