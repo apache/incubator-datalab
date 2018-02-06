@@ -20,6 +20,7 @@ package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.util.DateRemoverUtil;
+import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.epam.dlab.backendapi.dao.SchedulerJobsDAO.SCHEDULER_DATA;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.*;
@@ -98,7 +100,7 @@ public class ExploratoryDAO extends BaseDAO {
         return find(USER_INSTANCES, eq(USER, user),
                 fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS,
                         ExploratoryLibDAO.COMPUTATIONAL_LIBS,
-                        SchedulerJobsDAO.SCHEDULER_DATA)));
+                        SCHEDULER_DATA)));
     }
 
     /**
@@ -111,7 +113,7 @@ public class ExploratoryDAO extends BaseDAO {
         return find(USER_INSTANCES, and(eq(USER, user), runningCondition()),
                 fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS,
                         ExploratoryLibDAO.COMPUTATIONAL_LIBS,
-                        SchedulerJobsDAO.SCHEDULER_DATA)));
+                        SCHEDULER_DATA)));
     }
 
     /**
@@ -239,6 +241,26 @@ public class ExploratoryDAO extends BaseDAO {
                 exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
                 set(STATUS, dto.getStatus()));
     }
+
+    /**
+     * Updates the scheduler's data for exploratory in Mongo database.
+     *
+     * @param dto object of scheduler data.
+     * @return The result of an update operation.
+     * @throws DlabException
+     */
+    public UpdateResult updateSchedulerData(String user, String exploratoryName, SchedulerJobDTO dto) throws DlabException {
+        Document schedulerData = new Document();
+        schedulerData.append(SchedulerJobsDAO.BEGIN_DATE, dto.getBeginDate());
+        schedulerData.append(SchedulerJobsDAO.FINISH_DATE, dto.getFinishDate());
+        schedulerData.append(SchedulerJobsDAO.START_TIME, dto.getStartTime());
+        schedulerData.append(SchedulerJobsDAO.END_TIME, dto.getEndTime());
+        schedulerData.append(SchedulerJobsDAO.DAYS_REPEAT, dto.getDaysRepeat());
+        return updateOne(USER_INSTANCES,
+                exploratoryCondition(user, exploratoryName),
+                set(SCHEDULER_DATA, convertToBson(schedulerData)));
+    }
+
 
     /**
      * Updates the info of exploratory in Mongo database.

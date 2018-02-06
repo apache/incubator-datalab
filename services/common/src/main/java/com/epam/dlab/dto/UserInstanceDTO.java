@@ -59,7 +59,7 @@ public class UserInstanceDTO {
     @JsonProperty("private_ip")
     private String privateIp;
     @JsonProperty("scheduler_data")
-    private CreateSchedulerJobDTO schedulerData;
+    private SchedulerJobDTO schedulerData;
 
     /**
      * Sets the user login name.
@@ -160,7 +160,7 @@ public class UserInstanceDTO {
     /**
      * Sets scheduler data.
      */
-    public UserInstanceDTO withSchedulerData(CreateSchedulerJobDTO schedulerData) {
+    public UserInstanceDTO withSchedulerData(SchedulerJobDTO schedulerData) {
         setSchedulerData(schedulerData);
         return this;
     }

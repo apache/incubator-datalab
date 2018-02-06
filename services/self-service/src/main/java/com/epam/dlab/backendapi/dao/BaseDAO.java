@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -56,7 +57,8 @@ public class BaseDAO implements MongoCollections {
 
     protected static final ObjectMapper MAPPER = new ObjectMapper()
             .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
-            .registerModule(new IsoDateModule());
+            .registerModule(new IsoDateModule())
+            .registerModule(new JavaTimeModule());
 
     public static final String FIELD_SET_DELIMETER = ".$.";
     public static final String FIELD_PROJECTION_DELIMITER = "$";
