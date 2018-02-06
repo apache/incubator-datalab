@@ -64,6 +64,7 @@ limitations under the License.
         <com.fasterxml.jackson.core.version>2.8.8</com.fasterxml.jackson.core.version>
         <com.fasterxml.jackson.annotations.version>2.8.0</com.fasterxml.jackson.annotations.version>
         <de.spinscale.dropwizard.version>3.0.0</de.spinscale.dropwizard.version>
+        <com.hubspot.dropwizard.version>1.0.0.1</com.hubspot.dropwizard.version>
 
         <java.version>1.8</java.version>
         <properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
@@ -131,9 +132,17 @@ limitations under the License.
 
         <dependency>
             <groupId>de.spinscale.dropwizard</groupId>
-            <artifactId>dropwizard-jobs-core</artifactId>
+            <artifactId>dropwizard-jobs-guice</artifactId>
             <version>${de.spinscale.dropwizard.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.hubspot.dropwizard</groupId>
+            <artifactId>dropwizard-guice</artifactId>
+            <version>${com.hubspot.dropwizard.version}</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>

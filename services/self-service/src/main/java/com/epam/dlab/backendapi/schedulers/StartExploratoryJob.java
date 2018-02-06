@@ -18,24 +18,21 @@ package com.epam.dlab.backendapi.schedulers;
 
 import com.epam.dlab.backendapi.dao.SchedulerJobsDAO;
 import com.epam.dlab.dto.SchedulerJobDTO;
+import com.google.inject.Inject;
 import de.spinscale.dropwizard.jobs.Job;
 import de.spinscale.dropwizard.jobs.annotations.Every;
-import org.bson.Document;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Every("30s")
-public class StartExploratoryJob extends Job{
+public class StartExploratoryJob extends Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StartExploratoryJob.class);
 
-    private final SchedulerJobsDAO schedulerJobsDAO;
-
-    public StartExploratoryJob(SchedulerJobsDAO schedulerJobsDAO) {
-        this.schedulerJobsDAO = schedulerJobsDAO;
-    }
+    @Inject
+    private SchedulerJobsDAO schedulerJobsDAO;
 
     @Override
     public void doJob(JobExecutionContext jobExecutionContext) throws JobExecutionException {

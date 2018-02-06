@@ -17,9 +17,9 @@
 package com.epam.dlab.backendapi;
 
 import com.epam.dlab.backendapi.dao.IndexCreator;
-import com.epam.dlab.backendapi.dao.SchedulerJobsDAO;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.modules.AwsSelfServiceModule;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
@@ -31,6 +31,8 @@ import com.epam.dlab.rest.mappers.RuntimeExceptionMapper;
 import com.epam.dlab.utils.ServiceUtils;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.hubspot.dropwizard.guice.GuiceBundle;
+import de.spinscale.dropwizard.jobs.GuiceJobsBundle;
 import de.spinscale.dropwizard.jobs.Job;
 import de.spinscale.dropwizard.jobs.JobsBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
@@ -72,9 +74,19 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         bootstrap.addBundle(new TemplateConfigBundle(
                 new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
         ));
-        Job startExploratorySchedulerJob = new StartExploratoryJob(new SchedulerJobsDAO());
+        GuiceBundle guiceBundle = GuiceBundle.<SelfServiceApplicationConfiguration>newBuilder()
+                .addModule(new AwsSelfServiceModule())
+                .enableAutoConfig( getClass().getPackage().getName() )
+                .setConfigClass( SelfServiceApplicationConfiguration.class )
+                .build();
+        bootstrap.addBundle( guiceBundle );
+        GuiceJobsBundle guiceJobsBundle = new GuiceJobsBundle(
+                guiceBundle.getInjector() );
+        bootstrap.addBundle( guiceJobsBundle );
+        Job startExploratorySchedulerJob = new StartExploratoryJob();
         Job stopExploratorySchedulerJob = new StopExploratoryJob();
         bootstrap.addBundle(new JobsBundle(startExploratorySchedulerJob, stopExploratorySchedulerJob));
+
     }
 
     @Override
