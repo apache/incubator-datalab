@@ -24,6 +24,7 @@ import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.epam.dlab.validation.AwsValidation;
 import com.epam.dlab.validation.AzureValidation;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.spinscale.dropwizard.jobs.JobConfiguration;
 import io.dropwizard.util.Duration;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.hibernate.validator.group.GroupSequenceProvider;
@@ -35,7 +36,7 @@ import javax.validation.constraints.Min;
  * Configuration for Self Service.
  */
 @GroupSequenceProvider(SelfServiceCloudConfigurationSequenceProvider.class)
-public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
+public class SelfServiceApplicationConfiguration extends ServiceConfiguration implements JobConfiguration {
 
     @Min(value = 2, groups = AwsValidation.class)
     @JsonProperty

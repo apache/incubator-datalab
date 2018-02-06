@@ -22,12 +22,16 @@ import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
+import com.epam.dlab.backendapi.schedulers.StartExploratoryJob;
+import com.epam.dlab.backendapi.schedulers.StopExploratoryJob;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
 import com.epam.dlab.rest.mappers.RuntimeExceptionMapper;
 import com.epam.dlab.utils.ServiceUtils;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.spinscale.dropwizard.jobs.Job;
+import de.spinscale.dropwizard.jobs.JobsBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -67,6 +71,9 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         bootstrap.addBundle(new TemplateConfigBundle(
                 new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
         ));
+        Job startExploratorySchedulerJob = new StartExploratoryJob();
+        Job stopExploratorySchedulerJob = new StopExploratoryJob();
+        bootstrap.addBundle(new JobsBundle(startExploratorySchedulerJob, stopExploratorySchedulerJob));
     }
 
     @Override
