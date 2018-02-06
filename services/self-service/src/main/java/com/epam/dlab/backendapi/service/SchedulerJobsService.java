@@ -22,10 +22,6 @@ import com.epam.dlab.dto.SchedulerJobDTO;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @Singleton
@@ -35,31 +31,8 @@ public class SchedulerJobsService {
     private SchedulerJobsDAO schedulerJobsDAO;
 
     @SuppressWarnings("unchecked")
-    public List<Document> getAllSchedulerJobs(String user) {
-        return (List<Document>) schedulerJobsDAO.getAllSchedulerJobs(user)
-                .getOrDefault(SchedulerJobsDAO.SCHEDULER_DATA, new ArrayList<>());
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Document> getSchedulerJobsForRunningExploratories(String user) {
-        return (List<Document>) schedulerJobsDAO.getSchedulerJobsForRunningExploratories(user)
-                .getOrDefault(SchedulerJobsDAO.SCHEDULER_DATA, new ArrayList<>());
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Document> getSchedulerJobsForExploratory(String user, String exploratoryName) {
-        return (List<Document>) schedulerJobsDAO.getSchedulerJobsForExploratory(user, exploratoryName)
-                .getOrDefault(SchedulerJobsDAO.SCHEDULER_DATA, new ArrayList<>());
-    }
-
-    @SuppressWarnings("unchecked")
-    public Document getSingleSchedulerJobForExploratory(String user, String exploratoryName) {
-        return schedulerJobsDAO.getSchedulerJobsForExploratory(user, exploratoryName);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<SchedulerJobDTO> fetchSchedulerJobsForExploratory(String user, String exploratoryName) {
-        return schedulerJobsDAO.fetchSchedulerJobsByExploratory(user, exploratoryName);
+    public SchedulerJobDTO fetchSchedulerJobForExploratory(String user, String exploratoryName) {
+        return schedulerJobsDAO.fetchSingleSchedulerJobByExploratory(user, exploratoryName);
     }
 
 }
