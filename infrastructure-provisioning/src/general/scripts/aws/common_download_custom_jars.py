@@ -111,7 +111,7 @@ if __name__ == "__main__":
                 sudo('cp -f {0}.bak {0}'.format(config_file))
             sudo('''sed -i -e "s|spark.driver.extraClassPath.*|&:{0}|" {1}'''.format(extra_class_path, config_file))
             sudo('''sed -i -e "s|spark.driver.extraLibraryPath.*|&:{0}|" {1}'''.format(extra_library_path, config_file))
-            sudo('''sed -i -e "s|spark.jars.*|&,{0}|" {1}'''.format(spark_jars, config_file))
+            sudo('''sed -i -e "s/,$//g" -e "s|spark.jars.*|&,{0}|" {1}'''.format(spark_jars, config_file))
     except Exception as err:
         append_result("Failed to setup custom jar files into spark-defaults.conf.", str(err))
         sys.exit(1)
