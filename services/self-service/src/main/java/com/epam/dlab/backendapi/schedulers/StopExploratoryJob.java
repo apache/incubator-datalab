@@ -15,33 +15,28 @@
  */
 
 package com.epam.dlab.backendapi.schedulers;
-
 import com.epam.dlab.backendapi.dao.SchedulerJobsDAO;
+import com.epam.dlab.dto.SchedulerJobDTO;
 import com.fiestacabin.dropwizard.quartz.Scheduled;
 import com.google.inject.Inject;
-import com.mongodb.client.FindIterable;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import java.time.LocalTime;
-
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@Scheduled(interval = 30)
-public class StartExploratoryJob implements Job {
+@Scheduled(interval = 30, unit = TimeUnit.SECONDS)
+public class StopExploratoryJob implements Job{
 
     @Inject
     private SchedulerJobsDAO schedulerJobsDAO;
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        log.info("===============JOB EXECUTION==============");
-        LocalTime currentTime = LocalTime.now();
-        LocalTime currentTimeRounded = LocalTime.of(currentTime.getHour(), currentTime.getMinute());
-        FindIterable<Document> doc = schedulerJobsDAO.getAllSchedulerJobs();
-        log.info("All scheduler jobs: {}", doc);
+//        log.info("===============JOB EXECUTION==============");
+//        SchedulerJobDTO doc = schedulerJobsDAO.fetchSingleSchedulerJobByUserAndExploratory("test", "deep_1");
+//        log.info("All scheduler jobs: {}", doc);
     }
 }

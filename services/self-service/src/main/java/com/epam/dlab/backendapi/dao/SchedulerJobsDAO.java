@@ -80,16 +80,14 @@ public class SchedulerJobsDAO extends BaseDAO{
     }
 
     /** Return condition for search scheduler job to start.
-     * @param beginDate start date during general period of scheduler job duration.
-     * @param finishDate finish date during general period of scheduler job duration.
-     * @param startTime start time of day for scheduler job executing.
-     * @param day day for checking if it is included to list of days when scheduler job will start.
+     * @param today today's date.
+     * @param now this moment time in format 'hh:MM'.
      */
-    private static Bson schedulerJobStartCondition(LocalDate beginDate, LocalDate finishDate, LocalTime startTime, String day) {
-        return and(gte(BEGIN_DATE, beginDate),
-                lte(FINISH_DATE, finishDate),
-                        eq(START_TIME, startTime),
-                regex(DAYS_REPEAT, "(.)*" + day + "(.)*"));
+    private static Bson schedulerJobStartCondition(LocalDate today, LocalTime now) {
+        return and(gte(BEGIN_DATE, today),
+                lte(FINISH_DATE, today),
+                        eq(START_TIME, now),
+                regex(DAYS_REPEAT, "(.)*" + today.getDayOfWeek().toString() + "(.)*"));
     }
 
     /** Return condition for search scheduler job to finish.
@@ -107,12 +105,10 @@ public class SchedulerJobsDAO extends BaseDAO{
 
     /** Get scheduler jobs for all users and all their exploratories.
      */
-    public Document getAllSchedulerJobs() {
-        Optional<Document> opt = findOne(USER_INSTANCES,
+    public FindIterable<Document> getAllSchedulerJobs() {
+        return find(USER_INSTANCES,
                 schedulerNotNullCondition(),
                 fields(excludeId(), include(USER, ExploratoryDAO.EXPLORATORY_NAME, SCHEDULER_DATA)));
-
-        return opt.orElseGet(Document::new);
     }
 
     /** Get all user's scheduler jobs for all exploratories.
