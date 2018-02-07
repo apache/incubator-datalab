@@ -25,6 +25,15 @@ import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class NamingHelper {
+    public static final String CLUSTER_ABSENT = "cluster_absent";
+    public static final String DATA_ENGINE = "dataengine";
+    public static final String DATA_ENGINE_SERVICE = "dataengine-service";
+    public static final String DEEPLEARNING = "deeplearning";
+    public static final String JUPYTER = "jupyter";
+    public static final String TENSOR = "tensor";
+    public static final String RSTUDIO = "rstudio";
+    public static final String ZEPPELIN = "zeppelin";
+
     private static AtomicInteger idCounter = new AtomicInteger(0);
     
     private static String serviceBaseName;
@@ -107,7 +116,7 @@ public class NamingHelper {
     }
     
     public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
-        if("dataengine".equals(dataEngineType)) {
+        if(DATA_ENGINE.equals(dataEngineType)) {
             switch (ConfigPropertyValue.getCloudProvider()) {
                 case CloudProvider.AWS_PROVIDER:
                     return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m");
@@ -126,14 +135,14 @@ public class NamingHelper {
     public static String getClusterInstanceNameForTestDES(String notebookName, String clusterName, String dataEngineType) {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
-                if("dataengine".equals(dataEngineType)) {
+                if(DATA_ENGINE.equals(dataEngineType)) {
                     return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
                 }
                 else {
                     return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName);
                 }
             case CloudProvider.AZURE_PROVIDER:
-                if("dataengine".equals(dataEngineType)) {
+                if(DATA_ENGINE.equals(dataEngineType)) {
                     return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName)
                             .replace('_', '-');
                 }
@@ -157,7 +166,7 @@ public class NamingHelper {
     
     
     public static String generateRandomValue() {
-        SimpleDateFormat df = new SimpleDateFormat("YYYYMMddhmmss");
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMddhmmss");
         return String.join("_",  "ITest", df.format(new Date()), String.valueOf(idCounter.incrementAndGet()));
     }
 
@@ -187,7 +196,7 @@ public class NamingHelper {
     }
 
     public static String getClusterName(String clusterInstanceName, String dataEngineType, boolean restrictionMode) throws CloudException {
-        if ("dataengine".equals(dataEngineType)) {
+        if (DATA_ENGINE.equals(dataEngineType)) {
             return clusterInstanceName;
         } else {
             return CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
@@ -195,19 +204,19 @@ public class NamingHelper {
     }
 
     public static String getNotebookTestTemplatesPath(String notebookName){
-        if(notebookName.contains("deeplearning")){
+        if(notebookName.contains(DEEPLEARNING)){
             return "test_templates/deeplearning/";
         }
-        else if(notebookName.contains("jupyter")){
+        else if(notebookName.contains(JUPYTER)){
             return "test_templates/jupyter/";
         }
-        else if(notebookName.contains("rstudio")){
+        else if(notebookName.contains(RSTUDIO)){
             return "test_templates/rstudio/";
         }
-        else if(notebookName.contains("tensor")){
+        else if(notebookName.contains(TENSOR)){
             return "test_templates/tensor/";
         }
-        else if(notebookName.contains("zeppelin")){
+        else if(notebookName.contains(ZEPPELIN)){
             return "test_templates/zeppelin/";
         }
         else return "";
@@ -215,23 +224,42 @@ public class NamingHelper {
     }
 
     public static String getNotebookType(String notebookName){
-        if(notebookName.contains("deeplearning")){
-            return "deeplearning/";
+        if(notebookName.contains(DEEPLEARNING)){
+            return DEEPLEARNING + "/";
         }
-        else if(notebookName.contains("jupyter")){
-            return "jupyter/";
+        else if(notebookName.contains(JUPYTER)){
+            return JUPYTER + "/";
         }
-        else if(notebookName.contains("rstudio")){
-            return "rstudio/";
+        else if(notebookName.contains(RSTUDIO)){
+            return RSTUDIO + "/";
         }
-        else if(notebookName.contains("tensor")){
-            return "tensor/";
+        else if(notebookName.contains(TENSOR)){
+            return TENSOR + "/";
         }
-        else if(notebookName.contains("zeppelin")){
-            return "zeppelin/";
+        else if(notebookName.contains(ZEPPELIN)){
+            return ZEPPELIN + "/";
         }
         else return "";
 
+    }
+
+    public static boolean isClusterRequired(String notebookName){
+        if(notebookName.contains(DEEPLEARNING)){
+            return false;
+        }
+        else if(notebookName.contains(JUPYTER)){
+            return true;
+        }
+        else if(notebookName.contains(RSTUDIO)){
+            return true;
+        }
+        else if(notebookName.contains(TENSOR)){
+            return false;
+        }
+        else if(notebookName.contains(ZEPPELIN)){
+            return true;
+        }
+        return true;
     }
 
 

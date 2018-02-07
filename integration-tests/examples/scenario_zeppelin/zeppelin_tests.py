@@ -21,6 +21,7 @@
 import os, sys, json
 from fabric.api import *
 import argparse
+import requests
 
 
 parser = argparse.ArgumentParser()
@@ -49,13 +50,14 @@ def get_storage():
 def get_note_status(note_id, notebook_ip):
     running = False
     local('sleep 5')
-    response = local("curl -H 'Content-Type: application/json' -X GET  http://" +
-                     notebook_ip + ":8080/api/notebook/job/" + note_id, capture=True)
-    status = json.loads(response)
+    response = requests.get('http://{0}:8080/api/notebook/job/{1}'.format(notebook_ip, note_id))
+    status = json.loads(response.content)
     for i in status.get('body'):
         if i.get('status') == "RUNNING" or i.get('status') == "PENDING":
+            print('Notebook status: {}'.format(i.get('status')))
             running = True
         elif i.get('status') == "ERROR":
+            print('Error in notebook')
             sys.exit(1)
     if running:
         local('sleep 5')
@@ -64,12 +66,14 @@ def get_note_status(note_id, notebook_ip):
         return "OK"
 
 def import_note(note_path, notebook_ip):
-    response = local("curl -H 'Content-Type: application/json' -X POST -d @" + note_path + " http://" +
-                     notebook_ip + ":8080/api/notebook/import", capture=True)
-    status = json.loads(response)
+    files = {'file': (note_path, open(note_path, 'rb'), 'application/json', {'Expires': '0'})}
+    response = requests.post('http://{0}:8080/api/notebook/import'.format(notebook_ip), files=files)
+    status = json.loads(response.content)
     if status.get('status') == 'CREATED':
-        return status.get('body') 
+        print('Imported notebook: {}'.format(note_path))
+        return status.get('body')
     else:
+        print('Failed to import notebook')
         sys.exit(1)
 
 def prepare_note(interpreter_name, template_path, note_name):
@@ -82,22 +86,37 @@ def prepare_note(interpreter_name, template_path, note_name):
         f.write(text)
 
 def run_note(note_id, notebook_ip):
-    response = local("curl -H 'Content-Type: application/json' -X POST  http://" + notebook_ip +
-                     ":8080/api/notebook/job/" + note_id, capture=True)
-    status = json.loads(response)
+    response = requests.post('http://{0}:8080/api/notebook/job/{1}'.format(notebook_ip, note_id))
+    status = json.loads(response.content)
     if status.get('status') == 'OK':
         get_note_status(note_id, notebook_ip)
     else:
+        print('Failed to run notebook')
         sys.exit(1)
 
-
 def remove_note(note_id, notebook_ip):
-    response = local("curl -H 'Content-Type: application/json' -X DELETE  http://" + notebook_ip +
-                     ":8080/api/notebook/" + note_id, capture=True)
-    status = json.loads(response)
+    response = requests.delete('http://{0}:8080/api/notebook/{1}'.format(notebook_ip, note_id))
+    status = json.loads(response.content)
     if status.get('status') == 'OK':
         return "OK"
     else:
+        sys.exit(1)
+
+def restart_interpreter(notebook_ip, interpreter):
+    response = requests.get('http://{0}:8080/api/interpreter/setting'.format(notebook_ip))
+    status = json.loads(response.content)
+    if status.get('status') == 'OK':
+        id = [i['id'] for i in status['body'] if i['name'] in interpreter][0]
+        response = requests.put('http://{0}:8080/api/interpreter/setting/restart/{1}'.format(notebook_ip, id))
+        status = json.loads(response.content)
+        if status.get('status') == 'OK':
+            local('sleep 5')
+            return "OK"
+        else:
+            print('Failed to restart interpreter')
+            sys.exit(1)
+    else:
+        print('Failed to get interpreter settings')
         sys.exit(1)
 
 def run_pyspark():
@@ -105,14 +124,15 @@ def run_pyspark():
     for i in interpreters:
         prepare_note(i, '/home/{}/test_templates/template_preparation_pyspark.json'.format(args.os_user),
                      '/home/{}/preparation_pyspark.json'.format(args.os_user))
-        note_id = import_note('/home/{}/preparation_pyspark.json'.format( args.os_user), notebook_ip)
+        note_id = import_note('/home/{}/preparation_pyspark.json'.format(args.os_user), notebook_ip)
         run_note(note_id, notebook_ip)
         remove_note(note_id, notebook_ip)
         prepare_note(i, '/home/{}/test_templates/template_visualization_pyspark.json'.format(args.os_user),
                      '/home/{}/visualization_pyspark.json'.format(args.os_user))
-        note_id = import_note('/home/{}/visualization_pyspark.json'.format( args.os_user), notebook_ip)
+        note_id = import_note('/home/{}/visualization_pyspark.json'.format(args.os_user), notebook_ip)
         run_note(note_id, notebook_ip)
         remove_note(note_id, notebook_ip)
+        restart_interpreter(notebook_ip, i)
 
 def run_sparkr():
     if os.path.exists('/opt/livy/'):
@@ -122,23 +142,25 @@ def run_sparkr():
     for i in interpreters:
         prepare_note(i, '/home/{}/test_templates/template_preparation_sparkr.json'.format(args.os_user),
                      '/home/{}/preparation_sparkr.json'.format(args.os_user))
-        note_id = import_note('/home/{}/preparation_sparkr.json'.format( args.os_user), notebook_ip)
+        note_id = import_note('/home/{}/preparation_sparkr.json'.format(args.os_user), notebook_ip)
         run_note(note_id, notebook_ip)
         remove_note(note_id, notebook_ip)
         prepare_note(i, '/home/{}/test_templates/template_visualization_sparkr.json'.format(args.os_user),
                      '/home/{}/visualization_sparkr.json'.format(args.os_user))
-        note_id = import_note('/home/{}/visualization_sparkr.json'.format( args.os_user), notebook_ip)
+        note_id = import_note('/home/{}/visualization_sparkr.json'.format(args.os_user), notebook_ip)
         run_note(note_id, notebook_ip)
         remove_note(note_id, notebook_ip)
+        restart_interpreter(notebook_ip, i)
 
 def run_spark():
     interpreters = ['local_interpreter_python2.spark', args.cluster_name + "_py2.spark"]
     for i in interpreters:
         prepare_note(i, '/home/{}/test_templates/template_preparation_spark.json'.format(args.os_user),
                      '/home/{}/preparation_spark.json'.format(args.os_user))
-        note_id = import_note('/home/{}/preparation_spark.json'.format( args.os_user), notebook_ip)
+        note_id = import_note('/home/{}/preparation_spark.json'.format(args.os_user), notebook_ip)
         run_note(note_id, notebook_ip)
         remove_note(note_id, notebook_ip)
+        restart_interpreter(notebook_ip, i)
 
 
 if __name__ == "__main__":
