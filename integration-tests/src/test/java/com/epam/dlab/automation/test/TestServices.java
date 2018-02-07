@@ -246,6 +246,7 @@ public class TestServices {
 		List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
 		
 		for (NotebookConfig notebookConfig : notebookConfigs) {
+			Thread.sleep(60000);
 			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig));
 			futureTasks.add(runScenarioTask);
 			executor.execute(runScenarioTask);
