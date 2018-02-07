@@ -25,10 +25,7 @@ import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDaoImpl;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.service.BackupService;
-import com.epam.dlab.backendapi.service.BackupServiceImpl;
-import com.epam.dlab.backendapi.service.ImageExploratoryService;
-import com.epam.dlab.backendapi.service.ImageExploratoryServiceImpl;
+import com.epam.dlab.backendapi.service.*;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserCredentialDTO;
@@ -78,6 +75,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
         bind(ImageExploratoryDao.class).to(ImageExploratoryDaoImpl.class);
         bind(BackupService.class).to(BackupServiceImpl.class);
         bind(BackupDao.class).to(BackupDaoImpl.class);
+        bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
     }
 
     /**
