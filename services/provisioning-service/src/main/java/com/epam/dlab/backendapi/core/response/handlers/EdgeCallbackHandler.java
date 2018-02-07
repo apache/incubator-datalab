@@ -19,7 +19,7 @@
 package com.epam.dlab.backendapi.core.response.handlers;
 
 import com.epam.dlab.UserInstanceStatus;
-import com.epam.dlab.command.DockerAction;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFileResult;
 import com.epam.dlab.exceptions.DlabException;

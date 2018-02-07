@@ -21,8 +21,8 @@ import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
-import com.epam.dlab.command.DockerAction;
-import com.epam.dlab.command.ICommandExecutor;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
@@ -33,7 +33,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.epam.dlab.command.DockerAction.CONFIGURE;
+import static com.epam.dlab.backendapi.core.commands.DockerAction.CONFIGURE;
 
 @Slf4j
 @Singleton

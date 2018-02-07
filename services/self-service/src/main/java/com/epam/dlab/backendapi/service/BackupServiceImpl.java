@@ -1,50 +1,49 @@
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
-import com.epam.dlab.backendapi.commands.PythonBackupCommand;
-import com.epam.dlab.command.ICommandExecutor;
-import com.epam.dlab.dto.EnvBackupDTO;
-import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.process.ProcessInfo;
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.dao.BackupDao;
+import com.epam.dlab.backendapi.resources.dto.BackupInfoRecord;
+import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.dto.backup.EnvBackupDTO;
+import com.epam.dlab.dto.backup.EnvBackupStatus;
+import com.epam.dlab.exceptions.ResourceNotFoundException;
+import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.rest.contracts.BackupAPI;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import com.google.inject.name.Named;
 
-import java.util.UUID;
+import java.util.List;
+import java.util.Optional;
 
-@Slf4j
 @Singleton
 public class BackupServiceImpl implements BackupService {
 
     @Inject
-    private SelfServiceApplicationConfiguration configuration;
+    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
+    private RESTService provisioningService;
 
     @Inject
-    private ICommandExecutor commandExecutor;
+    private BackupDao backupDao;
 
     @Override
-    public void createBackup(String user, EnvBackupDTO dto) {
+    public String createBackup(EnvBackupDTO dto, UserInfo user) {
+        updateStatus(dto, user.getName(), EnvBackupStatus.CREATING);
+        return provisioningService.post(BackupAPI.BACKUP, user.getAccessToken(), dto, String.class);
+    }
 
-        try {
-            PythonBackupCommand pythonBackupCommand = new PythonBackupCommand(configuration.getBackupScriptPath())
-                    .withConfig(dto.getConfigFiles())
-                    .withJars(dto.getJars())
-                    .withKeys(dto.getKeys())
-                    .withDBBackup(dto.isDatabaseBackup())
-                    .withLogsBackup(dto.isLogsBackup())
-                    .withSystemUser();
+    @Override
+    public void updateStatus(EnvBackupDTO dto, String user, EnvBackupStatus status) {
+        backupDao.createOrUpdate(dto, user, status);
+    }
 
-            final ProcessInfo processInfo = commandExecutor.executeSync(user, UUID.randomUUID().toString(), pythonBackupCommand.toCMD());
-            log.trace("Creating backup: {}", processInfo.getStdOut());
-            if (StringUtils.isNoneBlank(processInfo.getStdErr())) {
-                log.error("Can not create backup due to: {}", processInfo.getStdErr());
-                throw new DlabException("Can not create backup. Please contact DLAB administrator");
-            }
+    @Override
+    public List<BackupInfoRecord> getBackups(String userName) {
+        return backupDao.getBackups(userName);
+    }
 
-        } catch (Exception e) {
-            log.error("Can not create backup for user {} due to: {}", user, e.getMessage());
-            throw new DlabException(String.format("Can not create backup for user %s due to: %s", user, e.getMessage()), e);
-        }
+    @Override
+    public BackupInfoRecord getBackup(String userName, String id) {
+        return backupDao.getBackup(userName, id).orElseThrow(() -> new ResourceNotFoundException(String.format("Backup with id %s was not found for user %s", id, userName)));
     }
 }

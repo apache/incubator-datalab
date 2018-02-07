@@ -42,6 +42,7 @@ import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStartAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
 import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
+import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.base.CloudSettings;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
@@ -531,7 +532,7 @@ public class RequestBuilder {
 
 
     @SuppressWarnings("unchecked")
-    public static <T extends EnvBackupDTO> T newBackupCreate(BackupFormDTO backupFormDTO) {
+    public static <T extends EnvBackupDTO> T newBackupCreate(BackupFormDTO backupFormDTO, String id) {
 
         return (T) EnvBackupDTO.builder()
                 .configFiles(backupFormDTO.getConfigFiles())
@@ -540,6 +541,7 @@ public class RequestBuilder {
                 .jars(backupFormDTO.getJars())
                 .databaseBackup(backupFormDTO.isDatabaseBackup())
                 .logsBackup(backupFormDTO.isLogsBackup())
+                .id(id)
                 .build();
     }
 

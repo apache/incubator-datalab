@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.command;
+package com.epam.dlab.backendapi.core.commands;
 
 public interface CmdCommand {
     String toCMD();

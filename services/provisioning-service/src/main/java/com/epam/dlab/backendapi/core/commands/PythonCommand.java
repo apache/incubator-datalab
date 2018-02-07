@@ -1,6 +1,5 @@
-package com.epam.dlab.backendapi.commands;
+package com.epam.dlab.backendapi.core.commands;
 
-import com.epam.dlab.command.CmdCommand;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

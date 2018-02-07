@@ -22,7 +22,7 @@ import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
-import com.epam.dlab.command.DockerAction;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
@@ -31,8 +31,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-import static com.epam.dlab.command.DockerAction.CREATE;
-import static com.epam.dlab.command.DockerAction.TERMINATE;
+import static com.epam.dlab.backendapi.core.commands.DockerAction.CREATE;
+import static com.epam.dlab.backendapi.core.commands.DockerAction.TERMINATE;
 
 @Singleton
 public class SparkClusterService extends DockerService implements DockerCommands {

@@ -190,8 +190,8 @@ if __name__ == "__main__":
     jars_folder = "webapp/lib/"
     dlab_logs_folder = "/var/log/dlab/"
     docker_logs_folder = "/var/lib/docker/containers/"
-    dest_result = "{0}/backup-{1}.json".format(args.result_path, args.request_id)
-    dest_file = "{0}/backup-{1}.tar.gz".format(args.result_path, args.request_id)
+    dest_result = "{0}/backup_{1}.json".format(args.result_path, args.request_id)
+    dest_file = "{0}/backup_{1}.tar.gz".format(args.result_path, args.request_id)
 
     # Backup file section
     backup_prepare()

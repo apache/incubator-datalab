@@ -1,4 +1,4 @@
-package com.epam.dlab.backendapi.commands;
+package com.epam.dlab.backendapi.core.commands;
 
 import java.util.List;
 
@@ -42,6 +42,16 @@ public class PythonBackupCommand extends PythonCommand {
         if (logsBackup) {
             withOption("--logs");
         }
+        return this;
+    }
+
+    public PythonBackupCommand withRequestId(String requestId) {
+        withOption("--request_id", requestId);
+        return this;
+    }
+
+    public PythonBackupCommand withResponsePath(String responsePath) {
+        withOption("--result_path", responsePath);
         return this;
     }
 }

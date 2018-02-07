@@ -1,6 +1,7 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryImageCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
@@ -34,6 +35,7 @@ public class ImageExploratoryResource {
     public Response createImage(@Auth UserInfo ui, @Valid @NotNull ExploratoryImageCreateFormDTO formDTO) {
         log.debug("Creating an image {} for user {}", formDTO, ui.getName());
         String uuid = imageExploratoryService.createImage(ui, formDTO.getNotebookName(), formDTO.getName(), formDTO.getDescription());
+        RequestId.put(ui.getName(), uuid);
         final URI imageUri = UriBuilder.fromUri(uriInfo.getRequestUri())
                 .path(formDTO.getName())
                 .build();

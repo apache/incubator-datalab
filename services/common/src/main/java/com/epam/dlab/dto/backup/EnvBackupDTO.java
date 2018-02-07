@@ -1,4 +1,4 @@
-package com.epam.dlab.dto;
+package com.epam.dlab.dto.backup;
 
 import lombok.Builder;
 import lombok.Data;
@@ -16,4 +16,6 @@ public class EnvBackupDTO {
     private final List<String> jars;
     private final boolean databaseBackup;
     private final boolean logsBackup;
+    private String backupFile;
+    private String id;
 }
