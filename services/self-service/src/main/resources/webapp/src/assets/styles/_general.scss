@@ -1,0 +1,112 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  overflow-x: hidden;
+  font-weight: 300;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+.alignleft, .al {float: left}
+.alignright, .ar {float: right}
+.aligncenter, .ac {margin-left: auto;margin-right: auto}
+
+.mt-5 {margin-top: 5px}
+
+.txt-r {text-align: right }
+.txt-l {text-align: left }
+
+input[type='text']:not(.mat-input-element),
+input[type='number']:not(.mat-input-element),
+input[type='email']:not(.mat-input-element),
+input[type='password']:not(.mat-input-element) {
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  font-weight: 300;
+  font-size: 16px;
+  color: #455c74;
+  color: #6e7ca0;
+  border: 1px solid transparent;
+  background: rgba(247, 247, 247, 0.87);
+  transition: border 0.1s ease-out;
+  outline: none;
+}
+
+input[type='text']:not(.mat-input-element):focus,
+input[type='number']:not(.mat-input-element):focus,
+input[type='email']:not(.mat-input-element):focus,
+input[type='password']:not(.mat-input-element):focus {
+  border: none;
+  background: #fff;
+  transition: border 0.2s ease-in;
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+input[type='text']:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  color: rgba(0,0,0,.38);
+  background-color: rgba(0,0,0,.12);
+}
+
+input[type='text']:not(.mat-input-element)::placeholder,
+input[type='number']:not(.mat-input-element)::placeholder,
+input[type='email']:not(.mat-input-element)::placeholder,
+input[type='password']:not(.mat-input-element)::placeholder {
+  color: #718ba6;
+}
+
+.control-group, .row-wrap {
+  display: flex;
+  flex-flow: row wrap;
+  padding-bottom: 20px;
+}
+.row-wrap {
+  padding-bottom: 0;
+}
+
+.row-wrap .col {
+  width: 50%;
+}
+
+.control-group .label {
+  width: 35%;
+  color: #718ba6;
+  font-size: 15px;
+  font-weight: 600;
+  align-self: center;
+  text-align: left;
+}
+.control-group .control {
+  width: 65%;
+}
+
+button {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.info_color {color: #5bc0de}
+.primary_color {color: #337ab7}
+.success_color {color: #5cb85c}
+.warning_color {color: #f0ad4e}
+.danger_color {color: #d9534f}

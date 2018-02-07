@@ -73,7 +73,7 @@ public class LibInstallCallbackHandler extends ResourceCallbackHandler<LibInstal
     }
 
     @Override
-    protected LibInstallStatusDTO parseOutResponse(JsonNode resultNode, LibInstallStatusDTO status) throws DlabException {
+    protected LibInstallStatusDTO parseOutResponse(JsonNode resultNode, LibInstallStatusDTO status) {
 
         if (UserInstanceStatus.FAILED == UserInstanceStatus.of(status.getStatus())) {
             for (LibInstallDTO lib : dto.getLibs()) {

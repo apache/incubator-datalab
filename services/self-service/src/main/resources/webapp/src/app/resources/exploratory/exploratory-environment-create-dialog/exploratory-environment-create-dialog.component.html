@@ -22,15 +22,19 @@ limitations under the License.
   </modal-header>
   <modal-content>
     <div class="content-box">
-      <form [formGroup]="createExploratoryEnvironmentForm" novalidate (submit)="createExploratoryEnvironment_btnClick($event, createExploratoryEnvironmentForm.value, createExploratoryEnvironmentForm.valid)">
+      <form novalidate
+            [formGroup]="createExploratoryEnvironmentForm"
+            (submit)="createExploratoryEnvironment_btnClick($event, createExploratoryEnvironmentForm.value, createExploratoryEnvironmentForm.valid)">
         <div class="control-group">
           <label class="label">Select template</label>
           <div class="control">
             <dropdown-list #templatesList (selectedItem)="onUpdate($event)"></dropdown-list>
           </div>
           <div *ngIf="model.exploratoryEnvironmentTemplates" class="mt-5">
-            <small *ngIf="model.exploratoryEnvironmentTemplates && model.exploratoryEnvironmentTemplates.length > 0 && !templateDescription">{{model.exploratoryEnvironmentTemplates[0].description}}</small>
-            <small *ngIf="templateDescription">{{templateDescription}}</small>
+            <small *ngIf="model.exploratoryEnvironmentTemplates && model.exploratoryEnvironmentTemplates.length > 0 && !templateDescription">
+              {{ model.exploratoryEnvironmentTemplates[0].description }}
+            </small>
+            <small *ngIf="templateDescription">{{ templateDescription }}</small>
           </div>
         </div>
         <div class="control-group">
@@ -38,12 +42,14 @@ limitations under the License.
           <div class="control">
             <input [class.danger_field]="notebookExist || !createExploratoryEnvironmentForm.controls['environment_name'].valid
                    && createExploratoryEnvironmentForm.controls['environment_name'].dirty
-                   && createExploratoryEnvironmentForm.controls['environment_name'].hasError('duplication')" type="text" class="form-control" placeholder="Enter Name" formControlName="environment_name">
+                   && createExploratoryEnvironmentForm.controls['environment_name'].hasError('duplication')" type="text"
+                  class="form-control" placeholder="Enter Name" formControlName="environment_name">
             <span class="danger_color" *ngIf="createExploratoryEnvironmentForm.controls['environment_name'].hasError('duplication')">This name already exists.</span>
             <span class="danger_color" *ngIf="!createExploratoryEnvironmentForm.controls.environment_name.valid
                                        && createExploratoryEnvironmentForm.controls['environment_name'].dirty
-                                       && !createExploratoryEnvironmentForm.controls['environment_name'].hasError('duplication')">
-              Name <span *ngIf="DICTIONARY.cloud_provider === 'azure'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_'</span>
+                                       && !createExploratoryEnvironmentForm.controls['environment_name'].hasError('duplication')">Name
+              <span *ngIf="DICTIONARY.cloud_provider !== 'aws'">cannot be longer than 10 characters and</span> can only contain letters, numbers, hyphens and '_'
+            </span>
           </div>
         </div>
         <div class="control-group">
@@ -53,11 +59,11 @@ limitations under the License.
           </div>
         </div>
         <div class="text-right" *ngIf="processError">
-          <small class="danger_color">{{errorMessage}}</small>
+          <small class="danger_color">{{ errorMessage }}</small>
         </div>
         <div class="text-center m-top-30">
-          <button md-raised-button type="button" class="butt" (click)="close()">Cancel</button>
-          <button md-raised-button type="submit" [disabled]="!createExploratoryEnvironmentForm.valid" class="butt butt-success">Create</button>
+          <button mat-raised-button type="button" class="butt" (click)="close()">Cancel</button>
+          <button mat-raised-button type="submit" [disabled]="!createExploratoryEnvironmentForm.valid" class="butt butt-success">Create</button>
         </div>
       </form>
     </div>

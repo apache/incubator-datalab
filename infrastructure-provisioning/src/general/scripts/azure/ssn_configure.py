@@ -44,7 +44,7 @@ if __name__ == "__main__":
         print('[DERIVING NAMES]')
 
         ssn_conf = dict()
-        ssn_conf['service_base_name'] = replace_multi_symbols(
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
         ssn_conf['region'] = os.environ['azure_region']
         ssn_conf['ssn_storage_account_name'] = ssn_conf['service_base_name'] + '-ssn-storage'
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         ssn_conf['datalake_store_name'] = ssn_conf['service_base_name'] + '-ssn-datalake'
         ssn_conf['datalake_shared_directory_name'] = ssn_conf['service_base_name'] + '-shared-folder'
         ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
-        ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-vpc'
+        ssn_conf['vpc_name'] = os.environ['azure_vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
         ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
         ssn_conf['security_group_name'] = ssn_conf['service_base_name'] + '-ssn-sg'
         ssn_conf['ssh_key_path'] = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'

@@ -38,6 +38,18 @@ parser.add_argument('--region', type=str, default='')
 args = parser.parse_args()
 
 
+def modify_conf_file(args):
+    variables_list = {}
+    for os_var in os.environ:
+        if "'" not in os.environ[os_var] and os_var != 'aws_access_key' and os_var != 'aws_secret_access_key':
+            variables_list[os_var] = os.environ[os_var]
+    local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, env.host_string, args.dlab_path))
+    local('scp -i {} /root/scripts/configure_conf_file.py {}:/tmp/configure_conf_file.py'.format(args.keyfile,
+                                                                                                 env.host_string))
+    sudo("python /tmp/configure_conf_file.py --dlab_dir {} --variables_list '{}'".format(
+        args.dlab_path, json.dumps(variables_list)))
+
+
 def add_china_repository(dlab_path):
     with cd('{}sources/base/'.format(dlab_path)):
         sudo('sed -i "/pip install/s/$/ -i https\:\/\/{0}\/simple --trusted-host {0} --timeout 60000/g" Dockerfile'.format(os.environ['conf_pypi_mirror']))
@@ -47,7 +59,6 @@ def add_china_repository(dlab_path):
 
 def build_docker_images(image_list, region, dlab_path):
     try:
-        local('scp -r -i {} /project_tree/* {}:{}sources/'.format(args.keyfile, env.host_string, args.dlab_path))
         if os.environ['conf_cloud_provider'] == 'azure':
             local('scp -i {} /root/azure_auth.json {}:{}sources/base/azure_auth.json'.format(args.keyfile,
                                                                                              env.host_string,
@@ -79,6 +90,12 @@ if __name__ == "__main__":
         deeper_config = json.loads(args.additional_config)
     except:
         sys.exit(2)
+
+    print('Modifying configuration files')
+    try:
+        modify_conf_file(args)
+    except:
+        sys.exit(1)
 
     print("Installing docker daemon")
     if not ensure_docker_daemon(args.dlab_path, args.os_user, args.region):

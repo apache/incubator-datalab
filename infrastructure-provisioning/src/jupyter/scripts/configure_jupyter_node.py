@@ -132,3 +132,7 @@ if __name__ == "__main__":
     ensure_sbt(args.os_user)
     print("Install Breeze")
     add_breeze_library_local(args.os_user)
+    
+    #POST INSTALLATION PROCESS
+    print("Updating pyOpenSSL library")
+    update_pyopenssl_lib()

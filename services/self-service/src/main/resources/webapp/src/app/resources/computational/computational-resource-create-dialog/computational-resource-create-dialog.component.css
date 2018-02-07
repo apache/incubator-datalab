@@ -20,7 +20,8 @@ limitations under the License.
   text-align: right;
 }
 
-.checkbox-group .spot-details {
+.checkbox-group .spot-details,
+.checkbox-group .preemptible-details {
   height: 0;
   opacity: 0;
   visibility: hidden;
@@ -43,8 +44,12 @@ limitations under the License.
   padding: 25px 15px 0;
 }
 
-.checkbox-group .spot-details.show {
+.checkbox-group .spot-details.show,
+.checkbox-group .preemptible-details.show {
   height: 140px;
   visibility: visible;
   opacity: 1;
+}
+.checkbox-group .preemptible-details.show {
+  height: 60px;
 }

@@ -24,75 +24,39 @@ limitations under the License.
 
   <bubble-up #actions position="bottom" class="mt-5">
     <ul class="list-menu" id="scrolling">
-      <template [ngIf]="listStructure === 'array'">
-        <template let-item ngFor [ngForOf]="items" let-index="index">
+      <ng-template [ngIf]="listStructure === 'array'">
+        <ng-template let-item ngFor [ngForOf]="items" let-index="index">
           <li role="presentation" (click)="selectOptions($event, item, index)">
             <a role="menuitem"><span [innerHTML]="item[byField]"></span></a>
           </li>
-        </template>
+        </ng-template>
 
         <li *ngIf="items.length == 0">
           <a role="menuitem"><i class="material-icons">visibility_off</i>No items</a>
         </li>
-      </template>
-      <template [ngIf]="listStructure === 'json'">
+      </ng-template>
+      <ng-template [ngIf]="listStructure === 'json'">
         <li *ngFor="let item of (items | keys); let index = index">
           <span class="caption">{{item.key | underscoreless}}</span>
           <a *ngFor="let list_item of item.value" (click)="selectOptions($event, list_item, index)">
             <strong>{{list_item.size}}</strong> {{list_item[byField]}}
           </a>
         </li>
-      </template>
+      </ng-template>
 
-      <template [ngIf]="listStructure === 'list'">
-        <template let-item ngFor [ngForOf]="items" let-index="index">
+      <ng-template [ngIf]="listStructure === 'list'">
+        <ng-template let-item ngFor [ngForOf]="items" let-index="index">
           <li role="presentation">
             <a role="menuitem" (click)="selectOptions($event, item, index)">
               {{ map[item] }}
             </a>
           </li>
-        </template>
+        </ng-template>
 
         <li *ngIf="items.length == 0">
           <a role="menuitem"><i class="material-icons">visibility_off</i>No items</a>
         </li>
-      </template>
-    </ul> 
+      </ng-template>
+    </ul>
   </bubble-up>
-
-  <!-- <ul class="dropdown-menu" id="scrolling" aria-labelledby="dropdownMenu2">
-    <template [ngIf]="listStructure === 'array'">
-      <template let-item ngFor [ngForOf]="items" let-index="index">
-        <li role="presentation" (click)="selectOptions($event, item, index)">
-          <a role="menuitem"><span [innerHTML]="item[byField]"></span></a>
-        </li>
-      </template>
-
-      <li *ngIf="items.length == 0">
-        <a role="menuitem"><i class="material-icons">visibility_off</i>No items</a>
-      </li>
-    </template>
-    <template [ngIf]="listStructure === 'json'">
-      <li *ngFor="let item of (items | keys); let index = index">
-        <span class="caption">{{item.key | underscoreless}}</span>
-        <a *ngFor="let list_item of item.value" (click)="selectOptions($event, list_item, index)">
-          <strong>{{list_item.size}}</strong> {{list_item[byField]}}
-        </a>
-      </li>
-    </template>
-
-    <template [ngIf]="listStructure === 'list'">
-      <template let-item ngFor [ngForOf]="items" let-index="index">
-        <li role="presentation">
-          <a role="menuitem" (click)="selectOptions($event, item, index)">
-            {{ map[item] }}
-          </a>
-        </li>
-      </template>
-  
-        <li *ngIf="items.length == 0">
-          <a role="menuitem"><i class="material-icons">visibility_off</i>No items</a>
-        </li>
-    </template>
-  </ul> -->
 </div>

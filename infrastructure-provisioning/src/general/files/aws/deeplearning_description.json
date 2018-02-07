@@ -8,10 +8,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Deep Learning  1.8",
+      "template_name": "Deep Learning  1.9",
       "description": "Base image with Deep Learning and Jupyter",
       "environment_type": "exploratory",
-      "version": "deeplearning-1.8",
+      "version": "deeplearning-1.9",
       "vendor": "AWS"
     }
   ]

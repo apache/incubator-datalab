@@ -18,13 +18,11 @@ limitations under the License.
 
 package com.epam.dlab.automation.helper;
 
+import com.epam.dlab.automation.cloud.CloudException;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.amazonaws.services.ec2.model.Instance;
-import com.amazonaws.services.ec2.model.Tag;
-import com.epam.dlab.automation.cloud.aws.AmazonHelper;
 
 public class NamingHelper {
     private static AtomicInteger idCounter = new AtomicInteger(0);
@@ -33,6 +31,8 @@ public class NamingHelper {
     private static String ssnURL;
     private static String ssnIp;
     private static String ssnToken;
+
+    private NamingHelper(){}
     
     public static String getServiceBaseName() {
     	return serviceBaseName;
@@ -83,16 +83,40 @@ public class NamingHelper {
     }
     
     public static String getEdgeName() {
-    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge");
+        switch (ConfigPropertyValue.getCloudProvider()) {
+            case CloudProvider.AWS_PROVIDER:
+                return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge");
+            case CloudProvider.AZURE_PROVIDER:
+                return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge")
+                        .replace('_', '-');
+            default:
+                return null;
+        }
     }
     
     public static String getNotebookInstanceName(String notebookName) {
-    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
+        switch (ConfigPropertyValue.getCloudProvider()) {
+            case CloudProvider.AWS_PROVIDER:
+                return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
+            case CloudProvider.AZURE_PROVIDER:
+                return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName)
+                        .replace('_', '-');
+            default:
+                return null;
+        }
     }
     
     public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
-    	if("dataengine".equals(dataEngineType)) {
-    		return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m");
+        if("dataengine".equals(dataEngineType)) {
+            switch (ConfigPropertyValue.getCloudProvider()) {
+                case CloudProvider.AWS_PROVIDER:
+                    return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m");
+                case CloudProvider.AZURE_PROVIDER:
+                    return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m")
+                            .replace('_', '-');
+                default:
+                    return null;
+            }
     	}
     	else {
     		return getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType);
@@ -100,12 +124,27 @@ public class NamingHelper {
     }
     
     public static String getClusterInstanceNameForTestDES(String notebookName, String clusterName, String dataEngineType) {
-    	if("dataengine".equals(dataEngineType)) {
-    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
-    	}
-    	else {
-    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName);
-    	}
+        switch (ConfigPropertyValue.getCloudProvider()) {
+            case CloudProvider.AWS_PROVIDER:
+                if("dataengine".equals(dataEngineType)) {
+                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
+                }
+                else {
+                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName);
+                }
+            case CloudProvider.AZURE_PROVIDER:
+                if("dataengine".equals(dataEngineType)) {
+                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName)
+                            .replace('_', '-');
+                }
+                else {
+                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName)
+                            .replace('_', '-');
+                }
+            default:
+                return null;
+        }
+
     }
 
     public static String getNotebookContainerName(String notebookName, String action) {
@@ -131,39 +170,69 @@ public class NamingHelper {
     }
     
     public static String getStorageName() {
-    	return String.format("%s-%s-%s", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
+        switch (ConfigPropertyValue.getCloudProvider()) {
+            case CloudProvider.AWS_PROVIDER:
+                return String.format("%s-%s-%s", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+                        CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
+            case CloudProvider.AZURE_PROVIDER:
+                return String.format("%s-%s-%s", serviceBaseName, "shared",
+                        CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
+            default:
+                return null;
+        }
     }
     
-    public static String getClusterName(String clusterInstanceName) throws Exception {
-        return CloudHelper.getInstanceNameByTag(clusterInstanceName);
+    public static String getClusterName(String clusterInstanceName, boolean restrictionMode) throws CloudException {
+        return CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
     }
 
-    public static String getClusterName(String clusterInstanceName, String dataEngineType) throws Exception {
+    public static String getClusterName(String clusterInstanceName, String dataEngineType, boolean restrictionMode) throws CloudException {
         if ("dataengine".equals(dataEngineType)) {
             return clusterInstanceName;
         } else {
-            return CloudHelper.getInstanceNameByTag(clusterInstanceName);
+            return CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
         }
     }
 
     public static String getNotebookTestTemplatesPath(String notebookName){
         if(notebookName.contains("deeplearning")){
-            return "test_templates/deeplearning";
+            return "test_templates/deeplearning/";
         }
         else if(notebookName.contains("jupyter")){
-            return "test_templates/jupyter";
+            return "test_templates/jupyter/";
         }
         else if(notebookName.contains("rstudio")){
-            return "test_templates/rstudio";
+            return "test_templates/rstudio/";
         }
         else if(notebookName.contains("tensor")){
-            return "test_templates/tensor";
+            return "test_templates/tensor/";
         }
         else if(notebookName.contains("zeppelin")){
-            return "test_templates/zeppelin";
+            return "test_templates/zeppelin/";
         }
-        else return null;
+        else return "";
 
     }
+
+    public static String getNotebookType(String notebookName){
+        if(notebookName.contains("deeplearning")){
+            return "deeplearning/";
+        }
+        else if(notebookName.contains("jupyter")){
+            return "jupyter/";
+        }
+        else if(notebookName.contains("rstudio")){
+            return "rstudio/";
+        }
+        else if(notebookName.contains("tensor")){
+            return "tensor/";
+        }
+        else if(notebookName.contains("zeppelin")){
+            return "zeppelin/";
+        }
+        else return "";
+
+    }
+
 
 }

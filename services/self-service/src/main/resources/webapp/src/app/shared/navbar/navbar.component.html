@@ -19,18 +19,18 @@ limitations under the License.
 <div class="nav-bar">
   <div class="menu-area">
 
-    <button class="hamburger" [mdMenuTriggerFor]="menu">
+    <button class="hamburger" [matMenuTriggerFor]="menu">
       <span class="line"></span>
       <span class="line"></span>
       <span class="line"></span>
     </button>
 
     <nav role="navigation">
-      <md-menu #menu="mdMenu" [overlapTrigger]="false">
-        <a class="nav-item" md-menu-item [routerLink]="['/resources_list']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">List of Resources</a>
-        <a class="nav-item" md-menu-item [routerLink]="['/environment_health_status']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Health Status</a>
-        <a class="nav-item" md-menu-item [routerLink]="['/reporting']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Reporting</a>
-      </md-menu>
+      <mat-menu #menu="matMenu" [overlapTrigger]="false">
+        <a class="nav-item" mat-menu-item [routerLink]="['/resources_list']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">List of Resources</a>
+        <a class="nav-item" mat-menu-item [routerLink]="['/environment_health_status']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Environment Health Status</a>
+        <a *ngIf="PROVIDER !== 'gcp'" class="nav-item" mat-menu-item [routerLink]="['/reporting']" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">Reporting</a>
+      </mat-menu>
     </nav>
     <a [routerLink]="['/resources_list']" class="navbar-logo">
       <img src="assets/img/logo-nav.png" alt="">
@@ -42,7 +42,8 @@ limitations under the License.
       <span class="material-icons" ngClass="{{healthStatus || ''}}">radio_button_checked</span>
     </a>
     <button class="btn btn-logout" (click)="logout_btnClick()">
-      Log out <span class="user-name">{{currentUserName}}</span>
+      Log out
+      <span class="user-name">{{currentUserName}}</span>
     </button>
   </div>
 </div>

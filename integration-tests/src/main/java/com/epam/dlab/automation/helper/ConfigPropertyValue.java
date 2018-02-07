@@ -78,6 +78,7 @@ public class ConfigPropertyValue {
     private static final String SSN_URL = "SSN_URL";
     private static final String SERVICE_BASE_NAME = "SERVICE_BASE_NAME";
     private static final String RUN_MODE_LOCAL = "RUN_MODE_LOCAL";
+    private static final String LOCALHOST_IP = "LOCALHOST_IP";
 
     private static String jenkinsBuildNumber;
 
@@ -188,6 +189,7 @@ public class ConfigPropertyValue {
 
         printProperty(USE_JENKINS);
         printProperty(RUN_MODE_LOCAL);
+        printProperty(LOCALHOST_IP);
 	}
     
     

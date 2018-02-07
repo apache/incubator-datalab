@@ -18,6 +18,7 @@ limitations under the License.
 
 package com.epam.dlab.automation.test;
 
+import com.epam.dlab.automation.helper.CloudHelper;
 import com.epam.dlab.automation.cloud.VirtualMachineStatusChecker;
 import com.epam.dlab.automation.docker.Docker;
 import com.epam.dlab.automation.helper.*;
@@ -82,7 +83,7 @@ public class TestServices {
 		LOGGER.info("Test time {} ms", testTimeMillis);
 	}
 
-	@Test(priority = 0)
+	@Test
 	public void runTest() throws Exception {
 		testJenkinsJob();
 		testLoginSsnService();
@@ -132,16 +133,16 @@ public class TestServices {
 
 		LOGGER.info("Check status of SSN node on {}: {}", cloudProvider.toUpperCase(), NamingHelper.getSsnName());
 
-		String publicSsnIp = CloudHelper.getInstancePublicIP(NamingHelper.getSsnName());
+		String publicSsnIp = CloudHelper.getInstancePublicIP(NamingHelper.getSsnName(), true);
 		LOGGER.info("Public IP is: {}", publicSsnIp);
-		String privateSsnIp = CloudHelper.getInstancePrivateIP(NamingHelper.getSsnName());
+		String privateSsnIp = CloudHelper.getInstancePrivateIP(NamingHelper.getSsnName(), true);
 		LOGGER.info("Private IP is: {}", privateSsnIp);
 		if(publicSsnIp == null || privateSsnIp == null){
-			Assert.fail("There is not any virtual machine in " + cloudProvider + " with tag " + NamingHelper.getSsnName());
+			Assert.fail("There is not any virtual machine in " + cloudProvider + " with name " + NamingHelper.getSsnName());
 			return;
 		}
 		NamingHelper.setSsnIp(PropertiesResolver.DEV_MODE ? publicSsnIp : privateSsnIp);
-        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getSsnName());
+        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getSsnName(), true);
 		LOGGER.info("{} instance state is running", cloudProvider.toUpperCase());
 
 		LOGGER.info("2. Waiting for SSN service ...");
@@ -227,7 +228,7 @@ public class TestServices {
 		final String nodePrefix = ConfigPropertyValue.getUsernameSimple();
 		Docker.checkDockerStatus(nodePrefix + "_create_edge_", NamingHelper.getSsnIp());
 
-		VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getEdgeName());
+		VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getEdgeName(), true);
 
 		final String ssnExpEnvURL = NamingHelper.getSelfServiceURL(ApiPath.EXP_ENVIRONMENT);
 		LOGGER.info("   SSN exploratory environment URL is {}", ssnExpEnvURL);

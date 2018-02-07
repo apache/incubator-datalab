@@ -243,3 +243,7 @@ if __name__ == "__main__":
     ensure_additional_python_libs(args.os_user)
     print("Install Matplotlib.")
     ensure_matplot(args.os_user)
+    
+    #POST INSTALLATION PROCESS
+    print("Updating pyOpenSSL library")
+    update_pyopenssl_lib()

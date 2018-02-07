@@ -22,6 +22,7 @@ import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.ComputationalConfigure;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;

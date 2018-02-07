@@ -17,6 +17,7 @@
 package com.epam.dlab.utils;
 
 import com.epam.dlab.dto.aws.AwsCloudSettings;
+import com.epam.dlab.dto.gcp.GcpCloudSettings;
 import com.epam.dlab.dto.azure.AzureCloudSettings;
 import com.epam.dlab.dto.base.CloudSettings;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -58,6 +59,8 @@ public class CloudSettingsDeserializer extends JsonDeserializer<CloudSettings> {
                 return new AwsCloudSettings();
             } else if (entry.getKey().startsWith("azure")) {
                 return new AzureCloudSettings();
+            } else if (entry.getKey().startsWith("gcp")){
+                return new GcpCloudSettings();
             }
         }
         throw new IllegalArgumentException("Unknown properties " + properties);

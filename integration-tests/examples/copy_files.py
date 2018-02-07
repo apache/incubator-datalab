@@ -35,16 +35,16 @@ def download_dataset():
     try:
         for f in dataset_file:
             local('wget http://stat-computing.org/dataexpo/2009/{0} -O /tmp/{0}'.format(f))
-    except:
-        print('Failed to download test dataset')
+    except Exception as err:
+        print('Failed to download test dataset', str(err))
         sys.exit(1)
 
 def upload_aws():
     try:
         for f in dataset_file:
             local('aws s3 cp /tmp/{0} s3://{1}/ --sse AES256'.format(f, args.storage))
-    except:
-        print('Failed to upload test dataset to bucket')
+    except Exception as err:
+        print('Failed to upload test dataset to bucket', str(err))
         sys.exit(1)
 
 def upload_azure_datalake():
@@ -60,8 +60,8 @@ def upload_azure_datalake():
             multithread.ADLUploader(datalake_client,
                                     lpath='/tmp/{0}'.format(f),
                                     rpath='{0}/{1}'.format(args.storage, f))
-    except:
-        print('Failed to upload test dataset to datalake store')
+    except Exception as err:
+        print('Failed to upload test dataset to datalake store', str(err))
         sys.exit(1)
 
 def upload_azure_blob():
@@ -70,21 +70,24 @@ def upload_azure_blob():
         from azure.storage.blob import BlockBlobService
         from azure.common.client_factory import get_client_from_auth_file
         storage_client = get_client_from_auth_file(StorageManagementClient)
-        resource_group_name = args.storage.split('-container')[0]
+        resource_group_name = ''
+        for i in storage_client.storage_accounts.list():
+            if args.storage.replace('container', 'storage') == str(i.tags.get('Name')):
+                resource_group_name = str(i.tags.get('SBN'))
         secret_key = storage_client.storage_accounts.list_keys(resource_group_name, args.azure_storage_account).keys[0].value
         block_blob_service = BlockBlobService(account_name=args.azure_storage_account, account_key=secret_key)
         for f in dataset_file:
             block_blob_service.create_blob_from_path(args.storage, f, '/tmp/{0}'.format(f))
-    except:
-        print('Failed to upload test dataset to blob storage')
+    except Exception as err:
+        print('Failed to upload test dataset to blob storage', str(err))
         sys.exit(1)
 
 def upload_gcp():
     try:
         for f in dataset_file:
             local('gsutil -m cp /tmp/{0} gs://{1}/'.format(f, args.storage))
-    except:
-        print('Failed to upload test dataset to bucket')
+    except Exception as err:
+        print('Failed to upload test dataset to bucket', str(err))
         sys.exit(1)
 
 if __name__ == "__main__":

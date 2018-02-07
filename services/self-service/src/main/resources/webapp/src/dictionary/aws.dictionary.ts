@@ -31,8 +31,7 @@ export const NAMING_CONVENTION = {
     'master_node_shape': 'master_node_shape',
     'slave_node_shape': 'slave_node_shape',
     'total_instance_number': 'total_instance_number',
-
-    'spot_instance': 'Spot instance ',
+    'spot_instance': 'Spot instance',
     'billing': {
         'resourceName': 'resource_name',
         'cost': 'cost',
