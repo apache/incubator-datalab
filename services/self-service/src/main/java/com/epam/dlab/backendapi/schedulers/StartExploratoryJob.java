@@ -17,29 +17,23 @@
 package com.epam.dlab.backendapi.schedulers;
 
 import com.epam.dlab.backendapi.dao.SchedulerJobsDAO;
-import com.epam.dlab.dto.SchedulerJobDTO;
+import com.fiestacabin.dropwizard.quartz.Scheduled;
 import com.google.inject.Inject;
-import de.spinscale.dropwizard.jobs.Job;
-import de.spinscale.dropwizard.jobs.annotations.Every;
+import lombok.extern.slf4j.Slf4j;
+import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-@Every("30s")
-public class StartExploratoryJob extends Job {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StartExploratoryJob.class);
+@Slf4j
+@Scheduled(interval = 5)
+public class StartExploratoryJob implements Job {
 
     @Inject
-    private SchedulerJobsDAO schedulerJobsDAO;
+    private SchedulerJobsDAO dao;
 
     @Override
-    public void doJob(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        LOGGER.info("Start exploratory job in progress...");
-        LOGGER.info("Equals null: {}", schedulerJobsDAO == null);
-        SchedulerJobDTO doc = schedulerJobsDAO.fetchSingleSchedulerJobByUserAndExploratory("test", "deep_1");
-        LOGGER.info("All scheduler jobs: {}", doc);
-
+    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        log.info("===============JOB EXECUTION==============");
     }
 }

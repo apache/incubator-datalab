@@ -19,22 +19,16 @@ package com.epam.dlab.backendapi;
 import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
-import com.epam.dlab.backendapi.modules.AwsSelfServiceModule;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
-import com.epam.dlab.backendapi.schedulers.StartExploratoryJob;
-import com.epam.dlab.backendapi.schedulers.StopExploratoryJob;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
 import com.epam.dlab.rest.mappers.RuntimeExceptionMapper;
 import com.epam.dlab.utils.ServiceUtils;
+import com.fiestacabin.dropwizard.quartz.ManagedScheduler;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.hubspot.dropwizard.guice.GuiceBundle;
-import de.spinscale.dropwizard.jobs.GuiceJobsBundle;
-import de.spinscale.dropwizard.jobs.Job;
-import de.spinscale.dropwizard.jobs.JobsBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
@@ -74,18 +68,6 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         bootstrap.addBundle(new TemplateConfigBundle(
                 new TemplateConfigBundleConfiguration().fileIncludePath(ServiceUtils.getConfPath())
         ));
-        GuiceBundle guiceBundle = GuiceBundle.<SelfServiceApplicationConfiguration>newBuilder()
-                .addModule(new AwsSelfServiceModule())
-                .enableAutoConfig( getClass().getPackage().getName() )
-                .setConfigClass( SelfServiceApplicationConfiguration.class )
-                .build();
-        bootstrap.addBundle( guiceBundle );
-        GuiceJobsBundle guiceJobsBundle = new GuiceJobsBundle(
-                guiceBundle.getInjector() );
-        bootstrap.addBundle( guiceJobsBundle );
-        Job startExploratorySchedulerJob = new StartExploratoryJob();
-        Job stopExploratorySchedulerJob = new StopExploratoryJob();
-        bootstrap.addBundle(new JobsBundle(startExploratorySchedulerJob, stopExploratorySchedulerJob));
 
     }
 
@@ -100,6 +82,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
         environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
         environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
+        environment.lifecycle().manage(injector.getInstance(ManagedScheduler.class));
 
         JerseyEnvironment jersey = environment.jersey();
         jersey.register(new RuntimeExceptionMapper());
@@ -128,4 +111,6 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         jersey.register(injector.getInstance(GitCredsCallback.class));
         jersey.register(injector.getInstance(SchedulerJobsResource.class));
     }
+
+
 }

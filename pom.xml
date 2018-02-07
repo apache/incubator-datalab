@@ -130,18 +130,6 @@ limitations under the License.
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>de.spinscale.dropwizard</groupId>
-            <artifactId>dropwizard-jobs-guice</artifactId>
-            <version>${de.spinscale.dropwizard.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.hubspot.dropwizard</groupId>
-            <artifactId>dropwizard-guice</artifactId>
-            <version>${com.hubspot.dropwizard.version}</version>
-        </dependency>
-
 
     </dependencies>
 

@@ -86,6 +86,12 @@
             <artifactId>jersey-media-multipart</artifactId>
             <version>${org.glassfish.jersey.media.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.fiestacabin.dropwizard.quartz</groupId>
+            <artifactId>dropwizard-quartz</artifactId>
+            <version>0.7.1</version>
+        </dependency>
     </dependencies>
 
     <build>
