@@ -18,10 +18,14 @@ package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.ModuleBase;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.dao.BackupDao;
+import com.epam.dlab.backendapi.dao.BackupDaoImpl;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDaoImpl;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.BackupService;
+import com.epam.dlab.backendapi.service.BackupServiceImpl;
 import com.epam.dlab.backendapi.service.ImageExploratoryService;
 import com.epam.dlab.backendapi.service.ImageExploratoryServiceImpl;
 import com.epam.dlab.backendapi.util.RequestBuilder;
@@ -57,5 +61,7 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
                 .toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
         bind(ImageExploratoryService.class).to(ImageExploratoryServiceImpl.class);
         bind(ImageExploratoryDao.class).to(ImageExploratoryDaoImpl.class);
+        bind(BackupService.class).to(BackupServiceImpl.class);
+        bind(BackupDao.class).to(BackupDaoImpl.class);
     }
 }

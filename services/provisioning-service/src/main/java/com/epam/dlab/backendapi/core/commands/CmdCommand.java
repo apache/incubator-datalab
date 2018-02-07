@@ -18,6 +18,6 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.core.commands;
 
-public interface DockerCommand {
+public interface CmdCommand {
     String toCMD();
 }

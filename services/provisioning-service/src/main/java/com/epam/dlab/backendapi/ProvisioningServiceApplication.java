@@ -78,6 +78,7 @@ public class ProvisioningServiceApplication extends Application<ProvisioningServ
         jersey.register(injector.getInstance(LibraryResource.class));
         jersey.register(injector.getInstance(InfrastructureResource.class));
         jersey.register(injector.getInstance(ImageResource.class));
+        jersey.register(injector.getInstance(BackupResource.class));
 
     }
 }

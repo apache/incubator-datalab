@@ -64,7 +64,7 @@ public class LibListCallbackHandler extends ResourceCallbackHandler<LibListStatu
     }
 
     @Override
-    protected LibListStatusDTO parseOutResponse(JsonNode resultNode, LibListStatusDTO status) throws DlabException {
+    protected LibListStatusDTO parseOutResponse(JsonNode resultNode, LibListStatusDTO status) {
         if (UserInstanceStatus.FAILED == UserInstanceStatus.of(status.getStatus())) {
             return status;
         }

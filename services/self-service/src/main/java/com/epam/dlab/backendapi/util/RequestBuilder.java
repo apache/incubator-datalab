@@ -20,6 +20,7 @@ import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
@@ -41,6 +42,7 @@ import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStartAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryActionStopAzure;
 import com.epam.dlab.dto.azure.exploratory.ExploratoryCreateAzure;
 import com.epam.dlab.dto.azure.keyload.UploadFileAzure;
+import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.base.CloudSettings;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
@@ -346,7 +348,6 @@ public class RequestBuilder {
     @SuppressWarnings("unchecked")
     public static <T extends LibraryInstallDTO> T newLibInstall(UserInfo userInfo, UserInstanceDTO userInstance,
                                                                 UserComputationalResource computationalResource) {
-
         switch (cloudProvider()) {
             case AWS:
             case AZURE:
@@ -527,6 +528,21 @@ public class RequestBuilder {
             default:
                 throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
         }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public static <T extends EnvBackupDTO> T newBackupCreate(BackupFormDTO backupFormDTO, String id) {
+
+        return (T) EnvBackupDTO.builder()
+                .configFiles(backupFormDTO.getConfigFiles())
+                .certificates(backupFormDTO.getCertificates())
+                .keys(backupFormDTO.getKeys())
+                .jars(backupFormDTO.getJars())
+                .databaseBackup(backupFormDTO.isDatabaseBackup())
+                .logsBackup(backupFormDTO.isLogsBackup())
+                .id(id)
+                .build();
     }
 
     private static CloudProvider cloudProvider() {

@@ -1,38 +1,25 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+ Copyright (c) 2016, EPAM SYSTEMS INC
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 
-****************************************************************************/
+ ****************************************************************************/
 
 package com.epam.dlab.backendapi.core.commands;
 
-import java.io.*;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-
-import com.epam.dlab.cloud.CloudProvider;
-import com.google.common.collect.Lists;
-import com.google.common.io.ByteStreams;
-import org.apache.commons.codec.Charsets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.epam.dlab.UserInstanceStatus;
+import com.epam.dlab.cloud.CloudProvider;
 import com.epam.dlab.dto.exploratory.LibInstallDTO;
 import com.epam.dlab.dto.exploratory.LibStatus;
 import com.epam.dlab.dto.status.EnvResource;
@@ -45,8 +32,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
+import org.apache.commons.codec.Charsets;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.net.URL;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class CommandExecutorMockAsync implements Supplier<Boolean> {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandExecutorMockAsync.class);
@@ -114,57 +114,67 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
         DockerAction action = DockerAction.of(parser.getAction());
         LOGGER.debug("Action is {}", action);
 
-        if (action == null) {
-            throw new DlabException("Docker action not defined");
-        }
-
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-        }
-
-        try {
-            switch (action) {
-                case DESCRIBE:
-                    describe();
-                    break;
-                case CREATE:
-                case START:
-                case STOP:
-                case TERMINATE:
-                case GIT_CREDS:
-                case CREATE_IMAGE:
-                    action(user, action);
-                    break;
-                case CONFIGURE:
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                    }
-                    action(user, action);
-                    break;
-                case STATUS:
-                    parser.getVariables().put("list_resources", getResponseStatus(true));
-                    action(user, action);
-                    break;
-                case LIB_LIST:
-                    action(user, action);
-                    copyFile(String.format("mock_response/%s/notebook_lib_list_pkgs.json", cloudProvider.getName()),
-						"notebook_lib_list_pkgs.json", parser.getResponsePath());
-                    break;
-                case LIB_INSTALL:
-                    parser.getVariables().put("lib_install", getResponseLibInstall(true));
-                    action(user, action);
-                    break;
-                default:
-                    break;
+        if (parser.isDockerCommand()) {
+            if (action == null) {
+                throw new DlabException("Docker action not defined");
             }
-        } catch (Exception e) {
-            String msg = "Cannot execute command for user " + user + " with UUID " + uuid + ". " +
-                    e.getLocalizedMessage();
-            LOGGER.error(msg, e);
-            throw new DlabException(msg, e);
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                LOGGER.error("InterruptedException occurred: {}", e.getMessage());
+            }
+
+            try {
+                switch (action) {
+                    case DESCRIBE:
+                        describe();
+                        break;
+                    case CREATE:
+                    case START:
+                    case STOP:
+                    case TERMINATE:
+                    case GIT_CREDS:
+                    case CREATE_IMAGE:
+                        action(user, action);
+                        break;
+                    case CONFIGURE:
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            LOGGER.error("InterruptedException occurred: {}", e.getMessage());
+                        }
+                        action(user, action);
+                        break;
+                    case STATUS:
+                        parser.getVariables().put("list_resources", getResponseStatus(true));
+                        action(user, action);
+                        break;
+                    case LIB_LIST:
+                        action(user, action);
+                        copyFile(String.format("mock_response/%s/notebook_lib_list_pkgs.json", cloudProvider.getName()),
+                                "notebook_lib_list_pkgs.json", parser.getResponsePath());
+                        break;
+                    case LIB_INSTALL:
+                        parser.getVariables().put("lib_install", getResponseLibInstall(true));
+                        action(user, action);
+                        break;
+                    default:
+                        break;
+                }
+            } catch (Exception e) {
+                String msg = "Cannot execute command for user " + user + " with UUID " + uuid + ". " +
+                        e.getLocalizedMessage();
+                LOGGER.error(msg, e);
+                throw new DlabException(msg, e);
+            }
+        } else {
+            final String scriptName = StringUtils.substringBefore(Paths.get(parser.getCommand()).getFileName().toString(), ".");
+            String templateFileName = "mock_response/" + cloudProvider.getName() + '/' + scriptName + JSON_FILE_ENDING;
+            responseFileName = getAbsolutePath(parser.getResponsePath(), scriptName + user + "_" + parser.getRequestId() + JSON_FILE_ENDING);
+            setResponse(templateFileName, responseFileName);
         }
+
     }
 
     private static void copyFile(String sourceFilePath, String destinationFileName, String destinationFolder) throws IOException {
@@ -315,7 +325,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
     /**
      * Return the section of resource statuses for docker action status.
      */
-    private String getResponseLibInstall(boolean isSucces) {
+    private String getResponseLibInstall(boolean isSuccess) {
         List<LibInstallDTO> list;
         try {
             JsonNode json = MAPPER.readTree(parser.getJson());
@@ -327,7 +337,7 @@ public class CommandExecutorMockAsync implements Supplier<Boolean> {
         }
 
         for (LibInstallDTO lib : list) {
-            if (isSucces) {
+            if (isSuccess) {
                 lib.setStatus(LibStatus.INSTALLED.toString());
             } else {
                 lib.setStatus(LibStatus.FAILED.toString());

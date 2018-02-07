@@ -42,6 +42,8 @@ import static org.mockito.Mockito.when;
  */
 public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplicationConfiguration> implements SecurityAPI, DockerAPI {
 
+    public static final String TOKEN = "token123";
+
     /**
      * Instantiates an application configuration of Provisioning Service for tests.
      *
@@ -66,9 +68,9 @@ public class ProvisioningDevModule extends ModuleBase<ProvisioningServiceApplica
      */
     private RESTService createAuthenticationService() {
         RESTService result = mock(RESTService.class);
-        when(result.post(eq(LOGIN), any(), any())).then(invocationOnMock -> Response.ok("token123").build());
-        when(result.post(eq(GET_USER_INFO), eq("token123"), eq(UserInfo.class)))
-                .thenReturn(new UserInfo("test", "token123"));
+        when(result.post(eq(LOGIN), any(), any())).then(invocationOnMock -> Response.ok(TOKEN).build());
+        when(result.post(eq(GET_USER_INFO), eq(TOKEN), eq(UserInfo.class)))
+                .thenReturn(new UserInfo("test", TOKEN));
         return result;
     }
 }
