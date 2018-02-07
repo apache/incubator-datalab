@@ -17,6 +17,7 @@
 package com.epam.dlab.backendapi.schedulers;
 
 import com.epam.dlab.backendapi.dao.SchedulerJobsDAO;
+import com.epam.dlab.dto.SchedulerJobDTO;
 import com.fiestacabin.dropwizard.quartz.Scheduled;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -24,16 +25,20 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import java.util.concurrent.TimeUnit;
+
 
 @Slf4j
-@Scheduled(interval = 5)
+@Scheduled(interval = 30, unit = TimeUnit.SECONDS)
 public class StartExploratoryJob implements Job {
 
     @Inject
-    private SchedulerJobsDAO dao;
+    private SchedulerJobsDAO schedulerJobsDAO;
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         log.info("===============JOB EXECUTION==============");
+        SchedulerJobDTO doc = schedulerJobsDAO.fetchSingleSchedulerJobByUserAndExploratory("test", "deep_1");
+        log.info("All scheduler jobs: {}", doc);
     }
 }
