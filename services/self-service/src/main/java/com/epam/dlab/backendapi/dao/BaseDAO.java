@@ -103,7 +103,7 @@ public class BaseDAO implements MongoCollections {
                 .append(TIMESTAMP, new Date()));
     	} catch (MongoException e) {
     		LOGGER.warn("Insert to Mongo DB fails: {}", e.getLocalizedMessage(), e);
-    		throw new DlabException("Insert to Mongo DB fails: " + e.getLocalizedMessage(), e);
+    		throw new DlabException("Insert to Mongo DB failed: " + e.getLocalizedMessage(), e);
     	}
     }
 
