@@ -48,20 +48,14 @@ if __name__ == "__main__":
         ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
         ssn_ami_id = get_ami_id(ssn_ami_name)
         policy_path = '/root/files/ssn_policy.json'
-        vpc_cidr = '172.31.0.0/16'
+        vpc_cidr = os.environ['conf_vpc_cidr']
         sg_name = instance_name + '-SG'
         pre_defined_vpc = False
         pre_defined_subnet = False
         pre_defined_sg = False
         billing_enabled = True
         dlab_ssh_user = os.environ['conf_os_user']
-        private_subnets = True
-
-        try:
-            if os.environ['conf_user_subnets_range'] == '':
-                raise KeyError
-        except KeyError:
-            private_subnets = False
+        network_type = os.environ['conf_network_type']
 
         try:
             if os.environ['aws_vpc_id'] == '':
@@ -109,7 +103,7 @@ if __name__ == "__main__":
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
 
-        if private_subnets:
+        if network_type == 'private':
             instance_hostname = get_instance_ip_address(tag_name, instance_name).get('Private')
         else:
             instance_hostname = get_instance_hostname(tag_name, instance_name)

@@ -67,13 +67,12 @@ if __name__ == "__main__":
     edge_conf['dataengine_slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
                                                         + os.environ['edge_user_name'] + '-dataengine-slave-sg'
     edge_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
-    edge_conf['private_subnets'] = True
+    edge_conf['network_type'] = os.environ['conf_network_type']
 
     try:
         if os.environ['conf_user_subnets_range'] == '':
             raise KeyError
     except KeyError:
-        edge_conf['private_subnets'] = False
         os.environ['conf_user_subnets_range'] = ''
 
     # FUSE in case of absence of user's key
@@ -447,7 +446,7 @@ if __name__ == "__main__":
         remove_s3('edge', os.environ['edge_user_name'])
         sys.exit(1)
 
-    if edge_conf['private_subnets']:
+    if edge_conf['network_type'] == 'public':
         try:
             logging.info('[ASSOCIATING ELASTIC IP]')
             print('[ASSOCIATING ELASTIC IP]')

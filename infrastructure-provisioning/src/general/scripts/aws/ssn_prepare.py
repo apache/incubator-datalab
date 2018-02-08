@@ -64,13 +64,7 @@ if __name__ == "__main__":
         vpc_cidr = os.environ['conf_vpc_cidr']
         allowed_ip_cidr = os.environ['conf_allowed_ip_cidr']
         sg_name = instance_name + '-SG'
-        private_subnets = True
-
-        try:
-            if os.environ['conf_user_subnets_range'] == '':
-                raise KeyError
-        except KeyError:
-            private_subnets = False
+        network_type = os.environ['conf_network_type']
 
         try:
             if os.environ['aws_vpc_id'] == '':
@@ -304,7 +298,7 @@ if __name__ == "__main__":
             remove_vpc(os.environ['aws_vpc_id'])
         sys.exit(1)
 
-    if private_subnets:
+    if network_type == 'public':
         try:
             logging.info('[ASSOCIATING ELASTIC IP]')
             print('[ASSOCIATING ELASTIC IP]')
