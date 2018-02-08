@@ -15,28 +15,48 @@
  */
 
 package com.epam.dlab.backendapi.schedulers;
-import com.epam.dlab.backendapi.dao.SchedulerJobsDAO;
-import com.epam.dlab.dto.SchedulerJobDTO;
+import com.epam.dlab.auth.UserInfoDAO;
+import com.epam.dlab.backendapi.service.ExploratoryServiceImpl;
+import com.epam.dlab.backendapi.service.SchedulerJobsService;
+import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.fiestacabin.dropwizard.quartz.Scheduled;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
-import java.util.concurrent.TimeUnit;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 @Slf4j
-@Scheduled(interval = 30, unit = TimeUnit.SECONDS)
+@Scheduled(interval = 10)
 public class StopExploratoryJob implements Job{
 
     @Inject
-    private SchedulerJobsDAO schedulerJobsDAO;
+    private SchedulerJobsService schedulerJobsService;
+
+    @Inject
+    private ExploratoryServiceImpl exploratoryService;
+
 
     @Override
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-//        log.info("===============JOB EXECUTION==============");
-//        SchedulerJobDTO doc = schedulerJobsDAO.fetchSingleSchedulerJobByUserAndExploratory("test", "deep_1");
-//        log.info("All scheduler jobs: {}", doc);
+    public void execute(JobExecutionContext jobExecutionContext){
+        LocalTime currentTime = LocalTime.now();
+        LocalTime currentTimeRounded = LocalTime.of(currentTime.getHour(), currentTime.getMinute());
+        List<SchedulerJobData> jobsToStop = schedulerJobsService.getSchedulerJobsForExploratoryAction(LocalDate.now(), currentTimeRounded, "stop");
+        if(!jobsToStop.isEmpty()){
+            log.info("Scheduler stop job is executing...");
+            log.info("Current time rounded: {} , current date: {}, current day of week: {}", currentTimeRounded, LocalDate.now(),
+                    LocalDate.now().getDayOfWeek());
+            log.info("Scheduler jobs for stopping: {}", jobsToStop.size());
+            for(SchedulerJobData jobData : jobsToStop){
+                log.info("Exploratory with name {} for user {} is stopping...", jobData.getExploratoryName(), jobData.getUser());
+//                exploratoryService.start(new UserInfo())
+            }
+
+        }
+
     }
 }
+

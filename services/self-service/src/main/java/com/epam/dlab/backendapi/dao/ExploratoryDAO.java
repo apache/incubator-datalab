@@ -49,9 +49,8 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 @Slf4j
 @Singleton
 public class ExploratoryDAO extends BaseDAO {
-    public static final String EXPLORATORY_ID = "exploratory_id";
+    static final String EXPLORATORY_ID = "exploratory_id";
     public static final String COMPUTATIONAL_RESOURCES = "computational_resources";
-    public static final String STATUS_RUNNING = "running";
 
     static final String EXPLORATORY_NAME = "exploratory_name";
     static final String UPTIME = "up_time";
@@ -72,13 +71,9 @@ public class ExploratoryDAO extends BaseDAO {
         return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName));
     }
 
-    static Bson runningExploratoryCondition(String user, String exploratoryName) {
+    private static Bson runningExploratoryCondition(String user, String exploratoryName) {
         return and(eq(USER, user),
                 and(eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, STATUS_RUNNING)));
-    }
-
-    static Bson runningCondition() {
-        return eq(STATUS, STATUS_RUNNING);
     }
 
     static Bson runningExploratoryAndComputationalCondition(String user, String exploratoryName, String computationalName) {
@@ -90,25 +85,11 @@ public class ExploratoryDAO extends BaseDAO {
 
     /**
      * Finds and returns the list of user resources.
-     *
      * @param user name
-     * @return
+     * @return list of user resources
      */
     public Iterable<Document> findExploratory(String user) {
         return find(USER_INSTANCES, eq(USER, user),
-                fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS,
-                        ExploratoryLibDAO.COMPUTATIONAL_LIBS,
-                        SCHEDULER_DATA)));
-    }
-
-    /**
-     * Finds and returns the list of user running resources.
-     *
-     * @param user name
-     * @return
-     */
-    public Iterable<Document> findRunningExploratories(String user) {
-        return find(USER_INSTANCES, and(eq(USER, user), runningCondition()),
                 fields(exclude(ExploratoryLibDAO.EXPLORATORY_LIBS,
                         ExploratoryLibDAO.COMPUTATIONAL_LIBS,
                         SCHEDULER_DATA)));

@@ -18,58 +18,52 @@ limitations under the License.
 
 package com.epam.dlab.backendapi.dao;
 
-import static com.mongodb.client.model.Aggregates.unwind;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
+import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.mongo.IsoDateModule;
+import com.epam.dlab.mongo.MongoService;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.inject.Inject;
+import com.mongodb.MongoException;
+import com.mongodb.client.*;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.epam.dlab.mongo.IsoDateModule;
-import com.epam.dlab.exceptions.DlabException;
-import com.epam.dlab.mongo.MongoService;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
-import com.mongodb.MongoException;
-import com.mongodb.client.AggregateIterable;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoIterable;
-import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.result.UpdateResult;
+import java.io.IOException;
+import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static com.mongodb.client.model.Aggregates.unwind;
 
 /** Implements the base API for Mongo database.
  */
 public class BaseDAO implements MongoCollections {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseDAO.class);
 
-    protected static final ObjectMapper MAPPER = new ObjectMapper()
+    private static final ObjectMapper MAPPER = new ObjectMapper()
             .configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true)
             .registerModule(new IsoDateModule())
             .registerModule(new JavaTimeModule());
 
-    public static final String FIELD_SET_DELIMETER = ".$.";
-    public static final String FIELD_PROJECTION_DELIMITER = "$";
+    static final String FIELD_SET_DELIMETER = ".$.";
+    private static final String FIELD_PROJECTION_DELIMITER = "$";
     public static final String ID = "_id";
-    public static final String SET = "$set";
+    static final String SET = "$set";
     public static final String USER = "user";
-    public static final String INSTANCE_ID = "instance_id";
+    protected static final String INSTANCE_ID = "instance_id";
     public static final String STATUS = "status";
     public static final String ERROR_MESSAGE = "error_message";
-    public static final String TIMESTAMP = "timestamp";
+    static final String TIMESTAMP = "timestamp";
+    static final String STATUS_RUNNING = "running";
+    static final String STATUS_STOPPED = "stopped";
+    static final String ACTION_START = "start";
 
     @Inject
     protected MongoService mongoService;
@@ -77,7 +71,7 @@ public class BaseDAO implements MongoCollections {
     /** Return <b>true</b> if collection exists.
      * @param name collection name.
      */
-    public boolean collectionExists(String name) {
+    boolean collectionExists(String name) {
         return mongoService.collectionExists(name);
     }
 
@@ -117,7 +111,7 @@ public class BaseDAO implements MongoCollections {
 
     /** Serializes the object and inserts into the collection.
      * @param collection collection name.
-     * @param supplier document.
+     * @param object for inserting to collection.
      * @exception DlabException
      */
     protected void insertOne(String collection, Object object) throws DlabException {
@@ -126,7 +120,7 @@ public class BaseDAO implements MongoCollections {
 
     /** Serializes the object and inserts into the collection.
      * @param collection collection name.
-     * @param supplier document.
+     * @param object for inserting to collection.
      * @param uuid unique id.
      * @exception DlabException
      */
@@ -235,8 +229,8 @@ public class BaseDAO implements MongoCollections {
      * @param collection collection name.
      * @param pipeline the aggregate pipeline.
      */
-    AggregateIterable<Document> aggregate(String collection,
-                                          List<? extends Bson> pipeline) {
+    private AggregateIterable<Document> aggregate(String collection,
+                                                  List<? extends Bson> pipeline) {
         return mongoService.getCollection(collection)
                 .aggregate(pipeline);
     }
@@ -293,7 +287,7 @@ public class BaseDAO implements MongoCollections {
         }
     }
 
-    /** Finds and returns one object as given class from the collection by condition.
+   /** Finds and returns one object as given class from the collection by condition.
      * @param collection collection name.
      * @param condition condition for search documents in collection.
      * @param clazz type of class for deserialization.
@@ -331,7 +325,7 @@ public class BaseDAO implements MongoCollections {
      * @param document element from database
      * @throws DlabException
      */
-    public <T> T convertFromDocument(Document document, Class<T> clazz) throws DlabException {
+    <T> T convertFromDocument(Document document, Class<T> clazz) throws DlabException {
         try {
             String json = document.toJson();
             return MAPPER.readValue(json, clazz);
@@ -357,7 +351,7 @@ public class BaseDAO implements MongoCollections {
         return unwind(FIELD_PROJECTION_DELIMITER + fieldName);
     }
 
-    static Object getDotted(Document d, String fieldName) {
+    private static Object getDotted(Document d, String fieldName) {
         if(fieldName.isEmpty()) {
             return null;
         }

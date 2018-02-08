@@ -19,9 +19,14 @@ package com.epam.dlab.backendapi.service;
 
 import com.epam.dlab.backendapi.dao.SchedulerJobsDAO;
 import com.epam.dlab.dto.SchedulerJobDTO;
+import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 @Slf4j
 @Singleton
@@ -33,6 +38,11 @@ public class SchedulerJobsService {
     @SuppressWarnings("unchecked")
     public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(String user, String exploratoryName) {
         return schedulerJobsDAO.fetchSingleSchedulerJobByUserAndExploratory(user, exploratoryName);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<SchedulerJobData> getSchedulerJobsForExploratoryAction(LocalDate date, LocalTime time, String actionType) {
+        return schedulerJobsDAO.getSchedulerJobsForAction(date, time, actionType);
     }
 
 }
