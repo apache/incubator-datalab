@@ -30,4 +30,6 @@ public class InfrastructureInfo {
     private Map<String, String> shared;
     @JsonProperty
     private Iterable<Document> exploratory;
+	@JsonProperty
+	private boolean billingEnabled;
 }
