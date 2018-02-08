@@ -85,9 +85,8 @@ public class BaseDAO implements MongoCollections {
     /** Inserts the document into the collection.
      * @param collection collection name.
      * @param supplier document.
-     * @exception DlabException
      */
-    protected void insertOne(String collection, Supplier<Document> supplier) throws DlabException {
+    protected void insertOne(String collection, Supplier<Document> supplier) {
         insertOne(collection, supplier, generateUUID());
     }
 
@@ -95,9 +94,8 @@ public class BaseDAO implements MongoCollections {
      * @param collection collection name.
      * @param document document.
      * @param uuid unique id.
-     * @exception DlabException
      */
-    protected void insertOne(String collection, Supplier<Document> document, String uuid) throws DlabException {
+    protected void insertOne(String collection, Supplier<Document> document, String uuid) {
     	try {
     		mongoService.getCollection(collection)
     			.insertOne(document.get()
@@ -112,9 +110,8 @@ public class BaseDAO implements MongoCollections {
     /** Serializes the object and inserts into the collection.
      * @param collection collection name.
      * @param object for inserting to collection.
-     * @exception DlabException
      */
-    protected void insertOne(String collection, Object object) throws DlabException {
+    protected void insertOne(String collection, Object object){
         insertOne(collection, object, generateUUID());
     }
 
@@ -122,9 +119,8 @@ public class BaseDAO implements MongoCollections {
      * @param collection collection name.
      * @param object for inserting to collection.
      * @param uuid unique id.
-     * @exception DlabException
      */
-    protected void insertOne(String collection, Object object, String uuid) throws DlabException {
+    protected void insertOne(String collection, Object object, String uuid) {
     	try {
     		mongoService.getCollection(collection)
     			.insertOne(convertToBson(object)
@@ -140,9 +136,8 @@ public class BaseDAO implements MongoCollections {
      * @param collection collection name.
      * @param condition condition for search documents in collection.
      * @param document document.
-     * @exception DlabException
      */
-    protected UpdateResult updateOne(String collection, Bson condition, Bson document) throws DlabException {
+    protected UpdateResult updateOne(String collection, Bson condition, Bson document) {
     	try {
     		return mongoService.getCollection(collection)
     			.updateOne(condition, document);
@@ -157,9 +152,8 @@ public class BaseDAO implements MongoCollections {
      * @param condition condition for search documents in collection.
      * @param document document.
      * @param isUpsert if <b>true</b> document will be updated or inserted.
-     * @exception DlabException
      */
-    protected void updateOne(String collection, Bson condition, Bson document, boolean isUpsert) throws DlabException {
+    protected void updateOne(String collection, Bson condition, Bson document, boolean isUpsert) {
     	try {
     		if (isUpsert) {
     			mongoService.getCollection(collection).updateOne(condition, document,
@@ -177,9 +171,8 @@ public class BaseDAO implements MongoCollections {
      * @param collection collection name.
      * @param condition condition for search documents in collection.
      * @param document document.
-     * @exception DlabException
      */
-    protected UpdateResult updateMany(String collection, Bson condition, Bson document) throws DlabException {
+    protected UpdateResult updateMany(String collection, Bson condition, Bson document) {
     	try {
         	return mongoService.getCollection(collection)
         		.updateMany(condition, document);
@@ -237,9 +230,8 @@ public class BaseDAO implements MongoCollections {
 
     /** Checks that the documents iterator have one document only.
      * @param documents documents
-     * @exception DlabException if documents iterator have more than one document.
      */
-    private Optional<Document> limitOne(MongoIterable<Document> documents) throws DlabException {
+    private Optional<Document> limitOne(MongoIterable<Document> documents) {
         Document first = documents.first();
         try (MongoCursor<Document> iterator = documents.iterator()) {
             if(iterator.hasNext()) {
@@ -257,7 +249,7 @@ public class BaseDAO implements MongoCollections {
      * @param condition condition for search documents in collection.
      * @exception DlabException if documents iterator have more than one document.
      */
-    protected Optional<Document> findOne(String collection, Bson condition) throws DlabException {
+    protected Optional<Document> findOne(String collection, Bson condition) {
         FindIterable<Document> found = find(collection, condition);
         return limitOne(found);
     }
@@ -270,16 +262,15 @@ public class BaseDAO implements MongoCollections {
      */
     protected Optional<Document> findOne(String collection,
                                Bson condition,
-                               Bson projection) throws DlabException {
+                               Bson projection) {
         FindIterable<Document> found = find(collection, condition, projection);
         return limitOne(found);
     }
 
     /** Serializes given object to document and returns it.
      * @param object object
-     * @throws DlabException
      */
-    protected Document convertToBson(Object object) throws DlabException {
+    Document convertToBson(Object object) {
         try {
             return Document.parse(MAPPER.writeValueAsString(object));
         } catch (IOException e) {
@@ -291,9 +282,8 @@ public class BaseDAO implements MongoCollections {
      * @param collection collection name.
      * @param condition condition for search documents in collection.
      * @param clazz type of class for deserialization.
-     * @exception DlabException if documents iterator have more than one document.
      */
-    protected <T> Optional<T> findOne(String collection, Bson condition, Class<T> clazz) throws DlabException {
+    protected <T> Optional<T> findOne(String collection, Bson condition, Class<T> clazz) {
         Optional<Document> doc = findOne(collection, condition);
         return doc.isPresent() ? Optional.ofNullable(convertFromDocument(doc.get(), clazz)) : Optional.empty();
     }
@@ -303,9 +293,8 @@ public class BaseDAO implements MongoCollections {
      * @param condition condition for search documents in collection.
      * @param projection document describing the fields in the collection to return.
      * @param clazz type of class for deserialization.
-     * @exception DlabException if documents iterator have more than one document.
      */
-    protected <T> Optional<T> findOne(String collection, Bson condition, Bson projection, Class<T> clazz) throws DlabException {
+    protected <T> Optional<T> findOne(String collection, Bson condition, Bson projection, Class<T> clazz) {
         Optional<Document> doc = findOne(collection, condition, projection);
         return doc.isPresent() ? Optional.ofNullable(convertFromDocument(doc.get(), clazz)) : Optional.empty();
     }
@@ -316,16 +305,15 @@ public class BaseDAO implements MongoCollections {
      * @exception DlabException if have more than one aggregated documents.
      */
     Optional<Document> aggregateOne(String collection,
-                                          List<? extends Bson> pipeline) throws DlabException {
+                                          List<? extends Bson> pipeline) {
         MongoIterable<Document> found = aggregate(collection, pipeline);
         return limitOne(found);
     }
 
     /** Deserializes given document to object and returns it.
      * @param document element from database
-     * @throws DlabException
      */
-    <T> T convertFromDocument(Document document, Class<T> clazz) throws DlabException {
+    <T> T convertFromDocument(Document document, Class<T> clazz) {
         try {
             String json = document.toJson();
             return MAPPER.readValue(json, clazz);
