@@ -51,7 +51,6 @@ if __name__ == "__main__":
     edge_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
     edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
     edge_conf['edge_private_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Private')
-    edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
     edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
 
     instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])

@@ -66,7 +66,14 @@ if __name__ == "__main__":
                                                          + os.environ['edge_user_name'] + '-dataengine-master-sg'
     edge_conf['dataengine_slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
                                                         + os.environ['edge_user_name'] + '-dataengine-slave-sg'
-    edge_conf['all_ip_cidr'] = '0.0.0.0/0'
+    edge_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
+    edge_conf['private_subnets'] = True
+
+    try:
+        if os.environ['conf_user_subnets_range'] == '':
+            raise KeyError
+    except KeyError:
+        edge_conf['private_subnets'] = False
 
     # FUSE in case of absence of user's key
     fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
@@ -140,7 +147,7 @@ if __name__ == "__main__":
             {
                 "PrefixListIds": [],
                 "FromPort": 22,
-                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
+                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
                 "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
         ]
@@ -214,19 +221,19 @@ if __name__ == "__main__":
             {
                 "PrefixListIds": [],
                 "FromPort": 53,
-                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
+                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
                 "ToPort": 53, "IpProtocol": "udp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
                 "FromPort": 80,
-                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
+                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
                 "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
                 "FromPort": 443,
-                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
+                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
                 "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
@@ -305,7 +312,7 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "tcp",
-                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
+                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
                 "FromPort": 443,
                 "ToPort": 443,
                 "UserIdGroupPairs": [],
@@ -438,33 +445,33 @@ if __name__ == "__main__":
         remove_s3('edge', os.environ['edge_user_name'])
         sys.exit(1)
 
-
-    try:
-        logging.info('[ASSOCIATING ELASTIC IP]')
-        print('[ASSOCIATING ELASTIC IP]')
-        edge_conf['edge_id'] = get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name'])
+    if edge_conf['private_subnets']:
         try:
-            edge_conf['elastic_ip'] = os.environ['edge_elastic_ip']
-        except:
-            edge_conf['elastic_ip'] = 'None'
-        params = "--elastic_ip {} --edge_id {}".format(edge_conf['elastic_ip'], edge_conf['edge_id'])
-        try:
-            local("~/scripts/{}.py {}".format('edge_associate_elastic_ip', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed to associate elastic ip.", str(err))
-        try:
-            edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
-            edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
-        except:
-            print("No Elastic IPs to release!")
-        remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
-        remove_all_iam_resources('notebook', os.environ['edge_user_name'])
-        remove_all_iam_resources('edge', os.environ['edge_user_name'])
-        remove_sgroups(edge_conf['dataengine_instances_name'])
-        remove_sgroups(edge_conf['notebook_instance_name'])
-        remove_sgroups(edge_conf['instance_name'])
-        remove_s3('edge', os.environ['edge_user_name'])
-        sys.exit(1)
+            logging.info('[ASSOCIATING ELASTIC IP]')
+            print('[ASSOCIATING ELASTIC IP]')
+            edge_conf['edge_id'] = get_instance_by_name(edge_conf['tag_name'], edge_conf['instance_name'])
+            try:
+                edge_conf['elastic_ip'] = os.environ['edge_elastic_ip']
+            except:
+                edge_conf['elastic_ip'] = 'None'
+            params = "--elastic_ip {} --edge_id {}".format(edge_conf['elastic_ip'], edge_conf['edge_id'])
+            try:
+                local("~/scripts/{}.py {}".format('edge_associate_elastic_ip', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+        except Exception as err:
+            append_result("Failed to associate elastic ip.", str(err))
+            try:
+                edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
+                edge_conf['allocation_id'] = get_allocation_id_by_elastic_ip(edge_conf['edge_public_ip'])
+            except:
+                print("No Elastic IPs to release!")
+            remove_ec2(edge_conf['tag_name'], edge_conf['instance_name'])
+            remove_all_iam_resources('notebook', os.environ['edge_user_name'])
+            remove_all_iam_resources('edge', os.environ['edge_user_name'])
+            remove_sgroups(edge_conf['dataengine_instances_name'])
+            remove_sgroups(edge_conf['notebook_instance_name'])
+            remove_sgroups(edge_conf['instance_name'])
+            remove_s3('edge', os.environ['edge_user_name'])
+            sys.exit(1)

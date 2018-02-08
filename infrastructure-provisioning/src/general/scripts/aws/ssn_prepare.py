@@ -61,9 +61,16 @@ if __name__ == "__main__":
         ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
         ssn_ami_id = get_ami_id(ssn_ami_name)
         policy_path = '/root/files/ssn_policy.json'
-        vpc_cidr = '172.31.0.0/16'
-        all_ip_cidr = '0.0.0.0/0'
+        vpc_cidr = os.environ['conf_vpc_cidr']
+        allowed_ip_cidr = os.environ['conf_allowed_ip_cidr']
         sg_name = instance_name + '-SG'
+        private_subnets = True
+
+        try:
+            if os.environ['conf_user_subnets_range'] == '':
+                raise KeyError
+        except KeyError:
+            private_subnets = False
 
         try:
             if os.environ['aws_vpc_id'] == '':
@@ -125,19 +132,19 @@ if __name__ == "__main__":
                     {
                         "PrefixListIds": [],
                         "FromPort": 80,
-                        "IpRanges": [{"CidrIp": all_ip_cidr}],
+                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
                         "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": 8080,
-                        "IpRanges": [{"CidrIp": all_ip_cidr}],
+                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
                         "ToPort": 8080, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": 22,
-                        "IpRanges": [{"CidrIp": all_ip_cidr}],
+                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
                         "ToPort": 22, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
@@ -149,13 +156,13 @@ if __name__ == "__main__":
                     {
                         "PrefixListIds": [],
                         "FromPort": 443,
-                        "IpRanges": [{"CidrIp": all_ip_cidr}],
+                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
                         "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
                     },
                     {
                         "PrefixListIds": [],
                         "FromPort": -1,
-                        "IpRanges": [{"CidrIp": all_ip_cidr}],
+                        "IpRanges": [{"CidrIp": allowed_ip_cidr}],
                         "ToPort": -1, "IpProtocol": "icmp", "UserIdGroupPairs": []
                     },
                     {
@@ -172,7 +179,7 @@ if __name__ == "__main__":
                     }
                 ]
                 egress_sg_rules_template = [
-                    {"IpProtocol": "-1", "IpRanges": [{"CidrIp": all_ip_cidr}], "UserIdGroupPairs": [], "PrefixListIds": []}
+                    {"IpProtocol": "-1", "IpRanges": [{"CidrIp": allowed_ip_cidr}], "UserIdGroupPairs": [], "PrefixListIds": []}
                 ]
                 params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {} --ssn {}". \
                     format(sg_name, os.environ['aws_vpc_id'], json.dumps(ingress_sg_rules_template), json.dumps(egress_sg_rules_template), service_base_name, tag_name, False, True)
@@ -297,32 +304,33 @@ if __name__ == "__main__":
             remove_vpc(os.environ['aws_vpc_id'])
         sys.exit(1)
 
-    try:
-        logging.info('[ASSOCIATING ELASTIC IP]')
-        print('[ASSOCIATING ELASTIC IP]')
-        ssn_id = get_instance_by_name(tag_name, instance_name)
+    if private_subnets:
         try:
-            elastic_ip = os.environ['ssn_elastic_ip']
-        except:
-            elastic_ip = 'None'
-        params = "--elastic_ip {} --ssn_id {}".format(elastic_ip, ssn_id)
-        try:
-            local("~/scripts/{}.py {}".format('ssn_associate_elastic_ip', params))
-        except:
-            traceback.print_exc()
-            raise Exception
-    except Exception as err:
-        append_result("Failed to associate elastic ip.", str(err))
-        remove_ec2(tag_name, instance_name)
-        remove_all_iam_resources(instance)
-        remove_s3(instance)
-        if pre_defined_sg:
-            remove_sgroups(tag_name)
-        if pre_defined_subnet:
-            remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
-            remove_subnets(service_base_name + "-subnet")
-        if pre_defined_vpc:
-            remove_vpc_endpoints(os.environ['aws_vpc_id'])
-            remove_route_tables(tag_name, True)
-            remove_vpc(os.environ['aws_vpc_id'])
-        sys.exit(1)
+            logging.info('[ASSOCIATING ELASTIC IP]')
+            print('[ASSOCIATING ELASTIC IP]')
+            ssn_id = get_instance_by_name(tag_name, instance_name)
+            try:
+                elastic_ip = os.environ['ssn_elastic_ip']
+            except:
+                elastic_ip = 'None'
+            params = "--elastic_ip {} --ssn_id {}".format(elastic_ip, ssn_id)
+            try:
+                local("~/scripts/{}.py {}".format('ssn_associate_elastic_ip', params))
+            except:
+                traceback.print_exc()
+                raise Exception
+        except Exception as err:
+            append_result("Failed to associate elastic ip.", str(err))
+            remove_ec2(tag_name, instance_name)
+            remove_all_iam_resources(instance)
+            remove_s3(instance)
+            if pre_defined_sg:
+                remove_sgroups(tag_name)
+            if pre_defined_subnet:
+                remove_internet_gateways(os.environ['aws_vpc_id'], tag_name, service_base_name)
+                remove_subnets(service_base_name + "-subnet")
+            if pre_defined_vpc:
+                remove_vpc_endpoints(os.environ['aws_vpc_id'])
+                remove_route_tables(tag_name, True)
+                remove_vpc(os.environ['aws_vpc_id'])
+            sys.exit(1)

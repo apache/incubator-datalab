@@ -55,6 +55,14 @@ if __name__ == "__main__":
         pre_defined_sg = False
         billing_enabled = True
         dlab_ssh_user = os.environ['conf_os_user']
+        private_subnets = True
+
+        try:
+            if os.environ['conf_user_subnets_range'] == '':
+                raise KeyError
+        except KeyError:
+            private_subnets = False
+
         try:
             if os.environ['aws_vpc_id'] == '':
                 raise KeyError
@@ -101,11 +109,16 @@ if __name__ == "__main__":
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
 
+        if private_subnets:
+            instance_hostname = get_instance_ip_address(tag_name, instance_name).get('Private')
+        else:
+            instance_hostname = get_instance_hostname(tag_name, instance_name)
+
         logging.info('[CREATING DLAB SSH USER]')
         print('[CREATING DLAB SSH USER]')
         params = "--hostname {} --keyfile {} --initial_user {} --os_user {} --sudo_group {}".format\
-            (get_instance_hostname(tag_name, instance_name), os.environ['conf_key_dir'] + os.environ['conf_key_name'] +
-             ".pem", initial_user, dlab_ssh_user, sudo_group)
+            (instance_hostname, os.environ['conf_key_dir'] + os.environ['conf_key_name'] + ".pem", initial_user,
+             dlab_ssh_user, sudo_group)
 
         try:
             local("~/scripts/{}.py {}".format('create_ssh_user', params))
@@ -129,8 +142,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        instance_hostname = get_instance_hostname(tag_name, instance_name)
-
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         params = "--hostname {} --keyfile {} --pip_packages 'boto3 argparse fabric awscli pymongo pyyaml' --user {} --region {}". \
