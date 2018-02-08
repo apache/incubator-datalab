@@ -556,6 +556,31 @@ class GCPMeta:
             traceback.print_exc(file=sys.stdout)
             return ''
 
+    def get_dataproc_jobs(self):
+        jobs = []
+        try:
+            res = self.dataproc.projects().regions().jobs().list(projectId=self.project,
+                                                                 region=os.environ['gcp_region']).execute()
+            jobs = [job for job in res['jobs']]
+            page_token = res.get('nextPageToken')
+            while page_token != 'None':
+                res2 = self.dataproc.projects().regions().jobs().list(projectId=self.project,
+                                                                      region=os.environ['gcp_region'],
+                                                                      pageToken=page_token).execute()
+                jobs.extend([job for job in res2['jobs']])
+                page_token = str(res2.get('nextPageToken'))
+            return jobs
+        except KeyError:
+            return jobs
+        except Exception as err:
+            logging.info(
+                "Error with getting cluster jobs: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Error with getting cluster jobs",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
 
 def get_instance_private_ip_address(tag_name, instance_name):
     try:
