@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService } from '../core/services';
 
@@ -24,12 +24,13 @@ import { HealthStatusService } from '../core/services';
     moduleId: module.id,
     selector: 'health-status',
     templateUrl: 'health-status.component.html',
-    styles: [`.sub-nav { justify-content: flex-end }`]
+    styleUrls: ['./health-status.component.scss']
 })
 export class HealthStatusComponent implements OnInit {
 
     environmentsHealthStatuses: Array<EnvironmentStatusModel>;
     healthStatus: string;
+    @ViewChild('backupDialog') backupDialog;
 
     constructor(private healthStatusService: HealthStatusService) { }
 
@@ -54,5 +55,10 @@ export class HealthStatusComponent implements OnInit {
                 value.resource_id,
                 value.status);
             });
+    }
+
+    showBackupDialog() {
+        if (!this.backupDialog.isOpened)
+            this.backupDialog.open({ isFooter: false });
     }
 }
