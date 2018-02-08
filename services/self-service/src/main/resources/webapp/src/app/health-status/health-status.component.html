@@ -28,4 +28,4 @@ limitations under the License.
 </div>
 
 <health-status-grid [environmentsHealthStatuses]="environmentsHealthStatuses" (refreshGrid)="buildGrid($event)"></health-status-grid>
-<dlab-backup-dilog #backupDialog></dlab-backup-dilog>
+<dlab-backup-dilog #backupDialog (backupOpts)="backup($event)"></dlab-backup-dilog>

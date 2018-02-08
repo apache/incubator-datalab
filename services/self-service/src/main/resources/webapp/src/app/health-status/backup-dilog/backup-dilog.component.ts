@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { DICTIONARY } from './../../../dictionary/global.dictionary';
 
 import { BackupOptionsModel } from '../environment-status.model';
@@ -31,6 +31,7 @@ export class BackupDilogComponent implements OnInit {
   public backupOptions: BackupOptionsModel = new BackupOptionsModel([], [], [], [], false, false);;
 
   @ViewChild('bindDialog') bindDialog;
+  @Output() backupOpts: EventEmitter<{}> = new EventEmitter();
 
   ngOnInit() {
     this.backupOptions.setDegault();
@@ -43,11 +44,15 @@ export class BackupDilogComponent implements OnInit {
     this.bindDialog.open(param);
   }
 
-  onHoldChanged($event, key) {
+  public onHoldChanged($event, key) {
     this.backupOptions[key] instanceof Array
       ? this.backupOptions[key][0] = ($event.checked) ? 'all': 'skip'
       : this.backupOptions[key] = !this.backupOptions[key];
 
     console.log(this.backupOptions);
+  }
+
+  public applyOptions() {
+    this.backupOpts.emit(this.backupOptions);
   }
 }

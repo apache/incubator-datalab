@@ -19,6 +19,7 @@ limitations under the License.
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
 import { HealthStatusService } from '../core/services';
+import { compareAsc } from 'date-fns';
 
 @Component({
     moduleId: module.id,
@@ -60,5 +61,9 @@ export class HealthStatusComponent implements OnInit {
     showBackupDialog() {
         if (!this.backupDialog.isOpened)
             this.backupDialog.open({ isFooter: false });
+    }
+
+    backup($event) {
+        console.log($event)
     }
 }
