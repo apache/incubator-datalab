@@ -17,6 +17,8 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.ModuleBase;
+import com.epam.dlab.auth.SystemUserInfoService;
+import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.BackupDao;
@@ -76,6 +78,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
         bind(BackupService.class).to(BackupServiceImpl.class);
         bind(BackupDao.class).to(BackupDaoImpl.class);
         bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
+        bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
     }
 
     /**
