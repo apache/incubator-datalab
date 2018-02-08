@@ -19,6 +19,8 @@ limitations under the License.
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DICTIONARY } from './../../../dictionary/global.dictionary';
 
+import { BackupOptionsModel } from '../environment-status.model';
+
 @Component({
   selector: 'dlab-backup-dilog',
   templateUrl: './backup-dilog.component.html',
@@ -26,14 +28,26 @@ import { DICTIONARY } from './../../../dictionary/global.dictionary';
 })
 export class BackupDilogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
+  public backupOptions: BackupOptionsModel = new BackupOptionsModel([], [], [], [], false, false);;
 
   @ViewChild('bindDialog') bindDialog;
 
   ngOnInit() {
+    this.backupOptions.setDegault();
+    console.log(this.backupOptions)
+
   }
 
   public open(param): void {
-    console.log('backup dialog', param)
+    console.log('backup dialog', param);
     this.bindDialog.open(param);
+  }
+
+  onHoldChanged($event, key) {
+    this.backupOptions[key] instanceof Array
+      ? this.backupOptions[key][0] = ($event.checked) ? 'all': 'skip'
+      : this.backupOptions[key] = !this.backupOptions[key];
+
+    console.log(this.backupOptions);
   }
 }
