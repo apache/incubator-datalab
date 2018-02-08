@@ -16,32 +16,46 @@
 
 package com.epam.dlab.backendapi.schedulers;
 
-import com.epam.dlab.backendapi.dao.SchedulerJobsDAO;
+import com.epam.dlab.backendapi.service.ExploratoryServiceImpl;
+import com.epam.dlab.backendapi.service.SchedulerJobsService;
+import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.fiestacabin.dropwizard.quartz.Scheduled;
 import com.google.inject.Inject;
-import com.mongodb.client.FindIterable;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 
 @Slf4j
-@Scheduled(interval = 30)
+@Scheduled(interval = 10)
 public class StartExploratoryJob implements Job {
 
     @Inject
-    private SchedulerJobsDAO schedulerJobsDAO;
+    private SchedulerJobsService schedulerJobsService;
+
+    @Inject
+    private ExploratoryServiceImpl exploratoryService;
 
     @Override
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        log.info("===============JOB EXECUTION==============");
+    public void execute(JobExecutionContext jobExecutionContext){
         LocalTime currentTime = LocalTime.now();
         LocalTime currentTimeRounded = LocalTime.of(currentTime.getHour(), currentTime.getMinute());
-        FindIterable<Document> doc = schedulerJobsDAO.getAllSchedulerJobs();
-        log.info("All scheduler jobs: {}", doc);
+        List<SchedulerJobData> jobsToStart = schedulerJobsService.getSchedulerJobsForExploratoryAction(LocalDate.now(), currentTimeRounded, "start");
+        if(!jobsToStart.isEmpty()){
+            log.info("Scheduler start job is executing...");
+            log.info("Current time rounded: {} , current date: {}, current day of week: {}", currentTimeRounded, LocalDate.now(),
+                    LocalDate.now().getDayOfWeek());
+            log.info("Scheduler jobs for starting: {}", jobsToStart.size());
+            for(SchedulerJobData jobData : jobsToStart){
+                log.info("Exploratory with name {} for user {} is starting...", jobData.getExploratoryName(), jobData.getUser());
+//                exploratoryService.start(new UserInfo())
+            }
+
+        }
+
     }
 }

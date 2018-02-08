@@ -85,8 +85,7 @@ public class ExploratoryLibDAO extends BaseDAO {
     }
 
     /** Return field filter for libraries properties in exploratory data.
-     * @param fieldName
-     * @return
+     * @param fieldName name of field for filter building
      */
     private static String libraryFieldFilter(String fieldName) {
         return EXPLORATORY_LIBS + FIELD_SET_DELIMETER + fieldName;
@@ -257,7 +256,7 @@ public class ExploratoryLibDAO extends BaseDAO {
         }
     }
 
-    public void updateExploratoryLibraryFields(LibInstallStatusDTO dto) {
+    private void updateExploratoryLibraryFields(LibInstallStatusDTO dto) {
         for (LibInstallDTO lib : dto.getLibs()) {
             try {
                 Document values = updateLibraryFields(lib, dto.getUptime());
@@ -273,7 +272,7 @@ public class ExploratoryLibDAO extends BaseDAO {
         }
     }
 
-    public void updateComputationalLibraryFields(LibInstallStatusDTO dto) {
+    private void updateComputationalLibraryFields(LibInstallStatusDTO dto) {
         for (LibInstallDTO lib : dto.getLibs()) {
             try {
                 Document values = updateComputationalLibraryFields(dto.getComputationalName(), lib, dto.getUptime());

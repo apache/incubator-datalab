@@ -69,9 +69,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
             isAdded = true;
             ExploratoryCreateDTO<?> dto = RequestBuilder.newExploratoryCreate(exploratory, userInfo, gitCredsDAO.findGitCreds(userInfo.getName()));
             log.debug("Created exploratory environment {} for user {}", exploratory.getName(), userInfo.getName());
-            String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), dto, String.class);
-            RequestId.put(userInfo.getName(), uuid);
-            return uuid;
+            return provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), dto, String.class);
         } catch (Exception t) {
             log.error("Could not update the status of exploratory environment {} with name {} for user {}",
                     exploratory.getDockerImage(), exploratory.getName(), userInfo.getName(), t);
@@ -102,9 +100,7 @@ public class ExploratoryServiceImpl implements ExploratoryService {
             }
 
             UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
-            String uuid = provisioningService.post(action, userInfo.getAccessToken(), getExploratoryActionDto(userInfo, status, userInstance), String.class);
-            RequestId.put(userInfo.getName(), uuid);
-            return uuid;
+            return provisioningService.post(action, userInfo.getAccessToken(), getExploratoryActionDto(userInfo, status, userInstance), String.class);
         } catch (Exception t) {
             log.error("Could not " + action + " exploratory environment {} for user {}", exploratoryName, userInfo.getName(), t);
             updateExploratoryStatusSilent(userInfo.getName(), exploratoryName, FAILED);
