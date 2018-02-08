@@ -74,6 +74,7 @@ if __name__ == "__main__":
             raise KeyError
     except KeyError:
         edge_conf['private_subnets'] = False
+        os.environ['conf_user_subnets_range'] = ''
 
     # FUSE in case of absence of user's key
     fname = "{}{}.pub".format(os.environ['conf_key_dir'], edge_conf['user_keyname'])
@@ -88,9 +89,10 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SUBNET]')
         print('[CREATE SUBNET]')
-        params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {}" \
+        params = "--vpc_id '{}' --infra_tag_name {} --infra_tag_value {} --username {} --prefix {} --user_subnets_range {}" \
                  .format(edge_conf['vpc_id'], edge_conf['tag_name'], edge_conf['service_base_name'],
-                         os.environ['edge_user_name'], edge_conf['private_subnet_prefix'])
+                         os.environ['edge_user_name'], edge_conf['private_subnet_prefix'],
+                         os.environ['conf_user_subnets_range'])
         try:
             local("~/scripts/{}.py {}".format('common_create_subnet', params))
         except:
