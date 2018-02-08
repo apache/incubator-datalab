@@ -73,7 +73,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
     }
 
     @Override
-    public void run(SelfServiceApplicationConfiguration configuration, Environment environment) throws Exception {
+    public void run(SelfServiceApplicationConfiguration configuration, Environment environment) {
 
         CloudModule cloudModule = ModuleFactory.getCloudProviderModule(configuration);
         Injector injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment), cloudModule);
