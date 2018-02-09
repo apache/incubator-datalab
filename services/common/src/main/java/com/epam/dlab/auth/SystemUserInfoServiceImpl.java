@@ -41,7 +41,7 @@ public class SystemUserInfoServiceImpl implements SystemUserInfoService {
 
 
 	private UserInfo toUserInfo(Document document) {
-		return new UserInfo(document.getString(USER_NAME_FIELD), document.getString(USER_NAME_FIELD));
+		return new UserInfo(document.getString(USER_NAME_FIELD), document.getString(ID_FIELD));
 	}
 
 	private Document toSystemUserDocument(String token, String name) {

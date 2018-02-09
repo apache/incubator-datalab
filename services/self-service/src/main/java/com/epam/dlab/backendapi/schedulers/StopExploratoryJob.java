@@ -15,7 +15,9 @@
  */
 
 package com.epam.dlab.backendapi.schedulers;
-import com.epam.dlab.auth.UserInfoDAO;
+import com.epam.dlab.auth.SystemUserInfoServiceImpl;
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryServiceImpl;
 import com.epam.dlab.backendapi.service.SchedulerJobsService;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
@@ -39,6 +41,9 @@ public class StopExploratoryJob implements Job{
     @Inject
     private ExploratoryServiceImpl exploratoryService;
 
+    @Inject
+    private SystemUserInfoServiceImpl systemUserService;
+
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext){
@@ -52,7 +57,9 @@ public class StopExploratoryJob implements Job{
             log.info("Scheduler jobs for stopping: {}", jobsToStop.size());
             for(SchedulerJobData jobData : jobsToStop){
                 log.info("Exploratory with name {} for user {} is stopping...", jobData.getExploratoryName(), jobData.getUser());
-//                exploratoryService.start(new UserInfo())
+                UserInfo userInfo = systemUserService.create(jobData.getUser());
+                String uuid = exploratoryService.stop(userInfo, jobData.getExploratoryName());
+                RequestId.put(userInfo.getName(), uuid);
             }
 
         }

@@ -16,6 +16,9 @@
 
 package com.epam.dlab.backendapi.schedulers;
 
+import com.epam.dlab.auth.SystemUserInfoServiceImpl;
+import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryServiceImpl;
 import com.epam.dlab.backendapi.service.SchedulerJobsService;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
@@ -40,6 +43,9 @@ public class StartExploratoryJob implements Job {
     @Inject
     private ExploratoryServiceImpl exploratoryService;
 
+    @Inject
+    private SystemUserInfoServiceImpl systemUserService;
+
     @Override
     public void execute(JobExecutionContext jobExecutionContext){
         LocalTime currentTime = LocalTime.now();
@@ -52,7 +58,9 @@ public class StartExploratoryJob implements Job {
             log.info("Scheduler jobs for starting: {}", jobsToStart.size());
             for(SchedulerJobData jobData : jobsToStart){
                 log.info("Exploratory with name {} for user {} is starting...", jobData.getExploratoryName(), jobData.getUser());
-//                exploratoryService.start(new UserInfo())
+                UserInfo userInfo = systemUserService.create(jobData.getUser());
+                String uuid = exploratoryService.start(userInfo, jobData.getExploratoryName());
+                RequestId.put(userInfo.getName(), uuid);
             }
 
         }
