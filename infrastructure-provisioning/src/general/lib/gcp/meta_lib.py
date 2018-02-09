@@ -478,14 +478,14 @@ class GCPMeta:
             try:
                 request = self.dataproc.projects().regions().clusters().get(projectId=self.project,
                                                                             region=os.environ['gcp_region'],
-                                                                            clusterName=cluster['id'])
+                                                                            clusterName=cluster)
                 result = request.execute()
-                host['id'] = cluster['id']
+                host['id'] = cluster
                 host['version'] = result.get('config').get('softwareConfig').get('imageVersion')[:3]
                 host['status'] = result.get('status').get('state').lower()
                 data.append(host)
             except:
-                host['id'] = cluster['id']
+                host['id'] = cluster
                 host['status'] = 'terminated'
                 data.append(host)
         return data
@@ -552,6 +552,31 @@ class GCPMeta:
                 "Error with getting not configured cluster: " + str(err) + "\n Traceback: " + traceback.print_exc(
                     file=sys.stdout))
             append_result(str({"error": "Error with getting not configured cluster",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            return ''
+
+    def get_dataproc_jobs(self):
+        jobs = []
+        try:
+            res = self.dataproc.projects().regions().jobs().list(projectId=self.project,
+                                                                 region=os.environ['gcp_region']).execute()
+            jobs = [job for job in res['jobs']]
+            page_token = res.get('nextPageToken')
+            while page_token != 'None':
+                res2 = self.dataproc.projects().regions().jobs().list(projectId=self.project,
+                                                                      region=os.environ['gcp_region'],
+                                                                      pageToken=page_token).execute()
+                jobs.extend([job for job in res2['jobs']])
+                page_token = str(res2.get('nextPageToken'))
+            return jobs
+        except KeyError:
+            return jobs
+        except Exception as err:
+            logging.info(
+                "Error with getting cluster jobs: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Error with getting cluster jobs",
                                "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             return ''
