@@ -74,7 +74,8 @@ public class InfrastructureInfoResource implements InfrasctructureAPI {
 	public HealthStatusPageDTO status(@Auth UserInfo userInfo, @QueryParam("full") @DefaultValue("0") int fullReport) {
 		log.debug("Request the status of resources for user {}, report type {}", userInfo.getName(), fullReport);
 		try {
-			HealthStatusPageDTO status = envDAO.getHealthStatusPageDTO(userInfo.getName(), fullReport != 0);
+			HealthStatusPageDTO status = envDAO.getHealthStatusPageDTO(userInfo.getName(), fullReport != 0)
+					.withBillingEnabled(configuration.isBillingSchedulerEnabled());
 			log.debug("Return the status of resources for user {}: {}", userInfo.getName(), status);
 			return status;
 		} catch (DlabException e) {
@@ -96,8 +97,8 @@ public class InfrastructureInfoResource implements InfrasctructureAPI {
 			Iterable<Document> documents = expDAO.findExploratory(userInfo.getName());
 			EdgeInfo edgeInfo = keyDAO.getEdgeInfo(userInfo.getName());
 
-			InfrastructureInfo infrastructureInfo = new InfrastructureInfo(infrastructureInfoService.getSharedInfo
-					(edgeInfo), documents, configuration.isBillingSchedulerEnabled());
+			InfrastructureInfo infrastructureInfo =
+					new InfrastructureInfo(infrastructureInfoService.getSharedInfo(edgeInfo), documents);
 
 			log.trace("Infrastructure info: {}", infrastructureInfo);
 			return infrastructureInfo;
