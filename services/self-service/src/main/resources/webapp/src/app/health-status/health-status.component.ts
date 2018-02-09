@@ -18,7 +18,7 @@ limitations under the License.
 
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { EnvironmentStatusModel } from './environment-status.model';
-import { HealthStatusService } from '../core/services';
+import { HealthStatusService, BackupService } from '../core/services';
 import { compareAsc } from 'date-fns';
 
 @Component({
@@ -30,11 +30,15 @@ import { compareAsc } from 'date-fns';
 export class HealthStatusComponent implements OnInit {
   environmentsHealthStatuses: Array<EnvironmentStatusModel>;
   healthStatus: string;
-  creatingBackup: boolean = false;
+//   creatingBackup: boolean = false;
+
   private clear = undefined;
   @ViewChild('backupDialog') backupDialog;
 
-  constructor(private healthStatusService: HealthStatusService) {}
+  constructor(
+    private healthStatusService: HealthStatusService,
+    private backupService: BackupService
+  ) {}
 
   ngOnInit(): void {
     this.buildGrid();
@@ -65,21 +69,21 @@ export class HealthStatusComponent implements OnInit {
   }
 
   createBackup($event) {
-    this.healthStatusService.createBackup($event).subscribe(result => {
+    this.backupService.createBackup($event).subscribe(result => {
+      this.getBackupStatus(result);
       this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
     });
   }
 
   private getBackupStatus(result) {
     const uuid = result.text();
-    this.healthStatusService.getBackupStatus(uuid).subscribe(status => {
-      const data = status.json();
-      if (data.status === 'CREATED') {
-        clearInterval(this.clear);
-        this.creatingBackup = false;
-      } else {
-        this.creatingBackup = true;
-      }
+    this.backupService.getBackupStatus(uuid)
+    .subscribe(status => {
+        if (!this.creatingBackup) clearInterval(this.clear);
     });
   }
+
+  get creatingBackup():boolean { 
+    return this.backupService.inProgress; 
+  } 
 }
