@@ -140,9 +140,8 @@ public class SchedulerJobsDAO extends BaseDAO{
      * Finds and returns the info of user's single scheduler job by exploratory name.
      * @param user            user name.
      * @param exploratoryName the name of exploratory.
-     * @throws DlabException
      */
-    public SchedulerJobDTO fetchSingleSchedulerJobByUserAndExploratory(String user, String exploratoryName) throws DlabException{
+	public SchedulerJobDTO fetchSingleSchedulerJobByUserAndExploratory(String user, String exploratoryName) {
         Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
                 and(exploratoryCondition(user, exploratoryName), schedulerNotNullCondition()),
                 UserInstanceDTO.class);

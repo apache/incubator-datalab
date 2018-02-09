@@ -29,7 +29,9 @@ import org.quartz.JobExecutionContext;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Scheduled(interval = 10)
@@ -49,7 +51,19 @@ public class StopExploratoryJob implements Job{
     public void execute(JobExecutionContext jobExecutionContext){
         LocalTime currentTime = LocalTime.now();
         LocalTime currentTimeRounded = LocalTime.of(currentTime.getHour(), currentTime.getMinute());
-        List<SchedulerJobData> jobsToStop = schedulerJobsService.getSchedulerJobsForExploratoryAction(LocalDate.now(), currentTimeRounded, "stop");
+		List<SchedulerJobData> todayJobsToStop = schedulerJobsService
+				.getSchedulerJobsForExploratoryAction(LocalDate.now(), currentTimeRounded, "stop")
+				.stream()
+				.filter(jobData -> jobData.getJobDTO().getEndTime().isAfter(jobData.getJobDTO().getStartTime()))
+				.collect(Collectors.toList());
+		List<SchedulerJobData> yesterdayJobsToStop = schedulerJobsService
+				.getSchedulerJobsForExploratoryAction(LocalDate.now().minusDays(1), currentTimeRounded, "stop")
+				.stream()
+				.filter(jobData -> jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime()))
+				.collect(Collectors.toList());
+		List<SchedulerJobData> jobsToStop = new ArrayList<>();
+		jobsToStop.addAll(todayJobsToStop);
+		jobsToStop.addAll(yesterdayJobsToStop);
         if(!jobsToStop.isEmpty()){
             log.info("Scheduler stop job is executing...");
             log.info("Current time rounded: {} , current date: {}, current day of week: {}", currentTimeRounded, LocalDate.now(),
