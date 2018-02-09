@@ -775,13 +775,18 @@ class GCPActions:
     def delete_dataproc_jobs(self, cluster_filter):
         try:
             jobs = meta_lib.GCPMeta().get_dataproc_jobs()
-            for job in jobs:
-                if cluster_filter in job['placement']['clusterName']:
-                    print('The cluster jobs is being deleted... Please wait')
+            cluster_jobs_ids = [job['reference']['jobId'] for job in jobs
+                                if cluster_filter in job['placement']['clusterName']]
+            for job_id in list(set(cluster_jobs_ids)):
+                print('The cluster jobs is being deleted... Please wait')
+                try:
                     req = self.dataproc.projects().regions().jobs().delete(projectId=self.project,
                                                                            region=os.environ['gcp_region'],
-                                                                           jobId=job['reference']['jobId'])
+                                                                           jobId=job_id)
                     req.execute()
+                except errors.HttpError as err:
+                    if err.resp.status == 404:
+                        print('Job with ID: {} have not been found.'.format(job_id))
         except Exception as err:
             logging.info(
                 "Unable to delete dataproc jobs: " + str(err) + "\n Traceback: " + traceback.print_exc(
