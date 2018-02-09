@@ -68,6 +68,7 @@ if __name__ == "__main__":
                                                         + os.environ['edge_user_name'] + '-dataengine-slave-sg'
     edge_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
     edge_conf['network_type'] = os.environ['conf_network_type']
+    edge_conf['all_ip_cidr'] = '0.0.0.0/0'
 
     try:
         if os.environ['conf_user_subnets_range'] == '':
@@ -222,19 +223,19 @@ if __name__ == "__main__":
             {
                 "PrefixListIds": [],
                 "FromPort": 53,
-                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 53, "IpProtocol": "udp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
                 "FromPort": 80,
-                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 80, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
                 "PrefixListIds": [],
                 "FromPort": 443,
-                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "ToPort": 443, "IpProtocol": "tcp", "UserIdGroupPairs": []
             },
             {
@@ -313,7 +314,7 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "tcp",
-                "IpRanges": [{"CidrIp": edge_conf['allowed_ip_cidr']}],
+                "IpRanges": [{"CidrIp": edge_conf['all_ip_cidr']}],
                 "FromPort": 443,
                 "ToPort": 443,
                 "UserIdGroupPairs": [],

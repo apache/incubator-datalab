@@ -65,6 +65,7 @@ if __name__ == "__main__":
         allowed_ip_cidr = os.environ['conf_allowed_ip_cidr']
         sg_name = instance_name + '-SG'
         network_type = os.environ['conf_network_type']
+        all_ip_cidr = '0.0.0.0/0'
 
         try:
             if os.environ['aws_vpc_id'] == '':
@@ -173,7 +174,7 @@ if __name__ == "__main__":
                     }
                 ]
                 egress_sg_rules_template = [
-                    {"IpProtocol": "-1", "IpRanges": [{"CidrIp": allowed_ip_cidr}], "UserIdGroupPairs": [], "PrefixListIds": []}
+                    {"IpProtocol": "-1", "IpRanges": [{"CidrIp": all_ip_cidr}], "UserIdGroupPairs": [], "PrefixListIds": []}
                 ]
                 params = "--name {} --vpc_id {} --security_group_rules '{}' --egress '{}' --infra_tag_name {} --infra_tag_value {} --force {} --ssn {}". \
                     format(sg_name, os.environ['aws_vpc_id'], json.dumps(ingress_sg_rules_template), json.dumps(egress_sg_rules_template), service_base_name, tag_name, False, True)
