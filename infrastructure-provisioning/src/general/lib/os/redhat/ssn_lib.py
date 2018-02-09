@@ -248,8 +248,9 @@ def start_ss(keyfile, host_string, dlab_conf_dir, web_path, os_user, mongo_passw
                                     mongo_passwd, dlab_path, authentication_file, offer_number, currency, locale, region_info)
                 sudo('python /tmp/configure_billing.py {}'.format(params))
             try:
-                sudo('keytool -genkeypair -alias dlab -keyalg RSA -storepass {1} -keypass {1} \
-                     -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd))
+                validity = '730'
+                sudo('keytool -genkeypair -alias dlab -keyalg RSA -validity {2} -storepass {1} -keypass {1} \
+                     -keystore /home/{0}/keys/dlab.keystore.jks -keysize 2048 -dname "CN=localhost"'.format(os_user, keystore_passwd, validity))
                 sudo('keytool -exportcert -alias dlab -storepass {1} -file /home/{0}/keys/dlab.crt \
                      -keystore /home/{0}/keys/dlab.keystore.jks'.format(os_user, keystore_passwd))
                 sudo('keytool -importcert -trustcacerts -alias dlab -file /home/{0}/keys/dlab.crt -noprompt \
