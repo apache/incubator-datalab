@@ -26,14 +26,14 @@ import { HealthStatusGridModule } from './health-status-grid/health-status-grid.
 import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        NavbarModule,
-        ModalModule,
-        HealthStatusGridModule,
-        MaterialModule
-    ],
-    declarations: [HealthStatusComponent, BackupDilogComponent],
-    exports: [HealthStatusComponent]
+  imports: [
+    CommonModule,
+    NavbarModule,
+    ModalModule,
+    HealthStatusGridModule,
+    MaterialModule
+  ],
+  declarations: [HealthStatusComponent, BackupDilogComponent],
+  exports: [HealthStatusComponent]
 })
-export class HealthStatusModule { }
+export class HealthStatusModule {}

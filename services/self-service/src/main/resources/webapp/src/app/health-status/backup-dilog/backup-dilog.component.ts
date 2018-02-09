@@ -28,7 +28,7 @@ import { BackupOptionsModel } from '../environment-status.model';
 })
 export class BackupDilogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
-  public backupOptions: BackupOptionsModel = new BackupOptionsModel([], [], [], [], false, false);;
+  public backupOptions: BackupOptionsModel = new BackupOptionsModel([], [], [], [], false, false);
 
   @ViewChild('bindDialog') bindDialog;
   @Output() backupOpts: EventEmitter<{}> = new EventEmitter();
@@ -44,8 +44,8 @@ export class BackupDilogComponent implements OnInit {
 
   public onHoldChanged($event, key) {
     this.backupOptions[key] instanceof Array
-      ? this.backupOptions[key][0] = ($event.checked) ? 'all': 'skip'
-      : this.backupOptions[key] = !this.backupOptions[key];
+      ? (this.backupOptions[key][0] = $event.checked ? 'all' : 'skip')
+      : (this.backupOptions[key] = !this.backupOptions[key]);
   }
 
   public applyOptions() {
