@@ -35,8 +35,6 @@ export class BackupDilogComponent implements OnInit {
 
   ngOnInit() {
     this.backupOptions.setDegault();
-    console.log(this.backupOptions)
-
   }
 
   public open(param): void {
@@ -48,8 +46,6 @@ export class BackupDilogComponent implements OnInit {
     this.backupOptions[key] instanceof Array
       ? this.backupOptions[key][0] = ($event.checked) ? 'all': 'skip'
       : this.backupOptions[key] = !this.backupOptions[key];
-
-    console.log(this.backupOptions);
   }
 
   public applyOptions() {
