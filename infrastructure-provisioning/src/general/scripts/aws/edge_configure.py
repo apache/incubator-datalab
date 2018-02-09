@@ -49,9 +49,18 @@ if __name__ == "__main__":
         'edge_user_name'] + '-nb-SG'
     tag = {"Key": edge_conf['tag_name'], "Value": "{}-{}-subnet".format(edge_conf['service_base_name'], os.environ['edge_user_name'])}
     edge_conf['private_subnet_cidr'] = get_subnet_by_tag(tag)
-    edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Public')
-    edge_conf['edge_private_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get('Private')
     edge_conf['dlab_ssh_user'] = os.environ['conf_os_user']
+    edge_conf['network_type'] = os.environ['conf_network_type']
+    if edge_conf['network_type'] == 'public':
+        edge_conf['edge_public_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get(
+            'Public')
+        edge_conf['edge_private_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get(
+            'Private')
+    elif edge_conf['network_type'] == 'private':
+        edge_conf['edge_private_ip'] = get_instance_ip_address(edge_conf['tag_name'], edge_conf['instance_name']).get(
+            'Private')
+        edge_conf['edge_public_ip'] = edge_conf['edge_private_ip']
+
 
     instance_hostname = get_instance_hostname(edge_conf['tag_name'], edge_conf['instance_name'])
     keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], edge_conf['key_name'])
