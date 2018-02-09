@@ -74,17 +74,4 @@ export class HealthStatusService {
       .buildRecreateEdgeNodeRequest()
       .map((response: Response) => response);
   }
-
-  public createBackup(data): Observable<Response> {
-    return this.applicationServiceFacade
-      .buildCreateBackupRequest(data)
-      .map((response: Response) => response);
-  }
-
-  public getBackupStatus(uuid): Observable<Response> {
-    const body = `/${uuid}`;
-    return this.applicationServiceFacade
-      .buildGetBackupStatusRequest(body)
-      .map((response: Response) => response);
-  }
 }

@@ -30,6 +30,7 @@ import { CheckParamsGuard } from './checkParams.guard';
 import { LibrariesInstallationService } from './librariesInstallation.service';
 import { ManageUngitService } from './manageUngit.service';
 import { BillingReportService } from './billingReport.service';
+import { BackupService } from './backup.service';
 
 
 export * from './applicationServiceFacade.service';
@@ -44,3 +45,4 @@ export * from './checkParams.guard';
 export * from './librariesInstallation.service';
 export * from './manageUngit.service';
 export * from './billingReport.service';
+export * from './backup.service';
