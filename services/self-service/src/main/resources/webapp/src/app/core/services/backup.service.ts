@@ -24,14 +24,12 @@ import { ApplicationServiceFacade } from './';
 
 @Injectable()
 export class BackupService {
-
   inProgress: boolean;
 
-  constructor(  private applicationServiceFacade: ApplicationServiceFacade) { }
+  constructor(private applicationServiceFacade: ApplicationServiceFacade) {}
 
-  set creatingBackup(data) { 
-    debugger;
-    this.inProgress = (data.status !== 'CREATED'); 
+  set creatingBackup(data) {
+    this.inProgress = data.status !== 'CREATED';
   }
 
   public createBackup(data): Observable<Response> {
@@ -45,6 +43,6 @@ export class BackupService {
     return this.applicationServiceFacade
       .buildGetBackupStatusRequest(body)
       .map((response: Response) => response.json())
-      .map(data => this.creatingBackup = data);
+      .map(data => (this.creatingBackup = data));
   }
 }
