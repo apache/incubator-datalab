@@ -32,7 +32,6 @@ parser.add_argument('--edge_sg', type=str)
 parser.add_argument('--de_sg', type=str)
 parser.add_argument('--service_base_name', type=str)
 parser.add_argument('--de_se_sg', type=str)
-parser.add_argument('--de_se_add_sg', type=str)
 args = parser.parse_args()
 
 
@@ -71,7 +70,6 @@ if __name__ == "__main__":
 
     print("Removing security groups")
     try:
-        remove_sgroups(args.de_se_add_sg)
         remove_sgroups(args.de_se_sg)
         remove_sgroups(args.de_sg)
         remove_sgroups(args.nb_sg)

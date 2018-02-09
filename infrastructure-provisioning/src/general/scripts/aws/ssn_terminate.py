@@ -39,15 +39,14 @@ if __name__ == "__main__":
     ssn_conf['edge_sg'] = ssn_conf['service_base_name'] + "*" + '-edge'
     ssn_conf['nb_sg'] = ssn_conf['service_base_name'] + "*" + '-nb'
     ssn_conf['de_sg'] = ssn_conf['service_base_name'] + "*" + '-dataengine*'
-    ssn_conf['de-service_sg'] = ssn_conf['service_base_name'] + "*" + '-emr*'
-    ssn_conf['de-add_service_sg'] = ssn_conf['service_base_name'] + "*" + '-additional*'
+    ssn_conf['de-service_sg'] = ssn_conf['service_base_name'] + "*" + '-des-*'
 
     try:
         logging.info('[TERMINATE SSN]')
         print('[TERMINATE SSN]')
-        params = "--tag_name {} --edge_sg {} --nb_sg {} --de_sg {} --service_base_name {} --de_se_sg {} --de_se_add_sg {}". \
+        params = "--tag_name {} --edge_sg {} --nb_sg {} --de_sg {} --service_base_name {} --de_se_sg {}". \
                  format(ssn_conf['tag_name'], ssn_conf['edge_sg'], ssn_conf['nb_sg'], ssn_conf['de_sg'],
-                        ssn_conf['service_base_name'], ssn_conf['de-service_sg'], ssn_conf['de-add_service_sg'])
+                        ssn_conf['service_base_name'], ssn_conf['de-service_sg'])
         try:
             local("~/scripts/{}.py {}".format('ssn_terminate_aws_resources', params))
         except:
