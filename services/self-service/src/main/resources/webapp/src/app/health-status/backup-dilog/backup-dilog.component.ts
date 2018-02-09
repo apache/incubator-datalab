@@ -35,10 +35,10 @@ export class BackupDilogComponent implements OnInit {
 
   ngOnInit() {
     this.backupOptions.setDegault();
+    this.bindDialog.onClosing = () => this.backupOptions.setDegault();
   }
 
   public open(param): void {
-    console.log('backup dialog', param);
     this.bindDialog.open(param);
   }
 
@@ -50,5 +50,7 @@ export class BackupDilogComponent implements OnInit {
 
   public applyOptions() {
     this.backupOpts.emit(this.backupOptions);
+    this.backupOptions.setDegault();
+    this.bindDialog.close();
   }
 }

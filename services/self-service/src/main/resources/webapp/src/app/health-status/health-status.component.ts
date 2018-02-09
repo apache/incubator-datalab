@@ -31,6 +31,8 @@ export class HealthStatusComponent implements OnInit {
 
     environmentsHealthStatuses: Array<EnvironmentStatusModel>;
     healthStatus: string;
+    creatingBackup: boolean = false;
+    private clear = undefined;
     @ViewChild('backupDialog') backupDialog;
 
     constructor(private healthStatusService: HealthStatusService) { }
@@ -64,19 +66,23 @@ export class HealthStatusComponent implements OnInit {
     }
 
     createBackup($event) {
-        console.log($event);
         this.healthStatusService.createBackup($event)
             .subscribe(result => {
-                debugger;
-
-                this.healthStatusService.getBackupStatus(result.text())
-                    .subscribe(res => {
-                        debugger;
-                    })
-                    
-                    
+                this.clear = window.setInterval(() => this.getBackupStatus(result), 1000);
             });
     }
 
-
+    private getBackupStatus(result) {
+        const uuid = result.text();
+        this.healthStatusService.getBackupStatus(uuid)
+            .subscribe(status => {
+                const data = status.json();
+                if (data.status === 'CREATED') {
+                    clearInterval(this.clear);
+                    this.creatingBackup = false;
+                } else {
+                    this.creatingBackup = true;
+                }
+            });
+    }
 }
