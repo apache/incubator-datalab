@@ -139,8 +139,8 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"GroupId": edge_group_id}],
-                "UserIdGroupPairs": [],
+                "IpRanges": [],
+                "UserIdGroupPairs": [{"GroupId": edge_group_id}],
                 "PrefixListIds": []
             },
             {
