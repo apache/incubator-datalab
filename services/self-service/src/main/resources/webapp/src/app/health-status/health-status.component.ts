@@ -66,7 +66,7 @@ export class HealthStatusComponent implements OnInit {
 
   createBackup($event) {
     this.healthStatusService.createBackup($event).subscribe(result => {
-      this.clear = window.setInterval(() => this.getBackupStatus(result), 1000);
+      this.clear = window.setInterval(() => this.getBackupStatus(result), 3000);
     });
   }
 
