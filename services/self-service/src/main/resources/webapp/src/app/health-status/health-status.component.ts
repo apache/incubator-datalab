@@ -63,7 +63,20 @@ export class HealthStatusComponent implements OnInit {
             this.backupDialog.open({ isFooter: false });
     }
 
-    backup($event) {
-        console.log($event)
+    createBackup($event) {
+        console.log($event);
+        this.healthStatusService.createBackup($event)
+            .subscribe(result => {
+                debugger;
+
+                this.healthStatusService.getBackupStatus(result.text())
+                    .subscribe(res => {
+                        debugger;
+                    })
+                    
+                    
+            });
     }
+
+
 }
