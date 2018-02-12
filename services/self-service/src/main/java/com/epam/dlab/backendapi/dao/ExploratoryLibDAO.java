@@ -18,40 +18,48 @@
 
 package com.epam.dlab.backendapi.dao;
 
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.COMPUTATIONAL_RESOURCES;
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
-import static com.epam.dlab.backendapi.dao.ExploratoryDAO.runningExploratoryAndComputationalCondition;
+import com.epam.dlab.backendapi.util.DateRemoverUtil;
+import com.epam.dlab.dto.exploratory.LibInstallDTO;
+import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
+import com.epam.dlab.dto.exploratory.LibStatus;
+import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.ResourceType;
+import com.epam.dlab.model.library.Library;
+import com.mongodb.client.model.Projections;
+import org.apache.commons.lang3.StringUtils;
+import org.bson.Document;
+import org.bson.conversions.Bson;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.epam.dlab.backendapi.dao.ExploratoryDAO.*;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.*;
 import static com.mongodb.client.model.Updates.push;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
-import java.util.*;
-
-import com.mongodb.client.model.Projections;
-import org.apache.commons.lang3.StringUtils;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-
-import com.epam.dlab.backendapi.util.DateRemoverUtil;
-import com.epam.dlab.dto.exploratory.LibInstallStatusDTO;
-import com.epam.dlab.dto.exploratory.LibInstallDTO;
-import com.epam.dlab.dto.exploratory.LibStatus;
-import com.epam.dlab.exceptions.DlabException;
-
-/** DAO for user libraries.
+/**
+ * DAO for user libraries.
  */
 public class ExploratoryLibDAO extends BaseDAO {
-    public static final String EXPLORATORY_LIBS = "libs";
-    public static final String COMPUTATIONAL_LIBS = "computational_libs";
-    public static final String LIB_GROUP = "group";
-    public static final String LIB_NAME = "name";
-    public static final String LIB_VERSION = "version";
-    private static final String LIB_INSTALL_DATE = "install_date";
-    private static final String LIB_ERROR_MESSAGE = "error_message";
+	public static final String EXPLORATORY_LIBS = "libs";
+	public static final String COMPUTATIONAL_LIBS = "computational_libs";
+	public static final String LIB_GROUP = "group";
+	public static final String LIB_NAME = "name";
+	public static final String LIB_VERSION = "version";
+	private static final String LIB_INSTALL_DATE = "install_date";
+	private static final String LIB_ERROR_MESSAGE = "error_message";
+	private static final String COMPUTATIONAL_NAME_FIELD = "computational_name";
 
-	/** Return condition for search library into exploratory data.
+	/**
+	 * Return condition for search library into exploratory data.
+	 *
 	 * @param libraryGroup the name of group.
 	 * @param libraryName the name of library.
 	 */
@@ -61,31 +69,36 @@ public class ExploratoryLibDAO extends BaseDAO {
         					eq(LIB_NAME, libraryName)));
     }
 
-    /** Return condition for search library into exploratory data.
-     * @param libraryGroup the name of group.
-     * @param libraryName the name of library.
-     * @param libraryVersion the name of library.
-     */
-    private static Bson libraryCondition(String libraryGroup, String libraryName, String libraryVersion) {
-        return elemMatch(EXPLORATORY_LIBS,
-                and(eq(LIB_GROUP, libraryGroup), eq(LIB_NAME, libraryName), eq(LIB_VERSION, libraryVersion)));
-    }
+	/**
+	 * Return condition for search library into exploratory data.
+	 *
+	 * @param libraryGroup   the name of group.
+	 * @param libraryName    the name of library.
+	 * @param libraryVersion the name of library.
+	 */
+	private static Bson libraryCondition(String libraryGroup, String libraryName, String libraryVersion) {
+		return elemMatch(EXPLORATORY_LIBS,
+				and(eq(LIB_GROUP, libraryGroup), eq(LIB_NAME, libraryName), eq(LIB_VERSION, libraryVersion)));
+	}
 
 
-    /** Return condition for search library into computational data.
-     * @param computationalName computational name
-     * @param libraryGroup the name of group.
-     * @param libraryName the name of library.
-     * @param libraryVersion the name of library.
-     */
-    private static Bson libraryConditionComputational(String computationalName, String libraryGroup, String libraryName,
-                                                      String libraryVersion) {
-        return elemMatch(COMPUTATIONAL_LIBS + "." + computationalName,
-                and(eq(LIB_GROUP, libraryGroup), eq(LIB_NAME, libraryName), eq(LIB_VERSION, libraryVersion)));
-    }
+	/**
+	 * Return condition for search library into computational data.
+	 *
+	 * @param computationalName computational name
+	 * @param libraryGroup      the name of group.
+	 * @param libraryName       the name of library.
+	 * @param libraryVersion    the name of library.
+	 */
+	private static Bson libraryConditionComputational(String computationalName, String libraryGroup, String libraryName,
+													  String libraryVersion) {
+		return elemMatch(COMPUTATIONAL_LIBS + "." + computationalName,
+				and(eq(LIB_GROUP, libraryGroup), eq(LIB_NAME, libraryName), eq(LIB_VERSION, libraryVersion)));
+	}
 
     /** Return field filter for libraries properties in exploratory data.
-     * @param fieldName name of field for filter building
+     * @param fieldName
+     * @return
      */
     private static String libraryFieldFilter(String fieldName) {
         return EXPLORATORY_LIBS + FIELD_SET_DELIMETER + fieldName;
@@ -105,9 +118,18 @@ public class ExploratoryLibDAO extends BaseDAO {
 
     }
 
-    public Document findAllLibraries(String user, String exploratoryName) {
-        return findLibraries(user, exploratoryName, include(EXPLORATORY_LIBS, COMPUTATIONAL_LIBS, COMPUTATIONAL_RESOURCES));
-    }
+	public List<Library> getLibraries(String user, String exploratoryName) {
+		final Document libsDocument = findAllLibraries(user, exploratoryName);
+		return Stream
+				.concat(
+						libraryStream(libsDocument, exploratoryName, EXPLORATORY_LIBS, ResourceType.EXPLORATORY),
+						computationalLibStream(libsDocument))
+				.collect(Collectors.toList());
+	}
+
+	public Document findAllLibraries(String user, String exploratoryName) {
+		return findLibraries(user, exploratoryName, include(EXPLORATORY_LIBS, COMPUTATIONAL_LIBS, COMPUTATIONAL_RESOURCES));
+	}
 
     public Document findExploratoryLibraries(String user, String exploratoryName) {
         return findLibraries(user, exploratoryName, include(EXPLORATORY_LIBS));
@@ -117,15 +139,17 @@ public class ExploratoryLibDAO extends BaseDAO {
         return findLibraries(user, exploratoryName, include(COMPUTATIONAL_LIBS + "." + computationalName));
     }
 
-    /** Finds and returns the status of library.
-     * @param user user name.
-     * @param exploratoryName the name of exploratory.
-     * @param libraryGroup the group name of library.
-     * @param libraryName the name of library.
-     */
-    public LibStatus fetchLibraryStatus(String user, String exploratoryName,
-                                        String libraryGroup, String libraryName, String version) {
-    	Optional<Document> libraryStatus = findOne(USER_INSTANCES,
+	/**
+	 * Finds and returns the status of library.
+	 *
+	 * @param user            user name.
+	 * @param exploratoryName the name of exploratory.
+	 * @param libraryGroup    the group name of library.
+	 * @param libraryName     the name of library.
+	 */
+	public LibStatus fetchLibraryStatus(String user, String exploratoryName,
+										String libraryGroup, String libraryName, String version) {
+		Optional<Document> libraryStatus = findOne(USER_INSTANCES,
 				and(exploratoryCondition(user, exploratoryName), libraryCondition(libraryGroup, libraryName, version)),
 				Projections.fields(excludeId(), Projections.include("libs.status")));
 
@@ -139,19 +163,21 @@ public class ExploratoryLibDAO extends BaseDAO {
     	return LibStatus.of(EMPTY);
     }
 
-    /** Finds and returns the status of library.
-     * @param user user name.
-     * @param exploratoryName the name of exploratory.
-     * @param computationalName the name of computational.
-     * @param libraryGroup the group name of library.
-     * @param libraryName the name of library.
-     */
-    public LibStatus fetchLibraryStatus(String user, String exploratoryName, String computationalName,
-                                        String libraryGroup, String libraryName, String version) {
-        Optional<Document> libraryStatus = findOne(USER_INSTANCES,
-                and(runningExploratoryAndComputationalCondition(user, exploratoryName, computationalName),
-                        libraryConditionComputational(computationalName, libraryGroup, libraryName, version)
-                ),
+	/**
+	 * Finds and returns the status of library.
+	 *
+	 * @param user              user name.
+	 * @param exploratoryName   the name of exploratory.
+	 * @param computationalName the name of computational.
+	 * @param libraryGroup      the group name of library.
+	 * @param libraryName       the name of library.
+	 */
+	public LibStatus fetchLibraryStatus(String user, String exploratoryName, String computationalName,
+										String libraryGroup, String libraryName, String version) {
+		Optional<Document> libraryStatus = findOne(USER_INSTANCES,
+				and(runningExploratoryAndComputationalCondition(user, exploratoryName, computationalName),
+						libraryConditionComputational(computationalName, libraryGroup, libraryName, version)
+				),
 
                 Projections.fields(excludeId(),
                         Projections.include(
@@ -174,27 +200,29 @@ public class ExploratoryLibDAO extends BaseDAO {
         return LibStatus.of(EMPTY);
     }
 
-    /** Add the user's library for exploratory into database.
-     * @param user user name.
-     * @param exploratoryName name of exploratory.
-     * @param library library.
-     * @return <b>true</b> if operation was successful, otherwise <b>false</b>.
-     */
-    public boolean addLibrary(String user, String exploratoryName, LibInstallDTO library, boolean reinstall) {
-    	Optional<Document> opt = findOne(USER_INSTANCES,
-        								and(exploratoryCondition(user, exploratoryName),
-        									libraryCondition(library.getGroup(), library.getName())));
-	if (!opt.isPresent()) {
-            updateOne(USER_INSTANCES,
-            		exploratoryCondition(user, exploratoryName),
-                    push(EXPLORATORY_LIBS, convertToBson(library)));
-            return true;
-        } else {
-        Document values = updateLibraryFields(library, null);
-        if (reinstall) {
-            values.append(libraryFieldFilter(LIB_INSTALL_DATE), null);
-            values.append(libraryFieldFilter(LIB_ERROR_MESSAGE), null);
-        }
+	/**
+	 * Add the user's library for exploratory into database.
+	 *
+	 * @param user            user name.
+	 * @param exploratoryName name of exploratory.
+	 * @param library         library.
+	 * @return <b>true</b> if operation was successful, otherwise <b>false</b>.
+	 */
+	public boolean addLibrary(String user, String exploratoryName, LibInstallDTO library, boolean reinstall) {
+		Optional<Document> opt = findOne(USER_INSTANCES,
+				and(exploratoryCondition(user, exploratoryName),
+						libraryCondition(library.getGroup(), library.getName())));
+		if (!opt.isPresent()) {
+			updateOne(USER_INSTANCES,
+					exploratoryCondition(user, exploratoryName),
+					push(EXPLORATORY_LIBS, convertToBson(library)));
+			return true;
+		} else {
+			Document values = updateLibraryFields(library, null);
+			if (reinstall) {
+				values.append(libraryFieldFilter(LIB_INSTALL_DATE), null);
+				values.append(libraryFieldFilter(LIB_ERROR_MESSAGE), null);
+			}
 
         updateOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName),
                 libraryCondition(library.getGroup(), library.getName())), new Document(SET, values));
@@ -203,15 +231,17 @@ public class ExploratoryLibDAO extends BaseDAO {
         }
     }
 
-    /** Add the user's library for exploratory into database.
-     * @param user user name.
-     * @param exploratoryName name of exploratory.
-     * @param computationalName name of computational.
-     * @param library library.
-     * @return <b>true</b> if operation was successful, otherwise <b>false</b>.
-     */
-    public boolean addLibrary(String user, String exploratoryName, String computationalName,
-                              LibInstallDTO library, boolean reinstall) {
+	/**
+	 * Add the user's library for exploratory into database.
+	 *
+	 * @param user              user name.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational.
+	 * @param library           library.
+	 * @return <b>true</b> if operation was successful, otherwise <b>false</b>.
+	 */
+	public boolean addLibrary(String user, String exploratoryName, String computationalName,
+							  LibInstallDTO library, boolean reinstall) {
 
         Optional<Document> opt = findOne(USER_INSTANCES,
                 and(runningExploratoryAndComputationalCondition(user, exploratoryName, computationalName),
@@ -241,13 +271,15 @@ public class ExploratoryLibDAO extends BaseDAO {
         }
     }
 
-    /** Updates the info about libraries for exploratory/computational in Mongo database.
-     * @param dto object of computational resource status.
-     */
-    public void updateLibraryFields(LibInstallStatusDTO dto) {
-    	if (dto.getLibs() == null) {
-    		return;
-    	}
+	/**
+	 * Updates the info about libraries for exploratory/computational in Mongo database.
+	 *
+	 * @param dto object of computational resource status.
+	 */
+	public void updateLibraryFields(LibInstallStatusDTO dto) {
+		if (dto.getLibs() == null) {
+			return;
+		}
 
     	if (StringUtils.isEmpty(dto.getComputationalName())) {
             updateExploratoryLibraryFields(dto);
@@ -320,6 +352,25 @@ public class ExploratoryLibDAO extends BaseDAO {
                     DateRemoverUtil.removeDateFormErrorMessage(lib.getErrorMessage()));
         }
 
-        return values;
-    }
+		return values;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Stream<Library> computationalLibStream(Document libsDocument) {
+		return ((List<Document>) libsDocument.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
+				.stream()
+				.map(d -> d.getString(COMPUTATIONAL_NAME_FIELD))
+				.flatMap(compName -> libraryStream(
+						(Document) libsDocument.getOrDefault(COMPUTATIONAL_LIBS, new Document()),
+						compName,
+						compName, ResourceType.COMPUTATIONAL));
+	}
+
+	@SuppressWarnings("unchecked")
+	private Stream<Library> libraryStream(Document libsDocument, String resourceName, String libFieldName, ResourceType libType) {
+		return ((List<Document>) libsDocument.getOrDefault(libFieldName, Collections.emptyList()))
+				.stream()
+				.map(d -> convertFromDocument(d, Library.class))
+				.peek(l -> l.withType(libType).withResourceName(resourceName));
+	}
 }

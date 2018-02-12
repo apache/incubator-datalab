@@ -42,6 +42,7 @@ import com.fiestacabin.dropwizard.quartz.SchedulerConfiguration;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
@@ -89,7 +90,7 @@ public class AzureSelfServiceModule extends CloudModule {
         environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAzure.class));
 
         injector.getInstance(SecurityFactory.class).configure(injector, environment,
-                SelfServiceSecurityAuthenticator.class, (p, r) -> true);
+                SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
     }
 
     @Provides

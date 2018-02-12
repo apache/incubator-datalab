@@ -46,28 +46,26 @@ def get_storage():
         protocols['azure'] = 'adl'
     return (storages[args.cloud], protocols[args.cloud])
 
-def prepare_rscript(template_path, rscript_name):
+def prepare_rscript(template_path, rscript_name, kernel='remote'):
     with open(template_path, 'r') as f:
         text = f.read()
     text = text.replace('WORKING_STORAGE', get_storage()[0])
     text = text.replace('PROTOCOL_NAME', get_storage()[1])
-    text = text.replace('MASTER', 'master = "spark"')
+    if kernel == 'remote':
+        if '-de-' in args.cluster_name:
+            text = text.replace('MASTER', 'master')
+        elif '-des-' in args.cluster_name:
+            text = text.replace('MASTER', 'master = "yarn"')
+    elif kernel == 'local':
+        text = text.replace('MASTER', 'master = "local[*]"')
     with open('/home/{}/{}.r'.format(args.os_user, rscript_name), 'w') as f:
         f.write(text)
 
 def enable_local_kernel():
     local("sed -i 's/^master/#master/' /home/{0}/.Rprofile".format(args.os_user))
-    local('''sed -i "s/^/#/g" /home/{0}/.Renviron | sed -i "/\/opt\/spark\//s/#//g" /home/{0}/.Renviron'''.format(args.os_user))
-    local('rm -f metastore_db/db*')
-
-def enable_local_kernel_in_template(template_path, rscript_name):
-    with open(template_path, 'r') as f:
-        text = f.read()
-    text = text.replace('WORKING_STORAGE', get_storage()[0])
-    text = text.replace('PROTOCOL_NAME', get_storage()[1])
-    text = text.replace('MASTER', 'master = "local[*]"')
-    with open('/home/{}/{}.r'.format(args.os_user, rscript_name), 'w') as f:
-        f.write(text)
+    local('''sed -i "s/^/#/g" /home/{0}/.Renviron'''.format(args.os_user))
+    local('''sed -i "/\/opt\/spark\//s/#//g" /home/{0}/.Renviron'''.format(args.os_user))
+    local('rm -f metastore_db/db* derby.log')
 
 def run_rscript(rscript_name):
     local('R < /home/{0}/{1}.r --no-save'.format(args.os_user, rscript_name))
@@ -77,14 +75,14 @@ if __name__ == "__main__":
     try:
         prepare_templates()
         # Running on remote kernel
-        prepare_rscript('/home/{}/test_templates/template_preparation.r'.format(args.os_user), 'preparation')
+        prepare_rscript('/home/{}/test_templates/template_preparation.r'.format(args.os_user), 'preparation', 'remote')
         run_rscript('preparation')
-        prepare_rscript('/home/{}/test_templates/template_visualization.r'.format(args.os_user), 'visualization')
+        prepare_rscript('/home/{}/test_templates/template_visualization.r'.format(args.os_user), 'visualization', 'remote')
         run_rscript('visualization')
         # Running on local kernel
         enable_local_kernel()
-        enable_local_kernel_in_template('/home/{}/test_templates/template_preparation.r'.format(args.os_user), 'preparation')
-        enable_local_kernel_in_template('/home/{}/test_templates/template_visualization.r'.format(args.os_user), 'visualization')
+        prepare_rscript('/home/{}/test_templates/template_preparation.r'.format(args.os_user), 'preparation', 'local')
+        prepare_rscript('/home/{}/test_templates/template_visualization.r'.format(args.os_user), 'visualization', 'local')
         run_rscript('preparation')
         run_rscript('visualization')
     except Exception as err:

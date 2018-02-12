@@ -29,10 +29,10 @@ import os
 parser = argparse.ArgumentParser(description="Backup script for DLab configs, keys, certs, jars, database & logs")
 parser.add_argument('--user', type=str, default='dlab-user', help='System username')
 parser.add_argument('--dlab_path', type=str, default='/opt/dlab/', help='Path to DLab. Default: /opt/dlab/')
-parser.add_argument('--configs', type=str, default='all', help='Comma separated names of config files, like "security.yml", etc. Default: all')
-parser.add_argument('--keys', type=str, default='all', help='Comma separated names of keys, like "user_name.pub". Default: all')
-parser.add_argument('--certs', type=str, default='all', help='Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Also available: skip. Default: all')
-parser.add_argument('--jars', type=str, default='skip', help='Comma separated names of jar application, like "self-service" (without .jar), etc. Also available: all. Default: skip')
+parser.add_argument('--configs', type=str, default='skip', help='Comma separated names of config files, like "security.yml", etc. Default: skip. Also available: all')
+parser.add_argument('--keys', type=str, default='skip', help='Comma separated names of keys, like "user_name.pub". Default: skip. Also available: all')
+parser.add_argument('--certs', type=str, default='skip', help='Comma separated names of SSL certificates and keys, like "dlab-selfsigned.crt", etc. Default: skip. Also available: all')
+parser.add_argument('--jars', type=str, default='skip', help='Comma separated names of jar application, like "self-service" (without .jar), etc. Default: skip. Also available: all')
 parser.add_argument('--db', action='store_true', default=False, help='Mongo DB. Key without arguments. Default: disable')
 parser.add_argument('--logs', action='store_true', default=False, help='All logs (include docker). Key without arguments. Default: disable')
 parser.add_argument('--request_id', type=str, default='', help='Uniq request ID for response and backup')
@@ -44,14 +44,17 @@ def backup_prepare():
     try:
         local("mkdir {}".format(temp_folder))
         local("mkdir {0}{1}".format(temp_folder, conf_folder))
-        local("mkdir {}keys".format(temp_folder))
+        if args.configs != "skip":
+            local("mkdir -p {}configs".format(temp_folder))
+        if args.keys != "skip":
+            local("mkdir -p {}keys".format(temp_folder))
         if args.certs != "skip":
-            local("mkdir {}certs".format(temp_folder))
+            local("mkdir -p {}certs".format(temp_folder))
         if args.jars != "skip":
-            local("mkdir {}jars".format(temp_folder))
+            local("mkdir -p {}jars".format(temp_folder))
         if args.logs:
-            local("mkdir {}logs".format(temp_folder))
-            local("mkdir {}logs/docker".format(temp_folder))
+            local("mkdir -p {}logs".format(temp_folder))
+            local("mkdir -p {}logs/docker".format(temp_folder))
     except Exception as err:
         append_result(error="Failed to create temp folder. {}".format(str(err)))
         sys.exit(1)
@@ -60,7 +63,9 @@ def backup_prepare():
 def backup_configs():
     try:
         print("Backup configs: {}".format(args.configs))
-        if args.configs == "all":
+        if args.configs == "skip":
+            print("Skipped config backup.")
+        elif args.configs == "all":
             local("find {0}{2} -name '*yml' -exec cp {3} {1}{2} \;".format(args.dlab_path, temp_folder, conf_folder, "{}"))
         else:
             for conf_file in args.configs.split(","):
@@ -73,7 +78,9 @@ def backup_configs():
 def backup_keys():
     try:
         print("Backup keys: {}".format(args.keys))
-        if args.keys == "all":
+        if args.keys == "skip":
+            print("Skipped keys backup.")
+        elif args.keys == "all":
             local("cp {0}* {1}keys".format(keys_folder, temp_folder))
         else:
             for key_file in args.keys.split(","):

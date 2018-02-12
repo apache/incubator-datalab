@@ -20,6 +20,7 @@ import com.epam.dlab.ModuleBase;
 import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
 import com.epam.dlab.backendapi.dao.BackupDao;
 import com.epam.dlab.backendapi.dao.BackupDaoImpl;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
@@ -32,6 +33,7 @@ import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.mongo.MongoService;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.name.Names;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.setup.Environment;
 
 /**
@@ -39,15 +41,15 @@ import io.dropwizard.setup.Environment;
  */
 public class ProductionModule extends ModuleBase<SelfServiceApplicationConfiguration> {
 
-	/**
-	 * Instantiates an application configuration of SelfService for production environment.
-	 *
-	 * @param configuration application configuration of SelfService.
-	 * @param environment   environment of SelfService.
-	 */
-	public ProductionModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
-		super(configuration, environment);
-	}
+    /**
+     * Instantiates an application configuration of SelfService for production environment.
+     *
+     * @param configuration application configuration of SelfService.
+     * @param environment   environment of SelfService.
+     */
+    public ProductionModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
+        super(configuration, environment);
+    }
 
 	@Override
 	protected void configure() {
@@ -64,5 +66,6 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(BackupDao.class).to(BackupDaoImpl.class);
 		bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
 		bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
+		bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
 	}
 }

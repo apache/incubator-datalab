@@ -714,6 +714,7 @@ class GCPActions:
                 time.sleep(5)
                 print('The cluster is being terminated... Please wait')
                 cluster_status = meta_lib.GCPMeta().get_list_cluster_statuses([cluster_name])
+            GCPActions().delete_dataproc_jobs(cluster_name)
             return result
         except Exception as err:
             logging.info(
@@ -769,6 +770,33 @@ class GCPActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
             sys.exit(1)
+
+
+    def delete_dataproc_jobs(self, cluster_filter):
+        try:
+            jobs = meta_lib.GCPMeta().get_dataproc_jobs()
+            cluster_jobs_ids = [job['reference']['jobId'] for job in jobs
+                                if cluster_filter in job['placement']['clusterName']]
+            for job_id in list(set(cluster_jobs_ids)):
+                print('The cluster jobs is being deleted... Please wait')
+                try:
+                    req = self.dataproc.projects().regions().jobs().delete(projectId=self.project,
+                                                                           region=os.environ['gcp_region'],
+                                                                           jobId=job_id)
+                    req.execute()
+                except errors.HttpError as err:
+                    if err.resp.status == 404:
+                        print('Job with ID: {} have not been found.'.format(job_id))
+        except Exception as err:
+            logging.info(
+                "Unable to delete dataproc jobs: " + str(err) + "\n Traceback: " + traceback.print_exc(
+                    file=sys.stdout))
+            append_result(str({"error": "Unable to delete dataproc jobs",
+                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+                                   file=sys.stdout)}))
+            traceback.print_exc(file=sys.stdout)
+            sys.exit(1)
+
 
     def get_cluster_app_version(self, bucket, user_name, cluster_name, application):
         try:

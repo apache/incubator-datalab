@@ -21,6 +21,7 @@ import com.epam.dlab.auth.SystemUserInfoService;
 import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
 import com.epam.dlab.backendapi.dao.BackupDao;
 import com.epam.dlab.backendapi.dao.BackupDaoImpl;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
@@ -36,6 +37,7 @@ import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
 import com.epam.dlab.rest.contracts.SecurityAPI;
 import com.google.inject.name.Names;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.setup.Environment;
 import org.mockito.stubbing.Answer;
 
@@ -79,6 +81,7 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
         bind(BackupDao.class).to(BackupDaoImpl.class);
         bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
         bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
+        bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
     }
 
     /**
