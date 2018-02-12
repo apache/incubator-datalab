@@ -229,6 +229,8 @@ public class ExploratoryDAO extends BaseDAO {
         schedulerData.append(SchedulerJobsDAO.START_TIME, dto.getStartTime());
         schedulerData.append(SchedulerJobsDAO.END_TIME, dto.getEndTime());
         schedulerData.append(SchedulerJobsDAO.DAYS_REPEAT, dto.getDaysRepeat());
+        schedulerData.append(SchedulerJobsDAO.TIMEZONE_PREFIX, dto.getTimeZonePrefix());
+        schedulerData.append(SchedulerJobsDAO.TIMEZONE_OFFSET, dto.getTimeZoneOffset());
         return updateOne(USER_INSTANCES,
                 exploratoryCondition(user, exploratoryName),
                 set(SCHEDULER_DATA, convertToBson(schedulerData)));

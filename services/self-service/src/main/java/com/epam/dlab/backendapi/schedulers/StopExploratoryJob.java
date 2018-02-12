@@ -61,8 +61,7 @@ public class StopExploratoryJob implements Job{
 				.stream()
 				.filter(jobData -> jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime()))
 				.collect(Collectors.toList());
-		List<SchedulerJobData> jobsToStop = new ArrayList<>();
-		jobsToStop.addAll(todayJobsToStop);
+		List<SchedulerJobData> jobsToStop = new ArrayList<>(todayJobsToStop);
 		jobsToStop.addAll(yesterdayJobsToStop);
         if(!jobsToStop.isEmpty()){
             log.info("Scheduler stop job is executing...");

@@ -29,10 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,6 +52,8 @@ public class SchedulerJobsDAO extends BaseDAO{
     public static final String START_TIME = "start_time";
     public static final String END_TIME = "end_time";
     public static final String DAYS_REPEAT = "days_repeat";
+    public static final String TIMEZONE_PREFIX = "timezone_prefix";
+    public static final String TIMEZONE_OFFSET = "timezone_offset";
 
     public SchedulerJobsDAO() {
         log.info("{} is initialized", getClass().getSimpleName());
@@ -70,50 +70,6 @@ public class SchedulerJobsDAO extends BaseDAO{
     }
 
 
-    /** Return condition for search scheduler job to start/stop exploratory regarding to parameter passed.
-     * @param today today's date.
-     * @param now this moment time in format 'hh:MM'.
-     * @param actionType 'start' string value for starting and another one for stopping.
-     */
-    private Bson schedulerJobActionCondition(LocalDate today, LocalTime now, String actionType) {
-        return and(
-                or(
-                        lt(SCHEDULER_DATA + "." + BEGIN_DATE + ".0", today.getYear()),
-                        and(lte(SCHEDULER_DATA + "." + BEGIN_DATE + ".0", today.getYear()),
-                                lt(SCHEDULER_DATA + "." + BEGIN_DATE + ".1", today.getMonthValue())),
-                        and(gte(SCHEDULER_DATA + "." + BEGIN_DATE + ".0", today.getYear()),
-                                lte(SCHEDULER_DATA + "." + BEGIN_DATE + ".1", today.getMonthValue()),
-                                lte(SCHEDULER_DATA + "." + BEGIN_DATE + ".2", today.getDayOfMonth()))
-                ),
-                or(
-                        gt(SCHEDULER_DATA + "." + FINISH_DATE + ".0", today.getYear()),
-                        and(gte(SCHEDULER_DATA + "." + FINISH_DATE + ".0", today.getYear()),
-                                gt(SCHEDULER_DATA + "." + FINISH_DATE + ".1", today.getMonthValue())),
-                        and(gte(SCHEDULER_DATA + "." + FINISH_DATE + ".0", today.getYear()),
-                                gte(SCHEDULER_DATA + "." + FINISH_DATE + ".1", today.getMonthValue()),
-                                gte(SCHEDULER_DATA + "." + FINISH_DATE + ".2", today.getDayOfMonth()))
-                ),
-                eq(SCHEDULER_DATA + "." + (actionType.equalsIgnoreCase(ACTION_START) ? START_TIME : END_TIME),
-                                                                         Arrays.asList(now.getHour(), now.getMinute())),
-                or(
-                        and(exists(SCHEDULER_DATA + "." + DAYS_REPEAT + ".0"),
-                                eq(SCHEDULER_DATA + "." + DAYS_REPEAT + ".0", today.getDayOfWeek().toString())),
-                        and(exists(SCHEDULER_DATA + "." + DAYS_REPEAT + ".1"),
-                                eq(SCHEDULER_DATA + "." + DAYS_REPEAT + ".1", today.getDayOfWeek().toString())),
-                        and(exists(SCHEDULER_DATA + "." + DAYS_REPEAT + ".2"),
-                                eq(SCHEDULER_DATA + "." + DAYS_REPEAT + ".2", today.getDayOfWeek().toString())),
-                        and(exists(SCHEDULER_DATA + "." + DAYS_REPEAT + ".3"),
-                                eq(SCHEDULER_DATA + "." + DAYS_REPEAT + ".3", today.getDayOfWeek().toString())),
-                        and(exists(SCHEDULER_DATA + "." + DAYS_REPEAT + ".4"),
-                                eq(SCHEDULER_DATA + "." + DAYS_REPEAT + ".4", today.getDayOfWeek().toString())),
-                        and(exists(SCHEDULER_DATA + "." + DAYS_REPEAT + ".5"),
-                                eq(SCHEDULER_DATA + "." + DAYS_REPEAT + ".5", today.getDayOfWeek().toString())),
-                        and(exists(SCHEDULER_DATA + "." + DAYS_REPEAT + ".6"),
-                                eq(SCHEDULER_DATA + "." + DAYS_REPEAT + ".6", today.getDayOfWeek().toString()))
-                )
-        );
-    }
-
     /**
      * Finds and returns the list of all scheduler jobs for starting/stopping regarding to parameter passed.
      * @param date and time for seeking appropriate scheduler jobs for starting/stopping.
@@ -124,13 +80,16 @@ public class SchedulerJobsDAO extends BaseDAO{
         FindIterable<Document> docs = find(USER_INSTANCES,
                 and(
                         statusConditionByAction(actionType),
-                        schedulerNotNullCondition(),
-                        schedulerJobActionCondition(date, time, actionType)
+                        schedulerNotNullCondition()
                 ),
-                fields(excludeId(), include(USER, ExploratoryDAO.EXPLORATORY_NAME, SCHEDULER_DATA)));
-        for (Document d : docs) {
-            if(d.containsKey(USER) && d.containsKey(EXPLORATORY_NAME) && d.containsKey(SCHEDULER_DATA)){
-                jobList.add(new SchedulerJobData(d.getString(USER), d.getString(EXPLORATORY_NAME), convertFromDocument((Document) d.get(SCHEDULER_DATA), SchedulerJobDTO.class)));
+                fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
+
+        for (Document doc : docs) {
+            String user = doc.getString(USER);
+            String exploratoryName = doc.getString(EXPLORATORY_NAME);
+            SchedulerJobDTO dto = convertFromDocument((Document) doc.get(SCHEDULER_DATA), SchedulerJobDTO.class);
+            if (isSchedulerJobDtoSatisfyCondition(dto, date, time, actionType)) {
+                jobList.add(new SchedulerJobData(user, exploratoryName, dto));
             }
         }
         return jobList;
@@ -150,6 +109,21 @@ public class SchedulerJobsDAO extends BaseDAO{
             return opt.get().getSchedulerData();
         }
         throw new DlabException("Scheduler job for user " + user + " and exploratory name" + exploratoryName + " not found.");
+    }
+
+    private boolean isSchedulerJobDtoSatisfyCondition(SchedulerJobDTO dto, LocalDate date, LocalTime time,
+                                                      String actionType) {
+
+        String tzPrefix = dto.getTimeZonePrefix();
+        ZoneOffset zOffset = dto.getTimeZoneOffset();
+        LocalDateTime ldt = LocalDateTime.of(date, time);
+        LocalDateTime zonedDateTime = ldt.atZone(ZoneId.ofOffset(tzPrefix, zOffset)).toLocalDateTime();
+        LocalDate zonedDate = zonedDateTime.toLocalDate();
+        LocalTime zonedTime = zonedDateTime.toLocalTime();
+
+        return !zonedDate.isBefore(dto.getBeginDate()) && !zonedDate.isAfter(dto.getFinishDate())
+                && dto.getDaysRepeat().contains(zonedDate.getDayOfWeek())
+                && zonedTime.equals(actionType.equalsIgnoreCase(ACTION_START) ? dto.getStartTime() : dto.getEndTime());
     }
 
 }

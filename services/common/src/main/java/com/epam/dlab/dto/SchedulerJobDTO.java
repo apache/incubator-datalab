@@ -20,10 +20,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import java.text.ParseException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,46 +43,9 @@ public class SchedulerJobDTO {
     private LocalTime endTime;
     @JsonProperty("days_repeat")
     private List<DayOfWeek> daysRepeat = new ArrayList<>();
-
-    /**
-     * Sets the date from which scheduler job will work (general duration).
-     */
-    public SchedulerJobDTO withBeginDate(LocalDate date) {
-        setBeginDate(date);
-        return this;
-    }
-
-    /**
-     * Sets the date to which scheduler job will work (general duration).
-     */
-    public SchedulerJobDTO withFinishDate(LocalDate date) {
-        setFinishDate(date);
-        return this;
-    }
-
-    /**
-     * Sets the time of day from which scheduler job will start (local duration).
-     */
-    public SchedulerJobDTO withStartTime(LocalTime time) throws ParseException {
-        setStartTime(time);
-        return this;
-    }
-
-    /**
-     * Sets the time of day to which scheduler job must finish (local duration).
-     */
-    public SchedulerJobDTO withEndTime(LocalTime time) {
-        setEndTime(time);
-        return this;
-    }
-
-
-    /**
-     * Sets the days of week for scheduler repeating.
-     */
-    public SchedulerJobDTO withDaysRepeat(List<DayOfWeek> days) {
-        setDaysRepeat(days);
-        return this;
-    }
+    @JsonProperty("timezone_prefix")
+    private String timeZonePrefix;
+    @JsonProperty("timezone_offset")
+    private ZoneOffset timeZoneOffset;
 
 }
