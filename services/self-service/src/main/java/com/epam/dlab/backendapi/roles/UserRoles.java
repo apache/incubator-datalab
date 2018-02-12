@@ -186,13 +186,13 @@ public class UserRoles {
 	private Set<String> getAndRemoveSet(Document document, String key) {
 		Object o = document.get(key);
 		if (o == null || !(o instanceof ArrayList)) {
-			return null;
+			return Collections.emptySet();
 		}
 
 		@SuppressWarnings("unchecked")
 		List<String> list = (List<String>) o;
 		if (list.isEmpty()) {
-			return null;
+			return Collections.emptySet();
 		}
 
 		Set<String> set = new HashSet<>();
@@ -218,11 +218,8 @@ public class UserRoles {
 		}
 		LOGGER.trace("Check access for user {} with groups {} to {}/{}", userInfo.getName(), userInfo.getRoles(), type, name);
 		UserRole role = get(type, name);
-		if (role == null && useDefault) {
-			LOGGER.trace("Got default access {}", defaultAccess);
-			return defaultAccess;
-		} else if (!useDefault) {
-			return false;
+		if (role == null) {
+			return checkDefault(useDefault);
 		}
 		if (role.getUsers() != null &&
 				userInfo.getName() != null &&
@@ -245,6 +242,15 @@ public class UserRoles {
 		}
 		LOGGER.trace("Access denied for user {} to {}/{}", userInfo.getName(), type, name);
 		return false;
+	}
+
+	private boolean checkDefault(boolean useDefault) {
+		if (useDefault) {
+			LOGGER.trace("Got default access {}", defaultAccess);
+			return defaultAccess;
+		} else {
+			return false;
+		}
 	}
 
 	@Override
