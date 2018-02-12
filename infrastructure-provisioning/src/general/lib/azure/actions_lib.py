@@ -1102,6 +1102,8 @@ def prepare_disk(os_user):
         try:
             remount_azure_disk()
             disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
+            with settings(warn_only=True):
+                sudo('umount /dev/{}1'.format(disk_name))
             sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
             sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
             sudo('mount /dev/{}1 /opt/'.format(disk_name))

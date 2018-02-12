@@ -18,32 +18,35 @@
 
 package com.epam.dlab.backendapi.roles;
 
-/** Types of roles.
+/**
+ * Types of roles.
  */
 public enum RoleType {
 	COMPUTATIONAL("computationals"),
 	EXPLORATORY("exploratories"),
 	PAGE("pages");
-	
-    private String nodeName;
 
-    RoleType(String nodeName) {
-        this.nodeName = nodeName;
-    }
+	private String nodeName;
 
-    /** Return name of node in JSON for type. */
-    public String getNodeName() {
-        return nodeName;
-    }
-    
-    public static RoleType of(String name) {
-        if (name != null) {
-            for (RoleType value : RoleType.values()) {
-                if (name.equalsIgnoreCase(value.toString())) {
-                    return value;
-                }
-            }
-        }
-        return null;
-    }
+	RoleType(String nodeName) {
+		this.nodeName = nodeName;
+	}
+
+	/**
+	 * Return name of node in JSON for type.
+	 */
+	public String getNodeName() {
+		return nodeName;
+	}
+
+	public static RoleType of(String name) {
+		if (name != null) {
+			for (RoleType value : RoleType.values()) {
+				if (name.equalsIgnoreCase(value.toString())) {
+					return value;
+				}
+			}
+		}
+		return null;
+	}
 }

@@ -16,24 +16,11 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MaterialModule } from './../shared/material.module';
-
-import { NavbarModule, ModalModule } from './../shared';
-import { HealthStatusComponent } from './health-status.component';
-import { HealthStatusGridModule } from './health-status-grid/health-status-grid.module';
-import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
-
-@NgModule({
-  imports: [
-    CommonModule,
-    NavbarModule,
-    ModalModule,
-    HealthStatusGridModule,
-    MaterialModule
-  ],
-  declarations: [HealthStatusComponent, BackupDilogComponent],
-  exports: [HealthStatusComponent]
-})
-export class HealthStatusModule {}
+.sub-nav {
+  justify-content: flex-end;
+  button {
+    &:first-child {
+      margin-right: 10px;
+    }
+  }
+}

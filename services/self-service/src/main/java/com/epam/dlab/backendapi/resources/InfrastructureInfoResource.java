@@ -23,6 +23,8 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
@@ -75,7 +77,8 @@ public class InfrastructureInfoResource implements InfrasctructureAPI {
 		log.debug("Request the status of resources for user {}, report type {}", userInfo.getName(), fullReport);
 		try {
 			HealthStatusPageDTO status = envDAO.getHealthStatusPageDTO(userInfo.getName(), fullReport != 0)
-					.withBillingEnabled(configuration.isBillingSchedulerEnabled());
+					.withBillingEnabled(configuration.isBillingSchedulerEnabled())
+					.withBackupAllowed(UserRoles.checkAccess(userInfo, RoleType.PAGE, UserRoles.BACKUP, false));
 			log.debug("Return the status of resources for user {}: {}", userInfo.getName(), status);
 			return status;
 		} catch (DlabException e) {

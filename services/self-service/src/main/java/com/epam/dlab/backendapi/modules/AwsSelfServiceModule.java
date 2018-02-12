@@ -33,27 +33,28 @@ import com.epam.dlab.backendapi.service.aws.AwsInfrastructureInfoService;
 import com.epam.dlab.backendapi.service.aws.AwsInfrastructureTemplatesService;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.setup.Environment;
 
 public class AwsSelfServiceModule extends CloudModule {
 
-    @Override
-    protected void configure() {
-        bind(BillingService.class).to(AwsBillingService.class);
-        bind((KeyDAO.class)).to(AwsKeyDao.class);
-        bind(InfrastructureInfoService.class).to(AwsInfrastructureInfoService.class);
-        bind(InfrastructureTemplatesService.class).to(AwsInfrastructureTemplatesService.class);
-    }
+	@Override
+	protected void configure() {
+		bind(BillingService.class).to(AwsBillingService.class);
+		bind((KeyDAO.class)).to(AwsKeyDao.class);
+		bind(InfrastructureInfoService.class).to(AwsInfrastructureInfoService.class);
+		bind(InfrastructureTemplatesService.class).to(AwsInfrastructureTemplatesService.class);
+	}
 
-    @Override
-    public void init(Environment environment, Injector injector) {
-        environment.jersey().register(injector.getInstance(EdgeCallbackAws.class));
-        environment.jersey().register(injector.getInstance(KeyUploaderCallbackAws.class));
-        environment.jersey().register(injector.getInstance(ComputationalResourceAws.class));
-        environment.jersey().register(injector.getInstance(BillingResourceAws.class));
-        environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAws.class));
+	@Override
+	public void init(Environment environment, Injector injector) {
+		environment.jersey().register(injector.getInstance(EdgeCallbackAws.class));
+		environment.jersey().register(injector.getInstance(KeyUploaderCallbackAws.class));
+		environment.jersey().register(injector.getInstance(ComputationalResourceAws.class));
+		environment.jersey().register(injector.getInstance(BillingResourceAws.class));
+		environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAws.class));
 
-        injector.getInstance(SecurityFactory.class).configure(injector, environment,
-                SelfServiceSecurityAuthenticator.class, (p, r) -> true);
-    }
+		injector.getInstance(SecurityFactory.class).configure(injector, environment,
+				SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
+	}
 }
