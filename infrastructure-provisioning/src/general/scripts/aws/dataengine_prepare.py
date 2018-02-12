@@ -72,7 +72,7 @@ if __name__ == "__main__":
                                       data_engine['computational_name']
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
-        data_engine['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
+        # data_engine['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
         data_engine['master_size'] = os.environ['aws_dataengine_master_shape']
         data_engine['slave_size'] = os.environ['aws_dataengine_slave_shape']
         data_engine['dataengine_master_security_group_name'] = data_engine['service_base_name'] + '-' + \
@@ -94,6 +94,18 @@ if __name__ == "__main__":
                                                               data_engine['cluster_name']}
         data_engine['primary_disk_size'] = '30'
         data_engine['instance_class'] = 'dataengine'
+        data_engine['expected_image_name'] = '{}-{}-notebook-image'.format(os.environ['conf_service_base_name'],
+                                                                           os.environ['application'])
+        data_engine['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
+                    else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
+
+        print('Searching pre-configured images')
+        image_id = get_ami_id_by_name(data_engine['notebook_image_name'], 'available')
+        if image_id != '' and os.environ['application'] in ('deeplearning', 'tensor'):
+            data_engine['ami_id'] = image_id
+        else:
+            data_engine['ami_id'] = get_ami_id(os.environ['aws_{}_ami_name'.format(os.environ['conf_os_family'])])
+            print('No pre-configured image found. Using default one: {}'.format(data_engine['ami_id']))
 
     except Exception as err:
         print("Failed to generate variables dictionary.")

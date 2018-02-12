@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # *****************************************************************************
 #
 # Copyright (c) 2016, EPAM SYSTEMS INC
@@ -16,20 +18,19 @@
 #
 # ******************************************************************************
 
-FROM docker.dlab-base:latest
+import os
+import sys
+import json
+import argparse
+from fabric.api import *
+from dlab.fab import *
+# from dlab.meta_lib import *
+# from dlab.actions_lib import *
+# import multiprocessing
 
-ARG OS
-
-COPY dataengine/ /root/
-COPY general/scripts/os/dataengine_* /root/scripts/
-COPY general/scripts/os/install_additional_libs.py /root/scripts/install_additional_libs.py
-COPY general/scripts/os/get_list_available_pkgs.py /root/scripts/get_list_available_pkgs.py
-COPY general/lib/os/${OS}/notebook_lib.py /usr/lib/python2.7/dlab/notebook_lib.py
-COPY general/scripts/os/common_* /root/scripts/
-COPY general/scripts/aws/dataengine_* /root/scripts/
-COPY general/templates/os/notebook_spark-defaults_local.conf /root/templates/
-COPY general/templates/os/tensorboard.service /root/templates/
-
-RUN chmod a+x /root/fabfile.py; \
-    chmod a+x /root/scripts/*
-
+parser = argparse.ArgumentParser()
+parser.add_argument('--hostname', type=str, default='')
+parser.add_argument('--keyfile', type=str, default='')
+parser.add_argument('--os_user', type=str, default='')
+parser.add_argument('--application', type=str, default='')
+args = parser.parse_args()
