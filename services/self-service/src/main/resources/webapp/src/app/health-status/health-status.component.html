@@ -19,9 +19,13 @@ limitations under the License.
 <dlab-navbar [healthStatus]="healthStatus"></dlab-navbar>
 
 <div class="sub-nav base-retreat">
+  <button mat-raised-button class="butt" (click)="showBackupDialog() && !creatingBackup" [disabled]="creatingBackup">
+    <i class="material-icons">backup</i>Backup
+  </button>
   <button mat-raised-button class="butt" (click)="buildGrid()">
     <i class="material-icons">autorenew</i>Refresh
   </button>
 </div>
 
 <health-status-grid [environmentsHealthStatuses]="environmentsHealthStatuses" (refreshGrid)="buildGrid($event)"></health-status-grid>
+<dlab-backup-dilog #backupDialog (backupOpts)="createBackup($event)"></dlab-backup-dilog>
