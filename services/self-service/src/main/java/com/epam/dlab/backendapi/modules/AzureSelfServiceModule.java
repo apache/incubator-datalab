@@ -38,49 +38,50 @@ import com.epam.dlab.backendapi.service.azure.AzureInfrastructureTemplatesServic
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.google.inject.Injector;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AzureSelfServiceModule extends CloudModule {
 
-    private AzureLoginConfiguration azureLoginConfiguration;
+	private AzureLoginConfiguration azureLoginConfiguration;
 
-    public AzureSelfServiceModule(AzureLoginConfiguration azureLoginConfiguration) {
-        this.azureLoginConfiguration = azureLoginConfiguration;
-    }
+	public AzureSelfServiceModule(AzureLoginConfiguration azureLoginConfiguration) {
+		this.azureLoginConfiguration = azureLoginConfiguration;
+	}
 
-    @Override
-    protected void configure() {
-        bind(BillingService.class).to(AzureBillingService.class);
-        bind((KeyDAO.class)).to(AzureKeyDao.class);
-        bind(InfrastructureInfoService.class).to(AzureInfrastructureInfoService.class);
-        bind(InfrastructureTemplatesService.class).to(AzureInfrastructureTemplatesService.class);
+	@Override
+	protected void configure() {
+		bind(BillingService.class).to(AzureBillingService.class);
+		bind((KeyDAO.class)).to(AzureKeyDao.class);
+		bind(InfrastructureInfoService.class).to(AzureInfrastructureInfoService.class);
+		bind(InfrastructureTemplatesService.class).to(AzureInfrastructureTemplatesService.class);
 
-        if (!azureLoginConfiguration.isUseLdap()) {
-            bind(AzureLoginUrlBuilder.class).toInstance(new AzureLoginUrlBuilder(azureLoginConfiguration));
-        }
-    }
+		if (!azureLoginConfiguration.isUseLdap()) {
+			bind(AzureLoginUrlBuilder.class).toInstance(new AzureLoginUrlBuilder(azureLoginConfiguration));
+		}
+	}
 
-    @Override
-    public void init(Environment environment, Injector injector) {
-        environment.jersey().register(injector.getInstance(EdgeCallbackAzure.class));
-        environment.jersey().register(injector.getInstance(KeyUploaderCallbackAzure.class));
-        environment.jersey().register(injector.getInstance(ComputationalResourceAzure.class));
-        environment.jersey().register(injector.getInstance(BillingResourceAzure.class));
+	@Override
+	public void init(Environment environment, Injector injector) {
+		environment.jersey().register(injector.getInstance(EdgeCallbackAzure.class));
+		environment.jersey().register(injector.getInstance(KeyUploaderCallbackAzure.class));
+		environment.jersey().register(injector.getInstance(ComputationalResourceAzure.class));
+		environment.jersey().register(injector.getInstance(BillingResourceAzure.class));
 
-        if (!azureLoginConfiguration.isUseLdap()) {
-            environment.jersey().register(injector.getInstance(AzureSecurityResource.class));
-            injector.getInstance(SecurityFactory.class).configure(injector, environment,
-                    SelfServiceSecurityAuthenticator.class,
-                    new UserSessionDurationAuthorizer(ui ->
-                            injector.getInstance(SecurityResource.class).userLogout(ui),
-                            azureLoginConfiguration.getMaxSessionDurabilityMilliseconds()));
-        }
+		if (!azureLoginConfiguration.isUseLdap()) {
+			environment.jersey().register(injector.getInstance(AzureSecurityResource.class));
+			injector.getInstance(SecurityFactory.class).configure(injector, environment,
+					SelfServiceSecurityAuthenticator.class,
+					new UserSessionDurationAuthorizer(ui ->
+							injector.getInstance(SecurityResource.class).userLogout(ui),
+							azureLoginConfiguration.getMaxSessionDurabilityMilliseconds()));
+		}
 
-        environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAzure.class));
+		environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAzure.class));
 
-        injector.getInstance(SecurityFactory.class).configure(injector, environment,
-                SelfServiceSecurityAuthenticator.class, (p, r) -> true);
-    }
+		injector.getInstance(SecurityFactory.class).configure(injector, environment,
+				SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
+	}
 }

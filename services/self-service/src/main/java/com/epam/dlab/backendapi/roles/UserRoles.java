@@ -18,81 +18,107 @@
 
 package com.epam.dlab.backendapi.roles;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.dao.SecurityDAO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.common.base.MoreObjects;
 import com.mongodb.client.FindIterable;
+import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/** Provides user roles access to features.
+import java.util.*;
+
+/**
+ * Provides user roles access to features.
  */
 public class UserRoles {
+	public static final String BACKUP = "/api/infrastructure/backup";
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserRoles.class);
 
-	private static final Object ANY_USER = "$anyuser";
-	
-	/** Single instance of the user roles. */
+	private static final String ANY_USER = "$anyuser";
+
+	/**
+	 * Single instance of the user roles.
+	 */
 	private static UserRoles userRoles = null;
-	
-	/** Node name of groups. */
-	private final String GROUPS = "groups";
-	
-	/** Node name of user. */
-	private final String USERS = "users";
-	
-	/**List of roles. */
+
+	/**
+	 * Node name of groups.
+	 */
+	private static final String GROUPS = "groups";
+
+	/**
+	 * Node name of user.
+	 */
+	private static final String USERS = "users";
+
+	/**
+	 * List of roles.
+	 */
 	private List<UserRole> roles = null;
-	
-	/** Default access to features if the role is not defined. */
+
+	/**
+	 * Default access to features if the role is not defined.
+	 */
 	private boolean defaultAccess = false;
-	
-	/** Initialize user roles for all users.
+
+	/**
+	 * Initialize user roles for all users.
+	 *
 	 * @param dao security DAO.
 	 * @throws DlabException
 	 */
-    public static void initialize(SecurityDAO dao, boolean defaultAccess) throws DlabException {
-    	LOGGER.trace("Loading roles from database");
-    	if (userRoles == null) {
-    		userRoles = new UserRoles();
-    	}
-    	userRoles.load(dao, defaultAccess);
-    	LOGGER.trace("New roles is {}", getRoles());
-    }
-
-    /** Return the list of roles for all users. */
-    public static List<UserRole> getRoles() {
-    	return (userRoles == null ? null : userRoles.roles);
-    }
-    
-    /** Check access for user to the role.
-     * @param userInfo user info.
-     * @param type the type of role.
-     * @param name the name of role.
-     * @return
-     */
-	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name) {
-		return (userRoles == null ? true : userRoles.hasAccess(userInfo, type, name));
+	public static void initialize(SecurityDAO dao, boolean defaultAccess) {
+		LOGGER.trace("Loading roles from database");
+		if (userRoles == null) {
+			userRoles = new UserRoles();
+		}
+		userRoles.load(dao, defaultAccess);
+		LOGGER.trace("New roles is {}", getRoles());
 	}
 
-    /** Loading the user roles for all users from Mongo database.
-	 * @param dao security DAO.
-	 * @throws DlabException
+	/**
+	 * Return the list of roles for all users.
 	 */
-    private synchronized void load(SecurityDAO dao, boolean defaultAccess) throws DlabException {
-    	this.defaultAccess = defaultAccess;
-    	try {
+	public static List<UserRole> getRoles() {
+		return (userRoles == null ? null : userRoles.roles);
+	}
+
+	/**
+	 * Check access for user to the role.
+	 *
+	 * @param userInfo user info.
+	 * @param type     the type of role.
+	 * @param name     the name of role.
+	 * @return
+	 */
+	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name) {
+		return checkAccess(userInfo, type, name, true);
+	}
+
+	/**
+	 * Check access for user to the role.
+	 *
+	 * @param userInfo user info.
+	 * @param type     the type of role.
+	 * @param name     the name of role.
+	 * @return
+	 */
+	public static boolean checkAccess(UserInfo userInfo, RoleType type, String name, boolean useDefault) {
+		return (userRoles == null ? true : userRoles.hasAccess(userInfo, type, name, useDefault));
+	}
+
+	/**
+	 * Loading the user roles for all users from Mongo database.
+	 *
+	 * @param dao security DAO.
+	 */
+	private synchronized void load(SecurityDAO dao, boolean defaultAccess) {
+		this.defaultAccess = defaultAccess;
+		try {
 			FindIterable<Document> docs = dao.getRoles();
-    		roles = new ArrayList<>();
+			roles = new ArrayList<>();
 			for (Document d : docs) {
 				Set<String> groups = getAndRemoveSet(d, GROUPS);
 				Set<String> users = getAndRemoveSet(d, USERS);
@@ -106,22 +132,24 @@ public class UserRoles {
 					}
 				}
 			}
-    	} catch (Exception e) {
-    		throw new DlabException("Cannot load roles from database. " + e.getLocalizedMessage(), e);
-    	}
-    }
-    
-	/** Append new role to the list if role not exists in list an return it, otherwise return
+		} catch (Exception e) {
+			throw new DlabException("Cannot load roles from database. " + e.getLocalizedMessage(), e);
+		}
+	}
+
+	/**
+	 * Append new role to the list if role not exists in list an return it, otherwise return
 	 * existence role.
-	 * @param type type of role.
-	 * @param name the name of role.
+	 *
+	 * @param type   type of role.
+	 * @param name   the name of role.
 	 * @param groups the names of external groups.
-	 * @param users the name of DLab's users.
+	 * @param users  the name of DLab's users.
 	 * @return role.
 	 */
 	private UserRole append(RoleType type, String name, Set<String> groups, Set<String> users) {
 		UserRole item = new UserRole(type, name, groups, users);
-	    synchronized (roles) {
+		synchronized (roles) {
 			int index = Collections.binarySearch(roles, item);
 			if (index < 0) {
 				index = -index;
@@ -131,11 +159,13 @@ public class UserRoles {
 					roles.add(index - 1, item);
 				}
 			}
-	    }
+		}
 		return item;
 	}
-	
-	/** Find and return role by type and name. 
+
+	/**
+	 * Find and return role by type and name.
+	 *
 	 * @param type type of role.
 	 * @param name the name of role.
 	 */
@@ -146,51 +176,58 @@ public class UserRoles {
 			return (i < 0 ? null : roles.get(i));
 		}
 	}
-	
-	/** Find and return a list by key from JSON document, otherwise return <b>null</b>.
+
+	/**
+	 * Find and return a list by key from JSON document, otherwise return <b>null</b>.
+	 *
 	 * @param document the document.
-	 * @param key the name of node.
+	 * @param key      the name of node.
 	 */
 	private Set<String> getAndRemoveSet(Document document, String key) {
-    	Object o = document.get(key);
-    	if (o == null || !(o instanceof ArrayList)) {
-    		return null;
-    	}
-    	
-    	@SuppressWarnings("unchecked")
+		Object o = document.get(key);
+		if (o == null || !(o instanceof ArrayList)) {
+			return null;
+		}
+
+		@SuppressWarnings("unchecked")
 		List<String> list = (List<String>) o;
-    	if (list.size() == 0) {
-    		return null;
-    	}
-    	
-    	Set<String> set = new HashSet<>();
-    	for (String value : list) {
+		if (list.isEmpty()) {
+			return null;
+		}
+
+		Set<String> set = new HashSet<>();
+		for (String value : list) {
 			set.add(value.toLowerCase());
 		}
 		document.remove(key);
 		return set;
-    }
-	
-    /** Check access for user to the role.
-     * @param userInfo user info.
-     * @param type the type of role.
-     * @param name the name of role.
-     * @return
-     */
-	private boolean hasAccess(UserInfo userInfo, RoleType type, String name) {
+	}
+
+	/**
+	 * Check access for user to the role.
+	 *
+	 * @param userInfo   user info.
+	 * @param type       the type of role.
+	 * @param name       the name of role.
+	 * @param useDefault
+	 * @return
+	 */
+	private boolean hasAccess(UserInfo userInfo, RoleType type, String name, boolean useDefault) {
 		if (userRoles == null) {
 			return true;
 		}
 		LOGGER.trace("Check access for user {} with groups {} to {}/{}", userInfo.getName(), userInfo.getRoles(), type, name);
 		UserRole role = get(type, name);
-		if (role == null) {
+		if (role == null && useDefault) {
 			LOGGER.trace("Got default access {}", defaultAccess);
 			return defaultAccess;
+		} else if (!useDefault) {
+			return false;
 		}
 		if (role.getUsers() != null &&
-			userInfo.getName() != null &&
-			(role.getUsers().contains(ANY_USER) ||
-			role.getUsers().contains(userInfo.getName().toLowerCase()))) {
+				userInfo.getName() != null &&
+				(role.getUsers().contains(ANY_USER) ||
+						role.getUsers().contains(userInfo.getName().toLowerCase()))) {
 			LOGGER.trace("Got access by name");
 			return true;
 		}
