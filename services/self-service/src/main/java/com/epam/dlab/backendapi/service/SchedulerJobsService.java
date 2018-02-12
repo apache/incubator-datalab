@@ -24,8 +24,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Slf4j
@@ -41,8 +40,8 @@ public class SchedulerJobsService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<SchedulerJobData> getSchedulerJobsForExploratoryAction(LocalDate date, LocalTime time, String actionType) {
-        return schedulerJobsDAO.getSchedulerJobsForAction(date, time, actionType);
+	public List<SchedulerJobData> getSchedulerJobsForExploratoryAction(OffsetDateTime dateTime, String actionType) {
+		return schedulerJobsDAO.getSchedulerJobsForAction(dateTime, actionType);
     }
 
 }

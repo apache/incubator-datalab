@@ -29,6 +29,7 @@ import org.quartz.JobExecutionContext;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,24 +50,27 @@ public class StopExploratoryJob implements Job{
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext){
-        LocalTime currentTime = LocalTime.now();
-        LocalTime currentTimeRounded = LocalTime.of(currentTime.getHour(), currentTime.getMinute());
+		OffsetDateTime currentDateTime = OffsetDateTime.now();
 		List<SchedulerJobData> todayJobsToStop = schedulerJobsService
-				.getSchedulerJobsForExploratoryAction(LocalDate.now(), currentTimeRounded, "stop")
+				.getSchedulerJobsForExploratoryAction(currentDateTime, "stop")
 				.stream()
 				.filter(jobData -> jobData.getJobDTO().getEndTime().isAfter(jobData.getJobDTO().getStartTime()))
 				.collect(Collectors.toList());
 		List<SchedulerJobData> yesterdayJobsToStop = schedulerJobsService
-				.getSchedulerJobsForExploratoryAction(LocalDate.now().minusDays(1), currentTimeRounded, "stop")
+				.getSchedulerJobsForExploratoryAction(currentDateTime.minusDays(1), "stop")
 				.stream()
-				.filter(jobData -> jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime()))
+				.filter(jobData -> jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime())
+						&& !currentDateTime.toLocalDate().isAfter(jobData.getJobDTO().getFinishDate()))
 				.collect(Collectors.toList());
 		List<SchedulerJobData> jobsToStop = new ArrayList<>(todayJobsToStop);
 		jobsToStop.addAll(yesterdayJobsToStop);
         if(!jobsToStop.isEmpty()){
             log.info("Scheduler stop job is executing...");
-            log.info("Current time rounded: {} , current date: {}, current day of week: {}", currentTimeRounded, LocalDate.now(),
-                    LocalDate.now().getDayOfWeek());
+			log.info("Current time rounded: {} , current date: {}, current day of week: {}",
+					LocalTime.of(currentDateTime.toLocalTime().getHour(), currentDateTime.toLocalTime().getMinute()),
+					LocalDate.now(),
+					currentDateTime.toLocalDate(),
+					currentDateTime.getDayOfWeek());
             log.info("Scheduler jobs for stopping: {}", jobsToStop.size());
             for(SchedulerJobData jobData : jobsToStop){
                 log.info("Exploratory with name {} for user {} is stopping...", jobData.getExploratoryName(), jobData.getUser());

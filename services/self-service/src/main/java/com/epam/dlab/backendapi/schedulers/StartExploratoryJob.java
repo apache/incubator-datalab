@@ -30,6 +30,7 @@ import org.quartz.JobExecutionContext;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 
@@ -48,13 +49,16 @@ public class StartExploratoryJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext){
-        LocalTime currentTime = LocalTime.now();
-        LocalTime currentTimeRounded = LocalTime.of(currentTime.getHour(), currentTime.getMinute());
-        List<SchedulerJobData> jobsToStart = schedulerJobsService.getSchedulerJobsForExploratoryAction(LocalDate.now(), currentTimeRounded, "start");
+		OffsetDateTime currentDateTime = OffsetDateTime.now();
+		List<SchedulerJobData> jobsToStart = schedulerJobsService.getSchedulerJobsForExploratoryAction
+				(currentDateTime, "start");
         if(!jobsToStart.isEmpty()){
             log.info("Scheduler start job is executing...");
-            log.info("Current time rounded: {} , current date: {}, current day of week: {}", currentTimeRounded, LocalDate.now(),
-                    LocalDate.now().getDayOfWeek());
+			log.info("Current time rounded: {} , current date: {}, current day of week: {}",
+					LocalTime.of(currentDateTime.toLocalTime().getHour(), currentDateTime.toLocalTime().getMinute()),
+					LocalDate.now(),
+					currentDateTime.toLocalDate(),
+					currentDateTime.getDayOfWeek());
             log.info("Scheduler jobs for starting: {}", jobsToStart.size());
             for(SchedulerJobData jobData : jobsToStart){
                 log.info("Exploratory with name {} for user {} is starting...", jobData.getExploratoryName(), jobData.getUser());

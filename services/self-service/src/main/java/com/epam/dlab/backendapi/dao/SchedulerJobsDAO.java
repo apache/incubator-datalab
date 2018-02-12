@@ -72,10 +72,10 @@ public class SchedulerJobsDAO extends BaseDAO{
 
     /**
      * Finds and returns the list of all scheduler jobs for starting/stopping regarding to parameter passed.
-     * @param date and time for seeking appropriate scheduler jobs for starting/stopping.
+	 * @param dateTime for seeking appropriate scheduler jobs for starting/stopping.
      * @param actionType 'start' string value for starting exploratory and another one for stopping.
      */
-    public List<SchedulerJobData> getSchedulerJobsForAction(LocalDate date, LocalTime time, String actionType){
+	public List<SchedulerJobData> getSchedulerJobsForAction(OffsetDateTime dateTime, String actionType) {
         List<SchedulerJobData> jobList = new ArrayList<>();
         FindIterable<Document> docs = find(USER_INSTANCES,
                 and(
@@ -88,7 +88,7 @@ public class SchedulerJobsDAO extends BaseDAO{
             String user = doc.getString(USER);
             String exploratoryName = doc.getString(EXPLORATORY_NAME);
             SchedulerJobDTO dto = convertFromDocument((Document) doc.get(SCHEDULER_DATA), SchedulerJobDTO.class);
-            if (isSchedulerJobDtoSatisfyCondition(dto, date, time, actionType)) {
+			if (isSchedulerJobDtoSatisfyCondition(dto, dateTime, actionType)) {
                 jobList.add(new SchedulerJobData(user, exploratoryName, dto));
             }
         }
@@ -111,19 +111,23 @@ public class SchedulerJobsDAO extends BaseDAO{
         throw new DlabException("Scheduler job for user " + user + " and exploratory name" + exploratoryName + " not found.");
     }
 
-    private boolean isSchedulerJobDtoSatisfyCondition(SchedulerJobDTO dto, LocalDate date, LocalTime time,
-                                                      String actionType) {
-
+	private boolean isSchedulerJobDtoSatisfyCondition(SchedulerJobDTO dto, OffsetDateTime dateTime,
+													  String actionType) {
         String tzPrefix = dto.getTimeZonePrefix();
         ZoneOffset zOffset = dto.getTimeZoneOffset();
-        LocalDateTime ldt = LocalDateTime.of(date, time);
-        LocalDateTime zonedDateTime = ldt.atZone(ZoneId.ofOffset(tzPrefix, zOffset)).toLocalDateTime();
-        LocalDate zonedDate = zonedDateTime.toLocalDate();
-        LocalTime zonedTime = zonedDateTime.toLocalTime();
+		OffsetDateTime roundedDateTime = OffsetDateTime.of(
+				dateTime.toLocalDate(),
+				LocalTime.of(dateTime.toLocalTime().getHour(), dateTime.toLocalTime().getMinute()),
+				dateTime.getOffset());
 
-        return !zonedDate.isBefore(dto.getBeginDate()) && !zonedDate.isAfter(dto.getFinishDate())
-                && dto.getDaysRepeat().contains(zonedDate.getDayOfWeek())
-                && zonedTime.equals(actionType.equalsIgnoreCase(ACTION_START) ? dto.getStartTime() : dto.getEndTime());
+		LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(roundedDateTime.toInstant(),
+				ZoneId.ofOffset(tzPrefix, zOffset)).toLocalDateTime();
+
+		return !convertedDateTime.toLocalDate().isBefore(dto.getBeginDate())
+				&& !convertedDateTime.toLocalDate().isAfter(dto.getFinishDate())
+				&& dto.getDaysRepeat().contains(convertedDateTime.toLocalDate().getDayOfWeek())
+				&& convertedDateTime.toLocalTime()
+				.equals(actionType.equalsIgnoreCase(ACTION_START) ? dto.getStartTime() : dto.getEndTime());
     }
 
 }
