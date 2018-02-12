@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -56,7 +55,6 @@ public class StartExploratoryJob implements Job {
             log.info("Scheduler start job is executing...");
 			log.info("Current time rounded: {} , current date: {}, current day of week: {}",
 					LocalTime.of(currentDateTime.toLocalTime().getHour(), currentDateTime.toLocalTime().getMinute()),
-					LocalDate.now(),
 					currentDateTime.toLocalDate(),
 					currentDateTime.getDayOfWeek());
             log.info("Scheduler jobs for starting: {}", jobsToStart.size());

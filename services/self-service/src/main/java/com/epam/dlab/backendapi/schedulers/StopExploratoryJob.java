@@ -27,9 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,8 +57,14 @@ public class StopExploratoryJob implements Job{
 		List<SchedulerJobData> yesterdayJobsToStop = schedulerJobsService
 				.getSchedulerJobsForExploratoryAction(currentDateTime.minusDays(1), "stop")
 				.stream()
-				.filter(jobData -> jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime())
-						&& !currentDateTime.toLocalDate().isAfter(jobData.getJobDTO().getFinishDate()))
+				.filter(jobData -> {
+					LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(currentDateTime.toInstant(),
+							ZoneId.ofOffset(jobData.getJobDTO().getTimeZonePrefix(), jobData.getJobDTO()
+									.getTimeZoneOffset()))
+							.toLocalDateTime();
+					return jobData.getJobDTO().getEndTime().isBefore(jobData.getJobDTO().getStartTime())
+							&& !convertedDateTime.toLocalDate().isAfter(jobData.getJobDTO().getFinishDate());
+				})
 				.collect(Collectors.toList());
 		List<SchedulerJobData> jobsToStop = new ArrayList<>(todayJobsToStop);
 		jobsToStop.addAll(yesterdayJobsToStop);
@@ -68,7 +72,6 @@ public class StopExploratoryJob implements Job{
             log.info("Scheduler stop job is executing...");
 			log.info("Current time rounded: {} , current date: {}, current day of week: {}",
 					LocalTime.of(currentDateTime.toLocalTime().getHour(), currentDateTime.toLocalTime().getMinute()),
-					LocalDate.now(),
 					currentDateTime.toLocalDate(),
 					currentDateTime.getDayOfWeek());
             log.info("Scheduler jobs for stopping: {}", jobsToStop.size());
