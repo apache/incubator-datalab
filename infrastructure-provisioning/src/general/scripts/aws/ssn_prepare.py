@@ -39,18 +39,13 @@ if __name__ == "__main__":
         logging.info('[CREATE AWS CONFIG FILE]')
         print('[CREATE AWS CONFIG FILE]')
         if 'aws_access_key' in os.environ and 'aws_secret_access_key' in os.environ:
-            if not create_aws_config_files(generate_full_config=True):
-                logging.info('Unable to create configuration')
-                append_result("Unable to create configuration")
-                traceback.print_exc()
-                sys.exit(1)
+            create_aws_config_files(generate_full_config=True)
         else:
-            if not create_aws_config_files():
-                logging.info('Unable to create configuration')
-                append_result("Unable to create configuration")
-                traceback.print_exc()
-                sys.exit(1)
+            create_aws_config_files()
     except:
+        logging.info('Unable to create configuration')
+        append_result("Unable to create configuration")
+        traceback.print_exc()
         sys.exit(1)
 
     try:
