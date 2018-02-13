@@ -74,4 +74,11 @@ export class HealthStatusService {
       .buildRecreateEdgeNodeRequest()
       .map((response: Response) => response);
   }
+
+  public isBillingEnabled(): Observable<Response> {
+    return this.applicationServiceFacade
+    .buildGetEnvironmentHealthStatus()
+
+    .map((response: Response) => response);
+  }
 }
