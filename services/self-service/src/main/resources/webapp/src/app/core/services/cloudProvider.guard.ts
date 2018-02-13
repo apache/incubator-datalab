@@ -18,26 +18,38 @@ limitations under the License.
 
 import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { AuthorizationGuard, AppRoutingService } from './';
+import { AuthorizationGuard, AppRoutingService, HealthStatusService } from './';
 
 import { DICTIONARY } from '../../../dictionary/global.dictionary';
+
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/toPromise';
+import { Observer } from 'rxjs/Observer';
 
 @Injectable()
 export class CloudProviderGuard implements CanActivate {
     constructor(
       private _authGuard: AuthorizationGuard,
-      private _routing: AppRoutingService
+      private _routing: AppRoutingService,
+      private _healthStatus: HealthStatusService
     ) { }
 
-    canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
+    canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<any> {
         return this._authGuard.canActivate(next, state).toPromise().then((auth: boolean) => {
-          if (!auth || DICTIONARY.cloud_provider === 'gcp') {
-            auth && this._routing.redirectToHomePage();
-            return Promise.resolve(false);
-          } else {
-            return Promise.resolve(true);
-          }
+            if (!auth) Promise.resolve(false);
+
+            this._healthStatus.isBillingEnabled()
+              .subscribe(status => {
+                const data = status.json()
+                console.log(data);
+
+                if (auth && !data.billingEnabled) {
+                  this._routing.redirectToHomePage();
+                  return Promise.resolve(false);
+                }
+
+                return Promise.resolve(true);
+              });
         });
     }
 }
