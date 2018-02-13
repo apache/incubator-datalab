@@ -20,7 +20,6 @@
 package com.epam.dlab.backendapi.dao;
 
 import com.epam.dlab.dto.SchedulerJobDTO;
-import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.google.inject.Singleton;
@@ -30,9 +29,9 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.time.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.EXPLORATORY_NAME;
 import static com.epam.dlab.backendapi.dao.ExploratoryDAO.exploratoryCondition;
@@ -44,18 +43,12 @@ import static com.mongodb.client.model.Projections.*;
  */
 @Slf4j
 @Singleton
-public class SchedulerJobsDAO extends BaseDAO{
+public class SchedulerJobDAO extends BaseDAO {
 
     static final String SCHEDULER_DATA = "scheduler_data";
-    public static final String BEGIN_DATE = "begin_date";
-    public static final String FINISH_DATE = "finish_date";
-    public static final String START_TIME = "start_time";
-    public static final String END_TIME = "end_time";
-    public static final String DAYS_REPEAT = "days_repeat";
-    public static final String TIMEZONE_PREFIX = "timezone_prefix";
-    public static final String TIMEZONE_OFFSET = "timezone_offset";
+	public static final String TIMEZONE_PREFIX = "UTC";
 
-    public SchedulerJobsDAO() {
+	public SchedulerJobDAO() {
         log.info("{} is initialized", getClass().getSimpleName());
     }
 
@@ -76,7 +69,6 @@ public class SchedulerJobsDAO extends BaseDAO{
      * @param actionType 'start' string value for starting exploratory and another one for stopping.
      */
 	public List<SchedulerJobData> getSchedulerJobsForAction(OffsetDateTime dateTime, String actionType) {
-        List<SchedulerJobData> jobList = new ArrayList<>();
         FindIterable<Document> docs = find(USER_INSTANCES,
                 and(
                         statusConditionByAction(actionType),
@@ -84,15 +76,10 @@ public class SchedulerJobsDAO extends BaseDAO{
                 ),
                 fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
 
-        for (Document doc : docs) {
-            String user = doc.getString(USER);
-            String exploratoryName = doc.getString(EXPLORATORY_NAME);
-            SchedulerJobDTO dto = convertFromDocument((Document) doc.get(SCHEDULER_DATA), SchedulerJobDTO.class);
-			if (isSchedulerJobDtoSatisfyCondition(dto, dateTime, actionType)) {
-                jobList.add(new SchedulerJobData(user, exploratoryName, dto));
-            }
-        }
-        return jobList;
+		return StreamSupport.stream(docs.spliterator(), false)
+				.map(d -> convertFromDocument(d, SchedulerJobData.class))
+				.filter(jobData -> isSchedulerJobDtoSatisfyCondition(jobData.getJobDTO(), dateTime, actionType))
+				.collect(Collectors.toList());
     }
 
     /**
@@ -101,19 +88,15 @@ public class SchedulerJobsDAO extends BaseDAO{
      * @param exploratoryName the name of exploratory.
      */
 	public SchedulerJobDTO fetchSingleSchedulerJobByUserAndExploratory(String user, String exploratoryName) {
-        Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
-                and(exploratoryCondition(user, exploratoryName), schedulerNotNullCondition()),
-                UserInstanceDTO.class);
-
-        if (opt.isPresent()) {
-            return opt.get().getSchedulerData();
-        }
-        throw new DlabException("Scheduler job for user " + user + " and exploratory name" + exploratoryName + " not found.");
-    }
+		return convertFromDocument((Document) findOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName),
+				schedulerNotNullCondition()))
+				.orElseThrow(() -> new DlabException(
+						String.format("Scheduler job for user %s with exploratory instance name %s not found.",
+								user, exploratoryName))).get(SCHEDULER_DATA), SchedulerJobDTO.class);
+	}
 
 	private boolean isSchedulerJobDtoSatisfyCondition(SchedulerJobDTO dto, OffsetDateTime dateTime,
 													  String actionType) {
-        String tzPrefix = dto.getTimeZonePrefix();
         ZoneOffset zOffset = dto.getTimeZoneOffset();
 		OffsetDateTime roundedDateTime = OffsetDateTime.of(
 				dateTime.toLocalDate(),
@@ -121,7 +104,7 @@ public class SchedulerJobsDAO extends BaseDAO{
 				dateTime.getOffset());
 
 		LocalDateTime convertedDateTime = ZonedDateTime.ofInstant(roundedDateTime.toInstant(),
-				ZoneId.ofOffset(tzPrefix, zOffset)).toLocalDateTime();
+				ZoneId.ofOffset(TIMEZONE_PREFIX, zOffset)).toLocalDateTime();
 
 		return !convertedDateTime.toLocalDate().isBefore(dto.getBeginDate())
 				&& !convertedDateTime.toLocalDate().isAfter(dto.getFinishDate())

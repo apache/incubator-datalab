@@ -51,6 +51,7 @@
 
     <properties>
         <org.glassfish.jersey.media.version>2.23.1</org.glassfish.jersey.media.version>
+        <com.fiestacabin.dropwizard.quartz.version>0.7.1</com.fiestacabin.dropwizard.quartz.version>
     </properties>
 
     <dependencies>
@@ -101,7 +102,7 @@
         <dependency>
             <groupId>com.fiestacabin.dropwizard.quartz</groupId>
             <artifactId>dropwizard-quartz</artifactId>
-            <version>0.7.1</version>
+            <version>${com.fiestacabin.dropwizard.quartz.version}</version>
         </dependency>
     </dependencies>
 

@@ -43,8 +43,6 @@ public class SchedulerJobDTO {
     private LocalTime endTime;
     @JsonProperty("days_repeat")
     private List<DayOfWeek> daysRepeat = new ArrayList<>();
-    @JsonProperty("timezone_prefix")
-    private String timeZonePrefix;
     @JsonProperty("timezone_offset")
     private ZoneOffset timeZoneOffset;
 

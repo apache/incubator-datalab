@@ -16,11 +16,7 @@
 
 package com.epam.dlab.backendapi.schedulers;
 
-import com.epam.dlab.auth.SystemUserInfoServiceImpl;
-import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.service.ExploratoryServiceImpl;
-import com.epam.dlab.backendapi.service.SchedulerJobsService;
+import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.fiestacabin.dropwizard.quartz.Scheduled;
 import com.google.inject.Inject;
@@ -38,34 +34,22 @@ import java.util.List;
 public class StartExploratoryJob implements Job {
 
     @Inject
-    private SchedulerJobsService schedulerJobsService;
-
-    @Inject
-    private ExploratoryServiceImpl exploratoryService;
-
-    @Inject
-    private SystemUserInfoServiceImpl systemUserService;
+	private SchedulerJobService schedulerJobService;
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext){
 		OffsetDateTime currentDateTime = OffsetDateTime.now();
-		List<SchedulerJobData> jobsToStart = schedulerJobsService.getSchedulerJobsForExploratoryAction
-				(currentDateTime, "start");
+		List<SchedulerJobData> jobsToStart =
+				schedulerJobService.getSchedulerJobsForStartingExploratories(currentDateTime);
         if(!jobsToStart.isEmpty()){
-            log.info("Scheduler start job is executing...");
+			log.debug("Scheduler start job is executing...");
 			log.info("Current time rounded: {} , current date: {}, current day of week: {}",
 					LocalTime.of(currentDateTime.toLocalTime().getHour(), currentDateTime.toLocalTime().getMinute()),
 					currentDateTime.toLocalDate(),
 					currentDateTime.getDayOfWeek());
             log.info("Scheduler jobs for starting: {}", jobsToStart.size());
-            for(SchedulerJobData jobData : jobsToStart){
-                log.info("Exploratory with name {} for user {} is starting...", jobData.getExploratoryName(), jobData.getUser());
-                UserInfo userInfo = systemUserService.create(jobData.getUser());
-                String uuid = exploratoryService.start(userInfo, jobData.getExploratoryName());
-                RequestId.put(userInfo.getName(), uuid);
-            }
-
+			jobsToStart.forEach(job -> schedulerJobService.changeExploratoryStateOn("running", job));
         }
-
     }
+
 }

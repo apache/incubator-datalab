@@ -18,15 +18,12 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
-import com.epam.dlab.backendapi.dao.ExploratoryDAO;
-import com.epam.dlab.backendapi.service.SchedulerJobsService;
+import com.epam.dlab.backendapi.service.SchedulerJobService;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Inject;
 import io.dropwizard.auth.Auth;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -39,23 +36,27 @@ import javax.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class SchedulerJobsResource {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SchedulerJobsResource.class);
+public class SchedulerJobResource {
 
     @Inject
-    private ExploratoryDAO exploratoryDAO;
-
-    @Inject
-    private SchedulerJobsService schedulerJobsService;
+	private SchedulerJobService schedulerJobService;
 
 
+	/**
+	 * Updates exploratory <code>exploratoryName<code/> for user <code>userInfo<code/> with new scheduler job data
+	 *
+	 * @param userInfo        user info
+	 * @param exploratoryName name of exploratory resource
+	 * @param dto             scheduler job data
+	 * @return response
+	 */
     @POST
     @Path("/{exploratoryName}")
     public Response create(@Auth UserInfo userInfo, @PathParam("exploratoryName") String exploratoryName,
                            SchedulerJobDTO dto) {
-        LOGGER.info("Adding {} to Mongo DB ...", dto);
-        exploratoryDAO.updateSchedulerDataForUserAndExploratory(userInfo.getName(), exploratoryName, dto);
+		log.debug("Updating exploratory {} for user {} with new scheduler job data {}...",
+				exploratoryName, userInfo.getName(), dto);
+		schedulerJobService.updateSchedulerDataForUserAndExploratory(userInfo.getName(), exploratoryName, dto);
         return Response.ok().build();
     }
 
@@ -71,15 +72,16 @@ public class SchedulerJobsResource {
     public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(@Auth UserInfo userInfo,
                                                              @PathParam("exploratoryName") String exploratoryName) {
 
-        LOGGER.debug("Loading scheduler job for user {} and exploratory {}",
-                userInfo.getName(), exploratoryName);
-        try {
-            SchedulerJobDTO job = schedulerJobsService.fetchSchedulerJobForUserAndExploratory(userInfo.getName(), exploratoryName);
-            LOGGER.info("Scheduler job data: {}", job);
+		log.debug("Loading scheduler job for user {} and exploratory {}...", userInfo.getName(), exploratoryName);
+		try {
+			SchedulerJobDTO job = schedulerJobService.fetchSchedulerJobForUserAndExploratory(userInfo.getName(),
+					exploratoryName);
+			log.info("Scheduler job data: {}", job);
             return job;
 
         } catch (Exception t) {
-            LOGGER.error("Cannot load scheduler job for user {} and exploratory {} an", userInfo.getName(), exploratoryName, t);
+			log.error("Cannot load scheduler job for user {} and exploratory {} an {}", userInfo.getName(),
+					exploratoryName, t);
             throw new DlabException("Cannot load scheduler job: " + t.getLocalizedMessage(), t);
         }
     }

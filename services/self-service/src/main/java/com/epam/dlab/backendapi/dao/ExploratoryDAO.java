@@ -36,7 +36,7 @@ import org.bson.conversions.Bson;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.epam.dlab.backendapi.dao.SchedulerJobsDAO.SCHEDULER_DATA;
+import static com.epam.dlab.backendapi.dao.SchedulerJobDAO.SCHEDULER_DATA;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Projections.*;
@@ -184,15 +184,11 @@ public class ExploratoryDAO extends BaseDAO {
      * @param exploratoryName   name of exploratory.
      */
     public UserInstanceDTO fetchRunningExploratoryFields(String user, String exploratoryName) {
-        Optional<UserInstanceDTO> opt = findOne(USER_INSTANCES,
-                runningExploratoryCondition(user, exploratoryName),
-                UserInstanceDTO.class);
-
-        if (opt.isPresent()) {
-            return opt.get();
-        }
-        throw new DlabException(String.format("Running notebook %s not found for user %s",
-                exploratoryName, user));
+        return findOne(USER_INSTANCES, runningExploratoryCondition(user, exploratoryName),
+                fields(exclude(COMPUTATIONAL_RESOURCES)), UserInstanceDTO.class)
+                .orElseThrow(() -> new DlabException(
+                        String.format("Running exploratory instance for user %s with name %s not found.",
+                                user, exploratoryName)));
     }
 
     /**
@@ -223,17 +219,9 @@ public class ExploratoryDAO extends BaseDAO {
      * @return The result of an update operation.
      */
     public UpdateResult updateSchedulerDataForUserAndExploratory(String user, String exploratoryName, SchedulerJobDTO dto) {
-        Document schedulerData = new Document();
-        schedulerData.append(SchedulerJobsDAO.BEGIN_DATE, dto.getBeginDate());
-        schedulerData.append(SchedulerJobsDAO.FINISH_DATE, dto.getFinishDate());
-        schedulerData.append(SchedulerJobsDAO.START_TIME, dto.getStartTime());
-        schedulerData.append(SchedulerJobsDAO.END_TIME, dto.getEndTime());
-        schedulerData.append(SchedulerJobsDAO.DAYS_REPEAT, dto.getDaysRepeat());
-        schedulerData.append(SchedulerJobsDAO.TIMEZONE_PREFIX, dto.getTimeZonePrefix());
-        schedulerData.append(SchedulerJobsDAO.TIMEZONE_OFFSET, dto.getTimeZoneOffset());
         return updateOne(USER_INSTANCES,
                 exploratoryCondition(user, exploratoryName),
-                set(SCHEDULER_DATA, convertToBson(schedulerData)));
+                set(SCHEDULER_DATA, convertToBson(dto)));
     }
 
 
