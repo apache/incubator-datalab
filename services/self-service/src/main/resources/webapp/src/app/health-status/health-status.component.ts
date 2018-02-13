@@ -30,6 +30,8 @@ import { compareAsc } from 'date-fns';
 export class HealthStatusComponent implements OnInit {
   environmentsHealthStatuses: Array<EnvironmentStatusModel>;
   healthStatus: string;
+  billingEnabled: boolean;
+  backupAllowed: boolean;
 
   private clear = undefined;
   @ViewChild('backupDialog') backupDialog;
@@ -51,6 +53,8 @@ export class HealthStatusComponent implements OnInit {
 
   loadHealthStatusList(healthStatusList): Array<EnvironmentStatusModel> {
     this.healthStatus = healthStatusList.status;
+    this.billingEnabled = healthStatusList.billingEnabled;
+    this.backupAllowed = healthStatusList.backupAllowed;
 
     if (healthStatusList.list_resources)
       return healthStatusList.list_resources.map(value => {
@@ -78,7 +82,7 @@ export class HealthStatusComponent implements OnInit {
     const uuid = result.text();
     this.backupService.getBackupStatus(uuid).subscribe(status => {
       if (!this.creatingBackup) clearInterval(this.clear);
-    });
+    }, error => clearInterval(this.clear));
   }
 
   get creatingBackup(): boolean {
