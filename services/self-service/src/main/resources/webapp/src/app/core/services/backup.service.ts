@@ -32,10 +32,11 @@ export class BackupService {
     this.inProgress = data.status !== 'CREATED';
   }
 
-  public createBackup(data): Observable<Response> {
+  public createBackup(data): Observable<any> {
     return this.applicationServiceFacade
       .buildCreateBackupRequest(data)
-      .map((response: Response) => response);
+      .map((response: Response) => response)
+      .catch((error: any) => error);
   }
 
   public getBackupStatus(uuid): Observable<Response> {
@@ -43,6 +44,7 @@ export class BackupService {
     return this.applicationServiceFacade
       .buildGetBackupStatusRequest(body)
       .map((response: Response) => response.json())
-      .map(data => (this.creatingBackup = data));
+      .map(data => (this.creatingBackup = data))
+      .catch((error: any) => error);
   }
 }
