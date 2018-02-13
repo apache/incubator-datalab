@@ -101,8 +101,9 @@ if __name__ == "__main__":
 
         print('Searching pre-configured images')
         image_id = get_ami_id_by_name(data_engine['notebook_image_name'], 'available')
-        if image_id != '' and os.environ['application'] in ('deeplearning', 'tensor'):
+        if image_id != '' and os.environ['application'] in os.environ['dataengine_image_notebooks'].split(','):
             data_engine['ami_id'] = image_id
+            data_engine['primary_disk_size'] = '8'
         else:
             data_engine['ami_id'] = get_ami_id(os.environ['aws_{}_ami_name'.format(os.environ['conf_os_family'])])
             print('No pre-configured image found. Using default one: {}'.format(data_engine['ami_id']))

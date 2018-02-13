@@ -23,10 +23,6 @@ import sys
 import json
 import argparse
 from fabric.api import *
-from dlab.fab import *
-# from dlab.meta_lib import *
-# from dlab.actions_lib import *
-# import multiprocessing
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
@@ -34,3 +30,30 @@ parser.add_argument('--keyfile', type=str, default='')
 parser.add_argument('--os_user', type=str, default='')
 parser.add_argument('--application', type=str, default='')
 args = parser.parse_args()
+
+def clean_jupyter():
+    try:
+        sudo('')
+    except Exception as err:
+        print('Error:', str(err))
+        sys.exit(1)
+
+
+
+
+def clean_tensor():
+    print('clean notebook')
+
+
+if __name__ == "__main__":
+    print('Configure connections')
+    env['connection_attempts'] = 100
+    env.key_filename = [args.keyfile]
+    env.host_string = args.os_user + '@' + args.hostname
+
+    if os.environ['application'] == 'jupyter':
+        clean_jupyter()
+    elif os.environ['application'] == 'tensor':
+        clean_tensor()
+
+    sys.exit(0)
