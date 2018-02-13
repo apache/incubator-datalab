@@ -75,10 +75,20 @@ export class HealthStatusService {
       .map((response: Response) => response);
   }
 
-  public isBillingEnabled(): Observable<Response> {
+  public isBillingEnabled(): Observable<boolean> {
     return this.applicationServiceFacade
     .buildGetEnvironmentHealthStatus()
-
-    .map((response: Response) => response);
+    .map((response: Response) => {
+      if (response.status === HTTP_STATUS_CODES.OK) {
+        const data = response.json();
+        console.log(data);
+        if (!data.billingEnabled) {
+          this.appRoutingService.redirectToHomePage();
+          // return Observable.of(false);
+          return false;
+        }
+      }
+      return true;
+    });
   }
 }
