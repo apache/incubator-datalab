@@ -50,7 +50,7 @@ if __name__ == "__main__":
     ssn_conf['instance_size'] = os.environ['gcp_ssn_instance_size']
     ssn_conf['vpc_name'] = '{}-ssn-vpc'.format(ssn_conf['service_base_name'])
     ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
-    ssn_conf['vpc_cidr'] = '10.10.0.0/16'
+    ssn_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
     ssn_conf['subnet_prefix'] = '20'
     ssn_conf['firewall_name'] = '{}-ssn-firewall'.format(ssn_conf['service_base_name'])
     ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
@@ -63,6 +63,7 @@ if __name__ == "__main__":
     ssn_conf['network_tag'] = ssn_conf['instance_name']
     ssn_conf['instance_labels'] = {"name": ssn_conf['instance_name'],
                                    "sbn": ssn_conf['service_base_name']}
+    ssn_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
 
     try:
         if os.environ['gcp_vpc_name'] == '':
@@ -138,7 +139,7 @@ if __name__ == "__main__":
             ingress_rule = dict()
             ingress_rule['name'] = ssn_conf['firewall_name'] + '-ingress'
             ingress_rule['targetTags'] = [ssn_conf['network_tag']]
-            ingress_rule['sourceRanges'] = ['0.0.0.0/0']
+            ingress_rule['sourceRanges'] = [ssn_conf['allowed_ip_cidr']]
             rules = [
                 {
                     'IPProtocol': 'tcp',
@@ -153,7 +154,7 @@ if __name__ == "__main__":
             egress_rule = dict()
             egress_rule['name'] = ssn_conf['firewall_name'] + '-egress'
             egress_rule['targetTags'] = [ssn_conf['network_tag']]
-            egress_rule['destinationRanges'] = ['0.0.0.0/0']
+            egress_rule['destinationRanges'] = [ssn_conf['allowed_ip_cidr']]
             rules = [
                 {
                     'IPProtocol': 'all',

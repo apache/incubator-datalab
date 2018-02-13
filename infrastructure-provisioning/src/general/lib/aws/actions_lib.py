@@ -1029,7 +1029,7 @@ def create_aws_config_files(generate_full_config=False):
 
         return True
     except:
-        return False
+        sys.exit(1)
 
 
 def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror=''):
