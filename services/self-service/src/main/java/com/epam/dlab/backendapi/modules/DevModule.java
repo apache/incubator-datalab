@@ -74,14 +74,15 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
                 .toInstance(createAuthenticationService());
         requestStaticInjection(EnvStatusListener.class, RequestId.class, RequestBuilder.class);
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
-                .toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
+				.toInstance(configuration.getProvisioningFactory()
+						.build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
         bind(ImageExploratoryService.class).to(ImageExploratoryServiceImpl.class);
         bind(ImageExploratoryDao.class).to(ImageExploratoryDaoImpl.class);
         bind(BackupService.class).to(BackupServiceImpl.class);
         bind(BackupDao.class).to(BackupDaoImpl.class);
         bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
         bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
-        bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
+		bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
     }
 
     /**

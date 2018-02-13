@@ -63,7 +63,8 @@ public class AzureSelfServiceModule extends CloudModule {
         bind(BillingService.class).to(AzureBillingService.class);
         bind((KeyDAO.class)).to(AzureKeyDao.class);
         bind(InfrastructureInfoService.class).to(AzureInfrastructureInfoService.class);
-        bind(SchedulerConfiguration.class).toInstance(new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
+		bind(SchedulerConfiguration.class).toInstance(
+				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
         bind(InfrastructureTemplatesService.class).to(AzureInfrastructureTemplatesService.class);
 
         if (!azureLoginConfiguration.isUseLdap()) {
@@ -90,7 +91,7 @@ public class AzureSelfServiceModule extends CloudModule {
         environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAzure.class));
 
         injector.getInstance(SecurityFactory.class).configure(injector, environment,
-                SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
+				SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
     }
 
     @Provides

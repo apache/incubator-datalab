@@ -90,8 +90,8 @@ public class ExploratoryLibDAO extends BaseDAO {
 	 * @param libraryName       the name of library.
 	 * @param libraryVersion    the name of library.
 	 */
-	private static Bson libraryConditionComputational(String computationalName, String libraryGroup, String libraryName,
-													  String libraryVersion) {
+	private static Bson libraryConditionComputational(String computationalName, String libraryGroup,
+													  String libraryName, String libraryVersion) {
 		return elemMatch(COMPUTATIONAL_LIBS + "." + computationalName,
 				and(eq(LIB_GROUP, libraryGroup), eq(LIB_NAME, libraryName), eq(LIB_VERSION, libraryVersion)));
 	}
@@ -116,7 +116,7 @@ public class ExploratoryLibDAO extends BaseDAO {
 
         return opt.orElseGet(Document::new);
 
-    }
+	}
 
 	public List<Library> getLibraries(String user, String exploratoryName) {
 		final Document libsDocument = findAllLibraries(user, exploratoryName);
@@ -137,7 +137,7 @@ public class ExploratoryLibDAO extends BaseDAO {
 
     public Document findComputationalLibraries(String user, String exploratoryName, String computationalName) {
         return findLibraries(user, exploratoryName, include(COMPUTATIONAL_LIBS + "." + computationalName));
-    }
+	}
 
 	/**
 	 * Finds and returns the status of library.
@@ -157,11 +157,11 @@ public class ExploratoryLibDAO extends BaseDAO {
     	    Object lib = libraryStatus.get().get(EXPLORATORY_LIBS);
             if (lib != null && lib instanceof List && !((List) lib).isEmpty()) {
                 return  LibStatus.of(((List<Document>)lib).get(0).getOrDefault(STATUS, EMPTY).toString());
-            }
-        }
+			}
+		}
 
-    	return LibStatus.of(EMPTY);
-    }
+		return LibStatus.of(EMPTY);
+	}
 
 	/**
 	 * Finds and returns the status of library.
@@ -194,11 +194,11 @@ public class ExploratoryLibDAO extends BaseDAO {
                         .filter(e -> libraryGroup.equals(e.getString(LIB_GROUP))
                                 && libraryName.equals(e.getString(LIB_NAME))).findFirst()
                         .orElseGet(Document::new).getOrDefault(STATUS, EMPTY).toString());
-            }
-        }
+			}
+		}
 
-        return LibStatus.of(EMPTY);
-    }
+		return LibStatus.of(EMPTY);
+	}
 
 	/**
 	 * Add the user's library for exploratory into database.
@@ -227,9 +227,9 @@ public class ExploratoryLibDAO extends BaseDAO {
         updateOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName),
                 libraryCondition(library.getGroup(), library.getName())), new Document(SET, values));
 
-            return false;
-        }
-    }
+			return false;
+		}
+	}
 
 	/**
 	 * Add the user's library for exploratory into database.
@@ -265,11 +265,11 @@ public class ExploratoryLibDAO extends BaseDAO {
                             eq(COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_GROUP, library.getGroup()),
                             eq(COMPUTATIONAL_LIBS + "." + computationalName + "." + LIB_NAME, library.getName())),
 
-                    new Document(SET, values));
+					new Document(SET, values));
 
-            return false;
-        }
-    }
+			return false;
+		}
+	}
 
 	/**
 	 * Updates the info about libraries for exploratory/computational in Mongo database.
@@ -311,8 +311,10 @@ public class ExploratoryLibDAO extends BaseDAO {
 
                 updateOne(USER_INSTANCES,
                         and(exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
-                                eq(COMPUTATIONAL_LIBS + "." + dto.getComputationalName() + "." + LIB_GROUP, lib.getGroup()),
-                                eq(COMPUTATIONAL_LIBS + "." + dto.getComputationalName() + "." + LIB_NAME, lib.getName())),
+								eq(COMPUTATIONAL_LIBS + "." + dto.getComputationalName() + "." + LIB_GROUP,
+										lib.getGroup()),
+								eq(COMPUTATIONAL_LIBS + "." + dto.getComputationalName() + "." + LIB_NAME,
+										lib.getName())),
                         new Document(SET, values));
             } catch (Exception e) {
                 throw new DlabException(String.format("Could not update library %s for %s/%s",
@@ -349,8 +351,8 @@ public class ExploratoryLibDAO extends BaseDAO {
 
         if (lib.getErrorMessage() != null) {
             values.append(computationalLibraryFieldFilter(computational, LIB_ERROR_MESSAGE),
-                    DateRemoverUtil.removeDateFormErrorMessage(lib.getErrorMessage()));
-        }
+					DateRemoverUtil.removeDateFormErrorMessage(lib.getErrorMessage()));
+		}
 
 		return values;
 	}
@@ -367,7 +369,8 @@ public class ExploratoryLibDAO extends BaseDAO {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Stream<Library> libraryStream(Document libsDocument, String resourceName, String libFieldName, ResourceType libType) {
+	private Stream<Library> libraryStream(Document libsDocument, String resourceName, String libFieldName,
+										  ResourceType libType) {
 		return ((List<Document>) libsDocument.getOrDefault(libFieldName, Collections.emptyList()))
 				.stream()
 				.map(d -> convertFromDocument(d, Library.class))

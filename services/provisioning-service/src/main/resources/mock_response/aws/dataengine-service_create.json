@@ -4,7 +4,7 @@
       "result": {
          "instance_id": "${CLUSTER_ID}",
          "key_name": "${CONF_KEY_NAME}",
-         "hostname": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-des-${EXPLORATORY_NAME}-${COMPUTATIONAL_NAME}-${NOTEBOOK_ID}",
+        "hostname": "${CONF_SERVICE_BASE_NAME}-${EDGE_USER_NAME}-des-${EXPLORATORY_NAME}-${COMPUTATIONAL_NAME}-${NOTEBOOK_ID}",
          "Action": "Create new EMR cluster",
          "user_own_bucket_name": "${CONF_SERVICE_BASE_NAME}-ssn-bucket"
       },

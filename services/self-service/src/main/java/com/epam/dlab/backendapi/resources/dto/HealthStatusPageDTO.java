@@ -46,15 +46,15 @@ public class HealthStatusPageDTO {
 	/**
 	 * Set the status of environment.
 	 */
-	public void setStatus(String status) {
-		this.status = status;
+	public void setStatus(HealthStatusEnum status) {
+		this.status = status == null ? null : status.toString();
 	}
 
 	/**
 	 * Set the status of environment.
 	 */
-	public void setStatus(HealthStatusEnum status) {
-		this.status = status == null ? null : status.toString();
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	public void setBillingEnabled(boolean billingEnabled) {

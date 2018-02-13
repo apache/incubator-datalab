@@ -32,7 +32,7 @@ public class GcpSelfServiceModule extends CloudModule {
         environment.jersey().register(injector.getInstance(ComputationalResourceGcp.class));
 
         injector.getInstance(SecurityFactory.class).configure(injector, environment,
-                SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
+				SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
 
     }
 
@@ -41,7 +41,8 @@ public class GcpSelfServiceModule extends CloudModule {
         bind((KeyDAO.class)).to(GcpKeyDao.class);
         bind(InfrastructureInfoService.class).to(GcpInfrastructureInfoService.class);
         bind(InfrastructureTemplatesService.class).to(GcpInfrastructureTemplatesService.class);
-        bind(SchedulerConfiguration.class).toInstance(new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
+		bind(SchedulerConfiguration.class).toInstance(
+				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
     }
 
     @Provides

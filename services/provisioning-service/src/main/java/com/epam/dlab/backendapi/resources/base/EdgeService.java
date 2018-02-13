@@ -54,7 +54,8 @@ public abstract class EdgeService implements DockerCommands {
 		return Directories.EDGE_LOG_DIRECTORY;
 	}
 
-	protected String action(String username, ResourceSysBaseDTO<?> dto, String iamUser, String callbackURI, DockerAction action) throws JsonProcessingException {
+	protected String action(String username, ResourceSysBaseDTO<?> dto, String iamUser, String callbackURI,
+							DockerAction action) throws JsonProcessingException {
 		logger.debug("{} EDGE node for user {}: {}", action, username, dto);
 		String uuid = DockerCommands.generateUUID();
 
@@ -82,8 +83,8 @@ public abstract class EdgeService implements DockerCommands {
 																  String uuid, String user, String callbackURI);
 
 	protected void saveKeyToFile(String edgeUsername, String content) throws IOException {
-		java.nio.file.Path keyFilePath = Paths.get(configuration.getKeyDirectory(), edgeUsername.replaceAll("\\s", StringUtils.EMPTY) + KEY_EXTENTION)
-				.toAbsolutePath();
+		java.nio.file.Path keyFilePath = Paths.get(configuration.getKeyDirectory(),
+				edgeUsername.replaceAll("\\s", StringUtils.EMPTY) + KEY_EXTENTION).toAbsolutePath();
 		logger.debug("Saving key to {}", keyFilePath.toString());
 		try {
 			com.google.common.io.Files.createParentDirs(new File(keyFilePath.toString()));

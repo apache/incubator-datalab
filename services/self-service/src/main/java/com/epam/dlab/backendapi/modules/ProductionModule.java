@@ -41,15 +41,15 @@ import io.dropwizard.setup.Environment;
  */
 public class ProductionModule extends ModuleBase<SelfServiceApplicationConfiguration> {
 
-    /**
-     * Instantiates an application configuration of SelfService for production environment.
-     *
-     * @param configuration application configuration of SelfService.
-     * @param environment   environment of SelfService.
-     */
-    public ProductionModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
-        super(configuration, environment);
-    }
+	/**
+	 * Instantiates an application configuration of SelfService for production environment.
+	 *
+	 * @param configuration application configuration of SelfService.
+	 * @param environment   environment of SelfService.
+	 */
+	public ProductionModule(SelfServiceApplicationConfiguration configuration, Environment environment) {
+		super(configuration, environment);
+	}
 
 	@Override
 	protected void configure() {

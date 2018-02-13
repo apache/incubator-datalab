@@ -50,7 +50,8 @@ public class AwsSelfServiceModule extends CloudModule {
         bind(BillingService.class).to(AwsBillingService.class);
         bind((KeyDAO.class)).to(AwsKeyDao.class);
         bind(InfrastructureInfoService.class).to(AwsInfrastructureInfoService.class);
-        bind(SchedulerConfiguration.class).toInstance(new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
+		bind(SchedulerConfiguration.class).toInstance(
+				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
         bind(InfrastructureTemplatesService.class).to(AwsInfrastructureTemplatesService.class);
     }
 
@@ -63,7 +64,7 @@ public class AwsSelfServiceModule extends CloudModule {
         environment.lifecycle().manage(injector.getInstance(BillingSchedulerManagerAws.class));
 
         injector.getInstance(SecurityFactory.class).configure(injector, environment,
-                SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
+				SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
     }
 
 
