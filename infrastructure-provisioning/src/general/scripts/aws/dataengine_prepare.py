@@ -72,7 +72,6 @@ if __name__ == "__main__":
                                       data_engine['computational_name']
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
-        # data_engine['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
         data_engine['master_size'] = os.environ['aws_dataengine_master_shape']
         data_engine['slave_size'] = os.environ['aws_dataengine_slave_shape']
         data_engine['dataengine_master_security_group_name'] = data_engine['service_base_name'] + '-' + \
@@ -103,7 +102,7 @@ if __name__ == "__main__":
         image_id = get_ami_id_by_name(data_engine['notebook_image_name'], 'available')
         if image_id != '' and os.environ['application'] in os.environ['dataengine_image_notebooks'].split(','):
             data_engine['ami_id'] = image_id
-            data_engine['primary_disk_size'] = '8'
+            data_engine['primary_disk_size'] = '12'
         else:
             data_engine['ami_id'] = get_ami_id(os.environ['aws_{}_ami_name'.format(os.environ['conf_os_family'])])
             print('No pre-configured image found. Using default one: {}'.format(data_engine['ami_id']))
