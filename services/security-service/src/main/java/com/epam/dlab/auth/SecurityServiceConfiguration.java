@@ -49,6 +49,8 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
     @JsonProperty
     private String ldapSearchAttribute;
     @JsonProperty
+    private boolean useLdapBindTemplate;
+    @JsonProperty
     private Map<String, String> ldapConnectionConfig = new HashMap<>();
     @JsonProperty
     private AzureLoginConfiguration azureLoginConfiguration;
@@ -107,5 +109,9 @@ public class SecurityServiceConfiguration extends ServiceConfiguration {
 
     public AzureLoginConfiguration getAzureLoginConfiguration() {
         return azureLoginConfiguration;
+    }
+
+    public boolean isUseLdapBindTemplate() {
+        return useLdapBindTemplate;
     }
 }
