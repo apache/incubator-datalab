@@ -81,10 +81,8 @@ export class HealthStatusService {
     .map((response: Response) => {
       if (response.status === HTTP_STATUS_CODES.OK) {
         const data = response.json();
-        console.log(data);
         if (!data.billingEnabled) {
           this.appRoutingService.redirectToHomePage();
-          // return Observable.of(false);
           return false;
         }
       }
