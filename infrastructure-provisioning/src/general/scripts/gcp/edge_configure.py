@@ -45,7 +45,7 @@ if __name__ == "__main__":
             edge_conf['vpc_name'] = os.environ['gcp_vpc_name']
     except KeyError:
         edge_conf['vpc_name'] = edge_conf['service_base_name'] + '-ssn-vpc'
-    edge_conf['vpc_cidr'] = '10.10.0.0/16'
+    edge_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
     edge_conf['subnet_name'] = '{0}-{1}-subnet'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['region'] = os.environ['gcp_region']
     edge_conf['zone'] = os.environ['gcp_zone']

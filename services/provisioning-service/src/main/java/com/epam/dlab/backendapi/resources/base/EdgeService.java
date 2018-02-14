@@ -24,9 +24,9 @@ import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecu
 import com.epam.dlab.dto.ResourceSysBaseDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
+import com.epam.dlab.utils.UsernameUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,8 @@ public abstract class EdgeService implements DockerCommands {
 		return Directories.EDGE_LOG_DIRECTORY;
 	}
 
-	protected String action(String username, ResourceSysBaseDTO<?> dto, String iamUser, String callbackURI, DockerAction action) throws JsonProcessingException {
+	protected String action(String username, ResourceSysBaseDTO<?> dto, String iamUser, String callbackURI,
+							DockerAction action) throws JsonProcessingException {
 		logger.debug("{} EDGE node for user {}: {}", action, username, dto);
 		String uuid = DockerCommands.generateUUID();
 
@@ -82,7 +83,8 @@ public abstract class EdgeService implements DockerCommands {
 																  String uuid, String user, String callbackURI);
 
 	protected void saveKeyToFile(String edgeUsername, String content) throws IOException {
-		java.nio.file.Path keyFilePath = Paths.get(configuration.getKeyDirectory(), edgeUsername.replaceAll("\\s", StringUtils.EMPTY) + KEY_EXTENTION)
+		java.nio.file.Path keyFilePath = Paths.get(configuration.getKeyDirectory(),
+				UsernameUtils.replaceWhitespaces(edgeUsername) + KEY_EXTENTION)
 				.toAbsolutePath();
 		logger.debug("Saving key to {}", keyFilePath.toString());
 		try {

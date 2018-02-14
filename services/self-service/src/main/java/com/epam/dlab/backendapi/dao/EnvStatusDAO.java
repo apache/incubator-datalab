@@ -100,8 +100,10 @@ public class EnvStatusDAO extends BaseDAO {
 		StreamSupport.stream(expList.spliterator(), false)
 				.forEach(exp -> {
 					addResource(hostList, exp, STATUS);
-					((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList())).forEach(comp -> {
-						final List<EnvResource> resourceList = DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(comp.getString(IMAGE)) ? clusterList : hostList;
+					((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
+							.forEach(comp -> {
+								final List<EnvResource> resourceList = DataEngineType.CLOUD_SERVICE ==
+										DataEngineType.fromDockerImageName(comp.getString(IMAGE)) ? clusterList : hostList;
 						addResource(resourceList, comp, STATUS);
 					});
 				});
@@ -150,7 +152,8 @@ public class EnvStatusDAO extends BaseDAO {
 		if (list != null && notEmpty(list.getHostList())) {
 			updateEdgeStatus(user, list.getHostList());
 			if (!list.getHostList().isEmpty()) {
-				final FindIterable<Document> expList = find(USER_INSTANCES, eq(USER, user), fields(INCLUDE_EXP_UPDATE_FIELDS, excludeId()));
+				final FindIterable<Document> expList = find(USER_INSTANCES, eq(USER, user),
+						fields(INCLUDE_EXP_UPDATE_FIELDS, excludeId()));
 				StreamSupport.stream(expList.spliterator(), false)
 						.filter(this::instanceIdPresent)
 						.forEach(exp -> updateUserResourceStatuses(user, list, exp));
@@ -162,7 +165,8 @@ public class EnvStatusDAO extends BaseDAO {
 	private void updateUserResourceStatuses(String user, EnvResourceList list, Document exp) {
 		final String exploratoryName = exp.getString(EXPLORATORY_NAME);
 		getEnvResourceAndRemove(list.getHostList(), exp.getString(INSTANCE_ID))
-				.ifPresent(resource -> updateExploratoryStatus(user, exploratoryName, exp.getString(STATUS), resource.getStatus()));
+				.ifPresent(resource -> updateExploratoryStatus(user, exploratoryName, exp.getString(STATUS),
+						resource.getStatus()));
 
 		((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
 				.stream()
@@ -171,7 +175,8 @@ public class EnvStatusDAO extends BaseDAO {
 	}
 
 	private void updateComputational(String user, EnvResourceList list, String exploratoryName, Document comp) {
-		final List<EnvResource> listToCheck = DataEngineType.CLOUD_SERVICE == DataEngineType.fromDockerImageName(comp.getString(IMAGE)) ?
+		final List<EnvResource> listToCheck = DataEngineType.CLOUD_SERVICE ==
+				DataEngineType.fromDockerImageName(comp.getString(IMAGE)) ?
 				list.getClusterList() : list.getHostList();
 		getEnvResourceAndRemove(listToCheck, comp.getString(INSTANCE_ID)).ifPresent(resource -> {
 			final String computationalName = comp.getString(COMPUTATIONAL_NAME);
@@ -277,7 +282,8 @@ public class EnvStatusDAO extends BaseDAO {
 		LOGGER.trace("Update EDGE status for user {} with instance_id {} from {} to {}",
 				user, instanceId, edge.getString(EDGE_STATUS), r.getStatus());
 		String oldStatus = edge.getString(EDGE_STATUS);
-		UserInstanceStatus oStatus = (oldStatus == null ? UserInstanceStatus.CREATING : UserInstanceStatus.of(oldStatus));
+		UserInstanceStatus oStatus =
+				(oldStatus == null ? UserInstanceStatus.CREATING : UserInstanceStatus.of(oldStatus));
 		UserInstanceStatus status = getInstanceNewStatus(oStatus, r.getStatus());
 		LOGGER.trace("EDGE status translated for user {} with instanceId {} from {} to {}",
 				user, instanceId, r.getStatus(), status);
@@ -299,13 +305,16 @@ public class EnvStatusDAO extends BaseDAO {
 	 */
 	private void updateExploratoryStatus(String user, String exploratoryName,
 										 String oldStatus, String newStatus) {
-		LOGGER.trace("Update exploratory status for user {} with exploratory {} from {} to {}", user, exploratoryName, oldStatus, newStatus);
+		LOGGER.trace("Update exploratory status for user {} with exploratory {} from {} to {}", user, exploratoryName,
+				oldStatus, newStatus);
 		UserInstanceStatus oStatus = UserInstanceStatus.of(oldStatus);
 		UserInstanceStatus status = getInstanceNewStatus(oStatus, newStatus);
-		LOGGER.trace("Exploratory status translated for user {} with exploratory {} from {} to {}", user, exploratoryName, newStatus, status);
+		LOGGER.trace("Exploratory status translated for user {} with exploratory {} from {} to {}", user,
+				exploratoryName, newStatus, status);
 
 		if (oStatus != status) {
-			LOGGER.debug("Exploratory status for user {} with exploratory {} will be updated from {} to {}", user, exploratoryName, oldStatus, status);
+			LOGGER.debug("Exploratory status for user {} with exploratory {} will be updated from {} to {}", user,
+					exploratoryName, oldStatus, status);
 			updateOne(USER_INSTANCES,
 					exploratoryCondition(user, exploratoryName),
 					Updates.set(STATUS, status.toString()));
@@ -358,11 +367,14 @@ public class EnvStatusDAO extends BaseDAO {
 				user, exploratoryName, computationalName, oldStatus, newStatus);
 		UserInstanceStatus oStatus = UserInstanceStatus.of(oldStatus);
 		UserInstanceStatus status = getComputationalNewStatus(oStatus, newStatus);
-		LOGGER.trace("Translate computational status for user {} with exploratory {} and computational {} from {} to {}",
+		LOGGER.trace("Translate computational status for user {} with exploratory {} and computational {} from {} to" +
+						" " +
+						"{}",
 				user, exploratoryName, computationalName, newStatus, status);
 
 		if (oStatus != status) {
-			LOGGER.debug("Computational status for user {} with exploratory {} and computational {} will be updated from {} to {}",
+			LOGGER.debug("Computational status for user {} with exploratory {} and computational {} will be updated " +
+							"from {} to {}",
 					user, exploratoryName, computationalName, oldStatus, status);
 			if (configuration.getCloudProvider() == CloudProvider.AWS && status == UserInstanceStatus.TERMINATED &&
 					terminateComputationalSpot(user, exploratoryName, computationalName)) {
@@ -388,7 +400,8 @@ public class EnvStatusDAO extends BaseDAO {
 	 * @return <b>true</b> if computational is spot and should be terminated by docker, otherwise <b>false</b>.
 	 */
 	private boolean terminateComputationalSpot(String user, String exploratoryName, String computationalName) {
-		LOGGER.trace("Check computatation is spot for user {} with exploratory {} and computational {}", user, exploratoryName, computationalName);
+		LOGGER.trace("Check computatation is spot for user {} with exploratory {} and computational {}", user,
+				exploratoryName, computationalName);
 		Document doc = findOne(USER_INSTANCES,
 				exploratoryCondition(user, exploratoryName),
 				and(elemMatch(COMPUTATIONAL_RESOURCES,
@@ -401,7 +414,8 @@ public class EnvStatusDAO extends BaseDAO {
 			return false;
 		}
 
-		EnvStatusListener envStatusListener = SelfServiceApplication.getInjector().getInstance(EnvStatusListener.class);
+		EnvStatusListener envStatusListener =
+				SelfServiceApplication.getInjector().getInstance(EnvStatusListener.class);
 		UserInfo userInfo = (envStatusListener != null) ? envStatusListener.getSession(user) : null;
 		if (userInfo == null) {
 			// User logged off. Computational will be terminated when user logged in.
@@ -440,7 +454,8 @@ public class EnvStatusDAO extends BaseDAO {
 		getInstanceId(document).ifPresent(instanceId -> {
 			UserInstanceStatus status = UserInstanceStatus.of(document.getString(statusFieldName));
 			if (status == null) {
-				LOGGER.error("Unknown status {} from field {}, content is {}", document.getString(statusFieldName), statusFieldName, document);
+				LOGGER.error("Unknown status {} from field {}, content is {}", document.getString(statusFieldName),
+						statusFieldName, document);
 				return;
 			}
 			switch (status) {

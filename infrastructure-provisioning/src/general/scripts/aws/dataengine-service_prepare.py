@@ -139,7 +139,14 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(emr_conf['tag_name'], '{}-ssn'.format(emr_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [],
+                "UserIdGroupPairs": [{"GroupId": edge_group_id}],
+                "PrefixListIds": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": get_instance_ip_address(emr_conf['tag_name'], '{}-ssn'.format(
+                    emr_conf['service_base_name'])).get('Private') + "/32"}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
@@ -153,7 +160,8 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(emr_conf['tag_name'], '{}-ssn'.format(emr_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": get_instance_ip_address(emr_conf['tag_name'], '{}-ssn'.format(
+                    emr_conf['service_base_name'])).get('Private') + "/32"}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": [],
             },

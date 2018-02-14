@@ -16,10 +16,10 @@ limitations under the License.
 
 -->
 
-<dlab-navbar [healthStatus]="healthStatus"></dlab-navbar>
+<dlab-navbar [healthStatus]="healthStatus" [billingEnabled]="billingEnabled"></dlab-navbar>
 
 <div class="sub-nav base-retreat">
-  <button mat-raised-button class="butt" (click)="showBackupDialog() && !creatingBackup" [disabled]="creatingBackup">
+  <button mat-raised-button class="butt" (click)="showBackupDialog()" [disabled]="creatingBackup" *ngIf="backupAllowed">
     <i class="material-icons">backup</i>Backup
   </button>
   <button mat-raised-button class="butt" (click)="buildGrid()">
