@@ -33,7 +33,7 @@ parser.add_argument('--username', type=str, default='')
 parser.add_argument('--edge_role_name', type=str, default='')
 parser.add_argument('--notebook_role_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
-parser.add_argument('--user_predefinded_s3_policies', type=str, default='')
+parser.add_argument('--user_predefined_s3_policies', type=str, default='')
 args = parser.parse_args()
 
 
@@ -53,13 +53,13 @@ if __name__ == "__main__":
             success = False
 
         list_policies_arn = []
-        if args.user_predefinded_s3_policies != 'None':
-            list_predefined_policies = args.user_predefinded_s3_policies.split(',')
+        if args.user_predefined_s3_policies != 'None':
+            list_predefined_policies = args.user_predefined_s3_policies.split(',')
 
         try:
             iam = boto3.client('iam')
             try:
-                if args.user_predefinded_s3_policies != 'None':
+                if args.user_predefined_s3_policies != 'None':
                     list = iam.list_policies().get('Policies')
                     for i in list:
                         if i.get('PolicyName') in list_predefined_policies:
@@ -76,7 +76,7 @@ if __name__ == "__main__":
                     for i in list:
                         if '{}-{}-strict_to_S3-Policy'.format(
                                 args.service_base_name, args.username) == i.get('PolicyName') or (
-                                args.user_predefinded_s3_policies != 'None' and i.get('PolicyName') in
+                                args.user_predefined_s3_policies != 'None' and i.get('PolicyName') in
                                 list_predefined_policies):
                             list_policies_arn.append(i.get('Arn'))
             try:
