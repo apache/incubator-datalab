@@ -55,7 +55,7 @@ public class LdapUserDAO {
 	private final LdapConnectionPool usersPool;
 	private final LdapConnectionPool searchPool;
 	private final ScriptHolder script = new ScriptHolder();
-	protected final static Logger LOG = LoggerFactory.getLogger(LdapUserDAO.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(LdapUserDAO.class);
 	private final boolean useBindTemplate;
 	private boolean useCache = true;
 	private boolean ldapUseConnectionPool;

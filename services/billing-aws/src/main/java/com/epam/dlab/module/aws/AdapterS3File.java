@@ -72,6 +72,7 @@ public class AdapterS3File extends AdapterBase {
 
 	/** Name of key for the modification date of loaded file. */
 	public static final String DATA_KEY_LAST_MODIFICATION_DATE = "AdapterS3File.lastModifyDate";
+	private static final String CANNOT_READ_FILE_STRING = "Cannot read file ";
 
 	/** The name of bucket. */
 	@NotNull
@@ -186,7 +187,7 @@ public class AdapterS3File extends AdapterBase {
 			clientS3 = getAmazonClient();
 			S3FileList s3files = new S3FileList(bucket, path, accountId, getModuleData().getString(DATA_KEY_LAST_LOADED_FILE), lastModificationDate);
 			filelist = s3files.getFiles(clientS3);
-			currentFileIndex = (filelist.size() == 0 ? -1 : 0);
+			currentFileIndex = (filelist.isEmpty() ? -1 : 0);
 			fileInputStream = null;
 			reader = null;
 			entryName = null;
@@ -208,7 +209,7 @@ public class AdapterS3File extends AdapterBase {
 	public boolean openNextEntry() throws AdapterException {
 		String filename = getCurrentFileName();
 		if (filename == null) {
-			if (filelist.size() == 0) {
+			if (filelist.isEmpty()) {
 				LOGGER.debug("New report files in bucket folder {} not found", (path == null ? bucket : bucket + "/" + path));
 			}
 			return false;
@@ -260,7 +261,7 @@ public class AdapterS3File extends AdapterBase {
 		try {
 			return reader.readLine();
 		} catch (IOException e) {
-			throw new AdapterException("Cannot read file " + getCurrentFileName() + ". " + e.getLocalizedMessage(), e);
+			throw new AdapterException(CANNOT_READ_FILE_STRING + getCurrentFileName() + ". " + e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -336,7 +337,7 @@ public class AdapterS3File extends AdapterBase {
 		try {
 			zipInputStream = new ZipInputStream(fileInputStream);
 		} catch (Exception e) {
-			throw new AdapterException("Cannot read file " + filename + ". " + e.getLocalizedMessage(), e);
+			throw new AdapterException(CANNOT_READ_FILE_STRING + filename + ". " + e.getLocalizedMessage(), e);
 		}
 	}
 	
@@ -357,7 +358,7 @@ public class AdapterS3File extends AdapterBase {
 				LOGGER.debug("Zip file have no more entries");
 			}
 		} catch (Exception e) {
-			throw new AdapterException("Cannot read file " + filename + ". " + e.getLocalizedMessage(), e);
+			throw new AdapterException(CANNOT_READ_FILE_STRING + filename + ". " + e.getLocalizedMessage(), e);
 		}
 		if (entry == null) {
 			closeZipFile(filename);
