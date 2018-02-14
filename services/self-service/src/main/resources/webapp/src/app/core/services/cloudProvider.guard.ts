@@ -34,22 +34,7 @@ export class CloudProviderGuard implements CanActivate {
       private _healthStatus: HealthStatusService
     ) { }
 
-    canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<any> {
-        return this._authGuard.canActivate(next, state).toPromise().then((auth: boolean) => {
-            if (!auth) Promise.resolve(false);
-
-            this._healthStatus.isBillingEnabled()
-              .subscribe(status => {
-                const data = status.json()
-                console.log(data);
-
-                if (auth && !data.billingEnabled) {
-                  this._routing.redirectToHomePage();
-                  return Promise.resolve(false);
-                }
-
-                return Promise.resolve(true);
-              });
-        });
+    canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+      return this._healthStatus.isBillingEnabled();
     }
 }
