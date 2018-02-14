@@ -70,21 +70,20 @@ if __name__ == "__main__":
         data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + os.environ['edge_user_name'] + \
                                       '-de-' + data_engine['exploratory_name'] + '-' + \
                                       data_engine['computational_name']
-        data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
-        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
+        data_engine['master_node_name'] = '{}-m'.format(data_engine['cluster_name'])
+        data_engine['slave_node_name'] = '{}-s'.format(data_engine['cluster_name'])
         data_engine['master_size'] = os.environ['aws_dataengine_master_shape']
         data_engine['slave_size'] = os.environ['aws_dataengine_slave_shape']
-        data_engine['dataengine_master_security_group_name'] = data_engine['service_base_name'] + '-' + \
-                                                               os.environ['edge_user_name'] + '-dataengine-master-sg'
-        data_engine['dataengine_slave_security_group_name'] = data_engine['service_base_name'] + '-' + \
-                                                              os.environ['edge_user_name'] + '-dataengine-slave-sg'
-        data_engine['tag_name'] = data_engine['service_base_name'] + '-Tag'
+        data_engine['dataengine_master_security_group_name'] = '{}-{}-dataengine-master-sg' \
+            .format(data_engine['service_base_name'], os.environ['edge_user_name'])
+        data_engine['dataengine_slave_security_group_name'] = '{}-{}-dataengine-slave-sg' \
+            .format(data_engine['service_base_name'], os.environ['edge_user_name'])
+        data_engine['tag_name'] = '{}-Tag'.format(data_engine['service_base_name'])
         tag = {"Key": data_engine['tag_name'],
                "Value": "{}-{}-subnet".format(data_engine['service_base_name'], os.environ['edge_user_name'])}
         data_engine['subnet_cidr'] = get_subnet_by_tag(tag)
-        data_engine['notebook_dataengine_role_profile_name'] = data_engine['service_base_name'].\
-                                                                   lower().replace('-', '_') + "-" + \
-                                                               os.environ['edge_user_name'] + '-nb-de-Profile'
+        data_engine['notebook_dataengine_role_profile_name'] = '{}-{}-nb-de-Profile' \
+            .format(data_engine['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['cluster_nodes_tag'] = {"Key": "dataengine_notebook_name",
                                             "Value": os.environ['notebook_instance_name']}
@@ -96,7 +95,7 @@ if __name__ == "__main__":
         data_engine['expected_image_name'] = '{}-{}-notebook-image'.format(os.environ['conf_service_base_name'],
                                                                            os.environ['application'])
         data_engine['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
-                    else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
+            else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
 
         print('Searching pre-configured images')
         image_id = get_ami_id_by_name(data_engine['notebook_image_name'], 'available')

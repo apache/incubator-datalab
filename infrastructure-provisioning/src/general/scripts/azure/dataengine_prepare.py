@@ -102,6 +102,7 @@ if __name__ == "__main__":
                                       "User": data_engine['user_name'],
                                       "Type": "master",
                                       "notebook_name": data_engine['notebook_name']}
+        data_engine['primary_disk_size'] = '30'
         data_engine['image_type'] = 'default'
         data_engine['expected_image_name'] = '{}-{}-notebook-image'.format(data_engine['service_base_name'],
                                                                            os.environ['application'])
@@ -113,12 +114,14 @@ if __name__ == "__main__":
                 print('Pre-configured image found. Using: {}'.format(data_engine['expected_image_name']))
                 data_engine['image_name'] = data_engine['expected_image_name']
                 data_engine['image_type'] = 'pre-configured'
+                data_engine['primary_disk_size'] = '12'
             else:
                 data_engine['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
         elif AzureMeta().get_image(data_engine['resource_group_name'], data_engine['notebook_image_name']):
             print('Pre-configured image found. Using: {}'.format(data_engine['notebook_image_name']))
             data_engine['image_name'] = data_engine['notebook_image_name']
             data_engine['image_type'] = 'pre-configured'
+            data_engine['primary_disk_size'] = '12'
         else:
             data_engine['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
             print('No pre-configured image found. Using default one: {}'.format(data_engine['image_name']))
@@ -150,9 +153,9 @@ if __name__ == "__main__":
                    data_engine['vpc_name'], data_engine['master_network_interface_name'],
                    data_engine['master_security_group_name'], data_engine['private_subnet_name'],
                    data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
-                   data_engine['public_ssh_key'], '32', 'dataengine', data_engine['user_name'],
-                   data_engine['instance_storage_account_type'], data_engine['image_name'],
-                   data_engine['image_type'], json.dumps(data_engine['master_tags']))
+                   data_engine['public_ssh_key'], data_engine['primary_disk_size'], 'dataengine',
+                   data_engine['user_name'], data_engine['instance_storage_account_type'],
+                   data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['master_tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:
@@ -184,9 +187,9 @@ if __name__ == "__main__":
                 format(slave_name, data_engine['slave_size'], data_engine['region'], data_engine['vpc_name'],
                        slave_nif_name, data_engine['slave_security_group_name'], data_engine['private_subnet_name'],
                        data_engine['service_base_name'], data_engine['resource_group_name'], initial_user, 'None',
-                       data_engine['public_ssh_key'], '32', 'dataengine', data_engine['user_name'],
-                       data_engine['instance_storage_account_type'], data_engine['image_name'],
-                       data_engine['image_type'], json.dumps(data_engine['slave_tags']))
+                       data_engine['public_ssh_key'], data_engine['primary_disk_size'], 'dataengine',
+                       data_engine['user_name'], data_engine['instance_storage_account_type'],
+                       data_engine['image_name'], data_engine['image_type'], json.dumps(data_engine['slave_tags']))
             try:
                 local("~/scripts/{}.py {}".format('common_create_instance', params))
             except:

@@ -97,9 +97,8 @@ if __name__ == "__main__":
         notebook_config['image_type'] = 'default'
         notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
                                                                                os.environ['application'])
-        notebook_config['notebook_image_name'] = (lambda x: x if x != 'None'
-                                                else notebook_config['expected_image_name']) \
-                                                (str(os.environ.get('notebook_image_name')))
+        notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
+            else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
         if notebook_config['notebook_image_name'] == 'default':
             if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_image_name']):

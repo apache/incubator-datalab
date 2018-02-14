@@ -42,30 +42,37 @@ if __name__ == "__main__":
     edge_conf['public_subnet_id'] = os.environ['aws_subnet_id']
     edge_conf['vpc_id'] = os.environ['aws_vpc_id']
     edge_conf['region'] = os.environ['aws_region']
-    edge_conf['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
+    edge_conf['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
     edge_conf['instance_size'] = os.environ['aws_edge_instance_size']
     edge_conf['sg_ids'] = os.environ['aws_security_groups_ids']
-    edge_conf['instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-edge'
-    edge_conf['tag_name'] = edge_conf['service_base_name'] + '-Tag'
-    edge_conf['bucket_name'] = (edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-bucket').lower().replace('_', '-')
-    edge_conf['ssn_bucket_name'] = (edge_conf['service_base_name'] + "-ssn-bucket").lower().replace('_', '-')
-    edge_conf['shared_bucket_name'] = (edge_conf['service_base_name'] + "-shared-bucket").lower().replace('_', '-')
-    edge_conf['role_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Role'
-    edge_conf['role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Profile'
-    edge_conf['policy_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-edge-Policy'
-    edge_conf['edge_security_group_name'] = edge_conf['instance_name'] + '-SG'
-    edge_conf['notebook_instance_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb'
-    edge_conf['dataengine_instances_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + \
-                                             '-dataengine'
-    edge_conf['notebook_dataengine_role_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-de-Role'
-    edge_conf['notebook_dataengine_policy_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-de-Policy'
-    edge_conf['notebook_dataengine_role_profile_name'] = edge_conf['service_base_name'].lower().replace('-', '_') + "-" + os.environ['edge_user_name'] + '-nb-de-Profile'
-    edge_conf['notebook_security_group_name'] = edge_conf['service_base_name'] + "-" + os.environ['edge_user_name'] + '-nb-SG'
+    edge_conf['instance_name'] = '{}-{}-edge'.format(edge_conf['service_base_name'], os.environ['edge_user_name'])
+    edge_conf['tag_name'] = '{}-Tag'.format(edge_conf['service_base_name'])
+    edge_conf['bucket_name'] = '{}-{}-bucket'.format(edge_conf['service_base_name'],
+                                                     os.environ['edge_user_name']).lower().replace('_', '-')
+    edge_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(edge_conf['service_base_name']).lower().replace('_', '-')
+    edge_conf['shared_bucket_name'] = '{}-shared-bucket'.format(edge_conf['service_base_name']).lower().replace('_', '-')
+    edge_conf['role_name'] = '{}-{}-edge-Role'.format(edge_conf['service_base_name'].lower().replace('-', '_'),
+                                                      os.environ['edge_user_name'])
+    edge_conf['role_profile_name'] = '{}-{}-edge-Profile'.format(edge_conf['service_base_name'].lower().replace('-', '_'),
+                                                                 os.environ['edge_user_name'])
+    edge_conf['policy_name'] = '{}-{}-edge-Policy'.format(edge_conf['service_base_name'].lower().replace('-', '_'),
+                                                          os.environ['edge_user_name'])
+    edge_conf['edge_security_group_name'] = '{}-SG'.format(edge_conf['instance_name'])
+    edge_conf['notebook_instance_name'] = '{}-{}-nb'.format(edge_conf['service_base_name'], os.environ['edge_user_name'])
+    edge_conf['dataengine_instances_name'] = '{}-{}-dataengine' \
+        .format(edge_conf['service_base_name'], os.environ['edge_user_name'])
+    edge_conf['notebook_dataengine_role_name'] = '{}-{}-nb-de-Role' \
+        .format(edge_conf['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
+    edge_conf['notebook_dataengine_policy_name'] = '{}-{}-nb-de-Policy' \
+        .format(edge_conf['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
+    edge_conf['notebook_dataengine_role_profile_name'] = '{}-{}-nb-de-Profile' \
+        .format(edge_conf['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
+    edge_conf['notebook_security_group_name'] = '{}-{}-nb-SG'.format(edge_conf['service_base_name'], os.environ['edge_user_name'])
     edge_conf['private_subnet_prefix'] = os.environ['aws_private_subnet_prefix']
-    edge_conf['dataengine_master_security_group_name'] = edge_conf['service_base_name'] + '-' \
-                                                         + os.environ['edge_user_name'] + '-dataengine-master-sg'
-    edge_conf['dataengine_slave_security_group_name'] = edge_conf['service_base_name'] + '-' \
-                                                        + os.environ['edge_user_name'] + '-dataengine-slave-sg'
+    edge_conf['dataengine_master_security_group_name'] = '{}-{}-dataengine-master-sg' \
+        .format(edge_conf['service_base_name'], os.environ['edge_user_name'])
+    edge_conf['dataengine_slave_security_group_name'] = '{}-{}-dataengine-slave-sg' \
+        .format(edge_conf['service_base_name'], os.environ['edge_user_name'])
     edge_conf['all_ip_cidr'] = '0.0.0.0/0'
 
     # FUSE in case of absence of user's key
@@ -236,7 +243,8 @@ if __name__ == "__main__":
                 "ToPort": 8085, "IpProtocol": "tcp", "UserIdGroupPairs": []
             }
         ]
-        params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} --egress '{}' --force {} --nb_sg_name {} --resource {}".\
+        params = "--name {} --vpc_id {} --security_group_rules '{}' --infra_tag_name {} --infra_tag_value {} \
+            --egress '{}' --force {} --nb_sg_name {} --resource {}".\
             format(edge_conf['edge_security_group_name'], edge_conf['vpc_id'], json.dumps(edge_sg_ingress),
                    edge_conf['service_base_name'], edge_conf['instance_name'], json.dumps(edge_sg_egress),
                    True, edge_conf['notebook_instance_name'], 'edge')
@@ -397,7 +405,8 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
         print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-        params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {}'.format(
+        params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} \
+            --notebook_role_name {} --service_base_name {} --region {}'.format(
             edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], edge_conf['shared_bucket_name'], os.environ['edge_user_name'],
             edge_conf['role_name'], edge_conf['notebook_dataengine_role_name'],  edge_conf['service_base_name'], edge_conf['region'])
         try:
