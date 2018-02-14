@@ -24,19 +24,19 @@
 <#assign TRUST_STORE_PASSWORD="changeit">
 
 # Available options are aws, azure, gcp
-<#assign CLOUD_TYPE="aws">
+<#assign CLOUD_TYPE="CLOUD_PROVIDER">
 cloudProvider: ${CLOUD_TYPE}
 
 #Switch on/off developer mode here
-<#assign DEV_MODE="true">
+<#assign DEV_MODE="false">
 devMode: ${DEV_MODE}
 
 mongo:
   host: localhost
   port: 27017
   username: admin
-  password: Sasha17
-  database: db_oc
+  password: MONGO_PASSWORD
+  database: dlabdb
 
 selfService:
   protocol: https
