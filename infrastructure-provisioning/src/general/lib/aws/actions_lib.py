@@ -482,15 +482,17 @@ def start_ec2(tag_name, tag_value):
 
 def remove_detach_iam_policies(role_name, action=''):
     client = boto3.client('iam')
+    service_base_name = os.environ['conf_service_base_name']
     try:
         policy_list = client.list_attached_role_policies(RoleName=role_name).get('AttachedPolicies')
         for i in policy_list:
-            policy_arn = i.get('PolicyArn')
-            client.detach_role_policy(RoleName=role_name, PolicyArn=policy_arn)
-            print("The IAM policy {} has been detached successfully".format(policy_arn))
-            if action == 'delete':
-                client.delete_policy(PolicyArn=policy_arn)
-                print("The IAM policy {} has been deleted successfully".format(policy_arn))
+            if service_base_name in i.get('PolicyName'):
+                policy_arn = i.get('PolicyArn')
+                client.detach_role_policy(RoleName=role_name, PolicyArn=policy_arn)
+                print("The IAM policy {} has been detached successfully".format(policy_arn))
+                if action == 'delete':
+                    client.delete_policy(PolicyArn=policy_arn)
+                    print("The IAM policy {} has been deleted successfully".format(policy_arn))
     except Exception as err:
         logging.info("Unable to remove/detach IAM policy: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
         append_result(str({"error": "Unable to remove/detach IAM policy",
