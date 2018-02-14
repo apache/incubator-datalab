@@ -1,32 +1,32 @@
 /***************************************************************************
 
- Copyright (c) 2016, EPAM SYSTEMS INC
+Copyright (c) 2016, EPAM SYSTEMS INC
 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
- http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
- ****************************************************************************/
+****************************************************************************/
 
 package com.epam.dlab.auth.resources;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
 import com.amazonaws.services.identitymanagement.model.User;
-import com.epam.dlab.auth.SecurityServiceConfiguration;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.UserInfoDAO;
 import com.epam.dlab.auth.core.LoginCache;
 import com.epam.dlab.auth.core.LoginConveyor;
 import com.epam.dlab.auth.core.LoginStep;
+import com.epam.dlab.auth.SecurityServiceConfiguration;
 import com.epam.dlab.auth.dao.AwsUserDAOImpl;
 import com.epam.dlab.auth.dao.LdapUserDAO;
 import com.epam.dlab.auth.dao.UserInfoDAODumbImpl;
@@ -52,16 +52,13 @@ import java.util.concurrent.*;
 
 /**
  * Provides authentication against LDAP server
- *
- * @deprecated as it causes undefined behaviours during login. Use @{@link SynchronousLdapAuthenticationService}
+ * @deprecated  as it causes undefined behaviours during login. Use @{@link SynchronousLdapAuthenticationService}
  */
 @Path("/")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Deprecated
 public class LdapAuthenticationService extends AbstractAuthenticationService<SecurityServiceConfiguration> {
 
-	public static final String AUTHENTICATION_ERROR_STRING = "Authentication error";
 	private final LdapUserDAO ldapUserDAO;
 	private final AwsUserDAO awsUserDAO;
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -72,28 +69,28 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 
 	public LdapAuthenticationService(SecurityServiceConfiguration config, Environment env) {
 		super(config);
-		if (config.isUserInfoPersistenceEnabled()) {
-			this.userInfoDao = new UserInfoDAOMongoImpl(config.getMongoFactory().build(env), config.getInactiveUserTimeoutMillSec());
+		if(config.isUserInfoPersistenceEnabled()) {
+			this.userInfoDao = new UserInfoDAOMongoImpl(config.getMongoFactory().build(env),config.getInactiveUserTimeoutMillSec());
 		} else {
 			this.userInfoDao = new UserInfoDAODumbImpl();
 		}
 		loginConveyor = new LoginConveyor(config.getLoginAuthenticationTimeout());
 		loginConveyor.setUserInfoDao(userInfoDao);
-		LoginCache.getInstance().setDefaultBuilderTimeout(config.getInactiveUserTimeoutMillSec(), TimeUnit.MILLISECONDS);
-		LoginCache.getInstance().setExpirationPostponeTime(config.getInactiveUserTimeoutMillSec(), TimeUnit.MILLISECONDS);
-		if (config.isAwsUserIdentificationEnabled()) {
+		LoginCache.getInstance().setDefaultBuilderTimeout(config.getInactiveUserTimeoutMillSec(),TimeUnit.MILLISECONDS);
+		LoginCache.getInstance().setExpirationPostponeTime(config.getInactiveUserTimeoutMillSec(),TimeUnit.MILLISECONDS);
+		if(config.isAwsUserIdentificationEnabled()) {
 			DefaultAWSCredentialsProviderChain providerChain = new DefaultAWSCredentialsProviderChain();
 			awsUserDAO = new AwsUserDAOImpl(providerChain.getCredentials());
-			scheduler.scheduleAtFixedRate(() -> {
+			scheduler.scheduleAtFixedRate(()->{
 				try {
 					providerChain.refresh();
 					awsUserDAO.updateCredentials(providerChain.getCredentials());
 					log.debug("provider credentials refreshed");
 				} catch (Exception e) {
-					log.error("AWS provider error", e);
+					log.error("AWS provider error",e);
 					throw e;
 				}
-			}, 5, 5, TimeUnit.MINUTES);
+			},5,5, TimeUnit.MINUTES);
 		} else {
 			awsUserDAO = null;
 		}
@@ -104,33 +101,33 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 	@POST
 	@Path("/login")
 	public Response login(UserCredentialDTO credential, @Context HttpServletRequest request) {
-		String username = credential.getUsername();
-		String password = credential.getPassword();
+		String username    = credential.getUsername();
+		String password    = credential.getPassword();
 		String accessToken = credential.getAccessToken();
-		String remoteIp = request.getRemoteAddr();
+		String remoteIp    = request.getRemoteAddr();
 
-		log.debug("validating username:{} password:****** token:{} ip:{}", username, accessToken, remoteIp);
+		log.debug("validating username:{} password:****** token:{} ip:{}", username, accessToken,remoteIp);
 		String token = getRandomToken();
 		UserInfo ui = getUserInfo(accessToken, remoteIp);
 		if (ui != null) {
 			return Response.ok(accessToken).build();
 		}
 
-		CompletableFuture<UserInfo> uiFuture = loginConveyor.startUserInfoBuild(token, username);
-		loginConveyor.add(token, remoteIp, LoginStep.REMOTE_IP);
+		CompletableFuture<UserInfo> uiFuture = loginConveyor.startUserInfoBuild(token,username);
+		loginConveyor.add(token,remoteIp, LoginStep.REMOTE_IP);
 
-		submitLdapLogin(username, password, token);
-		submitLdapInfo(username, token);
-		submitAwsCheck(username, token);
-		submitAwsKeys(username, token);
+		submitLdapLogin(username,password,token);
+		submitLdapInfo(username,token);
+		submitAwsCheck(username,token);
+		submitAwsKeys(username,token);
 
 		try {
 			UserInfo userInfo = uiFuture.get(config.getLoginAuthenticationTimeout(), TimeUnit.SECONDS);
 			log.debug("user info collected by conveyor '{}' ", userInfo);
 		} catch (Exception e) {
-			log.error(AUTHENTICATION_ERROR_STRING, e);
+			log.error("Authentication error", e);
 			Throwable cause = e.getCause();
-			if (cause == null) {
+			if(cause == null) {
 				cause = e;
 			}
 			log.error("Conveyor error {}", cause.getMessage());
@@ -141,47 +138,47 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 
 	private void submitLdapLogin(String username, String password, String token) {
 		//Try to login
-		threadpool.submit(() -> {
+		threadpool.submit(()->{
 			try {
-				ldapUserDAO.getUserInfo(username, password);
-				log.debug("User Authenticated: {}", username);
-				loginConveyor.add(token, "USER LOGGED IN", LoginStep.LDAP_LOGIN);
+				ldapUserDAO.getUserInfo(username,password);
+				log.debug("User Authenticated: {}",username);
+				loginConveyor.add(token,"USER LOGGED IN",LoginStep.LDAP_LOGIN);
 			} catch (Exception e) {
-				log.error(AUTHENTICATION_ERROR_STRING, e);
-				loginConveyor.cancel(token, LoginStep.LDAP_USER_INFO_ERROR, "Username or password are not valid");
+				log.error("Authentication error", e);
+				loginConveyor.cancel(token,LoginStep.LDAP_USER_INFO_ERROR,"Username or password are not valid");
 			}
 		});
 	}
 
 	private void submitLdapInfo(String username, String token) {
 		//Extract User Info from LDAP
-		threadpool.submit(() -> {
+		threadpool.submit(()->{
 			try {
 				UserInfo rolesUserInfo = ldapUserDAO.enrichUserInfo(new UserInfo(username, token));
-				loginConveyor.add(token, rolesUserInfo, LoginStep.LDAP_USER_INFO);
+				loginConveyor.add(token,rolesUserInfo,LoginStep.LDAP_USER_INFO);
 			} catch (Exception e) {
-				log.error(AUTHENTICATION_ERROR_STRING, e);
-				loginConveyor.cancel(token, LoginStep.LDAP_GROUP_INFO_ERROR, "User not authorized. Please access DLAB administrator.");
+				log.error("Authentication error", e);
+				loginConveyor.cancel(token,LoginStep.LDAP_GROUP_INFO_ERROR,"User not authorized. Please access DLAB administrator.");
 			}
 		});
 	}
 
 	private void submitAwsCheck(String username, String token) {
 		//Check AWS account
-		threadpool.submit(() -> {
-			if (config.isAwsUserIdentificationEnabled()) {
+		threadpool.submit(()->{
+			if(config.isAwsUserIdentificationEnabled()) {
 				try {
 					User awsUser = awsUserDAO.getAwsUser(username);
 					if (awsUser != null) {
 						loginConveyor.add(token, true, LoginStep.AWS_USER);
 					} else {
-						loginConveyor.cancel(token, LoginStep.AWS_USER_ERROR, "Please contact AWS administrator to create corresponding IAM User");
+						loginConveyor.cancel(token,LoginStep.AWS_USER_ERROR,"Please contact AWS administrator to create corresponding IAM User");
 					}
 				} catch (Exception e) {
-					loginConveyor.cancel(token, LoginStep.AWS_USER_ERROR, "Please contact AWS administrator to create corresponding IAM User");
+					loginConveyor.cancel(token,LoginStep.AWS_USER_ERROR,"Please contact AWS administrator to create corresponding IAM User");
 				}
 			} else {
-				loginConveyor.add(token, false, LoginStep.AWS_USER);
+				loginConveyor.add(token,false, LoginStep.AWS_USER);
 			}
 		});
 
@@ -189,16 +186,16 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 
 	private void submitAwsKeys(String username, String token) {
 		//Check AWS keys
-		threadpool.submit(() -> {
-			if (config.isAwsUserIdentificationEnabled()) {
+		threadpool.submit(()->{
+			if(config.isAwsUserIdentificationEnabled()) {
 				try {
 					List<AccessKeyMetadata> keys = awsUserDAO.getAwsAccessKeys(username);
 					loginConveyor.add(token, keys, LoginStep.AWS_KEYS);
 				} catch (Exception e) {
-					loginConveyor.cancel(token, LoginStep.AWS_KEYS_ERROR, "Please contact AWS administrator to activate your Access Key");
+					loginConveyor.cancel(token,LoginStep.AWS_KEYS_ERROR,"Please contact AWS administrator to activate your Access Key");
 				}
 			} else {
-				loginConveyor.add(token, new ArrayList<AccessKeyMetadata>(), LoginStep.AWS_KEYS_EMPTY);
+				loginConveyor.add(token,new ArrayList<AccessKeyMetadata>(),LoginStep.AWS_KEYS_EMPTY);
 			}
 		});
 
@@ -210,14 +207,14 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 	public UserInfo getUserInfo(String accessToken, @Context HttpServletRequest request) {
 		String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
 		String remoteIp = request.getRemoteAddr();
-		UserInfo ui = getUserInfo(accessToken, remoteIp);
-		if (ui == null) {
+		UserInfo ui     = getUserInfo(accessToken, remoteIp);
+		if(ui == null) {
 			ui = userInfoDao.getUserInfoByAccessToken(accessToken);
-			if (ui != null) {
+			if( ui != null ) {
 				ui = ui.withToken(accessToken);
 				LoginCache.getInstance().save(ui);
 				updateTTL(accessToken, ui, userAgent);
-				log.debug("restored UserInfo from DB {}", ui);
+				log.debug("restored UserInfo from DB {}",ui);
 			}
 		} else {
 			updateTTL(accessToken, ui, userAgent);
@@ -234,19 +231,19 @@ public class LdapAuthenticationService extends AbstractAuthenticationService<Sec
 		log.debug("Logged out {}", accessToken);
 		return Response.ok().build();
 	}
-
+	
 	private UserInfo getUserInfo(String accessToken, String remoteIp) {
 		UserInfo ui = LoginCache.getInstance().getUserInfo(accessToken);
 		if (ui != null &&
-				(remoteIp == null ||
-						!remoteIp.equals(ui.getRemoteIp()))) {
+			(remoteIp == null ||
+			 !remoteIp.equals(ui.getRemoteIp()))) {
 			log.debug("Remove user info for token {}. IP address is changed from {} to {}", accessToken, ui.getRemoteIp(), remoteIp);
 			removeUserInfo(accessToken);
 			return null;
 		}
 		return ui;
 	}
-
+	
 	private void removeUserInfo(String accessToken) {
 		UserInfo ui = LoginCache.getInstance().getUserInfo(accessToken);
 		if (ui != null) {
