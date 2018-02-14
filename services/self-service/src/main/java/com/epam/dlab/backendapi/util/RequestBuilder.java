@@ -22,7 +22,6 @@ import com.epam.dlab.backendapi.dao.SettingsDAO;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
 import com.epam.dlab.backendapi.resources.dto.BackupFormDTO;
 import com.epam.dlab.backendapi.resources.dto.ComputationalCreateFormDTO;
-import com.epam.dlab.backendapi.resources.dto.ExploratoryCreateFormDTO;
 import com.epam.dlab.backendapi.resources.dto.SparkStandaloneClusterCreateForm;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsComputationalCreateForm;
 import com.epam.dlab.backendapi.resources.dto.gcp.GcpComputationalCreateForm;
@@ -59,6 +58,7 @@ import com.epam.dlab.dto.gcp.edge.EdgeCreateGcp;
 import com.epam.dlab.dto.gcp.exploratory.ExploratoryCreateGcp;
 import com.epam.dlab.dto.gcp.keyload.UploadFileGcp;
 import com.epam.dlab.exceptions.DlabException;
+import com.epam.dlab.model.exloratory.Exploratory;
 import com.epam.dlab.utils.UsernameUtils;
 import com.google.inject.Inject;
 
@@ -195,44 +195,44 @@ public class RequestBuilder {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T extends ExploratoryCreateDTO<T>> T newExploratoryCreate(ExploratoryCreateFormDTO formDTO, UserInfo userInfo,
-																			 ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
+    @SuppressWarnings("unchecked")
+    public static <T extends ExploratoryCreateDTO<T>> T newExploratoryCreate(Exploratory exploratory, UserInfo userInfo,
+                                                                             ExploratoryGitCredsDTO exploratoryGitCredsDTO) {
 
 		T exploratoryCreate;
 
-		switch (cloudProvider()) {
-			case AWS:
-				exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, ExploratoryCreateAws.class)
-						.withNotebookInstanceType(formDTO.getShape());
-				break;
-			case AZURE:
-				exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, ExploratoryCreateAzure.class)
-						.withNotebookInstanceSize(formDTO.getShape());
-				if (settingsDAO.isAzureDataLakeEnabled()) {
-					((ExploratoryCreateAzure) exploratoryCreate)
-							.withAzureClientId(settingsDAO.getAzureDataLakeClientId())
-							.withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
-				}
+        switch (cloudProvider()) {
+            case AWS:
+                exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, ExploratoryCreateAws.class)
+                        .withNotebookInstanceType(exploratory.getShape());
+                break;
+            case AZURE:
+                exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, ExploratoryCreateAzure.class)
+                        .withNotebookInstanceSize(exploratory.getShape());
+                if (settingsDAO.isAzureDataLakeEnabled()) {
+                    ((ExploratoryCreateAzure) exploratoryCreate)
+                            .withAzureClientId(settingsDAO.getAzureDataLakeClientId())
+                            .withAzureUserRefreshToken(userInfo.getKeys().get(AZURE_REFRESH_TOKEN_KEY));
+                }
 
-				((ExploratoryCreateAzure) exploratoryCreate)
-						.withAzureDataLakeEnabled(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
-				break;
-			case GCP:
-				exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, ExploratoryCreateGcp.class)
-						.withNotebookInstanceType(formDTO.getShape());
-				break;
+                ((ExploratoryCreateAzure) exploratoryCreate)
+                        .withAzureDataLakeEnabled(Boolean.toString(settingsDAO.isAzureDataLakeEnabled()));
+                break;
+            case GCP:
+                exploratoryCreate = (T) newResourceSysBaseDTO(userInfo, ExploratoryCreateGcp.class)
+                        .withNotebookInstanceType(exploratory.getShape());
+                break;
 
 			default:
 				throw new IllegalArgumentException(UNSUPPORTED_CLOUD_PROVIDER_MESSAGE + cloudProvider());
 		}
 
-		return exploratoryCreate.withExploratoryName(formDTO.getName())
-				.withNotebookImage(formDTO.getImage())
-				.withApplicationName(getApplicationNameFromImage(formDTO.getImage()))
-				.withGitCreds(exploratoryGitCredsDTO.getGitCreds())
-				.withImageName(formDTO.getImageName());
-	}
+        return exploratoryCreate.withExploratoryName(exploratory.getName())
+                .withNotebookImage(exploratory.getDockerImage())
+                .withApplicationName(getApplicationNameFromImage(exploratory.getDockerImage()))
+                .withGitCreds(exploratoryGitCredsDTO.getGitCreds())
+                .withImageName(exploratory.getImageName());
+    }
 
 	@SuppressWarnings("unchecked")
 	public static <T extends ExploratoryGitCredsUpdateDTO> T newExploratoryStart(UserInfo userInfo, UserInstanceDTO userInstance,
