@@ -79,14 +79,16 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 
 	@Override
 	public void finishImageCreate(Image image, String exploratoryName, String newNotebookIp) {
-		log.debug("Returning exploratory status with name {} to RUNNING for user {}", exploratoryName, image.getUser());
+		log.debug("Returning exploratory status with name {} to RUNNING for user {}",
+				exploratoryName, image.getUser());
 		exploratoryDAO.updateExploratoryStatus(new ExploratoryStatusDTO()
 				.withUser(image.getUser())
 				.withExploratoryName(exploratoryName)
 				.withStatus(UserInstanceStatus.RUNNING));
 		imageExploratotyDao.updateImageFields(image);
 		if (newNotebookIp != null) {
-			log.debug("Changing exploratory ip with name {} for user {} to {}", exploratoryName, image.getUser(), newNotebookIp);
+			log.debug("Changing exploratory ip with name {} for user {} to {}", exploratoryName, image.getUser(),
+					newNotebookIp);
 			exploratoryDAO.updateExploratoryIp(image.getUser(), newNotebookIp, exploratoryName);
 		}
 

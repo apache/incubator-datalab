@@ -69,6 +69,8 @@ if __name__ == "__main__":
     edge_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
     edge_conf['network_type'] = os.environ['conf_network_type']
     edge_conf['all_ip_cidr'] = '0.0.0.0/0'
+    if 'aws_user_predefined_s3_policies' not in os.environ:
+        os.environ['aws_user_predefined_s3_policies'] = 'None'
 
     try:
         if os.environ['conf_user_subnets_range'] == '':
@@ -406,13 +408,15 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATING BUCKET POLICY FOR USER INSTANCES]')
         print('[CREATING BUCKET POLICY FOR USER INSTANCES]')
-        params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {}'.format(
-            edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], edge_conf['shared_bucket_name'], os.environ['edge_user_name'],
-            edge_conf['role_name'], edge_conf['notebook_dataengine_role_name'],  edge_conf['service_base_name'], edge_conf['region'])
+        params = '--bucket_name {} --ssn_bucket_name {} --shared_bucket_name {} --username {} --edge_role_name {} --notebook_role_name {} --service_base_name {} --region {} --user_predefined_s3_policies "{}"'.format(
+            edge_conf['bucket_name'], edge_conf['ssn_bucket_name'], edge_conf['shared_bucket_name'],
+            os.environ['edge_user_name'], edge_conf['role_name'], edge_conf['notebook_dataengine_role_name'],
+            edge_conf['service_base_name'], edge_conf['region'], os.environ['aws_user_predefined_s3_policies'])
         try:
             local("~/scripts/{}.py {}".format('common_create_policy', params))
         except:
             traceback.print_exc()
+            raise Exception
     except Exception as err:
         append_result("Failed to create bucket policy.", str(err))
         remove_all_iam_resources('notebook', os.environ['edge_user_name'])

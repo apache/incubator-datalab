@@ -32,13 +32,6 @@ public enum RoleType {
 		this.nodeName = nodeName;
 	}
 
-	/**
-	 * Return name of node in JSON for type.
-	 */
-	public String getNodeName() {
-		return nodeName;
-	}
-
 	public static RoleType of(String name) {
 		if (name != null) {
 			for (RoleType value : RoleType.values()) {
@@ -48,5 +41,12 @@ public enum RoleType {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Return name of node in JSON for type.
+	 */
+	public String getNodeName() {
+		return nodeName;
 	}
 }

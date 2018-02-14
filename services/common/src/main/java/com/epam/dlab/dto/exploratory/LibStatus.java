@@ -27,11 +27,6 @@ public enum LibStatus {
 	INSTALLED,
 	FAILED;
 
-	@Override
-	public String toString() {
-		return super.toString().toLowerCase();
-	}
-
 	@JsonCreator
 	public static LibStatus of(String status) {
 		if (status != null) {
@@ -42,5 +37,10 @@ public enum LibStatus {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		return super.toString().toLowerCase();
 	}
 }

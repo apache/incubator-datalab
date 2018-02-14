@@ -18,27 +18,29 @@ limitations under the License.
 
 package com.epam.dlab.automation.test;
 
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
+import com.epam.dlab.automation.docker.AckStatus;
+import com.epam.dlab.automation.docker.SSHConnect;
+import com.epam.dlab.automation.helper.CloudHelper;
+import com.epam.dlab.automation.helper.ConfigPropertyValue;
+import com.epam.dlab.automation.helper.NamingHelper;
+import com.epam.dlab.automation.helper.PropertiesResolver;
+import com.jcraft.jsch.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.epam.dlab.automation.helper.CloudHelper;
-import com.jcraft.jsch.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.epam.dlab.automation.docker.AckStatus;
-import com.epam.dlab.automation.docker.SSHConnect;
-import com.epam.dlab.automation.helper.ConfigPropertyValue;
-import com.epam.dlab.automation.helper.PropertiesResolver;
-import com.epam.dlab.automation.helper.NamingHelper;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 public class TestDataEngineService {
     private final static Logger LOGGER = LogManager.getLogger(TestDataEngineService.class);
@@ -61,7 +63,8 @@ public class TestDataEngineService {
             		notebookName, NamingHelper.getStorageName(), NamingHelper.getSsnIp());
             ssnSession = SSHConnect.getSession(ConfigPropertyValue.getClusterOsUser(), NamingHelper.getSsnIp(), 22);
             copyFileToSSN(ssnSession, PropertiesResolver.getNotebookTestDataCopyScriptLocation(), "");
-            executePythonScript2(ssnSession, clusterName, new File(PropertiesResolver.getNotebookTestDataCopyScriptLocation()).getName(), notebookName);
+			executePythonScript2(ssnSession, clusterName,
+					new File(PropertiesResolver.getNotebookTestDataCopyScriptLocation()).getName(), notebookName);
         } finally {
 	        if(ssnSession != null && !ssnSession.isConnected()) {
 	            ssnSession.disconnect();
@@ -70,7 +73,9 @@ public class TestDataEngineService {
     }
     
     //TODO refactor two methods and make one
-    private void executePythonScript2(Session ssnSession, String clusterName, String notebookTestFile, String notebookName) throws JSchException, IOException, InterruptedException {
+	private void executePythonScript2(Session ssnSession, String clusterName, String notebookTestFile, String
+			notebookName)
+			throws JSchException, IOException, InterruptedException {
         String command;
         AckStatus status;
 
@@ -86,7 +91,9 @@ public class TestDataEngineService {
         LOGGER.info("{}: Python script executed successfully ", notebookName);
     }
 
-    private void executePythonScript(String Ip, String cluster_name, String notebookTestFile, int assignedPort, String notebookName) throws JSchException, IOException, InterruptedException {
+	private void executePythonScript(String Ip, String cluster_name, String notebookTestFile, int assignedPort, String
+			notebookName)
+			throws JSchException, IOException, InterruptedException {
         String command;
         AckStatus status;
         Session session = SSHConnect.getForwardedConnect(ConfigPropertyValue.getClusterOsUser(), Ip, assignedPort);
@@ -101,7 +108,8 @@ public class TestDataEngineService {
 
             ChannelExec runScript = SSHConnect.setCommand(session, command);
             status = SSHConnect.checkAck(runScript);
-            LOGGER.info("{}: Script execution status message {} and status code {}", notebookName, status.getMessage(), status.getStatus());
+			LOGGER.info("{}: Script execution status message {} and status code {}", notebookName, status.getMessage(),
+					status.getStatus());
             assertTrue(status.isOk(), notebookName + ": The python script execution wasn`t successful on " + cluster_name);
 
             LOGGER.info("{}: Python script executed successfully ", notebookName);
@@ -114,18 +122,22 @@ public class TestDataEngineService {
         }
     }
 
-    public void run2(String ssnIP, String noteBookIp, String clusterName, File notebookScenarioDirectory, File notebookTemplatesDirectory, String notebookName)
+	public void run2(String ssnIP, String noteBookIp, String clusterName, File notebookScenarioDirectory,
+					 File notebookTemplatesDirectory, String notebookName)
             throws JSchException, IOException, InterruptedException {
-    	LOGGER.info("Python tests for directories {} and {} will be started ...", notebookScenarioDirectory, notebookTemplatesDirectory);
+		LOGGER.info("Python tests for directories {} and {} will be started ...", notebookScenarioDirectory,
+				notebookTemplatesDirectory);
     	if (ConfigPropertyValue.isRunModeLocal()) {
     		LOGGER.info("  tests are skipped");
     		return;
     	}
 
-        assertTrue(notebookScenarioDirectory.exists(), notebookName + ": Checking notebook scenario directory " + notebookScenarioDirectory);
+		assertTrue(notebookScenarioDirectory.exists(), notebookName + ": Checking notebook scenario directory " +
+				notebookScenarioDirectory);
         assertTrue(notebookScenarioDirectory.isDirectory());
 
-        assertTrue(notebookTemplatesDirectory.exists(), notebookName + ": Checking notebook templates directory " + notebookTemplatesDirectory);
+		assertTrue(notebookTemplatesDirectory.exists(), notebookName + ": Checking notebook templates directory " +
+				notebookTemplatesDirectory);
         assertTrue(notebookTemplatesDirectory.isDirectory());
 
         String [] templatesFiles = notebookTemplatesDirectory.list();
@@ -135,7 +147,8 @@ public class TestDataEngineService {
         assertNotNull(scenarioFiles, "Notebook " + notebookName + " scenario directory is empty!");
 
         assertTrue(scenarioFiles.length == 1, "The python script location " + notebookScenarioDirectory +
-                " found more more then 1 file, expected 1 *.py file, but found multiple files: " + Arrays.toString(scenarioFiles));
+				" found more more then 1 file, expected 1 *.py file, but found multiple files: " +
+				Arrays.toString(scenarioFiles));
         assertTrue(scenarioFiles[0].endsWith(".py"), "The python script was not found");
         // it is assumed there should be 1 python file.
         String notebookScenarioTestFile = scenarioFiles[0];
@@ -143,7 +156,8 @@ public class TestDataEngineService {
         Session ssnSession = SSHConnect.getSession(ConfigPropertyValue.getClusterOsUser(), ssnIP, 22);
         try {
             LOGGER.info("{}: Copying scenario test file to SSN {}...", notebookName, ssnIP);
-            copyFileToSSN(ssnSession, Paths.get(notebookScenarioDirectory.getAbsolutePath(), notebookScenarioTestFile).toString(), "");
+			copyFileToSSN(ssnSession, Paths.get(notebookScenarioDirectory.getAbsolutePath(),
+					notebookScenarioTestFile).toString(), "");
 
         	LOGGER.info("{}: Copying scenario test file to Notebook {}...", notebookName, noteBookIp);
             copyFileToNotebook(ssnSession, notebookScenarioTestFile, noteBookIp, "");
@@ -152,7 +166,8 @@ public class TestDataEngineService {
                     notebookTemplatesDirectory, Arrays.toString(templatesFiles));
 
             if(existsInSSN(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName))){
-                LOGGER.info("{}: Corresponding folder for notebook templates already exists in SSN {} and will be removed ...", notebookName, ssnIP);
+				LOGGER.info("{}: Corresponding folder for notebook templates already exists in SSN {} " +
+						"and will be removed ...", notebookName, ssnIP);
                 removeFromSSN(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName).split("/")[0]);
             }
 
@@ -169,12 +184,13 @@ public class TestDataEngineService {
             copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName),
                         noteBookIp, notebookName);
 
-            if(!clusterName.equalsIgnoreCase(NamingHelper.CLUSTER_ABSENT) || !NamingHelper.isClusterRequired(notebookName)) {
-                LOGGER.info("{}: Port forwarding from ssn {} to notebook {}...", notebookName, ssnIP, noteBookIp);
-                int assignedPort = ssnSession.setPortForwardingL(0, noteBookIp, 22);
-                LOGGER.info("{}: Port forwarded localhost:{} -> {}:22", notebookName, assignedPort, noteBookIp);
-                executePythonScript(noteBookIp, clusterName, notebookScenarioTestFile, assignedPort, notebookName);
-            }
+			if (!clusterName.equalsIgnoreCase(NamingHelper.CLUSTER_ABSENT)
+					|| !NamingHelper.isClusterRequired(notebookName)) {
+				LOGGER.info("{}: Port forwarding from ssn {} to notebook {}...", notebookName, ssnIP, noteBookIp);
+				int assignedPort = ssnSession.setPortForwardingL(0, noteBookIp, 22);
+				LOGGER.info("{}: Port forwarded localhost:{} -> {}:22", notebookName, assignedPort, noteBookIp);
+				executePythonScript(noteBookIp, clusterName, notebookScenarioTestFile, assignedPort, notebookName);
+			}
         }
         finally {
             if(ssnSession != null && ssnSession.isConnected()) {
@@ -186,7 +202,8 @@ public class TestDataEngineService {
 
     // Copies file to subfolder of home directory of SSN. If parameter 'destDirectoryInSSN' is empty string then copies
     // to home directory.
-    private void copyFileToSSN(Session ssnSession, String sourceFilenameWithPath, String destDirectoryInSSN) throws IOException, JSchException {
+	private void copyFileToSSN(Session ssnSession, String sourceFilenameWithPath, String destDirectoryInSSN)
+			throws IOException, JSchException {
         LOGGER.info("Copying {} to SSN...", sourceFilenameWithPath);
         File file = new File(sourceFilenameWithPath);
         assertTrue(file.exists(), "Source file " + sourceFilenameWithPath + " doesn't exist!");
@@ -196,7 +213,9 @@ public class TestDataEngineService {
         FileInputStream src = new FileInputStream(file);
         try {
         	channelSftp = SSHConnect.getChannelSftp(ssnSession);
-        	channelSftp.put(src, String.format("/home/%s/%s%s", ConfigPropertyValue.getClusterOsUser(), destDirectoryInSSN, file.getName()));
+			channelSftp.put(src,
+					String.format("/home/%s/%s%s", ConfigPropertyValue.getClusterOsUser(), destDirectoryInSSN, file
+							.getName()));
         } catch (SftpException e) {
             LOGGER.error("An error occured during copying file to SSN: {}", e);
             assertTrue(false, "Copying file " + file.getName() + " to SSN is failed");
@@ -371,7 +390,8 @@ public class TestDataEngineService {
         }
     }
 
-    private void copyFileToNotebook(Session session, String filename, String ip, String notebookName) throws JSchException, IOException, InterruptedException {
+	private void copyFileToNotebook(Session session, String filename, String ip, String notebookName)
+			throws JSchException, IOException, InterruptedException {
     	String command = String.format(COMMAND_COPY_TO_NOTEBOOK,
     			"keys/"+ Paths.get(ConfigPropertyValue.getAccessKeyPrivFileName()).getFileName().toString(),
                 filename,
