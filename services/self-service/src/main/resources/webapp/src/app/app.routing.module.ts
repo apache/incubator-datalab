@@ -41,7 +41,7 @@ const routes: Routes = [{
   }, {
     path: 'reporting',
     component: ReportingComponent,
-    canActivate: [CloudProviderGuard]
+    canActivate: [AuthorizationGuard, CloudProviderGuard]
   }, {
     path: 'help/publickeyguide',
     component: PublicKeyGuideComponent,
