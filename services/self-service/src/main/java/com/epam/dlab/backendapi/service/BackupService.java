@@ -6,7 +6,6 @@ import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.backup.EnvBackupStatus;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface BackupService {
 	String createBackup(EnvBackupDTO dto, UserInfo userInfo);

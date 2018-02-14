@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 
 public class UserInfoBuilder implements Supplier<UserInfo>, Testing {
 
-    private final static Logger LOG = LoggerFactory.getLogger(UserInfoBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserInfoBuilder.class);
 
     private UserInfo userInfo;
 
@@ -44,15 +44,15 @@ public class UserInfoBuilder implements Supplier<UserInfo>, Testing {
 
     private int readinessStatus = 0b00000000;
 
-    public final static int FIRST_NAME      = 0b0000001;
-    public final static int LAST_NAME       = 0b0000010;
-    public final static int AWS_USER_SET    = 0b0000100;
-    public final static int ROLE_SET        = 0b0001000;
-    public final static int REMOTE_IP       = 0b0010000;
-    public final static int AWS_KEYS        = 0b0100000;
-    public final static int LOGIN           = 0b1000000;
+    private static final int FIRST_NAME      = 0b0000001;
+    private static final int LAST_NAME       = 0b0000010;
+    private static final int AWS_USER_SET    = 0b0000100;
+    private static final int ROLE_SET        = 0b0001000;
+    private static final int REMOTE_IP       = 0b0010000;
+    private static final int AWS_KEYS        = 0b0100000;
+    private static final int LOGIN           = 0b1000000;
 
-    public final static int READYNESS_MASK  = 0b1111111;
+    private static final int READYNESS_MASK  = 0b1111111;
 
     public static boolean testMask(Supplier<? extends UserInfo> supplier, int mask) {
         UserInfoBuilder builder = (UserInfoBuilder) supplier;
@@ -69,7 +69,7 @@ public class UserInfoBuilder implements Supplier<UserInfo>, Testing {
         return () -> new UserInfoBuilder(token,username);
     }
 
-    public static void ldapLoginPassed(UserInfoBuilder b, Object t) {
+    public static void ldapLoginPassed(UserInfoBuilder b) {
         b.setMask( LOGIN );
     }
 

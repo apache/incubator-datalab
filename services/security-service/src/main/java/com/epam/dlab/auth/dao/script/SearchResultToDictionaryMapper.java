@@ -21,7 +21,9 @@ package com.epam.dlab.auth.dao.script;
 import com.epam.dlab.auth.dao.filter.SearchResultMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.directory.api.ldap.model.cursor.SearchCursor;
+import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
+import org.apache.directory.api.ldap.model.message.Response;
 import org.apache.directory.api.ldap.model.message.SearchResultEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,32 +57,35 @@ public class SearchResultToDictionaryMapper implements SearchResultMapper<Map<St
 	@Override
 	public Map<String, Object> transformSearchResult(SearchCursor cursor) throws IOException {
 		LOG.debug(name);
-		cursor.forEach(response -> {
-			if (response instanceof SearchResultEntry) {
-				Entry resultEntry = ((SearchResultEntry) response).getEntry();
-				String dn = resultEntry.getDn().toString();
-				LOG.debug("\tEntryDN {}", dn);
-				DeepMap dnBranch = reqBranch.getBranch(dn.toLowerCase());
-				dnBranch.put(DISTINGUISH_NAME, dn);
-				resultEntry.forEach(attr -> {
-
-					// Since there might be multiple attributes with the same name, it is required to collect all their values (i.e. memberUid in group)
-					if (attr.size() > 1) {
-
-						List<Object> list = new ArrayList<>();
-						attr.iterator().forEachRemaining(list::add);
-
-						String join = StringUtils.join(list, ",");
-						dnBranch.put(attr.getId() + "", join);
-						LOG.debug("\t\tAttr {} : {} ", attr.getId(), join);
-					} else {
-						dnBranch.put(attr.getId() + "", attr.get() + "");
-						LOG.debug("\t\tAttr {}", attr);
-					}
-				});
-			}
-		});
+		cursor.forEach(this::processResponse);
 		return reqBranch.getRoot();
+	}
+
+	private void processResponse(Response response) {
+		if (response instanceof SearchResultEntry) {
+			Entry resultEntry = ((SearchResultEntry) response).getEntry();
+			String dn = resultEntry.getDn().toString();
+			LOG.debug("\tEntryDN {}", dn);
+			DeepMap dnBranch = reqBranch.getBranch(dn.toLowerCase());
+			dnBranch.put(DISTINGUISH_NAME, dn);
+			resultEntry.forEach(attr -> addAttributes(dnBranch, attr));
+		}
+	}
+
+	private void addAttributes(DeepMap dnBranch, Attribute attr) {
+		// Since there might be multiple attributes with the same name, it is required to collect all their values (i.e. memberUid in group)
+		if (attr.size() > 1) {
+
+			List<Object> list = new ArrayList<>();
+			attr.iterator().forEachRemaining(list::add);
+
+			String join = StringUtils.join(list, ",");
+			dnBranch.put(attr.getId() + "", join);
+			LOG.debug("\t\tAttr {} : {} ", attr.getId(), join);
+		} else {
+			dnBranch.put(attr.getId() + "", attr.get() + "");
+			LOG.debug("\t\tAttr {}", attr);
+		}
 	}
 
 	@Override

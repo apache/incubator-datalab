@@ -22,6 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 
 public class UsernameUtils {
 
+	private UsernameUtils() {
+	}
+
 	private static final String UNDERLINE = "_";
 
 	public static String removeDomain(String username) {
@@ -30,8 +33,5 @@ public class UsernameUtils {
 
 	public static String replaceWhitespaces(String username) {
 		return StringUtils.replaceAll(username, "\\s", UNDERLINE);
-	}
-
-	private UsernameUtils() {
 	}
 }
