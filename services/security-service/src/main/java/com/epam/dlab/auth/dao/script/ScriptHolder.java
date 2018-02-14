@@ -30,7 +30,7 @@ import java.util.function.BiFunction;
 
 public class ScriptHolder {
 	
-	private static final String FUNCTION    = "enrichUserInfo";
+	private final static String FUNCTION    = "enrichUserInfo";
 	
 	private final ScriptEngineManager   mgr = new ScriptEngineManager();
 	private final Map<String,Invocable> map = new HashMap<>();

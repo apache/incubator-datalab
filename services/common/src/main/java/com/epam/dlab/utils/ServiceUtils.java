@@ -1,8 +1,5 @@
 package com.epam.dlab.utils;
 
-import com.epam.dlab.constants.ServiceConsts;
-import com.epam.dlab.exceptions.DlabException;
-
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
@@ -12,39 +9,35 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import com.epam.dlab.constants.ServiceConsts;
+import com.epam.dlab.exceptions.DlabException;
+
 public class ServiceUtils {
 
 	private static String includePath = null;
-
-	private ServiceUtils() {
-	}
-
+	
 	static {
-		includePath = System.getenv(ServiceConsts.DLAB_CONF_DIR_NAME);
-		if (includePath == null || includePath.isEmpty()) {
-			includePath = getUserDir();
-		}
+        includePath = System.getenv(ServiceConsts.DLAB_CONF_DIR_NAME);
+        if ( includePath == null || includePath.isEmpty() ) {
+        	includePath = getUserDir();
+        }
 	}
-
+	
 	/* Return working directory.
 	 */
 	public static String getUserDir() {
 		return System.getProperty("user.dir");
 	}
-
-	/**
-	 * Return path to DLab configuration directory.
-	 *
+	
+	/** Return path to DLab configuration directory.
 	 * @return
 	 */
 	public static String getConfPath() {
-		return includePath;
+        return includePath;
 	}
-
-
-	/**
-	 * Return manifest for given class or empty manifest if {@link JarFile#MANIFEST_NAME} not found.
-	 *
+	
+	
+	/** Return manifest for given class or empty manifest if {@link JarFile#MANIFEST_NAME} not found.
 	 * @param clazz class.
 	 * @throws IOException
 	 */
@@ -53,9 +46,7 @@ public class ServiceUtils {
 		return (url == null ? new Manifest() : new Manifest(url.openStream()));
 	}
 
-	/**
-	 * Return manifest from JAR file.
-	 *
+	/** Return manifest from JAR file.
 	 * @param classPath path to class in JAR file.
 	 * @throws IOException
 	 */
@@ -64,10 +55,8 @@ public class ServiceUtils {
 		JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
 		return jarConnection.getManifest();
 	}
-
-	/**
-	 * Return manifest map for given class or empty map if manifest not found or cannot be read.
-	 *
+	
+	/** Return manifest map for given class or empty map if manifest not found or cannot be read.
 	 * @param clazz class.
 	 */
 	public static Map<String, String> getManifest(Class<?> clazz) {
@@ -78,44 +67,44 @@ public class ServiceUtils {
 		try {
 			Manifest manifest = (classPath.startsWith("jar:file:") ? getManifestFromJar(classPath) : getManifestForClass(clazz));
 			Attributes attributes = manifest.getMainAttributes();
-			attributes.forEach((key, value) -> map.put(key.toString(), (String) value));
+			for (Object key : attributes.keySet()) {
+				map.put(key.toString(), (String) attributes.get(key));
+			}
 		} catch (IOException e) {
 			System.err.println("Cannot found or open manifest for class " + className);
 			throw new DlabException("Cannot read manifest file", e);
 		}
-
+		
 		return map;
 	}
-
-	/**
-	 * Print to standard output the manifest info about application. If parameter <b>args</b> is not
+	
+	/** Print to standard output the manifest info about application. If parameter <b>args</b> is not
 	 * <b>null</b> and one or more arguments have value -v or --version then print version and return <b>true<b/>
 	 * otherwise <b>false</b>.
-	 *
 	 * @param mainClass the main class of application.
-	 * @param args      the arguments of main class function or null.
+	 * @param args the arguments of main class function or null.
 	 * @return if parameter <b>args</b> is not null and one or more arguments have value -v or --version
 	 * then return <b>true<b/> otherwise <b>false</b>.
 	 */
-	public static boolean printAppVersion(Class<?> mainClass, String... args) {
+	public static boolean printAppVersion(Class<?> mainClass, String ... args) {
 		boolean result = false;
 		if (args != null) {
 			for (String arg : args) {
-				if (arg.equals("-v") ||
-						arg.equals("--version")) {
-					result = true;
-				}
-			}
+	            if (arg.equals("-v") ||
+	            	arg.equals("--version")) {
+	            	result = true;
+	            }
+	        }
 			if (!result) {
 				return result;
 			}
 		}
-
+		
 		Map<String, String> manifest = getManifest(mainClass);
 		if (manifest.isEmpty()) {
 			return result;
 		}
-
+		
 		System.out.println("Title       " + manifest.get("Implementation-Title"));
 		System.out.println("Version     " + manifest.get("Implementation-Version"));
 		System.out.println("Created By  " + manifest.get("Created-By"));
@@ -126,7 +115,7 @@ public class ServiceUtils {
 		System.out.println("Build OS    " + manifest.get("Build-OS"));
 		System.out.println("Built Time  " + manifest.get("Build-Time"));
 		System.out.println("Built By    " + manifest.get("Built-By"));
-
+		
 		return result;
 	}
 }
