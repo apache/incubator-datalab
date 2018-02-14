@@ -52,6 +52,8 @@ if __name__ == "__main__":
                                                                 notebook_config['exploratory_name'])
         notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
                                                                                os.environ['application'])
+        notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
+            else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         notebook_config['security_group_name'] = '{}-{}-nb-sg'.format(notebook_config['service_base_name'],
                                                                       notebook_config['user_name'])
         notebook_config['dlab_ssh_user'] = os.environ['conf_os_user']
@@ -247,7 +249,7 @@ if __name__ == "__main__":
                    "master_keyname": os.environ['conf_key_name'],
                    "notebook_name": notebook_config['instance_name'],
                    "instance_id": notebook_config['instance_name'],
-                   "notebook_image_name": notebook_config['expected_image_name'],
+                   "notebook_image_name": notebook_config['notebook_image_name'],
                    "Action": "Create new notebook server",
                    "exploratory_url": [
                        {"description": "RStudio",

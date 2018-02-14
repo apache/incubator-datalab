@@ -80,14 +80,9 @@ if __name__ == "__main__":
         ssh_key_path = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
-        if os.environ['application'] == 'deeplearning':
-            notebook_config['primary_disk_size'] = '30'
-        else:
-            notebook_config['primary_disk_size'] = '12'
-        if os.environ['application'] == 'deeplearning' or os.environ['application'] == 'tensor':
-            notebook_config['instance_storage_account_type'] = 'Standard_LRS'
-        else:
-            notebook_config['instance_storage_account_type'] = 'Premium_LRS'
+        notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '12')(os.environ['application'])
+        notebook_config['instance_storage_account_type'] = (lambda x: 'Standard_LRS' if x in ('deeplearning', 'tensor')
+                                                            else 'Premium_LRS')(os.environ['application'])
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
             sudo_group = 'sudo'

@@ -161,34 +161,34 @@ if __name__ == "__main__":
         data_engine['vpc_name'] = os.environ['azure_vpc_name']
         data_engine['subnet_name'] = os.environ['azure_subnet_name']
         data_engine['user_name'] = os.environ['edge_user_name'].replace('_', '-')
-        data_engine['private_subnet_name'] = data_engine['service_base_name'] + '-' + data_engine['user_name'] + \
-                                             '-subnet'
+        data_engine['private_subnet_name'] = '{}-{}-subnet'.format(data_engine['service_base_name'],
+                                                                   data_engine['user_name'])
         data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
                                                                     data_engine['vpc_name'],
                                                                     data_engine['private_subnet_name']).address_prefix
-        data_engine['master_security_group_name'] = data_engine['service_base_name'] + '-' \
-                                                    + data_engine['user_name'] + '-dataengine-master-sg'
-        data_engine['slave_security_group_name'] = data_engine['service_base_name'] + '-' \
-                                                   + data_engine['user_name'] + '-dataengine-slave-sg'
-        data_engine['cluster_name'] = data_engine['service_base_name'] + '-' + data_engine['user_name'] + \
-                                      '-de-' + data_engine['exploratory_name'] + '-' + \
-                                      data_engine['computational_name']
-        data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
-        data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
-        data_engine['master_network_interface_name'] = data_engine['master_node_name'] + '-nif'
+        data_engine['master_security_group_name'] = '{}-{}-dataengine-master-sg'.format(data_engine['service_base_name'],
+                                                                                        data_engine['user_name'])
+        data_engine['slave_security_group_name'] = '{}-{}-dataengine-slave-sg'.format(data_engine['service_base_name'],
+                                                                                      data_engine['user_name'])
+        data_engine['cluster_name'] = '{}-{}-de-{}-{}'.format(data_engine['service_base_name'],
+                                                              data_engine['user_name'],
+                                                              data_engine['exploratory_name'],
+                                                              data_engine['computational_name'])
+        data_engine['master_node_name'] = '{}-m'.format(data_engine['cluster_name'])
+        data_engine['slave_node_name'] = '{}-s'.format(data_engine['cluster_name'])
+        data_engine['master_network_interface_name'] = '{}-nif'.format(data_engine['master_node_name'])
         data_engine['master_size'] = os.environ['azure_dataengine_master_size']
-        ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
-        key = RSA.importKey(open(ssh_key_path, 'rb').read())
-        data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['slave_size'] = os.environ['azure_dataengine_slave_size']
         data_engine['dlab_ssh_user'] = os.environ['conf_os_user']
         master_node_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                            data_engine['master_node_name'])
-        edge_instance_name = data_engine['service_base_name'] + "-" + data_engine['user_name'] + '-edge'
+        edge_instance_name = '{}-{}-edge'.format(data_engine['service_base_name'], data_engine['user_name'])
         edge_instance_hostname = AzureMeta().get_private_ip_address(data_engine['resource_group_name'],
                                                                     edge_instance_name)
         keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
+        key = RSA.importKey(open(keyfile_name, 'rb').read())
+        data_engine['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
             sudo_group = 'sudo'

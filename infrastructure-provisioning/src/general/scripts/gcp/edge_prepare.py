@@ -71,7 +71,7 @@ if __name__ == "__main__":
     edge_conf['shared_bucket_name'] = '{}-shared-bucket'.format(edge_conf['service_base_name'])
     edge_conf['instance_size'] = os.environ['gcp_edge_instance_size']
     edge_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
-    edge_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
+    edge_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
     edge_conf['static_address_name'] = '{0}-{1}-ip'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['fw_edge_ingress_public'] = '{}-ingress-public'.format(edge_conf['instance_name'])
     edge_conf['fw_edge_ingress_internal'] = '{}-ingress-internal'.format(edge_conf['instance_name'])
@@ -425,10 +425,10 @@ if __name__ == "__main__":
             GCPMeta().get_static_address(edge_conf['region'], edge_conf['static_address_name'])['address']
         logging.info('[CREATE EDGE INSTANCE]')
         print('[CREATE EDGE INSTANCE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --static_ip {} --network_tag {} --labels '{}'".\
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} --instance_class {} --static_ip {} --network_tag {} --labels '{}'".\
             format(edge_conf['instance_name'], edge_conf['region'], edge_conf['zone'], edge_conf['vpc_name'],
                    edge_conf['subnet_name'], edge_conf['instance_size'], edge_conf['ssh_key_path'], initial_user,
-                   edge_conf['edge_service_account_name'], edge_conf['ami_name'], 'edge', edge_conf['static_ip'],
+                   edge_conf['edge_service_account_name'], edge_conf['image_name'], 'edge', edge_conf['static_ip'],
                    edge_conf['network_tag'], json.dumps(edge_conf['instance_labels']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))

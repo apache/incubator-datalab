@@ -103,7 +103,7 @@ if __name__ == "__main__":
             data_engine['ami_id'] = image_id
             data_engine['primary_disk_size'] = '12'
         else:
-            data_engine['ami_id'] = get_ami_id(os.environ['aws_{}_ami_name'.format(os.environ['conf_os_family'])])
+            data_engine['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
             print('No pre-configured image found. Using default one: {}'.format(data_engine['ami_id']))
 
     except Exception as err:
