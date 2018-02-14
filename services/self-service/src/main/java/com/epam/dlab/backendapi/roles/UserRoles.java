@@ -37,18 +37,22 @@ public class UserRoles {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserRoles.class);
 
 	private static final String ANY_USER = "$anyuser";
-	/**
-	 * Node name of groups.
-	 */
-	private static final String GROUPS = "groups";
-	/**
-	 * Node name of user.
-	 */
-	private static final String USERS = "users";
+
 	/**
 	 * Single instance of the user roles.
 	 */
 	private static UserRoles userRoles = null;
+
+	/**
+	 * Node name of groups.
+	 */
+	private static final String GROUPS = "groups";
+
+	/**
+	 * Node name of user.
+	 */
+	private static final String USERS = "users";
+
 	/**
 	 * List of roles.
 	 */

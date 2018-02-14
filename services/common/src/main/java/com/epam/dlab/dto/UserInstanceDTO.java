@@ -58,8 +58,6 @@ public class UserInstanceDTO {
     private List<UserComputationalResource> resources = new ArrayList<>();
     @JsonProperty("private_ip")
     private String privateIp;
-    @JsonProperty("scheduler_data")
-    private SchedulerJobDTO schedulerData;
 
     /**
      * Sets the user login name.
@@ -154,14 +152,6 @@ public class UserInstanceDTO {
      */
     public UserInstanceDTO withResources(List<UserComputationalResource> resources) {
         setResources(resources);
-        return this;
-    }
-
-    /**
-     * Sets scheduler data.
-     */
-    public UserInstanceDTO withSchedulerData(SchedulerJobDTO schedulerData) {
-        setSchedulerData(schedulerData);
         return this;
     }
 }

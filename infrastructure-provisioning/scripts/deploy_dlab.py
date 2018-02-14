@@ -27,7 +27,6 @@ parser.add_argument('--conf_network_type', type=str, default='', help='Define in
 parser.add_argument('--conf_vpc_cidr', type=str, default='', help='CIDR of VPC')
 parser.add_argument('--conf_allowed_ip_cidr', type=str, default='', help='CIDR of IPs which will have access to SSN')
 parser.add_argument('--conf_user_subnets_range', type=str, default='', help='Range of subnets which will be using for users environments. For example: 10.10.0.0/24 - 10.10.10.0/24')
-parser.add_argument('--aws_user_predefined_s3_policies', type=str, default='', help='Predefined policies for users instances')
 parser.add_argument('--aws_access_key', type=str, default='', help='AWS Access Key ID')
 parser.add_argument('--aws_secret_access_key', type=str, default='', help='AWS Secret Access Key')
 parser.add_argument('--aws_region', type=str, default='', help='AWS region')

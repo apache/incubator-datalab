@@ -54,8 +54,7 @@ public abstract class EdgeService implements DockerCommands {
 		return Directories.EDGE_LOG_DIRECTORY;
 	}
 
-	protected String action(String username, ResourceSysBaseDTO<?> dto, String iamUser, String callbackURI,
-							DockerAction action) throws JsonProcessingException {
+	protected String action(String username, ResourceSysBaseDTO<?> dto, String iamUser, String callbackURI, DockerAction action) throws JsonProcessingException {
 		logger.debug("{} EDGE node for user {}: {}", action, username, dto);
 		String uuid = DockerCommands.generateUUID();
 

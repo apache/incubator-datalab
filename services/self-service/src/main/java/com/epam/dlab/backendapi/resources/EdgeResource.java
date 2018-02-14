@@ -66,8 +66,7 @@ public class EdgeResource implements EdgeAPI {
 		log.debug("Starting EDGE node for user {}", userInfo.getName());
 		UserInstanceStatus status = UserInstanceStatus.of(keyDAO.getEdgeStatus(userInfo.getName()));
 		if (status == null || !status.in(STOPPED)) {
-			log.error("Could not start EDGE node for user {} because the status of instance is {}",
-					userInfo.getName(), status);
+			log.error("Could not start EDGE node for user {} because the status of instance is {}", userInfo.getName(), status);
 			throw new DlabException("Could not start EDGE node because the status of instance is " + status);
 		}
 
@@ -91,8 +90,7 @@ public class EdgeResource implements EdgeAPI {
 		log.debug("Stopping EDGE node for user {}", userInfo.getName());
 		UserInstanceStatus status = UserInstanceStatus.of(keyDAO.getEdgeStatus(userInfo.getName()));
 		if (status == null || !status.in(RUNNING)) {
-			log.error("Could not stop EDGE node for user {} because the status of instance is {}",
-					userInfo.getName(), status);
+			log.error("Could not stop EDGE node for user {} because the status of instance is {}", userInfo.getName(), status);
 			throw new DlabException("Could not stop EDGE node because the status of instance is " + status);
 		}
 

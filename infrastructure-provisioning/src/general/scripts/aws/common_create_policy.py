@@ -33,7 +33,6 @@ parser.add_argument('--username', type=str, default='')
 parser.add_argument('--edge_role_name', type=str, default='')
 parser.add_argument('--notebook_role_name', type=str, default='')
 parser.add_argument('--region', type=str, default='')
-parser.add_argument('--user_predefined_s3_policies', type=str, default='')
 args = parser.parse_args()
 
 
@@ -52,41 +51,30 @@ if __name__ == "__main__":
             print("Failed to open policy template")
             success = False
 
-        list_policies_arn = []
-        if args.user_predefined_s3_policies != 'None':
-            list_predefined_policies = args.user_predefined_s3_policies.split(',')
-
         try:
             iam = boto3.client('iam')
             try:
-                if args.user_predefined_s3_policies != 'None':
-                    list = iam.list_policies().get('Policies')
-                    for i in list:
-                        if i.get('PolicyName') in list_predefined_policies:
-                            list_policies_arn.append(i.get('Arn'))
                 response = iam.create_policy(PolicyName='{}-{}-strict_to_S3-Policy'.
                                              format(args.service_base_name, args.username), PolicyDocument=policy)
                 time.sleep(10)
-                list_policies_arn.append(response.get('Policy').get('Arn'))
+                arn = response.get('Policy').get('Arn')
             except botocore.exceptions.ClientError as cle:
                 if cle.response['Error']['Code'] == 'EntityAlreadyExists':
                     print("Policy {}-{}-strict_to_S3-Policy already exists. Reusing it.".
                           format(args.service_base_name, args.username))
                     list = iam.list_policies().get('Policies')
                     for i in list:
-                        if '{}-{}-strict_to_S3-Policy'.format(
-                                args.service_base_name, args.username) == i.get('PolicyName') or (
-                                args.user_predefined_s3_policies != 'None' and i.get('PolicyName') in
-                                list_predefined_policies):
-                            list_policies_arn.append(i.get('Arn'))
+                        if '{}-{}-strict_to_S3-Policy'.format(args.service_base_name, args.username) == i.get('PolicyName'):
+                            arn = i.get('Arn')
             try:
-                for arn in list_policies_arn:
-                    iam.attach_role_policy(RoleName=args.edge_role_name, PolicyArn=arn)
-                    print('POLICY "{0}" has been attached to role "{1}"'.format(arn, args.edge_role_name))
-                    time.sleep(5)
-                    iam.attach_role_policy(RoleName=args.notebook_role_name, PolicyArn=arn)
-                    print('POLICY "{0}" has been attached to role "{1}"'.format(arn, args.notebook_role_name))
-                    time.sleep(5)
+                iam.attach_role_policy(RoleName=args.edge_role_name, PolicyArn=arn)
+                print('POLICY_NAME "{0}-{1}-strict_to_S3-Policy" has been attached to role "{2}"'.
+                      format(args.service_base_name, args.username, args.edge_role_name))
+                time.sleep(5)
+                iam.attach_role_policy(RoleName=args.notebook_role_name, PolicyArn=arn)
+                print('POLICY_NAME "{0}-{1}-strict_to_S3-Policy" has been attached to role "{2}"'.
+                      format(args.service_base_name, args.username, args.notebook_role_name))
+                time.sleep(5)
                 success = True
             except botocore.exceptions.ClientError as e:
                 print(e.response['Error']['Message'])

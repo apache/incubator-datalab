@@ -43,8 +43,7 @@ public class SelfServiceSecurityAuthenticator extends SecurityRestAuthenticator 
 			// Touch session
 			UserInfo touched = envStatusListener.getSession(ui.getName());
 			if (touched == null) {
-				log.warn("Session does not exist for for env status listener {} {}",
-						ui.getName(), ui.getAccessToken());
+				log.warn("Session does not exist for for env status listener {} {}", ui.getName(), ui.getAccessToken());
 			}
 		});
 		return userInfo;

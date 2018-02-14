@@ -17,8 +17,6 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.ModuleBase;
-import com.epam.dlab.auth.SystemUserInfoService;
-import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
@@ -28,7 +26,10 @@ import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDaoImpl;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.RequestId;
-import com.epam.dlab.backendapi.service.*;
+import com.epam.dlab.backendapi.service.BackupService;
+import com.epam.dlab.backendapi.service.BackupServiceImpl;
+import com.epam.dlab.backendapi.service.ImageExploratoryService;
+import com.epam.dlab.backendapi.service.ImageExploratoryServiceImpl;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserCredentialDTO;
@@ -74,15 +75,12 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
                 .toInstance(createAuthenticationService());
         requestStaticInjection(EnvStatusListener.class, RequestId.class, RequestBuilder.class);
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
-				.toInstance(configuration.getProvisioningFactory()
-						.build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
+                .toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
         bind(ImageExploratoryService.class).to(ImageExploratoryServiceImpl.class);
         bind(ImageExploratoryDao.class).to(ImageExploratoryDaoImpl.class);
         bind(BackupService.class).to(BackupServiceImpl.class);
         bind(BackupDao.class).to(BackupDaoImpl.class);
-        bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
-        bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
-		bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
+        bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
     }
 
     /**

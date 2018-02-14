@@ -18,6 +18,7 @@
 
 package com.epam.dlab.automation.test;
 
+import com.epam.dlab.automation.helper.CloudHelper;
 import com.epam.dlab.automation.cloud.VirtualMachineStatusChecker;
 import com.epam.dlab.automation.cloud.aws.AmazonHelper;
 import com.epam.dlab.automation.docker.Docker;
@@ -72,18 +73,17 @@ public class TestCallable implements Callable<Boolean> {
 
         final String suffixName = NamingHelper.generateRandomValue(notebookTemplate);
         notebookName = "nb" + suffixName;
-
-		if (NamingHelper.DATA_ENGINE.equals(dataEngineType)) {
+        
+        if (NamingHelper.DATA_ENGINE.equals(dataEngineType)) {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES_SPARK);
 			clusterName = "spark" + suffixName;
-		} else if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
+        } else if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
 			clusterName = "eimr" + suffixName;
         } else {
-			ssnCompResURL = "";
+        	ssnCompResURL = "";
 			clusterName = NamingHelper.CLUSTER_ABSENT;
-			LOGGER.info("illegal argument dataEngineType {} , should be dataengine or dataengine-service",
-					dataEngineType);
+        	LOGGER.info("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
         }
 
         LOGGER.info("   SSN exploratory environment URL is {}", ssnExpEnvURL);
@@ -102,9 +102,9 @@ public class TestCallable implements Callable<Boolean> {
 			testLibs();
 
 			final DeployClusterDto deployClusterDto = createClusterDto();
-			final String actualClusterName = deployClusterDto != null ? NamingHelper.getClusterName(
+            final String actualClusterName = deployClusterDto != null ? NamingHelper.getClusterName(
                     NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
-					dataEngineType, true) : NamingHelper.CLUSTER_ABSENT;
+                    dataEngineType, true) : NamingHelper.CLUSTER_ABSENT;
 
             if (!ConfigPropertyValue.isRunModeLocal()) {
 
@@ -145,25 +145,24 @@ public class TestCallable implements Callable<Boolean> {
    }
 
 private DeployClusterDto createClusterDto() throws Exception {
-	if (ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER)
-			&& NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
+    if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER) && NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)){
         LOGGER.info("There are no available dataengine services for Azure. Cluster creation is skipped.");
         return null;
     }
-	if (!NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType) && !NamingHelper.DATA_ENGINE.equals(dataEngineType)) {
-		LOGGER.info("Parameter 'dataEngineType' is unspecified or isn't valid. Cluster creation is skipped.");
-		return null;
-	}
+    if(!NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType) && !NamingHelper.DATA_ENGINE.equals(dataEngineType)){
+        LOGGER.info("Parameter 'dataEngineType' is unspecified or isn't valid. Cluster creation is skipped.");
+        return null;
+    }
 	String gettingStatus;
     LOGGER.info("7. {} cluster {} will be deployed for {} ...",dataEngineType, clusterName, notebookName);
     LOGGER.info("  {} : SSN computational resources URL is {}", notebookName, ssnCompResURL);
 
     DeployClusterDto clusterDto = null;
-	if (NamingHelper.DATA_ENGINE.equals(dataEngineType)) {
+    if (NamingHelper.DATA_ENGINE.equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
 					Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate), "spark_cluster.json").toString(),
 					DeploySparkDto.class);
-	} else if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
+    } else if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
 					Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate), "EMR.json").toString(),
 					DeployEMRDto.class);
@@ -177,39 +176,29 @@ private DeployClusterDto createClusterDto() throws Exception {
     LOGGER.info("{}: {} cluster = {}",notebookName,dataEngineType, clusterDto);
     Response responseDeployingCluster = new HttpRequest().webApiPut(ssnCompResURL, ContentType.JSON,
     		clusterDto, token);
-	LOGGER.info("{}:   responseDeployingCluster.getBody() is {}", notebookName,
-			responseDeployingCluster.getBody().asString());
-	Assert.assertEquals(responseDeployingCluster.statusCode(), HttpStatusCode.OK, dataEngineType +
-			" cluster " + clusterName + " was not deployed");
+    LOGGER.info("{}:   responseDeployingCluster.getBody() is {}",notebookName, responseDeployingCluster.getBody().asString());
+    Assert.assertEquals(responseDeployingCluster.statusCode(), HttpStatusCode.OK, dataEngineType + " cluster " + clusterName + " was not deployed");
 
-	gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "creating",
-			getDuration(notebookConfig.getTimeoutClusterCreate()));
+    gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "creating", getDuration(notebookConfig.getTimeoutClusterCreate()));
     if(!ConfigPropertyValue.isRunModeLocal()) {
         if (!(gettingStatus.contains("configuring") || gettingStatus.contains("running")))
-			throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName +
-					" has not been deployed. Cluster status is " + gettingStatus);
+            throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been deployed. Cluster status is " + gettingStatus);
         LOGGER.info("{}: {} cluster {} has been deployed", notebookName, dataEngineType, clusterName);
 
-		VirtualMachineStatusChecker.checkIfRunning(
-				NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), false);
+        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), false);
 
-		Docker.checkDockerStatus(
-				NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
+        Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
     LOGGER.info("{}:   Waiting until {} cluster {} has been configured ...", notebookName,dataEngineType,clusterName);
 
-	gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "configuring",
-			getDuration(notebookConfig.getTimeoutClusterCreate()));
+    gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterName, "configuring", getDuration(notebookConfig.getTimeoutClusterCreate()));
     if (!gettingStatus.contains("running"))
-		throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName +
-				" has not been configured. Spark cluster status is " + gettingStatus);
+        throw new Exception(notebookName + ": " + dataEngineType + " cluster " + clusterName + " has not been configured. Spark cluster status is " + gettingStatus);
     LOGGER.info(" {}: {} cluster {} has been configured", notebookName, dataEngineType , clusterName);
 
     if(!ConfigPropertyValue.isRunModeLocal()) {
-		VirtualMachineStatusChecker.checkIfRunning(
-				NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), false);
-		Docker.checkDockerStatus(
-				NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
+        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), false);
+        Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterName, "create"), NamingHelper.getSsnIp());
     }
     if(ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AWS_PROVIDER)){
         LOGGER.info("{}:   Check bucket {}", notebookName, storageName);
@@ -221,14 +210,13 @@ private DeployClusterDto createClusterDto() throws Exception {
 
 private String  createNotebook(String notebookName) throws Exception {
        LOGGER.info("6. Notebook {} will be created ...", notebookName);
-	String notebookConfigurationFile =
-			String.format(PropertiesResolver.NOTEBOOK_CONFIGURATION_FILE_TEMPLATE, notebookTemplate, notebookTemplate);
+       String notebookConfigurationFile = String.format(PropertiesResolver.NOTEBOOK_CONFIGURATION_FILE_TEMPLATE, notebookTemplate, notebookTemplate);
        LOGGER.info("{} notebook configuration file: {}", notebookName, notebookConfigurationFile);
 
        CreateNotebookDto createNoteBookRequest =
                JsonMapperDto.readNode(
-					   Paths.get(Objects.requireNonNull(CloudHelper.getClusterConfFileLocation()),
-							   notebookConfigurationFile).toString(), CreateNotebookDto.class);
+                       Paths.get(Objects.requireNonNull(CloudHelper.getClusterConfFileLocation()), notebookConfigurationFile).toString(),
+                       CreateNotebookDto.class);
 
        createNoteBookRequest.setName(notebookName);
 
@@ -239,17 +227,13 @@ private String  createNotebook(String notebookName) throws Exception {
        Response responseCreateNotebook = new HttpRequest().webApiPut(ssnExpEnvURL, ContentType.JSON,
                    createNoteBookRequest, token);
 
-	LOGGER.info(" {}:  responseCreateNotebook.getBody() is {}", notebookName,
-			responseCreateNotebook.getBody().asString());
+       LOGGER.info(" {}:  responseCreateNotebook.getBody() is {}", notebookName, responseCreateNotebook.getBody().asString());
 
-	LOGGER.info("Inside createNotebook(): responseCreateNotebook.statusCode() is {}",
-			responseCreateNotebook.statusCode());
+       LOGGER.info("Inside createNotebook(): responseCreateNotebook.statusCode() is {}", responseCreateNotebook.statusCode());
 
-	Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK,
-			"Notebook " + notebookName + " was not created");
+       Assert.assertEquals(responseCreateNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not created");
 
-	String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating",
-			getDuration(notebookConfig.getTimeoutNotebookCreate()));
+       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "creating", getDuration(notebookConfig.getTimeoutNotebookCreate()));
        if (!gettingStatus.contains("running")) {
            LOGGER.error("Notebook {} is in state {}", notebookName, gettingStatus);
            throw new Exception("Notebook " + notebookName + " has not been created. Notebook status is " + gettingStatus);
@@ -258,15 +242,13 @@ private String  createNotebook(String notebookName) throws Exception {
 
        VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getNotebookInstanceName(notebookName), false);
 
-	Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "create"),
-			NamingHelper.getSsnIp());
+       Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "create"), NamingHelper.getSsnIp());
 
        LOGGER.info("   Notebook {} status has been verified", notebookName);
        //get notebook IP
-	String notebookIp =
-			CloudHelper.getInstancePrivateIP(NamingHelper.getNotebookInstanceName(notebookName), false);
+       String notebookIp = CloudHelper.getInstancePrivateIP(NamingHelper.getNotebookInstanceName(notebookName), false);
 
-	LOGGER.info("   Notebook {} IP is {}", notebookName, notebookIp);
+       LOGGER.info("   Notebook {} IP is {}", notebookName, notebookIp);
 
        return notebookIp;
    }
@@ -281,8 +263,8 @@ private String  createNotebook(String notebookName) throws Exception {
        testLibGroupStep.init();
        testLibGroupStep.verify();
 
-	   List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(
-			   getTemplateTestLibFile(LibsHelper.getLibListPath(notebookName)), LibToSearchData.class);
+       List<LibToSearchData> libToSearchDataList = JsonMapperDto.readListOf(getTemplateTestLibFile(LibsHelper.getLibListPath(notebookName)),
+               LibToSearchData.class);
 
        LibsHelper.setMaxQuantityOfLibInstallErrorsToFailTest(libToSearchDataList.size());
        LibsHelper.setCurrentQuantityOfLibInstallErrorsToFailTest(0);
@@ -296,14 +278,12 @@ private String  createNotebook(String notebookName) throws Exception {
 
            Lib lib = testLibListStep.getLibs().get(new Random().nextInt(testLibListStep.getLibs().size()));
 
-		   TestLibInstallStep testLibInstallStep =
-				   new TestLibInstallStep(ApiPath.LIB_INSTALL, ApiPath.LIB_LIST_EXPLORATORY_FORMATTED,
+           TestLibInstallStep testLibInstallStep = new TestLibInstallStep(ApiPath.LIB_INSTALL, ApiPath.LIB_LIST_EXPLORATORY_FORMATTED,
                    token, notebookName, getDuration(notebookConfig.getTimeoutLibInstall()).getSeconds(), lib);
 
            testLibInstallStep.init();
            testLibInstallStep.verify();
-		   LOGGER.info("{}: current quantity of failed libs to install: {}", notebookName,
-				   LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest());
+           LOGGER.info("{}: current quantity of failed libs to install: {}", notebookName, LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest());
        }
        LOGGER.info("{}: installed {} testing libraries from {}", notebookName,
                (LibsHelper.getMaxQuantityOfLibInstallErrorsToFailTest() - LibsHelper.getCurrentQuantityOfLibInstallErrorsToFailTest()),
@@ -330,8 +310,7 @@ private void restartNotebook() throws Exception {
        LOGGER.info("    respStartNotebook.getBody() is {}", respStartNotebook.getBody().asString());
        Assert.assertEquals(respStartNotebook.statusCode(), HttpStatusCode.OK);
 
-	String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName,
-			VirtualMachineStatusChecker.getStartingStatus(), getDuration(notebookConfig.getTimeoutNotebookStartup()));
+       String gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, VirtualMachineStatusChecker.getStartingStatus(), getDuration(notebookConfig.getTimeoutNotebookStartup()));
        String status = VirtualMachineStatusChecker.getRunningStatus();
        if (!Objects.requireNonNull(status).contains(gettingStatus)){
            throw new Exception("Notebook " + notebookName + " has not been started. Notebook status is " + gettingStatus);
@@ -351,11 +330,9 @@ private void restartNotebook() throws Exception {
        LOGGER.info("    respTerminateNotebook.getBody() is {}", respTerminateNotebook.getBody().asString());
        Assert.assertEquals(respTerminateNotebook.statusCode(), HttpStatusCode.OK);
 
-	   gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "terminating",
-			   getDuration(notebookConfig.getTimeoutClusterTerminate()));
+       gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "terminating", getDuration(notebookConfig.getTimeoutClusterTerminate()));
        if (!gettingStatus.contains("terminated"))
-           throw new Exception("Notebook" + notebookName + " has not been terminated. Notebook status is " +
-				   gettingStatus);
+           throw new Exception("Notebook" + notebookName + " has not been terminated. Notebook status is " + gettingStatus);
 
        VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getNotebookInstanceName(notebookName), false);
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "terminate"), NamingHelper.getSsnIp());
@@ -371,49 +348,38 @@ private void restartNotebook() throws Exception {
 					.jsonPath(),
 					deployCluster.getNotebook_name(), deployCluster.getName());
        if (!gettingStatus.contains("terminated"))
-		   throw new Exception(dataEngineType + " cluster " + deployCluster.getName() + " has not been terminated for Notebook "
-				   + deployCluster.getNotebook_name() + ". Cluster status is " + gettingStatus);
-	   LOGGER.info("    {} cluster {} has been terminated for Notebook {}", dataEngineType, deployCluster.getName(),
-			   deployCluster.getNotebook_name());
+           throw new Exception(dataEngineType+" cluster "+ deployCluster.getName() + " has not been terminated for Notebook " + deployCluster.getNotebook_name() + ". Cluster status is " + gettingStatus);
+       LOGGER.info("    {} cluster {} has been terminated for Notebook {}",dataEngineType, deployCluster.getName(), deployCluster.getNotebook_name());
 
-	   VirtualMachineStatusChecker.checkIfTerminated(
-			   NamingHelper.getClusterInstanceName(
-					   deployCluster.getNotebook_name(), deployCluster.getName(), dataEngineType), true);
+       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(deployCluster.getNotebook_name(), deployCluster.getName(), dataEngineType), true);
 
    }
    
    private void terminateCluster(String clusterNewName) throws Exception {
        String gettingStatus;
        LOGGER.info("    New cluster {} will be terminated for notebook {} ...", clusterNewName, notebookName);
-	   final String ssnTerminateClusterURL =
-			   NamingHelper.getSelfServiceURL(ApiPath.getTerminateClusterUrl(notebookName, clusterNewName));
+       final String ssnTerminateClusterURL = NamingHelper.getSelfServiceURL(ApiPath.getTerminateClusterUrl(notebookName, clusterNewName));
        LOGGER.info("    SSN terminate cluster URL is {}", ssnTerminateClusterURL);
 
        Response respTerminateCluster = new HttpRequest().webApiDelete(ssnTerminateClusterURL, ContentType.JSON, token);
        LOGGER.info("    respTerminateCluster.getBody() is {}", respTerminateCluster.getBody().asString());
        Assert.assertEquals(respTerminateCluster.statusCode(), HttpStatusCode.OK);
 
-	   gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "terminating",
-			   getDuration(notebookConfig.getTimeoutClusterTerminate()));
+       gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "terminating", getDuration(notebookConfig.getTimeoutClusterTerminate()));
        if (!gettingStatus.contains("terminated"))
-		   throw new Exception("New " + dataEngineType + " cluster " + clusterNewName +
-				   " has not been terminated. Cluster status is " + gettingStatus);
-       LOGGER.info("    New {} cluster {} has been terminated for notebook {}",dataEngineType, clusterNewName,
-			   notebookName);
+           throw new Exception("New "+dataEngineType+" cluster " + clusterNewName + " has not been terminated. Cluster status is " + gettingStatus);
+       LOGGER.info("    New {} cluster {} has been terminated for notebook {}",dataEngineType, clusterNewName, notebookName);
 
-	   VirtualMachineStatusChecker.checkIfTerminated(
-			   NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), true);
+       VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), true);
 
-	   Docker.checkDockerStatus(
-			   NamingHelper.getClusterContainerName(clusterNewName, "terminate"), NamingHelper.getSsnIp());
+       Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "terminate"), NamingHelper.getSsnIp());
    }
 
    private String redeployCluster(DeployClusterDto deployCluster) throws Exception {
        final String clusterNewName = "New" + clusterName;
        String gettingStatus;
 
-	   LOGGER.info("10. New {} cluster {} will be deployed for termination for notebook {} ...", dataEngineType,
-			   clusterNewName, notebookName);
+       LOGGER.info("10. New {} cluster {} will be deployed for termination for notebook {} ...",dataEngineType, clusterNewName, notebookName);
 
        deployCluster.setName(clusterNewName);
        deployCluster.setNotebook_name(notebookName);
@@ -421,25 +387,20 @@ private void restartNotebook() throws Exception {
        LOGGER.info("    responseDeployingClusterNew.getBody() is {}", responseDeployingClusterNew.getBody().asString());
        Assert.assertEquals(responseDeployingClusterNew.statusCode(), HttpStatusCode.OK);
 
-	   gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "creating",
-			   getDuration(notebookConfig.getTimeoutClusterCreate()));
+       gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "creating", getDuration(notebookConfig.getTimeoutClusterCreate()));
        if (!(gettingStatus.contains("configuring") || gettingStatus.contains("running")))
            throw new Exception("New cluster " + clusterNewName + " has not been deployed. Cluster status is " + gettingStatus);
        LOGGER.info("    New cluster {} has been deployed", clusterNewName);
 
        LOGGER.info("   Waiting until cluster {} has been configured ...", clusterNewName);
-	   gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "configuring",
-			   getDuration(notebookConfig.getTimeoutClusterCreate()));
+       gettingStatus = WaitForStatus.cluster(ssnProUserResURL, token, notebookName, clusterNewName, "configuring", getDuration(notebookConfig.getTimeoutClusterCreate()));
        if (!gettingStatus.contains("running"))
-           throw new Exception("Cluster " + clusterNewName + " has not been configured. Cluster status is " +
-				   gettingStatus);
+           throw new Exception("Cluster " + clusterNewName + " has not been configured. Cluster status is " + gettingStatus);
        LOGGER.info("   Cluster {} has been configured", clusterNewName);
 
-	   VirtualMachineStatusChecker.checkIfRunning(
-			   NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), true);
+       VirtualMachineStatusChecker.checkIfRunning(NamingHelper.getClusterInstanceName(notebookName, clusterNewName, dataEngineType), true);
 
-       Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "create"), NamingHelper.getSsnIp
-			   ());
+       Docker.checkDockerStatus(NamingHelper.getClusterContainerName(clusterNewName, "create"), NamingHelper.getSsnIp());
        return clusterNewName;
    }
 
@@ -451,34 +412,29 @@ private void restartNotebook() throws Exception {
 
        Response responseStopNotebook = new HttpRequest().webApiDelete(ssnStopNotebookURL, ContentType.JSON, token);
        LOGGER.info("   responseStopNotebook.getBody() is {}", responseStopNotebook.getBody().asString());
-	   Assert.assertEquals(responseStopNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName +
-			   " was not stopped");
+       Assert.assertEquals(responseStopNotebook.statusCode(), HttpStatusCode.OK, "Notebook " + notebookName + " was not stopped");
 
-	   gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "stopping",
-			   getDuration(notebookConfig.getTimeoutNotebookShutdown()));
+       gettingStatus = WaitForStatus.notebook(ssnProUserResURL, token, notebookName, "stopping", getDuration(notebookConfig.getTimeoutNotebookShutdown()));
        if (!gettingStatus.contains("stopped"))
-           throw new Exception("Notebook " + notebookName + " has not been stopped. Notebook status is " +
-				   gettingStatus);
+           throw new Exception("Notebook " + notebookName + " has not been stopped. Notebook status is " + gettingStatus);
        LOGGER.info("   Notebook {} has been stopped", notebookName);
-	   if (!clusterName.equalsIgnoreCase(NamingHelper.CLUSTER_ABSENT)) {
-		   gettingStatus = WaitForStatus.getClusterStatus(
-				   new HttpRequest()
-						   .webApiGet(ssnProUserResURL, token)
-						   .getBody()
-						   .jsonPath(),
-				   notebookName, clusterName);
-		   if (!gettingStatus.contains("terminated")
-				   && !ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER)
-				   && !NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType))
-			   throw new Exception("Computational resources has not been terminated for Notebook " + notebookName +
-					   ". Data engine service status is " + gettingStatus);
-		   if (gettingStatus.contains("terminated")) {
-			   LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
-		   }
-		   VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName,
-				   clusterName, dataEngineType), true);
+       if(!clusterName.equalsIgnoreCase(NamingHelper.CLUSTER_ABSENT)){
+           gettingStatus = WaitForStatus.getClusterStatus(
+                   new HttpRequest()
+                           .webApiGet(ssnProUserResURL, token)
+                           .getBody()
+                           .jsonPath(),
+                   notebookName, clusterName);
+           if (!gettingStatus.contains("terminated") && !ConfigPropertyValue.getCloudProvider().equalsIgnoreCase(CloudProvider.AZURE_PROVIDER)
+                   && !NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType))
+               throw new Exception("Computational resources has not been terminated for Notebook " + notebookName +
+                       ". Data engine service status is " + gettingStatus);
+           if(gettingStatus.contains("terminated")){
+               LOGGER.info("   Computational resources has been terminated for notebook {}", notebookName);
+           }
+           VirtualMachineStatusChecker.checkIfTerminated(NamingHelper.getClusterInstanceName(notebookName, clusterName, dataEngineType), true);
 
-	   }
+       }
        Docker.checkDockerStatus(NamingHelper.getNotebookContainerName(notebookName, "stop"), NamingHelper.getSsnIp());
    }
 }

@@ -82,8 +82,7 @@ public class InfrastructureInfoResource implements InfrasctructureAPI {
 			log.debug("Return the status of resources for user {}: {}", userInfo.getName(), status);
 			return status;
 		} catch (DlabException e) {
-			log.warn("Could not return status of resources for user {}: {}",
-					userInfo.getName(), e.getLocalizedMessage(), e);
+			log.warn("Could not return status of resources for user {}: {}", userInfo.getName(), e.getLocalizedMessage(), e);
 			throw e;
 		}
 	}
