@@ -46,6 +46,7 @@ export class ResourcesGridComponent implements OnInit {
   filtering: boolean = false;
   activeFiltering: boolean = false;
   healthStatus: string = '';
+  billingEnabled: boolean = false;
 
   @ViewChild('computationalResourceModal') computationalResourceModal;
   @ViewChild('confirmationDialog') confirmationDialog;

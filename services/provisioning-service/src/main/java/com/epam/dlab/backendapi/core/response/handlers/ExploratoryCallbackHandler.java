@@ -22,7 +22,6 @@ import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryURL;
-import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -59,7 +58,7 @@ public class ExploratoryCallbackHandler extends ResourceCallbackHandler<Explorat
     }
 
 	@Override
-    protected ExploratoryStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryStatusDTO baseStatus) throws DlabException {
+    protected ExploratoryStatusDTO parseOutResponse(JsonNode resultNode, ExploratoryStatusDTO baseStatus) {
     	if (resultNode == null) {
     		return baseStatus;
     	}
@@ -75,7 +74,7 @@ public class ExploratoryCallbackHandler extends ResourceCallbackHandler<Explorat
 
     	String exploratoryId = getTextValue(resultNode.get(EXPLORATORY_ID_FIELD));
     	if (getAction() == DockerAction.CREATE && exploratoryId == null) {
-            LOGGER.warn("Empty field {} for UUID {} in JSON", RESPONSE_NODE + "." + RESULT_NODE + "." + EXPLORATORY_ID_FIELD, getUUID());
+            LOGGER.warn("Empty field {} for UUID {} in JSON", String.format("%s.%s.%s", RESPONSE_NODE, RESULT_NODE, EXPLORATORY_ID_FIELD), getUUID());
         }
 
     	return baseStatus

@@ -23,6 +23,7 @@ import com.epam.dlab.backendapi.util.DateRemoverUtil;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
 import com.epam.dlab.dto.UserInstanceDTO;
 import com.epam.dlab.dto.exploratory.ExploratoryStatusDTO;
+import com.epam.dlab.dto.exploratory.ExploratoryURL;
 import com.epam.dlab.exceptions.DlabException;
 import com.google.inject.Singleton;
 import com.mongodb.client.FindIterable;
@@ -31,10 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.and;
@@ -74,6 +72,10 @@ public class ExploratoryDAO extends BaseDAO {
                 eq(STATUS, "running"),
                 eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, computationalName),
                 eq(COMPUTATIONAL_RESOURCES + "." + STATUS, "running")));
+    }
+
+    static Bson exploratoryRunningCondition(String user, String exploratoryName) {
+        return and(eq(USER, user), eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, UserInstanceStatus.RUNNING.toString()));
     }
 
     /**
@@ -155,6 +157,20 @@ public class ExploratoryDAO extends BaseDAO {
     }
 
     /**
+     * Finds and returns the info of running exploratory.
+     *
+     * @param user            user name.
+     * @param exploratoryName the name of exploratory.
+     */
+    public UserInstanceDTO fetchRunningExploratoryFields(String user, String exploratoryName) {
+        return findOne(USER_INSTANCES,
+                exploratoryRunningCondition(user, exploratoryName),
+                fields(exclude(COMPUTATIONAL_RESOURCES)),
+                UserInstanceDTO.class).orElseThrow(() ->
+                new DlabException(String.format("Running exploratory instance for user %s with name %s not found.", user, exploratoryName)));
+    }
+
+    /**
      * Finds and returns the info of exploratory.
      *
      * @param user              user name.
@@ -227,17 +243,10 @@ public class ExploratoryDAO extends BaseDAO {
                     ).collect(Collectors.toList()));
         } else if (dto.getPrivateIp() != null) {
             UserInstanceDTO inst = fetchExploratoryFields(dto.getUser(), dto.getExploratoryName());
-            if (!inst.getPrivateIp().equals(dto.getPrivateIp())) { // IP was changed
-                if (inst.getExploratoryUrl() != null) {
-                    values.append(EXPLORATORY_URL, inst.getExploratoryUrl().stream()
-                            .map(url -> {
-                                        LinkedHashMap<String, String> map = new LinkedHashMap<>();
-                                        map.put(EXPLORATORY_URL_DESC, url.getDescription());
-                                        map.put(EXPLORATORY_URL_URL, url.getUrl().replace(inst.getPrivateIp(), dto.getPrivateIp()));
-                                        return map;
-                                    }
-                            ).collect(Collectors.toList()));
-                }
+            if (!inst.getPrivateIp().equals(dto.getPrivateIp()) && inst.getExploratoryUrl() != null) { // IP was changed
+                values.append(EXPLORATORY_URL, inst.getExploratoryUrl().stream()
+                        .map(url -> replaceIp(dto.getPrivateIp(), inst, url))
+                        .collect(Collectors.toList()));
             }
         }
 
@@ -253,5 +262,31 @@ public class ExploratoryDAO extends BaseDAO {
         return updateOne(USER_INSTANCES,
                 exploratoryCondition(dto.getUser(), dto.getExploratoryName()),
                 new Document(SET, values));
+    }
+
+    public void updateExploratoryIp(String user, String ip, String exploratoryName) {
+
+        UserInstanceDTO inst = fetchExploratoryFields(user, exploratoryName);
+        if (!inst.getPrivateIp().equals(ip)) {
+            Document values = new Document();
+            values.append(EXPLORATORY_PRIVATE_IP, ip);
+            if (inst.getExploratoryUrl() != null) {
+                values.append(EXPLORATORY_URL, inst.getExploratoryUrl().stream()
+                        .map(url -> replaceIp(ip, inst, url)
+                        ).collect(Collectors.toList()));
+            }
+
+            updateOne(USER_INSTANCES,
+                    exploratoryCondition(user, exploratoryName),
+                    new Document(SET, values));
+        }
+
+    }
+
+    private Map<String, String> replaceIp(String ip, UserInstanceDTO inst, ExploratoryURL url) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put(EXPLORATORY_URL_DESC, url.getDescription());
+        map.put(EXPLORATORY_URL_URL, url.getUrl().replace(inst.getPrivateIp(), ip));
+        return map;
     }
 }

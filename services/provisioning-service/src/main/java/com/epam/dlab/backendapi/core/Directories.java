@@ -26,4 +26,5 @@ public interface Directories {
     String NOTEBOOK_LOG_DIRECTORY = "notebook";
     String DATA_ENGINE_LOG_DIRECTORY = "dataengine";
     String DATA_ENGINE_SERVICE_LOG_DIRECTORY = "dataengine-service";
+    String IMAGE_LOG_DIRECTORY = "image";
 }

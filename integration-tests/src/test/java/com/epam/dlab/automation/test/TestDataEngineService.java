@@ -169,11 +169,12 @@ public class TestDataEngineService {
             copyFileToNotebook(ssnSession, NamingHelper.getNotebookTestTemplatesPath(notebookName),
                         noteBookIp, notebookName);
 
-            LOGGER.info("{}: Port forwarding from ssn {} to notebook {}...", notebookName, ssnIP, noteBookIp);
-            int assignedPort = ssnSession.setPortForwardingL(0, noteBookIp, 22);
-            LOGGER.info("{}: Port forwarded localhost:{} -> {}:22", notebookName, assignedPort, noteBookIp);
-
-            executePythonScript(noteBookIp, clusterName, notebookScenarioTestFile, assignedPort, notebookName);
+            if(!clusterName.equalsIgnoreCase(NamingHelper.CLUSTER_ABSENT) || !NamingHelper.isClusterRequired(notebookName)) {
+                LOGGER.info("{}: Port forwarding from ssn {} to notebook {}...", notebookName, ssnIP, noteBookIp);
+                int assignedPort = ssnSession.setPortForwardingL(0, noteBookIp, 22);
+                LOGGER.info("{}: Port forwarded localhost:{} -> {}:22", notebookName, assignedPort, noteBookIp);
+                executePythonScript(noteBookIp, clusterName, notebookScenarioTestFile, assignedPort, notebookName);
+            }
         }
         finally {
             if(ssnSession != null && ssnSession.isConnected()) {

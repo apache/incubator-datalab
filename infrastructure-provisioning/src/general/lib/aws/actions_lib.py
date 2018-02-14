@@ -739,13 +739,14 @@ def add_outbound_sg_rule(sg_id, rule):
             traceback.print_exc(file=sys.stdout)
 
 
-def deregister_image():
+def deregister_image(image_name='*'):
     try:
         resource = boto3.resource('ec2')
         client = boto3.client('ec2')
         for image in resource.images.filter(
                 Filters=[{'Name': 'name', 'Values': ['{}-*'.format(os.environ['conf_service_base_name'])]},
-                         {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]}]):
+                        {'Name': 'tag-value', 'Values': [os.environ['conf_service_base_name']]},
+                        {'Name': 'tag-value', 'Values': [image_name]}]):
             client.deregister_image(ImageId=image.id)
             for device in image.block_device_mappings:
                 if device.get('Ebs'):
@@ -899,7 +900,7 @@ def remove_vpc_endpoints(vpc_id):
         traceback.print_exc(file=sys.stdout)
 
 
-def create_image_from_instance(tag_name='', instance_name='', image_name=''):
+def create_image_from_instance(tag_name='', instance_name='', image_name='', tags=''):
     try:
         ec2 = boto3.resource('ec2')
         instances = ec2.instances.filter(
@@ -913,9 +914,13 @@ def create_image_from_instance(tag_name='', instance_name='', image_name=''):
             while image.state != 'available':
                 local("echo Waiting for image creation; sleep 20")
                 image.load()
-            #image.create_tags(Tags=[{'Key': 'Name', 'Value': os.environ['conf_service_base_name']}])
             tag = {'Key': 'Name', 'Value': os.environ['conf_service_base_name']}
             create_tag(image.id, tag)
+            if tags:
+                all_tags = json.loads(tags)
+                for key in all_tags.keys():
+                    tag = {'Key': key, 'Value': all_tags[key]}
+                    create_tag(image.id, tag)
             return image.id
         return ''
     except botocore.exceptions.ClientError as err:
@@ -1024,7 +1029,7 @@ def create_aws_config_files(generate_full_config=False):
 
         return True
     except:
-        return False
+        sys.exit(1)
 
 
 def installing_python(region, bucket, user_name, cluster_name, application='', pip_mirror=''):

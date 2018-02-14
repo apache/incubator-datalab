@@ -13,6 +13,7 @@ import com.epam.dlab.backendapi.service.gcp.GcpInfrastructureInfoService;
 import com.epam.dlab.backendapi.service.gcp.GcpInfrastructureTemplatesService;
 import com.epam.dlab.cloud.CloudModule;
 import com.google.inject.Injector;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.setup.Environment;
 
 public class GcpSelfServiceModule extends CloudModule {
@@ -24,7 +25,7 @@ public class GcpSelfServiceModule extends CloudModule {
         environment.jersey().register(injector.getInstance(ComputationalResourceGcp.class));
 
         injector.getInstance(SecurityFactory.class).configure(injector, environment,
-                SelfServiceSecurityAuthenticator.class, (p, r) -> true);
+                SelfServiceSecurityAuthenticator.class, injector.getInstance(Authorizer.class));
 
     }
 

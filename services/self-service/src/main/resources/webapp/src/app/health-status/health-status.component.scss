@@ -16,8 +16,11 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.backendapi.core.commands;
-
-public interface DockerCommand {
-    String toCMD();
+.sub-nav {
+  justify-content: flex-end;
+  button {
+    &:first-child {
+      margin-right: 10px;
+    }
+  }
 }

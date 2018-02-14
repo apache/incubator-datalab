@@ -105,13 +105,13 @@ if __name__ == "__main__":
                                                       os.environ['notebook_instance_name']).get('Private')
     emr_conf['role_service_name'] = os.environ['emr_service_role']
     emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
-    emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + \
+    emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-des-' + \
                        emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + args.uuid + \
                        ', ' + emr_conf['service_base_name'] + '-Tag=' + emr_conf['service_base_name'] + '-' + \
-                       os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + \
+                       os.environ['edge_user_name'] + '-des-' + emr_conf['exploratory_name'] + '-' + \
                        emr_conf['computational_name'] + '-' + args.uuid + \
                        ', Notebook=' + os.environ['notebook_instance_name'] + ', State=not-configured'
-    emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + \
+    emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-des-' + \
                                emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + \
                                args.uuid
     emr_conf['bucket_name'] = (emr_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')

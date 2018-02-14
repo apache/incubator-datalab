@@ -993,24 +993,24 @@ def ensure_local_jars(os_user, jars_dir):
         try:
             hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
             print("Downloading local jars for Azure")
-            sudo('mkdir -p ' + jars_dir)
+            sudo('mkdir -p {}'.format(jars_dir))
             if os.environ['azure_datalake_enable'] == 'false':
                 sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                                  {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
-                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/2.2.0/azure-storage-2.2.0.jar \
-                    -O {}azure-storage-2.2.0.jar'.format(jars_dir))
+                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
+                    -O {1}azure-storage-{0}.jar'.format('2.2.0', jars_dir))
             else:
-                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/3.0.0-beta1/hadoop-azure-3.0.0-beta1.jar -O \
-                                 {}hadoop-azure-3.0.0-beta1.jar'.format(jars_dir))
-                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/6.1.0/azure-storage-6.1.0.jar \
-                                    -O {}azure-storage-6.1.0.jar'.format(jars_dir))
-                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-data-lake-store-sdk/2.2.3/azure-data-lake-store-sdk-2.2.3.jar \
-                    -O {}azure-data-lake-store-sdk-2.2.3.jar'.format(jars_dir))
-                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/3.0.0-beta1/hadoop-azure-datalake-3.0.0-beta1.jar \
-                    -O {}hadoop-azure-datalake-3.0.0-beta1.jar'.format(jars_dir))
+                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
+                                 {1}hadoop-azure-{0}.jar'.format('3.0.0', jars_dir))
+                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
+                                    -O {1}azure-storage-{0}.jar'.format('6.1.0', jars_dir))
+                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-data-lake-store-sdk/{0}/azure-data-lake-store-sdk-{0}.jar \
+                    -O {1}azure-data-lake-store-sdk-{0}.jar'.format('2.2.3', jars_dir))
+                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/{0}/hadoop-azure-datalake-{0}.jar \
+                    -O {1}hadoop-azure-datalake-{0}.jar'.format('3.0.0', jars_dir))
             if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
-                sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
-                     -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
+                sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/{0}/spark-tensorflow-connector-{0}.jar \
+                     -O {1}spark-tensorflow-connector-{0}.jar'.format('1.0.0-s_2.11', jars_dir))
             sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except Exception as err:
             logging.info(
@@ -1102,6 +1102,8 @@ def prepare_disk(os_user):
         try:
             remount_azure_disk()
             disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
+            with settings(warn_only=True):
+                sudo('umount /dev/{}1'.format(disk_name))
             sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
             sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
             sudo('mount /dev/{}1 /opt/'.format(disk_name))
@@ -1127,9 +1129,11 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
                 sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
                 sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
                 # Downloading Hadoop
-                sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0-beta1/hadoop-3.0.0-beta1.tar.gz -O /tmp/hadoop-3.0.0-beta1.tar.gz')
-                sudo('tar -zxvf /tmp/hadoop-3.0.0-beta1.tar.gz -C /opt/')
-                sudo('mv /opt/hadoop-3.0.0-beta1 /opt/hadoop/')
+                hadoop_version = '3.0.0'
+                sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O \
+                    /tmp/hadoop-{0}.tar.gz'.format(hadoop_version))
+                sudo('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
+                sudo('mv /opt/hadoop-{0} /opt/hadoop/'.format(hadoop_version))
                 sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
                 # Configuring Hadoop and Spark
                 java_path = dlab.common_lib.find_java_path_remote()
@@ -1154,15 +1158,17 @@ def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_
             local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')
         else:
             # Downloading Spark without Hadoop
-            local('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'.format(
-                spark_version))
+            local('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O \
+                    /tmp/spark-{0}-bin-without-hadoop.tgz'.format(spark_version))
             local('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
             local('mv /opt/spark-{}-bin-without-hadoop {}spark/'.format(spark_version, cluster_dir))
             local('chown -R {0}:{0} {1}/spark/'.format(os_user, cluster_dir))
             # Downloading Hadoop
-            local('wget https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0-beta1/hadoop-3.0.0-beta1.tar.gz -O /tmp/hadoop-3.0.0-beta1.tar.gz')
-            local('tar -zxvf /tmp/hadoop-3.0.0-beta1.tar.gz -C /opt/')
-            local('mv /opt/hadoop-3.0.0-beta1 {}hadoop/'.format(cluster_dir))
+            hadoop_version = '3.0.0'
+            local('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O \
+                    /tmp/hadoop-{0}.tar.gz'.format(hadoop_version))
+            local('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
+            local('mv /opt/hadoop-{0} {1}hadoop/'.format(hadoop_version, cluster_dir))
             local('chown -R {0}:{0} {1}hadoop/'.format(os_user, cluster_dir))
             # Configuring Hadoop and Spark
             java_path = dlab.common_lib.find_java_path_local()

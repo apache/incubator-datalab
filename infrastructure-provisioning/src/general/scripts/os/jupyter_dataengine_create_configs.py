@@ -74,8 +74,7 @@ def r_kernel(args):
 
 def toree_kernel(args):
     spark_path = '/opt/' + args.cluster_name + '/spark/'
-    scala_version = local("dpkg -l scala | grep scala | awk '{print $3}'", capture=True)
-
+    scala_version = local('scala -e "println(scala.util.Properties.versionNumberString)"', capture=True)
     local('mkdir -p ' + kernels_dir + 'toree_' + args.cluster_name + '/')
     local('tar zxvf /tmp/toree_kernel.tar.gz -C ' + kernels_dir + 'toree_' + args.cluster_name + '/')
     kernel_path = kernels_dir + "toree_" + args.cluster_name + "/kernel.json"

@@ -37,6 +37,8 @@ export class ResourcesComponent implements OnInit {
   computationalResources: Array<ComputationalResourceImage> = [];
   progressDialogConfig: any;
   healthStatus: any;
+  billingEnabled: boolean;
+  backupAllowed: boolean;
 
   @ViewChild('keyUploadModal') keyUploadModal;
   @ViewChild('preloaderModal') preloaderModal;
@@ -145,9 +147,13 @@ export class ResourcesComponent implements OnInit {
   private getEnvironmentHealthStatus() {
     this.healthStatusService.getEnvironmentHealthStatus()
       .subscribe(
-        (result) => {
+        (result: any) => {
           this.healthStatus = result.status;
+          this.billingEnabled = result.billingEnabled;
+          this.backupAllowed = result.backupAllowed;
+
           this.resourcesGrid.healthStatus = this.healthStatus;
+          this.resourcesGrid.billingEnabled = this.billingEnabled;
         });
   }
 }
