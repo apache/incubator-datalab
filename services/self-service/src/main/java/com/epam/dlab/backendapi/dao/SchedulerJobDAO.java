@@ -16,9 +16,9 @@
 
  ****************************************************************************/
 
-
 package com.epam.dlab.backendapi.dao;
 
+import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.dto.SchedulerJobDTO;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.model.scheduler.SchedulerJobData;
@@ -53,32 +53,43 @@ public class SchedulerJobDAO extends BaseDAO {
     }
 
     /** Return condition for search scheduler which is not null.
+	 *
+	 * @return Bson condition.
      */
     private Bson schedulerNotNullCondition() {
         return ne(SCHEDULER_DATA, null);
     }
 
-    private Bson statusConditionByAction(String actionType) {
-        return actionType.equalsIgnoreCase(ACTION_START) ? eq(STATUS, STATUS_STOPPED) : eq(STATUS, STATUS_RUNNING);
+	/**
+	 * Return condition for search exploratory which has stopped/running state for starting/stopping it.
+	 *
+	 * @param desiredStatus 'running' value for searching stopped exploratories and another one for searching with
+	 *                      'running' state.
+	 * @return Bson condition.
+	 */
+	private Bson statusCondition(UserInstanceStatus desiredStatus) {
+		return desiredStatus.equals(UserInstanceStatus.RUNNING) ?
+				eq(STATUS, UserInstanceStatus.STOPPED.toString()) : eq(STATUS, UserInstanceStatus.RUNNING.toString());
     }
 
 
     /**
      * Finds and returns the list of all scheduler jobs for starting/stopping regarding to parameter passed.
 	 * @param dateTime for seeking appropriate scheduler jobs for starting/stopping.
-     * @param actionType 'start' string value for starting exploratory and another one for stopping.
-     */
-	public List<SchedulerJobData> getSchedulerJobsForAction(OffsetDateTime dateTime, String actionType) {
+	 * @param desiredStatus 'running' value for starting exploratory and another one for stopping.
+	 * @return list of scheduler jobs.
+	 */
+	public List<SchedulerJobData> getSchedulerJobsToAchieveStatus(UserInstanceStatus desiredStatus, OffsetDateTime dateTime) {
         FindIterable<Document> docs = find(USER_INSTANCES,
-                and(
-                        statusConditionByAction(actionType),
+				and(
+						statusCondition(desiredStatus),
                         schedulerNotNullCondition()
                 ),
                 fields(excludeId(), include(USER, EXPLORATORY_NAME, SCHEDULER_DATA)));
 
 		return StreamSupport.stream(docs.spliterator(), false)
 				.map(d -> convertFromDocument(d, SchedulerJobData.class))
-				.filter(jobData -> isSchedulerJobDtoSatisfyCondition(jobData.getJobDTO(), dateTime, actionType))
+				.filter(jobData -> isSchedulerJobDtoSatisfyCondition(jobData.getJobDTO(), dateTime, desiredStatus))
 				.collect(Collectors.toList());
     }
 
@@ -86,6 +97,7 @@ public class SchedulerJobDAO extends BaseDAO {
      * Finds and returns the info of user's single scheduler job by exploratory name.
      * @param user            user name.
      * @param exploratoryName the name of exploratory.
+	 * @return scheduler job data.
      */
 	public SchedulerJobDTO fetchSingleSchedulerJobByUserAndExploratory(String user, String exploratoryName) {
 		return convertFromDocument((Document) findOne(USER_INSTANCES, and(exploratoryCondition(user, exploratoryName),
@@ -95,9 +107,18 @@ public class SchedulerJobDAO extends BaseDAO {
 								user, exploratoryName))).get(SCHEDULER_DATA), SchedulerJobDTO.class);
 	}
 
+	/**
+	 * Checks if scheduler's time data satisfies existing time parameters.
+	 *
+	 * @param dto            scheduler job data.
+	 * @param dateTime       existing time data.
+	 * @param desiredStatus  target exploratory status which has influence for time checking ('running' status requires
+	 *                       for checking start time, 'stopped' - for end time).
+	 * @return true/false.
+	 */
 	private boolean isSchedulerJobDtoSatisfyCondition(SchedulerJobDTO dto, OffsetDateTime dateTime,
-													  String actionType) {
-        ZoneOffset zOffset = dto.getTimeZoneOffset();
+													  UserInstanceStatus desiredStatus) {
+		ZoneOffset zOffset = dto.getTimeZoneOffset();
 		OffsetDateTime roundedDateTime = OffsetDateTime.of(
 				dateTime.toLocalDate(),
 				LocalTime.of(dateTime.toLocalTime().getHour(), dateTime.toLocalTime().getMinute()),
@@ -110,8 +131,8 @@ public class SchedulerJobDAO extends BaseDAO {
 				&& !convertedDateTime.toLocalDate().isAfter(dto.getFinishDate())
 				&& dto.getDaysRepeat().contains(convertedDateTime.toLocalDate().getDayOfWeek())
 				&& convertedDateTime.toLocalTime()
-				.equals(actionType.equalsIgnoreCase(ACTION_START) ? dto.getStartTime() : dto.getEndTime());
-    }
+				.equals(desiredStatus.equals(UserInstanceStatus.RUNNING) ? dto.getStartTime() : dto.getEndTime());
+	}
 
 }
 

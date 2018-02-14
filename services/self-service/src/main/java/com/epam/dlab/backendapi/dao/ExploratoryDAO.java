@@ -73,14 +73,14 @@ public class ExploratoryDAO extends BaseDAO {
 
     private static Bson runningExploratoryCondition(String user, String exploratoryName) {
         return and(eq(USER, user),
-                and(eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, STATUS_RUNNING)));
+                and(eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, UserInstanceStatus.RUNNING.toString())));
     }
 
     static Bson runningExploratoryAndComputationalCondition(String user, String exploratoryName, String computationalName) {
         return and(eq(USER, user),
-                    and(eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, STATUS_RUNNING),
+                and(eq(EXPLORATORY_NAME, exploratoryName), eq(STATUS, UserInstanceStatus.RUNNING.toString()),
                         eq(COMPUTATIONAL_RESOURCES + "." + COMPUTATIONAL_NAME, computationalName),
-                        eq(COMPUTATIONAL_RESOURCES + "." + STATUS, STATUS_RUNNING)));
+                        eq(COMPUTATIONAL_RESOURCES + "." + STATUS, UserInstanceStatus.RUNNING.toString())));
     }
 
     /**

@@ -17,18 +17,16 @@
 package com.epam.dlab.backendapi.schedulers;
 
 import com.epam.dlab.backendapi.service.SchedulerJobService;
-import com.epam.dlab.model.scheduler.SchedulerJobData;
 import com.fiestacabin.dropwizard.quartz.Scheduled;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.util.List;
-
-
+/**
+ * There realized integration with Quartz scheduler framework and defined start exploratory scheduler job which
+ * executes every time specified.
+ */
 @Slf4j
 @Scheduled(interval = 10)
 public class StartExploratoryJob implements Job {
@@ -38,18 +36,7 @@ public class StartExploratoryJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext){
-		OffsetDateTime currentDateTime = OffsetDateTime.now();
-		List<SchedulerJobData> jobsToStart =
-				schedulerJobService.getSchedulerJobsForStartingExploratories(currentDateTime);
-        if(!jobsToStart.isEmpty()){
-			log.debug("Scheduler start job is executing...");
-			log.info("Current time rounded: {} , current date: {}, current day of week: {}",
-					LocalTime.of(currentDateTime.toLocalTime().getHour(), currentDateTime.toLocalTime().getMinute()),
-					currentDateTime.toLocalDate(),
-					currentDateTime.getDayOfWeek());
-            log.info("Scheduler jobs for starting: {}", jobsToStart.size());
-			jobsToStart.forEach(job -> schedulerJobService.changeExploratoryStateOn("running", job));
-        }
+		schedulerJobService.executeStartExploratoryJob();
     }
 
 }

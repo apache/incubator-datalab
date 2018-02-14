@@ -61,9 +61,6 @@ public class BaseDAO implements MongoCollections {
     public static final String STATUS = "status";
     public static final String ERROR_MESSAGE = "error_message";
     static final String TIMESTAMP = "timestamp";
-    static final String STATUS_RUNNING = "running";
-    static final String STATUS_STOPPED = "stopped";
-    static final String ACTION_START = "start";
 
     @Inject
     protected MongoService mongoService;
