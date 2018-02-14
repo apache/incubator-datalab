@@ -56,6 +56,24 @@ def configure_slave(slave_number, data_engine):
         sys.exit(1)
 
     try:
+        logging.info('[CLEANING INSTANCE FOR MASTER NODE]')
+        print('[CLEANING INSTANCE FOR MASTER NODE]')
+        params = '--hostname {} --keyfile {} --os_user {} --application {}' \
+            .format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], os.environ['application'])
+        try:
+            local("~/scripts/{}.py {}".format('common_clean_instance', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        append_result("Failed to clean slave instance..", str(err))
+        sys.exit(1)
+
+    try:
         logging.info('[CONFIGURE PROXY ON SLAVE NODE]')
         print('[CONFIGURE PROXY ON ON SLAVE NODE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
@@ -204,6 +222,24 @@ if __name__ == "__main__":
             AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         append_result("Failed to create ssh user on master.", str(err))
+        sys.exit(1)
+
+    try:
+        logging.info('[CLEANING INSTANCE FOR MASTER NODE]')
+        print('[CLEANING INSTANCE FOR MASTER NODE]')
+        params = '--hostname {} --keyfile {} --os_user {} --application {}' \
+            .format(master_node_hostname, keyfile_name, data_engine['dlab_ssh_user'], os.environ['application'])
+        try:
+            local("~/scripts/{}.py {}".format('common_clean_instance', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i+1)
+            AzureActions().remove_instance(data_engine['resource_group_name'], slave_name)
+        AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
+        append_result("Failed to clean master instance.", str(err))
         sys.exit(1)
 
     try:
