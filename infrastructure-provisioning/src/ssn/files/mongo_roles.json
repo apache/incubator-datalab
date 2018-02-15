@@ -100,5 +100,17 @@
     ],
     "users": [
     ]
+  },
+  {
+    "_id": "envBackup",
+    "description": "Allow to execute backup operation operation",
+    "pages": [
+      "/api/infrastructure/backup"
+    ],
+    "groups": [
+      "$anyuser"
+    ],
+    "users": [
+    ]
   }
 ]
