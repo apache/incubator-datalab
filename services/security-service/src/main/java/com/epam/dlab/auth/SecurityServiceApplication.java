@@ -20,19 +20,18 @@ package com.epam.dlab.auth;
 
 import com.epam.dlab.auth.azure.AzureAuthenticationService;
 import com.epam.dlab.auth.azure.DlabExceptionMapper;
-import com.epam.dlab.auth.resources.SynchronousLdapAuthenticationService;
 import com.epam.dlab.auth.dao.UserInfoDAOMongoImpl;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.epam.dlab.auth.resources.AwsSynchronousLdapAuthenticationService;
+import com.epam.dlab.auth.resources.SynchronousLdapAuthenticationService;
 import com.epam.dlab.utils.ServiceUtils;
-
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundleConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Slf4j
 public class SecurityServiceApplication extends Application<SecurityServiceConfiguration> {
@@ -59,7 +58,9 @@ public class SecurityServiceApplication extends Application<SecurityServiceConfi
 
 	    switch (conf.getCloudProvider()) {
             case AWS:
-            case GCP:
+				env.jersey().register(new AwsSynchronousLdapAuthenticationService(conf, env));
+				break;
+			case GCP:
                 env.jersey().register(new SynchronousLdapAuthenticationService(conf,env));
                 break;
             case AZURE:
