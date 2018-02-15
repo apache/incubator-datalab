@@ -172,7 +172,7 @@ public class WaitForStatus {
         return "";
     }
 
-    public static String getNotebookStatus(JsonPath json, String notebookName) {
+	public static String getNotebookStatus(JsonPath json, String notebookName) {
         List<Map<String, String>> notebooks = json.getList("exploratory");
         notebooks = notebooks.stream().filter(e -> notebookName.equals(e.get("exploratory_name"))).collect(Collectors.toList());
 
