@@ -18,7 +18,6 @@ limitations under the License.
 
 package com.epam.dlab.automation.test;
 
-import com.epam.dlab.automation.helper.CloudHelper;
 import com.epam.dlab.automation.cloud.VirtualMachineStatusChecker;
 import com.epam.dlab.automation.docker.Docker;
 import com.epam.dlab.automation.helper.*;
