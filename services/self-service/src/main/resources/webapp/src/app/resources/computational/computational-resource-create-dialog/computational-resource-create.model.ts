@@ -179,8 +179,9 @@ export class ComputationalResourceCreateModel {
         dataproc_master_instance_type:  this.computational_resource_master_shape,
         dataproc_slave_instance_type: this.computational_resource_slave_shape,
         dataproc_version: this.selectedItem.version,
-        dataproc_master_count: this.computational_resource_count,
-        dataproc_slave_count: this.slave_instance_count,
+        // dataproc_master_count: this.computational_resource_count,
+        dataproc_master_count: 1,
+        dataproc_slave_count: this.computational_resource_count,
         dataproc_preemptible_count: this.preemptible_inst,
       });
     } else {
