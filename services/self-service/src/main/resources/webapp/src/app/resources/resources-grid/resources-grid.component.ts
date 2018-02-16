@@ -48,6 +48,8 @@ export class ResourcesGridComponent implements OnInit {
   healthStatus: string = '';
   billingEnabled: boolean = false;
 
+  delimitersRegex = /[-_]?/g;
+
   @ViewChild('computationalResourceModal') computationalResourceModal;
   @ViewChild('confirmationDialog') confirmationDialog;
   @ViewChild('detailDialog') detailDialog;
@@ -191,10 +193,14 @@ export class ResourcesGridComponent implements OnInit {
   containsNotebook(notebook_name: string): boolean {
     if (notebook_name)
       for (let index = 0; index < this.environments.length; index++)
-        if (notebook_name.toLowerCase() === this.environments[index].name.toString().toLowerCase())
+        if (this.delimitersFiltering(notebook_name) === this.delimitersFiltering(this.environments[index].name))
           return true;
 
     return false;
+  }
+
+  delimitersFiltering(notebook_name): string {
+    return notebook_name.replace(this.delimitersRegex, '').toString().toLowerCase();
   }
 
   loadEnvironments(exploratoryList: Array<any>, sharedDataList: any): Array<ResourcesGridRowModel> {
