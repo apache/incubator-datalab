@@ -45,6 +45,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   spotInstance: boolean = false;
   clusterNamePattern: string = '[-_a-zA-Z0-9]+';
   nodeCountPattern: string = '^[1-9]\\d*$';
+  delimitersRegex = /[-_]?/g;
   processError: boolean = false;
   errorMessage: string = '';
 
@@ -129,12 +130,16 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
         if (this.notebook_instance.name === this.full_list[index].name) {
           for (let iindex = 0; iindex < this.full_list[index].resources.length; iindex++) {
             const computational_name = this.full_list[index].resources[iindex].computational_name.toString().toLowerCase();
-            if (conputational_resource_name.toLowerCase() === computational_name)
-                return true;
+            if (this.delimitersFiltering(conputational_resource_name) === this.delimitersFiltering(computational_name))
+              return true;
           }
         }
       }
     return false;
+  }
+
+  public delimitersFiltering(resource): string {
+    return resource.replace(this.delimitersRegex, '').toString().toLowerCase();
   }
 
   public selectSpotInstances($event): void {
