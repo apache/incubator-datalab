@@ -89,7 +89,7 @@ limitations under the License.
                 <input type="number" class="form-control" min="{{minPreemptibleInstanceNumber}}" max="{{maxPreemptibleInstanceNumber}}" formControlName="preemptible_instance_number" (keypress)="isNumberKey($event)" />
                 <span class="danger_color" *ngIf="!resourceForm.controls.preemptible_instance_number.valid">
                   <span *ngIf="minPreemptibleInstanceNumber !== maxPreemptibleInstanceNumber; else equal">
-                      Only integer values greater than or equal to {{ minPreemptibleInstanceNumber }} and less than {{ maxPreemptibleInstanceNumber }} are allowed
+                    Only integer values greater than or equal to {{ minPreemptibleInstanceNumber }} and less than {{ maxPreemptibleInstanceNumber }} are allowed
                   </span>
                   <ng-template #equal>Please manage total machines count</ng-template>
                 </span>

@@ -121,7 +121,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   public createComputationalResource($event, data, shape_master: string, shape_slave: string) {
     this.model.setCreatingParams(data.cluster_alias_name, data.instance_number, shape_master, shape_slave,
-      this.spotInstance, data.instance_price, null, data.preemptible_instance_number);
+      this.spotInstance, data.instance_price, data.preemptible_instance_number);
     // this.model.setCreatingParams(data.cluster_alias_name, data.instance_number, shape_master, shape_slave,
     //   this.spotInstance, data.instance_price, data.slave_instance_number, data.preemptible_instance_number);
     this.model.confirmAction();
