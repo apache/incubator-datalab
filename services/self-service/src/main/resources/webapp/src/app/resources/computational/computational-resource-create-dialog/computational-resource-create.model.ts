@@ -38,7 +38,6 @@ export class ComputationalResourceCreateModel {
   notebook_name: string;
   emr_slave_instance_spot: boolean;
   emr_slave_instance_price: number;
-  slave_instance_count: number;
   preemptible_inst: number;
 
   selectedItem: ComputationalResourceApplicationTemplate = new ComputationalResourceApplicationTemplate({},
@@ -85,7 +84,6 @@ export class ComputationalResourceCreateModel {
     shape_slave: string,
     spot: boolean,
     price: number,
-    slave_inst?: number,
     preemptible_inst?: number
   ): void {
     this.computational_resource_alias = name;
@@ -94,7 +92,6 @@ export class ComputationalResourceCreateModel {
     this.computational_resource_slave_shape = shape_slave;
     this.emr_slave_instance_spot = spot;
     this.emr_slave_instance_price = price;
-    this.slave_instance_count = slave_inst || 0;
     this.preemptible_inst = preemptible_inst || 0;
   }
 
@@ -179,7 +176,6 @@ export class ComputationalResourceCreateModel {
         dataproc_master_instance_type:  this.computational_resource_master_shape,
         dataproc_slave_instance_type: this.computational_resource_slave_shape,
         dataproc_version: this.selectedItem.version,
-        // dataproc_master_count: this.computational_resource_count,
         dataproc_master_count: 1,
         dataproc_slave_count: this.computational_resource_count,
         dataproc_preemptible_count: this.preemptible_inst,
