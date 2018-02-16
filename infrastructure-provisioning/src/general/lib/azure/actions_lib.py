@@ -23,8 +23,8 @@ from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
-from azure.storage import CloudStorageAccount
-from azure.storage import SharedAccessSignature
+# from azure.storage import CloudStorageAccount
+# from azure.storage import SharedAccessSignature
 from azure.storage.blob import BlockBlobService
 from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
 from azure.datalake.store import core, lib
@@ -423,19 +423,19 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def generate_container_sas(self, resource_group_name, account_name, container_name, source_ip_range):
-        try:
-            secret_key = meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            sas = SharedAccessSignature(account_name=account_name, account_key=secret_key)
-            result = sas.generate_container(container_name, permission='rw', ip=source_ip_range)
-            return result
-        except Exception as err:
-            logging.info(
-                "Unable to generate SAS for container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to generate SAS for container",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
+    # def generate_container_sas(self, resource_group_name, account_name, container_name, source_ip_range):
+    #     try:
+    #         secret_key = meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
+    #         sas = SharedAccessSignature(account_name=account_name, account_key=secret_key)
+    #         result = sas.generate_container(container_name, permission='rw', ip=source_ip_range)
+    #         return result
+    #     except Exception as err:
+    #         logging.info(
+    #             "Unable to generate SAS for container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
+    #         append_result(str({"error": "Unable to generate SAS for container",
+    #                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
+    #                                file=sys.stdout)}))
+    #         traceback.print_exc(file=sys.stdout)
 
     def create_static_public_ip(self, resource_group_name, ip_name, region, instance_name, tags):
         try:
