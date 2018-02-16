@@ -43,17 +43,13 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   template_description: string;
   shapes: any;
   spotInstance: boolean = false;
-
   clusterNamePattern: string = '[-_a-zA-Z0-9]+';
   nodeCountPattern: string = '^[1-9]\\d*$';
-
   processError: boolean = false;
   errorMessage: string = '';
 
   public minInstanceNumber: number;
   public maxInstanceNumber: number;
-  // public minSlaveInstanceNumber: number;
-  // public maxSlaveInstanceNumber: number;
   public minPreemptibleInstanceNumber: number;
   public maxPreemptibleInstanceNumber: number;
   public minSpotPrice: number = 0;
@@ -122,8 +118,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
   public createComputationalResource($event, data, shape_master: string, shape_slave: string) {
     this.model.setCreatingParams(data.cluster_alias_name, data.instance_number, shape_master, shape_slave,
       this.spotInstance, data.instance_price, data.preemptible_instance_number);
-    // this.model.setCreatingParams(data.cluster_alias_name, data.instance_number, shape_master, shape_slave,
-    //   this.spotInstance, data.instance_price, data.slave_instance_number, data.preemptible_instance_number);
     this.model.confirmAction();
     $event.preventDefault();
     return false;
@@ -223,7 +217,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
     this.resourceForm = this._fb.group({
       cluster_alias_name: ['', [Validators.required, Validators.pattern(this.clusterNamePattern), this.providerMaxLength, this.checkDuplication.bind(this)]],
       instance_number: ['', [Validators.required, Validators.pattern(this.nodeCountPattern), this.validInstanceNumberRange.bind(this)]],
-      // slave_instance_number: [0, [Validators.pattern(this.nodeCountPattern), this.validSlaveInstanceNumberRange.bind(this)]],
       preemptible_instance_number: [0, [this.validPreemptibleRange.bind(this)]],
       instance_price: [0, [this.validInstanceSpotRange.bind(this)]]
     });
@@ -241,11 +234,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       this.maxInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_max];
 
       if (DICTIONARY.cloud_provider === 'gcp'&& this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
-        // // this.minInstanceNumber = this.model.selectedImage.limits.dataproc_available_master_instance_count[0];
-        // // this.maxInstanceNumber = this.model.selectedImage.limits.dataproc_available_master_instance_count[1];
-        // this.minInstanceNumber = this.model.selectedImage.limits[activeImage.total_slave_instance_number_min];
         this.maxInstanceNumber = this.model.selectedImage.limits[activeImage.total_instance_number_max] - 1;
-        
         this.minPreemptibleInstanceNumber = this.model.selectedImage.limits.min_dataproc_preemptible_instance_count;
       }
 
@@ -255,7 +244,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       }
 
       this.resourceForm.controls['instance_number'].setValue(this.minInstanceNumber);
-      // this.resourceForm.controls['slave_instance_number'].setValue(this.minSlaveInstanceNumber);
       this.resourceForm.controls['preemptible_instance_number'].setValue(this.minPreemptibleInstanceNumber);
     }
   }
@@ -271,16 +259,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       }
   }
 
-  // private validSlaveInstanceNumberRange(control) {
-  //   if (control && control.value) {
-  //     this.validPreemptibleNumberRange();
-  //     this.resourceForm.controls['preemptible_instance_number'].setValidators(Validators.compose([Validators.required, this.validPreemptibleRange.bind(this)]));
-  //     this.resourceForm.controls['preemptible_instance_number'].updateValueAndValidity();
-
-  //     return control.value >= this.minSlaveInstanceNumber && control.value <= this.maxSlaveInstanceNumber ? null : { valid: false };
-  //   }
-  // }
-
   private validPreemptibleRange(control) {
     if (this.preemptible)
       return this.preemptible.nativeElement['checked']
@@ -290,12 +268,8 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
 
   private validPreemptibleNumberRange() {
     let instance_value = this.resourceForm.controls['instance_number'].value;
-    // let slaveInst = this.resourceForm.controls['slave_instance_number'].value;
-
-    // this.maxPreemptibleInstanceNumber = Math.max((this.maxSlaveInstanceNumber - masterInst - slaveInst), 0);
     this.maxPreemptibleInstanceNumber = Math.max((this.maxInstanceNumber - instance_value), 0);
-    console.log(this.maxPreemptibleInstanceNumber);
-    
+
     const value = this.resourceForm.controls['preemptible_instance_number'].value;
     if (value !== null && value >= this.minPreemptibleInstanceNumber && value <= this.maxPreemptibleInstanceNumber) {
       this.resourceForm.controls['preemptible_instance_number'].setErrors(null);
