@@ -67,11 +67,9 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 ----------------------------
 # Logical architecture <a name="Logical_architecture"></a>
 
-The following diagrams demonstrate high-level logical architecture of DLab in AWS and Azure.
+The following diagram demonstrate high-level logical architecture.
 
 ![Logical architecture](doc/logical_architecture.png)
-
-![Logical architecture](doc/azure_dlab_arch.png)
 
 The diagram shows main components of DLab, which is a self-service for the infrastructure deployment and interaction with it. The purpose of each component is described below.
 
@@ -102,10 +100,11 @@ Database serves as a storage with description of user infrastructure, user’s s
 -----------------------------
 # Physical architecture <a name="Physical_architecture"></a>
 
-The following diagram demonstrates high-level physical architecture of DLab in AWS
+The following diagrams demonstrate high-level physical architecture of DLab in AWS and Azure.
 
 ![Physical architecture](doc/physical_architecture.png)
 
+![Physical architecture](doc/azure_dlab_arch.png)
 
 ## Main components
 
