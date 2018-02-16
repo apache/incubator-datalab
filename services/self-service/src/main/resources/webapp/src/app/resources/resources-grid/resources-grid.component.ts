@@ -199,7 +199,7 @@ export class ResourcesGridComponent implements OnInit {
     return false;
   }
 
-  delimitersFiltering(notebook_name): string {
+  public delimitersFiltering(notebook_name): string {
     return notebook_name.replace(this.delimitersRegex, '').toString().toLowerCase();
   }
 

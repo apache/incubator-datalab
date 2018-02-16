@@ -258,7 +258,6 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
       if (DICTIONARY.cloud_provider === 'gcp'&& this.model.selectedImage.image === 'docker.dlab-dataengine-service') {
         this.validPreemptibleNumberRange();
         return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
-        //   
       } else {
         return control.value >= this.minInstanceNumber && control.value <= this.maxInstanceNumber ? null : { valid: false };
       }
@@ -330,7 +329,7 @@ export class ComputationalResourceCreateDialogComponent implements OnInit {
           return obj;
         }, {});
 
-      if (DICTIONARY.cloud_provider === 'aws') {
+      if (DICTIONARY.cloud_provider !== 'azure') {
         this.model.resourceImages = this.model.resourceImages.filter(image => image.image === 'docker.dlab-dataengine');
         this.model.setSelectedClusterType(0);
       }
