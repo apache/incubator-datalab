@@ -26,6 +26,9 @@ limitations under the License.
     <ul class="list-menu" id="scrolling">
       <ng-template [ngIf]="listStructure === 'array'">
         <ng-template let-item ngFor [ngForOf]="items" let-index="index">
+          <li *ngIf="empty" (click)="selectOptions($event, null, 0)">
+            <a role="menuitem">None</a>
+          </li>
           <li role="presentation" (click)="selectOptions($event, item, index)">
             <a role="menuitem"><span [innerHTML]="item[byField]"></span></a>
           </li>
