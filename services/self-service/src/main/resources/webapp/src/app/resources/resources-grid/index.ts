@@ -28,6 +28,7 @@ import { DetailDialogModule } from './../exploratory/detail-dialog';
 import { FormControlsModule } from '../../shared/form-controls';
 import { CostDetailsDialogModule } from './../billing/cost-details-dialog';
 import { InstallLibrariesModule } from './../exploratory/install-libraries';
+import { AmiCreateDialogModule } from './../exploratory/ami-create-dialog';
 import { SchedulerModule } from './../scheduler';
 
 export * from './resources-grid.component';
@@ -48,6 +49,7 @@ export * from './filter-configuration.model';
     CostDetailsDialogModule,
     InstallLibrariesModule,
     SchedulerModule,
+    AmiCreateDialogModule,
     MaterialModule
   ],
   declarations: [ResourcesGridComponent],
