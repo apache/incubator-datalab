@@ -471,7 +471,7 @@ class GCPMeta:
                 data.append(host)
         return data
 
-    def get_list_cluster_statuses(self, cluster_names):
+    def get_list_cluster_statuses(self, cluster_names, full_check=True):
         data = []
         for cluster in cluster_names:
             host = {}
@@ -481,7 +481,8 @@ class GCPMeta:
                                                                             clusterName=cluster)
                 result = request.execute()
                 host['id'] = cluster
-                host['version'] = result.get('config').get('softwareConfig').get('imageVersion')[:3]
+                if full_check:
+                    host['version'] = result.get('config').get('softwareConfig').get('imageVersion')[:3]
                 host['status'] = result.get('status').get('state').lower()
                 data.append(host)
             except:
