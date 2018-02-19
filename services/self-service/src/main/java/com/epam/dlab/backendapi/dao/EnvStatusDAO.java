@@ -103,9 +103,10 @@ public class EnvStatusDAO extends BaseDAO {
 					((List<Document>) exp.getOrDefault(COMPUTATIONAL_RESOURCES, Collections.emptyList()))
 							.forEach(comp -> {
 								final List<EnvResource> resourceList = DataEngineType.CLOUD_SERVICE ==
-										DataEngineType.fromDockerImageName(comp.getString(IMAGE)) ? clusterList : hostList;
-						addResource(resourceList, comp, STATUS);
-					});
+										DataEngineType.fromDockerImageName(comp.getString(IMAGE)) ? clusterList :
+										hostList;
+								addResource(resourceList, comp, STATUS);
+							});
 				});
 
 		return new EnvResourceList()
@@ -212,9 +213,12 @@ public class EnvStatusDAO extends BaseDAO {
 	 * @param id   the id of instance or cluster.
 	 */
 	private Optional<EnvResource> getEnvResourceAndRemove(List<EnvResource> list, String id) {
-		return IntStream.range(0, list.size())
-				.filter(i -> list.get(i).getId().equals(id))
-				.mapToObj(i -> getAndRemove(list, i)).findAny();
+		if (list != null) {
+			return IntStream.range(0, list.size())
+					.filter(i -> list.get(i).getId().equals(id))
+					.mapToObj(i -> getAndRemove(list, i)).findAny();
+		}
+		return Optional.empty();
 	}
 
 	private EnvResource getAndRemove(List<EnvResource> list, int i) {
