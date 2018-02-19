@@ -16,6 +16,13 @@ limitations under the License.
 
 -->
 
-<p>
-  ami-create-dialog works!
-</p>
+<modal-dialog #bindDialog  modalClass="ami-dialog modal-sm">
+  <modal-header>
+    <h4 class="modal-title" id="myModalLabel">Create AMI</h4>
+  </modal-header>
+  <modal-content>
+    <div class="content-box" *ngIf="notebook">
+      {{ notebook.name }}
+    </div>
+  </modal-content>
+</modal-dialog>

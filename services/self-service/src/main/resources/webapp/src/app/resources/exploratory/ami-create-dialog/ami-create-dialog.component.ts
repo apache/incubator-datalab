@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'dlab-ami-create-dialog',
@@ -25,9 +25,19 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AmiCreateDialogComponent implements OnInit {
 
+  notebook: any;
+
   constructor() { }
 
   ngOnInit() {
+  }
+
+  @ViewChild('bindDialog') bindDialog;
+
+  public open(param, notebook): void {
+    this.notebook = notebook;
+
+    this.bindDialog.open(param);
   }
 
 }
