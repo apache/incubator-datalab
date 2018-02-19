@@ -16,7 +16,7 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 import { UserResourceService } from '../../../core/services';
@@ -32,6 +32,7 @@ export class AmiCreateDialogComponent {
   public createAMIForm: FormGroup;
 
   @ViewChild('bindDialog') bindDialog;
+  @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
 
   constructor(
     private _userResource: UserResourceService,
@@ -53,8 +54,8 @@ export class AmiCreateDialogComponent {
   public assignChanges(data) {
     this._userResource.createAMI(data).subscribe(res => {
       if (res.status === HTTP_STATUS_CODES.ACCEPTED) {
-        debugger;
         this.bindDialog.close();
+        this.buildGrid.emit();
       }
     });
   }
