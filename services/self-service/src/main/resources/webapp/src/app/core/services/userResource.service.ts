@@ -102,4 +102,9 @@ export class UserResourceService {
       .buildUpdateUserPreferences(body)
       .map((response: Response) => response);
   }
+  public createAMI(data): Observable<Response> {
+    return this.applicationServiceFacade
+      .buildCreateAMI(data)
+      .map((response: Response) => response);
+  }
 }

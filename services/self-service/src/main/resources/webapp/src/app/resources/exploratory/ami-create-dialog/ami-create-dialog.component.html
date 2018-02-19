@@ -22,7 +22,25 @@ limitations under the License.
   </modal-header>
   <modal-content>
     <div class="content-box" *ngIf="notebook">
-      {{ notebook.name }}
+      <form [formGroup]="createAMIForm" novalidate>
+        <div class="control-group">
+          <label class="label">Name</label>
+          <div class="control">
+            <input type="text" formControlName="name" placeholder="Enter AMI name">
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="label">Description</label>
+          <div class="control">
+            <textarea formControlName="description" placeholder="Leave description"></textarea>
+          </div>
+        </div>
+      </form>
+      <div class="text-center m-top-30 m-bott-10">
+        <button mat-raised-button type="button" class="butt" (click)="resetForm()">Cancel</button>
+        <button mat-raised-button type="button" [disabled]="!createAMIForm.valid" (click)="assignChanges(createAMIForm.value)"
+          class="butt butt-success">Assign</button>
+      </div>
     </div>
   </modal-content>
 </modal-dialog>
