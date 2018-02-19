@@ -24,6 +24,7 @@ import { MaterialModule } from './../shared/material.module';
 import { ResourcesComponent } from './resources.component';
 import { ResourcesGridModule } from './resources-grid';
 import { ExploratoryEnvironmentCreateDialogModule } from './exploratory/exploratory-environment-create-dialog';
+import { AmiCreateDialogModule } from './exploratory/ami-create-dialog';
 import { ManageUngitComponent } from './manage-ungit/manage-ungit.component';
 import { ConfirmDeleteAccountDialog } from './manage-ungit/manage-ungit.component';
 import {
@@ -44,6 +45,7 @@ import {
     UploadKeyDialogModule,
     ExploratoryEnvironmentCreateDialogModule,
     NavbarModule,
+    AmiCreateDialogModule,
     MaterialModule
   ],
   declarations: [
