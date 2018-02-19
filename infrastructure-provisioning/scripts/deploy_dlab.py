@@ -102,8 +102,8 @@ def build_front_end(args):
         if args.conf_cloud_provider == 'azure' and args.azure_datalake_enable == 'true':
             local('sed -i "s|\'use_ldap\': true|{}|g" src/dictionary/azure.dictionary.ts'.format('\'use_ldap\': false'))
 
-        local('sudo npm install')
-        local('sudo npm run build.prod')
+        local('npm install')
+        local('npm run build.prod')
         local('sudo chown -R {} {}/*'.format(os.environ['USER'], args.workspace_path))
 
 
