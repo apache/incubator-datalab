@@ -158,9 +158,9 @@ if __name__ == "__main__":
     try:
         logging.info('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
         print('[INSTALLING PREREQUISITES TO SSN INSTANCE]')
-        params = "--hostname {} --keyfile {} --pip_packages 'argparse fabric pymongo pyyaml pycrypto azure' --user {} --region {}". \
-            format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'], ssn_conf['dlab_ssh_user'], ssn_conf['region'])
-
+        params = "--hostname {} --keyfile {} --pip_packages 'argparse fabric pymongo pyyaml pycrypto azure==2.0.0' \
+            --user {} --region {}".format(ssn_conf['instance_dns_name'], ssn_conf['ssh_key_path'],
+                                          ssn_conf['dlab_ssh_user'], ssn_conf['region'])
         try:
             local("~/scripts/{}.py {}".format('install_prerequisites', params))
         except:
