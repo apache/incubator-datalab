@@ -204,7 +204,9 @@ public class JenkinsService {
     private RequestSpecification getWhen(ContentType contentType) {
         return given()
                 .header(JenkinsConfigProperties.AUTHORIZATION,
-                        String.format(JenkinsConfigProperties.AUTHORIZATION_KEY, base64CredentialDecode(ConfigPropertyValue.get(ConfigPropertyValue.JENKINS_USERNAME), ConfigPropertyValue.get(ConfigPropertyValue.JENKINS_PASSWORD))))
+						String.format(JenkinsConfigProperties.AUTHORIZATION_KEY, base64CredentialDecode
+								(ConfigPropertyValue.get(ConfigPropertyValue.JENKINS_USERNAME), ConfigPropertyValue
+										.get(ConfigPropertyValue.JENKINS_PASS))))
         		.auth()
                 .form(ConfigPropertyValue.getJenkinsUsername(), ConfigPropertyValue.getJenkinsPassword(), config)
         		.contentType(contentType).when();

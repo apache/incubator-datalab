@@ -18,8 +18,8 @@ limitations under the License.
 
 package com.epam.dlab.automation.helper;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileReader;
@@ -33,16 +33,16 @@ public class ConfigPropertyValue {
     public static final String CONFIG_FILE_NAME;
 
     public static final String JENKINS_USERNAME="JENKINS_USERNAME";
-    public static final String JENKINS_PASSWORD="JENKINS_PASSWORD";
+	public static final String JENKINS_PASS = "JENKINS_PASSWORD";
 	private static final String USERNAME="USERNAME";
-	private static final String PASSWORD="PASSWORD";
+	private static final String PASS = "PASSWORD";
 	private static final String NOT_IAM_USERNAME="NOT_IAM_USERNAME";
-	private static final String NOT_IAM_PASSWORD="NOT_IAM_PASSWORD";
+	private static final String NOT_IAM_PASS = "NOT_IAM_PASSWORD";
 	private static final String NOT_DLAB_USERNAME="NOT_DLAB_USERNAME";
-	private static final String NOT_DLAB_PASSWORD="NOT_DLAB_PASSWORD";
+	private static final String NOT_DLAB_PASS = "NOT_DLAB_PASSWORD";
 	private static final String JENKINS_JOB_URL="JENKINS_JOB_URL";
 	private static final String USER_FOR_ACTIVATE_KEY="USER_FOR_ACTIVATE_KEY";
-	private static final String PASSWORD_FOR_ACTIVATE_KEY="PASSWORD_FOR_ACTIVATE_KEY";
+	private static final String PASS_FOR_ACTIVATE_KEY = "PASSWORD_FOR_ACTIVATE_KEY";
 	private static final String ACCESS_KEY_PRIV_FILE_NAME="ACCESS_KEY_PRIV_FILE_NAME";
 	private static final String ACCESS_KEY_PUB_FILE_NAME="ACCESS_KEY_PUB_FILE_NAME";
 
@@ -61,6 +61,7 @@ public class ConfigPropertyValue {
     private static final String AZURE_STORAGE_SHARED_ACCOUNT="AZURE_STORAGE_SHARED_ACCOUNT";
 
     private static final String GCP_REGION="GCP_REGION";
+	private static final String GCP_REQUEST_TIMEOUT = "GCP_REQUEST_TIMEOUT";
 
     private static final String TIMEOUT_JENKINS_AUTOTEST="TIMEOUT_JENKINS_AUTOTEST";
     private static final String TIMEOUT_UPLOAD_KEY="TIMEOUT_UPLOAD_KEY";
@@ -159,16 +160,16 @@ public class ConfigPropertyValue {
         }
         
         printProperty(JENKINS_USERNAME);
-        printProperty(JENKINS_PASSWORD);
+		printProperty(JENKINS_PASS);
         printProperty(USERNAME);
-        printProperty(PASSWORD);
+		printProperty(PASS);
         printProperty(NOT_IAM_USERNAME);
-        printProperty(NOT_IAM_PASSWORD);
+		printProperty(NOT_IAM_PASS);
         printProperty(NOT_DLAB_USERNAME);
-        printProperty(NOT_DLAB_PASSWORD);
+		printProperty(NOT_DLAB_PASS);
         printProperty(JENKINS_JOB_URL);
         printProperty(USER_FOR_ACTIVATE_KEY);
-        printProperty(PASSWORD_FOR_ACTIVATE_KEY);
+		printProperty(PASS_FOR_ACTIVATE_KEY);
         printProperty(ACCESS_KEY_PRIV_FILE_NAME);
         printProperty(ACCESS_KEY_PUB_FILE_NAME);
         
@@ -206,7 +207,7 @@ public class ConfigPropertyValue {
     }
     
     public static String getJenkinsPassword() {
-    	return get(JENKINS_PASSWORD);
+		return get(JENKINS_PASS);
     }
 
     public static String getUsername() {
@@ -220,7 +221,7 @@ public class ConfigPropertyValue {
 	}
 
     public static String getPassword() {
-    	return get(PASSWORD);
+		return get(PASS);
     }
 
     public static String getNotIAMUsername() {
@@ -228,7 +229,7 @@ public class ConfigPropertyValue {
     }
 
     public static String getNotIAMPassword() {
-    	return get(NOT_IAM_PASSWORD);
+		return get(NOT_IAM_PASS);
     }
 
     public static String getNotDLabUsername() {
@@ -236,7 +237,7 @@ public class ConfigPropertyValue {
     }
 
     public static String getNotDLabPassword() {
-    	return get(NOT_DLAB_PASSWORD);
+		return get(NOT_DLAB_PASS);
     }
 
     public static String getJenkinsJobURL() {
@@ -248,7 +249,7 @@ public class ConfigPropertyValue {
     }
 
     public static String getPasswordForActivateKey() {
-    	return get(PASSWORD_FOR_ACTIVATE_KEY);
+		return get(PASS_FOR_ACTIVATE_KEY);
     }
 
 
@@ -306,6 +307,10 @@ public class ConfigPropertyValue {
     public static String getGcpRegion() {
         return get(GCP_REGION);
     }
+
+	public static Duration getGcpRequestTimeout() {
+		return getDuration(get(GCP_REQUEST_TIMEOUT, "10s"));
+	}
 
     public static Duration getAzureRequestTimeout() {
         return getDuration(get(AZURE_REQUEST_TIMEOUT, "10s"));
