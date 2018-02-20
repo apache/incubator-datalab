@@ -23,44 +23,65 @@ import com.amazonaws.services.ec2.model.Tag;
 import com.epam.dlab.automation.cloud.CloudException;
 import com.epam.dlab.automation.cloud.aws.AmazonHelper;
 import com.epam.dlab.automation.cloud.azure.AzureHelper;
+import com.epam.dlab.automation.cloud.gcp.GcpHelper;
+import com.epam.dlab.automation.model.DeployClusterDto;
+import com.epam.dlab.automation.model.DeployDataProcDto;
+import com.epam.dlab.automation.model.DeployEMRDto;
+
+import java.io.IOException;
+import java.util.List;
 
 public class CloudHelper {
 
     private CloudHelper(){}
 
-    public static String getInstancePublicIP(String name, boolean restrictionMode) throws CloudException {
+    public static String getInstancePublicIP(String name, boolean restrictionMode)
+            throws CloudException, IOException {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
-                return AmazonHelper.getInstance(name)
-                        .getPublicIpAddress();
+                return AmazonHelper.getInstance(name).getPublicIpAddress();
             case CloudProvider.AZURE_PROVIDER:
                 if(AzureHelper.getVirtualMachinesByName(name, restrictionMode) != null){
                     return AzureHelper.getVirtualMachinesByName(name, restrictionMode).get(0)
                             .getPrimaryPublicIPAddress().ipAddress();
-                }
-                else return null;
+                } else return null;
+            case CloudProvider.GCP_PROVIDER:
+                List<com.google.api.services.compute.model.Instance> instanceList =
+                        GcpHelper.getInstancesByName(name, ConfigPropertyValue.getGcpDlabProjectName(),
+                                restrictionMode,
+                                GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectName()));
+                if (instanceList != null && !GcpHelper.getInstancePublicIps(instanceList.get(0)).isEmpty()) {
+                    return GcpHelper.getInstancePublicIps(instanceList.get(0)).get(0);
+                } else return null;
             default:
                 return null;
         }
     }
 
-    public static String getInstancePrivateIP(String name, boolean restrictionMode) throws CloudException {
+    public static String getInstancePrivateIP(String name, boolean restrictionMode)
+            throws CloudException, IOException {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
-                return AmazonHelper.getInstance(name)
-                        .getPrivateIpAddress();
+                return AmazonHelper.getInstance(name).getPrivateIpAddress();
             case CloudProvider.AZURE_PROVIDER:
                 if(AzureHelper.getVirtualMachinesByName(name, restrictionMode) != null){
                     return AzureHelper.getVirtualMachinesByName(name, restrictionMode).get(0)
                             .getPrimaryNetworkInterface().primaryPrivateIP();
-                }
-                else return null;
+                } else return null;
+            case CloudProvider.GCP_PROVIDER:
+                List<com.google.api.services.compute.model.Instance> instanceList =
+                        GcpHelper.getInstancesByName(name, ConfigPropertyValue.getGcpDlabProjectName(), restrictionMode,
+                                GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectName()));
+                if (instanceList != null && !GcpHelper.getInstancePrivateIps(instanceList.get(0)).isEmpty()) {
+                    return GcpHelper.getInstancePrivateIps(instanceList.get(0)).get(0);
+                } else return null;
             default:
                 return null;
         }
     }
 
-    public static String getInstanceNameByCondition(String name, boolean restrictionMode) throws CloudException {
+    public static String getInstanceNameByCondition(String name, boolean restrictionMode) throws CloudException,
+            IOException {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 Instance instance = AmazonHelper.getInstance(name);
@@ -72,8 +93,15 @@ public class CloudHelper {
                 throw new CloudException("Could not detect name for instance " + name);
             case CloudProvider.AZURE_PROVIDER:
                 if(AzureHelper.getVirtualMachinesByName(name, restrictionMode) != null){
-                    return AzureHelper.getVirtualMachinesByName(name, restrictionMode).get(0)
-                            .name();
+                    return AzureHelper.getVirtualMachinesByName(name, restrictionMode).get(0).name();
+                } else return null;
+            case CloudProvider.GCP_PROVIDER:
+                if (GcpHelper.getInstancesByName(name, ConfigPropertyValue.getGcpDlabProjectName(), restrictionMode,
+                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectName())) != null) {
+                    return GcpHelper.getInstancesByName(name, ConfigPropertyValue.getGcpDlabProjectName(),
+                            restrictionMode,
+                            GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectName())).get
+                            (0).getName();
                 }
                 else return null;
             default:
@@ -87,6 +115,8 @@ public class CloudHelper {
                 return PropertiesResolver.getClusterEC2ConfFileLocation();
             case CloudProvider.AZURE_PROVIDER:
                 return PropertiesResolver.getClusterAzureConfFileLocation();
+            case CloudProvider.GCP_PROVIDER:
+                return PropertiesResolver.getClusterGcpConfFileLocation();
             default:
                 return null;
         }
@@ -145,5 +175,26 @@ public class CloudHelper {
         }
     }
 
+    public static String getDockerTemplateFileForDES() {
+        switch (ConfigPropertyValue.getCloudProvider()) {
+            case CloudProvider.AWS_PROVIDER:
+                return "EMR.json";
+            case CloudProvider.GCP_PROVIDER:
+                return "Dataproc.json";
+            default:
+                return null;
+        }
+    }
+
+    public static Class<? extends DeployClusterDto> getDeployClusterClass() {
+        switch (ConfigPropertyValue.getCloudProvider()) {
+            case CloudProvider.AWS_PROVIDER:
+                return DeployEMRDto.class;
+            case CloudProvider.GCP_PROVIDER:
+                return DeployDataProcDto.class;
+            default:
+                return null;
+        }
+    }
 
 }

@@ -20,6 +20,7 @@ package com.epam.dlab.automation.helper;
 
 import com.epam.dlab.automation.cloud.CloudException;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -94,11 +95,12 @@ public class NamingHelper {
     public static String getEdgeName() {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
+			case CloudProvider.GCP_PROVIDER:
                 return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge");
             case CloudProvider.AZURE_PROVIDER:
                 return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge")
                         .replace('_', '-');
-            default:
+			default:
                 return null;
         }
     }
@@ -106,11 +108,12 @@ public class NamingHelper {
     public static String getNotebookInstanceName(String notebookName) {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
+			case CloudProvider.GCP_PROVIDER:
                 return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
             case CloudProvider.AZURE_PROVIDER:
                 return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName)
                         .replace('_', '-');
-            default:
+			default:
                 return null;
         }
     }
@@ -119,11 +122,12 @@ public class NamingHelper {
 		if (DATA_ENGINE.equals(dataEngineType)) {
             switch (ConfigPropertyValue.getCloudProvider()) {
                 case CloudProvider.AWS_PROVIDER:
+				case CloudProvider.GCP_PROVIDER:
                     return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m");
                 case CloudProvider.AZURE_PROVIDER:
                     return String.join("-", getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType), "m")
                             .replace('_', '-');
-                default:
+				default:
                     return null;
             }
     	}
@@ -135,6 +139,7 @@ public class NamingHelper {
     public static String getClusterInstanceNameForTestDES(String notebookName, String clusterName, String dataEngineType) {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
+			case CloudProvider.GCP_PROVIDER:
 				if (DATA_ENGINE.equals(dataEngineType)) {
                     return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
                 }
@@ -150,7 +155,7 @@ public class NamingHelper {
                     return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName)
                             .replace('_', '-');
                 }
-            default:
+			default:
                 return null;
         }
 
@@ -181,21 +186,24 @@ public class NamingHelper {
     public static String getStorageName() {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
+			case CloudProvider.GCP_PROVIDER:
                 return String.format("%s-%s-%s", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
                         CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
             case CloudProvider.AZURE_PROVIDER:
                 return String.format("%s-%s-%s", serviceBaseName, "shared",
                         CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
-            default:
+			default:
                 return null;
         }
     }
-    
-    public static String getClusterName(String clusterInstanceName, boolean restrictionMode) throws CloudException {
+
+	public static String getClusterName(String clusterInstanceName, boolean restrictionMode) throws CloudException,
+			IOException {
         return CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
     }
 
-    public static String getClusterName(String clusterInstanceName, String dataEngineType, boolean restrictionMode) throws CloudException {
+	public static String getClusterName(String clusterInstanceName, String dataEngineType, boolean restrictionMode)
+			throws CloudException, IOException {
 		if (DATA_ENGINE.equals(dataEngineType)) {
             return clusterInstanceName;
         } else {

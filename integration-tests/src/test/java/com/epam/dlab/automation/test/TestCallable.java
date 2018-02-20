@@ -165,8 +165,9 @@ private DeployClusterDto createClusterDto() throws Exception {
 					DeploySparkDto.class);
 	} else if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
-					Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate), "EMR.json").toString(),
-					DeployEMRDto.class);
+				Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate),
+						CloudHelper.getDockerTemplateFileForDES()).toString(),
+				CloudHelper.getDeployClusterClass());
     } else {
 		LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
 		fail("illegal argument dataEngineType " + dataEngineType + ", should be dataengine or dataengine-service");

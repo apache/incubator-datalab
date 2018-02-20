@@ -8,10 +8,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.compute.Compute;
-import com.google.api.services.compute.model.AccessConfig;
-import com.google.api.services.compute.model.Instance;
-import com.google.api.services.compute.model.InstanceList;
-import com.google.api.services.compute.model.NetworkInterface;
+import com.google.api.services.compute.model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -66,7 +63,7 @@ public class GcpHelper {
 	}
 
 
-	public static List<Instance> getInstances(String project, String... zones) throws IOException {
+	public static List<Instance> getInstances(String project, List<String> zones) throws IOException {
 		List<Instance> instanceList = new ArrayList<>();
 		for (String zone : zones) {
 			Compute.Instances.List request = computeService.instances().list(project, zone);
@@ -84,12 +81,13 @@ public class GcpHelper {
 		return !instanceList.isEmpty() ? instanceList : null;
 	}
 
-	private static List<String> getInstancePrivateIps(Instance instance) {
-		return instance.getNetworkInterfaces().stream().map(NetworkInterface::getNetworkIP).collect(Collectors.toList
-				());
+	public static List<String> getInstancePrivateIps(Instance instance) {
+		return instance.getNetworkInterfaces().stream()
+				.map(NetworkInterface::getNetworkIP)
+				.collect(Collectors.toList());
 	}
 
-	private static List<String> getInstancePublicIps(Instance instance) {
+	public static List<String> getInstancePublicIps(Instance instance) {
 		return instance.getNetworkInterfaces().stream()
 				.map(e -> e.getAccessConfigs().stream().map(AccessConfig::getNatIP))
 				.flatMap(Function.identity()).collect(Collectors.toList());
@@ -97,7 +95,7 @@ public class GcpHelper {
 
 
 	public static List<Instance> getInstancesByName(String name, String project, boolean restrictionMode,
-													String... zones) throws IOException {
+													List<String> zones) throws IOException {
 		if (ConfigPropertyValue.isRunModeLocal()) {
 			List<Instance> mockedInstanceList = new ArrayList<>();
 			Instance mockedInstance = mock(Instance.class);
@@ -131,8 +129,8 @@ public class GcpHelper {
 		return instance.getStatus();
 	}
 
-	public static void checkGcpStatus(String instanceName, String project, String expGcpStatus, boolean
-			restrictionMode, String... zones)
+	public static void checkGcpStatus(String instanceName, String project, GcpInstanceState expGcpStatus, boolean
+			restrictionMode, List<String> zones)
 			throws CloudException, InterruptedException, IOException {
 		LOGGER.info("Check status of instance with name {} on GCP", instanceName);
 		if (ConfigPropertyValue.isRunModeLocal()) {
@@ -152,7 +150,7 @@ public class GcpHelper {
 		Instance instance = instancesWithName.get(0);
 		while (true) {
 			instanceStatus = getStatus(instance);
-			if (instanceStatus.equalsIgnoreCase(expGcpStatus)) {
+			if (instanceStatus.equalsIgnoreCase(expGcpStatus.toString())) {
 				break;
 			}
 			if (timeout != 0 && expiredTime < System.currentTimeMillis()) {
@@ -170,11 +168,30 @@ public class GcpHelper {
 							getInstancePrivateIps(inst).get(0) : NOT_EXIST),
 					(!getInstancePublicIps(inst).isEmpty() ? getInstancePublicIps(inst).get(0) : NOT_EXIST));
 		}
-		Assert.assertEquals(instanceStatus, expGcpStatus, "GCP instance with name " + instanceName +
+		Assert.assertEquals(instanceStatus, expGcpStatus.toString(), "GCP instance with name " + instanceName +
 				" status is not correct. Instance id " + instance.getId() + ", private IP " +
 				(!getInstancePrivateIps(instance).isEmpty() ? getInstancePrivateIps(instance).get(0) : NOT_EXIST) +
 				", public IP " +
 				(!getInstancePublicIps(instance).isEmpty() ? getInstancePublicIps(instance).get(0) : NOT_EXIST));
 	}
 
+	public static List<String> getAvailableZonesForProject(String project) throws IOException {
+		List<Zone> zoneList = new ArrayList<>();
+		Compute.Zones.List request = computeService.zones().list(project);
+		ZoneList response;
+		do {
+			response = request.execute();
+			if (response.getItems() == null) {
+				continue;
+			}
+			zoneList.addAll(response.getItems());
+			request.setPageToken(response.getNextPageToken());
+		} while (response.getNextPageToken() != null);
+		return zoneList.stream().map(Zone::toString).collect(Collectors.toList());
+	}
+
 }
+
+
+
+
