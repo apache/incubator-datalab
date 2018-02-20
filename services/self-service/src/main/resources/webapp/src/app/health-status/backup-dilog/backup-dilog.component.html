@@ -41,6 +41,14 @@ limitations under the License.
       <div class="hold-block">
         <mat-slide-toggle
           labelPosition="before"
+          [checked]="backupOptions.databaseBackup"
+          (change)="onHoldChanged($event, 'databaseBackup')">
+          <span class="hold-label">Database</span>
+        </mat-slide-toggle>
+      </div>
+      <div class="hold-block">
+        <mat-slide-toggle
+          labelPosition="before"
           [checked]="backupOptions.certificates[0] === 'all'"
           (change)="onHoldChanged($event, 'certificates')">
           <span class="hold-label">SSL Certificates</span>
@@ -52,14 +60,6 @@ limitations under the License.
           [checked]="backupOptions.jars[0] === 'all'"
           (change)="onHoldChanged($event, 'jars')">
           <span class="hold-label">JAR files</span>
-        </mat-slide-toggle>
-      </div>
-      <div class="hold-block">
-        <mat-slide-toggle
-          labelPosition="before"
-          [checked]="backupOptions.databaseBackup"
-          (change)="onHoldChanged($event, 'databaseBackup')">
-          <span class="hold-label">Database</span>
         </mat-slide-toggle>
       </div>
       <div class="hold-block">
