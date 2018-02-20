@@ -179,11 +179,9 @@ public class EnvStatusDAO extends BaseDAO {
 		final List<EnvResource> listToCheck = DataEngineType.CLOUD_SERVICE ==
 				DataEngineType.fromDockerImageName(comp.getString(IMAGE)) ?
 				list.getClusterList() : list.getHostList();
-		getEnvResourceAndRemove(listToCheck, comp.getString(INSTANCE_ID)).ifPresent(resource -> {
-			final String computationalName = comp.getString(COMPUTATIONAL_NAME);
-			updateComputationalStatus(user, exploratoryName, computationalName,
-					comp.getString(STATUS), resource.getStatus());
-		});
+		getEnvResourceAndRemove(listToCheck, comp.getString(INSTANCE_ID))
+				.ifPresent(resource -> updateComputationalStatus(user, exploratoryName,
+						comp.getString(COMPUTATIONAL_NAME), comp.getString(STATUS), resource.getStatus()));
 	}
 
 	private boolean instanceIdPresent(Document d) {
