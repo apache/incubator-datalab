@@ -352,7 +352,7 @@ public class AzureAuthenticationService<C extends Configuration> extends Abstrac
 
 					return Response.status(Response.Status.FORBIDDEN)
 							.header("Location", URI.create(azureLoginConfiguration.getRedirectUrl()
-									+ "api" + SecurityAPI.INIT_LOGIN_OAUTH)).build();
+									+ "api" + SecurityAPI.INIT_LOGIN_OAUTH_AZURE)).build();
 				}
 			} catch (IOException ioException) {
 				log.warn("Cannot handle authentication exception", ioException);

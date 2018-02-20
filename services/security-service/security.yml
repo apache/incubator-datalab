@@ -172,8 +172,18 @@ azureLoginConfiguration:
     # Authentication file that used for validation user permissions(query Microsoft API)
     managementApiAuthFile: <MANAGEMENT_API_AUTH_FILE>
 
-</#if>
+<#elseif CLOUD_TYPE == "gcp">
 
+# GCP oauth2 login configuration
+gcpLoginConfiguration:
+    oauth2authenticationEnabled: false
+    clientId: <GCP_CLIENT_ID>
+    clientSecret: <GCP_CLIENT_SECRET>
+    redirectedUri: https://<GCP_REDIRECTED_URL>
+    userStateCacheExpirationTime: 1
+    userStateCacheSize: 1000
+    applicationName: DLAB-webapp
+</#if>
 
 
 logging:

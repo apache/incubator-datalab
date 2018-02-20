@@ -21,6 +21,7 @@ package com.epam.dlab.auth;
 import com.epam.dlab.auth.modules.ModuleFactory;
 import com.epam.dlab.auth.modules.SecurityServiceModule;
 import com.epam.dlab.cloud.CloudModule;
+import com.epam.dlab.rest.mappers.AuthenticationExceptionMapper;
 import com.epam.dlab.utils.ServiceUtils;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -57,6 +58,7 @@ public class SecurityServiceApplication extends Application<SecurityServiceConfi
 	public void run(SecurityServiceConfiguration conf, Environment env) {
 		CloudModule cloudModule = ModuleFactory.getCloudProviderModule(conf);
 		Injector injector = Guice.createInjector(new SecurityServiceModule(conf, env), cloudModule);
+		env.jersey().register(new AuthenticationExceptionMapper());
 		cloudModule.init(env, injector);
 	}
 }
