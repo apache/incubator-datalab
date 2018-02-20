@@ -27,30 +27,31 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class BackupResource {
 
-    @Inject
-    private ProvisioningServiceApplicationConfiguration configuration;
-    @Inject
-    protected FolderListenerExecutor folderListenerExecutor;
-    @Inject
-    protected ICommandExecutor commandExecutor;
-    @Inject
-    protected RESTService selfService;
+	@Inject
+	private ProvisioningServiceApplicationConfiguration configuration;
+	@Inject
+	protected FolderListenerExecutor folderListenerExecutor;
+	@Inject
+	protected ICommandExecutor commandExecutor;
+	@Inject
+	protected RESTService selfService;
 
 
-    @POST
-    public Response createBackup(@Auth UserInfo ui, EnvBackupDTO dto) {
-        folderListenerExecutor.start(configuration.getBackupDirectory(), configuration.getProcessTimeout(),
-                new BackupCallbackHandler(selfService, ApiCallbacks.BACKUP_URI, ui.getName(), dto));
-        String command = new PythonBackupCommand(configuration.getBackupScriptPath())
-                .withConfig(dto.getConfigFiles())
-                .withJars(dto.getJars())
-                .withKeys(dto.getKeys())
-                .withDBBackup(dto.isDatabaseBackup())
-                .withLogsBackup(dto.isLogsBackup())
-                .withResponsePath(configuration.getBackupDirectory())
-                .withRequestId(dto.getId())
-                .withSystemUser().toCMD();
-        commandExecutor.executeAsync(ui.getName(), dto.getId(), command);
-        return Response.accepted(dto.getId()).build();
-    }
+	@POST
+	public Response createBackup(@Auth UserInfo ui, EnvBackupDTO dto) {
+		folderListenerExecutor.start(configuration.getBackupDirectory(), configuration.getProcessTimeout(),
+				new BackupCallbackHandler(selfService, ApiCallbacks.BACKUP_URI, ui.getName(), dto));
+		String command = new PythonBackupCommand(configuration.getBackupScriptPath())
+				.withConfig(dto.getConfigFiles())
+				.withJars(dto.getJars())
+				.withKeys(dto.getKeys())
+				.withDBBackup(dto.isDatabaseBackup())
+				.withLogsBackup(dto.isLogsBackup())
+				.withResponsePath(configuration.getBackupDirectory())
+				.withRequestId(dto.getId())
+				.withSystemUser()
+				.withCertificates(dto.getCertificates()).toCMD();
+		commandExecutor.executeAsync(ui.getName(), dto.getId(), command);
+		return Response.accepted(dto.getId()).build();
+	}
 }

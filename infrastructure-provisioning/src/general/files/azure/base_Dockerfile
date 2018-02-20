@@ -20,14 +20,14 @@ FROM ubuntu:16.04
 ARG OS
 
 # Install any .deb dependecies
-RUN	apt-get update && \
+RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get -y install python-pip python-dev groff vim less git wget nano libssl-dev libffi-dev libffi6 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install any python dependencies
 RUN pip install -U pip && \
-    pip install fabric fabvenv argparse ujson jupyter pycrypto azure azure-mgmt-authorization pyyaml
+    pip install fabric fabvenv argparse ujson jupyter pycrypto azure==2.0.0 azure-mgmt-authorization pyyaml
 
 # Configuring ssh for user
 RUN mkdir -p /root/.ssh; echo "Host *" > /root/.ssh/config; \
