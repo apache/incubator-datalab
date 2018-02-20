@@ -45,9 +45,9 @@ public class VirtualMachineStatusChecker {
                 AzureHelper.checkAzureStatus(tagNameValue, PowerState.RUNNING, restrictionMode);
                 break;
             case CloudProvider.GCP_PROVIDER:
-                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDlabProjectName(),
+                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDlabProjectId(),
                         GcpInstanceState.RUNNING, restrictionMode,
-                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectName()));
+                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
                 break;
             default:
                 Assert.fail("Unknown cloud provider");
@@ -66,9 +66,9 @@ public class VirtualMachineStatusChecker {
                 AzureHelper.checkAzureStatus(tagNameValue, PowerState.STOPPED, restrictionMode);
                 break;
             case CloudProvider.GCP_PROVIDER:
-                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDlabProjectName(),
+                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDlabProjectId(),
                         GcpInstanceState.TERMINATED, restrictionMode,
-                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectName()));
+                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
                 break;
             default:
                 Assert.fail("Unknown cloud provider");

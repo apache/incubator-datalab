@@ -29,8 +29,8 @@ import java.util.Properties;
 
 public class ConfigPropertyValue {
 
-    private final static Logger LOGGER = LogManager.getLogger(ConfigPropertyValue.class);
-    public static final String CONFIG_FILE_NAME;
+	private static final Logger LOGGER = LogManager.getLogger(ConfigPropertyValue.class);
+	private static final String CONFIG_FILE_NAME;
 
     public static final String JENKINS_USERNAME="JENKINS_USERNAME";
 	public static final String JENKINS_PASS = "JENKINS_PASSWORD";
@@ -47,7 +47,6 @@ public class ConfigPropertyValue {
 	private static final String ACCESS_KEY_PUB_FILE_NAME="ACCESS_KEY_PUB_FILE_NAME";
 
 	private static final  String CLOUD_PROVIDER="CLOUD_PROVIDER";
-	private static final String AZURE_AUTHENTICATION_FILE="AZURE_AUTHENTICATION_FILE";
     
     private static final String AWS_ACCESS_KEY_ID="AWS_ACCESS_KEY_ID";
     private static final String AWS_SECRET_ACCESS_KEY="AWS_SECRET_ACCESS_KEY";
@@ -59,10 +58,12 @@ public class ConfigPropertyValue {
     private static final String AZURE_DATALAKE_ENABLED="AZURE_DATALAKE_ENABLED";
     private static final String AZURE_DATALAKE_SHARED_ACCOUNT="AZURE_DATALAKE_SHARED_ACCOUNT";
     private static final String AZURE_STORAGE_SHARED_ACCOUNT="AZURE_STORAGE_SHARED_ACCOUNT";
+	private static final String AZURE_AUTHENTICATION_FILE = "AZURE_AUTHENTICATION_FILE";
 
-	private static final String GCP_DLAB_PROJECT_NAME = "GCP_DLAB_PROJECT_NAME";
+	private static final String GCP_DLAB_PROJECT_ID = "GCP_DLAB_PROJECT_ID";
     private static final String GCP_REGION="GCP_REGION";
 	private static final String GCP_REQUEST_TIMEOUT = "GCP_REQUEST_TIMEOUT";
+	private static final String GCP_AUTHENTICATION_FILE = "GCP_AUTHENTICATION_FILE";
 
     private static final String TIMEOUT_JENKINS_AUTOTEST="TIMEOUT_JENKINS_AUTOTEST";
     private static final String TIMEOUT_UPLOAD_KEY="TIMEOUT_UPLOAD_KEY";
@@ -72,9 +73,9 @@ public class ConfigPropertyValue {
     private static final String CLUSTER_OS_FAMILY = "CLUSTER_OS_FAMILY";
     private static final String CONF_TAG_RESOURCE_ID = "CONF_TAG_RESOURCE_ID";
 
-    public static final String JUPYTER_SCENARIO_FILES ="JUPYTER_SCENARIO_FILES";
-    public static final String NOTEBOOKS_TO_TEST="NOTEBOOKS_TO_TEST";
-    public static final String EXECUTION_TREADS="execution.threads";
+	private static final String JUPYTER_SCENARIO_FILES = "JUPYTER_SCENARIO_FILES";
+	private static final String NOTEBOOKS_TO_TEST = "NOTEBOOKS_TO_TEST";
+	private static final String EXECUTION_TREADS = "execution.threads";
 
     private static final String USE_JENKINS = "USE_JENKINS";
     private static final String SSN_URL = "SSN_URL";
@@ -112,12 +113,12 @@ public class ConfigPropertyValue {
 		return props.getProperty(propertyName, defaultValue);
 	}
 
-    public static int getInt(String value) {
+	private static int getInt(String value) {
         return Integer.parseInt(value);
     }
 	
 	public static int get(String propertyName, int defaultValue) {
-		if (props == null) {
+		if (props.values().isEmpty()) {
 			loadProperties();
 		}
 		String s = props.getProperty(propertyName, String.valueOf(defaultValue)); 
@@ -145,7 +146,7 @@ public class ConfigPropertyValue {
             PropertiesResolver.overlapProperty(props, CLUSTER_OS_FAMILY, true);
             PropertiesResolver.overlapProperty(props, AWS_REGION, true);
             PropertiesResolver.overlapProperty(props, AZURE_REGION, true);
-			PropertiesResolver.overlapProperty(props, GCP_DLAB_PROJECT_NAME, true);
+			PropertiesResolver.overlapProperty(props, GCP_DLAB_PROJECT_ID, true);
             PropertiesResolver.overlapProperty(props, GCP_REGION, true);
             PropertiesResolver.overlapProperty(props, NOTEBOOKS_TO_TEST, false);
             PropertiesResolver.overlapProperty(props, USE_JENKINS, true);
@@ -274,6 +275,11 @@ public class ConfigPropertyValue {
         return file.getAbsolutePath();
     }
 
+	public static String getGcpAuthFileName() {
+		File file = new File(get(GCP_AUTHENTICATION_FILE));
+		return file.getAbsolutePath();
+	}
+
     public static String getAwsAccessKeyId() {
         return get(AWS_ACCESS_KEY_ID);
     }
@@ -306,8 +312,8 @@ public class ConfigPropertyValue {
         return get(AZURE_STORAGE_SHARED_ACCOUNT);
     }
 
-	public static String getGcpDlabProjectName() {
-		return get(GCP_DLAB_PROJECT_NAME);
+	public static String getGcpDlabProjectId() {
+		return get(GCP_DLAB_PROJECT_ID);
 	}
 
     public static String getGcpRegion() {

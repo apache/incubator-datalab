@@ -13,11 +13,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -51,10 +51,11 @@ public class GcpHelper {
 		HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
-		GoogleCredential credential = GoogleCredential.getApplicationDefault();
+		GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream(ConfigPropertyValue
+				.getGcpAuthFileName()));
 		if (credential.createScopedRequired()) {
 			credential =
-					credential.createScoped(Arrays.asList("https://www.googleapis.com/auth/cloud-platform"));
+					credential.createScoped(Collections.singletonList("https://www.googleapis.com/auth/cloud-platform"));
 		}
 
 		return new Compute.Builder(httpTransport, jsonFactory, credential)
@@ -63,10 +64,10 @@ public class GcpHelper {
 	}
 
 
-	public static List<Instance> getInstances(String project, List<String> zones) throws IOException {
+	private static List<Instance> getInstances(String projectId, List<String> zones) throws IOException {
 		List<Instance> instanceList = new ArrayList<>();
 		for (String zone : zones) {
-			Compute.Instances.List request = computeService.instances().list(project, zone);
+			Compute.Instances.List request = computeService.instances().list(projectId, zone);
 			InstanceList response;
 			do {
 				response = request.execute();
@@ -94,19 +95,25 @@ public class GcpHelper {
 	}
 
 
-	public static List<Instance> getInstancesByName(String name, String project, boolean restrictionMode,
+	public static List<Instance> getInstancesByName(String name, String projectId, boolean restrictionMode,
 													List<String> zones) throws IOException {
 		if (ConfigPropertyValue.isRunModeLocal()) {
 			List<Instance> mockedInstanceList = new ArrayList<>();
 			Instance mockedInstance = mock(Instance.class);
-			when(getInstancePublicIps(mockedInstance)).thenReturn(Collections.singletonList(LOCALHOST_IP));
-			when(getInstancePrivateIps(mockedInstance)).thenReturn(Collections.singletonList(LOCALHOST_IP));
+			NetworkInterface mockedNetworkInterface = mock(NetworkInterface.class);
+			when(mockedInstance.getNetworkInterfaces()).thenReturn(Collections.singletonList(mockedNetworkInterface));
+			when(mockedInstance.getNetworkInterfaces().get(0).getNetworkIP()).thenReturn(LOCALHOST_IP);
+			AccessConfig mockedAccessConfig = mock(AccessConfig.class);
+			when(mockedInstance.getNetworkInterfaces().get(0).getAccessConfigs())
+					.thenReturn(Collections.singletonList(mockedAccessConfig));
+			when(mockedInstance.getNetworkInterfaces().get(0).getAccessConfigs().get(0).getNatIP()).thenReturn
+					(LOCALHOST_IP);
 			mockedInstanceList.add(mockedInstance);
 			return mockedInstanceList;
 		}
-		List<Instance> instanceList = getInstances(project, zones);
+		List<Instance> instanceList = getInstances(projectId, zones);
 		if (instanceList == null) {
-			LOGGER.warn("There is not any virtual machine in GCP");
+			LOGGER.warn("There is not any virtual machine in GCP for project with id {}", projectId);
 			return instanceList;
 		}
 		if (restrictionMode) {
@@ -129,7 +136,7 @@ public class GcpHelper {
 		return instance.getStatus();
 	}
 
-	public static void checkGcpStatus(String instanceName, String project, GcpInstanceState expGcpStatus, boolean
+	public static void checkGcpStatus(String instanceName, String projectId, GcpInstanceState expGcpStatus, boolean
 			restrictionMode, List<String> zones)
 			throws CloudException, InterruptedException, IOException {
 		LOGGER.info("Check status of instance with name {} on GCP", instanceName);
@@ -137,7 +144,7 @@ public class GcpHelper {
 			LOGGER.info("GCP instance with name {} fake status is {}", instanceName, expGcpStatus);
 			return;
 		}
-		List<Instance> instancesWithName = getInstancesByName(instanceName, project, restrictionMode, zones);
+		List<Instance> instancesWithName = getInstancesByName(instanceName, projectId, restrictionMode, zones);
 		if (instancesWithName == null) {
 			LOGGER.warn("There is not any instance in GCP with name {}", instanceName);
 			return;
@@ -175,9 +182,9 @@ public class GcpHelper {
 				(!getInstancePublicIps(instance).isEmpty() ? getInstancePublicIps(instance).get(0) : NOT_EXIST));
 	}
 
-	public static List<String> getAvailableZonesForProject(String project) throws IOException {
+	public static List<String> getAvailableZonesForProject(String projectId) throws IOException {
 		List<Zone> zoneList = new ArrayList<>();
-		Compute.Zones.List request = computeService.zones().list(project);
+		Compute.Zones.List request = computeService.zones().list(projectId);
 		ZoneList response;
 		do {
 			response = request.execute();
