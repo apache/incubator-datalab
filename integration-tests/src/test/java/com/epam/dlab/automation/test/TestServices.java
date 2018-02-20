@@ -60,6 +60,7 @@ public class TestServices {
 	// looks like running test in 1 thread mostly succeeds, running in 2 and more
 	// threads - usually fails.
 	private static final int N_THREADS = 10;
+	private static final long NOTEBOOK_CREATION_DELAY = 60000;
 
 	private long testTimeMillis;
 	private List<NotebookConfig> notebookConfigs;
@@ -127,7 +128,7 @@ public class TestServices {
 	}
 
 	private void testLoginSsnService() throws Exception {
-		// ssnURL = "http://ec2-35-162-89-115.us-west-2.compute.amazonaws.com";
+
 		String cloudProvider = ConfigPropertyValue.getCloudProvider();
 
 		LOGGER.info("Check status of SSN node on {}: {}", cloudProvider.toUpperCase(), NamingHelper.getSsnName());
@@ -245,7 +246,8 @@ public class TestServices {
 		List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
 		
 		for (NotebookConfig notebookConfig : notebookConfigs) {
-			Thread.sleep(60000);
+			LOGGER.debug("Waiting " + NOTEBOOK_CREATION_DELAY / 1000 + " sec to start notebook creation...");
+			Thread.sleep(NOTEBOOK_CREATION_DELAY);
 			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig));
 			futureTasks.add(runScenarioTask);
 			executor.execute(runScenarioTask);
