@@ -102,7 +102,7 @@ if __name__ == "__main__":
                                       "User": data_engine['user_name'],
                                       "Type": "master",
                                       "notebook_name": data_engine['notebook_name']}
-        data_engine['primary_disk_size'] = '30'
+        data_engine['primary_disk_size'] = '32'
         data_engine['image_type'] = 'default'
         data_engine['expected_image_name'] = '{}-{}-notebook-image'.format(data_engine['service_base_name'],
                                                                            os.environ['application'])
@@ -114,14 +114,12 @@ if __name__ == "__main__":
                 print('Pre-configured image found. Using: {}'.format(data_engine['expected_image_name']))
                 data_engine['image_name'] = data_engine['expected_image_name']
                 data_engine['image_type'] = 'pre-configured'
-                data_engine['primary_disk_size'] = '12'
             else:
                 data_engine['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
         elif AzureMeta().get_image(data_engine['resource_group_name'], data_engine['notebook_image_name']):
             print('Pre-configured image found. Using: {}'.format(data_engine['notebook_image_name']))
             data_engine['image_name'] = data_engine['notebook_image_name']
             data_engine['image_type'] = 'pre-configured'
-            data_engine['primary_disk_size'] = '12'
         else:
             data_engine['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
             print('No pre-configured image found. Using default one: {}'.format(data_engine['image_name']))
@@ -205,4 +203,3 @@ if __name__ == "__main__":
         AzureActions().remove_instance(data_engine['resource_group_name'], data_engine['master_node_name'])
         append_result("Failed to create slave instances.", str(err))
         sys.exit(1)
-
