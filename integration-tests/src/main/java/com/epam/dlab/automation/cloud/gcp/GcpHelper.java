@@ -194,7 +194,7 @@ public class GcpHelper {
 			zoneList.addAll(response.getItems());
 			request.setPageToken(response.getNextPageToken());
 		} while (response.getNextPageToken() != null);
-		return zoneList.stream().map(Zone::toString).collect(Collectors.toList());
+		return zoneList.stream().map(Zone::getDescription).collect(Collectors.toList());
 	}
 
 }
