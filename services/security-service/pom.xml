@@ -13,9 +13,9 @@
             <id>aws</id>
             <dependencies>
                 <dependency>
-                    <groupId>com.amazonaws</groupId>
-                    <artifactId>aws-java-sdk-iam</artifactId>
-                    <version>${aws-java-sdk-iam.version}</version>
+                    <groupId>com.epam.dlab</groupId>
+                    <artifactId>security-aws</artifactId>
+                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
         </profile>
@@ -28,6 +28,9 @@
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
+        </profile>
+        <profile>
+            <id>gcp</id>
         </profile>
     </profiles>
 
@@ -44,6 +47,12 @@
             <groupId>com.epam.dlab</groupId>
             <artifactId>common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>security-aws</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.epam.dlab</groupId>
@@ -65,12 +74,6 @@
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>${org.mongodb.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-iam</artifactId>
-            <version>${aws-java-sdk-iam.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
