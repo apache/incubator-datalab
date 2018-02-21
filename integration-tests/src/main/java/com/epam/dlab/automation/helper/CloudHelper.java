@@ -180,7 +180,7 @@ public class CloudHelper {
             case CloudProvider.AWS_PROVIDER:
                 return "EMR.json";
             case CloudProvider.GCP_PROVIDER:
-                return "Dataproc.json";
+                return "dataproc.json";
             default:
                 return null;
         }
