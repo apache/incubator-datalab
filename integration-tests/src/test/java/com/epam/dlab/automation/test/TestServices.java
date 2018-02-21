@@ -19,7 +19,6 @@ limitations under the License.
 package com.epam.dlab.automation.test;
 
 import com.epam.dlab.automation.cloud.VirtualMachineStatusChecker;
-import com.epam.dlab.automation.cloud.gcp.GcpHelper;
 import com.epam.dlab.automation.docker.Docker;
 import com.epam.dlab.automation.helper.*;
 import com.epam.dlab.automation.http.ApiPath;
@@ -133,9 +132,6 @@ public class TestServices {
 		String cloudProvider = ConfigPropertyValue.getCloudProvider();
 
 		LOGGER.info("Check status of SSN node on {}: {}", cloudProvider.toUpperCase(), NamingHelper.getSsnName());
-
-		LOGGER.info("List of available zones for project with id {}: {}", ConfigPropertyValue.getGcpDlabProjectId(),
-				GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
 
 		String publicSsnIp = CloudHelper.getInstancePublicIP(NamingHelper.getSsnName(), true);
 		LOGGER.info("Public IP is: {}", publicSsnIp);

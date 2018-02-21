@@ -106,8 +106,8 @@ public class GcpHelper {
 			AccessConfig mockedAccessConfig = mock(AccessConfig.class);
 			when(mockedInstance.getNetworkInterfaces().get(0).getAccessConfigs())
 					.thenReturn(Collections.singletonList(mockedAccessConfig));
-			when(mockedInstance.getNetworkInterfaces().get(0).getAccessConfigs().get(0).getNatIP()).thenReturn
-					(LOCALHOST_IP);
+			when(mockedInstance.getNetworkInterfaces().get(0).getAccessConfigs().get(0).getNatIP())
+					.thenReturn(LOCALHOST_IP);
 			mockedInstanceList.add(mockedInstance);
 			return mockedInstanceList;
 		}
@@ -133,7 +133,7 @@ public class GcpHelper {
 	}
 
 	private static String getStatus(Instance instance) {
-		return instance.getStatus();
+		return instance.getStatus().toLowerCase();
 	}
 
 	public static void checkGcpStatus(String instanceName, String projectId, GcpInstanceState expGcpStatus, boolean
