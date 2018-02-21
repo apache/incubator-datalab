@@ -80,7 +80,7 @@ if __name__ == "__main__":
         ssh_key_path = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
-        notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '12')(os.environ['application'])
+        notebook_config['primary_disk_size'] = (lambda x: '32' if x == 'deeplearning' else '12')(os.environ['application'])
         notebook_config['instance_storage_account_type'] = (lambda x: 'Standard_LRS' if x in ('deeplearning', 'tensor')
                                                             else 'Premium_LRS')(os.environ['application'])
         if os.environ['conf_os_family'] == 'debian':
@@ -95,14 +95,7 @@ if __name__ == "__main__":
         notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
             else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
-        if notebook_config['notebook_image_name'] == 'default':
-            if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_image_name']):
-                print('Pre-configured image found. Using: {}'.format(notebook_config['expected_image_name']))
-                notebook_config['image_name'] = notebook_config['expected_image_name']
-                notebook_config['image_type'] = 'pre-configured'
-            else:
-                notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
-        elif AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['notebook_image_name']):
+        if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['notebook_image_name']):
             print('Pre-configured image found. Using: {}'.format(notebook_config['notebook_image_name']))
             notebook_config['image_name'] = notebook_config['notebook_image_name']
             notebook_config['image_type'] = 'pre-configured'
@@ -131,7 +124,7 @@ if __name__ == "__main__":
                    notebook_config['vpc_name'], notebook_config['network_interface_name'],
                    notebook_config['security_group_name'], notebook_config['private_subnet_name'],
                    notebook_config['service_base_name'], notebook_config['resource_group_name'], initial_user,
-                   'None', notebook_config['public_ssh_key'], '32', 'notebook',
+                   'None', notebook_config['public_ssh_key'], notebook_config['primary_disk_size'], 'notebook',
                    notebook_config['user_name'], notebook_config['instance_storage_account_type'],
                    notebook_config['image_name'], notebook_config['image_type'], json.dumps(notebook_config['tags']))
         try:

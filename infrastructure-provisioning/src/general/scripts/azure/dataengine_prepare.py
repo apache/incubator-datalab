@@ -109,14 +109,7 @@ if __name__ == "__main__":
         data_engine['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
                     else data_engine['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
-        if data_engine['notebook_image_name'] == 'default':
-            if AzureMeta().get_image(data_engine['resource_group_name'], data_engine['expected_image_name']):
-                print('Pre-configured image found. Using: {}'.format(data_engine['expected_image_name']))
-                data_engine['image_name'] = data_engine['expected_image_name']
-                data_engine['image_type'] = 'pre-configured'
-            else:
-                data_engine['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
-        elif AzureMeta().get_image(data_engine['resource_group_name'], data_engine['notebook_image_name']):
+        if AzureMeta().get_image(data_engine['resource_group_name'], data_engine['notebook_image_name']):
             print('Pre-configured image found. Using: {}'.format(data_engine['notebook_image_name']))
             data_engine['image_name'] = data_engine['notebook_image_name']
             data_engine['image_type'] = 'pre-configured'
