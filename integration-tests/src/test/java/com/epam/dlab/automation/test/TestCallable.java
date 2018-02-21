@@ -78,7 +78,7 @@ public class TestCallable implements Callable<Boolean> {
 			clusterName = "spark" + suffixName;
 		} else if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
-			clusterName = "eimr" + suffixName;
+			clusterName = "des" + suffixName;
         } else {
 			ssnCompResURL = "";
 			clusterName = NamingHelper.CLUSTER_ABSENT;
@@ -130,8 +130,8 @@ public class TestCallable implements Callable<Boolean> {
 			    terminateNotebook(notebookName);
             }
 
-			// Create notebook from AMI
-			String notebookNewName = "AMI" + notebookName;
+			// Create notebook from machine image
+			String notebookNewName = "im" + notebookName;
 			createNotebook(notebookNewName);
 
 			terminateNotebook(notebookNewName);
