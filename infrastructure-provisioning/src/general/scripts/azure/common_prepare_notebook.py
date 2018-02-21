@@ -90,17 +90,19 @@ if __name__ == "__main__":
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
         notebook_config['image_type'] = 'default'
+
         notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
                                                                                os.environ['application'])
         notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
             else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
         print('Searching pre-configured images')
+        notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
         if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['notebook_image_name']):
-            print('Pre-configured image found. Using: {}'.format(notebook_config['notebook_image_name']))
             notebook_config['image_name'] = notebook_config['notebook_image_name']
             notebook_config['image_type'] = 'pre-configured'
+            print('Pre-configured image found. Using: {}'.format(notebook_config['notebook_image_name']))
         else:
-            notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
+            os.environ['notebook_image_name'] = notebook_config['image_name']
             print('No pre-configured image found. Using default one: {}'.format(notebook_config['image_name']))
     except Exception as err:
         print("Failed to generate variables dictionary.")

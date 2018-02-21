@@ -69,18 +69,20 @@ if __name__ == "__main__":
     notebook_config['security_group_name'] = '{}-{}-nb-SG'.format(notebook_config['service_base_name'],
                                                                   os.environ['edge_user_name'])
     notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
+
     notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
                                                                            os.environ['application'])
     notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
         else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
     print('Searching pre-configured images')
     notebook_config['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
-    if notebook_config['notebook_image_name'] != 'default':
-        ami_id = get_ami_id_by_name(notebook_config['notebook_image_name'], 'available')
-        if ami_id != '':
-            notebook_config['ami_id'] = ami_id
-        else:
-            print('No pre-configured image found. Using default one: {}'.format(notebook_config['ami_id']))
+    image_id = get_ami_id_by_name(notebook_config['notebook_image_name'], 'available')
+    if image_id != '':
+        notebook_config['ami_id'] = image_id
+        print('Pre-configured image found. Using: {}'.format(notebook_config['ami_id']))
+    else:
+        os.environ['notebook_image_name'] = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
+        print('No pre-configured image found. Using default one: {}'.format(notebook_config['ami_id']))
     
     tag = {"Key": notebook_config['tag_name'],
            "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
