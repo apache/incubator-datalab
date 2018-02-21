@@ -83,7 +83,7 @@ public class VirtualMachineStatusChecker {
             case CloudProvider.AZURE_PROVIDER:
                 return PowerState.STARTING.toString();
             case CloudProvider.GCP_PROVIDER:
-                return GcpInstanceState.RUNNING.toString();
+				return GcpInstanceState.STARTING.toString();
             default:
                 return "";
         }
