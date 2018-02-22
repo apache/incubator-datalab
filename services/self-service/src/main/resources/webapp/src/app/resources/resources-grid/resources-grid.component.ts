@@ -56,6 +56,7 @@ export class ResourcesGridComponent implements OnInit {
   @ViewChild('costDetailsDialog') costDetailsDialog;
   @ViewChild('installLibs') installLibraries;
   @ViewChild('envScheduler') scheduler;
+  @ViewChild('createAmi') createAMI;
 
 
   public filteringColumns: Array<any> = [
@@ -285,6 +286,8 @@ export class ResourcesGridComponent implements OnInit {
       this.installLibraries.open({ isFooter: false }, data);
     } else if (action === 'schedule') {
       this.scheduler.open({ isFooter: false }, data);
+    } else if (action === 'ami') {
+      this.createAMI.open({ isFooter: false }, data);
     }
   }
 

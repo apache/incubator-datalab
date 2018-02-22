@@ -1,6 +1,6 @@
 /***************************************************************************
 
-Copyright (c) 2016, EPAM SYSTEMS INC
+Copyright (c) 2018, EPAM SYSTEMS INC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,30 +16,24 @@ limitations under the License.
 
 ****************************************************************************/
 
-export class EnvironmentStatusModel {
-  constructor(
-    public type: string,
-    public resource_id: string,
-    public status: string
-  ) { }
-}
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MaterialModule } from '../../../shared/material.module';
 
-export class BackupOptionsModel {
-  constructor(
-    public configFiles: Array<string>,
-    public keys:  Array<string>,
-    public certificates:  Array<string>,
-    public jars:  Array<string>,
-    public databaseBackup: boolean,
-    public logsBackup: boolean
-  ) { }
+import { ModalModule } from '../../../shared';
+import { AmiCreateDialogComponent } from './ami-create-dialog.component';
+export * from './ami-create-dialog.component';
 
-  setDegault(): void {
-    this.configFiles = ['all'];
-    this.keys =['all'];
-    this.certificates = ['skip'];
-    this.jars = ['skip'];
-    this.databaseBackup = true;
-    this.logsBackup = false;
-  }
-}
+@NgModule({
+  imports: [
+    CommonModule,
+    ModalModule,
+    MaterialModule,
+    FormsModule,
+    ReactiveFormsModule
+  ],
+  declarations: [AmiCreateDialogComponent],
+  exports: [AmiCreateDialogComponent]
+})
+export class AmiCreateDialogModule {}

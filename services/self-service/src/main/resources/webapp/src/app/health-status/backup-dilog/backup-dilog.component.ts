@@ -29,6 +29,7 @@ import { BackupOptionsModel } from '../environment-status.model';
 export class BackupDilogComponent implements OnInit {
   readonly DICTIONARY = DICTIONARY;
   public backupOptions: BackupOptionsModel = new BackupOptionsModel([], [], [], [], false, false);
+  public valid: boolean = true;
 
   @ViewChild('bindDialog') bindDialog;
   @Output() backupOpts: EventEmitter<{}> = new EventEmitter();
@@ -46,11 +47,27 @@ export class BackupDilogComponent implements OnInit {
     this.backupOptions[key] instanceof Array
       ? (this.backupOptions[key][0] = $event.checked ? 'all' : 'skip')
       : (this.backupOptions[key] = !this.backupOptions[key]);
+
+    this.checkValidity();
   }
 
   public applyOptions() {
     this.backupOpts.emit(this.backupOptions);
     this.backupOptions.setDegault();
     this.bindDialog.close();
+  }
+
+  private checkValidity() {
+    let items = [];
+
+    Object.keys(this.backupOptions).forEach(el => {
+      if (this.backupOptions[el] instanceof Array) {
+        if (this.backupOptions[el][0] && this.backupOptions[el][0] !== 'skip') items.push(this.backupOptions[el][0]);
+      } else {
+        if (this.backupOptions[el]) items.push(this.backupOptions[el]) ;
+      }
+    });
+
+    this.valid = items.length > 0;
   }
 }

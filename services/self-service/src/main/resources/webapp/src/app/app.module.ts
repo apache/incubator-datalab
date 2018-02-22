@@ -42,6 +42,7 @@ import { CoreModule } from './core/core.module';
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpModule,
     LoginModule,
     ResourcesModule,

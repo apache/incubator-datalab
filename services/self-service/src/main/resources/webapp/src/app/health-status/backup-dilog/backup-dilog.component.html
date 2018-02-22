@@ -41,6 +41,14 @@ limitations under the License.
       <div class="hold-block">
         <mat-slide-toggle
           labelPosition="before"
+          [checked]="backupOptions.databaseBackup"
+          (change)="onHoldChanged($event, 'databaseBackup')">
+          <span class="hold-label">Database</span>
+        </mat-slide-toggle>
+      </div>
+      <div class="hold-block">
+        <mat-slide-toggle
+          labelPosition="before"
           [checked]="backupOptions.certificates[0] === 'all'"
           (change)="onHoldChanged($event, 'certificates')">
           <span class="hold-label">SSL Certificates</span>
@@ -57,14 +65,6 @@ limitations under the License.
       <div class="hold-block">
         <mat-slide-toggle
           labelPosition="before"
-          [checked]="backupOptions.databaseBackup"
-          (change)="onHoldChanged($event, 'databaseBackup')">
-          <span class="hold-label">Database</span>
-        </mat-slide-toggle>
-      </div>
-      <div class="hold-block">
-        <mat-slide-toggle
-          labelPosition="before"
           [checked]="backupOptions.logsBackup"
           (change)="onHoldChanged($event, 'logsBackup')">
           <span class="hold-label">Log files</span>
@@ -74,7 +74,7 @@ limitations under the License.
         <button mat-raised-button type="button" class="butt" (click)="bindDialog.close(); backupOptions.setDegault()">
           Cancel
         </button>
-        <button mat-raised-button type="button" (click)="applyOptions()" class="butt butt-success">Apply</button>
+        <button mat-raised-button type="button" (click)="applyOptions()" class="butt butt-success" [disabled]="!valid">Apply</button>
       </div>
     </div>
   </modal-content>
