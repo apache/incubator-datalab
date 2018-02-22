@@ -68,7 +68,6 @@ if __name__ == "__main__":
         data_engine['region'] = os.environ['azure_region']
         data_engine['key_name'] = os.environ['conf_key_name']
         data_engine['vpc_name'] = os.environ['azure_vpc_name']
-        data_engine['subnet_name'] = os.environ['azure_subnet_name']
         data_engine['private_subnet_name'] = '{}-{}-subnet'.format(data_engine['service_base_name'],
                                                                    data_engine['user_name'])
         data_engine['private_subnet_cidr'] = AzureMeta().get_subnet(data_engine['resource_group_name'],
