@@ -120,6 +120,11 @@ limitations under the License.
               <span>Scheduler</span>
             </li> -->
           </div>
+          <li (click)="exploratoryAction(env, 'ami')"
+              *ngIf="env.status === 'running' && DICTIONARY.cloud_provider !== 'gcp'">
+            <i class="material-icons">view_module</i>
+            <span>Create AMI</span>
+          </li>
           <li (click)="exploratoryAction(env, 'install')">
             <i class="material-icons">developer_board</i>
             <span>Manage libraries</span>
@@ -136,3 +141,4 @@ limitations under the License.
 <cost-details-dialog #costDetailsDialog></cost-details-dialog>
 <install-libraries #installLibs (buildGrid)="buildGrid($event)"></install-libraries>
 <dlab-scheduler #envScheduler></dlab-scheduler>
+<dlab-ami-create-dialog #createAmi (buildGrid)="buildGrid($event)"></dlab-ami-create-dialog>

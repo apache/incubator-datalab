@@ -32,6 +32,7 @@ export class ExploratoryEnvironmentCreateModel {
   selectedItem: ExploratoryEnvironmentVersionModel = new ExploratoryEnvironmentVersionModel('', {}, new ResourceShapeTypesModel({}));
   exploratoryEnvironmentTemplates: Array<ExploratoryEnvironmentVersionModel> = [];
 
+  public notebookImage: any;
   private environment_image: string;
   private environment_name: string;
   private environment_template_name: string;
@@ -122,13 +123,17 @@ export class ExploratoryEnvironmentCreateModel {
   }
 
   private createExploratoryEnvironment(): Observable<Response> {
-    return this.userResourceService.createExploratoryEnvironment({
+    let params: any = {
       image: this.environment_image,
       template_name: this.environment_template_name,
       name: this.environment_name,
       shape: this.environment_shape,
       version: this.environment_version
-    });
+    };
+    if (this.notebookImage)
+      params.notebook_image_name = this.notebookImage;
+
+    return this.userResourceService.createExploratoryEnvironment(params);
   }
 
   private prepareModel(

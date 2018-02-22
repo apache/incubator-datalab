@@ -24,7 +24,7 @@ limitations under the License.
     <div class="content-box">
       <form novalidate
             [formGroup]="createExploratoryEnvironmentForm"
-            (submit)="createExploratoryEnvironment_btnClick($event, createExploratoryEnvironmentForm.value, createExploratoryEnvironmentForm.valid)">
+            (submit)="createExploratoryEnvironment_btnClick($event, createExploratoryEnvironmentForm.value)">
         <div class="control-group">
           <label class="label">Select template</label>
           <div class="control">
@@ -37,6 +37,14 @@ limitations under the License.
             <small *ngIf="templateDescription">{{ templateDescription }}</small>
           </div>
         </div>
+
+        <div class="control-group" *ngIf="userImages && userImages.length > 0">
+          <label class="label">Select AMI</label>
+          <div class="control">
+            <dropdown-list #imagesList (selectedItem)="selectImage($event)"></dropdown-list>
+          </div>
+        </div>
+
         <div class="control-group">
           <label class="label">Name</label>
           <div class="control">

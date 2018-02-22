@@ -60,8 +60,8 @@ if __name__ == "__main__":
         tag_name = service_base_name + '-Tag'
         instance_name = service_base_name + '-ssn'
         region = os.environ['aws_region']
-        ssn_ami_name = os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name']
-        ssn_ami_id = get_ami_id(ssn_ami_name)
+        ssn_image_name = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
+        ssn_ami_id = get_ami_id(ssn_image_name)
         policy_path = '/root/files/ssn_policy.json'
         vpc_cidr = os.environ['conf_vpc_cidr']
         allowed_ip_cidr = os.environ['conf_allowed_ip_cidr']

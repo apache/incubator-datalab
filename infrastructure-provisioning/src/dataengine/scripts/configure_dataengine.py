@@ -103,10 +103,12 @@ if __name__ == "__main__":
     # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
-    print("Install Scala")
-    ensure_scala(scala_link, args.scala_version, args.os_user)
-    print("Installing R")
-    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
+    if os.environ['application'] in ('jupyter', 'zeppelin'):
+        print("Install Scala")
+        ensure_scala(scala_link, args.scala_version, args.os_user)
+    if os.environ['application'] in ('jupyter', 'zeppelin', 'rstudio'):
+        print("Installing R")
+        ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
     print("Install Python 2 modules")
     ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")

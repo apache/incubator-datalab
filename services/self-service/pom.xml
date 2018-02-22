@@ -17,6 +17,11 @@
                     <artifactId>billing-aws</artifactId>
                     <version>${project.parent.version}</version>
                 </dependency>
+                <dependency>
+                    <groupId>com.epam.dlab</groupId>
+                    <artifactId>security-aws</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
             </dependencies>
         </profile>
         <profile>
@@ -43,6 +48,11 @@
                     <artifactId>billing-gcp</artifactId>
                     <version>${project.parent.version}</version>
                 </dependency>
+                <dependency>
+                    <groupId>com.epam.dlab</groupId>
+                    <artifactId>security-gcp</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
             </dependencies>
         </profile>
     </profiles>
@@ -63,6 +73,18 @@
         <dependency>
             <groupId>com.epam.dlab</groupId>
             <artifactId>security-azure</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>security-aws</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>security-gcp</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

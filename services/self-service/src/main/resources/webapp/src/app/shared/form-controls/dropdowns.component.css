@@ -177,6 +177,9 @@ limitations under the License.
   font-weight: 300;
   cursor: pointer;
 }
+.dropdown-list .list-menu a.empty {
+  height: 36px;
+}
 
 .dropdown-multiselect .list-menu .filter-actions i {
     vertical-align: sub;

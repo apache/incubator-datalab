@@ -102,4 +102,17 @@ export class UserResourceService {
       .buildUpdateUserPreferences(body)
       .map((response: Response) => response);
   }
+
+  public getUserImages(): Observable<Response> {
+    return this.applicationServiceFacade
+      .buildGetUserImages()
+      .map((response: Response) => response.json());
+  }
+
+  public createAMI(data): Observable<Response> {
+    const body = JSON.stringify(data);
+    return this.applicationServiceFacade
+      .buildCreateAMI(data)
+      .map((response: Response) => response);
+  }
 }

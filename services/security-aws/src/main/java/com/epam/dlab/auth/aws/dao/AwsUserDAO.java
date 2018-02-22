@@ -16,14 +16,19 @@ limitations under the License.
 
 ****************************************************************************/
 
-package com.epam.dlab.auth.dao;
+package com.epam.dlab.auth.aws.dao;
 
-import java.util.Set;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.identitymanagement.model.AccessKeyMetadata;
+import com.amazonaws.services.identitymanagement.model.User;
 
-public interface UserInfoFields {
-	String getUserName();
-	String getAccessToken();
-	Set<String> getRoles();
-	String getFirstName();
-	String getLastName();
+import java.util.List;
+
+public interface AwsUserDAO {
+
+	User getAwsUser(String username);
+
+	void updateCredentials(AWSCredentials credentials);
+
+	List<AccessKeyMetadata> getAwsAccessKeys(String username);
 }

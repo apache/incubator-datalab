@@ -80,41 +80,30 @@ if __name__ == "__main__":
         ssh_key_path = '{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         key = RSA.importKey(open(ssh_key_path, 'rb').read())
         notebook_config['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
-        if os.environ['application'] == 'deeplearning':
-            notebook_config['primary_disk_size'] = '30'
-        else:
-            notebook_config['primary_disk_size'] = '12'
-        if os.environ['application'] == 'deeplearning' or os.environ['application'] == 'tensor':
-            notebook_config['instance_storage_account_type'] = 'Standard_LRS'
-        else:
-            notebook_config['instance_storage_account_type'] = 'Premium_LRS'
+        notebook_config['primary_disk_size'] = '32'
+        notebook_config['instance_storage_account_type'] = (lambda x: 'Standard_LRS' if x in ('deeplearning', 'tensor')
+                                                            else 'Premium_LRS')(os.environ['application'])
         if os.environ['conf_os_family'] == 'debian':
             initial_user = 'ubuntu'
             sudo_group = 'sudo'
         if os.environ['conf_os_family'] == 'redhat':
             initial_user = 'ec2-user'
             sudo_group = 'wheel'
-        notebook_config['ami_type'] = 'default'
+        notebook_config['image_type'] = 'default'
+
         notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
                                                                                os.environ['application'])
-        notebook_config['notebook_image_name'] = (lambda x: x if x != 'None'
-                                                else notebook_config['expected_image_name']) \
-                                                (str(os.environ.get('notebook_image_name')))
-        print('Searching preconfigured images')
-        if notebook_config['notebook_image_name'] == 'default':
-            if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['expected_image_name']):
-                print('Preconfigured image found. Using: {}'.format(notebook_config['expected_image_name']))
-                notebook_config['ami_name'] = notebook_config['expected_image_name']
-                notebook_config['ami_type'] = 'pre-configured'
-            else:
-                notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-        elif AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['notebook_image_name']):
-            print('Preconfigured image found. Using: {}'.format(notebook_config['notebook_image_name']))
-            notebook_config['ami_name'] = notebook_config['notebook_image_name']
-            notebook_config['ami_type'] = 'pre-configured'
+        notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
+            else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
+        print('Searching pre-configured images')
+        notebook_config['image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
+        if AzureMeta().get_image(notebook_config['resource_group_name'], notebook_config['notebook_image_name']):
+            notebook_config['image_name'] = notebook_config['notebook_image_name']
+            notebook_config['image_type'] = 'pre-configured'
+            print('Pre-configured image found. Using: {}'.format(notebook_config['notebook_image_name']))
         else:
-            notebook_config['ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-            print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_name']))
+            os.environ['notebook_image_name'] = notebook_config['image_name']
+            print('No pre-configured image found. Using default one: {}'.format(notebook_config['image_name']))
     except Exception as err:
         print("Failed to generate variables dictionary.")
         append_result("Failed to generate variables dictionary.", str(err))
@@ -128,14 +117,18 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
         print('[CREATE NOTEBOOK INSTANCE]')
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --user_name {} --instance_storage_account_type {} --ami_name {} --tags '{}' --ami_type {}". \
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
+            --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
+            --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
+            --instance_type {} --user_name {} --instance_storage_account_type {} --image_name {} \
+            --image_type {} --tags '{}'". \
             format(notebook_config['instance_name'], notebook_config['instance_size'], notebook_config['region'],
                    notebook_config['vpc_name'], notebook_config['network_interface_name'],
                    notebook_config['security_group_name'], notebook_config['private_subnet_name'],
                    notebook_config['service_base_name'], notebook_config['resource_group_name'], initial_user,
-                   'None', notebook_config['public_ssh_key'], '32', 'notebook',
+                   'None', notebook_config['public_ssh_key'], notebook_config['primary_disk_size'], 'notebook',
                    notebook_config['user_name'], notebook_config['instance_storage_account_type'],
-                   notebook_config['ami_name'], json.dumps(notebook_config['tags']), notebook_config['ami_type'])
+                   notebook_config['image_name'], notebook_config['image_type'], json.dumps(notebook_config['tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

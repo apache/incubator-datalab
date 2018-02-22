@@ -170,7 +170,6 @@ if __name__ == "__main__":
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
         data_engine['instance_count'] = int(os.environ['dataengine_instance_count'])
         data_engine['notebook_name'] = os.environ['notebook_instance_name']
-        data_engine['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
         data_engine['gpu_accelerator_type'] = 'None'
         if os.environ['application'] in ('tensor', 'deeplearning'):
             data_engine['gpu_accelerator_type'] = os.environ['gcp_gpu_accelerator_type']

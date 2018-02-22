@@ -80,22 +80,9 @@ if __name__ == "__main__":
     notebook_config['instance_name'] = '{0}-{1}-nb-{2}'.format(notebook_config['service_base_name'],
                                                                notebook_config['edge_user_name'],
                                                                notebook_config['exploratory_name'])
-    if os.environ['application'] == 'deeplearning':
-        notebook_config['primary_disk_size'] = '30'
-    else:
-        notebook_config['primary_disk_size'] = '12'
-    if os.environ['application'] == 'zeppelin':
-        if os.environ['notebook_multiple_clusters'] == 'true':
-            notebook_config['expected_ami_name'] = '{0}-{1}-{2}-livy-notebook-image'.format(
-                notebook_config['service_base_name'], notebook_config['edge_user_name'], os.environ['application'])
-        else:
-            notebook_config['expected_ami_name'] = '{0}-{1}-{2}-spark-notebook-image'.format(
-                notebook_config['service_base_name'], notebook_config['edge_user_name'], os.environ['application'])
-    else:
-        notebook_config['expected_ami_name'] = '{0}-{1}-{2}-notebook-image'.format(
-            notebook_config['service_base_name'], notebook_config['edge_user_name'], os.environ['application'])
+    notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '12')(os.environ['application'])
     notebook_config['secondary_disk_size'] = os.environ['notebook_disk_size']
-    notebook_config['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
+    notebook_config['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
     notebook_config['gpu_accelerator_type'] = 'None'
 
     if os.environ['application'] in ('tensor', 'deeplearning'):
@@ -110,11 +97,11 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE NOTEBOOK INSTANCE]')
         print('[CREATE NOTEBOOK INSTANCE]')
-        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --ami_name {} --instance_class {} --primary_disk_size {} --secondary_disk_size {} --gpu_accelerator_type {} --network_tag {} --labels '{}'".\
+        params = "--instance_name {} --region {} --zone {} --vpc_name {} --subnet_name {} --instance_size {} --ssh_key_path {} --initial_user {} --service_account_name {} --image_name {} --instance_class {} --primary_disk_size {} --secondary_disk_size {} --gpu_accelerator_type {} --network_tag {} --labels '{}'".\
             format(notebook_config['instance_name'], notebook_config['region'], notebook_config['zone'],
                    notebook_config['vpc_name'], notebook_config['subnet_name'], notebook_config['instance_size'],
                    notebook_config['ssh_key_path'], initial_user, notebook_config['notebook_service_account_name'],
-                   notebook_config['ami_name'], 'notebook', notebook_config['primary_disk_size'],
+                   notebook_config['image_name'], 'notebook', notebook_config['primary_disk_size'],
                    notebook_config['secondary_disk_size'], notebook_config['gpu_accelerator_type'],
                    notebook_config['network_tag'], json.dumps(notebook_config['labels']))
         try:

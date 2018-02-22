@@ -335,6 +335,13 @@ def install_os_pkg(requisites):
         return "Fail to install OS packages"
 
 
+def remove_os_pkg(pkgs):
+    try:
+        sudo('apt remove --purge -y {}'.format(' '.join(pkgs)))
+    except:
+        sys.exit(1)
+
+
 def get_available_os_pkgs():
     try:
         os_pkgs = dict()
