@@ -58,7 +58,7 @@ if __name__ == "__main__":
         ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name']).replace('_', '-')
-        ssn_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
+        ssn_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
         ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-ssn-role'
 
         try:
@@ -285,7 +285,7 @@ if __name__ == "__main__":
         print("Subnet Name: {}".format(ssn_conf['subnet_name']))
         print("Firewall Names: {}".format(ssn_conf['firewall_name']))
         print("SSN instance size: {}".format(ssn_conf['instance_size']))
-        print("SSN AMI name: {}".format(ssn_conf['ami_name']))
+        print("SSN AMI name: {}".format(ssn_conf['image_name']))
         print("SSN bucket name: {}".format(ssn_conf['ssn_bucket_name']))
         print("Region: {}".format(ssn_conf['region']))
         jenkins_url = "http://{}/jenkins".format(instance_hostname)

@@ -56,6 +56,24 @@ def configure_slave(slave_number, data_engine):
         sys.exit(1)
 
     try:
+        logging.info('[CLEANING INSTANCE FOR SLAVE NODE]')
+        print('[CLEANING INSTANCE FOR SLAVE NODE]')
+        params = '--hostname {} --keyfile {} --os_user {} --application {}' \
+            .format(slave_hostname, keyfile_name, data_engine['dlab_ssh_user'], os.environ['application'])
+        try:
+            local("~/scripts/{}.py {}".format('common_clean_instance', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            remove_ec2(data_engine['tag_name'], slave_name)
+        append_result("Failed to clean slave instance.", str(err))
+        sys.exit(1)
+
+    try:
         logging.info('[CONFIGURE PROXY ON SLAVE NODE]')
         print('[CONFIGURE PROXY ON ON SLAVE NODE]')
         additional_config = {"proxy_host": edge_instance_hostname, "proxy_port": "3128"}
@@ -143,7 +161,6 @@ if __name__ == "__main__":
                                       data_engine['computational_name']
         data_engine['master_node_name'] = data_engine['cluster_name'] + '-m'
         data_engine['slave_node_name'] = data_engine['cluster_name'] + '-s'
-        data_engine['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
         data_engine['master_size'] = os.environ['aws_dataengine_master_shape']
         data_engine['slave_size'] = os.environ['aws_dataengine_slave_shape']
         data_engine['dataengine_master_security_group_name'] = data_engine['service_base_name'] + '-' + \
@@ -203,6 +220,24 @@ if __name__ == "__main__":
             slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
             remove_ec2(data_engine['tag_name'], slave_name)
         append_result("Failed to create ssh user on master.", str(err))
+        sys.exit(1)
+
+    try:
+        logging.info('[CLEANING INSTANCE FOR MASTER NODE]')
+        print('[CLEANING INSTANCE FOR MASTER NODE]')
+        params = '--hostname {} --keyfile {} --os_user {} --application {}' \
+            .format(master_node_hostname, keyfile_name, data_engine['dlab_ssh_user'], os.environ['application'])
+        try:
+            local("~/scripts/{}.py {}".format('common_clean_instance', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        remove_ec2(data_engine['tag_name'], data_engine['master_node_name'])
+        for i in range(data_engine['instance_count'] - 1):
+            slave_name = data_engine['slave_node_name'] + '{}'.format(i + 1)
+            remove_ec2(data_engine['tag_name'], slave_name)
+        append_result("Failed to clean master instance.", str(err))
         sys.exit(1)
 
     try:

@@ -462,15 +462,15 @@ class AzureActions:
 
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
-                        ami_full_name, tags, user_name='', create_option='fromImage', disk_id='',
-                        instance_storage_account_type='Premium_LRS', ami_type='default'):
-        if ami_type == 'default':
-            ami_name = ami_full_name.split('_')
-            publisher = ami_name[0]
-            offer = ami_name[1]
-            sku = ami_name[2]
-        elif ami_type == 'pre-configured':
-            ami_id = meta_lib.AzureMeta().get_image(resource_group_name, ami_full_name).id
+                        image_full_name, tags, user_name='', create_option='fromImage', disk_id='',
+                        instance_storage_account_type='Premium_LRS', image_type='default'):
+        if image_type == 'pre-configured':
+            image_id = meta_lib.AzureMeta().get_image(resource_group_name, image_full_name).id
+        else:
+            image_name = image_full_name.split('_')
+            publisher = image_name[0]
+            offer = image_name[1]
+            sku = image_name[2]
         try:
             if instance_type == 'ssn':
                 parameters = {
@@ -594,7 +594,7 @@ class AzureActions:
                         }
                     }
             elif instance_type == 'notebook':
-                if ami_type == 'default':
+                if image_type == 'default':
                     storage_profile = {
                         'image_reference': {
                             'publisher': publisher,
@@ -627,10 +627,10 @@ class AzureActions:
                             }
                         ]
                     }
-                elif ami_type == 'pre-configured':
+                elif image_type == 'pre-configured':
                     storage_profile = {
                         'image_reference': {
-                            'id': ami_id
+                            'id': image_id
                         },
                         'os_disk': {
                             'os_type': 'Linux',
@@ -672,13 +672,24 @@ class AzureActions:
                     }
                 }
             elif instance_type == 'dataengine':
-                parameters = {
-                    'location': region,
-                    'tags': tags,
-                    'hardware_profile': {
-                        'vm_size': instance_size
-                    },
-                    'storage_profile': {
+                if image_type == 'pre-configured':
+                    storage_profile = {
+                        'image_reference': {
+                            'id': image_id
+                        },
+                        'os_disk': {
+                            'os_type': 'Linux',
+                            'name': '{}-disk0'.format(instance_name),
+                            'create_option': 'fromImage',
+                            'disk_size_gb': int(primary_disk_size),
+                            'tags': tags,
+                            'managed_disk': {
+                                'storage_account_type': instance_storage_account_type
+                            }
+                        }
+                    }
+                elif image_type == 'default':
+                    storage_profile = {
                         'image_reference': {
                             'publisher': publisher,
                             'offer': offer,
@@ -695,7 +706,14 @@ class AzureActions:
                                 'storage_account_type': instance_storage_account_type
                             }
                         }
+                    }
+                parameters = {
+                    'location': region,
+                    'tags': tags,
+                    'hardware_profile': {
+                        'vm_size': instance_size
                     },
+                    'storage_profile': storage_profile,
                     'os_profile': {
                         'computer_name': instance_name,
                         'admin_username': dlab_ssh_user_name,
