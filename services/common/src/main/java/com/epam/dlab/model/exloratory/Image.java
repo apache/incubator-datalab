@@ -19,6 +19,7 @@ public class Image {
 	private final String fullName;
 	private final String externalName;
 	private final String application;
+	private final String dockerImage;
 	private final List<Library> libraries;
 	private final Map<String, List<Library>> computationalLibraries;
 }
