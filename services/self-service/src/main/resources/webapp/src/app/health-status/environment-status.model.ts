@@ -37,9 +37,9 @@ export class BackupOptionsModel {
   setDegault(): void {
     this.configFiles = ['all'];
     this.keys =['all'];
-    this.certificates = ['all'];
+    this.certificates = ['skip'];
     this.jars = ['skip'];
-    this.databaseBackup = false;
+    this.databaseBackup = true;
     this.logsBackup = false;
   }
 }

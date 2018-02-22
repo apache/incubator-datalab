@@ -32,6 +32,7 @@ export class ApplicationServiceFacade {
   private static readonly ACCESS_KEY = 'access_key';
   private static readonly PROVISIONED_RESOURCES = 'provisioned_resources';
   private static readonly EXPLORATORY_ENVIRONMENT = 'exploratory_environment';
+  private static readonly IMAGE = 'image';
   private static readonly EXPLORATORY_ENVIRONMENT_TEMPLATES = 'exploratory_templates';
   private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
@@ -288,6 +289,20 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildGetUserImages(): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
+      null,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildCreateAMI(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -306,6 +321,8 @@ export class ApplicationServiceFacade {
       '/api/infrastructure_provision/exploratory_environment');
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES,
       '/api/infrastructure_templates/exploratory_templates');
+    this.requestRegistry.Add(ApplicationServiceFacade.IMAGE,
+      '/api/infrastructure_provision/exploratory_environment/image');
 
 
     // Computational Resources

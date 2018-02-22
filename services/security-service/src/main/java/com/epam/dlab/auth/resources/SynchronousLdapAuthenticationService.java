@@ -19,14 +19,13 @@ package com.epam.dlab.auth.resources;
 import com.epam.dlab.auth.SecurityServiceConfiguration;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.auth.UserInfoDAO;
+import com.epam.dlab.auth.UserVerificationService;
 import com.epam.dlab.auth.dao.LdapUserDAO;
-import com.epam.dlab.auth.dao.UserInfoDAODumbImpl;
-import com.epam.dlab.auth.dao.UserInfoDAOMongoImpl;
 import com.epam.dlab.auth.rest.AbstractAuthenticationService;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserCredentialDTO;
 import com.epam.dlab.exceptions.DlabException;
-import io.dropwizard.setup.Environment;
+import com.google.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -45,140 +44,136 @@ import javax.ws.rs.core.Response;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class SynchronousLdapAuthenticationService extends AbstractAuthenticationService<SecurityServiceConfiguration> {
-    private final LdapUserDAO ldapUserDAO;
-    private final UserInfoDAO userInfoDao;
+	private final LdapUserDAO ldapUserDAO;
+	private final UserInfoDAO userInfoDao;
+	private final UserVerificationService userVerificationService;
 
-    public SynchronousLdapAuthenticationService(SecurityServiceConfiguration config, Environment env) {
-        super(config);
-        if (config.isUserInfoPersistenceEnabled()) {
-            this.userInfoDao = new UserInfoDAOMongoImpl(config.getMongoFactory().build(env), config.getInactiveUserTimeoutMillSec());
-        } else {
-            this.userInfoDao = new UserInfoDAODumbImpl();
-        }
+	@Inject
+	public SynchronousLdapAuthenticationService(SecurityServiceConfiguration config, UserInfoDAO userInfoDao,
+												LdapUserDAO ldapUserDAO,
+												UserVerificationService userVerificationService) {
+		super(config);
+		this.ldapUserDAO = ldapUserDAO;
+		this.userInfoDao = userInfoDao;
+		this.userVerificationService = userVerificationService;
+	}
 
-        this.ldapUserDAO = new LdapUserDAO(config, false);
-    }
+	@Override
+	@POST
+	@Path("/login")
+	public Response login(UserCredentialDTO credential, @Context HttpServletRequest request) {
 
-    @Override
-    @POST
-    @Path("/login")
-    public Response login(UserCredentialDTO credential, @Context HttpServletRequest request) {
+		String username = credential.getUsername();
+		String password = credential.getPassword();
+		String accessToken = credential.getAccessToken();
+		String remoteIp = request.getRemoteAddr();
+		String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
 
-        String username = credential.getUsername();
-        String password = credential.getPassword();
-        String accessToken = credential.getAccessToken();
-        String remoteIp = request.getRemoteAddr();
-        String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
+		log.debug("validating username:{} password:****** token:{} ip:{}", username, accessToken, remoteIp);
 
-        log.debug("validating username:{} password:****** token:{} ip:{}", username, accessToken, remoteIp);
+		if (accessToken != null && !accessToken.isEmpty()) {
+			UserInfo ui = getUserInfo(accessToken, userAgent, remoteIp);
+			if (ui != null) {
+				return Response.ok(accessToken).build();
+			} else {
+				log.debug("User info not found on login by access_token for user", username);
+				return Response.status(Response.Status.UNAUTHORIZED).build();
+			}
+		}
 
-        if (accessToken != null && !accessToken.isEmpty()) {
-            UserInfo ui = getUserInfo(accessToken, userAgent, remoteIp);
-            if (ui != null) {
-                return Response.ok(accessToken).build();
-            } else {
-                log.debug("User info not found on login by access_token for user", username);
-                return Response.status(Response.Status.UNAUTHORIZED).build();
-            }
-        }
+		try {
 
-        try {
+			login(username, password);
+			UserInfo enriched = enrichUser(username);
+			userVerificationService.verify(username, enriched);
 
-            login(username, password);
-            UserInfo enriched = enrichUser(username);
-            verifyUser(username, enriched);
+			enriched.setRemoteIp(remoteIp);
+			log.info("User authenticated is {}", enriched);
+			String token = getRandomToken();
 
-            enriched.setRemoteIp(remoteIp);
-            log.info("User authenticated is {}", enriched);
-            String token = getRandomToken();
+			userInfoDao.saveUserInfo(enriched.withToken(token));
+			return Response.ok(token).build();
 
-            userInfoDao.saveUserInfo(enriched.withToken(token));
-            return Response.ok(token).build();
+		} catch (Exception e) {
+			log.error("User {} is not authenticated", username, e);
+			return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
+		}
+	}
 
-        } catch (Exception e) {
-            log.error("User {} is not authenticated", username, e);
-            return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
-        }
-    }
+	@Override
+	@POST
+	@Path("/getuserinfo")
+	public UserInfo getUserInfo(String accessToken, @Context HttpServletRequest request) {
+		String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
+		String remoteIp = request.getRemoteAddr();
 
-    @Override
-    @POST
-    @Path("/getuserinfo")
-    public UserInfo getUserInfo(String accessToken, @Context HttpServletRequest request) {
-        String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
-        String remoteIp = request.getRemoteAddr();
+		UserInfo ui = getUserInfo(accessToken, userAgent, remoteIp);
 
-        UserInfo ui = getUserInfo(accessToken, userAgent, remoteIp);
+		if (ui != null) {
+			return ui;
+		}
 
-        if (ui != null) {
-            return ui;
-        }
+		log.debug("Session {} is expired", accessToken);
 
-        log.debug("Session {} is expired", accessToken);
+		return null;
+	}
 
-        return null;
-    }
+	private UserInfo getUserInfo(String accessToken, String userAgent, String remoteIp) {
 
-    private UserInfo getUserInfo(String accessToken, String userAgent, String remoteIp) {
+		UserInfo ui = userInfoDao.getUserInfoByAccessToken(accessToken);
 
-        UserInfo ui = userInfoDao.getUserInfoByAccessToken(accessToken);
+		if (ui != null) {
+			ui = ui.withToken(accessToken);
+			updateTTL(accessToken, ui, userAgent);
+			log.debug("restored UserInfo from DB {}", ui);
 
-        if (ui != null) {
-            ui = ui.withToken(accessToken);
-            updateTTL(accessToken, ui, userAgent);
-            log.debug("restored UserInfo from DB {}", ui);
+			log.debug("Authorized {} {} {}", accessToken, ui, remoteIp);
+			return ui;
+		}
 
-            log.debug("Authorized {} {} {}", accessToken, ui, remoteIp);
-            return ui;
-        }
+		return null;
 
-        return null;
+	}
 
-    }
+	@Override
+	@POST
+	@Path("/logout")
+	public Response logout(String accessToken) {
+		userInfoDao.deleteUserInfo(accessToken);
+		log.info("Logged out user {}", accessToken);
+		return Response.ok().build();
+	}
 
-    @Override
-    @POST
-    @Path("/logout")
-    public Response logout(String accessToken) {
-        userInfoDao.deleteUserInfo(accessToken);
-        log.info("Logged out user {}", accessToken);
-        return Response.ok().build();
-    }
+	private UserInfo login(String username, String password) {
+		try {
+			UserInfo userInfo = ldapUserDAO.getUserInfo(username, password);
+			log.debug("User Authenticated: {}", username);
+			return userInfo;
+		} catch (Exception e) {
+			log.error("Authentication error", e);
+			throw new DlabException("Username or password are not valid", e);
+		}
+	}
 
-    protected void verifyUser(String username, UserInfo userInfo, Object... params) {
-        // Do nothing
-    }
+	private UserInfo enrichUser(String username) {
 
-    private UserInfo login(String username, String password) {
-        try {
-            UserInfo userInfo = ldapUserDAO.getUserInfo(username, password);
-            log.debug("User Authenticated: {}", username);
-            return userInfo;
-        } catch (Exception e) {
-            log.error("Authentication error", e);
-            throw new DlabException("Username or password are not valid", e);
-        }
-    }
-
-    private UserInfo enrichUser(String username) {
-
-        try {
-            UserInfo userInfo = ldapUserDAO.enrichUserInfo(new UserInfo(username, null));
-            log.debug("User Enriched: {}", username);
-            return userInfo;
-        } catch (Exception e) {
-            log.error("Authentication error", e);
-            throw new DlabException("User not authorized. Please contact DLAB administrator.");
-        }
-    }
+		try {
+			UserInfo userInfo = ldapUserDAO.enrichUserInfo(new UserInfo(username, null));
+			log.debug("User Enriched: {}", username);
+			return userInfo;
+		} catch (Exception e) {
+			log.error("Authentication error", e);
+			throw new DlabException("User not authorized. Please contact DLAB administrator.");
+		}
+	}
 
 
-    private void updateTTL(String accessToken, UserInfo ui, String userAgent) {
-        log.debug("updating TTL agent {} {}", userAgent, ui);
-        if (ServiceConsts.PROVISIONING_USER_AGENT.equals(userAgent)) {
-            return;
-        }
+	private void updateTTL(String accessToken, UserInfo ui, String userAgent) {
+		log.debug("updating TTL agent {} {}", userAgent, ui);
+		if (ServiceConsts.PROVISIONING_USER_AGENT.equals(userAgent)) {
+			return;
+		}
 
-        userInfoDao.updateUserInfoTTL(accessToken, ui);
-    }
+		userInfoDao.updateUserInfoTTL(accessToken, ui);
+	}
 }

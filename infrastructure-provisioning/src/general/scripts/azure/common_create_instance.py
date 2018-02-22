@@ -79,7 +79,7 @@ if __name__ == "__main__":
                                                                             args.security_group_name,
                                                                             json.loads(args.tags),
                                                                             args.public_ip_name)
-                disk = AzureMeta().get_disk(args.service_base_name, '{}disk0'.format(
+                disk = AzureMeta().get_disk(args.service_base_name, '{}-disk0'.format(
                     args.instance_name))
                 if disk:
                     create_option = 'attach'

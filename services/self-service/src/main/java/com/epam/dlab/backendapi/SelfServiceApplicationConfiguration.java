@@ -39,151 +39,157 @@ import java.util.List;
 @GroupSequenceProvider(SelfServiceCloudConfigurationSequenceProvider.class)
 public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
 
-    @Min(value = 2, groups = AwsValidation.class)
-    @JsonProperty
-    private int minEmrInstanceCount;
+	@Min(value = 2, groups = AwsValidation.class)
+	@JsonProperty
+	private int minEmrInstanceCount;
 
-    @Max(value = 1000, groups = AwsValidation.class)
-    @JsonProperty
-    private int maxEmrInstanceCount;
+	@Max(value = 1000, groups = AwsValidation.class)
+	@JsonProperty
+	private int maxEmrInstanceCount;
 
-    @Min(value = 10, groups = AwsValidation.class)
-    @JsonProperty
-    private int minEmrSpotInstanceBidPct;
+	@Min(value = 10, groups = AwsValidation.class)
+	@JsonProperty
+	private int minEmrSpotInstanceBidPct;
 
-    @Max(value = 95, groups = AwsValidation.class)
-    @JsonProperty
-    private int maxEmrSpotInstanceBidPct;
+	@Max(value = 95, groups = AwsValidation.class)
+	@JsonProperty
+	private int maxEmrSpotInstanceBidPct;
 
-    @Min(value = 2, groups = {AzureValidation.class, AwsValidation.class, GcpValidation.class})
-    @JsonProperty
-    private int minSparkInstanceCount;
+	@Min(value = 2, groups = {AzureValidation.class, AwsValidation.class, GcpValidation.class})
+	@JsonProperty
+	private int minSparkInstanceCount;
 
-    @Max(value = 1000, groups = {AzureValidation.class, AwsValidation.class, GcpValidation.class})
-    @JsonProperty
-    private int maxSparkInstanceCount;
+	@Max(value = 1000, groups = {AzureValidation.class, AwsValidation.class, GcpValidation.class})
+	@JsonProperty
+	private int maxSparkInstanceCount;
 
-    @JsonProperty
-    private AzureLoginConfiguration azureLoginConfiguration;
+	@JsonProperty
+	private AzureLoginConfiguration azureLoginConfiguration;
 
-    @JsonProperty
-    private boolean rolePolicyEnabled = false;
+	@JsonProperty
+	private boolean rolePolicyEnabled = false;
 
-    @JsonProperty
-    private boolean roleDefaultAccess = false;
+	@JsonProperty
+	private boolean roleDefaultAccess = false;
 
-    @JsonProperty
-    private Duration checkEnvStatusTimeout = Duration.minutes(10);
+	@JsonProperty
+	private Duration checkEnvStatusTimeout = Duration.minutes(10);
 
-    @JsonProperty
-    private boolean billingSchedulerEnabled = false;
+	@JsonProperty
+	private boolean billingSchedulerEnabled = false;
 
-    @NotEmpty(groups = AwsValidation.class)
-    @JsonProperty
-    private String billingConfFile;
+	@NotEmpty(groups = AwsValidation.class)
+	@JsonProperty
+	private String billingConfFile;
 
-    @JsonProperty
-    private List<Integer> dataprocAvailableMasterInstanceCount;
-    @JsonProperty
-    private int minDataprocSlaveInstanceCount;
-    @JsonProperty
-    private int maxDataprocSlaveInstanceCount;
-    @JsonProperty
-    private int minDataprocPreemptibleCount;
-    @JsonProperty
-    private int maxUserNameLength;
+	@JsonProperty
+	private List<Integer> dataprocAvailableMasterInstanceCount;
+	@JsonProperty
+	private int minDataprocSlaveInstanceCount;
+	@JsonProperty
+	private int maxDataprocSlaveInstanceCount;
+	@JsonProperty
+	private int minDataprocPreemptibleCount;
+	@JsonProperty
+	private int maxUserNameLength;
+	@JsonProperty
+	private boolean gcpOuauth2AuthenticationEnabled;
 
-    /**
-     * Returns the minimum number of slave EMR instances than could be created.
-     */
-    public int getMinEmrInstanceCount() {
-        return minEmrInstanceCount;
-    }
+	public boolean isGcpOuauth2AuthenticationEnabled() {
+		return gcpOuauth2AuthenticationEnabled;
+	}
 
-    /**
-     * Returns the maximum number of slave EMR instances than could be created.
-     */
-    public int getMaxEmrInstanceCount() {
-        return maxEmrInstanceCount;
-    }
+	/**
+	 * Returns the minimum number of slave EMR instances than could be created.
+	 */
+	public int getMinEmrInstanceCount() {
+		return minEmrInstanceCount;
+	}
 
-    /**
-     * Returns the timeout for check the status of environment via provisioning service.
-     */
-    public Duration getCheckEnvStatusTimeout() {
-        return checkEnvStatusTimeout;
-    }
+	/**
+	 * Returns the maximum number of slave EMR instances than could be created.
+	 */
+	public int getMaxEmrInstanceCount() {
+		return maxEmrInstanceCount;
+	}
 
-    public int getMinEmrSpotInstanceBidPct() {
-        return minEmrSpotInstanceBidPct;
-    }
+	/**
+	 * Returns the timeout for check the status of environment via provisioning service.
+	 */
+	public Duration getCheckEnvStatusTimeout() {
+		return checkEnvStatusTimeout;
+	}
 
-    public int getMaxEmrSpotInstanceBidPct() {
-        return maxEmrSpotInstanceBidPct;
-    }
+	public int getMinEmrSpotInstanceBidPct() {
+		return minEmrSpotInstanceBidPct;
+	}
 
-    public int getMinSparkInstanceCount() {
-        return minSparkInstanceCount;
-    }
+	public int getMaxEmrSpotInstanceBidPct() {
+		return maxEmrSpotInstanceBidPct;
+	}
 
-    public int getMaxSparkInstanceCount() {
-        return maxSparkInstanceCount;
-    }
+	public int getMinSparkInstanceCount() {
+		return minSparkInstanceCount;
+	}
 
-    /**
-     * Return the <b>true</b> if using roles policy to DLab features.
-     */
-    public boolean isRolePolicyEnabled() {
-        return rolePolicyEnabled;
-    }
+	public int getMaxSparkInstanceCount() {
+		return maxSparkInstanceCount;
+	}
 
-    /**
-     * Return the default access to DLab features using roles policy.
-     */
-    public boolean getRoleDefaultAccess() {
-        return roleDefaultAccess;
-    }
+	/**
+	 * Return the <b>true</b> if using roles policy to DLab features.
+	 */
+	public boolean isRolePolicyEnabled() {
+		return rolePolicyEnabled;
+	}
 
-
-    /**
-     * Return the <b>true</b> if the billing scheduler is enabled.
-     */
-    public boolean isBillingSchedulerEnabled() {
-        return billingSchedulerEnabled;
-    }
-
-    /**
-     * Return the default access to DLab features using roles policy.
-     */
-    public String getBillingConfFile() {
-        return billingConfFile;
-    }
-
-    /**
-     * Return the Azure login configuration
-     */
-    public AzureLoginConfiguration getAzureLoginConfiguration() {
-        return azureLoginConfiguration;
-    }
+	/**
+	 * Return the default access to DLab features using roles policy.
+	 */
+	public boolean getRoleDefaultAccess() {
+		return roleDefaultAccess;
+	}
 
 
-    public int getMinDataprocSlaveInstanceCount() {
-        return minDataprocSlaveInstanceCount;
-    }
+	/**
+	 * Return the <b>true</b> if the billing scheduler is enabled.
+	 */
+	public boolean isBillingSchedulerEnabled() {
+		return billingSchedulerEnabled;
+	}
 
-    public List<Integer> getDataprocAvailableMasterInstanceCount() {
-        return dataprocAvailableMasterInstanceCount;
-    }
+	/**
+	 * Return the default access to DLab features using roles policy.
+	 */
+	public String getBillingConfFile() {
+		return billingConfFile;
+	}
 
-    public int getMaxDataprocSlaveInstanceCount() {
-        return maxDataprocSlaveInstanceCount;
-    }
+	/**
+	 * Return the Azure login configuration
+	 */
+	public AzureLoginConfiguration getAzureLoginConfiguration() {
+		return azureLoginConfiguration;
+	}
 
-    public int getMinDataprocPreemptibleCount() {
-        return minDataprocPreemptibleCount;
-    }
 
-    public int getMaxUserNameLength() {
-        return maxUserNameLength;
-    }
+	public int getMinDataprocSlaveInstanceCount() {
+		return minDataprocSlaveInstanceCount;
+	}
+
+	public List<Integer> getDataprocAvailableMasterInstanceCount() {
+		return dataprocAvailableMasterInstanceCount;
+	}
+
+	public int getMaxDataprocSlaveInstanceCount() {
+		return maxDataprocSlaveInstanceCount;
+	}
+
+	public int getMinDataprocPreemptibleCount() {
+		return minDataprocPreemptibleCount;
+	}
+
+	public int getMaxUserNameLength() {
+		return maxUserNameLength;
+	}
 }

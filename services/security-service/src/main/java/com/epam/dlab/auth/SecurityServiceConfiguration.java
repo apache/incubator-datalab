@@ -20,8 +20,8 @@ package com.epam.dlab.auth;
 import com.epam.dlab.ServiceConfiguration;
 import com.epam.dlab.auth.dao.Request;
 import com.epam.dlab.config.azure.AzureLoginConfiguration;
+import com.epam.dlab.config.gcp.GcpLoginConfiguration;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 
 import javax.validation.constraints.Min;
@@ -29,89 +29,92 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 public class SecurityServiceConfiguration extends ServiceConfiguration {
-    @JsonProperty
-    private boolean userInfoPersistenceEnabled = false;
-    @JsonProperty
-    private boolean awsUserIdentificationEnabled = false;
-    @JsonProperty
-    private boolean ldapUseConnectionPool = false;
-    @JsonProperty
-    @Min(5)
-    private int loginAuthenticationTimeout = 10;
-    @JsonProperty
-    private List<Request> ldapSearch;
-    @JsonProperty
-    private String ldapBindTemplate;
-    @JsonProperty
-    private String ldapBindAttribute;
-    @JsonProperty
-    private String ldapSearchAttribute;
-    @JsonProperty
-    private boolean useLdapBindTemplate;
-    @JsonProperty
-    private Map<String, String> ldapConnectionConfig = new HashMap<>();
-    @JsonProperty
-    private AzureLoginConfiguration azureLoginConfiguration;
+	@JsonProperty
+	private boolean userInfoPersistenceEnabled = false;
+	@JsonProperty
+	private boolean awsUserIdentificationEnabled = false;
+	@JsonProperty
+	private boolean ldapUseConnectionPool = false;
+	@JsonProperty
+	@Min(5)
+	private int loginAuthenticationTimeout = 10;
+	@JsonProperty
+	private List<Request> ldapSearch;
+	@JsonProperty
+	private String ldapBindTemplate;
+	@JsonProperty
+	private String ldapBindAttribute;
+	@JsonProperty
+	private String ldapSearchAttribute;
+	@JsonProperty
+	private boolean useLdapBindTemplate;
+	@JsonProperty
+	private Map<String, String> ldapConnectionConfig = new HashMap<>();
+	@JsonProperty
+	private AzureLoginConfiguration azureLoginConfiguration;
+	@JsonProperty
+	private GcpLoginConfiguration gcpLoginConfiguration;
 
-    private LdapConnectionConfig _ldapConnectionConfig;
+	private LdapConnectionConfig ldapConfiguration;
 
-    public SecurityServiceConfiguration() {
-        super();
-    }
+	public SecurityServiceConfiguration() {
+		super();
+	}
 
-    public boolean isUserInfoPersistenceEnabled() {
-        return userInfoPersistenceEnabled;
-    }
+	public boolean isUserInfoPersistenceEnabled() {
+		return userInfoPersistenceEnabled;
+	}
 
-    public List<Request> getLdapSearch() {
-        return ldapSearch;
-    }
+	public List<Request> getLdapSearch() {
+		return ldapSearch;
+	}
 
-    public LdapConnectionConfig getLdapConnectionConfig() {
-        if (_ldapConnectionConfig == null) {
-            _ldapConnectionConfig = new LdapConnectionConfig();
-            _ldapConnectionConfig.setLdapHost(ldapConnectionConfig.get("ldapHost"));
-            _ldapConnectionConfig.setLdapPort(Integer.parseInt(ldapConnectionConfig.get("ldapPort")));
-            _ldapConnectionConfig.setName(ldapConnectionConfig.get("name"));
-            _ldapConnectionConfig.setCredentials(ldapConnectionConfig.get("credentials"));
-            //TODO: add all configurable properties
-            //      from the LdapConnectionConfig class
-        }
-        return _ldapConnectionConfig;
+	public LdapConnectionConfig getLdapConnectionConfig() {
+		if (ldapConfiguration == null) {
+			ldapConfiguration = new LdapConnectionConfig();
+			ldapConfiguration.setLdapHost(ldapConnectionConfig.get("ldapHost"));
+			ldapConfiguration.setLdapPort(Integer.parseInt(ldapConnectionConfig.get("ldapPort")));
+			ldapConfiguration.setName(ldapConnectionConfig.get("name"));
+			ldapConfiguration.setCredentials(ldapConnectionConfig.get("credentials"));
+		}
+		return ldapConfiguration;
 
-    }
+	}
 
-    public String getLdapBindTemplate() {
-        return ldapBindTemplate;
-    }
+	public String getLdapBindTemplate() {
+		return ldapBindTemplate;
+	}
 
-    public String getLdapBindAttribute() {
-        return ldapBindAttribute;
-    }
+	public String getLdapBindAttribute() {
+		return ldapBindAttribute;
+	}
 
-    public String getLdapSearchAttribute() {
-        return ldapSearchAttribute;
-    }
+	public String getLdapSearchAttribute() {
+		return ldapSearchAttribute;
+	}
 
-    public boolean isAwsUserIdentificationEnabled() {
-        return awsUserIdentificationEnabled;
-    }
+	public boolean isAwsUserIdentificationEnabled() {
+		return awsUserIdentificationEnabled;
+	}
 
-    public int getLoginAuthenticationTimeout() {
-        return loginAuthenticationTimeout;
-    }
+	public int getLoginAuthenticationTimeout() {
+		return loginAuthenticationTimeout;
+	}
 
-    public boolean isLdapUseConnectionPool() {
-        return ldapUseConnectionPool;
-    }
+	public boolean isLdapUseConnectionPool() {
+		return ldapUseConnectionPool;
+	}
 
-    public AzureLoginConfiguration getAzureLoginConfiguration() {
-        return azureLoginConfiguration;
-    }
+	public AzureLoginConfiguration getAzureLoginConfiguration() {
+		return azureLoginConfiguration;
+	}
 
-    public boolean isUseLdapBindTemplate() {
-        return useLdapBindTemplate;
-    }
+	public boolean isUseLdapBindTemplate() {
+		return useLdapBindTemplate;
+	}
+
+	public GcpLoginConfiguration getGcpLoginConfiguration() {
+		return gcpLoginConfiguration;
+	}
 }

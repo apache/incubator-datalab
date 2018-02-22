@@ -53,6 +53,8 @@ limitations under the License.
         <module>services/billing-azure</module>
         <module>services/billing-gcp</module>
         <module>services/security-azure</module>
+        <module>services/security-gcp</module>
+        <module>services/security-aws</module>
     </modules>
 
     <properties>

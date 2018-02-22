@@ -56,7 +56,7 @@ if __name__ == "__main__":
             print("Hosts JSON wasn't been provided")
         try:
             id_clusters = get_id_resourses(data.get('cluster'))
-            data_clusters = GCPMeta().get_list_cluster_statuses(id_clusters)
+            data_clusters = GCPMeta().get_list_cluster_statuses(id_clusters, full_check=False)
             statuses['cluster'] = data_clusters
         except:
             print("Clusters JSON wasn't been provided")
