@@ -17,10 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -90,10 +87,13 @@ public class GcpHelper {
 	}
 
 	public static List<String> getInstancePublicIps(Instance instance) {
-		return instance.getNetworkInterfaces().stream()
-				.filter(Objects::nonNull)
-				.map(e -> e.getAccessConfigs().stream().filter(Objects::nonNull).map(AccessConfig::getNatIP))
-				.flatMap(Function.identity()).filter(Objects::nonNull).collect(Collectors.toList());
+		return instance.getNetworkInterfaces()
+				.stream().filter(Objects::nonNull)
+				.map(NetworkInterface::getAccessConfigs)
+				.filter(Objects::nonNull).map(Collection::stream)
+				.flatMap(Function.identity()).filter(Objects::nonNull)
+				.map(AccessConfig::getNatIP).filter(Objects::nonNull)
+				.collect(Collectors.toList());
 	}
 
 
