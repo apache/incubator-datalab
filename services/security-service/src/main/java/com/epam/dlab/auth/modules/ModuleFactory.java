@@ -15,7 +15,7 @@ public class ModuleFactory {
 			case AZURE:
 				return new AzureSecurityServiceModule(configuration);
 			case GCP:
-				return new GcpSecurityServiceModule();
+				return new GcpSecurityServiceModule(configuration);
 			default:
 				throw new UnsupportedOperationException(
 						String.format("Unsupported cloud provider %s", configuration.getCloudProvider()));

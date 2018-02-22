@@ -31,6 +31,13 @@
         </profile>
         <profile>
             <id>gcp</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.epam.dlab</groupId>
+                    <artifactId>security-gcp</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 
@@ -39,7 +46,6 @@
     <properties>
         <org.apache.directory.api.version>1.0.0-RC1</org.apache.directory.api.version>
         <jython-standalone.version>2.7.0</jython-standalone.version>
-        <aws-java-sdk-iam.version>1.11.48</aws-java-sdk-iam.version>
     </properties>
 
     <dependencies>
@@ -57,6 +63,12 @@
         <dependency>
             <groupId>com.epam.dlab</groupId>
             <artifactId>security-azure</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>security-gcp</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
