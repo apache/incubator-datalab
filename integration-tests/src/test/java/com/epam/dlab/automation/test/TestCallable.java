@@ -106,6 +106,8 @@ public class TestCallable implements Callable<Boolean> {
                     NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
 					dataEngineType, true) : NamingHelper.CLUSTER_ABSENT;
 
+			LOGGER.info("Actual cluster name: {}", actualClusterName);
+
             if (!ConfigPropertyValue.isRunModeLocal()) {
 
 			    TestDataEngineService test = new TestDataEngineService();
