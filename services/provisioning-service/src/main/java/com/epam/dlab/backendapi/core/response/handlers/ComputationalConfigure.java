@@ -21,9 +21,12 @@ import com.epam.dlab.backendapi.core.Directories;
 import com.epam.dlab.backendapi.core.FileHandlerCallback;
 import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
+import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.dto.aws.computational.SparkComputationalCreateAws;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
+import com.epam.dlab.dto.gcp.computational.SparkComputationalCreateGcp;
 import com.epam.dlab.exceptions.DlabException;
 import com.epam.dlab.rest.client.RESTService;
 import com.google.inject.Inject;
@@ -56,6 +59,13 @@ public class ComputationalConfigure implements DockerCommands {
                 }
             case AZURE:
                 return runConfigure(uuid, dto, DataEngineType.SPARK_STANDALONE);
+            case GCP:
+                if (dto instanceof SparkComputationalCreateGcp) {
+                    return runConfigure(uuid, dto, DataEngineType.SPARK_STANDALONE);
+                } else {
+                    return runConfigure(uuid, dto, DataEngineType.CLOUD_SERVICE);
+                }
+
             default:
                 throw new IllegalStateException(String.format("Wrong configuration of cloud provider %s %s",
                         configuration.getCloudProvider(), dto));

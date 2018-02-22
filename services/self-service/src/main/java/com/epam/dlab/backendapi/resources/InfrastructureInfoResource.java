@@ -17,11 +17,14 @@
 package com.epam.dlab.backendapi.resources;
 
 import com.epam.dlab.auth.UserInfo;
+import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.dao.EnvStatusDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.KeyDAO;
 import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
 import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
+import com.epam.dlab.backendapi.roles.RoleType;
+import com.epam.dlab.backendapi.roles.UserRoles;
 import com.epam.dlab.backendapi.service.InfrastructureInfoService;
 import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.exceptions.DlabException;
@@ -44,62 +47,68 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class InfrastructureInfoResource implements InfrasctructureAPI {
 
-    @Inject
-    private ExploratoryDAO expDAO;
-    @Inject
-    private KeyDAO keyDAO;
-    @Inject
-    private EnvStatusDAO envDAO;
-    @Inject
-    private InfrastructureInfoService infrastructureInfoService;
+	@Inject
+	private ExploratoryDAO expDAO;
+	@Inject
+	private KeyDAO keyDAO;
+	@Inject
+	private EnvStatusDAO envDAO;
+	@Inject
+	private InfrastructureInfoService infrastructureInfoService;
+	@Inject
+	private SelfServiceApplicationConfiguration configuration;
 
-    /**
-     * Return status of self-service.
-     */
-    @GET
-    public Response status() {
-        return Response.status(Response.Status.OK).build();
-    }
+	/**
+	 * Return status of self-service.
+	 */
+	@GET
+	public Response status() {
+		return Response.status(Response.Status.OK).build();
+	}
 
-    /**
-     * Returns the status of infrastructure: edge.
-     *
-     * @param userInfo user info.
-     */
-    @GET
-    @Path("/status")
-    public HealthStatusPageDTO status(@Auth UserInfo userInfo, @QueryParam("full") @DefaultValue("0") int fullReport) {
-        log.debug("Request the status of resources for user {}, report type {}", userInfo.getName(), fullReport);
-        try {
-            HealthStatusPageDTO status = envDAO.getHealthStatusPageDTO(userInfo.getName(), fullReport != 0);
-            log.debug("Return the status of resources for user {}: {}", userInfo.getName(), status);
-            return status;
-        } catch (DlabException e) {
-            log.warn("Could not return status of resources for user {}: {}", userInfo.getName(), e.getLocalizedMessage(), e);
-            throw e;
-        }
-    }
+	/**
+	 * Returns the status of infrastructure: edge.
+	 *
+	 * @param userInfo user info.
+	 */
+	@GET
+	@Path("/status")
+	public HealthStatusPageDTO status(@Auth UserInfo userInfo, @QueryParam("full") @DefaultValue("0") int fullReport) {
+		log.debug("Request the status of resources for user {}, report type {}", userInfo.getName(), fullReport);
+		try {
+			HealthStatusPageDTO status = envDAO.getHealthStatusPageDTO(userInfo.getName(), fullReport != 0)
+					.withBillingEnabled(configuration.isBillingSchedulerEnabled())
+					.withBackupAllowed(UserRoles.checkAccess(userInfo, RoleType.PAGE, UserRoles.BACKUP, false));
+			log.debug("Return the status of resources for user {}: {}", userInfo.getName(), status);
+			return status;
+		} catch (DlabException e) {
+			log.warn("Could not return status of resources for user {}: {}",
+					userInfo.getName(), e.getLocalizedMessage(), e);
+			throw e;
+		}
+	}
 
-    /**
-     * Returns the list of the provisioned user resources.
-     *
-     * @param userInfo user info.
-     */
-    @GET
-    @Path("/info")
-    public InfrastructureInfo getUserResources(@Auth UserInfo userInfo) {
-        log.debug("Loading list of provisioned resources for user {}", userInfo.getName());
-        try {
-            Iterable<Document> documents = expDAO.findExploratory(userInfo.getName());
-            EdgeInfo edgeInfo = keyDAO.getEdgeInfo(userInfo.getName());
+	/**
+	 * Returns the list of the provisioned user resources.
+	 *
+	 * @param userInfo user info.
+	 */
+	@GET
+	@Path("/info")
+	public InfrastructureInfo getUserResources(@Auth UserInfo userInfo) {
+		log.debug("Loading list of provisioned resources for user {}", userInfo.getName());
+		try {
+			Iterable<Document> documents = expDAO.findExploratory(userInfo.getName());
+			EdgeInfo edgeInfo = keyDAO.getEdgeInfo(userInfo.getName());
 
-            InfrastructureInfo infrastructureInfo = new InfrastructureInfo(infrastructureInfoService.getSharedInfo(edgeInfo), documents);
+			InfrastructureInfo infrastructureInfo =
+					new InfrastructureInfo(infrastructureInfoService.getSharedInfo(edgeInfo), documents);
 
-            log.trace("Infrastructure info: {}", infrastructureInfo);
-            return infrastructureInfo;
-        } catch (DlabException e) {
-            log.error("Could not load list of provisioned resources for user: {}", userInfo.getName(), e);
-            throw e;
-        }
-    }
+			log.trace("Infrastructure info: {}", infrastructureInfo);
+			return infrastructureInfo;
+		} catch (DlabException e) {
+			log.error("Could not load list of provisioned resources for user: {}", userInfo.getName(), e);
+			throw e;
+		}
+	}
 }

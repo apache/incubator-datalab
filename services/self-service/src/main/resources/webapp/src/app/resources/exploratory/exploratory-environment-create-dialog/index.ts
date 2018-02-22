@@ -18,9 +18,9 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { MaterialModule } from '../../../shared/material.module';
 import { ModalModule } from '../../../shared';
 import { FormControlsModule } from '../../../shared/form-controls';
 import { ExploratoryEnvironmentCreateDialogComponent } from './exploratory-environment-create-dialog.component';
@@ -35,10 +35,9 @@ export * from './exploratory-environment-create.model';
     FormsModule,
     ReactiveFormsModule,
     FormControlsModule,
-    MaterialModule.forRoot()
+    MaterialModule
   ],
   declarations: [ExploratoryEnvironmentCreateDialogComponent],
   exports: [ExploratoryEnvironmentCreateDialogComponent]
 })
-
-export class ExploratoryEnvironmentCreateDialogModule { }
+export class ExploratoryEnvironmentCreateDialogModule {}

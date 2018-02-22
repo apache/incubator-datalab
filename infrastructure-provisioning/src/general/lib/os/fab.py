@@ -36,7 +36,7 @@ def ensure_pip(requisites):
             sudo('echo PATH=$PATH:/usr/local/bin/:/opt/spark/bin/ >> /etc/profile')
             sudo('echo export PATH >> /etc/profile')
             sudo('pip install -U pip --no-cache-dir')
-            sudo('pip install -U ' + requisites + ' --no-cache-dir')
+            sudo('pip install -U {} --no-cache-dir'.format(requisites))
             sudo('touch /home/{}/.ensure_dir/pip_path_added'.format(os.environ['conf_os_user']))
         return True
     except:
@@ -469,3 +469,13 @@ def replace_multi_symbols(string, symbol, symbol_cut=False):
         append_result(str({"error": "Error with replacing multi symbols",
                            "error_message": str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout)}))
         traceback.print_exc(file=sys.stdout)
+
+
+def update_pyopenssl_lib():
+    try:
+        print("Updating pyOpenssl lib")
+        if exists('/usr/bin/pip3'):
+            sudo('pip3 install -U pyopenssl')
+        sudo('pip2 install -U pyopenssl')
+    except:
+        sys.exit(1)

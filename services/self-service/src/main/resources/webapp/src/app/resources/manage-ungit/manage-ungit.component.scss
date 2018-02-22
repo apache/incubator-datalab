@@ -1,0 +1,87 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+.modal-dialog .manage-ungit .modal-body {
+  padding: 0 20px;
+}
+
+.manage-ungit {
+  .scrollingList {
+    overflow-x: hidden;
+    padding: 5px;
+  }
+  .mail-field,
+  .user-field,
+  .login-field {
+    width: 25%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px;
+  }
+  .hostname-field {
+    width: 25%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px;
+    width: 30%;
+  }
+  .actions {
+    width: 20%;
+    position: relative;
+    overflow: visible;
+    width: 50px;
+    span {
+      position: absolute;
+      top: -10px;
+      left: 0;
+      zoom: 0.8;
+      &.git-actions {
+        cursor: pointer;
+        &.remove {
+          left: 35px;
+        }
+      }
+    }
+  }
+
+  .git-form {
+    .control-group {
+      width: 100%;
+      font-family: 'Open Sans', sans-serif;
+      padding: 10px 0;
+      input[type='text'],
+      input[type='password'],
+      input[type='email'] {
+        font-size: 14px;
+      }
+      .label {
+        width: 30%;
+        font-size: 14px;
+      }
+      .control {
+        width: 70%;
+      }
+    }
+    .col {
+      padding: 30px 10px;
+    }
+    .danger_color {
+      padding-top: 0;
+    }
+  }
+}

@@ -1,0 +1,106 @@
+/***************************************************************************
+
+Copyright (c) 2016, EPAM SYSTEMS INC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+****************************************************************************/
+
+/* material buttons */
+.mat-raised-button.butt {
+  width: 160px;
+  height: 35px;
+  padding: 0 20px;
+  border-radius: 0;
+  font: 600 16px/1.45 'Open Sans';
+  color: #577289;
+}
+
+.mat-raised-button.butt i,
+.mat-raised-button.butt span i {
+  margin: 0 5px 0 0;
+  font-size: 20px;
+  vertical-align: sub;
+}
+.mat-raised-button.butt.butt-success {
+  background-color: #49af38;
+  margin-left: 15px;
+  color: #fff;
+}
+
+.mat-raised-button.butt:disabled {
+  cursor: not-allowed;
+  opacity: .6;
+}
+
+.mat-button-focus-overlay {
+  background-color: rgba(255, 0, 0, 0)!important;
+}
+
+.mat-button-ripple.mat-button-ripple-round.mat-ripple {
+  border-radius: 0;
+}
+
+.mat-option {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.mat-option.mat-selected {
+  color: #35afd5 !important;
+}
+/*.mat-input-placeholder.mat-focused, */
+.mat-input-underline .mat-input-ripple,
+.mat-select-underline
+.mat-input-underline {
+  background-color: #35afd5 !important;
+}
+.mat-input-placeholder.mat-focused,
+.mat-select:focus:not(.mat-select-disabled) .mat-select-trigger,
+.mat-select:focus:not(.mat-select-disabled) .mat-select-arrow,
+.mat-select:focus:not(.mat-select-disabled) .mat-select-underline {
+  color: #35afd5 !important;
+}
+.mat-select:focus:not(.mat-select-disabled) .mat-select-underline {
+  background-color: #35afd5 !important;
+}
+.mat-select-placeholder {
+  font-size: 14px;
+}
+.mat-input-placeholder {
+font-weight: 400;
+}
+
+/* grid filtering */
+.filter-row .dropdown-multiselect button,
+.filter-row input[type=text] {
+  font-size: 14px;
+  height: 34px;
+}
+
+.backup-dialog span.mat-slide-toggle-content {
+  font: 100 16px/24px 'Open Sans', sans-serif;
+}
+.backup-dialog .mat-slide-toggle {
+  width: 100%;
+}
+.backup-dialog .mat-slide-toggle-label-before .mat-slide-toggle-label {
+  justify-content: space-between;
+}
+
+.backup-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb {
+  background-color: #36afd5;
+}
+
+.backup-dialog .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
+  background-color: rgba(54, 175, 213, 0.3);
+}

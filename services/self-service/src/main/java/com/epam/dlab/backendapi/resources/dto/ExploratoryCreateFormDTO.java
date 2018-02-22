@@ -46,6 +46,9 @@ public class ExploratoryCreateFormDTO {
     @JsonProperty
     private String version;
 
+    @JsonProperty("notebook_image_name")
+    private String imageName;
+
     /** Returns the image name of notebook. */
     public String getImage() {
     	return image;
@@ -95,15 +98,26 @@ public class ExploratoryCreateFormDTO {
     public void setVersion(String version) {
         this.version = version;
     }
-    
+
+    /** Returns image name from which notebook should be created */
+    public String getImageName() {
+        return imageName;
+    }
+
+    /** Sets image name from which notebook should be created */
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
     @Override
     public String toString() {
-    	return MoreObjects.toStringHelper(this)
-    			.add("name", name)
-    			.add("templateName", templateName)
-    			.add("shape", shape)
-    	        .add("version", version)
-    			.add("image", image)
-    			.toString();
+        return MoreObjects.toStringHelper(this)
+                .add("name", name)
+                .add("templateName", templateName)
+                .add("shape", shape)
+                .add("version", version)
+                .add("image", image)
+                .add("imageName", imageName)
+                .toString();
     }
 }

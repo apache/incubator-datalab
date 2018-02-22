@@ -20,10 +20,10 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BubbleComponent} from './bubble.component';
 import { BubblesCollector, BubbleService } from './bubble.service';
-import { MaterialModule } from '@angular/material';
+import { MaterialModule } from '../../shared/material.module';
 
 @NgModule({
-    imports: [CommonModule, MaterialModule.forRoot()],
+    imports: [CommonModule, MaterialModule],
     declarations: [BubbleComponent],
     providers: [BubblesCollector, BubbleService],
     exports: [BubbleComponent]

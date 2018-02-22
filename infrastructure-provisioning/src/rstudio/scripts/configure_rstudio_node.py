@@ -104,3 +104,7 @@ if __name__ == "__main__":
     install_ungit(args.os_user)
     if exists('/home/{0}/{1}'.format(args.os_user, gitlab_certfile)):
         install_gitlab_cert(args.os_user, gitlab_certfile)
+    
+    #POST INSTALLATION PROCESS
+    print("Updating pyOpenSSL library")
+    update_pyopenssl_lib()

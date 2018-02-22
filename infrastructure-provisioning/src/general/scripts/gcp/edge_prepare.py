@@ -47,7 +47,7 @@ if __name__ == "__main__":
             edge_conf['vpc_name'] = os.environ['gcp_vpc_name']
     except KeyError:
         edge_conf['vpc_name'] = edge_conf['service_base_name'] + '-ssn-vpc'
-    edge_conf['vpc_cidr'] = '10.10.0.0/16'
+    edge_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
     edge_conf['private_subnet_name'] = '{0}-{1}-subnet'.format(edge_conf['service_base_name'],
                                                                edge_conf['edge_user_name'])
     edge_conf['subnet_name'] = os.environ['gcp_subnet_name']
@@ -64,6 +64,7 @@ if __name__ == "__main__":
     edge_conf['ps_role_name'] = '{}-{}-ps'.format(edge_conf['service_base_name'],
                                                   edge_conf['edge_user_name'])
     edge_conf['ps_policy_path'] = '/root/files/ps_policy.json'
+    edge_conf['ps_roles_path'] = '/root/files/ps_roles.json'
     edge_conf['instance_name'] = '{0}-{1}-edge'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
     edge_conf['ssn_instance_name'] = '{}-ssn'.format(edge_conf['service_base_name'])
     edge_conf['bucket_name'] = '{0}-{1}-bucket'.format(edge_conf['service_base_name'], edge_conf['edge_user_name'])
@@ -86,6 +87,7 @@ if __name__ == "__main__":
     edge_conf['instance_labels'] = {"name": edge_conf['instance_name'],
                                     "sbn": edge_conf['service_base_name'],
                                     "user": edge_conf['edge_user_name']}
+    edge_conf['allowed_ip_cidr'] = os.environ['conf_allowed_ip_cidr']
 
     # FUSE in case of absence of user's key
     fname = "/root/keys/{}.pub".format(edge_conf['user_keyname'])
@@ -144,9 +146,9 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SERVICE ACCOUNT AND ROLE FOR PRIVATE SUBNET]')
         print('[CREATE SERVICE ACCOUNT AND ROLE FOR NOTEBOOK NODE]')
-        params = "--service_account_name {} --role_name {} --policy_path {}".format(edge_conf['ps_service_account_name'],
-                                                                                    edge_conf['ps_role_name'],
-                                                                                    edge_conf['ps_policy_path'])
+        params = "--service_account_name {} --role_name {} --policy_path {} --roles_path {}".format(
+            edge_conf['ps_service_account_name'], edge_conf['ps_role_name'],
+            edge_conf['ps_policy_path'], edge_conf['ps_roles_path'])
 
         try:
             local("~/scripts/{}.py {}".format('common_create_service_account', params))
@@ -176,7 +178,7 @@ if __name__ == "__main__":
         ingress_rule = dict()
         ingress_rule['name'] = edge_conf['fw_edge_ingress_public']
         ingress_rule['targetTags'] = [edge_conf['network_tag']]
-        ingress_rule['sourceRanges'] = ['0.0.0.0/0']
+        ingress_rule['sourceRanges'] = [edge_conf['allowed_ip_cidr']]
         rules = [
             {
                 'IPProtocol': 'tcp',
@@ -205,7 +207,7 @@ if __name__ == "__main__":
         egress_rule = dict()
         egress_rule['name'] = edge_conf['fw_edge_egress_public']
         egress_rule['targetTags'] = [edge_conf['network_tag']]
-        egress_rule['destinationRanges'] = ['0.0.0.0/0']
+        egress_rule['destinationRanges'] = [edge_conf['allowed_ip_cidr']]
         rules = [
             {
                 'IPProtocol': 'udp',
@@ -302,7 +304,7 @@ if __name__ == "__main__":
         egress_rule['targetTags'] = [
             edge_conf['ps_firewall_target']
         ]
-        egress_rule['destinationRanges'] = ['0.0.0.0/0']
+        egress_rule['destinationRanges'] = [edge_conf['allowed_ip_cidr']]
         rules = [
             {
                 'IPProtocol': 'tcp',

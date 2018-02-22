@@ -82,10 +82,10 @@ if __name__ == "__main__":
     emr_conf['notebook_ip'] = get_instance_ip_address(emr_conf['tag_name'], os.environ['notebook_instance_name']).get('Private')
     emr_conf['role_service_name'] = os.environ['emr_service_role']
     emr_conf['role_ec2_name'] = os.environ['emr_ec2_role']
-    emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + args.uuid + ', ' \
-                       + emr_conf['service_base_name'] + '-Tag=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + args.uuid\
+    emr_conf['tags'] = 'Name=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-des-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + args.uuid + ', ' \
+                       + emr_conf['service_base_name'] + '-Tag=' + emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-des-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + args.uuid\
                        + ', Notebook=' + os.environ['notebook_instance_name'] + ', State=not-configured'
-    emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-emr-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + args.uuid
+    emr_conf['cluster_name'] = emr_conf['service_base_name'] + '-' + os.environ['edge_user_name'] + '-des-' + emr_conf['exploratory_name'] + '-' + emr_conf['computational_name'] + '-' + args.uuid
     emr_conf['bucket_name'] = (emr_conf['service_base_name'] + '-ssn-bucket').lower().replace('_', '-')
 
     tag = {"Key": "{}-Tag".format(emr_conf['service_base_name']), "Value": "{}-{}-subnet".format(emr_conf['service_base_name'], os.environ['edge_user_name'])}
@@ -139,7 +139,14 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(emr_conf['tag_name'], '{}-ssn'.format(emr_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [],
+                "UserIdGroupPairs": [{"GroupId": edge_group_id}],
+                "PrefixListIds": []
+            },
+            {
+                "IpProtocol": "-1",
+                "IpRanges": [{"CidrIp": get_instance_ip_address(emr_conf['tag_name'], '{}-ssn'.format(
+                    emr_conf['service_base_name'])).get('Private') + "/32"}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": []
             }
@@ -153,7 +160,8 @@ if __name__ == "__main__":
             },
             {
                 "IpProtocol": "-1",
-                "IpRanges": [{"CidrIp": get_instance_ip_address(emr_conf['tag_name'], '{}-ssn'.format(emr_conf['service_base_name'])).get('Private') + "/32"}],
+                "IpRanges": [{"CidrIp": get_instance_ip_address(emr_conf['tag_name'], '{}-ssn'.format(
+                    emr_conf['service_base_name'])).get('Private') + "/32"}],
                 "UserIdGroupPairs": [],
                 "PrefixListIds": [],
             },

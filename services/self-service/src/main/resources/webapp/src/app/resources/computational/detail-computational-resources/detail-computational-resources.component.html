@@ -52,6 +52,10 @@ limitations under the License.
           <div class="col"><p>{{ DICTIONARY[resource.image].instance_number }}:</p></div>
           <div class="col"><span>{{ resource[DICTIONARY[resource.image].total_instance_number] }}</span></div>
         </div>
+        <div class="row-wrap" *ngIf="DICTIONARY.cloud_provider === 'gcp' && resource.image === 'docker.dlab-dataengine-service'">
+          <div class="col"><p>{{ DICTIONARY[resource.image].slave_instance_number }}:</p></div>
+          <div class="col"><span>{{ resource[DICTIONARY[resource.image].total_slave_instance_number] }}</span></div>
+        </div>
         <div class="row-wrap">
          <div class="col"><p>{{ DICTIONARY[resource.image].data_engine_master_instance_size }}:</p></div>
          <div class="col"><span>{{ resource[DICTIONARY[resource.image].master_node_shape] }}</span></div>

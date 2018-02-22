@@ -151,6 +151,7 @@ if __name__ == "__main__":
         with open("/root/result.json", 'w') as result:
             res = {"hostname": dataproc_conf['cluster_name'],
                    "key_name": dataproc_conf['key_name'],
+                   "instance_id": dataproc_conf['cluster_name'],
                    "user_own_bucket_name": dataproc_conf['bucket_name'],
                    "Action": "Create new Dataproc cluster"}
             print(json.dumps(res))

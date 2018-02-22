@@ -23,6 +23,7 @@ import com.epam.dlab.backendapi.validation.SelfServiceCloudConfigurationSequence
 import com.epam.dlab.config.azure.AzureLoginConfiguration;
 import com.epam.dlab.validation.AwsValidation;
 import com.epam.dlab.validation.AzureValidation;
+import com.epam.dlab.validation.GcpValidation;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.util.Duration;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -30,6 +31,7 @@ import org.hibernate.validator.group.GroupSequenceProvider;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.List;
 
 /**
  * Configuration for Self Service.
@@ -53,11 +55,11 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @JsonProperty
     private int maxEmrSpotInstanceBidPct;
 
-    @Min(value = 2, groups = {AzureValidation.class, AwsValidation.class})
+    @Min(value = 2, groups = {AzureValidation.class, AwsValidation.class, GcpValidation.class})
     @JsonProperty
     private int minSparkInstanceCount;
 
-    @Max(value = 1000, groups = {AzureValidation.class, AwsValidation.class})
+    @Max(value = 1000, groups = {AzureValidation.class, AwsValidation.class, GcpValidation.class})
     @JsonProperty
     private int maxSparkInstanceCount;
 
@@ -79,6 +81,17 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
     @NotEmpty(groups = AwsValidation.class)
     @JsonProperty
     private String billingConfFile;
+
+    @JsonProperty
+    private List<Integer> dataprocAvailableMasterInstanceCount;
+    @JsonProperty
+    private int minDataprocSlaveInstanceCount;
+    @JsonProperty
+    private int maxDataprocSlaveInstanceCount;
+    @JsonProperty
+    private int minDataprocPreemptibleCount;
+    @JsonProperty
+    private int maxUserNameLength;
 
     /**
      * Returns the minimum number of slave EMR instances than could be created.
@@ -151,5 +164,26 @@ public class SelfServiceApplicationConfiguration extends ServiceConfiguration {
      */
     public AzureLoginConfiguration getAzureLoginConfiguration() {
         return azureLoginConfiguration;
+    }
+
+
+    public int getMinDataprocSlaveInstanceCount() {
+        return minDataprocSlaveInstanceCount;
+    }
+
+    public List<Integer> getDataprocAvailableMasterInstanceCount() {
+        return dataprocAvailableMasterInstanceCount;
+    }
+
+    public int getMaxDataprocSlaveInstanceCount() {
+        return maxDataprocSlaveInstanceCount;
+    }
+
+    public int getMinDataprocPreemptibleCount() {
+        return minDataprocPreemptibleCount;
+    }
+
+    public int getMaxUserNameLength() {
+        return maxUserNameLength;
     }
 }

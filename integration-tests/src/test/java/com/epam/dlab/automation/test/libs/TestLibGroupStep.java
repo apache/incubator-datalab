@@ -20,7 +20,6 @@ package com.epam.dlab.automation.test.libs;
 
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.epam.dlab.automation.helper.NamingHelper;
-import com.epam.dlab.automation.http.ContentType;
 import com.epam.dlab.automation.http.HttpRequest;
 import com.epam.dlab.automation.http.HttpStatusCode;
 import com.epam.dlab.automation.model.JsonMapperDto;
@@ -86,14 +85,13 @@ public class TestLibGroupStep extends TestLibStep {
         if (response.getStatusCode() == HttpStatusCode.OK) {
             List<String> availableGroups = response.getBody().jsonPath().getList("", String.class);
 
+            LOGGER.info("Expected groups {}", expectedGroups);
+
             LOGGER.info("Available groups {}", availableGroups);
 
             for (String lib : expectedGroups) {
                 Assert.assertTrue(availableGroups.contains(lib), String.format("%s lib groups is not available for %s", lib, notebookName));
             }
-
-            Assert.assertTrue(availableGroups.size() == expectedGroups.size(),
-                    String.format("%s Expected groups %s are different from actual %s", notebookName, expectedGroups, availableGroups));
 
         } else {
             LOGGER.error("Response status {}, body {}", response.getStatusCode(), response.getBody().print());

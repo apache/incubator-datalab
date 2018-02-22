@@ -24,8 +24,11 @@ import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
 import com.epam.dlab.cloud.CloudModule;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
+import com.epam.dlab.rest.mappers.ResourceAlreadyExistExceptionMapper;
+import com.epam.dlab.rest.mappers.ResourceNotFoundExceptionMapper;
 import com.epam.dlab.rest.mappers.RuntimeExceptionMapper;
 import com.epam.dlab.utils.ServiceUtils;
+import com.fiestacabin.dropwizard.quartz.ManagedScheduler;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.thomaskrille.dropwizard_template_config.TemplateConfigBundle;
@@ -70,7 +73,7 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
     }
 
     @Override
-    public void run(SelfServiceApplicationConfiguration configuration, Environment environment) throws Exception {
+    public void run(SelfServiceApplicationConfiguration configuration, Environment environment) {
 
         CloudModule cloudModule = ModuleFactory.getCloudProviderModule(configuration);
         Injector injector = Guice.createInjector(ModuleFactory.getModule(configuration, environment), cloudModule);
@@ -80,10 +83,13 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
         environment.lifecycle().manage(injector.getInstance(IndexCreator.class));
         environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
         environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
+        environment.lifecycle().manage(injector.getInstance(ManagedScheduler.class));
 
         JerseyEnvironment jersey = environment.jersey();
         jersey.register(new RuntimeExceptionMapper());
         jersey.register(new JsonProcessingExceptionMapper());
+        jersey.register(new ResourceAlreadyExistExceptionMapper());
+        jersey.register(new ResourceNotFoundExceptionMapper());
         jersey.register(MultiPartFeature.class);
         jersey.register(injector.getInstance(SecurityResource.class));
         jersey.register(injector.getInstance(KeyUploaderResource.class));
@@ -106,5 +112,12 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 
         jersey.register(injector.getInstance(GitCredsResource.class));
         jersey.register(injector.getInstance(GitCredsCallback.class));
+		jersey.register(injector.getInstance(SchedulerJobResource.class));
+        jersey.register(injector.getInstance(ImageExploratoryResource.class));
+        jersey.register(injector.getInstance(ImageCallback.class));
+        jersey.register(injector.getInstance(BackupResource.class));
+        jersey.register(injector.getInstance(BackupCallback.class));
     }
+
+
 }

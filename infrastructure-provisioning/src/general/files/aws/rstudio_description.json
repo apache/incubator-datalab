@@ -18,10 +18,10 @@
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "RStudio 1.0.143",
+      "template_name": "RStudio 1.1.383",
       "description": "Base image with RStudio node creation routines",
       "environment_type": "exploratory",
-      "version": "RStudio-1.0.143",
+      "version": "RStudio-1.1.383",
       "vendor": "AWS"
     }
   ]

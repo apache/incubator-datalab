@@ -40,7 +40,7 @@ public class NotebookConfig {
     private String timeoutNotebookStartup = "20m";
 
     @JsonProperty("timeout_notebook_shutdown")
-    private String timeoutNotebookShutdown = "10m";
+    private String timeoutNotebookShutdown = "20m";
 
 
     @JsonProperty("timeout_cluster_create")

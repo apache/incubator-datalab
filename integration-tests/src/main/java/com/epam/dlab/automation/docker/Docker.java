@@ -43,6 +43,8 @@ public class Docker {
     
     private static final String DOCKER_STATUS_EXIT0 = "Exited (0)";
 
+    private Docker(){}
+
     public static void checkDockerStatus(String containerName, String ip)
             throws Exception {
         

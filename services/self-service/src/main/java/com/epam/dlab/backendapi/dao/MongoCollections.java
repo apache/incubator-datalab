@@ -43,4 +43,8 @@ public interface MongoCollections {
     String GIT_CREDS = "gitCreds";
     /** RequestId */
     String REQUEST_ID = "requestId";
+    /** Images */
+    String IMAGES = "images";
+    /** Images */
+    String BACKUPS = "backup";
 }

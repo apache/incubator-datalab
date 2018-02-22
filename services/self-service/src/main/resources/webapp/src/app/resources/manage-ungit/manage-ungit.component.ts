@@ -16,10 +16,10 @@ limitations under the License.
 
 ****************************************************************************/
 
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Response } from '@angular/http';
-import { MdDialog, MdDialogRef, MdDialogConfig } from '@angular/material';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { AccountCredentials, MangeUngitModel } from './manage-ungit.model';
 import { ManageUngitService } from './../../core/services';
@@ -28,8 +28,8 @@ import { ErrorMapUtils, HTTP_STATUS_CODES } from './../../core/util';
 @Component({
   selector: 'dlab-manage-ungit',
   templateUrl: './manage-ungit.component.html',
-  styleUrls: ['./manage-ungit.component.css',
-              '../exploratory/install-libraries/install-libraries.component.css']
+  styleUrls: ['./manage-ungit.component.scss',
+              '../exploratory/install-libraries/install-libraries.component.scss']
 })
 export class ManageUngitComponent implements OnInit {
   model: MangeUngitModel;
@@ -53,7 +53,8 @@ export class ManageUngitComponent implements OnInit {
   constructor(
     private manageUngitService: ManageUngitService,
     private _fb: FormBuilder,
-    public dialog: MdDialog) {
+    public dialog: MatDialog
+  ) {
     this.model = MangeUngitModel.getDefault(manageUngitService);
   }
 
@@ -114,7 +115,7 @@ export class ManageUngitComponent implements OnInit {
   }
 
   public deleteAccount(item: AccountCredentials) {
-    const dialogRef: MdDialogRef<DialogResultExampleDialog> = this.dialog.open(DialogResultExampleDialog, { data: item, width: '550px' });
+    const dialogRef: MatDialogRef<ConfirmDeleteAccountDialog> = this.dialog.open(ConfirmDeleteAccountDialog, { data: item, width: '550px' });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.gitCredentials.splice(this.gitCredentials.indexOf(item), 1);
@@ -190,19 +191,22 @@ export class ManageUngitComponent implements OnInit {
 @Component({
   selector: 'dialog-result-example-dialog',
   template: `
-  <div md-dialog-content class="content">
-    <p>Account <strong>{{ dialogRef.config.data.hostname }}</strong> will be decommissioned.</p>
-    <p><strong>Do you want to proceed?</strong></p>
+  <div mat-dialog-content class="content">
+    <p>Account <strong>{{ data.hostname }}</strong> will be decommissioned.</p>
+    <p class="m-top-20"><strong>Do you want to proceed?</strong></p>
   </div>
   <div class="text-center">
-    <button type="button" class="butt" md-raised-button (click)="dialogRef.close()">No</button>
-    <button type="button" class="butt butt-success" md-raised-button (click)="dialogRef.close(true)">Yes</button>
+    <button type="button" class="butt" mat-raised-button (click)="dialogRef.close()">No</button>
+    <button type="button" class="butt butt-success" mat-raised-button (click)="dialogRef.close(true)">Yes</button>
   </div>
   `,
   styles: [`
     .content { color: #718ba6; padding: 20px 50px; font-size: 14px; font-weight: 400 }
   `]
 })
-export class DialogResultExampleDialog {
-  constructor(public dialogRef: MdDialogRef<DialogResultExampleDialog>) { }
+export class ConfirmDeleteAccountDialog {
+  constructor(
+    public dialogRef: MatDialogRef<ConfirmDeleteAccountDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) { }
 }

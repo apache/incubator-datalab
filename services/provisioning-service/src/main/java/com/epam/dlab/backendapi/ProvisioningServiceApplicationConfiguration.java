@@ -79,6 +79,10 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
 
     @JsonProperty
     private Duration processTimeout = Duration.hours(3);
+    @JsonProperty
+    private String backupScriptPath;
+    @JsonProperty
+    private String backupDirectory;
 
     public String getKeyDirectory() {
         return keyDirectory;
@@ -151,4 +155,11 @@ public class ProvisioningServiceApplicationConfiguration extends ServiceConfigur
         return processTimeout;
     }
 
+    public String getBackupScriptPath() {
+        return backupScriptPath;
+    }
+
+    public String getBackupDirectory() {
+        return backupDirectory;
+    }
 }

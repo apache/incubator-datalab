@@ -67,7 +67,7 @@ DLab is an essential toolset for analytics. It is a self-service Web Console, us
 ----------------------------
 # Logical architecture <a name="Logical_architecture"></a>
 
-The following diagram demonstrates high-level logical architecture of DLab.
+The following diagram demonstrate high-level logical architecture.
 
 ![Logical architecture](doc/logical_architecture.png)
 
@@ -100,10 +100,11 @@ Database serves as a storage with description of user infrastructure, user’s s
 -----------------------------
 # Physical architecture <a name="Physical_architecture"></a>
 
-The following diagram demonstrates high-level physical architecture of DLab in AWS
+The following diagrams demonstrate high-level physical architecture of DLab in AWS and Azure.
 
 ![Physical architecture](doc/physical_architecture.png)
 
+![Physical architecture](doc/azure_dlab_arch.png)
 
 ## Main components
 
@@ -377,7 +378,7 @@ azure\_currency, azure\_locale, azure\_region_info. These DLab deploy properties
 1. Configure application in Azure portal and grant proper permissions to it.
 - Open *Azure Active Directory* tab, then *App registrations* and click *New application registration*
 - Fill in ui form with the following parameters *Name* - put name of the new application, *Application type* - select Native, *Sign-on URL* put any valid url as it will be updated later
-- Grant proper permissions to the application. Select the application you just created on *App registration* view, then click *Required permissions*, then *Add->Select an API-> Azure Data Lake* and press *Select*, then check the box *Have full access to the Azure Data Lake service* and save the changes. Repeat the same actions for *Windows Azure Active Directory* API (available on *Required permissions->Add->Select an API*) and the box *Sign in and read user profile*
+- Grant proper permissions to the application. Select the application you just created on *App registration* view, then click *Required permissions*, then *Add->Select an API-> In search field type MicrosoftAzureQueryService* and press *Select*, then check the box *Have full access to the Azure Data Lake service* and save the changes. Repeat the same actions for *Windows Azure Active Directory* API (available on *Required permissions->Add->Select an API*) and the box *Sign in and read user profile*
 - Get *Application ID* from application properties  it will be used as azure_application_id for deploy_dlap.py script 
 2. Usage of Data Lake resource predicts shared folder where all users can write or read any data. To manage access to this folder please create ot use existing group in Active Directory. All users from this group will have RW access to the shared folder. Put ID(in Active Directory) of the group as *azure_ad_group_id* parameter to deploy_dlab.py script
 3. After execution of deploy_dlab.py script go to the application created in step 1 and change *Redirect URIs* value to the https://SSN_HOSTNAME/ where SSN_HOSTNAME - SSN node hostname 
@@ -432,7 +433,7 @@ List of parameters for SSN node deployment:
 | action                       | In case of SSN node creation, this parameter should be set to “create”                  |
 
 
-**Note:** In current release, Web UI and back-end won't be working. For managing further nodes, Jenkins will be installed on SSN node. URL and credentials will be provided at the end of executing *dlab-deploy.py* script.
+**Note:** If you gonna use Dataproc cluster, be aware that Dataproc has limited availability in GCP regions. [Cloud Dataproc availability by Region in GCP](https://cloud.google.com/about/locations/)
 
 After SSN node deployment following GCP resources will be created:
 
@@ -2279,10 +2280,10 @@ Example of this file for Jupyter node for AWS cloud:
   "exploratory_environment_versions" :
   [
     {
-      "template_name": "Jupyter notebook 5.0.0",
+      "template_name": "Jupyter notebook 5.2.0",
       "description": "Base image with jupyter node creation routines",
       "environment_type": "exploratory",
-      "version": "jupyter_notebook-5.0.0",
+      "version": "jupyter_notebook-5.2.0",
       "vendor": "Azure"
     }
   ]

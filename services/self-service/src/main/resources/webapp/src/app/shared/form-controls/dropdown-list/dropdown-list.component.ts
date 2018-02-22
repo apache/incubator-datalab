@@ -17,7 +17,14 @@ limitations under the License.
 ****************************************************************************/
 
 import { Output, Component, EventEmitter, ViewEncapsulation } from '@angular/core';
-import { DropdownListModel } from './dropdown-list.model';
+
+export class DropdownListModel {
+  constructor(
+    public type: string,
+    public value: string,
+    public index: number
+  ) { }
+}
 
 @Component({
   moduleId: module.id,

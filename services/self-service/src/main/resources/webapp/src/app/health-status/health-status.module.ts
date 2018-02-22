@@ -18,20 +18,22 @@ limitations under the License.
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MaterialModule } from '@angular/material';
+import { MaterialModule } from './../shared/material.module';
 
-import { NavbarModule } from './../shared';
+import { NavbarModule, ModalModule } from './../shared';
 import { HealthStatusComponent } from './health-status.component';
 import { HealthStatusGridModule } from './health-status-grid/health-status-grid.module';
+import { BackupDilogComponent } from './backup-dilog/backup-dilog.component';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        NavbarModule,
-        HealthStatusGridModule,
-        MaterialModule.forRoot()
-    ],
-    declarations: [HealthStatusComponent],
-    exports: [HealthStatusComponent]
+  imports: [
+    CommonModule,
+    NavbarModule,
+    ModalModule,
+    HealthStatusGridModule,
+    MaterialModule
+  ],
+  declarations: [HealthStatusComponent, BackupDilogComponent],
+  exports: [HealthStatusComponent]
 })
-export class HealthStatusModule { }
+export class HealthStatusModule {}

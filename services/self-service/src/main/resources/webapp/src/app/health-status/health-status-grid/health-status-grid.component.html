@@ -36,9 +36,18 @@ limitations under the License.
 
       <bubble-up #actions class="list-menu" position="bottom-left" alternative="top-left">
         <ul class="list-unstyled">
-          <li (click)="healthStatusAction(env, 'stop')" *ngIf="env.status.toLowerCase() === 'running'">Stop</li>
-          <li (click)="healthStatusAction(env, 'run')" *ngIf="env.status.toLowerCase() === 'stopped'">Start</li>
-          <li (click)="healthStatusAction(env, 'recreate')" *ngIf="env.status.toLowerCase() === 'terminated'">Recreate</li>
+          <li (click)="healthStatusAction(env, 'stop')" *ngIf="env.status.toLowerCase() === 'running'">
+            <i class="material-icons">pause_circle_outline</i>
+            <span>Stop</span>
+          </li>
+          <li (click)="healthStatusAction(env, 'run')" *ngIf="env.status.toLowerCase() === 'stopped'">
+            <i class="material-icons">play_circle_outline</i>
+            <span>Start</span>
+          </li>
+          <li (click)="healthStatusAction(env, 'recreate')" *ngIf="env.status.toLowerCase() === 'terminated'">
+            <i class="material-icons">refresh</i>
+            <span>Recreate</span>
+          </li>
         </ul>
       </bubble-up>
     </td>

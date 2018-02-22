@@ -21,7 +21,7 @@ package com.epam.dlab.backendapi.core.commands;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ImagesDockerCommand implements DockerCommand {
+public class ImagesDockerCommand implements CmdCommand {
     private String command = "docker images";
 
     private List<UnixCommand> unixCommands;

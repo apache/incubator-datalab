@@ -17,10 +17,18 @@
 package com.epam.dlab.backendapi.modules;
 
 import com.epam.dlab.ModuleBase;
+import com.epam.dlab.auth.SystemUserInfoService;
+import com.epam.dlab.auth.SystemUserInfoServiceImpl;
 import com.epam.dlab.auth.UserInfo;
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
+import com.epam.dlab.backendapi.auth.SelfServiceSecurityAuthorizer;
+import com.epam.dlab.backendapi.dao.BackupDao;
+import com.epam.dlab.backendapi.dao.BackupDaoImpl;
+import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.dao.ImageExploratoryDaoImpl;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.RequestId;
+import com.epam.dlab.backendapi.service.*;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserCredentialDTO;
@@ -29,8 +37,8 @@ import com.epam.dlab.rest.client.RESTService;
 import com.epam.dlab.rest.contracts.DockerAPI;
 import com.epam.dlab.rest.contracts.SecurityAPI;
 import com.google.inject.name.Names;
+import io.dropwizard.auth.Authorizer;
 import io.dropwizard.setup.Environment;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.core.Response;
@@ -46,6 +54,7 @@ import static org.mockito.Mockito.when;
 public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> implements SecurityAPI, DockerAPI {
 
     private static final String LOGIN_NAME = "test";
+    public static final String TOKEN = "token123";
 
     /**
      * Instantiates an application configuration of SelfService for developer mode.
@@ -65,17 +74,24 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
                 .toInstance(createAuthenticationService());
         requestStaticInjection(EnvStatusListener.class, RequestId.class, RequestBuilder.class);
         bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
-                .toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
+				.toInstance(configuration.getProvisioningFactory()
+						.build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
+        bind(ImageExploratoryService.class).to(ImageExploratoryServiceImpl.class);
+        bind(ImageExploratoryDao.class).to(ImageExploratoryDaoImpl.class);
+        bind(BackupService.class).to(BackupServiceImpl.class);
+        bind(BackupDao.class).to(BackupDaoImpl.class);
+        bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
+        bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
+		bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
     }
 
     /**
      * Create and return UserInfo object.
      */
     private UserInfo getUserInfo() {
-        UserInfo userInfo = new UserInfo(LOGIN_NAME, "token123");
+        UserInfo userInfo = new UserInfo(LOGIN_NAME, TOKEN);
         userInfo.addRole("test");
         userInfo.addRole("dev");
-        System.out.println("Create UserInfo " + userInfo);
         return userInfo;
     }
 
@@ -85,20 +101,18 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
     private RESTService createAuthenticationService() {
         RESTService result = mock(RESTService.class);
         when(result.post(eq(LOGIN), any(), any())).then(
-                new Answer<Response>() {
-                    public Response answer(InvocationOnMock invocation) throws Throwable {
-                        for (Object o : invocation.getArguments()) {
-                            if (o instanceof UserCredentialDTO) {
-                                UserCredentialDTO credential = (UserCredentialDTO) o;
-                                if (LOGIN_NAME.equals(credential.getUsername())) {
-                                    return Response.ok("token123").build();
-                                }
+                (Answer<Response>) invocation -> {
+                    for (Object o : invocation.getArguments()) {
+                        if (o instanceof UserCredentialDTO) {
+                            UserCredentialDTO credential = (UserCredentialDTO) o;
+                            if (LOGIN_NAME.equals(credential.getUsername())) {
+                                return Response.ok(TOKEN).build();
                             }
                         }
-                        return Response.status(Response.Status.UNAUTHORIZED).entity("Username or password are not valid").build();
                     }
+                    return Response.status(Response.Status.UNAUTHORIZED).entity("Username or password are not valid").build();
                 });
-        when(result.post(eq(GET_USER_INFO), eq("token123"), eq(UserInfo.class)))
+        when(result.post(eq(GET_USER_INFO), eq(TOKEN), eq(UserInfo.class)))
                 .thenReturn(getUserInfo());
         return result;
     }
