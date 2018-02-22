@@ -81,8 +81,8 @@ public class GcpHelper {
 	}
 
 	public static List<String> getInstancePrivateIps(Instance instance) {
-		return instance.getNetworkInterfaces().stream()
-				.map(NetworkInterface::getNetworkIP)
+		return instance.getNetworkInterfaces().stream().filter(Objects::nonNull)
+				.map(NetworkInterface::getNetworkIP).filter(Objects::nonNull)
 				.collect(Collectors.toList());
 	}
 
