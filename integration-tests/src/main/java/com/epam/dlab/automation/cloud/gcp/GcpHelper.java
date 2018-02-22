@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -90,8 +91,9 @@ public class GcpHelper {
 
 	public static List<String> getInstancePublicIps(Instance instance) {
 		return instance.getNetworkInterfaces().stream()
-				.map(e -> e.getAccessConfigs().stream().map(AccessConfig::getNatIP))
-				.flatMap(Function.identity()).collect(Collectors.toList());
+				.filter(Objects::nonNull)
+				.map(e -> e.getAccessConfigs().stream().filter(Objects::nonNull).map(AccessConfig::getNatIP))
+				.flatMap(Function.identity()).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 
 
