@@ -103,9 +103,10 @@ export class UserResourceService {
       .map((response: Response) => response);
   }
 
-  public getUserImages(): Observable<Response> {
+  public getUserImages(image): Observable<Response> {
+    const body = `?docker_image=${image}`;
     return this.applicationServiceFacade
-      .buildGetUserImages()
+      .buildGetUserImages(body)
       .map((response: Response) => response.json());
   }
 
