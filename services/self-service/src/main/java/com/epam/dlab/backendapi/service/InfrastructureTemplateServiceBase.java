@@ -27,7 +27,7 @@ import static com.epam.dlab.rest.contracts.DockerAPI.DOCKER_COMPUTATIONAL;
 import static com.epam.dlab.rest.contracts.DockerAPI.DOCKER_EXPLORATORY;
 
 @Slf4j
-public abstract class InfrastructureTemplatesServiceBase implements InfrastructureTemplatesService {
+public abstract class InfrastructureTemplateServiceBase implements InfrastructureTemplateService {
 
     @Inject
     private SelfServiceApplicationConfiguration configuration;

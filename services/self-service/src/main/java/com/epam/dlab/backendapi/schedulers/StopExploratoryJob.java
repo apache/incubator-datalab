@@ -29,13 +29,13 @@ import org.quartz.JobExecutionContext;
  */
 @Slf4j
 @Scheduled(interval = 10)
-public class StopExploratoryJob implements Job{
+public class StopExploratoryJob implements Job {
 
-    @Inject
+	@Inject
 	private SchedulerJobService schedulerJobService;
 
-    @Override
-    public void execute(JobExecutionContext jobExecutionContext){
+	@Override
+	public void execute(JobExecutionContext jobExecutionContext) {
 		schedulerJobService.executeStopExploratoryJob();
 	}
 

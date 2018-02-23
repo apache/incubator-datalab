@@ -38,7 +38,7 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class SchedulerJobResource {
 
-    @Inject
+	@Inject
 	private SchedulerJobService schedulerJobService;
 
 
@@ -50,41 +50,42 @@ public class SchedulerJobResource {
 	 * @param dto             scheduler job data
 	 * @return response
 	 */
-    @POST
-    @Path("/{exploratoryName}")
-    public Response create(@Auth UserInfo userInfo, @PathParam("exploratoryName") String exploratoryName,
-                           SchedulerJobDTO dto) {
+	@POST
+	@Path("/{exploratoryName}")
+	public Response create(@Auth UserInfo userInfo, @PathParam("exploratoryName") String exploratoryName,
+						   SchedulerJobDTO dto) {
 		log.debug("Updating exploratory {} for user {} with new scheduler job data {}...",
 				exploratoryName, userInfo.getName(), dto);
 		schedulerJobService.updateSchedulerDataForUserAndExploratory(userInfo.getName(), exploratoryName, dto);
-        return Response.ok().build();
-    }
+		return Response.ok().build();
+	}
 
-    /**
-     * Returns scheduler job for dlab resource <code>exploratoryName<code/>
-     *
-     * @param userInfo          user info
-     * @param exploratoryName   name of exploratory resource
-     * @return scheduler job data
-     */
-    @GET
-    @Path("/{exploratoryName}")
-    public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(@Auth UserInfo userInfo,
-                                                             @PathParam("exploratoryName") String exploratoryName) {
+	/**
+	 * Returns scheduler job for dlab resource <code>exploratoryName<code/>
+	 *
+	 * @param userInfo        user info
+	 * @param exploratoryName name of exploratory resource
+	 * @return scheduler job data
+	 */
+	@GET
+	@Path("/{exploratoryName}")
+	public SchedulerJobDTO fetchSchedulerJobForUserAndExploratory(@Auth UserInfo userInfo,
+																  @PathParam("exploratoryName") String
+																		  exploratoryName) {
 
 		log.debug("Loading scheduler job for user {} and exploratory {}...", userInfo.getName(), exploratoryName);
 		try {
 			SchedulerJobDTO job = schedulerJobService.fetchSchedulerJobForUserAndExploratory(userInfo.getName(),
 					exploratoryName);
 			log.info("Scheduler job data: {}", job);
-            return job;
+			return job;
 
-        } catch (Exception t) {
+		} catch (Exception t) {
 			log.error("Cannot load scheduler job for user {} and exploratory {} an {}", userInfo.getName(),
 					exploratoryName, t);
-            throw new DlabException("Cannot load scheduler job: " + t.getLocalizedMessage(), t);
-        }
-    }
+			throw new DlabException("Cannot load scheduler job: " + t.getLocalizedMessage(), t);
+		}
+	}
 
 }
 

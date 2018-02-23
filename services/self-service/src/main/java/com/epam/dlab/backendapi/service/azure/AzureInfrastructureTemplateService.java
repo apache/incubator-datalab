@@ -1,6 +1,6 @@
 package com.epam.dlab.backendapi.service.azure;
 
-import com.epam.dlab.backendapi.service.InfrastructureTemplatesServiceBase;
+import com.epam.dlab.backendapi.service.InfrastructureTemplateServiceBase;
 import com.epam.dlab.dto.base.computational.FullComputationalTemplate;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.google.inject.Singleton;
@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Singleton
 @Slf4j
-public class AzureInfrastructureTemplatesService extends InfrastructureTemplatesServiceBase {
+public class AzureInfrastructureTemplateService extends InfrastructureTemplateServiceBase {
 
     @Override
     protected FullComputationalTemplate getCloudFullComputationalTemplate(ComputationalMetadataDTO metadataDTO) {

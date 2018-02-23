@@ -45,7 +45,6 @@ import com.epam.dlab.dto.backup.EnvBackupDTO;
 import com.epam.dlab.dto.base.CloudSettings;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.base.computational.ComputationalBase;
-import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.epam.dlab.dto.base.keyload.UploadFile;
 import com.epam.dlab.dto.computational.ComputationalTerminateDTO;
 import com.epam.dlab.dto.computational.UserComputationalResource;
@@ -141,14 +140,11 @@ public class RequestBuilder {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static UploadFile newEdgeKeyUpload(UserInfo userInfo, String content, EdgeInfo edgeInfo) {
+	public static UploadFile newEdgeKeyUpload(UserInfo userInfo, String content) {
 
 		switch (cloudProvider()) {
 			case AWS:
 				EdgeCreateAws edgeCreateAws = newResourceSysBaseDTO(userInfo, EdgeCreateAws.class);
-				if (edgeInfo != null) {
-					edgeCreateAws.setEdgeElasticIp(edgeInfo.getPublicIp());
-				}
 				UploadFileAws uploadFileAws = new UploadFileAws();
 				uploadFileAws.setEdge(edgeCreateAws);
 				uploadFileAws.setContent(content);

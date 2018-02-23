@@ -16,27 +16,22 @@
 
 package com.epam.dlab.backendapi.service.aws;
 
-import com.epam.dlab.backendapi.service.InfrastructureInfoService;
+import com.epam.dlab.backendapi.service.impl.InfrastructureInfoServiceBase;
 import com.epam.dlab.dto.aws.edge.EdgeInfoAws;
-import com.epam.dlab.dto.base.edge.EdgeInfo;
 import com.google.inject.Singleton;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Singleton
-public class AwsInfrastructureInfoService implements InfrastructureInfoService {
-    @Override
-    public Map<String, String> getSharedInfo(EdgeInfo edgeInfo) {
-        return getSharedInfo((EdgeInfoAws) edgeInfo);
-    }
+public class AwsInfrastructureInfoService extends InfrastructureInfoServiceBase<EdgeInfoAws> {
 
-    private Map<String, String> getSharedInfo(EdgeInfoAws edgeInfo) {
-        Map<String, String> shared = new HashMap<>();
-        shared.put("edge_node_ip", edgeInfo.getPublicIp());
-        shared.put("user_own_bicket_name", edgeInfo.getUserOwnBucketName());
-        shared.put("shared_bucket_name", edgeInfo.getSharedBucketName());
-
-        return shared;
-    }
+	@Override
+	protected Map<String, String> getSharedInfo(EdgeInfoAws edgeInfo) {
+		Map<String, String> shared = new HashMap<>();
+		shared.put("edge_node_ip", edgeInfo.getPublicIp());
+		shared.put("user_own_bicket_name", edgeInfo.getUserOwnBucketName());
+		shared.put("shared_bucket_name", edgeInfo.getSharedBucketName());
+		return shared;
+	}
 }
