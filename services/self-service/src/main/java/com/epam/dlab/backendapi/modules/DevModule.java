@@ -86,6 +86,9 @@ public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> i
 		bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
 		bind(AccessKeyService.class).to(AccessKeyServiceImpl.class);
 		bind(GitCredentialService.class).to(GitCredentialServiceImpl.class);
+		bind(ComputationalService.class).to(ComputationalServiceImpl.class);
+		bind(LibraryService.class).to(LibraryServiceImpl.class);
+		bind(SchedulerJobService.class).to(SchedulerJobServiceImpl.class);
 	}
 
 	/**

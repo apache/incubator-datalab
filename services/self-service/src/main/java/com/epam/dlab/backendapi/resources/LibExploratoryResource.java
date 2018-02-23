@@ -58,169 +58,180 @@ import java.util.stream.Collectors;
 @Slf4j
 public class LibExploratoryResource {
 
-    @Inject
-    private ExploratoryDAO exploratoryDAO;
+	@Inject
+	private ExploratoryDAO exploratoryDAO;
 
-    @Inject
-    private ExploratoryLibDAO libraryDAO;
+	@Inject
+	private ExploratoryLibDAO libraryDAO;
 
-    @Inject
-    private LibraryService libraryService;
+	@Inject
+	private LibraryService libraryService;
 
-    @Inject
-    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
-    private RESTService provisioningService;
+	@Inject
+	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
+	private RESTService provisioningService;
 
-    /**
-     * Returns the list of libraries groups for exploratory.
-     *
-     * @param userInfo          user info.
-     * @param exploratoryName   name of exploratory
-     * @param computationalName name of computational cluster
-     * @return library groups
-     */
-    @GET
-    @Path("/lib_groups")
-    public Iterable<String> getLibGroupList(@Auth UserInfo userInfo,
-                                            @QueryParam("exploratory_name") @NotBlank String exploratoryName,
-                                            @QueryParam("computational_name") String computationalName) {
+	/**
+	 * Returns the list of libraries groups for exploratory.
+	 *
+	 * @param userInfo          user info.
+	 * @param exploratoryName   name of exploratory
+	 * @param computationalName name of computational cluster
+	 * @return library groups
+	 */
+	@GET
+	@Path("/lib_groups")
+	public Iterable<String> getLibGroupList(@Auth UserInfo userInfo,
+											@QueryParam("exploratory_name") @NotBlank String exploratoryName,
+											@QueryParam("computational_name") String computationalName) {
 
-        log.trace("Loading list of lib groups for user {} and exploratory {}, computational {}", userInfo.getName(),
-                exploratoryName, computationalName);
-        try {
-            if (StringUtils.isEmpty(computationalName)) {
-                UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), exploratoryName);
-                return ExploratoryLibCache.getCache().getLibGroupList(userInfo, userInstance);
-            } else {
-                UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
-                        exploratoryName, computationalName);
+		log.trace("Loading list of lib groups for user {} and exploratory {}, computational {}", userInfo.getName(),
+				exploratoryName, computationalName);
+		try {
+			if (StringUtils.isEmpty(computationalName)) {
+				UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
+						exploratoryName);
+				return ExploratoryLibCache.getCache().getLibGroupList(userInfo, userInstance);
+			} else {
+				UserInstanceDTO userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
+						exploratoryName, computationalName);
 
-                userInstance.setResources(userInstance.getResources().stream()
-                        .filter(e -> e.getComputationalName().equals(computationalName))
-                        .collect(Collectors.toList()));
+				userInstance.setResources(userInstance.getResources().stream()
+						.filter(e -> e.getComputationalName().equals(computationalName))
+						.collect(Collectors.toList()));
 
-                return ExploratoryLibCache.getCache().getLibGroupList(userInfo, userInstance);
-            }
-        } catch (Exception t) {
-            log.error("Cannot load list of lib groups for user {} and exploratory {}", userInfo.getName(), exploratoryName, t);
-            throw new DlabException("Cannot load list of libraries groups: " + t.getLocalizedMessage(), t);
-        }
-    }
+				return ExploratoryLibCache.getCache().getLibGroupList(userInfo, userInstance);
+			}
+		} catch (Exception t) {
+			log.error("Cannot load list of lib groups for user {} and exploratory {}", userInfo.getName(),
+					exploratoryName, t);
+			throw new DlabException("Cannot load list of libraries groups: " + t.getLocalizedMessage(), t);
+		}
+	}
 
-    /**
-     * Returns list of installed/failed libraries for dlab resource <code>exploratoryName<code/>
-     * and <code>computationalName<code/> resource
-     *
-     * @param userInfo          user info
-     * @param exploratoryName   name of exploratory resource
-     * @param computationalName name of computational cluster
-     * @return list of libraries
-     */
-    @GET
-    @Path("/lib_list")
-    public List<Document> getLibList(@Auth UserInfo userInfo,
-                                     @QueryParam("exploratory_name") @NotBlank String exploratoryName,
-                                     @QueryParam("computational_name") String computationalName) {
+	/**
+	 * Returns list of installed/failed libraries for dlab resource <code>exploratoryName<code/>
+	 * and <code>computationalName<code/> resource
+	 *
+	 * @param userInfo          user info
+	 * @param exploratoryName   name of exploratory resource
+	 * @param computationalName name of computational cluster
+	 * @return list of libraries
+	 */
+	@GET
+	@Path("/lib_list")
+	public List<Document> getLibList(@Auth UserInfo userInfo,
+									 @QueryParam("exploratory_name") @NotBlank String exploratoryName,
+									 @QueryParam("computational_name") String computationalName) {
 
-        log.debug("Loading list of libraries for user {} and exploratory {} and computational {}", userInfo.getName(),
-                exploratoryName, computationalName);
-        try {
-            return libraryService.getLibs(userInfo.getName(), exploratoryName, computationalName);
+		log.debug("Loading list of libraries for user {} and exploratory {} and computational {}", userInfo.getName(),
+				exploratoryName, computationalName);
+		try {
+			return libraryService.getLibs(userInfo.getName(), exploratoryName, computationalName);
 
-        } catch (Exception t) {
-            log.error("Cannot load installed libraries for user {} and exploratory {} an", userInfo.getName(), exploratoryName, t);
-            throw new DlabException("Cannot load installed libraries: " + t.getLocalizedMessage(), t);
-        }
-    }
+		} catch (Exception t) {
+			log.error("Cannot load installed libraries for user {} and exploratory {} an", userInfo.getName(),
+					exploratoryName, t);
+			throw new DlabException("Cannot load installed libraries: " + t.getLocalizedMessage(), t);
+		}
+	}
 
-    /**
-     * Returns formatted representation of installed libraries or libraries that were tried to be installed for exploratory
-     * and computational resources that relate to <code>exploratoryName<code/> exploratory resource with its's statuses.
-     *
-     * @param userInfo        user info.
-     * @param exploratoryName name of exploratory resource.
-     * @return list of installed/failed libraries
-     */
-    @GET
-    @Path("/lib_list/formatted")
-    public List<LibInfoRecord> getLibListFormatted(@Auth UserInfo userInfo,
-                                                   @QueryParam("exploratory_name") @NotBlank String exploratoryName) {
+	/**
+	 * Returns formatted representation of installed libraries or libraries that were tried to be installed for
+	 * exploratory
+	 * and computational resources that relate to <code>exploratoryName<code/> exploratory resource with its's
+	 * statuses.
+	 *
+	 * @param userInfo        user info.
+	 * @param exploratoryName name of exploratory resource.
+	 * @return list of installed/failed libraries
+	 */
+	@GET
+	@Path("/lib_list/formatted")
+	public List<LibInfoRecord> getLibListFormatted(@Auth UserInfo userInfo,
+												   @QueryParam("exploratory_name") @NotBlank String exploratoryName) {
 
-        log.debug("Loading formatted list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName);
-        try {
-            return libraryService.getLibInfo(userInfo.getName(), exploratoryName);
-        } catch (Exception t) {
-            log.error("Cannot load list of libraries for user {} and exploratory {}", userInfo.getName(), exploratoryName, t);
-            throw new DlabException("Cannot load  formatted list of installed libraries: " + t.getLocalizedMessage(), t);
-        }
-    }
+		log.debug("Loading formatted list of libraries for user {} and exploratory {}", userInfo.getName(),
+				exploratoryName);
+		try {
+			return libraryService.getLibInfo(userInfo.getName(), exploratoryName);
+		} catch (Exception t) {
+			log.error("Cannot load list of libraries for user {} and exploratory {}", userInfo.getName(),
+					exploratoryName, t);
+			throw new DlabException("Cannot load  formatted list of installed libraries: " + t.getLocalizedMessage(),
+					t);
+		}
+	}
 
-    /**
-     * Install libraries to the exploratory environment.
-     *
-     * @param userInfo user info.
-     * @param formDTO  description of libraries which will be installed to the exploratory environment.
-     * @return Invocation response as JSON string.
-     */
-    @POST
-    @Path("/lib_install")
-    public Response libInstall(@Auth UserInfo userInfo, @Valid @NotNull LibInstallFormDTO formDTO) {
-        log.debug("Installing libs to environment {} for user {}", formDTO, userInfo.getName());
-        try {
+	/**
+	 * Install libraries to the exploratory environment.
+	 *
+	 * @param userInfo user info.
+	 * @param formDTO  description of libraries which will be installed to the exploratory environment.
+	 * @return Invocation response as JSON string.
+	 */
+	@POST
+	@Path("/lib_install")
+	public Response libInstall(@Auth UserInfo userInfo, @Valid @NotNull LibInstallFormDTO formDTO) {
+		log.debug("Installing libs to environment {} for user {}", formDTO, userInfo.getName());
+		try {
 
-            LibraryInstallDTO dto = libraryService.generateLibraryInstallDTO(userInfo, formDTO);
-            String uuid;
+			LibraryInstallDTO dto = libraryService.generateLibraryInstallDTO(userInfo, formDTO);
+			String uuid;
 
-            if (StringUtils.isEmpty(formDTO.getComputationalName())) {
-                uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_INSTALL, userInfo.getAccessToken(),
-                        libraryService.prepareExploratoryLibInstallation(userInfo.getName(), formDTO, dto), String.class);
-            } else {
-                uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_LIB_INSTALL, userInfo.getAccessToken(),
-                        libraryService.prepareComputationalLibInstallation(userInfo.getName(), formDTO, dto), String.class);
-            }
+			if (StringUtils.isEmpty(formDTO.getComputationalName())) {
+				uuid = provisioningService.post(ExploratoryAPI.EXPLORATORY_LIB_INSTALL, userInfo.getAccessToken(),
+						libraryService.prepareExploratoryLibInstallation(userInfo.getName(), formDTO, dto), String
+								.class);
+			} else {
+				uuid = provisioningService.post(ComputationalAPI.COMPUTATIONAL_LIB_INSTALL, userInfo.getAccessToken(),
+						libraryService.prepareComputationalLibInstallation(userInfo.getName(), formDTO, dto), String
+								.class);
+			}
 
-            RequestId.put(userInfo.getName(), uuid);
-            return Response.ok(uuid).build();
-        } catch (DlabException e) {
-            log.error("Cannot install libs to exploratory environment {} for user {}: {}",
-                    formDTO.getNotebookName(), userInfo.getName(), e.getLocalizedMessage(), e);
-            throw new DlabException("Cannot install libraries: " + e.getLocalizedMessage(), e);
-        }
-    }
+			RequestId.put(userInfo.getName(), uuid);
+			return Response.ok(uuid).build();
+		} catch (DlabException e) {
+			log.error("Cannot install libs to exploratory environment {} for user {}: {}",
+					formDTO.getNotebookName(), userInfo.getName(), e.getLocalizedMessage(), e);
+			throw new DlabException("Cannot install libraries: " + e.getLocalizedMessage(), e);
+		}
+	}
 
-    /**
-     * Returns the list of available libraries for exploratory basing on search conditions provided in @formDTO.
-     *
-     * @param userInfo user info.
-     * @param formDTO  search condition for find libraries for the exploratory environment.
-     * @return found libraries
-     */
-    @POST
-    @Path("search/lib_list")
-    public Map<String, String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull SearchLibsFormDTO formDTO) {
-        log.trace("Search list of libs for user {} with condition {}", userInfo.getName(), formDTO);
-        try {
+	/**
+	 * Returns the list of available libraries for exploratory basing on search conditions provided in @formDTO.
+	 *
+	 * @param userInfo user info.
+	 * @param formDTO  search condition for find libraries for the exploratory environment.
+	 * @return found libraries
+	 */
+	@POST
+	@Path("search/lib_list")
+	public Map<String, String> getLibList(@Auth UserInfo userInfo, @Valid @NotNull SearchLibsFormDTO formDTO) {
+		log.trace("Search list of libs for user {} with condition {}", userInfo.getName(), formDTO);
+		try {
 
-            UserInstanceDTO userInstance;
+			UserInstanceDTO userInstance;
 
-            if (StringUtils.isNotEmpty(formDTO.getComputationalName())) {
+			if (StringUtils.isNotEmpty(formDTO.getComputationalName())) {
 
-                userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
-                        formDTO.getNotebookName(), formDTO.getComputationalName());
+				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(),
+						formDTO.getNotebookName(), formDTO.getComputationalName());
 
-                userInstance.setResources(userInstance.getResources().stream()
-                        .filter(e -> e.getComputationalName().equals(formDTO.getComputationalName()))
-                        .collect(Collectors.toList()));
+				userInstance.setResources(userInstance.getResources().stream()
+						.filter(e -> e.getComputationalName().equals(formDTO.getComputationalName()))
+						.collect(Collectors.toList()));
 
-            } else {
-                userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
-            }
+			} else {
+				userInstance = exploratoryDAO.fetchExploratoryFields(userInfo.getName(), formDTO.getNotebookName());
+			}
 
-            return ExploratoryLibCache.getCache().getLibList(userInfo, userInstance, formDTO.getGroup(), formDTO.getStartWith());
-        } catch (Exception t) {
-            log.error("Cannot search libs for user {} with condition {}",
-                    userInfo.getName(), formDTO, t);
-            throw new DlabException("Cannot search libraries: " + t.getLocalizedMessage(), t);
-        }
-    }
+			return ExploratoryLibCache.getCache().getLibList(userInfo, userInstance, formDTO.getGroup(), formDTO
+					.getStartWith());
+		} catch (Exception t) {
+			log.error("Cannot search libs for user {} with condition {}",
+					userInfo.getName(), formDTO, t);
+			throw new DlabException("Cannot search libraries: " + t.getLocalizedMessage(), t);
+		}
+	}
 }
