@@ -66,6 +66,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 				.user(user.getName())
 				.libraries(fetchExploratoryLibs(libraries))
 				.computationalLibraries(fetchComputationalLibs(libraries))
+				.dockerImage(userInstance.getImageName())
 				.exploratoryId(userInstance.getId()).build());
 
 		exploratoryDAO.updateExploratoryStatus(new ExploratoryStatusDTO()
@@ -95,8 +96,8 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	}
 
 	@Override
-	public List<ImageInfoRecord> getCreatedImages(String user) {
-		return imageExploratotyDao.getCreatedImages(user);
+	public List<ImageInfoRecord> getCreatedImages(String user, String dockerImage) {
+		return imageExploratotyDao.getImages(user, ImageStatus.CREATED, dockerImage);
 	}
 
 	@Override
