@@ -65,7 +65,7 @@ public class AccessKeyServiceImpl implements AccessKeyService {
 			EdgeInfo edgeInfo = getEdgeInfo(userName);
 			UserKeyDTO key = keyDAO.fetchKey(userName, KeyLoadStatus.SUCCESS);
 			updateEdgeStatusToCreating(userName, edgeInfo);
-			return uploadKey(userInfo, key.getContent());
+			return createEdge(userInfo, key.getContent());
 		} catch (Exception e) {
 			log.error("Could not create the EDGE node for user {}", userInfo.getName(), e);
 			keyDAO.updateEdgeStatus(userInfo.getName(), UserInstanceStatus.FAILED.toString());
