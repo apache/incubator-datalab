@@ -19,10 +19,13 @@ package com.epam.dlab.backendapi;
 import com.epam.dlab.backendapi.dao.IndexCreator;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.ExploratoryLibCache;
+import com.epam.dlab.backendapi.healthcheck.MongoHealthCheck;
+import com.epam.dlab.backendapi.healthcheck.ProvisioningServiceHealthCheck;
 import com.epam.dlab.backendapi.modules.ModuleFactory;
 import com.epam.dlab.backendapi.resources.*;
 import com.epam.dlab.backendapi.resources.callback.*;
 import com.epam.dlab.cloud.CloudModule;
+import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.rest.mappers.JsonProcessingExceptionMapper;
 import com.epam.dlab.rest.mappers.ResourceAlreadyExistExceptionMapper;
 import com.epam.dlab.rest.mappers.ResourceNotFoundExceptionMapper;
@@ -82,6 +85,10 @@ public class SelfServiceApplication extends Application<SelfServiceApplicationCo
 		environment.lifecycle().manage(injector.getInstance(EnvStatusListener.class));
 		environment.lifecycle().manage(injector.getInstance(ExploratoryLibCache.class));
 		environment.lifecycle().manage(injector.getInstance(ManagedScheduler.class));
+		environment.healthChecks().register(ServiceConsts.MONGO_NAME, injector.getInstance(MongoHealthCheck.class));
+		environment.healthChecks().register(ServiceConsts.PROVISIONING_SERVICE_NAME, injector.getInstance
+				(ProvisioningServiceHealthCheck
+						.class));
 
 		JerseyEnvironment jersey = environment.jersey();
 		jersey.register(new RuntimeExceptionMapper());
