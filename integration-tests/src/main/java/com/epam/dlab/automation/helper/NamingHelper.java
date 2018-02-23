@@ -127,8 +127,7 @@ public class NamingHelper {
                 case CloudProvider.AZURE_PROVIDER:
 				case CloudProvider.GCP_PROVIDER:
 					return String.join("-", getClusterInstanceNameForTestDES(notebookName, clusterName,
-							dataEngineType), "m")
-                            .replace('_', '-');
+							dataEngineType), "m").replace('_', '-');
 				default:
                     return null;
             }
@@ -141,22 +140,25 @@ public class NamingHelper {
     public static String getClusterInstanceNameForTestDES(String notebookName, String clusterName, String dataEngineType) {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
-				if (DATA_ENGINE.equals(dataEngineType)) {
-                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
-                }
-                else {
-                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName);
-                }
+				return DATA_ENGINE.equals(dataEngineType) ?
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"de", notebookName, clusterName) :
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"des", notebookName, clusterName);
+
             case CloudProvider.AZURE_PROVIDER:
+				return DATA_ENGINE.equals(dataEngineType) ?
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"de", notebookName, clusterName).replace('_', '-') :
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"des", notebookName, clusterName).replace('_', '-');
+
 			case CloudProvider.GCP_PROVIDER:
-				if (DATA_ENGINE.equals(dataEngineType)) {
-                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName)
-                            .replace('_', '-');
-                }
-                else {
-                    return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "des", notebookName, clusterName)
-                            .replace('_', '-');
-                }
+				return DATA_ENGINE.equals(dataEngineType) ?
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"de", notebookName, clusterName).replace('_', '-') :
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"des", notebookName, clusterName, "m").replace('_', '-');
 			default:
                 return null;
         }
@@ -206,11 +208,8 @@ public class NamingHelper {
 
 	public static String getClusterName(String clusterInstanceName, String dataEngineType, boolean restrictionMode)
 			throws CloudException, IOException {
-		if (DATA_ENGINE.equals(dataEngineType)) {
-            return clusterInstanceName;
-        } else {
-            return CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
-        }
+		return DATA_ENGINE.equals(dataEngineType) ? clusterInstanceName :
+				CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
     }
 
     public static String getNotebookTestTemplatesPath(String notebookName){
