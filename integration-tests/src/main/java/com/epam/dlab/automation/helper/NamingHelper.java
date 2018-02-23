@@ -165,7 +165,7 @@ public class NamingHelper {
 
     }
 
-    public static String getNotebookContainerName(String notebookName, String action) {
+	public static String getNotebookContainerName(String notebookName, String action) {
     	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "exploratory", notebookName);
     }
     
@@ -201,18 +201,24 @@ public class NamingHelper {
         }
     }
 
-	public static String getClusterName(String clusterInstanceName, boolean restrictionMode) throws CloudException,
-			IOException {
-        return CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
-    }
-
 	public static String getClusterName(String clusterInstanceName, String dataEngineType, boolean restrictionMode)
 			throws CloudException, IOException {
-		return DATA_ENGINE.equals(dataEngineType) ? clusterInstanceName :
-				CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
+		switch (ConfigPropertyValue.getCloudProvider()) {
+			case CloudProvider.AWS_PROVIDER:
+			case CloudProvider.AZURE_PROVIDER:
+				return DATA_ENGINE.equals(dataEngineType) ? clusterInstanceName :
+						CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
+
+			case CloudProvider.GCP_PROVIDER:
+				return DATA_ENGINE.equals(dataEngineType) ? clusterInstanceName :
+						CloudHelper.getGcpDesClusterSimpleName(
+								CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode));
+			default:
+				return null;
+		}
     }
 
-    public static String getNotebookTestTemplatesPath(String notebookName){
+	public static String getNotebookTestTemplatesPath(String notebookName) {
 		if (notebookName.contains(DEEPLEARNING)) {
             return "test_templates/deeplearning/";
 		} else if (notebookName.contains(JUPYTER)) {
