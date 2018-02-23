@@ -28,6 +28,7 @@ import com.epam.dlab.backendapi.dao.ImageExploratoryDaoImpl;
 import com.epam.dlab.backendapi.domain.EnvStatusListener;
 import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.*;
+import com.epam.dlab.backendapi.service.impl.*;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.mongo.MongoService;
@@ -56,10 +57,12 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(SelfServiceApplicationConfiguration.class).toInstance(configuration);
 		bind(MongoService.class).toInstance(configuration.getMongoFactory().build(environment));
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.SECURITY_SERVICE_NAME))
-				.toInstance(configuration.getSecurityFactory().build(environment, ServiceConsts.SECURITY_SERVICE_NAME));
+				.toInstance(configuration.getSecurityFactory().build(environment, ServiceConsts
+						.SECURITY_SERVICE_NAME));
 		requestStaticInjection(EnvStatusListener.class, RequestId.class, RequestBuilder.class);
 		bind(RESTService.class).annotatedWith(Names.named(ServiceConsts.PROVISIONING_SERVICE_NAME))
-				.toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts.PROVISIONING_SERVICE_NAME));
+				.toInstance(configuration.getProvisioningFactory().build(environment, ServiceConsts
+						.PROVISIONING_SERVICE_NAME));
 		bind(ImageExploratoryService.class).to(ImageExploratoryServiceImpl.class);
 		bind(ImageExploratoryDao.class).to(ImageExploratoryDaoImpl.class);
 		bind(BackupService.class).to(BackupServiceImpl.class);
@@ -67,5 +70,7 @@ public class ProductionModule extends ModuleBase<SelfServiceApplicationConfigura
 		bind(ExploratoryService.class).to(ExploratoryServiceImpl.class);
 		bind(SystemUserInfoService.class).to(SystemUserInfoServiceImpl.class);
 		bind(Authorizer.class).to(SelfServiceSecurityAuthorizer.class);
+		bind(AccessKeyService.class).to(AccessKeyServiceImpl.class);
+		bind(GitCredentialService.class).to(GitCredentialServiceImpl.class);
 	}
 }

@@ -6,7 +6,7 @@ import com.epam.dlab.dto.imagemetadata.ExploratoryMetadataDTO;
 
 import java.util.List;
 
-public interface InfrastructureTemplatesService {
+public interface InfrastructureTemplateService {
     List<ExploratoryMetadataDTO> getExploratoryTemplates(UserInfo user);
 
     List<FullComputationalTemplate> getComputationalTemplates(UserInfo user);

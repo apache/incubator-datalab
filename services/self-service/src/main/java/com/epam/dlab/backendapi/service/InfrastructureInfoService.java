@@ -16,10 +16,11 @@
 
 package com.epam.dlab.backendapi.service;
 
-import com.epam.dlab.dto.base.edge.EdgeInfo;
-
-import java.util.Map;
+import com.epam.dlab.backendapi.resources.dto.HealthStatusPageDTO;
+import com.epam.dlab.backendapi.resources.dto.InfrastructureInfo;
 
 public interface InfrastructureInfoService {
-    Map<String, String> getSharedInfo(EdgeInfo edgeInfo);
+	InfrastructureInfo getUserResources(String user);
+
+	HealthStatusPageDTO getHeathStatus(String user, boolean fullReport, boolean backupAllowed);
 }

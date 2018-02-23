@@ -1,4 +1,4 @@
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
@@ -6,6 +6,7 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.StatusEnvBaseDTO;
