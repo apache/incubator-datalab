@@ -56,6 +56,7 @@ public class PropertiesResolver {
 
     private static String CLUSTER_CONFIG_FILE_LOCATION_PROPERTY = "ec2.config.files.location";
     private static String AZURE_CONFIG_FILE_LOCATION_PROPERTY = "azure.config.files.location";
+    private static String GCP_CONFIG_FILE_LOCATION_PROPERTY = "gcp.config.files.location";
 
     public static String getJupyterTestTemplatesLocationProperty() {
         return JUPYTER_TEST_TEMPLATES_LOCATION_PROPERTY;
@@ -200,6 +201,10 @@ public class PropertiesResolver {
 
     public static String getClusterAzureConfFileLocation() {
         return properties.getProperty(AZURE_CONFIG_FILE_LOCATION_PROPERTY );
+    }
+
+    public static String getClusterGcpConfFileLocation() {
+        return properties.getProperty(GCP_CONFIG_FILE_LOCATION_PROPERTY);
     }
 
     public static String getPropertyByName(String propertyName) {

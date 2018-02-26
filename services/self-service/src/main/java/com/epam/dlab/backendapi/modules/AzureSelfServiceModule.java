@@ -65,7 +65,7 @@ public class AzureSelfServiceModule extends CloudModule {
         bind(InfrastructureInfoService.class).to(AzureInfrastructureInfoService.class);
 		bind(SchedulerConfiguration.class).toInstance(
 				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
-        bind(InfrastructureTemplateService.class).to(AzureInfrastructureTemplateService.class);
+		bind(InfrastructureTemplateService.class).to(AzureInfrastructureTemplateService.class);
 
         if (!azureLoginConfiguration.isUseLdap()) {
             bind(AzureLoginUrlBuilder.class).toInstance(new AzureLoginUrlBuilder(azureLoginConfiguration));

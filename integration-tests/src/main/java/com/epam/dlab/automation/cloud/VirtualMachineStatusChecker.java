@@ -21,16 +21,21 @@ package com.epam.dlab.automation.cloud;
 import com.epam.dlab.automation.cloud.aws.AmazonHelper;
 import com.epam.dlab.automation.cloud.aws.AmazonInstanceState;
 import com.epam.dlab.automation.cloud.azure.AzureHelper;
+import com.epam.dlab.automation.cloud.gcp.GcpHelper;
+import com.epam.dlab.automation.cloud.gcp.GcpInstanceState;
 import com.epam.dlab.automation.helper.CloudProvider;
 import com.epam.dlab.automation.helper.ConfigPropertyValue;
 import com.microsoft.azure.management.compute.PowerState;
 import org.testng.Assert;
 
+import java.io.IOException;
+
 public class VirtualMachineStatusChecker {
 
     private VirtualMachineStatusChecker(){}
 
-    public static void checkIfRunning(String tagNameValue, boolean restrictionMode) throws CloudException, InterruptedException {
+    public static void checkIfRunning(String tagNameValue, boolean restrictionMode)
+            throws CloudException, InterruptedException, IOException {
 
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
@@ -39,13 +44,19 @@ public class VirtualMachineStatusChecker {
             case CloudProvider.AZURE_PROVIDER:
                 AzureHelper.checkAzureStatus(tagNameValue, PowerState.RUNNING, restrictionMode);
                 break;
+            case CloudProvider.GCP_PROVIDER:
+                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDlabProjectId(),
+                        GcpInstanceState.RUNNING, restrictionMode,
+                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
+                break;
             default:
                 Assert.fail("Unknown cloud provider");
         }
 
     }
 
-    public static void checkIfTerminated(String tagNameValue, boolean restrictionMode) throws CloudException, InterruptedException {
+    public static void checkIfTerminated(String tagNameValue, boolean restrictionMode)
+            throws CloudException, InterruptedException, IOException {
 
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
@@ -54,6 +65,11 @@ public class VirtualMachineStatusChecker {
             case CloudProvider.AZURE_PROVIDER:
                 AzureHelper.checkAzureStatus(tagNameValue, PowerState.STOPPED, restrictionMode);
                 break;
+            case CloudProvider.GCP_PROVIDER:
+                GcpHelper.checkGcpStatus(tagNameValue, ConfigPropertyValue.getGcpDlabProjectId(),
+                        GcpInstanceState.TERMINATED, restrictionMode,
+                        GcpHelper.getAvailableZonesForProject(ConfigPropertyValue.getGcpDlabProjectId()));
+                break;
             default:
                 Assert.fail("Unknown cloud provider");
         }
@@ -61,12 +77,13 @@ public class VirtualMachineStatusChecker {
     }
 
     public static String getStartingStatus() {
-
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 return AmazonInstanceState.STARTING.toString();
             case CloudProvider.AZURE_PROVIDER:
                 return PowerState.STARTING.toString();
+            case CloudProvider.GCP_PROVIDER:
+				return GcpInstanceState.STARTING.toString();
             default:
                 return "";
         }
@@ -79,8 +96,10 @@ public class VirtualMachineStatusChecker {
                 return AmazonInstanceState.RUNNING.toString();
             case CloudProvider.AZURE_PROVIDER:
                 return PowerState.RUNNING.toString();
+            case CloudProvider.GCP_PROVIDER:
+                return GcpInstanceState.RUNNING.toString();
             default:
-                return null;
+                return "";
         }
 
     }

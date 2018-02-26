@@ -23,12 +23,12 @@ import static com.mongodb.client.model.Projections.*;
 @Singleton
 public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratoryDao {
 
+	public static final String LIBRARIES = "libraries";
 	private static final String IMAGE_NAME = "name";
 	private static final String IMAGE_APPLICATION = "application";
 	private static final String IMAGE_FULL_NAME = "fullName";
 	private static final String EXTERNAL_NAME = "externalName";
 	private static final String DOCKER_IMAGE = "dockerImage";
-	public static final String LIBRARIES = "libraries";
 
 	@Override
 	public boolean exist(String user, String name) {

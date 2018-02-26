@@ -18,9 +18,9 @@
 package com.epam.dlab.rest.contracts;
 
 public final class InfrasctructureAPI {
-	private InfrasctructureAPI() {
-	}
-
 	public static final String INFRASTRUCTURE = "/infrastructure";
 	public static final String INFRASTRUCTURE_STATUS = INFRASTRUCTURE + "/status";
+
+	private InfrasctructureAPI() {
+	}
 }

@@ -53,9 +53,8 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 @Slf4j
 @Singleton
 public class ExploratoryDAO extends BaseDAO {
-	static final String EXPLORATORY_ID = "exploratory_id";
 	public static final String COMPUTATIONAL_RESOURCES = "computational_resources";
-
+	static final String EXPLORATORY_ID = "exploratory_id";
 	static final String EXPLORATORY_NAME = "exploratory_name";
 	static final String UPTIME = "up_time";
 
