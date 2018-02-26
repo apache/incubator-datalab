@@ -97,7 +97,7 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
       this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'shape', 'description', 'json');
 
     if (this.userImages && this.userImages.length > 0) {
-      this.userImagesList.setDefaultOptions(this.userImages, 'Select existing AMI', 'ami', 'name', 'array', null, true);
+      this.userImagesList.setDefaultOptions(this.userImages, 'Select existing ' + DICTIONARY.image, 'ami', 'name', 'array', null, true);
     }
   }
 

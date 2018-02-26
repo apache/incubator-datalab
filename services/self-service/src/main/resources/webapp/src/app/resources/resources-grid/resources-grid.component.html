@@ -123,7 +123,7 @@ limitations under the License.
           <li (click)="exploratoryAction(env, 'ami')"
               *ngIf="env.status === 'running' && DICTIONARY.cloud_provider !== 'gcp'">
             <i class="material-icons">view_module</i>
-            <span>Create AMI</span>
+            <span>Create {{ DICTIONARY.image }}</span>
           </li>
           <li (click)="exploratoryAction(env, 'install')">
             <i class="material-icons">developer_board</i>

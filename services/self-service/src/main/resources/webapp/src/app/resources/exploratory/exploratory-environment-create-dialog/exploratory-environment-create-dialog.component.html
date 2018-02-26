@@ -39,7 +39,7 @@ limitations under the License.
         </div>
 
         <div class="control-group" *ngIf="userImages && userImages.length > 0">
-          <label class="label">Select AMI</label>
+          <label class="label">Select {{ DICTIONARY.image }}</label>
           <div class="control">
             <dropdown-list #imagesList (selectedItem)="selectImage($event)"></dropdown-list>
           </div>
