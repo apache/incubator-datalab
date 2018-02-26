@@ -99,14 +99,15 @@ if __name__ == "__main__":
     env.key_filename = [args.keyfile]
     env.host_string = args.os_user + '@' + args.hostname
 
-    general_clean()
-    if args.application == 'jupyter':
-        clean_jupyter()
-    elif args.application == 'zeppelin':
-        clean_zeppelin()
-    elif args.application == 'rstudio':
-        clean_rstudio()
-    elif args.application in ('tensor', 'deeplearning'):
-        clean_tensor()
+    if args.application in os.environ['dataengine_image_notebooks'].split(','):
+        general_clean()
+        if args.application == 'jupyter':
+            clean_jupyter()
+        elif args.application == 'zeppelin':
+            clean_zeppelin()
+        elif args.application == 'rstudio':
+            clean_rstudio()
+        elif args.application in ('tensor', 'deeplearning'):
+            clean_tensor()
 
     sys.exit(0)
