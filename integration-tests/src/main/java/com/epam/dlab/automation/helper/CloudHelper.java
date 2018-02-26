@@ -197,9 +197,9 @@ public class CloudHelper {
         }
     }
 
-	public static String getGcpDesClusterSimpleName(String gcpDesClusterInstanceName) {
-		return gcpDesClusterInstanceName != null ?
-				gcpDesClusterInstanceName.substring(0, gcpDesClusterInstanceName.lastIndexOf('-')) : null;
+    public static String getGcpDataprocClusterName(String gcpDataprocMasterNodeName) {
+        return gcpDataprocMasterNodeName != null ?
+                gcpDataprocMasterNodeName.substring(0, gcpDataprocMasterNodeName.lastIndexOf('-')) : null;
 	}
 
 }

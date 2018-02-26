@@ -211,7 +211,7 @@ public class NamingHelper {
 
 			case CloudProvider.GCP_PROVIDER:
 				return DATA_ENGINE.equals(dataEngineType) ? clusterInstanceName :
-						CloudHelper.getGcpDesClusterSimpleName(
+						CloudHelper.getGcpDataprocClusterName(
 								CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode));
 			default:
 				return null;
