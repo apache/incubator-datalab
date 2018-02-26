@@ -44,14 +44,13 @@ textarea {
   width: 100%;
   height: 36px;
   padding: 0 10px;
-  font-weight: 300;
-  font-size: 16px;
   color: #455c74;
   color: #6e7ca0;
   border: 1px solid transparent;
   background: rgba(247, 247, 247, 0.87);
   transition: border 0.1s ease-out;
   outline: none;
+  font: 300 16px/26px 'Open Sans', sans-serif;
 }
 
 input[type='text']:not(.mat-input-element):focus,

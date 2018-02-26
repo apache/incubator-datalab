@@ -89,7 +89,8 @@ limitations under the License.
         <ul class="list-unstyled">
           <div class="active-items" *ngIf="env.status.toLowerCase() !== 'failed'
                 && env.status.toLowerCase() !== 'terminating'
-                && env.status.toLowerCase() !== 'terminated'">
+                && env.status.toLowerCase() !== 'terminated'
+                && env.status.toLowerCase() !== 'creating_image'">
             <li (click)="exploratoryAction(env, 'stop')"
                 *ngIf="env.status.toLowerCase() !== 'stopped'
                 && env.status.toLowerCase() !== 'stopping'
