@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import static com.epam.dlab.automation.helper.CloudProvider.AZURE_PROVIDER;
 import static org.testng.Assert.assertTrue;
 
 @Test(singleThreaded = true)
@@ -69,7 +70,7 @@ public class TestServices {
 		testTimeMillis = System.currentTimeMillis();
 		// Load properties
 		ConfigPropertyValue.getJenkinsJobURL();
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 		notebookConfigs = mapper.readValue(ConfigPropertyValue.getNotebookTemplates(),
 				new TypeReference<ArrayList<NotebookConfig>>() {
@@ -95,7 +96,7 @@ public class TestServices {
 	private void testJenkinsJob() throws Exception {
 		/*
 		 * LOGGER.info("1. Jenkins Job will be started ...");
-		 * 
+		 *
 		 * JenkinsService jenkins = new
 		 * JenkinsService(ConfigPropertyValue.getJenkinsUsername(),
 		 * ConfigPropertyValue.getJenkinsPassword()); String buildNumber =
@@ -238,14 +239,17 @@ public class TestServices {
 	}
 
 	private void runTestsInNotebooks() throws Exception {
-		
+
 		LOGGER.info("Testing the following notebook templates: {}", ConfigPropertyValue.getNotebookTemplates());
 		ExecutorService executor = Executors.newFixedThreadPool(
 				ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads() : N_THREADS);
 		List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
-		
+
 		for (NotebookConfig notebookConfig : notebookConfigs) {
-			Thread.sleep(60000);
+			if (!ConfigPropertyValue.isRunModeLocal() &&
+					AZURE_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
+				Thread.sleep(60000);
+			}
 			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig));
 			futureTasks.add(runScenarioTask);
 			executor.execute(runScenarioTask);
