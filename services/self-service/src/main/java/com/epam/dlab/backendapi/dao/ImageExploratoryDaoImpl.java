@@ -12,6 +12,7 @@ import org.bson.conversions.Bson;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -85,7 +86,17 @@ public class ImageExploratoryDaoImpl extends BaseDAO implements ImageExploratory
 	}
 
 	private Bson userImagesCondition(String user, ImageStatus status, String dockerImage) {
-		return and(eq(USER, user), eq(STATUS, status.name()), eq(DOCKER_IMAGE, dockerImage));
+		final Bson userImagesCondition = userImagesCondition(user, status);
+		if (Objects.nonNull(dockerImage)) {
+			return and(userImagesCondition, eq(DOCKER_IMAGE, dockerImage));
+		} else {
+			return userImagesCondition;
+		}
+
+	}
+
+	private Bson userImagesCondition(String user, ImageStatus status) {
+		return and(eq(USER, user), eq(STATUS, status.name()));
 	}
 
 

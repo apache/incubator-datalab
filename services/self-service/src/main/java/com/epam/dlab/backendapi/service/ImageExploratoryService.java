@@ -8,11 +8,11 @@ import java.util.List;
 
 public interface ImageExploratoryService {
 
-    String createImage(UserInfo user, String exploratoryName, String imageName, String imageDescription);
+	String createImage(UserInfo user, String exploratoryName, String imageName, String imageDescription);
 
-    void finishImageCreate(Image image, String exploratoryName,String newNotebookIp);
+	void finishImageCreate(Image image, String exploratoryName, String newNotebookIp);
 
-    List<ImageInfoRecord> getCreatedImages(String user, String dockerImage);
+	List<ImageInfoRecord> getCreatedImages(String user, String dockerImage);
 
-    ImageInfoRecord getImage(String user, String name);
+	ImageInfoRecord getImage(String user, String name);
 }
