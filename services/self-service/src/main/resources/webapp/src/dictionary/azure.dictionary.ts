@@ -25,7 +25,7 @@ export const NAMING_CONVENTION = {
     'account': 'Account:',
     'container': 'Container:',
     'data_engine': 'Deploy Spark Server / Deploy HDInsight',
-
+    'image': 'image',
     'data_engine_master_instance_size': 'Head node size',
     'data_engine_slave_instance_size': 'Worker node size',
     'master_node_shape': 'azure_dataengine_master_size',
