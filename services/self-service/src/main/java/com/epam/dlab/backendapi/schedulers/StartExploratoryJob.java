@@ -31,12 +31,12 @@ import org.quartz.JobExecutionContext;
 @Scheduled(interval = 10)
 public class StartExploratoryJob implements Job {
 
-    @Inject
+	@Inject
 	private SchedulerJobService schedulerJobService;
 
-    @Override
-    public void execute(JobExecutionContext jobExecutionContext){
+	@Override
+	public void execute(JobExecutionContext jobExecutionContext) {
 		schedulerJobService.executeStartExploratoryJob();
-    }
+	}
 
 }

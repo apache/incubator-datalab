@@ -12,7 +12,7 @@ public interface ImageExploratoryService {
 
     void finishImageCreate(Image image, String exploratoryName,String newNotebookIp);
 
-    List<ImageInfoRecord> getCreatedImages(String user);
+    List<ImageInfoRecord> getCreatedImages(String user, String dockerImage);
 
     ImageInfoRecord getImage(String user, String name);
 }

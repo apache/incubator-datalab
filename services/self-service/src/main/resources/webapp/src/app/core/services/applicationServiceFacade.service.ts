@@ -289,10 +289,10 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
-  public buildGetUserImages(): Observable<Response> {
+  public buildGetUserImages(image): Observable<Response> {
     return this.buildRequest(RequestMethod.Get,
       this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
-      null,
+      image,
       this.getRequestOptions(true, true));
   }
 

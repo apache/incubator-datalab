@@ -107,6 +107,8 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
       this.shapes_list.setDefaultOptions(this.model.selectedItem.shapes.resourcesShapeTypes,
         this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'description'), 'shape', 'description', 'json');
       this.environment_shape = this.shapePlaceholder(this.model.selectedItem.shapes.resourcesShapeTypes, 'type');
+
+      this.getImagesList();
     }
 
     if ($event.model.type === 'shape')
@@ -141,16 +143,21 @@ export class ExploratoryEnvironmentCreateDialogComponent implements OnInit {
         },
         () => {
           this.bindDialog.open(params);
-          this.userResourceService.getUserImages()
-            .subscribe((res: any) => {
-              this.userImages = res;
-
-              this.changeDetector.detectChanges();
-              this.setDefaultParams();
-            });
+          this.setDefaultParams();
+          this.getImagesList();
         },
         this.userResourceService);
     }
+  }
+
+  getImagesList() {
+    const image = this.model.selectedItem.image;
+    this.userResourceService.getUserImages(image)
+      .subscribe((res: any) => {
+        this.userImages = res;
+        this.changeDetector.detectChanges();
+        this.setDefaultParams();
+      });
   }
 
   public close(): void {

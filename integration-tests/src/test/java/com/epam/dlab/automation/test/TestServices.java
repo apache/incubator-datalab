@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import static com.epam.dlab.automation.helper.CloudProvider.AZURE_PROVIDER;
 import static org.testng.Assert.assertTrue;
 
 @Test(singleThreaded = true)
@@ -246,8 +247,11 @@ public class TestServices {
 		List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
 		
 		for (NotebookConfig notebookConfig : notebookConfigs) {
-			LOGGER.debug("Waiting " + NOTEBOOK_CREATION_DELAY / 1000 + " sec to start notebook creation...");
-			Thread.sleep(NOTEBOOK_CREATION_DELAY);
+			if (!ConfigPropertyValue.isRunModeLocal() &&
+					AZURE_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
+				LOGGER.debug("Waiting " + NOTEBOOK_CREATION_DELAY / 1000 + " sec to start notebook creation...");
+				Thread.sleep(NOTEBOOK_CREATION_DELAY);
+			}
 			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig));
 			futureTasks.add(runScenarioTask);
 			executor.execute(runScenarioTask);

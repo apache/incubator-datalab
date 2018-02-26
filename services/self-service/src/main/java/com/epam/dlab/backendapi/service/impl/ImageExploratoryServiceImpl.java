@@ -1,4 +1,4 @@
-package com.epam.dlab.backendapi.service;
+package com.epam.dlab.backendapi.service.impl;
 
 import com.epam.dlab.UserInstanceStatus;
 import com.epam.dlab.auth.UserInfo;
@@ -6,6 +6,7 @@ import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryLibDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
 import com.epam.dlab.backendapi.resources.dto.ImageInfoRecord;
+import com.epam.dlab.backendapi.service.ImageExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
 import com.epam.dlab.dto.UserInstanceDTO;
@@ -66,6 +67,7 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 				.user(user.getName())
 				.libraries(fetchExploratoryLibs(libraries))
 				.computationalLibraries(fetchComputationalLibs(libraries))
+				.dockerImage(userInstance.getImageName())
 				.exploratoryId(userInstance.getId()).build());
 
 		exploratoryDAO.updateExploratoryStatus(new ExploratoryStatusDTO()
@@ -95,8 +97,8 @@ public class ImageExploratoryServiceImpl implements ImageExploratoryService {
 	}
 
 	@Override
-	public List<ImageInfoRecord> getCreatedImages(String user) {
-		return imageExploratotyDao.getCreatedImages(user);
+	public List<ImageInfoRecord> getCreatedImages(String user, String dockerImage) {
+		return imageExploratotyDao.getImages(user, ImageStatus.CREATED, dockerImage);
 	}
 
 	@Override

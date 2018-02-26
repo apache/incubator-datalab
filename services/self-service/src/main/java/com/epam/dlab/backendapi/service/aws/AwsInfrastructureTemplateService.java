@@ -2,13 +2,13 @@ package com.epam.dlab.backendapi.service.aws;
 
 import com.epam.dlab.backendapi.SelfServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.resources.dto.aws.AwsEmrConfiguration;
-import com.epam.dlab.backendapi.service.InfrastructureTemplatesServiceBase;
+import com.epam.dlab.backendapi.service.InfrastructureTemplateServiceBase;
 import com.epam.dlab.dto.base.computational.FullComputationalTemplate;
 import com.epam.dlab.dto.imagemetadata.ComputationalMetadataDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.inject.Inject;
 
-public class AwsInfrastructureTemplatesService extends InfrastructureTemplatesServiceBase {
+public class AwsInfrastructureTemplateService extends InfrastructureTemplateServiceBase {
 
     @Inject
     private SelfServiceApplicationConfiguration configuration;

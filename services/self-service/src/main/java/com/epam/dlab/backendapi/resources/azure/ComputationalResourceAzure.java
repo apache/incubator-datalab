@@ -49,65 +49,65 @@ import javax.ws.rs.core.Response;
 @Slf4j
 public class ComputationalResourceAzure {
 
-    @Inject
-    private ExploratoryDAO exploratoryDAO;
+	@Inject
+	private ExploratoryDAO exploratoryDAO;
 
-    @Inject
-    private ComputationalDAO computationalDAO;
+	@Inject
+	private ComputationalDAO computationalDAO;
 
-    @Inject
-    @Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
-    private RESTService provisioningService;
+	@Inject
+	@Named(ServiceConsts.PROVISIONING_SERVICE_NAME)
+	private RESTService provisioningService;
 
-    @Inject
-    private SelfServiceApplicationConfiguration configuration;
+	@Inject
+	private SelfServiceApplicationConfiguration configuration;
 
-    @Inject
-    private ComputationalService computationalService;
+	@Inject
+	private ComputationalService computationalService;
 
-    /**
-     * Asynchronously creates computational Spark cluster.
-     *
-     * @param userInfo user info.
-     * @param form     user info about creation of the computational resource.
-     * @return 200 OK if request success, 302 Found - for duplicates, otherwise throws exception.
-     * @throws IllegalArgumentException if input is not valid or exceeds configuration limits
-     */
-    @PUT
-    @Path("dataengine")
-    @RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
-    public Response createDataEngine(@Auth UserInfo userInfo, @Valid @NotNull SparkStandaloneClusterCreateForm form) {
-        log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
+	/**
+	 * Asynchronously creates computational Spark cluster.
+	 *
+	 * @param userInfo user info.
+	 * @param form     user info about creation of the computational resource.
+	 * @return 200 OK if request success, 302 Found - for duplicates, otherwise throws exception.
+	 * @throws IllegalArgumentException if input is not valid or exceeds configuration limits
+	 */
+	@PUT
+	@Path("dataengine")
+	@RolesAllowed(UserSessionDurationAuthorizer.SHORT_USER_SESSION_DURATION)
+	public Response createDataEngine(@Auth UserInfo userInfo, @Valid @NotNull SparkStandaloneClusterCreateForm form) {
+		log.debug("Create computational resources for {} | form is {}", userInfo.getName(), form);
 
-        if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage())) {
-            log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
-            throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
-        }
+		if (!UserRoles.checkAccess(userInfo, RoleType.COMPUTATIONAL, form.getImage())) {
+			log.warn("Unauthorized attempt to create a {} by user {}", form.getImage(), userInfo.getName());
+			throw new DlabException("You do not have the privileges to create a " + form.getTemplateName());
+		}
 
-        return computationalService.createSparkCluster(userInfo, form)
-                ? Response.ok().build()
-                : Response.status(Response.Status.FOUND).build();
+		return computationalService.createSparkCluster(userInfo, form)
+				? Response.ok().build()
+				: Response.status(Response.Status.FOUND).build();
 
-    }
+	}
 
-    /**
-     * Sends request to provisioning service for termination the computational resource for user.
-     *
-     * @param userInfo          user info.
-     * @param exploratoryName   name of exploratory.
-     * @param computationalName name of computational resource.
-     * @return 200 OK if operation is successfully triggered
-     */
-    @DELETE
-    @Path("/{exploratoryName}/{computationalName}/terminate")
-    public Response terminate(@Auth UserInfo userInfo,
-                              @PathParam("exploratoryName") String exploratoryName,
-                              @PathParam("computationalName") String computationalName) {
+	/**
+	 * Sends request to provisioning service for termination the computational resource for user.
+	 *
+	 * @param userInfo          user info.
+	 * @param exploratoryName   name of exploratory.
+	 * @param computationalName name of computational resource.
+	 * @return 200 OK if operation is successfully triggered
+	 */
+	@DELETE
+	@Path("/{exploratoryName}/{computationalName}/terminate")
+	public Response terminate(@Auth UserInfo userInfo,
+							  @PathParam("exploratoryName") String exploratoryName,
+							  @PathParam("computationalName") String computationalName) {
 
-        log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
+		log.debug("Terminating computational resource {} for user {}", computationalName, userInfo.getName());
 
-        computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
+		computationalService.terminateComputationalEnvironment(userInfo, exploratoryName, computationalName);
 
-        return Response.ok().build();
-    }
+		return Response.ok().build();
+	}
 }
