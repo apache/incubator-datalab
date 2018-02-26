@@ -78,7 +78,7 @@ public class TestCallable implements Callable<Boolean> {
 			clusterName = "spark" + suffixName;
 		} else if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
         	this.ssnCompResURL=NamingHelper.getSelfServiceURL(ApiPath.COMPUTATIONAL_RES);
-			clusterName = "eimr" + suffixName;
+			clusterName = "des" + suffixName;
         } else {
 			ssnCompResURL = "";
 			clusterName = NamingHelper.CLUSTER_ABSENT;
@@ -106,6 +106,8 @@ public class TestCallable implements Callable<Boolean> {
                     NamingHelper.getClusterInstanceNameForTestDES(notebookName, clusterName, dataEngineType),
 					dataEngineType, true) : NamingHelper.CLUSTER_ABSENT;
 
+			LOGGER.info("Actual cluster name of {} is {}", dataEngineType, actualClusterName);
+
             if (!ConfigPropertyValue.isRunModeLocal()) {
 
 			    TestDataEngineService test = new TestDataEngineService();
@@ -130,8 +132,8 @@ public class TestCallable implements Callable<Boolean> {
 			    terminateNotebook(notebookName);
             }
 
-			// Create notebook from AMI
-			String notebookNewName = "AMI" + notebookName;
+			// Create notebook from machine image
+			String notebookNewName = "im" + notebookName;
 			createNotebook(notebookNewName);
 
 			terminateNotebook(notebookNewName);
@@ -165,8 +167,9 @@ private DeployClusterDto createClusterDto() throws Exception {
 					DeploySparkDto.class);
 	} else if (NamingHelper.DATA_ENGINE_SERVICE.equals(dataEngineType)) {
 		clusterDto = JsonMapperDto.readNode(
-					Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate), "EMR.json").toString(),
-					DeployEMRDto.class);
+				Paths.get(String.format("%s/%s", CloudHelper.getClusterConfFileLocation(), notebookTemplate),
+						CloudHelper.getDockerTemplateFileForDES()).toString(),
+				CloudHelper.getDeployClusterClass());
     } else {
 		LOGGER.error("illegal argument dataEngineType {} , should be dataengine or dataengine-service", dataEngineType);
 		fail("illegal argument dataEngineType " + dataEngineType + ", should be dataengine or dataengine-service");

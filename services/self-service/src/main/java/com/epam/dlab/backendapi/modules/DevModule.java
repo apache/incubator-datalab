@@ -54,8 +54,8 @@ import static org.mockito.Mockito.when;
  */
 public class DevModule extends ModuleBase<SelfServiceApplicationConfiguration> implements SecurityAPI, DockerAPI {
 
-	private static final String LOGIN_NAME = "test";
 	public static final String TOKEN = "token123";
+	private static final String LOGIN_NAME = "test";
 
 	/**
 	 * Instantiates an application configuration of SelfService for developer mode.

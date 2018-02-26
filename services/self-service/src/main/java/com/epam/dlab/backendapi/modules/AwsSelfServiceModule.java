@@ -52,7 +52,7 @@ public class AwsSelfServiceModule extends CloudModule {
         bind(InfrastructureInfoService.class).to(AwsInfrastructureInfoService.class);
 		bind(SchedulerConfiguration.class).toInstance(
 				new SchedulerConfiguration(SelfServiceApplication.class.getPackage().getName()));
-        bind(InfrastructureTemplateService.class).to(AwsInfrastructureTemplateService.class);
+		bind(InfrastructureTemplateService.class).to(AwsInfrastructureTemplateService.class);
     }
 
     @Override

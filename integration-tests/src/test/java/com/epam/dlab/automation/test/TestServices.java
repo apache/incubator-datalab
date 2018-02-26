@@ -61,6 +61,7 @@ public class TestServices {
 	// looks like running test in 1 thread mostly succeeds, running in 2 and more
 	// threads - usually fails.
 	private static final int N_THREADS = 10;
+	private static final long NOTEBOOK_CREATION_DELAY = 60000;
 
 	private long testTimeMillis;
 	private List<NotebookConfig> notebookConfigs;
@@ -70,7 +71,7 @@ public class TestServices {
 		testTimeMillis = System.currentTimeMillis();
 		// Load properties
 		ConfigPropertyValue.getJenkinsJobURL();
-
+		
 		ObjectMapper mapper = new ObjectMapper();
 		notebookConfigs = mapper.readValue(ConfigPropertyValue.getNotebookTemplates(),
 				new TypeReference<ArrayList<NotebookConfig>>() {
@@ -96,7 +97,7 @@ public class TestServices {
 	private void testJenkinsJob() throws Exception {
 		/*
 		 * LOGGER.info("1. Jenkins Job will be started ...");
-		 *
+		 * 
 		 * JenkinsService jenkins = new
 		 * JenkinsService(ConfigPropertyValue.getJenkinsUsername(),
 		 * ConfigPropertyValue.getJenkinsPassword()); String buildNumber =
@@ -128,7 +129,7 @@ public class TestServices {
 	}
 
 	private void testLoginSsnService() throws Exception {
-		// ssnURL = "http://ec2-35-162-89-115.us-west-2.compute.amazonaws.com";
+
 		String cloudProvider = ConfigPropertyValue.getCloudProvider();
 
 		LOGGER.info("Check status of SSN node on {}: {}", cloudProvider.toUpperCase(), NamingHelper.getSsnName());
@@ -239,16 +240,17 @@ public class TestServices {
 	}
 
 	private void runTestsInNotebooks() throws Exception {
-
+		
 		LOGGER.info("Testing the following notebook templates: {}", ConfigPropertyValue.getNotebookTemplates());
 		ExecutorService executor = Executors.newFixedThreadPool(
 				ConfigPropertyValue.getExecutionThreads() > 0 ? ConfigPropertyValue.getExecutionThreads() : N_THREADS);
 		List<FutureTask<Boolean>> futureTasks = new ArrayList<>();
-
+		
 		for (NotebookConfig notebookConfig : notebookConfigs) {
 			if (!ConfigPropertyValue.isRunModeLocal() &&
 					AZURE_PROVIDER.equals(ConfigPropertyValue.getCloudProvider())) {
-				Thread.sleep(60000);
+				LOGGER.debug("Waiting " + NOTEBOOK_CREATION_DELAY / 1000 + " sec to start notebook creation...");
+				Thread.sleep(NOTEBOOK_CREATION_DELAY);
 			}
 			FutureTask<Boolean> runScenarioTask = new FutureTask<>(new TestCallable(notebookConfig));
 			futureTasks.add(runScenarioTask);

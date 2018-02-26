@@ -280,14 +280,14 @@ public class TestDataEngineService {
                 fileNames.add(entry.getFilename());
             }
             if(fileNames.isEmpty()){
-                LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+				LOGGER.info("Does file/directory {} exist in home directory {} of SSN: {}",
                         fileName, homeDirectoryAbsolutePath, "false");
                 return false;
             }
             LOGGER.info("In home directory {} of SSN there are following files: {}",
                     homeDirectoryAbsolutePath, fileNames);
             if(!isFileEmbeddedIntoFolder){
-                LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+				LOGGER.info("Does file/directory {} exist in home directory {} of SSN: {}",
                         fileName, homeDirectoryAbsolutePath, fileNames.contains(fileName));
                 return fileNames.contains(fileName);
             }else{
@@ -297,12 +297,12 @@ public class TestDataEngineService {
                 for(int i = 0; i < partsOfPath.size(); i++){
                     String partOfPath = partsOfPath.get(i);
                     if(fileNames.isEmpty() || !fileNames.contains(partOfPath)){
-                        LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+						LOGGER.info("Does file/directory {} exist in home directory {} of SSN: {}",
                                 fileName, homeDirectoryAbsolutePath, "false");
                         return false;
                     }else{
                         if(i == partsOfPath.size() - 1){
-                            LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+							LOGGER.info("Does file/directory {} exist in home directory {} of SSN: {}",
                                     fileName, homeDirectoryAbsolutePath, "true");
                             return true;
                         }
@@ -327,7 +327,7 @@ public class TestDataEngineService {
                 channelSftp.disconnect();
             }
         }
-        LOGGER.info("Does file/directory {} exist in in home directory {} of SSN: {}",
+		LOGGER.info("Does file/directory {} exist in home directory {} of SSN: {}",
                 fileName, homeDirectoryAbsolutePath, "false");
         return false;
     }
