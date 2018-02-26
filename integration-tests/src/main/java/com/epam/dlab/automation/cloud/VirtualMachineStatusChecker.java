@@ -29,13 +29,14 @@ import com.microsoft.azure.management.compute.PowerState;
 import org.testng.Assert;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public class VirtualMachineStatusChecker {
 
     private VirtualMachineStatusChecker(){}
 
     public static void checkIfRunning(String tagNameValue, boolean restrictionMode)
-            throws CloudException, InterruptedException, IOException {
+            throws CloudException, InterruptedException, IOException, GeneralSecurityException {
 
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
@@ -56,7 +57,7 @@ public class VirtualMachineStatusChecker {
     }
 
     public static void checkIfTerminated(String tagNameValue, boolean restrictionMode)
-            throws CloudException, InterruptedException, IOException {
+            throws CloudException, InterruptedException, IOException, GeneralSecurityException {
 
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:

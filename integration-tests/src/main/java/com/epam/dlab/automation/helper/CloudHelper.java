@@ -29,6 +29,7 @@ import com.epam.dlab.automation.model.DeployDataProcDto;
 import com.epam.dlab.automation.model.DeployEMRDto;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 
 public class CloudHelper {
@@ -36,7 +37,7 @@ public class CloudHelper {
     private CloudHelper(){}
 
     public static String getInstancePublicIP(String name, boolean restrictionMode)
-            throws CloudException, IOException {
+			throws CloudException, IOException, GeneralSecurityException {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 return AmazonHelper.getInstance(name).getPublicIpAddress();
@@ -59,7 +60,7 @@ public class CloudHelper {
     }
 
     public static String getInstancePrivateIP(String name, boolean restrictionMode)
-            throws CloudException, IOException {
+			throws CloudException, IOException, GeneralSecurityException {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 return AmazonHelper.getInstance(name).getPrivateIpAddress();
@@ -81,7 +82,7 @@ public class CloudHelper {
     }
 
     public static String getInstanceNameByCondition(String name, boolean restrictionMode) throws CloudException,
-            IOException {
+			IOException, GeneralSecurityException {
         switch (ConfigPropertyValue.getCloudProvider()) {
             case CloudProvider.AWS_PROVIDER:
                 Instance instance = AmazonHelper.getInstance(name);
