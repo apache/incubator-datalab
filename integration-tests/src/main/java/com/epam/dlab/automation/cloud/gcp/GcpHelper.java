@@ -31,41 +31,14 @@ public class GcpHelper {
 	private static final String LOCALHOST_IP = ConfigPropertyValue.get("LOCALHOST_IP");
 	private static final String NOT_EXIST = "doesn't exist for this resource type";
 
-	private static Compute computeService;
-
-
-	static {
-		try {
-			computeService = createComputeService();
-		} catch (IOException | GeneralSecurityException e) {
-			LOGGER.warn("Exception is occured ", e);
-		}
-	}
-
 	private GcpHelper() {
 	}
 
-	private static Compute createComputeService() throws IOException, GeneralSecurityException {
-		HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-
-		GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream(ConfigPropertyValue
-				.getGcpAuthFileName()));
-		if (credential.createScopedRequired()) {
-			credential =
-					credential.createScoped(Collections.singletonList("https://www.googleapis.com/auth/cloud-platform"));
-		}
-
-		return new Compute.Builder(httpTransport, jsonFactory, credential)
-				.setApplicationName("Google-ComputeSample/0.1")
-				.build();
-	}
-
-
-	private static List<Instance> getInstances(String projectId, List<String> zones) throws IOException {
+	private static List<Instance> getInstances(String projectId, List<String> zones) throws IOException,
+			GeneralSecurityException {
 		List<Instance> instanceList = new ArrayList<>();
 		for (String zone : zones) {
-			Compute.Instances.List request = computeService.instances().list(projectId, zone);
+			Compute.Instances.List request = ComputeService.getInstance().instances().list(projectId, zone);
 			InstanceList response;
 			do {
 				response = request.execute();
@@ -98,7 +71,7 @@ public class GcpHelper {
 
 
 	public static List<Instance> getInstancesByName(String name, String projectId, boolean restrictionMode,
-													List<String> zones) throws IOException {
+													List<String> zones) throws IOException, GeneralSecurityException {
 		if (ConfigPropertyValue.isRunModeLocal()) {
 			List<Instance> mockedInstanceList = new ArrayList<>();
 			Instance mockedInstance = mock(Instance.class);
@@ -140,7 +113,7 @@ public class GcpHelper {
 
 	public static void checkGcpStatus(String instanceName, String projectId, GcpInstanceState expGcpStatus, boolean
 			restrictionMode, List<String> zones)
-			throws CloudException, InterruptedException, IOException {
+			throws CloudException, InterruptedException, IOException, GeneralSecurityException {
 		LOGGER.info("Check status of instance with name {} on GCP", instanceName);
 		if (ConfigPropertyValue.isRunModeLocal()) {
 			LOGGER.info("GCP instance with name {} fake status is {}", instanceName, expGcpStatus);
@@ -184,9 +157,10 @@ public class GcpHelper {
 				(!getInstancePublicIps(instance).isEmpty() ? getInstancePublicIps(instance).get(0) : NOT_EXIST));
 	}
 
-	public static List<String> getAvailableZonesForProject(String projectId) throws IOException {
+	public static List<String> getAvailableZonesForProject(String projectId) throws IOException,
+			GeneralSecurityException {
 		List<Zone> zoneList = new ArrayList<>();
-		Compute.Zones.List request = computeService.zones().list(projectId);
+		Compute.Zones.List request = ComputeService.getInstance().zones().list(projectId);
 		ZoneList response;
 		do {
 			response = request.execute();
@@ -197,6 +171,39 @@ public class GcpHelper {
 			request.setPageToken(response.getNextPageToken());
 		} while (response.getNextPageToken() != null);
 		return zoneList.stream().map(Zone::getDescription).collect(Collectors.toList());
+	}
+
+	private static class ComputeService {
+
+		private static Compute instance;
+
+		private ComputeService() {
+		}
+
+		static synchronized Compute getInstance() throws IOException, GeneralSecurityException {
+			if (instance == null) {
+				instance = createComputeService();
+			}
+			return instance;
+		}
+
+		private static Compute createComputeService() throws IOException, GeneralSecurityException {
+			HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+			JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+
+			GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream(ConfigPropertyValue
+					.getGcpAuthFileName()));
+			if (credential.createScopedRequired()) {
+				credential =
+						credential.createScoped(Collections.singletonList("https://www.googleapis" +
+								".com/auth/cloud-platform"));
+			}
+
+			return new Compute.Builder(httpTransport, jsonFactory, credential)
+					.setApplicationName("Google-ComputeSample/0.1")
+					.build();
+		}
+
 	}
 
 }
