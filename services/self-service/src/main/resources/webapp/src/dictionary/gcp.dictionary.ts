@@ -25,6 +25,7 @@ export const NAMING_CONVENTION = {
   'account': '',
   'container': '',
   'data_engine': 'Deploy Spark Server / Deploy Dataproc',
+  'image': 'Not available',
   'data_engine_master_instance_size': 'Master machine type',
   'data_engine_slave_instance_size': 'Slave machine type',
 

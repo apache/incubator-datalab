@@ -18,7 +18,7 @@ limitations under the License.
 
 <modal-dialog #bindDialog  modalClass="ami-dialog modal-sm">
   <modal-header>
-    <h4 class="modal-title" id="myModalLabel">Create AMI</h4>
+    <h4 class="modal-title" id="myModalLabel">Create {{ DICTIONARY.image }}</h4>
   </modal-header>
   <modal-content>
     <div class="content-box" *ngIf="notebook">
@@ -26,7 +26,7 @@ limitations under the License.
         <div class="control-group">
           <label class="label">Name</label>
           <div class="control">
-            <input type="text" formControlName="name" placeholder="Enter AMI name">
+            <input type="text" formControlName="name" placeholder="Enter {{ DICTIONARY.image }} name">
           </div>
         </div>
         <div class="control-group">

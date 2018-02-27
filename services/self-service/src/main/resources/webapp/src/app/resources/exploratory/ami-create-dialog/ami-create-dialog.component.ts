@@ -21,6 +21,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 import { UserResourceService } from '../../../core/services';
 import { HTTP_STATUS_CODES } from '../../../core/util';
+import { DICTIONARY } from '../../../../dictionary/global.dictionary';
 
 @Component({
   selector: 'dlab-ami-create-dialog',
@@ -28,8 +29,10 @@ import { HTTP_STATUS_CODES } from '../../../core/util';
   styleUrls: ['./ami-create-dialog.component.scss']
 })
 export class AmiCreateDialogComponent {
+  readonly DICTIONARY = DICTIONARY;
   public notebook: any;
   public createAMIForm: FormGroup;
+  namePattern = '[a-zA-Z0-9]+';
 
   @ViewChild('bindDialog') bindDialog;
   @Output() buildGrid: EventEmitter<{}> = new EventEmitter();
@@ -62,9 +65,14 @@ export class AmiCreateDialogComponent {
 
   private initFormModel(): void {
     this.createAMIForm = this._fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.pattern(this.namePattern), this.providerMaxLength]],
       description: [''],
       exploratory_name: [this.notebook.name]
     });
+  }
+
+  private providerMaxLength(control) {
+    if (DICTIONARY.cloud_provider !== 'aws')
+      return control.value.length <=10 ? null : { valid: false };
   }
 }
