@@ -28,7 +28,6 @@ from azure.datalake.store import core, lib
 from azure.graphrbac import GraphRbacManagementClient
 from azure.common.credentials import ServicePrincipalCredentials
 import azure.common.exceptions as AzureExceptions
-import meta_lib
 import logging
 import traceback
 import sys

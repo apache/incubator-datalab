@@ -23,3 +23,23 @@ export class EnvironmentStatusModel {
     public status: string
   ) { }
 }
+
+export class BackupOptionsModel {
+  constructor(
+    public configFiles: Array<string>,
+    public keys:  Array<string>,
+    public certificates:  Array<string>,
+    public jars:  Array<string>,
+    public databaseBackup: boolean,
+    public logsBackup: boolean
+  ) { }
+
+  setDegault(): void {
+    this.configFiles = ['all'];
+    this.keys =['all'];
+    this.certificates = ['skip'];
+    this.jars = ['skip'];
+    this.databaseBackup = true;
+    this.logsBackup = false;
+  }
+}

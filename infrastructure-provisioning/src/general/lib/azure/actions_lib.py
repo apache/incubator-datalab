@@ -23,8 +23,6 @@ from azure.mgmt.compute import ComputeManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from azure.mgmt.network import NetworkManagementClient
 from azure.mgmt.storage import StorageManagementClient
-from azure.storage import CloudStorageAccount
-from azure.storage import SharedAccessSignature
 from azure.storage.blob import BlockBlobService
 from azure.mgmt.datalake.store import DataLakeStoreAccountManagementClient
 from azure.datalake.store import core, lib
@@ -423,20 +421,6 @@ class AzureActions:
                                    file=sys.stdout)}))
             traceback.print_exc(file=sys.stdout)
 
-    def generate_container_sas(self, resource_group_name, account_name, container_name, source_ip_range):
-        try:
-            secret_key = meta_lib.AzureMeta().list_storage_keys(resource_group_name, account_name)[0]
-            sas = SharedAccessSignature(account_name=account_name, account_key=secret_key)
-            result = sas.generate_container(container_name, permission='rw', ip=source_ip_range)
-            return result
-        except Exception as err:
-            logging.info(
-                "Unable to generate SAS for container: " + str(err) + "\n Traceback: " + traceback.print_exc(file=sys.stdout))
-            append_result(str({"error": "Unable to generate SAS for container",
-                               "error_message": str(err) + "\n Traceback: " + traceback.print_exc(
-                                   file=sys.stdout)}))
-            traceback.print_exc(file=sys.stdout)
-
     def create_static_public_ip(self, resource_group_name, ip_name, region, instance_name, tags):
         try:
             self.network_client.public_ip_addresses.create_or_update(
@@ -478,15 +462,15 @@ class AzureActions:
 
     def create_instance(self, region, instance_size, service_base_name, instance_name, dlab_ssh_user_name, public_key,
                         network_interface_resource_id, resource_group_name, primary_disk_size, instance_type,
-                        ami_full_name, tags, user_name='', create_option='fromImage', disk_id='',
-                        instance_storage_account_type='Premium_LRS', ami_type='default'):
-        if ami_type == 'default':
-            ami_name = ami_full_name.split('_')
-            publisher = ami_name[0]
-            offer = ami_name[1]
-            sku = ami_name[2]
-        elif ami_type == 'pre-configured':
-            ami_id = meta_lib.AzureMeta().get_image(resource_group_name, ami_full_name).id
+                        image_full_name, tags, user_name='', create_option='fromImage', disk_id='',
+                        instance_storage_account_type='Premium_LRS', image_type='default'):
+        if image_type == 'pre-configured':
+            image_id = meta_lib.AzureMeta().get_image(resource_group_name, image_full_name).id
+        else:
+            image_name = image_full_name.split('_')
+            publisher = image_name[0]
+            offer = image_name[1]
+            sku = image_name[2]
         try:
             if instance_type == 'ssn':
                 parameters = {
@@ -610,7 +594,7 @@ class AzureActions:
                         }
                     }
             elif instance_type == 'notebook':
-                if ami_type == 'default':
+                if image_type == 'default':
                     storage_profile = {
                         'image_reference': {
                             'publisher': publisher,
@@ -643,10 +627,10 @@ class AzureActions:
                             }
                         ]
                     }
-                elif ami_type == 'pre-configured':
+                elif image_type == 'pre-configured':
                     storage_profile = {
                         'image_reference': {
-                            'id': ami_id
+                            'id': image_id
                         },
                         'os_disk': {
                             'os_type': 'Linux',
@@ -688,13 +672,24 @@ class AzureActions:
                     }
                 }
             elif instance_type == 'dataengine':
-                parameters = {
-                    'location': region,
-                    'tags': tags,
-                    'hardware_profile': {
-                        'vm_size': instance_size
-                    },
-                    'storage_profile': {
+                if image_type == 'pre-configured':
+                    storage_profile = {
+                        'image_reference': {
+                            'id': image_id
+                        },
+                        'os_disk': {
+                            'os_type': 'Linux',
+                            'name': '{}-disk0'.format(instance_name),
+                            'create_option': 'fromImage',
+                            'disk_size_gb': int(primary_disk_size),
+                            'tags': tags,
+                            'managed_disk': {
+                                'storage_account_type': instance_storage_account_type
+                            }
+                        }
+                    }
+                elif image_type == 'default':
+                    storage_profile = {
                         'image_reference': {
                             'publisher': publisher,
                             'offer': offer,
@@ -711,7 +706,14 @@ class AzureActions:
                                 'storage_account_type': instance_storage_account_type
                             }
                         }
+                    }
+                parameters = {
+                    'location': region,
+                    'tags': tags,
+                    'hardware_profile': {
+                        'vm_size': instance_size
                     },
+                    'storage_profile': storage_profile,
                     'os_profile': {
                         'computer_name': instance_name,
                         'admin_username': dlab_ssh_user_name,
@@ -993,24 +995,24 @@ def ensure_local_jars(os_user, jars_dir):
         try:
             hadoop_version = sudo("ls /opt/spark/jars/hadoop-common* | sed -n 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\\1/p'")
             print("Downloading local jars for Azure")
-            sudo('mkdir -p ' + jars_dir)
+            sudo('mkdir -p {}'.format(jars_dir))
             if os.environ['azure_datalake_enable'] == 'false':
                 sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
                                  {1}hadoop-azure-{0}.jar'.format(hadoop_version, jars_dir))
-                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/2.2.0/azure-storage-2.2.0.jar \
-                    -O {}azure-storage-2.2.0.jar'.format(jars_dir))
+                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
+                    -O {1}azure-storage-{0}.jar'.format('2.2.0', jars_dir))
             else:
-                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/3.0.0-beta1/hadoop-azure-3.0.0-beta1.jar -O \
-                                 {}hadoop-azure-3.0.0-beta1.jar'.format(jars_dir))
-                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/6.1.0/azure-storage-6.1.0.jar \
-                                    -O {}azure-storage-6.1.0.jar'.format(jars_dir))
-                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-data-lake-store-sdk/2.2.3/azure-data-lake-store-sdk-2.2.3.jar \
-                    -O {}azure-data-lake-store-sdk-2.2.3.jar'.format(jars_dir))
-                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/3.0.0-beta1/hadoop-azure-datalake-3.0.0-beta1.jar \
-                    -O {}hadoop-azure-datalake-3.0.0-beta1.jar'.format(jars_dir))
+                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure/{0}/hadoop-azure-{0}.jar -O \
+                                 {1}hadoop-azure-{0}.jar'.format('3.0.0', jars_dir))
+                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-storage/{0}/azure-storage-{0}.jar \
+                                    -O {1}azure-storage-{0}.jar'.format('6.1.0', jars_dir))
+                sudo('wget http://central.maven.org/maven2/com/microsoft/azure/azure-data-lake-store-sdk/{0}/azure-data-lake-store-sdk-{0}.jar \
+                    -O {1}azure-data-lake-store-sdk-{0}.jar'.format('2.2.3', jars_dir))
+                sudo('wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-azure-datalake/{0}/hadoop-azure-datalake-{0}.jar \
+                    -O {1}hadoop-azure-datalake-{0}.jar'.format('3.0.0', jars_dir))
             if os.environ['application'] == 'tensor' or os.environ['application'] == 'deeplearning':
-                sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/1.0.0-s_2.11/spark-tensorflow-connector-1.0.0-s_2.11.jar \
-                     -O {}spark-tensorflow-connector-1.0.0-s_2.11.jar'.format(jars_dir))
+                sudo('wget https://dl.bintray.com/spark-packages/maven/tapanalyticstoolkit/spark-tensorflow-connector/{0}/spark-tensorflow-connector-{0}.jar \
+                     -O {1}spark-tensorflow-connector-{0}.jar'.format('1.0.0-s_2.11', jars_dir))
             sudo('touch /home/{}/.ensure_dir/local_jars_ensured'.format(os_user))
         except Exception as err:
             logging.info(
@@ -1102,6 +1104,8 @@ def prepare_disk(os_user):
         try:
             remount_azure_disk()
             disk_name = sudo("lsblk | grep disk | awk '{print $1}' | sort | tail -n 1")
+            with settings(warn_only=True):
+                sudo('umount /dev/{}1'.format(disk_name))
             sudo('''bash -c 'echo -e "o\nn\np\n1\n\n\nw" | fdisk /dev/{}' '''.format(disk_name))
             sudo('mkfs.ext4 -F /dev/{}1'.format(disk_name))
             sudo('mount /dev/{}1 /opt/'.format(disk_name))
@@ -1127,9 +1131,11 @@ def ensure_local_spark(os_user, spark_link, spark_version, hadoop_version, local
                 sudo('mv /opt/spark-{}-bin-without-hadoop {}'.format(spark_version, local_spark_path))
                 sudo('chown -R {0}:{0} {1}'.format(os_user, local_spark_path))
                 # Downloading Hadoop
-                sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0-beta1/hadoop-3.0.0-beta1.tar.gz -O /tmp/hadoop-3.0.0-beta1.tar.gz')
-                sudo('tar -zxvf /tmp/hadoop-3.0.0-beta1.tar.gz -C /opt/')
-                sudo('mv /opt/hadoop-3.0.0-beta1 /opt/hadoop/')
+                hadoop_version = '3.0.0'
+                sudo('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O \
+                    /tmp/hadoop-{0}.tar.gz'.format(hadoop_version))
+                sudo('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
+                sudo('mv /opt/hadoop-{0} /opt/hadoop/'.format(hadoop_version))
                 sudo('chown -R {0}:{0} /opt/hadoop/'.format(os_user))
                 # Configuring Hadoop and Spark
                 java_path = dlab.common_lib.find_java_path_remote()
@@ -1154,15 +1160,17 @@ def install_dataengine_spark(spark_link, spark_version, hadoop_version, cluster_
             local('chown -R ' + os_user + ':' + os_user + ' ' + cluster_dir + 'spark/')
         else:
             # Downloading Spark without Hadoop
-            local('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O /tmp/spark-{0}-bin-without-hadoop.tgz'.format(
-                spark_version))
+            local('wget https://archive.apache.org/dist/spark/spark-{0}/spark-{0}-bin-without-hadoop.tgz -O \
+                    /tmp/spark-{0}-bin-without-hadoop.tgz'.format(spark_version))
             local('tar -zxvf /tmp/spark-{}-bin-without-hadoop.tgz -C /opt/'.format(spark_version))
             local('mv /opt/spark-{}-bin-without-hadoop {}spark/'.format(spark_version, cluster_dir))
             local('chown -R {0}:{0} {1}/spark/'.format(os_user, cluster_dir))
             # Downloading Hadoop
-            local('wget https://archive.apache.org/dist/hadoop/common/hadoop-3.0.0-beta1/hadoop-3.0.0-beta1.tar.gz -O /tmp/hadoop-3.0.0-beta1.tar.gz')
-            local('tar -zxvf /tmp/hadoop-3.0.0-beta1.tar.gz -C /opt/')
-            local('mv /opt/hadoop-3.0.0-beta1 {}hadoop/'.format(cluster_dir))
+            hadoop_version = '3.0.0'
+            local('wget https://archive.apache.org/dist/hadoop/common/hadoop-{0}/hadoop-{0}.tar.gz -O \
+                    /tmp/hadoop-{0}.tar.gz'.format(hadoop_version))
+            local('tar -zxvf /tmp/hadoop-{0}.tar.gz -C /opt/'.format(hadoop_version))
+            local('mv /opt/hadoop-{0} {1}hadoop/'.format(hadoop_version, cluster_dir))
             local('chown -R {0}:{0} {1}hadoop/'.format(os_user, cluster_dir))
             # Configuring Hadoop and Spark
             java_path = dlab.common_lib.find_java_path_local()

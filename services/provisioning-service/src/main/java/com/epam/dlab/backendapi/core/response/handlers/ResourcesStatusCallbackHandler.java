@@ -45,7 +45,7 @@ public class ResourcesStatusCallbackHandler extends ResourceCallbackHandler<EnvS
     }
 
     @Override
-    protected EnvStatusDTO parseOutResponse(JsonNode resultNode, EnvStatusDTO baseStatus) throws DlabException {
+    protected EnvStatusDTO parseOutResponse(JsonNode resultNode, EnvStatusDTO baseStatus) {
         if (resultNode == null) {
             return baseStatus;
         }

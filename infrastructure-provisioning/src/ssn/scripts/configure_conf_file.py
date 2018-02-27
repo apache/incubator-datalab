@@ -51,13 +51,12 @@ def modify_conf_file():
         for section in config.sections():
             options = config.options(section)
             for option in options:
-                if not config.get(section, option):
-                    try:
-                        print('Trying to put variable {}_{} to conf file'.format(section, option))
-                        config.set(section, option, variables_list['{}_{}'.format(section, option)])
-                    except:
-                        print('Such variable doesn`t exist!')
-                        config.remove_option(section, option)
+                try:
+                    print('Trying to put variable {}_{} to conf file'.format(section, option))
+                    config.set(section, option, variables_list['{}_{}'.format(section, option)])
+                except:
+                    print('Such variable doesn`t exist!')
+                    config.remove_option(section, option)
 
         conf_file_final = open('{}sources/general/conf/overwrite.ini'.format(args.dlab_dir), 'w')
         config.write(conf_file_final)

@@ -46,6 +46,9 @@ export class ResourcesGridComponent implements OnInit {
   filtering: boolean = false;
   activeFiltering: boolean = false;
   healthStatus: string = '';
+  billingEnabled: boolean = false;
+
+  delimitersRegex = /[-_]?/g;
 
   @ViewChild('computationalResourceModal') computationalResourceModal;
   @ViewChild('confirmationDialog') confirmationDialog;
@@ -53,6 +56,7 @@ export class ResourcesGridComponent implements OnInit {
   @ViewChild('costDetailsDialog') costDetailsDialog;
   @ViewChild('installLibs') installLibraries;
   @ViewChild('envScheduler') scheduler;
+  @ViewChild('createAmi') createAMI;
 
 
   public filteringColumns: Array<any> = [
@@ -190,10 +194,14 @@ export class ResourcesGridComponent implements OnInit {
   containsNotebook(notebook_name: string): boolean {
     if (notebook_name)
       for (let index = 0; index < this.environments.length; index++)
-        if (notebook_name.toLowerCase() === this.environments[index].name.toString().toLowerCase())
+        if (this.delimitersFiltering(notebook_name) === this.delimitersFiltering(this.environments[index].name))
           return true;
 
     return false;
+  }
+
+  public delimitersFiltering(notebook_name): string {
+    return notebook_name.replace(this.delimitersRegex, '').toString().toLowerCase();
   }
 
   loadEnvironments(exploratoryList: Array<any>, sharedDataList: any): Array<ResourcesGridRowModel> {
@@ -278,6 +286,8 @@ export class ResourcesGridComponent implements OnInit {
       this.installLibraries.open({ isFooter: false }, data);
     } else if (action === 'schedule') {
       this.scheduler.open({ isFooter: false }, data);
+    } else if (action === 'ami') {
+      this.createAMI.open({ isFooter: false }, data);
     }
   }
 

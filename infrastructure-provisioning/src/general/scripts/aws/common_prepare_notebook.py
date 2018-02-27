@@ -60,37 +60,30 @@ if __name__ == "__main__":
     notebook_config['service_base_name'] = os.environ['conf_service_base_name']
     notebook_config['instance_type'] = os.environ['aws_notebook_instance_type']
     notebook_config['key_name'] = os.environ['conf_key_name']
-    notebook_config['instance_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + "-nb-" + notebook_config['exploratory_name'] + "-" + args.uuid
-    if os.environ['application'] == 'deeplearning':
-        notebook_config['primary_disk_size'] = '30'
-    else:
-        notebook_config['primary_disk_size'] = '12'
-    if os.environ['application'] == 'zeppelin':
-        if os.environ['notebook_multiple_clusters'] == 'true':
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
-                                                   os.environ['application'] + '-livy-notebook-image'
-        else:
-            notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + \
-                                                   os.environ['application'] + '-spark-notebook-image'
-    else:
-        notebook_config['expected_ami_name'] = os.environ['conf_service_base_name'] + '-' + os.environ['application'] \
-                                               + '-notebook-image'
-    notebook_config['role_profile_name'] = os.environ['conf_service_base_name'].lower().replace('-', '_') + "-" + \
-                                           os.environ['edge_user_name'] + "-nb-de-Profile"
-    notebook_config['security_group_name'] = os.environ['conf_service_base_name'] + "-" + os.environ[
-        'edge_user_name'] + "-nb-SG"
-    notebook_config['tag_name'] = notebook_config['service_base_name'] + '-Tag'
+    notebook_config['instance_name'] = '{}-{}-nb-{}-{}'.format(notebook_config['service_base_name'],
+                                                               os.environ['edge_user_name'],
+                                                               notebook_config['exploratory_name'], args.uuid)
+    notebook_config['primary_disk_size'] = (lambda x: '30' if x == 'deeplearning' else '12')(os.environ['application'])
+    notebook_config['role_profile_name'] = '{}-{}-nb-de-Profile' \
+        .format(notebook_config['service_base_name'].lower().replace('-', '_'), os.environ['edge_user_name'])
+    notebook_config['security_group_name'] = '{}-{}-nb-SG'.format(notebook_config['service_base_name'],
+                                                                  os.environ['edge_user_name'])
+    notebook_config['tag_name'] = '{}-Tag'.format(notebook_config['service_base_name'])
 
-    print('Searching preconfigured images')
-    ami_id = get_ami_id_by_name(notebook_config['expected_ami_name'], 'available')
-    if ami_id != '':
-        print('Preconfigured image found. Using: {}'.format(ami_id))
-        notebook_config['ami_id'] = ami_id
+    notebook_config['expected_image_name'] = '{}-{}-notebook-image'.format(notebook_config['service_base_name'],
+                                                                           os.environ['application'])
+    notebook_config['notebook_image_name'] = (lambda x: os.environ['notebook_image_name'] if x != 'None'
+        else notebook_config['expected_image_name'])(str(os.environ.get('notebook_image_name')))
+    print('Searching pre-configured images')
+    notebook_config['ami_id'] = get_ami_id(os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])])
+    image_id = get_ami_id_by_name(notebook_config['notebook_image_name'], 'available')
+    if image_id != '':
+        notebook_config['ami_id'] = image_id
+        print('Pre-configured image found. Using: {}'.format(notebook_config['ami_id']))
     else:
-        notebook_config['ami_id'] = get_ami_id(os.environ['aws_' + os.environ['conf_os_family'] + '_ami_name'])
-        print('No preconfigured image found. Using default one: {}'.format(notebook_config['ami_id']))
-
+        os.environ['notebook_image_name'] = os.environ['aws_{}_image_name'.format(os.environ['conf_os_family'])]
+        print('No pre-configured image found. Using default one: {}'.format(notebook_config['ami_id']))
+    
     tag = {"Key": notebook_config['tag_name'],
            "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
     notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)

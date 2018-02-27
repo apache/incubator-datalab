@@ -23,6 +23,7 @@ import com.epam.dlab.backendapi.core.commands.*;
 import com.epam.dlab.backendapi.core.response.handlers.LibInstallCallbackHandler;
 import com.epam.dlab.backendapi.core.response.handlers.LibListCallbackHandler;
 import com.epam.dlab.backendapi.service.DockerService;
+import com.epam.dlab.backendapi.core.commands.DockerAction;
 import com.epam.dlab.dto.LibListComputationalDTO;
 import com.epam.dlab.dto.base.DataEngineType;
 import com.epam.dlab.dto.exploratory.ExploratoryActionDTO;

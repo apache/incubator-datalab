@@ -17,25 +17,30 @@
  ****************************************************************************/
 package com.epam.dlab.dto.exploratory;
 
-/** Statuses for the libraries. */
+import com.fasterxml.jackson.annotation.JsonCreator;
+
+/**
+ * Statuses for the libraries.
+ */
 public enum LibStatus {
-    INSTALLING,
-    INSTALLED,
-    FAILED;
+	INSTALLING,
+	INSTALLED,
+	FAILED;
 
-    @Override
-    public String toString() {
-        return super.toString().toLowerCase();
-    }
+	@JsonCreator
+	public static LibStatus of(String status) {
+		if (status != null) {
+			for (LibStatus uis : LibStatus.values()) {
+				if (status.equalsIgnoreCase(uis.toString())) {
+					return uis;
+				}
+			}
+		}
+		return null;
+	}
 
-    public static LibStatus of(String status) {
-        if (status != null) {
-            for (LibStatus uis : LibStatus.values()) {
-                if (status.equalsIgnoreCase(uis.toString())) {
-                    return uis;
-                }
-            }
-        }
-        return null;
-    }
+	@Override
+	public String toString() {
+		return super.toString().toLowerCase();
+	}
 }

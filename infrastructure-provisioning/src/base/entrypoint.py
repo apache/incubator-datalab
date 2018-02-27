@@ -157,3 +157,11 @@ if __name__ == "__main__":
     elif args.action == 'git_creds':
         with hide('running'):
             local("/bin/git_creds.py")
+
+    elif args.action == 'create_image':
+        with hide('running'):
+            local("/bin/create_image.py")
+
+    elif args.action == 'terminate_image':
+        with hide('running'):
+            local("/bin/terminate_image.py")

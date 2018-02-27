@@ -41,26 +41,25 @@ if __name__ == "__main__":
         pre_defined_sg = False
         ssn_conf = dict()
         # We need to cut service_base_name to 12 symbols do to the Azure Name length limitation
-        ssn_conf['service_base_name'] = replace_multi_symbols(
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
             os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
-        ssn_conf['vpc_name'] = ssn_conf['service_base_name'] + '-vpc'
-        ssn_conf['subnet_name'] = ssn_conf['service_base_name'] + '-ssn-subnet'
+        ssn_conf['vpc_name'] = '{}-vpc'.format(ssn_conf['service_base_name'])
+        ssn_conf['subnet_name'] = '{}-ssn-subnet'.format(ssn_conf['service_base_name'])
         ssn_conf['region'] = os.environ['azure_region']
-        ssn_conf['vpc_cidr'] = '10.10.0.0/16'
+        ssn_conf['vpc_cidr'] = os.environ['conf_vpc_cidr']
         ssn_conf['subnet_prefix'] = '20'
-        ssn_conf['ssn_ami_name'] = os.environ['azure_' + os.environ['conf_os_family'] + '_ami_name']
-        ssn_conf['ssn_storage_account_name'] = ssn_conf['service_base_name'] + '-ssn-storage'
-        ssn_conf['ssn_container_name'] = (ssn_conf['service_base_name'] + '-ssn-container').lower()
-        ssn_conf['shared_storage_account_name'] = ssn_conf['service_base_name'] + '-shared-storage'
-        ssn_conf['shared_container_name'] = (ssn_conf['service_base_name'] + '-shared-container').lower()
-        ssn_conf['datalake_store_name'] = ssn_conf['service_base_name'] + '-ssn-datalake'
-        ssn_conf['datalake_shared_directory_name'] = ssn_conf['service_base_name'] + '-shared-folder'
-        ssn_conf['instance_name'] = ssn_conf['service_base_name'] + '-ssn'
-        ssn_conf['network_interface_name'] = ssn_conf['service_base_name'] + '-ssn-nif'
-        ssn_conf['static_public_ip_name'] = ssn_conf['service_base_name'] + '-ssn-ip'
-        ssn_conf['security_group_name'] = ssn_conf['instance_name'] + '-sg'
-        ssh_key_path = os.environ['conf_key_dir'] + os.environ['conf_key_name'] + '.pem'
-        key = RSA.importKey(open(ssh_key_path, 'rb').read())
+        ssn_conf['ssn_image_name'] = os.environ['azure_{}_image_name'.format(os.environ['conf_os_family'])]
+        ssn_conf['ssn_storage_account_name'] = '{}-ssn-storage'.format(ssn_conf['service_base_name'])
+        ssn_conf['ssn_container_name'] = '{}-ssn-container'.format(ssn_conf['service_base_name']).lower()
+        ssn_conf['shared_storage_account_name'] = '{}-shared-storage'.format(ssn_conf['service_base_name'])
+        ssn_conf['shared_container_name'] = '{}-shared-container'.format(ssn_conf['service_base_name']).lower()
+        ssn_conf['datalake_store_name'] = '{}-ssn-datalake'.format(ssn_conf['service_base_name'])
+        ssn_conf['datalake_shared_directory_name'] = '{}-shared-folder'.format(ssn_conf['service_base_name'])
+        ssn_conf['instance_name'] = '{}-ssn'.format(ssn_conf['service_base_name'])
+        ssn_conf['network_interface_name'] = '{}-ssn-nif'.format(ssn_conf['service_base_name'])
+        ssn_conf['static_public_ip_name'] = '{}-ssn-ip'.format(ssn_conf['service_base_name'])
+        ssn_conf['security_group_name'] = '{}-sg'.format(ssn_conf['service_base_name'])
+        key = RSA.importKey(open('{}{}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name']), 'rb').read())
         ssn_conf['instance_storage_account_type'] = 'Premium_LRS'
         ssn_conf['public_ssh_key'] = key.publickey().exportKey("OpenSSH")
         ssn_conf['instance_tags'] = {"Name": ssn_conf['instance_name'],
@@ -71,6 +70,7 @@ if __name__ == "__main__":
                                                    "SBN": ssn_conf['service_base_name']}
         ssn_conf['datalake_store_tags'] = {"Name": ssn_conf['datalake_store_name'],
                                            "SBN": ssn_conf['service_base_name']}
+        ssn_conf['primary_disk_size'] = '32'
 
     except:
         print("Failed to generate variables dictionary.")
@@ -344,13 +344,16 @@ if __name__ == "__main__":
     try:
         logging.info('[CREATE SSN INSTANCE]')
         print('[CREATE SSN INSTANCE]')
-        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} --instance_type {} --instance_storage_account_type {} --ami_name {} --tags '{}'".\
-            format(ssn_conf['instance_name'], os.environ['azure_ssn_instance_size'], ssn_conf['region'], os.environ['azure_vpc_name'],
-                   ssn_conf['network_interface_name'], os.environ['azure_security_group_name'], os.environ['azure_subnet_name'],
-                   ssn_conf['service_base_name'], os.environ['azure_resource_group_name'], initial_user,
-                   ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'], '32', 'ssn',
-                   ssn_conf['instance_storage_account_type'], ssn_conf['ssn_ami_name'],
-                   json.dumps(ssn_conf['instance_tags']))
+        params = "--instance_name {} --instance_size {} --region {} --vpc_name {} --network_interface_name {} \
+            --security_group_name {} --subnet_name {} --service_base_name {} --resource_group_name {} \
+            --dlab_ssh_user_name {} --public_ip_name {} --public_key '''{}''' --primary_disk_size {} \
+            --instance_type {} --instance_storage_account_type {} --image_name {} --tags '{}'".\
+            format(ssn_conf['instance_name'], os.environ['azure_ssn_instance_size'], ssn_conf['region'],
+                   os.environ['azure_vpc_name'], ssn_conf['network_interface_name'], os.environ['azure_security_group_name'],
+                   os.environ['azure_subnet_name'], ssn_conf['service_base_name'], os.environ['azure_resource_group_name'],
+                   initial_user, ssn_conf['static_public_ip_name'], ssn_conf['public_ssh_key'],
+                   ssn_conf['primary_disk_size'], 'ssn', ssn_conf['instance_storage_account_type'],
+                   ssn_conf['ssn_image_name'], json.dumps(ssn_conf['instance_tags']))
         try:
             local("~/scripts/{}.py {}".format('common_create_instance', params))
         except:

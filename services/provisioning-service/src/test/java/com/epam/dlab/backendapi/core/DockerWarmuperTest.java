@@ -22,6 +22,7 @@ import com.epam.dlab.backendapi.ProvisioningServiceApplicationConfiguration;
 import com.epam.dlab.backendapi.core.commands.ICommandExecutor;
 import com.epam.dlab.backendapi.core.response.folderlistener.FolderListenerExecutor;
 import com.epam.dlab.dto.imagemetadata.*;
+import com.epam.dlab.process.ProcessInfo;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -31,7 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -114,7 +114,9 @@ public class DockerWarmuperTest {
     private ICommandExecutor createCommandExecutor() {
         ICommandExecutor result = mock(ICommandExecutor.class);
         try {
-            when(result.executeSync(anyString(),anyString(),anyString())).thenReturn(Collections.singletonList("executeResult"));
+            final ProcessInfo pi = mock(ProcessInfo.class);
+            when(pi.getStdOut()).thenReturn("executeResult");
+            when(result.executeSync(anyString(),anyString(),anyString())).thenReturn(pi);
         } catch (Exception e) {
             e.printStackTrace();
         }

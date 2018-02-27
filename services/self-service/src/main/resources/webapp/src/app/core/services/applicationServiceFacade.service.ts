@@ -32,6 +32,7 @@ export class ApplicationServiceFacade {
   private static readonly ACCESS_KEY = 'access_key';
   private static readonly PROVISIONED_RESOURCES = 'provisioned_resources';
   private static readonly EXPLORATORY_ENVIRONMENT = 'exploratory_environment';
+  private static readonly IMAGE = 'image';
   private static readonly EXPLORATORY_ENVIRONMENT_TEMPLATES = 'exploratory_templates';
   private static readonly COMPUTATIONAL_RESOURCES_TEMLATES = 'computational_templates';
   private static readonly COMPUTATIONAL_RESOURCES = 'computational_resources';
@@ -39,6 +40,7 @@ export class ApplicationServiceFacade {
   private static readonly COMPUTATIONAL_RESOURCES_DATAENGINESERVICE = 'computational_resources_dataengineservice';
   private static readonly USER_PREFERENCES = 'user_preferences';
   private static readonly ENVIRONMENT_HEALTH_STATUS = 'environment_health_status';
+  private static readonly BACKUP = 'backup';
   private static readonly EDGE_NODE_START = 'edge_node_start';
   private static readonly EDGE_NODE_STOP = 'edge_node_stop';
   private static readonly EDGE_NODE_RECREATE = 'edge_node_recreate';
@@ -274,6 +276,33 @@ export class ApplicationServiceFacade {
       this.getRequestOptions(true, true));
   }
 
+  public buildCreateBackupRequest(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.BACKUP),
+      data,
+      this.getRequestOptions(true, true));
+  }
+  public buildGetBackupStatusRequest(uuid): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.BACKUP),
+      uuid,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildGetUserImages(image): Observable<Response> {
+    return this.buildRequest(RequestMethod.Get,
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
+      image,
+      this.getRequestOptions(true, true));
+  }
+
+  public buildCreateAMI(data): Observable<Response> {
+    return this.buildRequest(RequestMethod.Post,
+      this.requestRegistry.Item(ApplicationServiceFacade.IMAGE),
+      data,
+      this.getRequestOptions(true, true));
+  }
+
   private setupRegistry(): void {
     this.requestRegistry = new Dictionary<string>();
 
@@ -292,6 +321,8 @@ export class ApplicationServiceFacade {
       '/api/infrastructure_provision/exploratory_environment');
     this.requestRegistry.Add(ApplicationServiceFacade.EXPLORATORY_ENVIRONMENT_TEMPLATES,
       '/api/infrastructure_templates/exploratory_templates');
+    this.requestRegistry.Add(ApplicationServiceFacade.IMAGE,
+      '/api/infrastructure_provision/exploratory_environment/image');
 
 
     // Computational Resources
@@ -313,6 +344,7 @@ export class ApplicationServiceFacade {
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_START, '/api/infrastructure/edge/start');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_STOP, '/api/infrastructure/edge/stop');
     this.requestRegistry.Add(ApplicationServiceFacade.EDGE_NODE_RECREATE, '/api/user/access_key/recover');
+    this.requestRegistry.Add(ApplicationServiceFacade.BACKUP, '/api/infrastructure/backup');
 
     // Libraries Installation
     this.requestRegistry.Add(ApplicationServiceFacade.LIB_GROUPS, '/api/infrastructure_provision/exploratory_environment/lib_groups');

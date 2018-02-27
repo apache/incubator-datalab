@@ -43,8 +43,8 @@ if __name__ == "__main__":
         billing_enabled = False
 
         ssn_conf = dict()
-        ssn_conf['service_base_name'] = replace_multi_symbols(
-            os.environ['conf_service_base_name'].replace('_', '-')[:12], '-', True)
+        ssn_conf['service_base_name'] = os.environ['conf_service_base_name'] = replace_multi_symbols(
+            os.environ['conf_service_base_name'].lower().replace('_', '-')[:12], '-', True)
         ssn_conf['region'] = os.environ['gcp_region']
         ssn_conf['zone'] = os.environ['gcp_zone']
         ssn_conf['ssn_bucket_name'] = '{}-ssn-bucket'.format(ssn_conf['service_base_name'])
@@ -58,8 +58,8 @@ if __name__ == "__main__":
         ssn_conf['ssh_key_path'] = '{0}{1}.pem'.format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
         ssn_conf['dlab_ssh_user'] = os.environ['conf_os_user']
         ssn_conf['service_account_name'] = '{}-ssn-sa'.format(ssn_conf['service_base_name']).replace('_', '-')
-        ssn_conf['ami_name'] = os.environ['gcp_' + os.environ['conf_os_family'] + '_ami_name']
-        ssn_conf['role_name'] = 'dlab_ssn_role'
+        ssn_conf['image_name'] = os.environ['gcp_{}_image_name'.format(os.environ['conf_os_family'])]
+        ssn_conf['role_name'] = ssn_conf['service_base_name'] + '-ssn-role'
 
         try:
             if os.environ['gcp_vpc_name'] == '':
@@ -239,37 +239,39 @@ if __name__ == "__main__":
             GCPActions().remove_vpc(ssn_conf['vpc_name'])
         sys.exit(1)
 
-    # try:
-    #     logging.info('[CONFIGURE SSN INSTANCE UI]')
-    #     print('[CONFIGURE SSN INSTANCE UI]')
-    #     params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} --resource {} --region {} --service_base_name {} --security_groups_ids {} --vpc_id {} --subnet_id {} --tag_resource_id {} --cloud_provider {} --account_id {} --billing_bucket {} --report_path '{}' --billing_enabled {}". \
-    #         format(instance_hostname, ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
-    #                os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'],
-    #                ssn_conf['region'], ssn_conf['service_base_name'], ssn_conf['firewall_name'], ssn_conf['vpc_name'],
-    #                ssn_conf['subnet_name'], os.environ['conf_tag_resource_id'], os.environ['conf_cloud_provider'],
-    #                os.environ['aws_account_id'], os.environ['aws_billing_bucket'], os.environ['aws_report_path'],
-    #                billing_enabled)
-    #
-    #     try:
-    #         local("~/scripts/{}.py {}".format('configure_ui', params))
-    #     except:
-    #         traceback.print_exc()
-    #         raise Exception
-    # except Exception as err:
-    #     append_result("Unable to configure UI.", str(err))
-    #     GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
-    #     GCPActions().remove_service_account(ssn_conf['service_account_name'])
-    #     GCPActions().remove_role(ssn_conf['role_name'])
-    #     GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
-    #     GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
-    #     if pre_defined_firewall:
-    #         GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
-    #         GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
-    #     if pre_defined_subnet:
-    #         GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
-    #     if pre_defined_vpc:
-    #         GCPActions().remove_vpc(ssn_conf['vpc_name'])
-    #     sys.exit(1)
+    try:
+        logging.info('[CONFIGURE SSN INSTANCE UI]')
+        print('[CONFIGURE SSN INSTANCE UI]')
+        mongo_parameters = {
+            "conf_service_base_name": os.environ['conf_service_base_name'],
+            "conf_os_family": os.environ['conf_os_family'],
+            "conf_key_dir": os.environ['conf_key_dir']
+        }
+        params = "--hostname {} --keyfile {} --dlab_path {} --os_user {} --os_family {} --request_id {} \
+                 --resource {} --service_base_name {} --cloud_provider {} --mongo_parameters '{}'". \
+            format(instance_hostname, ssn_conf['ssh_key_path'], os.environ['ssn_dlab_path'], ssn_conf['dlab_ssh_user'],
+                   os.environ['conf_os_family'], os.environ['request_id'], os.environ['conf_resource'],
+                   ssn_conf['service_base_name'], os.environ['conf_cloud_provider'],  json.dumps(mongo_parameters))
+        try:
+            local("~/scripts/{}.py {}".format('configure_ui', params))
+        except:
+            traceback.print_exc()
+            raise Exception
+    except Exception as err:
+        append_result("Unable to configure UI.", str(err))
+        GCPActions().remove_instance(ssn_conf['instance_name'], ssn_conf['zone'])
+        GCPActions().remove_service_account(ssn_conf['service_account_name'])
+        GCPActions().remove_role(ssn_conf['role_name'])
+        GCPActions().remove_bucket(ssn_conf['ssn_bucket_name'])
+        GCPActions().remove_bucket(ssn_conf['shared_bucket_name'])
+        if pre_defined_firewall:
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-ingress')
+            GCPActions().remove_firewall(ssn_conf['firewall_name'] + '-egress')
+        if pre_defined_subnet:
+            GCPActions().remove_subnet(ssn_conf['subnet_name'], ssn_conf['region'])
+        if pre_defined_vpc:
+            GCPActions().remove_vpc(ssn_conf['vpc_name'])
+        sys.exit(1)
 
     try:
         logging.info('[SUMMARY]')
@@ -283,7 +285,7 @@ if __name__ == "__main__":
         print("Subnet Name: {}".format(ssn_conf['subnet_name']))
         print("Firewall Names: {}".format(ssn_conf['firewall_name']))
         print("SSN instance size: {}".format(ssn_conf['instance_size']))
-        print("SSN AMI name: {}".format(ssn_conf['ami_name']))
+        print("SSN AMI name: {}".format(ssn_conf['image_name']))
         print("SSN bucket name: {}".format(ssn_conf['ssn_bucket_name']))
         print("Region: {}".format(ssn_conf['region']))
         jenkins_url = "http://{}/jenkins".format(instance_hostname)
@@ -309,6 +311,7 @@ if __name__ == "__main__":
                    "security_id": ssn_conf['firewall_name'],
                    "instance_shape": ssn_conf['instance_size'],
                    "bucket_name": ssn_conf['ssn_bucket_name'],
+                   "shared_bucket_name": ssn_conf['shared_bucket_name'],
                    "region": ssn_conf['region'],
                    "action": "Create SSN instance"}
             f.write(json.dumps(res))

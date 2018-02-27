@@ -18,21 +18,32 @@ limitations under the License.
 
 package com.epam.dlab.automation.helper;
 
+import com.epam.dlab.automation.cloud.CloudException;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.amazonaws.services.ec2.model.Instance;
-import com.amazonaws.services.ec2.model.Tag;
-import com.epam.dlab.automation.aws.AmazonHelper;
-
 public class NamingHelper {
+	public static final String CLUSTER_ABSENT = "cluster_absent";
+	public static final String DATA_ENGINE = "dataengine";
+	public static final String DATA_ENGINE_SERVICE = "dataengine-service";
+	public static final String DEEPLEARNING = "deeplearning";
+	public static final String JUPYTER = "jupyter";
+	public static final String TENSOR = "tensor";
+	public static final String RSTUDIO = "rstudio";
+	public static final String ZEPPELIN = "zeppelin";
+
     private static AtomicInteger idCounter = new AtomicInteger(0);
     
     private static String serviceBaseName;
     private static String ssnURL;
     private static String ssnIp;
     private static String ssnToken;
+
+    private NamingHelper(){}
     
     public static String getServiceBaseName() {
     	return serviceBaseName;
@@ -83,32 +94,79 @@ public class NamingHelper {
     }
     
     public static String getEdgeName() {
-    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge");
+        switch (ConfigPropertyValue.getCloudProvider()) {
+            case CloudProvider.AWS_PROVIDER:
+				return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge");
+            case CloudProvider.AZURE_PROVIDER:
+			case CloudProvider.GCP_PROVIDER:
+				return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "edge")
+                        .replace('_', '-');
+			default:
+                return null;
+        }
     }
     
     public static String getNotebookInstanceName(String notebookName) {
-    	return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
+        switch (ConfigPropertyValue.getCloudProvider()) {
+            case CloudProvider.AWS_PROVIDER:
+				return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName);
+            case CloudProvider.AZURE_PROVIDER:
+			case CloudProvider.GCP_PROVIDER:
+				return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "nb", notebookName)
+                        .replace('_', '-');
+			default:
+                return null;
+        }
     }
     
     public static String getClusterInstanceName(String notebookName, String clusterName, String dataEngineType) {
-    	if("dataengine".equals(dataEngineType)) {
-    		return String.join("-", getClusterInstanceNameForTestEmr(notebookName,clusterName,dataEngineType), "m");
+		if (DATA_ENGINE.equals(dataEngineType)) {
+            switch (ConfigPropertyValue.getCloudProvider()) {
+                case CloudProvider.AWS_PROVIDER:
+					return String.join("-", getClusterInstanceNameForTestDES(notebookName, clusterName,
+							dataEngineType), "m");
+                case CloudProvider.AZURE_PROVIDER:
+				case CloudProvider.GCP_PROVIDER:
+					return String.join("-", getClusterInstanceNameForTestDES(notebookName, clusterName,
+							dataEngineType), "m").replace('_', '-');
+				default:
+                    return null;
+            }
     	}
     	else {
-    		return getClusterInstanceNameForTestEmr(notebookName,clusterName,dataEngineType);
+    		return getClusterInstanceNameForTestDES(notebookName,clusterName,dataEngineType);
     	}
     }
     
-    public static String getClusterInstanceNameForTestEmr(String notebookName, String clusterName, String dataEngineType) {
-    	if("dataengine".equals(dataEngineType)) {
-    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "de", notebookName, clusterName);
-    	}
-    	else {
-    		return String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(), "emr", notebookName, clusterName);
-    	}
+    public static String getClusterInstanceNameForTestDES(String notebookName, String clusterName, String dataEngineType) {
+        switch (ConfigPropertyValue.getCloudProvider()) {
+            case CloudProvider.AWS_PROVIDER:
+				return DATA_ENGINE.equals(dataEngineType) ?
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"de", notebookName, clusterName) :
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"des", notebookName, clusterName);
+
+            case CloudProvider.AZURE_PROVIDER:
+				return DATA_ENGINE.equals(dataEngineType) ?
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"de", notebookName, clusterName).replace('_', '-') :
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"des", notebookName, clusterName).replace('_', '-');
+
+			case CloudProvider.GCP_PROVIDER:
+				return DATA_ENGINE.equals(dataEngineType) ?
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"de", notebookName, clusterName).replace('_', '-') :
+						String.join("-", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+								"des", notebookName, clusterName, "m").replace('_', '-');
+			default:
+                return null;
+        }
+
     }
 
-    public static String getNotebookContainerName(String notebookName, String action) {
+	public static String getNotebookContainerName(String notebookName, String action) {
     	return String.join("_", ConfigPropertyValue.getUsernameSimple(), action, "exploratory", notebookName);
     }
     
@@ -118,7 +176,7 @@ public class NamingHelper {
     
     
     public static String generateRandomValue() {
-        SimpleDateFormat df = new SimpleDateFormat("YYYYMMddhmmss");
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddhmmss");
         return String.join("_",  "ITest", df.format(new Date()), String.valueOf(idCounter.incrementAndGet()));
     }
 
@@ -130,31 +188,83 @@ public class NamingHelper {
         return ssnURL + path;
     }
     
-    public static String getBucketName() {
-    	return String.format("%s-%s-bucket", serviceBaseName, ConfigPropertyValue.getUsernameSimple()).replace('_', '-').toLowerCase();
-    }
-    
-    public static String getClusterName(String clusterInstanceName) throws Exception {
-        Instance instance = AmazonHelper.getInstance(clusterInstanceName);
-        for (Tag tag : instance.getTags()) {
-			if (tag.getKey().equals("Name")) {
-		        return tag.getValue();
-			}
-		}
-        throw new Exception("Could not detect cluster name for cluster instance " + clusterInstanceName);
-    }
-
-    public static String getClusterName(String clusterInstanceName, String dataEngineType) throws Exception {
-        if ("dataengine".equals(dataEngineType)) {
-            return clusterInstanceName;
-        } else {
-            Instance instance = AmazonHelper.getInstance(clusterInstanceName);
-            for (Tag tag : instance.getTags()) {
-                if (tag.getKey().equals("Name")) {
-                    return tag.getValue();
-                }
-            }
-            throw new Exception("Could not detect cluster name for cluster instance " + clusterInstanceName);
+    public static String getStorageName() {
+        switch (ConfigPropertyValue.getCloudProvider()) {
+            case CloudProvider.AWS_PROVIDER:
+			case CloudProvider.GCP_PROVIDER:
+                return String.format("%s-%s-%s", serviceBaseName, ConfigPropertyValue.getUsernameSimple(),
+                        CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
+            case CloudProvider.AZURE_PROVIDER:
+                return String.format("%s-%s-%s", serviceBaseName, "shared",
+                        CloudHelper.getStorageNameAppendix()).replace('_', '-').toLowerCase();
+			default:
+                return null;
         }
     }
+
+	public static String getClusterName(String clusterInstanceName, String dataEngineType, boolean restrictionMode)
+			throws CloudException, IOException, GeneralSecurityException {
+		switch (ConfigPropertyValue.getCloudProvider()) {
+			case CloudProvider.AWS_PROVIDER:
+			case CloudProvider.AZURE_PROVIDER:
+				return DATA_ENGINE.equals(dataEngineType) ? clusterInstanceName :
+						CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode);
+
+			case CloudProvider.GCP_PROVIDER:
+				return DATA_ENGINE.equals(dataEngineType) ? clusterInstanceName :
+						CloudHelper.getGcpDataprocClusterName(
+								CloudHelper.getInstanceNameByCondition(clusterInstanceName, restrictionMode));
+			default:
+				return null;
+		}
+    }
+
+	public static String getNotebookTestTemplatesPath(String notebookName) {
+		if (notebookName.contains(DEEPLEARNING)) {
+            return "test_templates/deeplearning/";
+		} else if (notebookName.contains(JUPYTER)) {
+            return "test_templates/jupyter/";
+		} else if (notebookName.contains(RSTUDIO)) {
+            return "test_templates/rstudio/";
+		} else if (notebookName.contains(TENSOR)) {
+            return "test_templates/tensor/";
+		} else if (notebookName.contains(ZEPPELIN)) {
+            return "test_templates/zeppelin/";
+        }
+        else return "";
+
+    }
+
+    public static String getNotebookType(String notebookName){
+		if (notebookName.contains(DEEPLEARNING)) {
+			return DEEPLEARNING + "/";
+		} else if (notebookName.contains(JUPYTER)) {
+			return JUPYTER + "/";
+		} else if (notebookName.contains(RSTUDIO)) {
+			return RSTUDIO + "/";
+		} else if (notebookName.contains(TENSOR)) {
+			return TENSOR + "/";
+		} else if (notebookName.contains(ZEPPELIN)) {
+			return ZEPPELIN + "/";
+        }
+        else return "";
+
+    }
+
+	public static boolean isClusterRequired(String notebookName) {
+		if (notebookName.contains(DEEPLEARNING)) {
+			return false;
+		} else if (notebookName.contains(JUPYTER)) {
+			return true;
+		} else if (notebookName.contains(RSTUDIO)) {
+			return true;
+		} else if (notebookName.contains(TENSOR)) {
+			return false;
+		} else if (notebookName.contains(ZEPPELIN)) {
+			return true;
+		}
+		return true;
+	}
+
+
 }

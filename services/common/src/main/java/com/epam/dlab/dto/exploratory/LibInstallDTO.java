@@ -18,6 +18,7 @@
 
 package com.epam.dlab.dto.exploratory;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,40 +28,41 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LibInstallDTO {
-    @JsonProperty
-    private String group;
+	@JsonProperty
+	private String group;
 
-    @JsonProperty
-    private String name;
+	@JsonProperty
+	private String name;
 
-    @JsonProperty
-    private String version;
+	@JsonProperty
+	private String version;
 
-    @JsonProperty
-    private String status;
+	@JsonProperty
+	private String status;
 
-    @JsonProperty("error_message")
-    private String errorMessage;
+	@JsonProperty("error_message")
+	private String errorMessage;
 
-    public LibInstallDTO(String group, String name, String version) {
-        this.group = group;
-        this.name = name;
-        this.version = version;
-    }
+	public LibInstallDTO(String group, String name, String version) {
+		this.group = group;
+		this.name = name;
+		this.version = version;
+	}
 
-    public LibInstallDTO withName(String name) {
-        setName(name);
-        return this;
-    }
+	public LibInstallDTO withName(String name) {
+		setName(name);
+		return this;
+	}
 
-    public LibInstallDTO withStatus(String status) {
-        setStatus(status);
-        return this;
-    }
+	public LibInstallDTO withStatus(String status) {
+		setStatus(status);
+		return this;
+	}
 
-    public LibInstallDTO withErrorMessage(String errorMessage) {
-        setErrorMessage(errorMessage);
-        return this;
-    }
+	public LibInstallDTO withErrorMessage(String errorMessage) {
+		setErrorMessage(errorMessage);
+		return this;
+	}
 }

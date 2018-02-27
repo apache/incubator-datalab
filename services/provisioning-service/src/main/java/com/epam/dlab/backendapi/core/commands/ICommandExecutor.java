@@ -17,9 +17,9 @@
  ****************************************************************************/
 package com.epam.dlab.backendapi.core.commands;
 
-import java.util.List;
+import com.epam.dlab.process.ProcessInfo;
 
 public interface ICommandExecutor {
-    List<String> executeSync(String username, String uuid, String command) throws Exception;
+    ProcessInfo executeSync(String username, String uuid, String command) throws Exception;
     void executeAsync(String username, String uuid, String command);
 }

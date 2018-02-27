@@ -1,13 +1,14 @@
 {
-    "request_id":"RID",
+    "request_id": "RID",
     "conf_resource": "dataengine",
     "edge_user_name":"EUN",
-    "dataengine_instance_count":"EIC",
-    "azure_dataengine_master_size":"ADMS",
-    "azure_dataengine_slave_size":"ADSS",
+    "dataengine_instance_count": "EIC",
+    "azure_dataengine_master_size": "ADMS",
+    "azure_dataengine_slave_size": "ADSS",
     "azure_client_id": "ACI",
-    "azure_user_refresh_token":"AURT",
-    "notebook_instance_name":"NNM",
+    "azure_user_refresh_token": "AURT",
+    "notebook_instance_name": "NNM",
     "computational_name": "CNAM",
+    "notebook_image_name": "NIN",
     "application": "APP"
 }

@@ -45,7 +45,7 @@ public class EdgeCallbackHandler<E extends EdgeInfo, T extends UploadFileResult<
         return callbackURI;
     }
 
-    protected T parseOutResponse(JsonNode resultNode, T baseStatus) throws DlabException {
+    protected T parseOutResponse(JsonNode resultNode, T baseStatus) {
         if (resultNode != null && getAction() == DockerAction.CREATE
                 && UserInstanceStatus.of(baseStatus.getStatus()) != UserInstanceStatus.FAILED) {
             try {

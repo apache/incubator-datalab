@@ -29,27 +29,24 @@ import java.util.Optional;
 @Slf4j
 @Singleton
 public class SelfServiceSecurityAuthenticator extends SecurityRestAuthenticator {
-    private final EnvStatusListener envStatusListener;
+	private final EnvStatusListener envStatusListener;
 
-    @Inject
-    public SelfServiceSecurityAuthenticator(EnvStatusListener envStatusListener) {
-        this.envStatusListener = envStatusListener;
-    }
+	@Inject
+	public SelfServiceSecurityAuthenticator(EnvStatusListener envStatusListener) {
+		this.envStatusListener = envStatusListener;
+	}
 
-    @Override
-    public Optional<UserInfo> authenticate(String credentials) throws AuthenticationException {
-        Optional<UserInfo> userInfo = super.authenticate(credentials);
-
-        if (userInfo.isPresent()) {
-            UserInfo ui = userInfo.get();
-
-            // Touch session
-            UserInfo touched = envStatusListener.getSession(ui.getName());
-            if (touched == null) {
-                log.warn("Session does not exist for for env status listener {} {}", ui.getName(), ui.getAccessToken());
-            }
-        }
-
-        return userInfo;
-    }
+	@Override
+	public Optional<UserInfo> authenticate(String credentials) throws AuthenticationException {
+		Optional<UserInfo> userInfo = super.authenticate(credentials);
+		userInfo.ifPresent(ui -> {
+			// Touch session
+			UserInfo touched = envStatusListener.getSession(ui.getName());
+			if (touched == null) {
+				log.warn("Session does not exist for for env status listener {} {}",
+						ui.getName(), ui.getAccessToken());
+			}
+		});
+		return userInfo;
+	}
 }

@@ -34,6 +34,7 @@ parser.add_argument('--infra_tag_name', type=str, default='')
 parser.add_argument('--infra_tag_value', type=str, default='')
 parser.add_argument('--prefix', type=str, default='')
 parser.add_argument('--ssn', type=bool, default=False)
+parser.add_argument('--user_subnets_range', type=str, default='')
 args = parser.parse_args()
 
 
@@ -44,47 +45,71 @@ if __name__ == "__main__":
     else:
         tag = {"Key": args.infra_tag_name, "Value": "{}-{}-subnet".format(args.infra_tag_value, args.username)}
     try:
-        ec2 = boto3.resource('ec2')
-        private_subnet_size = ipaddress.ip_network(u'0.0.0.0/{}'.format(args.prefix)).num_addresses
-        vpc = ec2.Vpc(args.vpc_id)
-        vpc_cidr = vpc.cidr_block
-        first_vpc_ip = int(ipaddress.IPv4Address(vpc_cidr.split('/')[0].decode("utf-8")))
-        subnets = list(vpc.subnets.all())
-        subnets_cidr = []
-        for subnet in subnets:
-            subnets_cidr.append(subnet.cidr_block)
-        sortkey = lambda addr:\
-            (int(addr.split("/")[0].split(".")[0]),
-             int(addr.split("/")[0].split(".")[1]),
-             int(addr.split("/")[0].split(".")[2]),
-             int(addr.split("/")[0].split(".")[3]),
-             int(addr.split("/")[1]))
-        sorted_subnets_cidr = sorted(subnets_cidr, key=sortkey)
+        if args.user_subnets_range == '' or args.ssn:
+            ec2 = boto3.resource('ec2')
+            private_subnet_size = ipaddress.ip_network(u'0.0.0.0/{}'.format(args.prefix)).num_addresses
+            vpc = ec2.Vpc(args.vpc_id)
+            vpc_cidr = vpc.cidr_block
+            first_vpc_ip = int(ipaddress.IPv4Address(vpc_cidr.split('/')[0].decode("utf-8")))
+            subnets = list(vpc.subnets.all())
+            subnets_cidr = []
+            for subnet in subnets:
+                subnets_cidr.append(subnet.cidr_block)
+            sortkey = lambda addr:\
+                (int(addr.split("/")[0].split(".")[0]),
+                 int(addr.split("/")[0].split(".")[1]),
+                 int(addr.split("/")[0].split(".")[2]),
+                 int(addr.split("/")[0].split(".")[3]),
+                 int(addr.split("/")[1]))
+            sorted_subnets_cidr = sorted(subnets_cidr, key=sortkey)
 
-        last_ip = first_vpc_ip
-        previous_subnet_size = private_subnet_size
-        for cidr in sorted_subnets_cidr:
-            first_ip = int(ipaddress.IPv4Address(cidr.split('/')[0].decode("utf-8")))
-            if first_ip - last_ip < private_subnet_size or previous_subnet_size < private_subnet_size:
-                subnet_size = ipaddress.ip_network(u'{}'.format(cidr)).num_addresses
-                last_ip = first_ip + subnet_size - 1
-                previous_subnet_size = subnet_size
-            else:
-                break
-
-        dlab_subnet_cidr = ''
-        if previous_subnet_size < private_subnet_size:
-            while True:
-                try:
-                    dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
-                    ipaddress.ip_network(dlab_subnet_cidr.decode('utf-8'))
+            last_ip = first_vpc_ip
+            previous_subnet_size = private_subnet_size
+            for cidr in sorted_subnets_cidr:
+                first_ip = int(ipaddress.IPv4Address(cidr.split('/')[0].decode("utf-8")))
+                if first_ip - last_ip < private_subnet_size or previous_subnet_size < private_subnet_size:
+                    subnet_size = ipaddress.ip_network(u'{}'.format(cidr)).num_addresses
+                    last_ip = first_ip + subnet_size - 1
+                    previous_subnet_size = subnet_size
+                else:
                     break
-                except ValueError:
-                    last_ip = last_ip + 2
-                    continue
-        else:
-            dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
 
+            dlab_subnet_cidr = ''
+            if previous_subnet_size < private_subnet_size:
+                while True:
+                    try:
+                        dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
+                        ipaddress.ip_network(dlab_subnet_cidr.decode('utf-8'))
+                        break
+                    except ValueError:
+                        last_ip = last_ip + 2
+                        continue
+            else:
+                dlab_subnet_cidr = '{0}/{1}'.format(ipaddress.ip_address(last_ip + 1), args.prefix)
+        else:
+            pre_defined_subnet_list = []
+            subnet_count = int(args.user_subnets_range.split('-')[1].replace(' ', '').split('.')[2]) - int(
+                args.user_subnets_range.split('-')[0].replace(' ', '').split('.')[2])
+            subnet_cidr = args.user_subnets_range.split('-')[0].replace(' ', '')
+            pre_defined_subnet_list.append(subnet_cidr)
+            for i in range(subnet_count):
+                subnet = ipaddress.ip_network(u'{}'.format(subnet_cidr))
+                num_addr = subnet.num_addresses
+                first_ip = int(ipaddress.IPv4Address(u'{}'.format(subnet.network_address)))
+                next_subnet = ipaddress.ip_network(u'{}/24'.format(ipaddress.ip_address(first_ip + num_addr)))
+                pre_defined_subnet_list.append(next_subnet.compressed)
+                subnet_cidr = next_subnet
+            existed_subnet_list = []
+            client = boto3.client('ec2')
+            response = client.describe_subnets(Filters=[{'Name': 'vpc-id', 'Values': [args.vpc_id]}]).get('Subnets')
+            for i in response:
+                existed_subnet_list.append(i.get('CidrBlock'))
+            available_subnets = list(set(pre_defined_subnet_list) - set(existed_subnet_list))
+            if not available_subnets:
+                print("There is no available subnet to create. Aborting...")
+                sys.exit(1)
+            else:
+                dlab_subnet_cidr = available_subnets[0]
         if args.ssn:
             subnet_id = get_subnet_by_cidr(dlab_subnet_cidr, args.vpc_id)
             subnet_check = get_subnet_by_tag(tag, False, args.vpc_id)
@@ -93,7 +118,7 @@ if __name__ == "__main__":
             subnet_check = get_subnet_by_tag(tag)
         if not subnet_check:
             if subnet_id == '':
-                print("Creating subnet (0) in vpc (1) with tag (2)".
+                print("Creating subnet {0} in vpc {1} with tag {2}".
                       format(dlab_subnet_cidr, args.vpc_id, json.dumps(tag)))
                 subnet_id = create_subnet(args.vpc_id, dlab_subnet_cidr, tag)
         else:

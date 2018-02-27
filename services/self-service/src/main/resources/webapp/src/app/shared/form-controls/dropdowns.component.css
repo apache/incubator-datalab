@@ -99,7 +99,7 @@ limitations under the License.
 .dropdown-list .list-menu a,
 .dropdown-multiselect .list-menu li a {
   display: block;
-  padding: 12px;
+  padding: 10px;
   padding-left: 15px;
   position: relative;
   font-weight: 300;
@@ -176,6 +176,9 @@ limitations under the License.
   position: relative;
   font-weight: 300;
   cursor: pointer;
+}
+.dropdown-list .list-menu a.empty {
+  height: 36px;
 }
 
 .dropdown-multiselect .list-menu .filter-actions i {

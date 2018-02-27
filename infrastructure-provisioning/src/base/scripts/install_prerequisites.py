@@ -32,7 +32,7 @@ import os
 parser = argparse.ArgumentParser()
 parser.add_argument('--hostname', type=str, default='')
 parser.add_argument('--keyfile', type=str, default='')
-parser.add_argument('--pip_packages', type=str, default='boto3 argparse fabric awscli google-api-python-client google-auth-httplib2 google-cloud-storage pycrypto azure')
+parser.add_argument('--pip_packages', type=str, default='boto3 argparse fabric awscli google-api-python-client google-auth-httplib2 google-cloud-storage pycrypto azure==2.0.0')
 parser.add_argument('--additional_config', type=str, default='{"empty":"string"}')
 parser.add_argument('--user', type=str, default='')
 parser.add_argument('--region', type=str, default='')

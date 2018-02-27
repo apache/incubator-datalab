@@ -17,6 +17,11 @@
                     <artifactId>billing-aws</artifactId>
                     <version>${project.parent.version}</version>
                 </dependency>
+                <dependency>
+                    <groupId>com.epam.dlab</groupId>
+                    <artifactId>security-aws</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
             </dependencies>
         </profile>
         <profile>
@@ -34,12 +39,29 @@
                 </dependency>
             </dependencies>
         </profile>
+
+        <profile>
+            <id>gcp</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.epam.dlab</groupId>
+                    <artifactId>billing-gcp</artifactId>
+                    <version>${project.parent.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.epam.dlab</groupId>
+                    <artifactId>security-gcp</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
     <artifactId>self-service</artifactId>
 
     <properties>
         <org.glassfish.jersey.media.version>2.23.1</org.glassfish.jersey.media.version>
+        <com.fiestacabin.dropwizard.quartz.version>0.7.1</com.fiestacabin.dropwizard.quartz.version>
     </properties>
 
     <dependencies>
@@ -51,6 +73,18 @@
         <dependency>
             <groupId>com.epam.dlab</groupId>
             <artifactId>security-azure</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>security-aws</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.epam.dlab</groupId>
+            <artifactId>security-gcp</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -85,6 +119,12 @@
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
             <version>${org.glassfish.jersey.media.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fiestacabin.dropwizard.quartz</groupId>
+            <artifactId>dropwizard-quartz</artifactId>
+            <version>${com.fiestacabin.dropwizard.quartz.version}</version>
         </dependency>
     </dependencies>
 
