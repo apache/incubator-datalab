@@ -480,3 +480,15 @@ def update_pyopenssl_lib():
         sudo('pip2 install -U pyopenssl')
     except:
         sys.exit(1)
+
+
+def find_cluster_kernels():
+    try:
+        with settings(sudo_user='root'):
+            de = [i for i in sudo('find /opt/ -maxdepth 1 -name "*-de-*" -type d | rev | '
+                                  'cut -f 1 -d "/" | rev | xargs -r').split(' ') if i != '']
+            des =  [i for i in sudo('find /opt/ -maxdepth 2 -name "*-des-*" -type d | rev | '
+                                    'cut -f 1,2 -d "/" | rev | xargs -r').split(' ') if i != '']
+        return (de, des)
+    except:
+        sys.exit(1)
