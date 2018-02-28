@@ -33,6 +33,7 @@ import com.epam.dlab.automation.test.libs.TestLibInstallStep;
 import com.epam.dlab.automation.test.libs.TestLibListStep;
 import com.epam.dlab.automation.test.libs.models.*;
 import com.jayway.restassured.response.Response;
+import com.jayway.restassured.response.ResponseBody;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
@@ -151,6 +152,11 @@ public class TestCallable implements Callable<Boolean> {
 		try {
 			createNotebook(notebookNameForImageCreation);
 			libsInstall(notebookNameForImageCreation);
+
+
+			createMachineImageFromNotebook(notebookNameForImageCreation, "TestImage",
+					"Machine image for testing", HttpStatusCode.ACCEPTED,
+					"Machine image creation wasn't successful!");
 
 			terminateNotebook(notebookNameForImageCreation);
 
@@ -289,6 +295,18 @@ public class TestCallable implements Callable<Boolean> {
 		LOGGER.info("   Notebook {} IP is {}", notebookName, notebookIp);
 
 		return notebookIp;
+	}
+
+	private ResponseBody<?> createMachineImageFromNotebook(String notebookName, String imageName, String description,
+														   int expectedStatusCode, String errorMessage) {
+		final String ssnImageCreationURL = NamingHelper.getSelfServiceURL(ApiPath.IMAGE_CREATION);
+		ExploratoryImageDto requestBody = new ExploratoryImageDto(notebookName, imageName, description);
+		Response response = new HttpRequest().webApiPost(ssnImageCreationURL, ContentType.JSON, requestBody,
+				NamingHelper.getSsnToken());
+		LOGGER.info("   image creation response body for notebook {} is {}", notebookName, response.getBody().asString
+				());
+		Assert.assertEquals(response.statusCode(), expectedStatusCode, errorMessage);
+		return response.getBody();
 	}
 
 	private List<Lib> fetchLibrariesToInstall(String explName, LibToSearchData libToSearchData)
