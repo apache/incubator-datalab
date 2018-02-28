@@ -87,6 +87,7 @@ if __name__ == "__main__":
     tag = {"Key": notebook_config['tag_name'],
            "Value": "{}-{}-subnet".format(notebook_config['service_base_name'], os.environ['edge_user_name'])}
     notebook_config['subnet_cidr'] = get_subnet_by_tag(tag)
+    keyfile_name = "{}{}.pem".format(os.environ['conf_key_dir'], os.environ['conf_key_name'])
 
     with open('/root/result.json', 'w') as f:
         data = {"notebook_name": notebook_config['instance_name'], "error": ""}
@@ -110,3 +111,4 @@ if __name__ == "__main__":
     except Exception as err:
         append_result("Failed to create instance.", str(err))
         sys.exit(1)
+
