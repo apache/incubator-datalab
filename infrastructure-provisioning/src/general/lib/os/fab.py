@@ -472,14 +472,15 @@ def replace_multi_symbols(string, symbol, symbol_cut=False):
         traceback.print_exc(file=sys.stdout)
 
 
-def update_pyopenssl_lib():
-    try:
-        print("Updating pyOpenssl lib")
-        if exists('/usr/bin/pip3'):
-            sudo('pip3 install -U pyopenssl')
-        sudo('pip2 install -U pyopenssl')
-    except:
-        sys.exit(1)
+def update_pyopenssl_lib(os_user):
+    if not exists('/home/{}/.ensure_dir/pyopenssl_updated'.format(os_user)):
+        try:
+            if exists('/usr/bin/pip3'):
+                sudo('pip3 install -U pyopenssl')
+            sudo('pip2 install -U pyopenssl')
+            sudo('touch /home/{}/.ensure_dir/pyopenssl_updated'.format(os_user))
+        except:
+            sys.exit(1)
 
 
 def find_cluster_kernels():

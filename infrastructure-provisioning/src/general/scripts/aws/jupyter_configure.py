@@ -180,16 +180,18 @@ if __name__ == "__main__":
     try:
         logging.info('[POST CONFIGURING PROCESS]')
         print('[POST CONFIGURING PROCESS')
-        params = "--hostname {} --keyfile {} --os_user {} --nb_tag_name {} --nb_tag_value {}" \
-            .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'],
-                    notebook_config['tag_name'], notebook_config['instance_name'])
-        try:
-            local("~/scripts/{}.py {}".format('common_remove_remote_kernels', params))
-        except:
-            traceback.print_exc()
-            raise Exception
+        if notebook_config['notebook_image_name'] not in [notebook_config['expected_image_name'], 'None']:
+            params = "--hostname {} --keyfile {} --os_user {} --nb_tag_name {} --nb_tag_value {}" \
+                .format(instance_hostname, keyfile_name, notebook_config['dlab_ssh_user'],
+                        notebook_config['tag_name'], notebook_config['instance_name'])
+            try:
+                local("~/scripts/{}.py {}".format('common_remove_remote_kernels', params))
+            except:
+                traceback.print_exc()
+                raise Exception
     except Exception as err:
         append_result("Failed to post configuring instance.", str(err))
+        remove_ec2(notebook_config['tag_name'], notebook_config['instance_name'])
         sys.exit(1)
 
     if notebook_config['shared_image_enabled'] == 'true':
