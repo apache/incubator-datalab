@@ -6,6 +6,7 @@ import com.epam.dlab.backendapi.dao.ComputationalDAO;
 import com.epam.dlab.backendapi.dao.ExploratoryDAO;
 import com.epam.dlab.backendapi.dao.GitCredsDAO;
 import com.epam.dlab.backendapi.dao.ImageExploratoryDao;
+import com.epam.dlab.backendapi.domain.RequestId;
 import com.epam.dlab.backendapi.service.ExploratoryService;
 import com.epam.dlab.backendapi.util.RequestBuilder;
 import com.epam.dlab.constants.ServiceConsts;
@@ -69,8 +70,10 @@ public class ExploratoryServiceImpl implements ExploratoryService {
 			isAdded = true;
 			final ExploratoryGitCredsDTO gitCreds = gitCredsDAO.findGitCreds(userInfo.getName());
 			log.debug("Created exploratory environment {} for user {}", exploratory.getName(), userInfo.getName());
-			return provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), RequestBuilder
+			final String uuid = provisioningService.post(EXPLORATORY_CREATE, userInfo.getAccessToken(), RequestBuilder
 					.newExploratoryCreate(exploratory, userInfo, gitCreds), String.class);
+			RequestId.put(userInfo.getName(), uuid);
+			return uuid;
 		} catch (Exception t) {
 			log.error("Could not update the status of exploratory environment {} with name {} for user {}",
 					exploratory.getDockerImage(), exploratory.getName(), userInfo.getName(), t);
