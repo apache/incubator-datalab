@@ -193,10 +193,12 @@ if __name__ == "__main__":
     # INSTALL LANGUAGES
     print("Install Java")
     ensure_jre_jdk(args.os_user)
-    print("Installing Scala")
-    ensure_scala(scala_link, args.scala_version, args.os_user)
-    print("Installing R")
-    ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
+    if os.environ['notebook_scala_enabled'] == 'true':
+        print("Installing Scala")
+        ensure_scala(scala_link, args.scala_version, args.os_user)
+    if os.environ['notebook_r_enabled'] == 'true':
+        print("Installing R")
+        ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
     print("Install Python 2 modules")
     ensure_python2_libraries(args.os_user)
     print("Install Python 3 modules")
@@ -237,8 +239,9 @@ if __name__ == "__main__":
     sudo('cp /home/{}/.git/templates/hooks/pre-commit /opt/zeppelin/notebook/.git/hooks/'.format(args.os_user))
 
     # INSTALL OPTIONAL PACKAGES
-    print("Install additional R packages")
-    install_r_packages(args.os_user)
+    if os.environ['notebook_r_enabled'] == 'true':
+        print("Install additional R packages")
+        install_r_packages(args.os_user)
     print("Install additional Python packages")
     ensure_additional_python_libs(args.os_user)
     print("Install Matplotlib.")

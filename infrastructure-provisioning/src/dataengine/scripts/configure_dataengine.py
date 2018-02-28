@@ -106,7 +106,9 @@ if __name__ == "__main__":
     if os.environ['application'] in ('jupyter', 'zeppelin'):
         print("Install Scala")
         ensure_scala(scala_link, args.scala_version, args.os_user)
-    if os.environ['application'] in ('jupyter', 'zeppelin', 'rstudio'):
+    if (os.environ['application'] in ('jupyter', 'zeppelin')
+        and os.environ['notebook_r_enabled'] == 'true') \
+            or os.environ['application'] == 'rtsudio':
         print("Installing R")
         ensure_r(args.os_user, r_libs, args.region, args.r_mirror)
     print("Install Python 2 modules")
@@ -161,11 +163,12 @@ if __name__ == "__main__":
         ensure_additional_python_libs(args.os_user)
         print("Install matplotlib")
         ensure_matplot(args.os_user)
-    if os.environ['application'] == 'jupyter':
+    if os.environ['application'] == 'jupyter' and os.environ['notebook_scala_enabled'] == 'true':
         print("Install SBT")
         ensure_sbt(args.os_user)
         print("Install Breeze")
         add_breeze_library_local(args.os_user)
-    if os.environ['application'] == 'zeppelin':
+    if os.environ['application'] == 'zeppelin'\
+            and os.environ['notebook_r_enabled'] == 'true':
         print("Install additional R packages")
         install_r_packages(args.os_user)
